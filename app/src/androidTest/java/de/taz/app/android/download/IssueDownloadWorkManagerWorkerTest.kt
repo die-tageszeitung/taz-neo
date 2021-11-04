@@ -7,7 +7,7 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.dto.Cycle
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
@@ -114,7 +114,7 @@ class IssueDownloadWorkManagerWorkerTest {
                 eq(false)
             )
         ).thenReturn(
-            IssueTestUtil.getIssue()
+            TestDataUtil.getIssue()
         )
 
         `when`(
@@ -147,7 +147,7 @@ class IssueDownloadWorkManagerWorkerTest {
     @Test
     fun pollNewIssue() = runBlocking {
         `when`(mockDataService.refreshFeedAndGetIssueKeyIfNew(any(String::class.java))).thenReturn(
-            IssueTestUtil.getIssue().issueKey
+            TestDataUtil.getIssue().issueKey
         )
         `when`(
             mockDataService.getMoment(

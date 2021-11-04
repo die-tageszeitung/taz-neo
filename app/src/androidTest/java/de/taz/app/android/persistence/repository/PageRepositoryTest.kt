@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
@@ -21,7 +21,7 @@ class PageRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var pageRepository: PageRepository
 
-    private val issue = IssueTestUtil.getIssue()
+    private val issue = TestDataUtil.getIssue()
     private val pages = issue.pageList
     private val page = pages.first()
 

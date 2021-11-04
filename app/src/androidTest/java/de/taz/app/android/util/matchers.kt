@@ -13,6 +13,13 @@ import org.mockito.Mockito
  */
 fun <T> any(type: Class<T>): T = Mockito.any(type)
 
+
+/**
+ * eq() implementation that is compatible with kotlin typechecker
+ */
+fun <T> eq(type: T): T = Mockito.eq(type)
+
+
 fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?> {
 
     return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {

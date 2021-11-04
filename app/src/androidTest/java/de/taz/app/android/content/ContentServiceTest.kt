@@ -2,17 +2,23 @@ package de.taz.app.android.content
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheOperationItem
 import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.util.any
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doReturn
 import org.mockito.junit.MockitoJUnitRunner
 import java.io.IOException
 
@@ -54,17 +60,42 @@ class ContentServiceTest {
         }
     }
 
+    private val testIssue = TestDataUtil.getIssue()
+
+    @Mock
+    private lateinit var mockApiService: ApiService
+
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
+        ApiService.inject(mockApiService)
+
         contentService = ContentService.getInstance(context)
         issueRepository = IssueRepository.getInstance(context)
+
+
+        runBlocking {
+            // stupid replication of the retry on connection failure method
+            `when`(mockApiService.retryOnConnectionFailure(
+                any(Function::class.java) as suspend () -> Unit,
+                any(Function::class.java) as suspend () -> Any
+            )).then {
+                runBlocking { (it.arguments[1] as suspend () -> Any).invoke() }
+            }
+
+            doReturn(testIssue)
+                .`when`(mockApiService).getIssueByPublication(
+                    any(IssuePublication::class.java)
+                )
+            doReturn(TestDataUtil.getResourceInfo())
+                .`when`(mockApiService).getResourceInfo()
+        }
+
     }
 
     @Test
     fun retrieveIssueWithNoConnectionIssues() {
         FileDownloader.inject(reliableTestDownloader)
-        val testIssue = IssueTestUtil.getIssue()
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 
         // Call to content service ends without exception
@@ -78,7 +109,6 @@ class ContentServiceTest {
     @Test
     fun retrieveIssueWithExceptions() {
         FileDownloader.inject(catastrophicTestDownloader)
-        val testIssue = IssueTestUtil.getIssue()
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 
         // Call to content service produces exception
@@ -94,7 +124,7 @@ class ContentServiceTest {
     @Test
     fun retrieveIssueWithSomeExceptions() {
         FileDownloader.inject(oneFileFailedDownloader)
-        val testIssue = IssueTestUtil.getIssue()
+        val testIssue = TestDataUtil.getIssue()
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 
         // Call to content service produces exception

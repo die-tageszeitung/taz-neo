@@ -3,7 +3,7 @@ package de.taz.app.android.api.models
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -21,7 +21,7 @@ class SectionTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
-    private val issue = IssueTestUtil.getIssue()
+    private val issue = TestDataUtil.getIssue()
     private val sections = issue.sectionList
     private val section = sections.first()
 
