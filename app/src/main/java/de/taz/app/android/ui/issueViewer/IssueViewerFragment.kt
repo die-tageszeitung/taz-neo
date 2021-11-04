@@ -49,7 +49,6 @@ class IssueViewerFragment :
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var contentService: ContentService
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -72,7 +71,6 @@ class IssueViewerFragment :
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
-        contentService = ContentService.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
