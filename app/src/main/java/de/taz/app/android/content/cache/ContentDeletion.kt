@@ -41,30 +41,24 @@ class ContentDeletion(
             tag: String
         ): ContentDeletion = withContext(Dispatchers.IO) {
             val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-            val filesToDelete = collection.getAllFiles()
-                .map { it.name }
-                .let {
-                    // Authors may belong to multiple articles. Deleting those would
-                    // affect other article's resources as well 💩
-                    fileEntryRepository.filterFilesThatBelongToAnAuthor(
-                        it
+            val filesToDelete = fileEntryRepository.filterFilesThatBelongToAnAuthor(
+                collection.getAllFiles().map { it.name }
+            )
+            val fileCacheItems = filesToDelete.map {
+                FileCacheItem(
+                    it.name,
+                    { DownloadPriority.Normal },
+                    FileEntryOperation(
+                        it,
+                        null,  // We don't need the destination for deletion
+                        null  // We don't need the origin for deletion
                     )
-                }
-                .map {
-                    FileCacheItem(
-                        it.name,
-                        { DownloadPriority.Normal },
-                        FileEntryOperation(
-                            it,
-                            null,  // We don't need the destination for deletion
-                            null  // We don't need the origin for deletion
-                        )
-                    )
-                }
+                )
+            }
 
             return@withContext ContentDeletion(
                 applicationContext,
-                filesToDelete,
+                fileCacheItems,
                 collection,
                 tag
             )
