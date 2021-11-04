@@ -115,6 +115,10 @@ class PageRepository private constructor(applicationContext: Context) :
         fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
     }
 
+    fun deleteIfNoIssueRelated(pages: List<Page>) {
+        appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pagePdf.name })
+    }
+
     fun getDownloadDate(page: Page): Date? {
         return appDatabase.pageDao().getDownloadDate(page.pagePdf.name)
     }
