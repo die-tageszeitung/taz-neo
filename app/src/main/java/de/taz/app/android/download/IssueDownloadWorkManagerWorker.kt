@@ -54,17 +54,6 @@ class IssueDownloadWorkManagerWorker(
                 return@coroutineScope Result.success()
             } else {
                 contentService.downloadToCacheIfNotPresent(newestIssueKey, isAutomaticDownload = true)
-                // pre download moment too
-                val moment = dataService.getMoment(IssuePublication(newestIssueKey)) ?: run {
-                    val hint = "Did not find moment for issue at ${newestIssueKey.date}"
-                    Sentry.captureMessage(hint)
-                    log.error(hint)
-                    return@coroutineScope Result.failure()
-                }
-                contentService.downloadToCacheIfNotPresent(
-                    moment
-                )
-
                 log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()
             }
