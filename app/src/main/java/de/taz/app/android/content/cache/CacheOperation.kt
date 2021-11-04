@@ -24,14 +24,14 @@ import kotlin.coroutines.suspendCoroutine
  * Class representing a chunk of items that are part of some cached content that
  * are processed in some error prone, asynchronous operation. (Downloading, storing, erasing).
  * It implements function informing about progress and outcome of individual and overall (sub)-operations
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param items The items that are to be downloaded or deleted in this operation.
  * @param targetState The state of the cache after this operation succeeded
  * @param tag The tag used for registering this operation
  * @param priority The priority used while downloading files belonging to this operation
  */
 abstract class CacheOperation<ITEM : CacheItem, RESULT>(
-    val context: Context,
+    val applicationContext: Context,
     private val items: List<ITEM>,
     private val targetState: CacheState,
     val tag: String,
@@ -60,8 +60,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     }
 
     val log by Log
-    protected val dataService = DataService.getInstance(context)
-    protected val issueRepository = IssueRepository.getInstance(context)
+    protected val dataService = DataService.getInstance(applicationContext)
+    protected val issueRepository = IssueRepository.getInstance(applicationContext)
 
     /**
      * The loading state is different for each discrete implementaion of [CacheOperation]

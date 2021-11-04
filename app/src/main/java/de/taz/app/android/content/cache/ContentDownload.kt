@@ -21,44 +21,44 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * Cache operation downloading the files related to the collection [collection]
  *
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param items The [FileCacheItem]s representing all files that should be downloaded
  * @param tag A tag on which this operation should be registered
  * @param collection The collection the content of which should be downloaded
  * @param priority The priority that will be passed to the files that are to be downloaded
  */
 class ContentDownload(
-    context: Context,
+    applicationContext: Context,
     items: List<FileCacheItem>,
     tag: String,
     private val collection: DownloadableCollection?,
     priority: DownloadPriority
 ) : CacheOperation<FileCacheItem, Unit>(
-    context, items, CacheState.PRESENT, tag, priority
+    applicationContext, items, CacheState.PRESENT, tag, priority
 ) {
     override val loadingState: CacheState = CacheState.LOADING_CONTENT
-    private val fileDownloader = FileDownloader.getInstance(context)
+    private val fileDownloader = FileDownloader.getInstance(applicationContext)
 
     companion object {
         /**
          * Preparing a [ContentDownload] object by determining the list of files
          * that need to be downloaded and its origin url and destination path.
          *
-         * @param context An android context object
+         * @param applicationContext An android application context object
          * @param collection The collection the content of which should be downloaded
          * @param priority The priority that will be passed to the files that are to be downloaded
          */
         suspend fun prepare(
-            context: Context,
+            applicationContext: Context,
             collection: DownloadableCollection,
             priority: DownloadPriority
         ): ContentDownload {
-            val storagePathService = StoragePathService.getInstance(context)
+            val storagePathService = StoragePathService.getInstance(applicationContext)
             val tag = collection.getDownloadTag()
-            val storageDataStore = StorageDataStore.getInstance(context)
-            val storageService = StorageService.getInstance(context)
+            val storageDataStore = StorageDataStore.getInstance(applicationContext)
+            val storageService = StorageService.getInstance(applicationContext)
             val storageLocation = storageDataStore.storageLocation.get()
-            val fileEntryRepository = FileEntryRepository.getInstance(context)
+            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
             val prioritizedDownloads = collection.getAllFiles()
                 .map {
                     // Set the storage type to the currently selected storage
@@ -83,7 +83,7 @@ class ContentDownload(
                     )
                 }
             return ContentDownload(
-                context,
+                applicationContext,
                 prioritizedDownloads,
                 tag,
                 collection,
@@ -149,7 +149,7 @@ class ContentDownload(
                     override fun onSuccess(result: Unit) {
                         CoroutineScope(Dispatchers.IO).launch {
                             // Set a download date to collection after completion (if available)
-                            collection?.setDownloadDate(Date(), context)
+                            collection?.setDownloadDate(Date(), applicationContext)
                             continuation.resume(Unit)
                         }
                     }

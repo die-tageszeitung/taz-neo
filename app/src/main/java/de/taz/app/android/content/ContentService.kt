@@ -26,12 +26,12 @@ import java.util.*
  */
 @Mockable
 class ContentService(
-    private val context: Context
+    private val applicationContext: Context
 ) {
 
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
-    private val issueRepository = IssueRepository.getInstance(context)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
 
@@ -101,7 +101,7 @@ class ContentService(
     suspend fun getCacheState(observableDownload: ObservableDownload): CacheStateUpdate =
         withContext(Dispatchers.IO) {
             val isDownloaded = when (observableDownload) {
-                is DownloadableCollection -> observableDownload.isDownloaded(context)
+                is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
                 is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
                 else -> false
             }
@@ -157,7 +157,7 @@ class ContentService(
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false
     ) = withContext(Dispatchers.IO) {
-        if (!collection.isDownloaded(context)) {
+        if (!collection.isDownloaded(applicationContext)) {
             downloadToCache(collection, priority, isAutomaticDownload)
         }
     }
@@ -177,7 +177,7 @@ class ContentService(
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(
-            context,
+            applicationContext,
             download,
             isAutomaticDownload,
             priority,
@@ -197,7 +197,7 @@ class ContentService(
         download: ObservableDownload
     ): DownloadableStub {
         return MetadataDownload
-            .prepare(context, download, download.getDownloadTag(), allowCache = true)
+            .prepare(applicationContext, download, download.getDownloadTag(), allowCache = true)
             .execute()
     }
 
@@ -213,9 +213,9 @@ class ContentService(
         baseUrl: String,
         priority: DownloadPriority = DownloadPriority.Normal
     ) {
-        if (fileEntry.getDownloadDate(context) == null) {
+        if (fileEntry.getDownloadDate(applicationContext) == null) {
             ContentDownload
-                .prepare(context, fileEntry, baseUrl, priority)
+                .prepare(applicationContext, fileEntry, baseUrl, priority)
                 .execute()
         }
     }
@@ -233,7 +233,7 @@ class ContentService(
             is IssueKey -> issueRepository.get(issueKey)
             else -> null
         } ?: throw NotFoundException("Issue not found")
-        val deletion = IssueDeletion.prepare(context, issue, determineParentTag(issueKey))
+        val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
         deletion.execute()
     }
 
@@ -243,6 +243,6 @@ class ContentService(
      * @param collection The collection the content of which should be deleted
      */
     suspend fun deleteContent(collection: DownloadableCollection) = withContext(Dispatchers.IO) {
-        ContentDeletion.prepare(context, collection, collection.getDownloadTag()).execute()
+        ContentDeletion.prepare(applicationContext, collection, collection.getDownloadTag()).execute()
     }
 }

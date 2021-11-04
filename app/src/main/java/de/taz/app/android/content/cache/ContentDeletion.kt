@@ -11,36 +11,36 @@ import kotlinx.coroutines.withContext
 /**
  * Cache operation deleting the files related to the collection [collection]
  *
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param items The [FileEntryOperation] representing all files that should be deleted
  * @param collection The collection the content of which should be deleted
  * @param tag A tag on which this operation should be registered
  */
 class ContentDeletion(
-    context: Context,
+    applicationContext: Context,
     items: List<FileCacheItem>,
     private val collection: DownloadableCollection,
     tag: String,
 ) : CacheOperation<FileCacheItem, Unit>(
-    context, items, CacheState.METADATA_PRESENT, tag
+    applicationContext, items, CacheState.METADATA_PRESENT, tag
 ) {
-    val storageService = StorageService.getInstance(context)
+    val storageService = StorageService.getInstance(applicationContext)
     override val loadingState: CacheState = CacheState.DELETING_CONTENT
 
     companion object {
         /**
          * Prepare the deletion by collecting all [de.taz.app.android.api.models.FileEntry] belonging to
          * the [collection]. Filter out files that might be worth to retain.
-         * @param context An android context object
+         * @param applicationContext An android application context object
          * @param collection The collection the content of which should be deleted
          * @param tag A tag on which this operation should be registered
          */
         suspend fun prepare(
-            context: Context,
+            applicationContext: Context,
             collection: DownloadableCollection,
             tag: String
         ): ContentDeletion = withContext(Dispatchers.IO) {
-            val fileEntryRepository = FileEntryRepository.getInstance(context)
+            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
             val filesToDelete = collection.getAllFiles()
                 .map { it.name }
                 .let {
@@ -63,7 +63,7 @@ class ContentDeletion(
                 }
 
             return@withContext ContentDeletion(
-                context,
+                applicationContext,
                 filesToDelete,
                 collection,
                 tag
@@ -75,7 +75,7 @@ class ContentDeletion(
         notifyStart()
         // Reset the collection download date immediately. Even if the deletion has issues it's
         // better to assume the content deleted
-        collection.setDownloadDate(null, context)
+        collection.setDownloadDate(null, applicationContext)
         try {
             for (item in cacheItems) {
                 storageService.deleteFile(item.item.fileEntryOperation.fileEntry)

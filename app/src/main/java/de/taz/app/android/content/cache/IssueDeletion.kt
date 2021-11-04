@@ -2,25 +2,23 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.models.AbstractIssue
-import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 
 /**
  * A [CacheOperation] composed of a [ContentDeletion] and subsequent [MetadataDeletion]
  * of an [AbstractIssue].
  *
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param issue The issue that should be deleted (both contents and metadata)
  * @param tag The tag on which this operation should be registered
  */
 class IssueDeletion(
-    context: Context,
+    applicationContext: Context,
     val items: List<SubOperationCacheItem>,
     val issue: AbstractIssue,
     tag: String
 ) : CacheOperation<SubOperationCacheItem, Unit>(
-    context,
+    applicationContext,
     items,
     CacheState.ABSENT,
     tag
@@ -29,18 +27,18 @@ class IssueDeletion(
 
     companion object {
         /**
-         * @param context An android context object
+         * @param applicationContext An android application context object
          * @param issue The issue that should be deleted (both contents and metadata)
          * @param tag The tag on which this operation should be registered
          */
-        suspend fun prepare(
-            context: Context,
+        fun prepare(
+            applicationContext: Context,
             issue: AbstractIssue,
             tag: String
         ): IssueDeletion {
 
             return IssueDeletion(
-                context,
+                applicationContext,
                 emptyList(),
                 issue,
                 tag
@@ -50,10 +48,10 @@ class IssueDeletion(
 
     override suspend fun doWork() {
         notifyStart()
-        issue.setDownloadDate(null, context)
+        issue.setDownloadDate(null, applicationContext)
         val collectionsToDeleteContent =
             listOfNotNull(issue.imprint) + issue.sectionList + issue.getArticles() + issue.pageList
-        val issueMetadataDeletion = MetadataDeletion.prepare(context, issue)
+        val issueMetadataDeletion = MetadataDeletion.prepare(applicationContext, issue)
         val issueMetadataDeletionCacheItem = SubOperationCacheItem(
             issueMetadataDeletion.tag,
             { DownloadPriority.Normal },
@@ -65,7 +63,7 @@ class IssueDeletion(
                     it.getDownloadTag(),
                     { DownloadPriority.Normal },
                     ContentDeletion.prepare(
-                        context,
+                        applicationContext,
                         it,
                         it.getDownloadTag()
                     )

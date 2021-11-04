@@ -7,7 +7,6 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
-import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -28,42 +27,42 @@ import java.util.*
  * @param tag The tag to be used for this operation
  */
 class WrappedDownload(
-    context: Context,
+    applicationContext: Context,
     val parent: ObservableDownload,
     val items: List<SubOperationCacheItem>,
     private val isAutomaticDownload: Boolean,
     priority: DownloadPriority,
     tag: String
 ) : CacheOperation<SubOperationCacheItem, Unit>(
-    context,
+    applicationContext,
     items,
     CacheState.PRESENT,
     tag,
     priority
 ) {
     override val loadingState: CacheState = CacheState.LOADING_CONTENT
-    private val resourceInfoRepository = ResourceInfoRepository.getInstance(context)
-    private val apiService = ApiService.getInstance(context)
+    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+    private val apiService = ApiService.getInstance(applicationContext)
 
     companion object {
         /**
          * Create a [WrappedDownload] object
          *
-         * @param context An android [Context] object
+         * @param applicationContext An android application [Context] object
          * @param parent The [ObservableDownload] that should be downloaded after this operation
          * @param isAutomaticDownload Indicator whether this download was triggered automatically
          * @param priority The download priority of this operation
          * @param tag The tag to be used for this operation
          */
         suspend fun prepare(
-            context: Context,
+            applicationContext: Context,
             parent: ObservableDownload,
             isAutomaticDownload: Boolean,
             priority: DownloadPriority,
             tag: String
         ): WrappedDownload = withContext(Dispatchers.Main) {
             WrappedDownload(
-                context,
+                applicationContext,
                 parent,
                 emptyList(),
                 isAutomaticDownload,
@@ -84,7 +83,7 @@ class WrappedDownload(
         // Before downloading content we _always_ download the corresponding metadata.
         // Metadata can get stale and the references to the content will be broken
         val metadataDownload = MetadataDownload.prepare(
-            context,
+            applicationContext,
             parent,
             parent.getDownloadTag() // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
         )
@@ -112,16 +111,16 @@ class WrappedDownload(
         }
 
         val issueDownloadNotifier = if (parent is AbstractIssue) {
-            IssueDownloadNotifier(context, parent.issueKey, isAutomaticDownload)
+            IssueDownloadNotifier(applicationContext, parent.issueKey, isAutomaticDownload)
         } else null
 
         issueDownloadNotifier?.start()
 
         val subOperationCacheItems = dependentCollections
-            .filter { !it.isDownloaded(context) }
+            .filter { !it.isDownloaded(applicationContext) }
             .map {
                 val contentDownload = ContentDownload.prepare(
-                    context,
+                    applicationContext,
                     it,
                     priority
                 )
@@ -151,7 +150,7 @@ class WrappedDownload(
 
         issueDownloadNotifier?.stop()
         if (errorCount == 0) {
-            parentCollection.setDownloadDate(Date(), context)
+            parentCollection.setDownloadDate(Date(), applicationContext)
             notifySuccess(Unit)
         } else {
             val exception = CacheOperationFailedException(
@@ -172,7 +171,7 @@ class WrappedDownload(
     private suspend fun resolveCollections(download: DownloadableStub): List<DownloadableCollection> {
         // Get the required resource info - if it already is marked as downloaded do not add it to the set of required items
         val requiredResourceInfo = getRequiredResourceInfo(download)?.let {
-            if (it.isDownloaded(context)) null else it
+            if (it.isDownloaded(applicationContext)) null else it
         }
 
         return (when (download) {

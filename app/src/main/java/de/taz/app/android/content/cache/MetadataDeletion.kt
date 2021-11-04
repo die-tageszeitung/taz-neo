@@ -9,27 +9,27 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
 /**
  * An operation deleting the Metadata of given object
  *
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param tag The tag on which this operation should be registered
  * @param download The object of which the metadata should be deleted
  */
 class MetadataDeletion(
-    context: Context,
+    applicationContext: Context,
     items: List<MetadataCacheItem>,
     tag: String,
     val download: ObservableDownload
 ): CacheOperation<MetadataCacheItem, Unit>(
-    context, items, CacheState.ABSENT, tag
+    applicationContext, items, CacheState.ABSENT, tag
 ) {
     override val loadingState: CacheState = CacheState.DELETING_METADATA
     companion object {
         /**
          * Creates a [MetadataDeletion]
-         * @param context An android context object
+         * @param applicationContext An android application context object
          * @param download The object of which the metadata should be deleted
          */
         fun prepare(
-            context: Context,
+            applicationContext: Context,
             download: ObservableDownload
         ): MetadataDeletion {
             val metadataDeletionCacheItem = MetadataCacheItem(
@@ -38,7 +38,7 @@ class MetadataDeletion(
                 download.getDownloadTag()
             )
             return MetadataDeletion(
-                context,
+                applicationContext,
                 listOf(metadataDeletionCacheItem),
                 download.getDownloadTag(),
                 download

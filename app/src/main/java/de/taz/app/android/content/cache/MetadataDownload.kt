@@ -6,7 +6,6 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -14,20 +13,20 @@ import de.taz.app.android.persistence.repository.IssuePublication
 /**
  * An operation downloading the Metadata of a given object
  *
- * @param context An android context object
+ * @param applicationContext An android application context object
  * @param tag The tag on which this operation should be registered
  * @param download The object of which the metadata should be deleted
  * @param allowCache If the cache of Metadata should be used if existend (download will be skipped then)
  * @param retryOnConnectionError Specify if a reqeuest should pause and retry if a connection error is encountered
  */
 class MetadataDownload(
-    context: Context,
+    applicationContext: Context,
     tag: String,
     val download: ObservableDownload,
     private val allowCache: Boolean,
     private val retryOnConnectionError: Boolean
 ): CacheOperation<MetadataCacheItem, DownloadableStub>(
-    context, emptyList(), CacheState.METADATA_PRESENT, tag
+    applicationContext, emptyList(), CacheState.METADATA_PRESENT, tag
 ) {
     override val loadingState: CacheState = CacheState.LOADING_METADATA
 
