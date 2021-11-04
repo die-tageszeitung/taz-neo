@@ -83,6 +83,11 @@ class PdfPagerViewModel(
                 // Get latest shown page and set it before setting the issue
                 updateCurrentItem(issue.lastPagePosition ?: 0)
                 val pdfIssue = IssueWithPages(issue)
+                val pdfIssueKey = IssueKeyWithPages(pdfIssue.issueKey)
+                // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
+                if (pdfIssueKey.status != issueKey.status) {
+                    this@PdfPagerViewModel.issueKey.postValue(IssueKeyWithPages(pdfIssue.issueKey))
+                }
                 dataService.ensureDownloaded(
                     pdfIssue,
                     onConnectionFailure = { onConnectionFailure() }
