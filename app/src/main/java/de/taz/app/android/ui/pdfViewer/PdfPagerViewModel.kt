@@ -7,6 +7,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -26,10 +27,10 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    private val dataService: DataService = DataService.getInstance(application.applicationContext)
-    private val imageRepository: ImageRepository =
-        ImageRepository.getInstance(application.applicationContext)
-    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
+    private val dataService = DataService.getInstance(application)
+    private val fileEntryRepository = FileEntryRepository.getInstance(application)
+    private val imageRepository = ImageRepository.getInstance(application)
+    private val toastHelper = ToastHelper.getInstance(application)
 
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
@@ -93,7 +94,15 @@ class PdfPagerViewModel(
                 )
 
                 if (pdfIssue.isDownloaded(application)) {
-                    postValue(pdfIssue.pageList)
+                    // as we do not know before downloading where we stored the fileEntry
+                    // and the fileEntry storageLocation is in the model - get it freshly from DB
+                    postValue(
+                        pdfIssue.pageList.map {
+                            it.copy(pagePdf = requireNotNull(
+                                fileEntryRepository.get(it.pagePdf.name)
+                            ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
+                        }
+                    )
                 } else {
                     val hint = "Something went wrong downloading issue with its pdfs"
                     log.warn(hint)
