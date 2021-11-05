@@ -16,6 +16,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.utils.io.*
 import io.sentry.Sentry
+import io.sentry.SentryLevel
 import kotlinx.coroutines.*
 import java.io.File
 import java.lang.Exception
@@ -95,7 +96,14 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
             when (response.status.value) {
                 in 200..299 -> {
                     val channel = response.receive<ByteReadChannel>()
-                    saveFile(download.fileEntryOperation, channel)
+                    val hash = saveFile(download.fileEntryOperation, channel)
+                    if (hash != download.fileEntryOperation.fileEntry.sha256) {
+                        val hint = "Hash mismatch on ${download.fileEntryOperation.fileEntry.name}.\n" +
+                                "Local hash $hash vs remote hash ${download.fileEntryOperation.fileEntry.sha256}"
+                        log.warn(hint
+                        )
+                        Sentry.captureMessage(hint, SentryLevel.WARNING)
+                    }
                     download.fileEntryOperation.fileEntry.setDownloadDate(Date(), applicationContext)
                     operations.map {
                         it.notifySuccessfulItem()
