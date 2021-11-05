@@ -19,4 +19,20 @@ abstract class PageDao : BaseDao<PageStub>() {
 
     @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND dateDownload IS NOT NULL)")
     abstract fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
+
+    @Query("""
+        DELETE FROM FileEntry
+        WHERE 
+            name in (:pageNames) AND
+            (name NOT IN (SELECT pageKey FROM IssuePageJoin))
+    """)
+    abstract fun deletePageFileEntriesIfNoIssueRelated(pageNames: List<String>)
+
+    @Query("""
+        DELETE FROM Page
+        WHERE 
+            pdfFileName in (:pageNames) AND
+            (pdfFileName NOT IN (SELECT pageKey FROM IssuePageJoin))
+    """)
+    abstract fun deleteIfNoIssueRelated(pageNames: List<String>)
 }

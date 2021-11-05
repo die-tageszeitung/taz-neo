@@ -419,8 +419,9 @@ class DataService(private val applicationContext: Context) {
 
     suspend fun ensureDeleted(collection: DownloadableCollection) {
         ensureDeletedFiles(collection)
-        if (collection is Issue) {
-            issueRepository.delete(collection)
+        when (collection) {
+            is Issue -> issueRepository.delete(collection)
+            is IssueWithPages -> issueRepository.delete(Issue(collection))
         }
         cleanUpLiveData()
     }
