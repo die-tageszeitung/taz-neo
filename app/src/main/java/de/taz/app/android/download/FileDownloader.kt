@@ -44,7 +44,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
         operation.notifyStart()
         for (download in operation.cacheItems) {
             log.debug("Offering ${download.item.fileEntryOperation.fileEntry.name} with priority ${download.item.priority()}")
-            queue.offerOrNotify(
+            queue.sendOrNotify(
                 download
             )
         }
@@ -71,8 +71,8 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     }
 
     private suspend fun pollForDownload(downloadAgentId: Int) {
-        while (queue.isNotEmpty()) {
-            val (nextDownload, operations) = queue.pollWithOperations() ?: return
+        while (true) {
+            val (nextDownload, operations) = queue.receive()
             log.debug("Agent $downloadAgentId Picked ${nextDownload.fileEntryOperation.fileEntry.name} with priority ${nextDownload.priority()}")
             downloadCacheItem(nextDownload, operations)
         }
