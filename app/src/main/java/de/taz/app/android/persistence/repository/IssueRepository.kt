@@ -435,8 +435,9 @@ class IssueRepository private constructor(val applicationContext: Context) :
                 )
             }
         )
+
         // delete pages
-        pageRepository.delete(issue.pageList)
+        pageRepository.deleteIfNoIssueRelated(issue.pageList)
 
         // delete sections
         issue.sectionList.let { sectionList ->
