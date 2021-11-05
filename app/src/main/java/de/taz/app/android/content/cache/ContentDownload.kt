@@ -92,10 +92,10 @@ class ContentDownload(
         }
 
         /**
-         * Preparing a [SingleFileDownload] object by determining the origin and destination uri
+         * Preparing a [ContentDownload] object for a single file by determining the origin and destination uri
          *
          * @param context An android context object
-         * @param collection The collection the content of which should be downloaded
+         * @param item The [FileEntry] that should be downloaded
          * @param priority The priority that will be passed to the files that are to be downloaded
          */
         suspend fun prepare(
@@ -114,15 +114,15 @@ class ContentDownload(
             val updatedFileEntry = fileEntryRepository.saveOrReplace(
                 item.copy(storageLocation = storageLocation)
             )
-            val absolutePath = storageService.getAbsolutePath(item)!!
+            val absolutePath = storageService.getAbsolutePath(updatedFileEntry)!!
 
             val cacheItem = FileCacheItem(
                 updatedFileEntry.name,
                 { priority },
                 FileEntryOperation(
-                    item,
+                    updatedFileEntry,
                     absolutePath,
-                    "$baseUrl/${item.name}",
+                    "$baseUrl/${updatedFileEntry.name}",
                 )
             )
 
