@@ -116,6 +116,7 @@ class PageRepository private constructor(applicationContext: Context) :
     }
 
     fun deleteIfNoIssueRelated(pages: List<Page>) {
+        appDatabase.pageDao().deletePageFileEntriesIfNoIssueRelated(pages.map { it.pagePdf.name })
         appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pagePdf.name })
     }
 
