@@ -94,4 +94,26 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
         issueDate: String,
         issueStatus: IssueStatus
     ): List<ArticleStub>
+
+    @Query(
+        """
+            SELECT COUNT(DISTINCT ArticleAuthor.articleFileName) FROM ArticleAuthor 
+            INNER JOIN Article ON ArticleAuthor.articleFileName = Article.articleFileName
+            WHERE 
+                authorFileName = :authorFileName AND
+                Article.dateDownload IS NOT NULL
+    """
+    )
+    abstract fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int
+
+    @Query(
+        """SELECT COUNT(DISTINCT ArticleImageJoin.articleFileName) FROM ArticleImageJoin 
+            
+            INNER JOIN Article ON ArticleImageJoin.articleFileName = Article.articleFileName
+            WHERE
+                imageFileName = :articleImageFileName AND
+                Article.dateDownload IS NOT NULL
+    """
+    )
+    abstract fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int
 }

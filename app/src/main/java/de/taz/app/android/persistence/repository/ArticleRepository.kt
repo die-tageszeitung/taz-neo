@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
+import androidx.room.Query
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
@@ -352,5 +353,26 @@ class ArticleRepository private constructor(applicationContext: Context) :
         articleStub: ArticleStub
     ): Date? {
         return appDatabase.articleDao().getDownloadStatus(articleStub.articleFileName)
+    }
+
+
+    /**
+     * Retrieves the amount of references on the supplied file name by the article image m2m table.
+     * Useful to determine if a file can be safely deleted or not
+     * @param authorFileName The [FileEntry] name of the file that should be checked
+     * @return The amount of references on that file from [ArticleAuthorImageJoin] by Articles that have a [Article.dateDownload]
+     */
+    fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int {
+        return appDatabase.articleDao().getDownloadedArticleAuthorReferenceCount(authorFileName)
+    }
+
+    /**
+     * Retrieves the amount of references on the supplied file name by the article image m2m table.
+     * Useful to determine if a file can be safely deleted or not.
+     * @param articleImageFileName The [FileEntry] name of the file that should be checked
+     * @return The amount of references on that file from [ArticleImageJoin] by Articles that have a [Article.dateDownload]
+     */
+     fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
+         return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
 }

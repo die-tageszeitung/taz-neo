@@ -100,20 +100,4 @@ class FileEntryRepository private constructor(
     fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
         return appDatabase.fileEntryDao().getDownloadDate(fileEntry.name)
     }
-
-    fun filterFilesThatArePartOfBookmarkedArticleOrAuthor(fileNames: List<String>): List<FileEntry> {
-        return appDatabase.fileEntryDao().filterFilesThatArePartOfBookmarkedArticleOrAuthor(fileNames)
-    }
-
-    fun filterFilesThatArePartOfBookmarkedArticle(
-        fileNames: List<String>
-    ): List<FileEntry> {
-        return appDatabase.fileEntryDao().filterFilesThatArePartOfBookmarkedArticle(fileNames)
-    }
-
-    fun filterFilesThatBelongToAnAuthor(
-        fileNames: List<String>
-    ): List<FileEntry> {
-        return appDatabase.fileEntryDao().filterFilesThatBelongToAnAuthor(fileNames)
-    }
 }

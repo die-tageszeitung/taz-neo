@@ -2,7 +2,9 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.interfaces.DownloadableCollection
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +26,9 @@ class ContentDeletion(
 ) : CacheOperation<FileCacheItem, Unit>(
     applicationContext, items, CacheState.METADATA_PRESENT, tag
 ) {
-    val storageService = StorageService.getInstance(applicationContext)
     override val loadingState: CacheState = CacheState.DELETING_CONTENT
+
+    private val storageService = StorageService.getInstance(applicationContext)
 
     companion object {
         /**
@@ -40,9 +43,27 @@ class ContentDeletion(
             collection: DownloadableCollection,
             tag: String
         ): ContentDeletion = withContext(Dispatchers.IO) {
-            val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-            val fileNames = collection.getAllFiles().map { it.name }
-            val filesToDelete = fileEntryRepository.filterFilesThatArePartOfBookmarkedArticleOrAuthor(fileNames)
+            val articleRepository = ArticleRepository.getInstance(applicationContext)
+
+            val filesToDelete = if (collection is Article) {
+                // If the collection is an article we need to make sure that it is the last
+                // article referencing a file. If the reference count is 1 (or less) the
+                // article that is about to get delete is the last one, so it's ok to delete
+                collection.getAllFiles()
+                    .filter {
+                        articleRepository.getDownloadedArticleAuthorReferenceCount(it.name) < 2 &&
+                        articleRepository.getDownloadedArticleImageReferenceCount(it.name) < 2
+                    }
+            } else {
+                // If the collection is a section (or page or anything) check if an article is still referencing
+                // it. (Most likely a bookmark)
+                collection.getAllFiles()
+                    .filter {
+                        articleRepository.getDownloadedArticleAuthorReferenceCount(it.name) < 1 &&
+                        articleRepository.getDownloadedArticleImageReferenceCount(it.name) < 1
+                    }
+            }
+
             val fileCacheItems = filesToDelete.map {
                 FileCacheItem(
                     it.name,
