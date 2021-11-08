@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -13,8 +12,8 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
@@ -22,10 +21,13 @@ import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * The PdfPagerFragment creates a [ViewPager2] and populates it with the
+ * [PdfPagerViewModel.pdfPageList]
+ */
 class PdfPagerFragment : BaseMainFragment(
     R.layout.fragment_pdf_pager
 ) {
-
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
@@ -33,11 +35,10 @@ class PdfPagerFragment : BaseMainFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, {
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
-                    adapter = PdfPagerAdapter(requireActivity())
+                    adapter = PdfPagerAdapter(this@PdfPagerFragment, it)
                     reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
                     offscreenPageLimit = 2
 
@@ -64,17 +65,19 @@ class PdfPagerFragment : BaseMainFragment(
             pdf_viewpager.isUserInputEnabled = enabled
         })
 
-        pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(viewLifecycleOwner, { disallow ->
-            val delay = if (!disallow) {
-                100L
-            } else
-                0L
-            lifecycleScope.launch {
-                delay(delay)
-                pdf_viewpager.isUserInputEnabled = !disallow
-                pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
-            }
-        })
+        pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(
+            viewLifecycleOwner,
+            { disallow ->
+                val delay = if (!disallow) {
+                    100L
+                } else
+                    0L
+                lifecycleScope.launch {
+                    delay(delay)
+                    pdf_viewpager.isUserInputEnabled = !disallow
+                    pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
+                }
+            })
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
             // only update currentItem if it has not been swiped
@@ -115,11 +118,12 @@ class PdfPagerFragment : BaseMainFragment(
     }
 
     /**
-     * A simple pager adapter that represents pdfFragment objects, in sequence.
+     * A simple pager adapter that creates a [PdfRenderFragment] for every [Page] in [pageList]
      */
-    private inner class PdfPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
+    private inner class PdfPagerAdapter(fragment: Fragment, private val pageList: List<Page>) :
+        FragmentStateAdapter(fragment) {
         override fun createFragment(position: Int): Fragment {
-            return PdfRenderFragment.create(position)
+            return PdfRenderFragment.create(pageList[position])
         }
 
         override fun getItemCount(): Int {
