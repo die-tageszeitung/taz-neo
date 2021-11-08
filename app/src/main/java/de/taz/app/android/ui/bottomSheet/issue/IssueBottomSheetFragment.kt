@@ -176,7 +176,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 }
 
             CoroutineScope(Dispatchers.IO).launch {
-                contentService.deleteContent(issueKey)
+                contentService.deleteIssue(issueKey)
             }
         }
 

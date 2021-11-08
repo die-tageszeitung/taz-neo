@@ -15,7 +15,6 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
@@ -24,6 +23,7 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -36,6 +36,7 @@ import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -148,7 +149,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_version_number?.text =
-                getString(R.string.settings_version_number, BuildConfig.VERSION_NAME, graphQlFlavorString)
+                getString(
+                    R.string.settings_version_number,
+                    BuildConfig.VERSION_NAME,
+                    graphQlFlavorString
+                )
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -263,25 +268,36 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
                 CoroutineScope(Dispatchers.IO).launch {
                     var counter = 0
-                    val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
+                    val issueStubList = IssueRepository.getInstance(context).getAllIssueStubs()
                     withContext(Dispatchers.Main) {
-                    contentService.getCacheStatusFlow(issueStubList)
-                        .asLiveData()
-                        .observe(this@SettingsFragment.viewLifecycleOwner) {
-                            if (it.complete) {
-                                counter++
-                                deletionProgress.progress = counter
-                                deletionProgressText.visibility = View.VISIBLE
-                                deletionProgressText.text = getString(
-                                    R.string.settings_delete_progress_text,
-                                    counter,
-                                    deletionProgress.max
-                                )
-                            }
-                        }
+                        deletionProgress.progress = counter
+                        deletionProgress.max = issueStubList.count()
+                        deletionProgressText.text = getString(
+                            R.string.settings_delete_progress_text,
+                            counter,
+                            deletionProgress.max
+                        )
+                        deletionProgress.visibility = View.VISIBLE
+                        deletionProgressText.visibility = View.VISIBLE
                     }
-                    issueStubList.forEach{ issueStub ->
-                        contentService.deleteContent(issueStub.issueKey)
+                    for (issueStub in issueStubList) {
+                        try {
+                            contentService.deleteIssue(issueStub.issueKey)
+                            counter++
+                            deletionProgress.progress = counter
+                            deletionProgressText.text = getString(
+                                R.string.settings_delete_progress_text,
+                                counter,
+                                deletionProgress.max
+                            )
+                        } catch (e: CacheOperationFailedException) {
+                            val hint = "Error while deleting ${issueStub.issueKey}"
+                            log.error(hint)
+                            e.printStackTrace()
+                            Sentry.captureException(e, hint)
+                            toastHelper.showSomethingWentWrongToast()
+                            break
+                        }
                     }
                     dialog.dismiss()
                 }
@@ -291,7 +307,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun inflateExperimentalOptions() {
         val experimentalContainer = view?.findViewById<FrameLayout>(R.id.experimental_container)
-        val experimentalOptionsView = layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
+        val experimentalOptionsView =
+            layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
         experimentalOptionsView.findViewById<TextView>(R.id.expirimental_search_button)
             .setOnClickListener {
                 startActivity(

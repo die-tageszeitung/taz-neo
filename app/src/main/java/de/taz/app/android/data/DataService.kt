@@ -64,7 +64,7 @@ class DataService(private val applicationContext: Context) {
             while (downloadedCounter > max) {
                 runBlocking {
                     issueRepository.getEarliestDownloadedIssueStub()?.let {
-                        contentService.deleteContent(it.issueKey)
+                        contentService.deleteIssue(it.issueKey)
                     }
                     downloadedCounter--
                 }

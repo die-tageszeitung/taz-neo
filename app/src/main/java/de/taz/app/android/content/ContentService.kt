@@ -15,14 +15,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for
  * any [ObservableDownload]. It should provide a simple and robust api for both
  * managing the content cache and listen to updates to that cache.
  *
- * @param context The Android [Context]
+ * @param applicationContext The Android [Context]
  */
 @Mockable
 class ContentService(
@@ -227,7 +226,7 @@ class ContentService(
      * @throws NotFoundException If no Issue matching [issueKey] was found in the database
      */
     @Throws(NotFoundException::class)
-    suspend fun deleteContent(issueKey: AbstractIssueKey) = withContext(Dispatchers.IO) {
+    suspend fun deleteIssue(issueKey: AbstractIssueKey) = withContext(Dispatchers.IO) {
         val issue = when (issueKey) {
             is IssueKeyWithPages -> issueRepository.get(issueKey)
             is IssueKey -> issueRepository.get(issueKey)
@@ -235,14 +234,5 @@ class ContentService(
         } ?: throw NotFoundException("Issue not found")
         val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
         deletion.execute()
-    }
-
-    /**
-     * Delete the contents of a [collection] metadata
-     *
-     * @param collection The collection the content of which should be deleted
-     */
-    suspend fun deleteContent(collection: DownloadableCollection) = withContext(Dispatchers.IO) {
-        ContentDeletion.prepare(applicationContext, collection, collection.getDownloadTag()).execute()
     }
 }
