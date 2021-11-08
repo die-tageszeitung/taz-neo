@@ -79,11 +79,13 @@ class IssueViewerViewModel(
                 try {
                     val issue = contentService.downloadMetadataIfNotPresent(issueKey) as Issue
 
-                    // The wonders of this API: Eventhough we might expect a "public" issue
+                    // Eventhough we might expect a "public" issue
                     // we might have gotten a "regular" one (i.e. a demo issue).
                     // In the next step where we search for sections we should NOT use the issueKey
                     // we used to get the metadata, but the actual issuekey of the downloaded metadata
-                    // (as it might differ) 💩
+                    // (as it might differ)
+                    // TODO: As this behavior is creating brittle code in multiple instances
+                    // we should think about how to handle this fact generally
 
                     // either displayable is specified, persisted or defaulted to first section
                     val displayable = displayableKey
