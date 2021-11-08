@@ -41,9 +41,8 @@ class ContentDeletion(
             tag: String
         ): ContentDeletion = withContext(Dispatchers.IO) {
             val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-            val filesToDelete = fileEntryRepository.filterFilesThatBelongToAnAuthor(
-                collection.getAllFiles().map { it.name }
-            )
+            val fileNames = collection.getAllFiles().map { it.name }
+            val filesToDelete = fileEntryRepository.filterFilesThatArePartOfBookmarkedArticleOrAuthor(fileNames)
             val fileCacheItems = filesToDelete.map {
                 FileCacheItem(
                     it.name,

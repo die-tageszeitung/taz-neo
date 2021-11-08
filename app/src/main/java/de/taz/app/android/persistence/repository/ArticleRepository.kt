@@ -224,7 +224,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
 
     fun getBookmarkedArticleStubs(): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticlesList()
+        return appDatabase.articleDao().getBookmarkedArticles()
     }
 
     fun getBookmarkedArticleStubsLiveData(): LiveData<List<ArticleStub>> {
@@ -332,12 +332,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    fun getBookmarkedArticleStubListForIssuesAtDate(
-        issueFeedName: String,
-        issueDate: String
-    ): List<ArticleStub> {
-        return appDatabase.articleDao()
-            .getBookmarkedArticleStubListForIssue(issueFeedName, issueDate)
+    fun getBookmarkedArticleStubsForIssue(issueKey: AbstractIssueKey): List<ArticleStub> {
+        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(
+            issueKey.feedName,
+            issueKey.date,
+            issueKey.status
+        )
     }
 
 

@@ -49,9 +49,9 @@ class ContentServiceTest {
         private var failed = 0
 
         override suspend fun fakeDownloadItem(item: CacheOperationItem<FileCacheItem>) {
-
             item.operation.apply {
                 if (failed < 1) {
+                    failed++
                     notifyFailedItem(IOException("Bad file"))
                 } else {
                     notifySuccessfulItem()

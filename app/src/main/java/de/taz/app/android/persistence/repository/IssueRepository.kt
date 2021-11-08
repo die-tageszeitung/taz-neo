@@ -89,7 +89,10 @@ class IssueRepository private constructor(applicationContext: Context) :
             }
             null
         }
-        return issue
+        // It is important to refresh the issue after this operation, as in the sub operation
+        // (saving articles, sections etc.) might be business logic slightly altering the actually
+        // saved data, naming bookmarked state that is being preserved, for instance.
+        return get(issue.issueKey)!!
     }
 
     fun exists(issueOperations: IssueOperations): Boolean {
@@ -482,10 +485,10 @@ data class IssueKey(
     override val status: IssueStatus
 ) : Parcelable, AbstractIssueKey {
 
-    constructor(issueKeyWithPages: IssueKeyWithPages) : this(
-        issueKeyWithPages.feedName,
-        issueKeyWithPages.date,
-        issueKeyWithPages.status
+    constructor(abstractIssueKey: AbstractIssueKey) : this(
+        abstractIssueKey.feedName,
+        abstractIssueKey.date,
+        abstractIssueKey.status
     )
 
     constructor(issuePublication: IssuePublication, status: IssueStatus) : this(

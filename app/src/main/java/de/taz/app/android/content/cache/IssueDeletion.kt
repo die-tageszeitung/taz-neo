@@ -3,6 +3,7 @@ package de.taz.app.android.content.cache
 import android.content.Context
 import de.taz.app.android.api.models.AbstractIssue
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.persistence.repository.ArticleRepository
 
 /**
  * A [CacheOperation] composed of a [ContentDeletion] and subsequent [MetadataDeletion]
@@ -24,6 +25,7 @@ class IssueDeletion(
     tag
 ) {
     override val loadingState: CacheState = CacheState.DELETING_CONTENT
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
 
     companion object {
         /**
@@ -50,13 +52,23 @@ class IssueDeletion(
         notifyStart()
         issue.setDownloadDate(null, applicationContext)
         val collectionsToDeleteContent =
-            listOfNotNull(issue.imprint) + issue.sectionList + issue.getArticles() + issue.pageList
-        val issueMetadataDeletion = MetadataDeletion.prepare(applicationContext, issue)
-        val issueMetadataDeletionCacheItem = SubOperationCacheItem(
-            issueMetadataDeletion.tag,
-            { DownloadPriority.Normal },
-            issueMetadataDeletion
-        )
+            listOfNotNull(issue.imprint) +
+                    issue.sectionList +
+                    issue.getArticles().filter { !it.bookmarked } +
+                    issue.pageList
+        val issueMetadataDeletionCacheItem = if (
+            articleRepository.getBookmarkedArticleStubsForIssue(issue.issueKey).isEmpty()
+        ) {
+            val deletion = MetadataDeletion.prepare(applicationContext, issue)
+            SubOperationCacheItem(
+                deletion.tag,
+                { DownloadPriority.Normal },
+                deletion
+            )
+        } else {
+            log.warn("Not deleting issue metadata of $issue as it's still needed by bookmarked articles")
+            null
+        }
         val contentDeletionCacheItems = collectionsToDeleteContent
             .map {
                 SubOperationCacheItem(
@@ -69,7 +81,10 @@ class IssueDeletion(
                     )
                 )
             }
-        addItems(contentDeletionCacheItems + issueMetadataDeletionCacheItem)
+        addItems(contentDeletionCacheItems)
+
+        // If we are going to delete the metadata add it here too
+        issueMetadataDeletionCacheItem?.let { addItem(issueMetadataDeletionCacheItem) }
 
         contentDeletionCacheItems.forEach {
             try {
@@ -84,12 +99,14 @@ class IssueDeletion(
             // If we encoutered errors while deleting content skip deleting metadata, just indicate another failed item and throw exception
             notifyFailedItem(CacheOperationFailedException("Operation aborted due to previous errors"))
         } else {
-            try {
-                issueMetadataDeletion.execute()
-                notifySuccessfulItem()
-            } catch (e: Exception) {
-                notifyFailedItem(e)
-                throw CacheOperationFailedException("Deleting the metadata for issue ${issue.issueKey}")
+            issueMetadataDeletionCacheItem?.subOperation?.let { metadataDeletion ->
+                try {
+                    metadataDeletion.execute()
+                    notifySuccessfulItem()
+                } catch (e: Exception) {
+                    notifyFailedItem(e)
+                    throw CacheOperationFailedException("Deleting the metadata for issue ${issue.issueKey}")
+                }
             }
         }
         checkIfItemsCompleteAndNotifyResult(Unit)

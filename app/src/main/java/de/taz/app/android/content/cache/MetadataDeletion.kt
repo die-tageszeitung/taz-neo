@@ -5,6 +5,7 @@ import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.IssueKey
 
 /**
  * An operation deleting the Metadata of given object
@@ -50,10 +51,10 @@ class MetadataDeletion(
         notifyStart()
         try {
             when (download) {
-                is AbstractIssueKey -> dataService.deleteIssue(download)
-                is Issue -> dataService.deleteIssue(download)
-                is IssueStub -> dataService.deleteIssue(download)
-                is IssueWithPages -> dataService.deleteIssue(Issue(download))
+                is AbstractIssueKey -> issueRepository.delete(IssueKey(download))
+                is Issue -> issueRepository.delete(download)
+                is IssueStub -> issueRepository.delete(download.issueKey)
+                is IssueWithPages -> issueRepository.delete(Issue(download))
                 else -> {
                     throw IllegalArgumentException("A ${download::class} is not allowed to be deleted")
                 }

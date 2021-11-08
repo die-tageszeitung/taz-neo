@@ -333,19 +333,6 @@ class DataService(private val applicationContext: Context) {
         return@withContext resourceInfo
     }
 
-    suspend fun deleteIssue(issueKey: AbstractIssueKey) {
-        issueRepository.delete(issueKey as IssueKey)
-    }
-
-    suspend fun deleteIssue(issueStub: IssueStub) {
-        val issue = issueRepository.getIssue(issueStub)
-        issueRepository.delete(issue)
-    }
-
-    suspend fun deleteIssue(issue: Issue) {
-        issueRepository.delete(issue)
-    }
-
     suspend fun sendNotificationInfo(
         token: String,
         oldToken: String? = null,
