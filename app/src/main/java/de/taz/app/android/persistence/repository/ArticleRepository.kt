@@ -10,6 +10,7 @@ import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import java.lang.Exception
 import java.util.*
@@ -140,16 +141,29 @@ class ArticleRepository private constructor(applicationContext: Context) :
         // get authors
         val authorImageJoins =
             appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
-        val authorImages = fileEntryRepository.getOrThrow(
-            authorImageJoins
-                .filter { !it.authorFileName.isNullOrEmpty() }
-                .map { it.authorFileName!! }
-        )
+
+        val authorImages = try {
+            fileEntryRepository.getOrThrow(
+                authorImageJoins
+                    .filter { !it.authorFileName.isNullOrEmpty() }
+                    .map { it.authorFileName!! }
+            )
+        } catch (nfe: NotFoundException) {
+            val hint = "fileEntryRepository could not find fileEntries for authorImages: " +
+                    "${
+                        authorImageJoins
+                            .filter { !it.authorFileName.isNullOrEmpty() }
+                            .map { it.authorFileName!! }
+                    }"
+            log.warn(hint)
+            Sentry.captureException(nfe, hint)
+            null
+        }
 
         val authors = authorImageJoins.map { authorImageJoin ->
             Author(
                 authorImageJoin.authorName,
-                authorImages.find { it.name == authorImageJoin.authorFileName })
+                authorImages?.find { it.name == authorImageJoin.authorFileName })
         }
 
         return Article(
