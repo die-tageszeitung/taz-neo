@@ -173,7 +173,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             e.blockingOperation.waitOnCompletion()
             return execute()
         }
-        return doWork()
+        return withContext(NonCancellable) { doWork() }
     }
 
     /**
