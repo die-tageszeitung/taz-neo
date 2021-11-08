@@ -41,7 +41,8 @@ class IssueDownloadNotifier(
     }
 
     /**
-     * Indicate that a download progress of [issueKey] has been started.
+     * Indicate that a download progress of [issueKey] has been stopped.
+     * Should only be executed if this [IssueDownloadNotifier] was already [start]ed
      * Always fails silently to avoid important stuff to be interrupted.
      */
     suspend fun stop() {
