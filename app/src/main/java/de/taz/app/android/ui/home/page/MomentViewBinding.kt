@@ -72,7 +72,7 @@ class MomentViewBinding(
         }
 
         CoverViewData(
-            dataService.determineIssueKey(issuePublication),
+            downloadedMoment.issueKey,
             CacheState.ABSENT,
             momentType,
             momentUri,

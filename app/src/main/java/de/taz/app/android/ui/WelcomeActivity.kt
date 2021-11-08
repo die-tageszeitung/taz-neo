@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -14,7 +13,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
@@ -22,7 +20,6 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
-import kotlinx.android.synthetic.main.activity_data_policy.*
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
 import kotlinx.coroutines.CoroutineScope
@@ -139,5 +136,6 @@ class WelcomeActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(intent)
+        finish()
     }
 }

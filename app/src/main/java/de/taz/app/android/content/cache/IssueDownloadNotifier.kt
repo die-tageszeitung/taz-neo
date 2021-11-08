@@ -78,5 +78,6 @@ class IssueDownloadNotifier(
         apiService.notifyServerOfDownloadStop(
             downloadId, secondsTaken
         )
+        log.debug("Issue download of $issueKey completed after $secondsTaken")
     }
 }

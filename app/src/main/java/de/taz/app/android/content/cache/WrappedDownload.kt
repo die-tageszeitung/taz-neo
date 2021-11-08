@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import kotlinx.coroutines.*
@@ -110,9 +111,19 @@ class WrappedDownload(
             throw exception
         }
 
-        val issueDownloadNotifier = if (parent is AbstractIssue) {
-            IssueDownloadNotifier(applicationContext, parent.issueKey, isAutomaticDownload)
-        } else null
+        val issueDownloadNotifier = when (parent) {
+            is AbstractIssueKey -> IssueDownloadNotifier(
+                applicationContext,
+                parent,
+                isAutomaticDownload
+            )
+            is AbstractIssue -> IssueDownloadNotifier(
+                applicationContext,
+                parent.issueKey,
+                isAutomaticDownload
+            )
+            else -> null
+        }
 
         issueDownloadNotifier?.start()
 
