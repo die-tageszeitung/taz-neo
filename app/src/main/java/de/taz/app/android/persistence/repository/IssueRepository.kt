@@ -282,7 +282,10 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
         getStub(issueWithPages.issueKey)?.let {
-            update(it.copy(dateDownloadWithPages = dateDownload))
+            update(it.copy(
+                dateDownload = dateDownload,
+                dateDownloadWithPages = dateDownload
+            ))
         }
     }
 

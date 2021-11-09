@@ -62,6 +62,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     val log by Log
     protected val dataService = DataService.getInstance(applicationContext)
     protected val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val waiterLock = Mutex()
 
     /**
      * The loading state is different for each discrete implementaion of [CacheOperation]
@@ -399,17 +400,21 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      */
     suspend fun waitOnCompletion() = withContext(Dispatchers.Default) {
         if (state.complete) return@withContext
-        suspendCoroutine<RESULT> { continuation ->
-            launch {
-                addListener(object : CacheStateListener<RESULT> {
-                    override fun onFailuire(e: Exception) {
-                        continuation.resumeWithException(e)
-                    }
+        // With locking the addListener function we ensure the order of the resumed
+        // coroutines, the first invoker of waitOnCompletion will be the first to be resumed
+        waiterLock.withLock {
+            suspendCoroutine<RESULT> { continuation ->
+                launch {
+                    addListener(object : CacheStateListener<RESULT> {
+                        override fun onFailuire(e: Exception) {
+                            continuation.resumeWithException(e)
+                        }
 
-                    override fun onSuccess(result: RESULT) {
-                        continuation.resume(result)
-                    }
-                })
+                        override fun onSuccess(result: RESULT) {
+                            continuation.resume(result)
+                        }
+                    })
+                }
             }
         }
     }
