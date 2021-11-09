@@ -1,5 +1,6 @@
 package de.taz.app.android.api.dto
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.singletons.Storable
 
@@ -14,8 +15,8 @@ data class FileEntryDto(
 
 @JsonClass(generateAdapter = false)
 enum class StorageType {
+    @Json(name="issue")
     issue,
     global,
-    public,
     resource
 }
