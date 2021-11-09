@@ -10,6 +10,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
@@ -43,7 +44,7 @@ class MomentViewBinding(
         val dimension = feedRepository.get(moment.issueFeedName)
             ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
         try {
-            contentService.downloadToCacheIfNotPresent(moment)
+            contentService.downloadToCacheIfNotPresent(moment, priority = DownloadPriority.High)
         } catch (e: CacheOperationFailedException) {
             toastHelper.showConnectionToServerFailedToast()
         }
