@@ -36,10 +36,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 @Suppress("UNUSED")
@@ -250,6 +247,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 }
                 .create()
             dialog.show()
+            var deletionJob: Job? = null
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 dialog.setCancelable(false)
@@ -257,7 +255,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
                 val deletionProgressText =
                     dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-                CoroutineScope(Dispatchers.IO).launch {
+                deletionJob = CoroutineScope(Dispatchers.IO).launch {
                     val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
                     withContext(Dispatchers.Main) {
                         deletionProgress.visibility = View.VISIBLE
@@ -282,6 +280,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     }
                     dialog.dismiss()
                 }
+            }
+            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            negativeButton.setOnClickListener {
+                deletionJob?.let {
+                    val hint = "deleteAllIssues job was cancelled"
+                    log.warn(hint)
+                    it.cancel(hint)
+                }
+                dialog.dismiss()
             }
         }
     }
