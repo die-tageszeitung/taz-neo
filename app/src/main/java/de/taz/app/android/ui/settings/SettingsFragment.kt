@@ -287,9 +287,17 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         val issueStubList = withContext(Dispatchers.IO) {
             issueRepository.getAllIssueStubs()
         }
+
+
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
         deletionProgress.max = issueStubList.size
+        deletionProgressText.visibility = View.VISIBLE
+        deletionProgressText.text = getString(
+            R.string.settings_delete_progress_text,
+            counter,
+            deletionProgress.max
+        )
 
         for (issueStub in issueStubList) {
             try {
