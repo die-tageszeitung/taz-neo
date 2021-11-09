@@ -177,7 +177,7 @@ class DownloadService constructor(
             StorageType.resource -> {
                 dataService.getResourceInfo().resourceBaseUrl
             }
-            StorageType.issue -> {
+            StorageType.issue-> {
                 when (collection) {
                     is Moment -> if (collection.baseUrl.isNotEmpty()) {
                         collection.baseUrl
@@ -204,7 +204,6 @@ class DownloadService constructor(
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")
                 }
             }
-            StorageType.public -> ""
         }
 
     }
