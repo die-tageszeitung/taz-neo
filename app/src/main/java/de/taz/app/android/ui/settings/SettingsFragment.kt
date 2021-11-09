@@ -242,9 +242,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             val dialog = MaterialAlertDialogBuilder(context)
                 .setView(dialogView)
                 .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    dialog.dismiss()
-                }
+                .setNegativeButton(R.string.cancel_button, null)
                 .create()
             dialog.show()
             var deletionJob: Job? = null
