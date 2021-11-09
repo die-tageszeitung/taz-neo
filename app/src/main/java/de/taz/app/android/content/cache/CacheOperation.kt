@@ -84,17 +84,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * items in the constructor argument
      */
     private val _cacheItems = mutableListOf<CacheOperationItem<ITEM>>()
-        .also {
-            it.addAll(
-                items.map { item ->
-                    CacheOperationItem(item, this).apply {
-                        // The CacheOperation overrides the priority of a CacheItem!
-                        // That allows us to dynamically rewrite the order as the user navigates
-                        item.priority = { this@CacheOperation.priority }
-                    }
-                }
-            )
-        }
+
+    init {
+        addAll(items)
+    }
 
     /**
      * The CacheItems that should be processed in this operation.
