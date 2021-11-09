@@ -38,10 +38,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 @Suppress("UNUSED")
@@ -255,54 +252,66 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             val dialog = MaterialAlertDialogBuilder(context)
                 .setView(dialogView)
                 .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    dialog.dismiss()
-                }
+                .setNegativeButton(R.string.cancel_button, null)
                 .create()
             dialog.show()
+            var deletionJob: Job? = null
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 dialog.setCancelable(false)
-                val deletionProgress =
-                    dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
-                val deletionProgressText =
-                    dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-                CoroutineScope(Dispatchers.Main).launch {
-                    var counter = 0
-                    val issueStubList = withContext(Dispatchers.IO) {
-                        issueRepository.getAllIssueStubs()
+                if (deletionJob == null) {
+                    deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                        deleteAllIssuesWithProgressBar(context, dialogView)
+                        dialog.dismiss()
                     }
-                    deletionProgress.progress = counter
-                    deletionProgress.max = issueStubList.count()
-                    deletionProgressText.text = getString(
-                        R.string.settings_delete_progress_text,
-                        counter,
-                        deletionProgress.max
-                    )
-                    deletionProgress.visibility = View.VISIBLE
-                    deletionProgressText.visibility = View.VISIBLE
-
-                    for (issueStub in issueStubList) {
-                        try {
-                            contentService.deleteIssue(issueStub.issueKey)
-                            counter++
-                            deletionProgress.progress = counter
-                            deletionProgressText.text = getString(
-                                R.string.settings_delete_progress_text,
-                                counter,
-                                deletionProgress.max
-                            )
-                        } catch (e: CacheOperationFailedException) {
-                            val hint = "Error while deleting ${issueStub.issueKey}"
-                            log.error(hint)
-                            e.printStackTrace()
-                            Sentry.captureException(e, hint)
-                            toastHelper.showSomethingWentWrongToast()
-                            break
-                        }
-                    }
-                    dialog.dismiss()
                 }
+            }
+            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            negativeButton.setOnClickListener {
+                deletionJob?.let {
+                    val hint = "deleteAllIssues job was cancelled"
+                    log.warn(hint)
+                    it.cancel(hint)
+                }
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private suspend fun deleteAllIssuesWithProgressBar(
+        context: Context,
+        dialogView: View
+    ) = withContext(Dispatchers.Main) {
+        var counter = 0
+        val deletionProgress =
+            dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
+        val deletionProgressText =
+            dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
+        val issueStubList = withContext(Dispatchers.IO) {
+            issueRepository.getAllIssueStubs()
+        }
+        deletionProgress.visibility = View.VISIBLE
+        deletionProgress.progress = 0
+        deletionProgress.max = issueStubList.size
+
+        for (issueStub in issueStubList) {
+            try {
+
+                contentService.deleteIssue(issueStub.issueKey)
+                counter++
+                deletionProgress.progress = counter
+                deletionProgressText.text = getString(
+                    R.string.settings_delete_progress_text,
+                    counter,
+                    deletionProgress.max
+                )
+            } catch (e: CacheOperationFailedException) {
+                val hint = "Error while deleting ${issueStub.issueKey}"
+                log.error(hint)
+                e.printStackTrace()
+                Sentry.captureException(e, hint)
+                toastHelper.showSomethingWentWrongToast()
+                break
             }
         }
     }

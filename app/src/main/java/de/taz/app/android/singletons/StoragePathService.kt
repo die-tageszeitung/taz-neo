@@ -71,7 +71,6 @@ class StoragePathService private constructor(private val applicationContext: Con
                     else -> throw CannotDetermineBaseUrlException("$collection is not an issue but tried to download a file with storage type issue: ${fileEntry.name}")
                 }
             }
-            StorageType.public -> ""
         }
     }
 }
