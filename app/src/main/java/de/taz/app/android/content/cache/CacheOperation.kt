@@ -86,7 +86,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     private val _cacheItems = mutableListOf<CacheOperationItem<ITEM>>()
 
     init {
-        addAll(items)
+        addItems(items)
     }
 
     /**
