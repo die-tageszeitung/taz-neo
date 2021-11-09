@@ -35,10 +35,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import kotlinx.android.synthetic.main.fragment_settings.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.util.*
 
 @Suppress("UNUSED")
@@ -238,44 +235,61 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             val dialog = MaterialAlertDialogBuilder(context)
                 .setView(dialogView)
                 .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    dialog.dismiss()
-                }
+                .setNegativeButton(R.string.cancel_button, null)
                 .create()
             dialog.show()
+            var deletionJob: Job? = null
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
                 dialog.setCancelable(false)
-                val deletionProgress =
-                    dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
-                val deletionProgressText =
-                    dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-                CoroutineScope(Dispatchers.IO).launch {
-                    val issueStubList =  IssueRepository.getInstance(context).getAllIssueStubs()
-                    withContext(Dispatchers.Main) {
-                        deletionProgress.visibility = View.VISIBLE
-                        deletionProgress.progress = 0
-                        deletionProgress.max = issueStubList.size
+                if (deletionJob == null) {
+                    deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                        deleteAllIssuesWithProgressBar(context, dialogView)
+                        dialog.dismiss()
                     }
-                    issueStubList.forEachIndexed { index, issueStub ->
-                        withContext(Dispatchers.Main) {
-                            deletionProgress.progress = index + 1
-                            deletionProgressText.visibility = View.VISIBLE
-                            deletionProgressText.text = getString(
-                                R.string.settings_delete_progress_text,
-                                index + 1,
-                                deletionProgress.max
-                            )
-                        }
-                        DataService.getInstance(context).ensureDeleted(
-                            IssueRepository.getInstance(context).getIssue(issueStub)
-                        )
-                        IssueRepository.getInstance(context)
-                            .delete(IssueRepository.getInstance(context).getIssue(issueStub))
-                    }
-                    dialog.dismiss()
                 }
             }
+            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            negativeButton.setOnClickListener {
+                deletionJob?.let {
+                    val hint = "deleteAllIssues job was cancelled"
+                    log.warn(hint)
+                    it.cancel(hint)
+                }
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private suspend fun deleteAllIssuesWithProgressBar(
+        context: Context,
+        dialogView: View
+    ) {
+        val deletionProgress =
+            dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
+        val deletionProgressText =
+            dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
+        val issueStubList = IssueRepository.getInstance(context).getAllIssueStubs()
+        withContext(Dispatchers.Main) {
+            deletionProgress.visibility = View.VISIBLE
+            deletionProgress.progress = 0
+            deletionProgress.max = issueStubList.size
+        }
+        issueStubList.forEachIndexed { index, issueStub ->
+            withContext(Dispatchers.Main) {
+                deletionProgress.progress = index + 1
+                deletionProgressText.visibility = View.VISIBLE
+                deletionProgressText.text = getString(
+                    R.string.settings_delete_progress_text,
+                    index + 1,
+                    deletionProgress.max
+                )
+            }
+            DataService.getInstance(context).ensureDeleted(
+                IssueRepository.getInstance(context).getIssue(issueStub)
+            )
+            IssueRepository.getInstance(context)
+                .delete(IssueRepository.getInstance(context).getIssue(issueStub))
         }
     }
 
