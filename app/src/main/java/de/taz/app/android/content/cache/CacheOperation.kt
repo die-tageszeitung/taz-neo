@@ -148,7 +148,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * running operation will be awaited before this operation is executed.
      * The function will suspend until the [CacheOperation] is completed
      */
-    suspend fun execute(): RESULT {
+    suspend fun execute(): RESULT = withContext(NonCancellable) {
         try {
             registerOperation()
         } catch (e: SameOperationActiveException) {
@@ -161,13 +161,13 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             // wait on the blocking operation instead
             e.blockingOperation.waitOnCompletion()
             // Exception SameOperationActiveException guarantees us to have the same RESULT
-            return e.blockingOperation.getResult() as RESULT
+            return@withContext e.blockingOperation.getResult() as RESULT
         } catch (e: DifferentOperationActiveException) {
             // wait for the previous operation and then retry registering and execution
             e.blockingOperation.waitOnCompletion()
-            return execute()
+            return@withContext execute()
         }
-        return withContext(NonCancellable) { doWork() }
+        return@withContext doWork()
     }
 
     /**

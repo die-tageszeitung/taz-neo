@@ -1,7 +1,5 @@
 package de.taz.app.android
 
-import android.os.StrictMode
-import com.facebook.stetho.Stetho
 import de.taz.app.android.data.DownloadScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
