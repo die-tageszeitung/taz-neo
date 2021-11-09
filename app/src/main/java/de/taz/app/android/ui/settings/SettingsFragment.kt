@@ -53,11 +53,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private lateinit var toastHelper: ToastHelper
     private lateinit var contentService: ContentService
+    private lateinit var issueRepository: IssueRepository
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -260,26 +262,26 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             dialog.show()
             val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
             positiveButton.setOnClickListener {
-
                 dialog.setCancelable(false)
                 val deletionProgress =
                     dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
                 val deletionProgressText =
                     dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     var counter = 0
-                    val issueStubList = IssueRepository.getInstance(context).getAllIssueStubs()
-                    withContext(Dispatchers.Main) {
-                        deletionProgress.progress = counter
-                        deletionProgress.max = issueStubList.count()
-                        deletionProgressText.text = getString(
-                            R.string.settings_delete_progress_text,
-                            counter,
-                            deletionProgress.max
-                        )
-                        deletionProgress.visibility = View.VISIBLE
-                        deletionProgressText.visibility = View.VISIBLE
+                    val issueStubList = withContext(Dispatchers.IO) {
+                        issueRepository.getAllIssueStubs()
                     }
+                    deletionProgress.progress = counter
+                    deletionProgress.max = issueStubList.count()
+                    deletionProgressText.text = getString(
+                        R.string.settings_delete_progress_text,
+                        counter,
+                        deletionProgress.max
+                    )
+                    deletionProgress.visibility = View.VISIBLE
+                    deletionProgressText.visibility = View.VISIBLE
+
                     for (issueStub in issueStubList) {
                         try {
                             contentService.deleteIssue(issueStub.issueKey)
