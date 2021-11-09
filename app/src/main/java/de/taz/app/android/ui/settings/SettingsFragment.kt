@@ -246,40 +246,37 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun showDeleteAllIssuesDialog() {
-        context?.let { context ->
-            val dialogView = LayoutInflater.from(context)
-                .inflate(R.layout.dialog_settings_delete_all_issues, null)
-            val dialog = MaterialAlertDialogBuilder(context)
-                .setView(dialogView)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(R.string.cancel_button, null)
-                .create()
-            dialog.show()
-            var deletionJob: Job? = null
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.setOnClickListener {
-                dialog.setCancelable(false)
-                if (deletionJob == null) {
-                    deletionJob = CoroutineScope(Dispatchers.IO).launch {
-                        deleteAllIssuesWithProgressBar(context, dialogView)
-                        dialog.dismiss()
-                    }
+        val dialogView = LayoutInflater.from(context)
+            .inflate(R.layout.dialog_settings_delete_all_issues, null)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(R.string.cancel_button, null)
+            .create()
+        dialog.show()
+        var deletionJob: Job? = null
+        val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        positiveButton.setOnClickListener {
+            dialog.setCancelable(false)
+            if (deletionJob == null) {
+                deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                    deleteAllIssuesWithProgressBar(dialogView)
+                    dialog.dismiss()
                 }
             }
-            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            negativeButton.setOnClickListener {
-                deletionJob?.let {
-                    val hint = "deleteAllIssues job was cancelled"
-                    log.warn(hint)
-                    it.cancel(hint)
-                }
-                dialog.dismiss()
+        }
+        val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        negativeButton.setOnClickListener {
+            deletionJob?.let {
+                val hint = "deleteAllIssues job was cancelled"
+                log.warn(hint)
+                it.cancel(hint)
             }
+            dialog.dismiss()
         }
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
-        context: Context,
         dialogView: View
     ) = withContext(Dispatchers.Main) {
         var counter = 0
