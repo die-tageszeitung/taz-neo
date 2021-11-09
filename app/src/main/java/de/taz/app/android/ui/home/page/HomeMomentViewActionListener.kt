@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page
 
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.data.DataService
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,11 +19,12 @@ open class HomeMomentViewActionListener(
 
     override fun onLongClicked(momentViewData: CoverViewData) {
         issueFeedFragment.lifecycleScope.launch(Dispatchers.IO) {
-            val isDownloaded = dataService.isIssueDownloaded(momentViewData.issueKey)
+            val issueKey = dataService.determineIssueKey(IssuePublication(momentViewData.issueKey))
+            val isDownloaded = dataService.isIssueDownloaded(issueKey)
             withContext(Dispatchers.Main) {
                 issueFeedFragment.showBottomSheet(
                     IssueBottomSheetFragment.create(
-                        momentViewData.issueKey,
+                        issueKey,
                         isDownloaded
                     )
                 )
