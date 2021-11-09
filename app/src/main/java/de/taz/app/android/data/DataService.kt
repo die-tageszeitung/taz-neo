@@ -83,6 +83,11 @@ class DataService(private val applicationContext: Context) {
      * @param allowCache checks if issue already exists
      * @param retryOnFailure calls getIssue again if unsuccessful
      */
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+            "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getIssueStub(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
@@ -120,6 +125,11 @@ class DataService(private val applicationContext: Context) {
      * @param allowCache checks if issue already exists
      * @param retryOnFailure calls getIssue again if unsuccessful
      */
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getIssue(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
@@ -140,6 +150,13 @@ class DataService(private val applicationContext: Context) {
      * @param retryOnFailure calls getIssue again if unsuccessful
      * @param onConnectionFailure callback to handle connection failures
      */
+
+
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getIssue(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
@@ -198,6 +215,12 @@ class DataService(private val applicationContext: Context) {
             )
         }
 
+
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
         withContext(Dispatchers.IO) {
             if (allowCache) {
@@ -216,6 +239,11 @@ class DataService(private val applicationContext: Context) {
             appInfo
         }
 
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getMoment(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
@@ -253,6 +281,11 @@ class DataService(private val applicationContext: Context) {
             moment
         }
 
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getFrontPage(
         issuePublication: IssuePublication,
         allowCache: Boolean = true,
@@ -287,6 +320,11 @@ class DataService(private val applicationContext: Context) {
         }
 
 
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getResourceInfo(
         allowCache: Boolean = true,
         retryOnFailure: Boolean = false
@@ -309,6 +347,11 @@ class DataService(private val applicationContext: Context) {
         return@withContext resourceInfo
     }
 
+    @Deprecated(
+        message = "All metadata retrieval functions should be migrated to ContentService," +
+                "metadata retrieval should only be possible via MetadataDownload.",
+        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
+    )
     suspend fun getResourceInfo(
         minResourceVersion: Int,
         retryOnFailure: Boolean = false,

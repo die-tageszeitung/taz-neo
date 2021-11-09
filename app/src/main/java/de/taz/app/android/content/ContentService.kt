@@ -235,4 +235,6 @@ class ContentService(
         val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
         deletion.execute()
     }
+
+
 }
