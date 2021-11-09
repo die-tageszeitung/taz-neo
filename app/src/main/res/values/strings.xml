@@ -123,6 +123,7 @@
     <string name="settings_delete_all_issues_for_sure_detail">Es werden alle heruntergeladenen Ausgaben gelöscht. Die Lesezeichen bleiben erhalten. Der Vorgang kann einige Sekunden dauern.</string>
     <string name="settings_delete_progress_text">%d von %d Ausgaben gelöscht</string>
 
+
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
     <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
@@ -263,6 +264,7 @@
     <string name="dialog_try_pdf_title">Entdecken Sie jetzt die Zeitungsansicht</string>
     <string name="dialog_try_pdf_description">Hier können Sie zwischen der mobilen und der Ansicht der Zeitungsseiten wechseln.</string>
 
+    <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler\*innen sind informiert.</string>
 
     <string name="button_close_text">×</string>
 

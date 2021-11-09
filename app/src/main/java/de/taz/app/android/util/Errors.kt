@@ -28,6 +28,17 @@ fun Activity.showConnectionErrorDialog(onDismiss: () -> Unit = { finish() }) {
 }
 
 
+fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
+    AlertDialog.Builder(this)
+        .setMessage(R.string.dialog_fatal_error_description)
+        .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
+        .setOnDismissListener {
+            onDismiss()
+        }
+        .show()
+}
+
+
 fun showIssueDownloadFailedDialog(context: Context, issueKey: AbstractIssueKey) {
     android.app.AlertDialog.Builder(context)
         .setMessage(

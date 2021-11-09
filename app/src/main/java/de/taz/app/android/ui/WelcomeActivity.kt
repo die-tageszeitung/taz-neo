@@ -20,6 +20,8 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
+import de.taz.app.android.util.showFatalErrorDialog
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_welcome.*
 import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
 import kotlinx.coroutines.CoroutineScope
@@ -96,6 +98,11 @@ class WelcomeActivity : AppCompatActivity() {
             showWelcomeSlides()
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()
+        } catch (e: HTMLFileNotFoundException) {
+            val hint = "Html file for data policy not found"
+            log.error(hint)
+            Sentry.captureException(e, hint)
+            showFatalErrorDialog()
         }
     }
 

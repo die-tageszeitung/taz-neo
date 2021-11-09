@@ -18,6 +18,9 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.webview.AppWebChromeClient
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.showFatalErrorDialog
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_webview.*
 import kotlinx.android.synthetic.main.activity_webview.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +39,8 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var dataService: DataService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
+
+    private val log by Log
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +72,14 @@ class WebViewActivity : AppCompatActivity() {
 
 
         intent.extras?.getString(WEBVIEW_HTML_FILE)?.let {
-            showHtmlFile(it)
+            try {
+                showHtmlFile(it)
+            } catch (e: HTMLFileNotFoundException) {
+                val hint = "Html file $it not found"
+                log.error(hint)
+                Sentry.captureException(e, hint)
+                showFatalErrorDialog()
+            }
         } ?: run {
             throw IllegalArgumentException("WebViewActivity needs to be started with WEBVIEW_HTML_FILE extra in intent")
         }
