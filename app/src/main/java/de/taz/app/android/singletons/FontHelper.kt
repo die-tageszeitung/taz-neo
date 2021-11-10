@@ -22,16 +22,10 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
     companion object : SingletonHolder<FontHelper, Context>(::FontHelper)
 
     private val storageService = StorageService.getInstance(applicationContext)
-    private val fontFolder = File("${storageService.getInternalFilesDir().absolutePath}/$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER")
+    private var fontFolder: File? = null
 
     private val cache: MutableMap<String, Typeface?> = mutableMapOf()
     private val mutex = Mutex()
-
-    init {
-        if (!fontFolder.exists()) {
-            fontFolder.mkdir()
-        }
-    }
 
     suspend fun getTypeFace(file: File): Typeface? {
         return if (cache.containsKey(file.name)) {
@@ -46,8 +40,20 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
         }
     }
 
+    private suspend fun ensureFontFolderExists(): Unit = withContext(Dispatchers.IO) {
+        fontFolder = fontFolder
+            ?: File(
+                "${storageService.getInternalFilesDir().absolutePath}/$RESOURCE_FOLDER/$CONVERTED_FONT_FOLDER"
+            ).also {
+                if (!it.exists()) {
+                    it.mkdir()
+                }
+            }
+    }
+
     private suspend fun fromFile(file: File): Typeface? = withContext(Dispatchers.IO) {
         try {
+            ensureFontFolderExists()
             file.inputStream().use {
                 val ttfFile = File("${fontFolder}/${file.name.replace(".woff", ".ttf")}")
                 if (!ttfFile.exists()) {
