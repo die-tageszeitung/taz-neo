@@ -1,15 +1,17 @@
 package de.taz.app.android.base
 
 import android.content.Intent
-import androidx.viewbinding.ViewBinding
+import androidx.appcompat.app.AppCompatActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.main.MainActivity
 
-abstract class StartupActivity<ViewBindingClass: ViewBinding> : ViewBindingActivity<ViewBindingClass>() {
-
+@Deprecated(
+    message = "To make use of ViewBindings please use ViewBindingActivity or StartupActivity"
+)
+abstract class StartupActivity : AppCompatActivity() {
     private val generalDataStore by lazy {
         GeneralDataStore.getInstance(applicationContext)
     }

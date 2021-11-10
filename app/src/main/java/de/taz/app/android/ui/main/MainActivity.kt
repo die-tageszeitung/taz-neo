@@ -13,12 +13,9 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
-import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
@@ -39,13 +36,9 @@ const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 @Mockable
 class MainActivity : NightModeActivity(R.layout.activity_main) {
 
-    private var fileHelper: StorageService? = null
-    private var imageRepository: ImageRepository? = null
-    private var sectionRepository: SectionRepository? = null
-    private var toastHelper: ToastHelper? = null
-    private lateinit var dataService: DataService
-    private lateinit var issueRepository: IssueRepository
     private lateinit var authHelper: AuthHelper
+
+    private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
 
     val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
@@ -55,13 +48,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        issueRepository = IssueRepository.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
-        dataService = DataService.getInstance(applicationContext)
-        fileHelper = StorageService.getInstance(applicationContext)
-        imageRepository = ImageRepository.getInstance(applicationContext)
-        sectionRepository = SectionRepository.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.Main) {
             checkIfSubscriptionElapsed()
