@@ -184,6 +184,7 @@ android {
         }
 
         staging {
+            applicationIdSuffix ".staging"
             dimension "graphql"
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://testdl.taz.de/appGraphQl\""
         }
