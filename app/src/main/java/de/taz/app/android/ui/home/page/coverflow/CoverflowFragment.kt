@@ -65,12 +65,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.currentDate.observe(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                skipToDate(it)
-            }
-        }
-
         fragment_cover_flow_grid.apply {
             layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
                 /**
@@ -152,6 +146,11 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
+        viewModel.currentDate.observe(viewLifecycleOwner) {
+            lifecycleScope.launch {
+                skipToDate(it)
+            }
+        }
         snapHelper.setSnapListener { position ->
             (parentFragment as? HomeFragment)?.apply {
                 if (position == 0) {
