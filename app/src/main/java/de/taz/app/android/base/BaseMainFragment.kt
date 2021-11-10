@@ -12,6 +12,7 @@ import androidx.annotation.MenuRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
@@ -144,7 +145,7 @@ abstract class BaseMainFragment(
      * show bottomSheet
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */
-    fun showBottomSheet(fragment: Fragment) {
+    fun showBottomSheet(fragment: Fragment): BottomSheetDialogFragment {
         val addBottomSheet =
             if (fragment is BottomSheetDialogFragment) {
                 fragment
@@ -152,6 +153,7 @@ abstract class BaseMainFragment(
                 AddBottomSheetDialog.newInstance(fragment)
             }
         addBottomSheet.show(childFragmentManager, null)
+        return addBottomSheet
     }
 
     protected fun hideKeyBoard() {

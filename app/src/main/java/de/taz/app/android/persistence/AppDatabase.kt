@@ -83,7 +83,6 @@ val allMigrations = arrayOf(
     StorageTypeConverter::class,
     StringListTypeConverter::class,
     SectionTypeTypeConverter::class,
-    UUIDTypeConverter::class,
     SectionTypeTypeConverter::class,
     DateListTypeConverter::class,
     StorageLocationConverter::class
