@@ -139,8 +139,8 @@ android {
 
         testOptions {
             execution 'ANDROIDX_TEST_ORCHESTRATOR'
-
         }
+
         vectorDrawables.useSupportLibrary = true
         resConfig "de"
 
@@ -154,13 +154,16 @@ android {
 
 
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi,io.ktor.util.KtorExperimentalAPI"
+        freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
     lintOptions {
@@ -417,6 +420,9 @@ dependencies {
 
     // google Flavor
     nonfreeImplementation 'com.google.firebase:firebase-messaging:23.0.0'
+
+    // add Java 8+ API desugaring support
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
 
 sentry {
@@ -441,7 +447,6 @@ allprojects {
         resolutionStrategy.force 'org.objenesis:objenesis:2.6'
     }
 }
-
 
 task generateStaticVersionInBuildGradle {
     doLast {
