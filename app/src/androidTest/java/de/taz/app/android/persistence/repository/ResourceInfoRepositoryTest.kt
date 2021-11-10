@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
 import org.junit.After
@@ -68,8 +68,8 @@ class ResourceInfoRepositoryTest {
         assertEquals(fromDB, resourceInfo2)
     }
 
-    private val resourceFiles = IssueTestUtil.getIssue().sectionList.first().imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
-    private val resourceFiles2 = IssueTestUtil.getIssue().sectionList[1].imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
+    private val resourceFiles = TestDataUtil.getIssue().sectionList.first().imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
+    private val resourceFiles2 = TestDataUtil.getIssue().sectionList[1].imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
     private val resourceInfo = ResourceInfo(1, "http://example.com", "1.zip",  resourceFiles, null)
     private val resourceInfo2 = ResourceInfo(2, "http://example.com", "2.zip",  resourceFiles2, null)
 }

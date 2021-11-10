@@ -18,7 +18,7 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Mockable
-class IssueRepository private constructor(val applicationContext: Context) :
+class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
@@ -89,7 +89,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
             }
             null
         }
-        return issue
+        // It is important to refresh the issue after this operation, as in the sub operation
+        // (saving articles, sections etc.) might be business logic slightly altering the actually
+        // saved data, naming bookmarked state that is being preserved, for instance.
+        return get(issue.issueKey)!!
     }
 
     fun exists(issueOperations: IssueOperations): Boolean {
@@ -154,7 +157,12 @@ class IssueRepository private constructor(val applicationContext: Context) :
         return getStub(issueKey)?.let { issueStubToIssue(it) }
     }
 
-    fun getStub(issueKey: IssueKey): IssueStub? {
+
+    fun get(issueKey: IssueKeyWithPages): IssueWithPages? {
+        return getStub(IssueKey(issueKey))?.let { issueStubToIssue(it) }?.let { IssueWithPages(it) }
+    }
+
+    fun getStub(issueKey: AbstractIssueKey): IssueStub? {
         return appDatabase.issueDao()
             .getByFeedDateAndStatus(issueKey.feedName, issueKey.date, issueKey.status)
     }
@@ -232,7 +240,7 @@ class IssueRepository private constructor(val applicationContext: Context) :
     }
 
     fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
-        return getDownloadDateWithPages(IssueKeyWithPages(issueWithPages.issueKey))
+        return getDownloadDateWithPages(issueWithPages.issueKey)
     }
 
     fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
@@ -274,7 +282,10 @@ class IssueRepository private constructor(val applicationContext: Context) :
 
     fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
         getStub(issueWithPages.issueKey)?.let {
-            update(it.copy(dateDownloadWithPages = dateDownload))
+            update(it.copy(
+                dateDownload = dateDownload,
+                dateDownloadWithPages = dateDownload
+            ))
         }
     }
 
@@ -477,10 +488,10 @@ data class IssueKey(
     override val status: IssueStatus
 ) : Parcelable, AbstractIssueKey {
 
-    constructor(issueKeyWithPages: IssueKeyWithPages) : this(
-        issueKeyWithPages.feedName,
-        issueKeyWithPages.date,
-        issueKeyWithPages.status
+    constructor(abstractIssueKey: AbstractIssueKey) : this(
+        abstractIssueKey.feedName,
+        abstractIssueKey.date,
+        abstractIssueKey.status
     )
 
     constructor(issuePublication: IssuePublication, status: IssueStatus) : this(

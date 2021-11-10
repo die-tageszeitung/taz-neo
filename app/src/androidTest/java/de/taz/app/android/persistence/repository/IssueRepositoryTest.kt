@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.AppDatabase
 import java.io.IOException
@@ -21,8 +21,8 @@ class IssueRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var issueRepository: IssueRepository
 
-    private val issue = IssueTestUtil.getIssue()
-    private val issue2 = IssueTestUtil.getIssue("testIssue2")
+    private val issue = TestDataUtil.getIssue()
+    private val issue2 = TestDataUtil.getIssue("testIssue2")
 
     @Before
     fun createDb() {

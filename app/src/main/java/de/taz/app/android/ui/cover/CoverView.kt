@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.api.models.DownloadStatus
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -98,11 +98,19 @@ class CoverView @JvmOverloads constructor(
     /**
      * set the DownloadStatus of this view
      */
-    fun setDownloadIconForStatus(downloadStatus: DownloadStatus) {
+    fun setDownloadIconForStatus(downloadStatus: CacheState) {
         when (downloadStatus) {
-            DownloadStatus.done -> hideDownloadIcon(true)
-            DownloadStatus.started -> showLoadingIcon()
-            else -> showDownloadIcon()
+            CacheState.PRESENT -> {
+                hideDownloadIcon(true)
+            }
+            CacheState.LOADING_CONTENT, CacheState.LOADING_METADATA,
+            CacheState.DELETING_METADATA, CacheState.DELETING_CONTENT,
+            CacheState.METADATA_PRESENT -> {
+                showLoadingIcon()
+            }
+            CacheState.ABSENT -> {
+                showDownloadIcon()
+            }
         }
     }
 

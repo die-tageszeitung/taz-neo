@@ -45,3 +45,5 @@ const val DISPLAYABLE_NAME = "displayableName"
 // SimpleDateFormat is not thread safe!!! We need to create to create a instance for every thread context
 val simpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB

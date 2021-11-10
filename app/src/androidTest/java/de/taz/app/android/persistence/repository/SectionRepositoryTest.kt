@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
@@ -24,7 +24,7 @@ class SectionRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
-    private val issue = IssueTestUtil.getIssue()
+    private val issue = TestDataUtil.getIssue()
     private val sections = issue.sectionList
     private val section = sections.first()
 

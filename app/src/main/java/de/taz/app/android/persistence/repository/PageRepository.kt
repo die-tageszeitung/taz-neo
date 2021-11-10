@@ -112,6 +112,7 @@ class PageRepository private constructor(applicationContext: Context) :
         appDatabase.pageDao().delete(
             pages.mapNotNull { getStub(it.pagePdf.name) }
         )
+
         fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
     }
 

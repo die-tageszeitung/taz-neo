@@ -7,13 +7,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -35,6 +38,7 @@ class IssueViewerFragment :
     }
 
     private val log by Log
+
 
     private lateinit var sectionPagerFragment: SectionPagerFragment
     private lateinit var articlePagerFragment: ArticlePagerFragment
@@ -87,11 +91,6 @@ class IssueViewerFragment :
                 ) { issueWithDisplayable ->
                     if (issueWithDisplayable == null) return@observe
                     CoroutineScope(Dispatchers.IO).launch {
-                        val issue = dataService.getIssue(
-                            IssuePublication(issueWithDisplayable.issueKey),
-                            retryOnFailure = true
-                        )
-                        dataService.ensureDownloaded(issue)
                         delay(1500)
                         withContext(Dispatchers.Main) {
                             sectionDrawerViewModel.drawerOpen.value = false
@@ -185,4 +184,5 @@ class IssueViewerFragment :
             }
         } ?: false
     }
+
 }

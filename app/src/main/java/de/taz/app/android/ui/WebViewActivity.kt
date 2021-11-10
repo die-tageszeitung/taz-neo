@@ -18,7 +18,11 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.webview.AppWebChromeClient
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.showFatalErrorDialog
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_webview.*
+import kotlinx.android.synthetic.main.activity_webview.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +40,8 @@ class WebViewActivity : AppCompatActivity() {
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
 
+    private val log by Log
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +58,6 @@ class WebViewActivity : AppCompatActivity() {
             finish()
         }
 
-
-
         web_view_fullscreen_content.apply {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
@@ -64,32 +68,43 @@ class WebViewActivity : AppCompatActivity() {
             webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
             settings.javaScriptEnabled = true
-            lifecycleScope.launch {
-                val htmlFileName = intent.extras?.getString(WEBVIEW_HTML_FILE)
-                val htmlFileEntry = withContext(Dispatchers.IO) {
-                    htmlFileName?.let {
-                        fileEntryRepository.get(it)
-                    }
-                }
-                val filePath = htmlFileEntry?.let { storageService.getFileUri(it) }
-                filePath?.let {
-                    ensureResourceInfoIsDownloadedAndShow(it)
-                }
-            }
-
         }
+
+
+        intent.extras?.getString(WEBVIEW_HTML_FILE)?.let {
+            try {
+                showHtmlFile(it)
+            } catch (e: HTMLFileNotFoundException) {
+                val hint = "Html file $it not found"
+                log.error(hint)
+                Sentry.captureException(e, hint)
+                showFatalErrorDialog()
+            }
+        } ?: run {
+            throw IllegalArgumentException("WebViewActivity needs to be started with WEBVIEW_HTML_FILE extra in intent")
+        }
+
     }
 
-    private fun ensureResourceInfoIsDownloadedAndShow(filePath: String) =
+    private fun showHtmlFile(htmlFileKey: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val resourceInfo = dataService.getResourceInfo()
-            dataService.ensureDownloaded(resourceInfo, onConnectionFailure = {
-                toastHelper.showNoConnectionToast()
-            })
-            withContext(Dispatchers.Main) {
-                web_view_fullscreen_content.loadUrl(filePath)
+            fileEntryRepository.get(htmlFileKey)?.let {
+                storageService.getFileUri(it)
+            }?.let {
+                withContext(Dispatchers.Main) {
+                    web_view_fullscreen_content.loadUrl(it)
+                }
+            } ?: run {
+                throw HTMLFileNotFoundException(
+                    "Could not find html file ${
+                        intent.extras?.getString(
+                            WEBVIEW_HTML_FILE
+                        )
+                    }"
+                )
             }
         }
+    }
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {

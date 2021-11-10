@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -43,6 +44,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private lateinit var dataService: DataService
 
     private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
+    private val contentService by lazy { ContentService.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -68,11 +70,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.currentDate.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                skipToDate(it)
-            }
-        }
 
         fragment_cover_flow_grid.apply {
             layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
@@ -161,6 +158,26 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
+        viewModel.currentDate.observeDistinct(viewLifecycleOwner) {
+            lifecycleScope.launch {
+                skipToDate(it)
+            }
+        }
+        snapHelper.setSnapListener { position ->
+            (parentFragment as? HomeFragment)?.apply {
+                if (position == 0) {
+                    setHomeIconFilled()
+                } else {
+                    setHomeIcon()
+                }
+            }
+
+            adapter.getItem(position)?.let { date ->
+                viewModel.currentDate.postValue(
+                    date
+                )
+            }
+        }
         super.onResume()
     }
 
@@ -213,7 +230,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         downloadObserver?.unbindView()
         downloadObserver = DownloadObserver(
             this,
-            dataService,
+            contentService,
             toastHelper,
             observableKey
         ).apply {

@@ -5,11 +5,8 @@ import android.os.Environment
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.interfaces.FileEntryOperations
-import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.GLOBAL_FOLDER
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.api.interfaces.*
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.SingletonHolder

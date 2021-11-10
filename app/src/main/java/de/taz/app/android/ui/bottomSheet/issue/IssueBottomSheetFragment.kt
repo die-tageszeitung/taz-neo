@@ -8,15 +8,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asLiveData
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
@@ -43,7 +43,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var fileHelper: StorageService
-    private lateinit var downloadService: DownloadService
+    private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
     private lateinit var dataService: DataService
     private lateinit var toastHelper: ToastHelper
@@ -71,7 +71,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         apiService = ApiService.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         fileHelper = StorageService.getInstance(context.applicationContext)
-        downloadService = DownloadService.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
@@ -128,7 +128,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 fileEntryRepository.get(
                     image.name
                 )?.let {
-                    dataService.ensureDownloaded(it, issue.baseUrl)
+                    contentService.downloadSingleFileIfNotDownloaded(it, issue.baseUrl)
                 }
                 // refresh issue after altering file state
                 issue = dataService.getIssue(IssuePublication(issueKey))
@@ -164,43 +164,34 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
+            contentService.getCacheStatusFlow(issueKey)
+                .asLiveData()
+                .observe(this@IssueBottomSheetFragment) {
+                    if (it.cacheState == CacheState.ABSENT) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            dismiss()
+                        }
+                        viewModel.notifyMomentChanged(simpleDateFormat.parse(issueKey.date)!!)
+                    }
+                }
+
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = dataService.getIssue(IssuePublication(issueKey))
-                val issueToDelete = if (issueKey is IssueKeyWithPages) {
-                    IssueWithPages(issue)
-                } else {
-                    issue
-                }
-                dataService.ensureDeleted(issueToDelete)
-                withContext(Dispatchers.Main) {
-                    dismiss()
-                }
-                viewModel.notifyMomentChanged(simpleDateFormat.parse(issueKey.date)!!)
+                contentService.deleteIssue(issueKey)
             }
         }
 
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val issue =
-                        dataService.getIssue(
-                            IssuePublication(issueKey),
-                            allowCache = false,
-                            forceUpdate = true
-                        )
-                    val issueToDownload = if (issueKey is IssueKeyWithPages) {
-                        IssueWithPages(issue)
-                    } else {
-                        issue
-                    }
-                    dataService.ensureDownloaded(issueToDownload)
-                } catch (e: ConnectivityException.Recoverable) {
-                    toastHelper.showNoConnectionToast()
+                    contentService.downloadToCacheIfNotPresent(issueKey)
+                } catch (e: CacheOperationFailedException) {
+                    // Errors are handled in CoverViewBinding
                 }
             }
             dismiss()
         }
     }
+
     override fun onStart() {
         super.onStart()
         //this forces the sheet to appear at max height even on landscape

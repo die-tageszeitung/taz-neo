@@ -312,10 +312,9 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    // lifecycle extensions not in sync with rest of library
-    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
     implementation 'androidx.autofill:autofill:1.1.0'
 

@@ -6,7 +6,11 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.data.DataService
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
@@ -29,17 +33,21 @@ class MomentViewBinding(
     onMomentViewActionListener
 ) {
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
     private val dataService = DataService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         val moment = dataService.getMoment(issuePublication, retryOnFailure = true)
             ?: throw IllegalStateException("Moment for expected publication $issuePublication not found")
         val dimension = feedRepository.get(moment.issueFeedName)
             ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
-
-        dataService.ensureDownloaded(moment)
+        try {
+            contentService.downloadToCacheIfNotPresent(moment, priority = DownloadPriority.High)
+        } catch (e: CacheOperationFailedException) {
+            toastHelper.showConnectionToServerFailedToast()
+        }
 
         // refresh moment after download
         val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true)
@@ -65,8 +73,8 @@ class MomentViewBinding(
         }
 
         CoverViewData(
-            dataService.determineIssueKey(issuePublication),
-            DownloadStatus.pending,
+            downloadedMoment.issueKey,
+            CacheState.ABSENT,
             momentType,
             momentUri,
             dimension
@@ -76,30 +84,12 @@ class MomentViewBinding(
 
     override fun onDownloadClicked() {
         if (dataInitialized()) {
-            boundView?.setDownloadIconForStatus(DownloadStatus.started)
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    lifecycleOwner.lifecycleScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
-            }
-
             CoroutineScope(Dispatchers.IO).launch {
-                // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                val issue = dataService.getIssue(
-                    issuePublication,
-                    retryOnFailure = true,
-                    allowCache = false,
-                    forceUpdate = true,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
-                dataService.ensureDownloaded(
-                    collection = issue,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
+                try {
+                    contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
+                } catch (e: CacheOperationFailedException) {
+                    // Any visual error feedback should be done in CoverViewBinding listener
+                }
             }
         }
     }

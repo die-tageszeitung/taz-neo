@@ -19,6 +19,8 @@ import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
@@ -27,6 +29,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
 import de.taz.app.android.util.NightModeHelper
+import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.io.File
@@ -47,6 +50,7 @@ class SplashActivity : BaseActivity() {
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
     private lateinit var storageDataStore: StorageDataStore
+    private lateinit var contentService: ContentService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +60,7 @@ class SplashActivity : BaseActivity() {
         toastHelper = ToastHelper.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
 
     }
@@ -91,13 +96,7 @@ class SplashActivity : BaseActivity() {
                     NightModeHelper.generateCssOverride(this@SplashActivity)
                 }
             } catch (e: InitializationException) {
-                AlertDialog.Builder(this@SplashActivity)
-                    .setMessage(R.string.splash_error_no_connection)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
-                    .setOnDismissListener {
-                        finish()
-                    }
-                    .show()
+                showConnectionErrorDialog()
                 Sentry.captureException(e)
                 return@launch
             }
@@ -128,29 +127,22 @@ class SplashActivity : BaseActivity() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             if (feed?.publicationDates?.isEmpty() == true) {
-                if (feed.publicationDates.isEmpty()) {
-                    dataService.getFeedByName(
-                        DISPLAYABLE_NAME,
-                        allowCache = false,
-                        retryOnFailure = true
-                    )
-                }
                 dataService.getFeedByName(
                     DISPLAYABLE_NAME,
                     allowCache = false,
                     retryOnFailure = true
                 )
             }
-        } catch (e: ConnectivityException.NoInternetException) {
+        } catch (e: ConnectivityException) {
             throw InitializationException("Could not retrieve feed during first start")
         }
     }
 
     private suspend fun checkForNewestIssue() {
         try {
-            dataService.refreshFeedAndGetIssueIfNew(DISPLAYED_FEED)
-        } catch (e: ConnectivityException.Recoverable) {
-            toastHelper.showNoConnectionToast()
+            dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+        } catch (e: ConnectivityException) {
+            toastHelper.showConnectionToServerFailedToast()
         }
     }
 
@@ -315,11 +307,11 @@ class SplashActivity : BaseActivity() {
             log.debug("Created tazApi.css")
         }
         try {
-            dataService.ensureDownloaded(
+            contentService.downloadToCacheIfNotPresent(
                 dataService.getResourceInfo()
             )
-        } catch (e: ConnectivityException) {
-            val hint = "Connectivity exception during resource integration check on startup"
+        } catch (e: CacheOperationFailedException) {
+            val hint = "Error while trying to download resource info on startup"
             log.warn(hint)
             Sentry.captureException(e, hint)
         }

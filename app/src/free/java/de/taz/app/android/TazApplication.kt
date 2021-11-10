@@ -1,6 +1,6 @@
 package de.taz.app.android
 
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.data.DownloadScheduler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 class TazApplication : AbstractTazApplication() {
     override fun onCreate() {
         super.onCreate()
-        DownloadService.getInstance(applicationContext).apply {
+        DownloadScheduler(applicationContext).apply {
             CoroutineScope(Dispatchers.IO).launch {
                 scheduleNewestIssueDownload("poll/initial", true)
             }
