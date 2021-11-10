@@ -151,6 +151,9 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                         viewModel.currentDate.value ?: simpleDateFormat.parse(feed.issueMaxDate)!!
                     )
                 }
+            } else {
+                // An update to the feed without fresh must mean there is an update!
+                skipToHome()
             }
         }
     }
