@@ -120,5 +120,4 @@ class WebViewActivity : AppCompatActivity() {
         }
         super.onDestroy()
     }
-
 }

@@ -1,6 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -152,11 +153,14 @@ class ContentService(
      */
     @Throws(CacheOperationFailedException::class)
     suspend fun downloadToCacheIfNotPresent(
-        collection: DownloadableCollection,
+        collection: ObservableDownload,
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false
     ) = withContext(Dispatchers.IO) {
-        if (!collection.isDownloaded(applicationContext)) {
+        if (collection is DownloadableCollection && collection.isDownloaded(applicationContext)) {
+            // If this is a collection with a valid download date do nothing!
+            return@withContext
+        } else {
             downloadToCache(collection, priority, isAutomaticDownload)
         }
     }
@@ -190,13 +194,43 @@ class ContentService(
      * Only if not found in database it will download it from the API
      *
      * @param download [ObservableDownload] of which the Metadata should be retrieved
-     * @return A DownloadableStub representing the retrieved Metadata
+     * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
+     * or [AppInfo]
      */
     suspend fun downloadMetadataIfNotPresent(
-        download: ObservableDownload
-    ): DownloadableStub {
+        download: ObservableDownload,
+        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES
+    ): ObservableDownload {
         return MetadataDownload
-            .prepare(applicationContext, download, download.getDownloadTag(), allowCache = true)
+            .prepare(
+                applicationContext,
+                download,
+                download.getDownloadTag(),
+                retriesOnConnectionError = maxRetries,
+                allowCache = true
+            )
+            .execute()
+    }
+
+    /**
+     * This function will retrieve the Metadata of [ObservableDownload]
+     *
+     * @param download [ObservableDownload] of which the Metadata should be retrieved
+     * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
+     * or [AppInfo]
+     */
+    suspend fun downloadMetadata(
+        download: ObservableDownload,
+        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES
+    ): ObservableDownload {
+        return MetadataDownload
+            .prepare(
+                applicationContext,
+                download,
+                download.getDownloadTag(),
+                retriesOnConnectionError = maxRetries,
+                allowCache = false
+            )
             .execute()
     }
 
@@ -235,6 +269,4 @@ class ContentService(
         val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
         deletion.execute()
     }
-
-
 }

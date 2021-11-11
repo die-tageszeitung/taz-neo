@@ -151,7 +151,7 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun ensureAppInfo() {
         try {
-            dataService.getAppInfo()
+            contentService.downloadMetadataIfNotPresent(AppInfoKey())
         } catch (e: ConnectivityException) {
             throw InitializationException("Retrieving AppInfo failed")
         }
@@ -162,7 +162,7 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun checkAppVersion() {
         try {
-            val appInfo = dataService.getAppInfo(allowCache = false)
+            val appInfo = contentService.downloadMetadata(AppInfoKey()) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
@@ -308,7 +308,7 @@ class SplashActivity : BaseActivity() {
         }
         try {
             contentService.downloadToCacheIfNotPresent(
-                dataService.getResourceInfo()
+                ResourceInfoKey(-1)
             )
         } catch (e: CacheOperationFailedException) {
             val hint = "Error while trying to download resource info on startup"

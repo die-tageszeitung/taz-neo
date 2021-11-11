@@ -6,6 +6,7 @@ import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.MomentKey
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.StorageService
 import java.util.*
@@ -57,6 +58,7 @@ data class Moment(
     )
 
     val issueKey = IssueKey(issueFeedName, issueDate, issueStatus)
+    val momentKey = MomentKey(issueFeedName, issueDate, issueStatus)
 
     private fun getImagesToDownload(): List<Image> {
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()

@@ -1,6 +1,7 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -21,7 +22,7 @@ import java.util.*
  * can mandate [de.taz.app.android.api.models.ResourceInfo] to be downloaded.
  * It's a practical use case wanting to listen in on the download of a collection *and* it's dependents.
  *
- * @param context An android [Context] object
+ * @param applicationContext An android [Context] object
  * @param parent The [ObservableDownload] that should be downloaded after this operation
  * @param isAutomaticDownload Indicator whether this download was triggered automatically
  * @param priority The download priority of this operation
@@ -86,7 +87,8 @@ class WrappedDownload(
         val metadataDownload = MetadataDownload.prepare(
             applicationContext,
             parent,
-            parent.getDownloadTag() // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
+            parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
+            retriesOnConnectionError = METADATA_DOWNLOAD_DEFAULT_RETRIES
         )
         addItem(
             SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
@@ -161,7 +163,9 @@ class WrappedDownload(
 
         issueDownloadNotifier?.stop()
         if (errorCount == 0) {
-            parentCollection.setDownloadDate(Date(), applicationContext)
+            if (parentCollection is DownloadableCollection) {
+                parentCollection.setDownloadDate(Date(), applicationContext)
+            }
             notifySuccess(Unit)
         } else {
             val exception = CacheOperationFailedException(
@@ -179,7 +183,7 @@ class WrappedDownload(
      * In the case of an [Issue] that's most likely its [Section]s and [Article]s.
      * Any [download] might depend on an appropriate [ResourceInfo]
      */
-    private suspend fun resolveCollections(download: DownloadableStub): List<DownloadableCollection> {
+    private suspend fun resolveCollections(download: ObservableDownload): List<DownloadableCollection> {
         // Get the required resource info - if it already is marked as downloaded do not add it to the set of required items
         val requiredResourceInfo = getRequiredResourceInfo(download)?.let {
             if (it.isDownloaded(applicationContext)) null else it
@@ -197,7 +201,13 @@ class WrappedDownload(
                     download.imprint
                 ) + download.sectionList + download.getArticles() + download.moment + download.pageList
             }
-            is Article, is Page, is Section, is Moment, is ResourceInfo -> setOf(download as DownloadableCollection)
+            // AppInfo has no collection
+            is AppInfo -> setOf()
+            is Article,
+            is Page,
+            is Section,
+            is Moment,
+            is ResourceInfo -> setOf(download as DownloadableCollection)
             else -> throw IllegalArgumentException("Don\'t know how dow download $download")
         } + setOfNotNull(requiredResourceInfo)).toList()
     }

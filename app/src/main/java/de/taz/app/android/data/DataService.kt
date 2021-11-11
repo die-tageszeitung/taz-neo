@@ -20,21 +20,17 @@ import kotlinx.coroutines.sync.withLock
  * A central service providing data intransparent if from cache or remotely fetched
  */
 @Mockable
-class DataService(private val applicationContext: Context) {
+class DataService(applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
     private val apiService = ApiService.getInstance(applicationContext)
     private val storageDataStore = StorageDataStore.getInstance(applicationContext)
 
-    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
-    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
-    private val momentRepository = MomentRepository.getInstance(applicationContext)
-    private val pageRepository = PageRepository.getInstance(applicationContext)
+
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
     private val maxStoredIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
@@ -72,121 +68,6 @@ class DataService(private val applicationContext: Context) {
         }
     }
 
-    /**
-     * This function returns IssueStub from a given [issuePublication].
-     * ATTENTION! The issue returned from the called getIssue function has the status depending
-     * of the AuthStatus (logged in or not).
-     *
-     * This function does not check whether the issue has already been downloaded or not!
-     *
-     * @param issuePublication Key of feed and date
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure calls getIssue again if unsuccessful
-     */
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-            "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getIssueStub(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false,
-        cacheWithPages: Boolean = false
-    ): IssueStub =
-        withContext(Dispatchers.IO) {
-            val regularKey = IssueKey(issuePublication, IssueStatus.regular)
-            val publicKey = IssueKey(issuePublication, IssueStatus.public)
-
-            if (allowCache) {
-                issueRepository.getStub(regularKey)?.let {
-                    return@withContext it
-                }
-                // try too read it from database if issue status is not regular -
-                // presumably this is so that people with an expired subscription can still access old
-                // issues they have saved to database. TODO is this desired?!
-                if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
-                    issueRepository.getStub(publicKey)?.let { return@withContext it }
-                }
-                log.info("Cache miss on $issuePublication")
-            }
-            getIssue(
-                issuePublication,
-                allowCache,
-                retryOnFailure = retryOnFailure
-            ).let(::IssueStub)
-        }
-
-    /**
-     * This function is an overload for [getIssue] to avoid having a suspend callback in it's signature to
-     * be compatible with mockito in tests
-     *
-     * @param issuePublication Key of feed and date
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure calls getIssue again if unsuccessful
-     */
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getIssue(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false,
-    ): Issue = withContext(Dispatchers.IO) {
-        getIssue(issuePublication, allowCache, retryOnFailure) {}
-    }
-
-    /**
-     * This function returns [Issue] from a given [issuePublication].
-     * ATTENTION! The issue returned from the called getIssue function has the status depending
-     * of the AuthStatus (logged in or not) or might be regular in any case if the taz decides to
-     * issue a "demo" issue (meaning unauthenticated users will also recieve regular issues).
-     * If we have a cached version of a "regular" issue available we always default to it.
-     *
-     * @param issuePublication Key of feed and date
-     * @param allowCache checks if issue already exists
-     * @param retryOnFailure calls getIssue again if unsuccessful
-     * @param onConnectionFailure callback to handle connection failures
-     */
-
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getIssue(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false,
-        onConnectionFailure: suspend () -> Unit = {}
-    ): Issue = withContext(Dispatchers.IO) {
-        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
-        val publicKey = IssueKey(issuePublication, IssueStatus.public)
-
-        if (allowCache) {
-            issueRepository.get(regularKey)?.let {
-                return@withContext it
-            }
-            // Only if the eligible status is not regular a public issue is acceptable
-            if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
-                issueRepository.get(publicKey)?.let { return@withContext it }
-            }
-        }
-        val issue = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure({
-                onConnectionFailure()
-            }) {
-                apiService.getIssueByPublication(issuePublication)
-            }
-        } else {
-            apiService.getIssueByPublication(issuePublication)
-        }
-        return@withContext issueRepository.save(issue)
-    }
-
     suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? =
         withContext(Dispatchers.IO) {
             issueRepository.getLastDisplayable(issueKey)
@@ -214,167 +95,6 @@ class DataService(private val applicationContext: Context) {
                 scrollPosition
             )
         }
-
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getAppInfo(allowCache: Boolean = true, retryOnFailure: Boolean = false): AppInfo =
-        withContext(Dispatchers.IO) {
-            if (allowCache) {
-                appInfoRepository.get()?.let {
-                    return@withContext it
-                } ?: run { log.info("Cache miss on getAppInfo") }
-            }
-            val appInfo = if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.getAppInfo()
-                }
-            } else {
-                apiService.getAppInfo()
-            }
-            appInfoRepository.save(appInfo)
-            appInfo
-        }
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getMoment(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): Moment? =
-        withContext(Dispatchers.IO) {
-            val regularKey = IssueKey(issuePublication, IssueStatus.regular)
-            val publicKey = IssueKey(issuePublication, IssueStatus.public)
-
-            if (allowCache) {
-                momentRepository.get(regularKey)?.let { return@withContext it }
-                // Only if the eligible status is not regular a public issue is acceptable
-                if (authHelper.getEligibleIssueStatus() != IssueStatus.regular) {
-                    momentRepository.get(publicKey)?.let { return@withContext it }
-                }
-                log.info("Cache miss on $issuePublication")
-            }
-            val moment = if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.getMomentByFeedAndDate(
-                        issuePublication.feed,
-                        simpleDateFormat.parse(issuePublication.date)!!
-                    )
-                }
-            } else {
-                apiService.getMomentByFeedAndDate(
-                    issuePublication.feed,
-                    simpleDateFormat.parse(issuePublication.date)!!
-                )
-            }
-
-            moment?.let {
-                momentRepository.save(moment)
-            }
-            moment
-        }
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getFrontPage(
-        issuePublication: IssuePublication,
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): Page? =
-        withContext(Dispatchers.IO) {
-            val issueKey = IssueKey(issuePublication, IssueStatus.regular)
-
-            if (allowCache) {
-                pageRepository.getFrontPage(issueKey)?.let {
-                    return@withContext it
-                }
-            }
-            val page = if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.getFrontPageByFeedAndDate(
-                        issuePublication.feed,
-                        simpleDateFormat.parse(issuePublication.date)!!
-                    )
-                }
-            } else {
-                apiService.getFrontPageByFeedAndDate(
-                    issuePublication.feed,
-                    simpleDateFormat.parse(issuePublication.date)!!
-                )
-            }
-
-            page?.let {
-                pageRepository.save(page, issueKey)
-            }
-            page
-        }
-
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getResourceInfo(
-        allowCache: Boolean = true,
-        retryOnFailure: Boolean = false
-    ): ResourceInfo = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            resourceInfoRepository.getNewest()?.let {
-                return@withContext it
-            }
-        }
-        val resourceInfo = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure({
-                toastHelper.showNoConnectionToast()
-            }) {
-                apiService.getResourceInfo()
-            }
-        } else {
-            apiService.getResourceInfo()
-        }
-        resourceInfoRepository.save(resourceInfo)
-        return@withContext resourceInfo
-    }
-
-    @Deprecated(
-        message = "All metadata retrieval functions should be migrated to ContentService," +
-                "metadata retrieval should only be possible via MetadataDownload.",
-        replaceWith = ReplaceWith("de.taz.app.android.content.ContentService.downloadMetadataIfNotPresent")
-    )
-    suspend fun getResourceInfo(
-        minResourceVersion: Int,
-        retryOnFailure: Boolean = false,
-        onConnectionFailure: suspend () -> Unit
-    ): ResourceInfo = withContext(Dispatchers.IO) {
-        resourceInfoRepository.getNewest()?.let {
-            if (it.resourceVersion >= minResourceVersion) {
-                return@withContext it
-            }
-        }
-
-        val resourceInfo = if (retryOnFailure) {
-            apiService.retryOnConnectionFailure({
-                onConnectionFailure()
-            }) {
-                apiService.getResourceInfo()
-            }
-        } else {
-            apiService.getResourceInfo()
-        }
-        resourceInfoRepository.save(resourceInfo)
-        return@withContext resourceInfo
-    }
 
     suspend fun sendNotificationInfo(
         token: String,

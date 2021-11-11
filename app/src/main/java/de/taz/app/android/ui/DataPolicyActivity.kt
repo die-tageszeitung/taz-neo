@@ -7,15 +7,14 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.main.MainActivity
@@ -110,12 +109,9 @@ class DataPolicyActivity : AppCompatActivity() {
         !generalDataStore.hasSeenWelcomeScreen.get()
     }
 
-    private suspend fun ensureResourceInfoIsDownloadedAndShowDataPolicy() {
-        val resourceInfo = withContext(Dispatchers.IO) {
-            dataService.getResourceInfo(retryOnFailure = true)
-        }
+    private suspend fun ensureResourceInfoIsDownloadedAndShowDataPolicy() = withContext(Dispatchers.Main) {
         try {
-            contentService.downloadToCacheIfNotPresent(resourceInfo)
+            contentService.downloadToCacheIfNotPresent(ResourceInfoKey(-1))
             showDataPolicy()
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()

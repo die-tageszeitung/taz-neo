@@ -2,11 +2,14 @@ package de.taz.app.android.download
 
 import android.content.Context
 import de.taz.app.android.COPY_BUFFER_SIZE
+import de.taz.app.android.FILE_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.MAX_SIMULTANEOUS_DOWNLOADS
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.AppInfoKey
 import de.taz.app.android.api.transformToConnectivityException
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.*
-import de.taz.app.android.data.DataService
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
@@ -37,7 +40,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     private val queue = CacheItemQueue
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
 
-    private val dataService = DataService.getInstance(applicationContext)
+
 
     private var downloaderJob: Job? = null
 
@@ -55,8 +58,11 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     private val httpClient = HttpClient(Android)
 
     private suspend fun ensureHelperInitialized() {
+        val contentService = ContentService.getInstance(applicationContext)
         if (!::downloadConnectionHelper.isInitialized) {
-            val healthCheckUrl = dataService.getAppInfo().globalBaseUrl
+            val healthCheckUrl = (contentService.downloadMetadataIfNotPresent(
+                AppInfoKey()
+            ) as AppInfo).globalBaseUrl
             downloadConnectionHelper = DownloadConnectionHelper(healthCheckUrl)
         }
     }
@@ -80,11 +86,11 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     }
 
     private suspend fun downloadCacheItem(download: FileCacheItem, operations: List<ContentDownload>) {
-        ensureHelperInitialized()
         try {
+            ensureHelperInitialized()
             val response = downloadConnectionHelper.retryOnConnectivityFailure({
                 operations.map { it.notifyBadConnection() }
-            }) {
+            }, maxRetries = FILE_DOWNLOAD_DEFAULT_RETRIES) {
                 transformToConnectivityException {
                     httpClient.get<HttpStatement>(
                         download.fileEntryOperation.origin!!

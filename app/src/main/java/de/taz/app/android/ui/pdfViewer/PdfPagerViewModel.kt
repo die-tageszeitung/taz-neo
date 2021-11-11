@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
@@ -30,7 +31,8 @@ class PdfPagerViewModel(
 ) : AndroidViewModel(application) {
 
     private val dataService = DataService.getInstance(application)
-    private val contentService: ContentService = ContentService.getInstance(application.applicationContext)
+    private val contentService: ContentService =
+        ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
 
@@ -68,33 +70,24 @@ class PdfPagerViewModel(
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issueKey) { issueKey ->
             viewModelScope.launch(Dispatchers.IO) {
-                var noConnectionShown = false
-                fun onConnectionFailure() {
-                    if (!noConnectionShown) {
-                        viewModelScope.launch {
-                            toastHelper.showNoConnectionToast()
-                            noConnectionShown = true
-                        }
-                    }
-                }
-                issueDownloadFailedErrorFlow.emit(false)
-                val issue = dataService.getIssue(
-                    IssuePublication(issueKey),
-                    retryOnFailure = true
-                ) { onConnectionFailure() }
-                // Get latest shown page and set it before setting the issue
-                updateCurrentItem(issue.lastPagePosition ?: 0)
-                val pdfIssue = IssueWithPages(issue)
-                // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
-                if (pdfIssue.status != issueKey.status) {
-                    this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
-                }
-
-                navButton.postValue(
-                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                )
 
                 try {
+                    issueDownloadFailedErrorFlow.emit(false)
+                    val issue = contentService.downloadMetadataIfNotPresent(
+                        IssuePublication(issueKey)
+                    ) as Issue
+                    // Get latest shown page and set it before setting the issue
+                    updateCurrentItem(issue.lastPagePosition ?: 0)
+                    val pdfIssue = IssueWithPages(issue)
+                    // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
+                    if (pdfIssue.status != issueKey.status) {
+                        this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
+                    }
+
+                    navButton.postValue(
+                        imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                    )
+
                     contentService.downloadToCacheIfNotPresent(pdfIssue.issueKey)
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
@@ -108,9 +101,6 @@ class PdfPagerViewModel(
                 } catch (e: CacheOperationFailedException) {
                     issueDownloadFailedErrorFlow.emit(true)
                 }
-                navButton.postValue(
-                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                )
             }
         }
     }

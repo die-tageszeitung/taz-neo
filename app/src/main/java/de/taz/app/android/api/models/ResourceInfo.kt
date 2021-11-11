@@ -3,12 +3,23 @@ package de.taz.app.android.api.models
 import android.content.Context
 import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
+import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
+
+
+data class ResourceInfoKey(
+    val minVersion: Int
+): ObservableDownload {
+    override fun getDownloadTag(): String {
+        return RESOURCE_TAG
+    }
+}
+
 
 data class ResourceInfo(
     val resourceVersion: Int,

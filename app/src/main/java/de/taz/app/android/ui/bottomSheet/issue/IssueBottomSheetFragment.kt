@@ -13,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
@@ -123,7 +124,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                var issue = dataService.getIssue(IssuePublication(issueKey))
+                var issue = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
                     image.name
@@ -131,7 +132,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     contentService.downloadSingleFileIfNotDownloaded(it, issue.baseUrl)
                 }
                 // refresh issue after altering file state
-                issue = dataService.getIssue(IssuePublication(issueKey))
+                issue = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
                 image = issue.moment.getMomentFileToShare()
 
                 fileHelper.getAbsolutePath(image)?.let { imageAsFile ->

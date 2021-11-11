@@ -14,6 +14,8 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.*
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
@@ -125,7 +127,11 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
             lifecycleScope.launch(Dispatchers.IO) {
-                val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
+                val resourceInfo = contentService.downloadMetadataIfNotPresent(
+                    ResourceInfoKey(-1),
+                    maxRetries = -1 // Retry indefinitely
+                ) as ResourceInfo
+                val baseUrl = resourceInfo.resourceBaseUrl
                 if (it != null) {
                     contentService.downloadSingleFileIfNotDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)

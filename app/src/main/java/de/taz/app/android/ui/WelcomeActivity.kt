@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
@@ -90,11 +91,8 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShowWelcomeSlides() {
-        val resourceInfo = withContext(Dispatchers.IO) {
-             dataService.getResourceInfo(retryOnFailure = true)
-        }
         try {
-            contentService.downloadToCacheIfNotPresent(resourceInfo)
+            contentService.downloadToCacheIfNotPresent(ResourceInfoKey(-1))
             showWelcomeSlides()
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()

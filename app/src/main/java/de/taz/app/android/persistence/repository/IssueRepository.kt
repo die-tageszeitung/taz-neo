@@ -471,10 +471,15 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 }
 
-interface AbstractIssueKey : ObservableDownload, Parcelable {
+interface AbstractIssueKey : ObservableDownload, Parcelable, AbstractIssuePublication {
+    override val feedName: String
+    override val date: String
+    val status: IssueStatus
+}
+
+interface AbstractIssuePublication: ObservableDownload, Parcelable {
     val feedName: String
     val date: String
-    val status: IssueStatus
 }
 
 /**
@@ -495,7 +500,7 @@ data class IssueKey(
     )
 
     constructor(issuePublication: IssuePublication, status: IssueStatus) : this(
-        issuePublication.feed,
+        issuePublication.feedName,
         issuePublication.date,
         status
     )
@@ -505,6 +510,25 @@ data class IssueKey(
     }
 }
 
+
+/**
+ * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
+ * omitting the specification of an [IssueStatus]
+ */
+@Parcelize
+data class IssuePublication(
+    override val feedName: String,
+    override val date: String
+) : AbstractIssuePublication {
+    constructor(issueKey: AbstractIssueKey) : this(
+        issueKey.feedName,
+        issueKey.date
+    )
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date"
+    }
+}
 
 @Parcelize
 data class IssueKeyWithPages(
@@ -526,17 +550,61 @@ data class IssueKeyWithPages(
     fun getIssueKey() = IssueKey(feedName, date, status)
 }
 
+
 /**
- * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
- * omitting the specification of an [IssueStatus]
+ * The representation of a cover publication in form of [feedName] and [date]
  */
 @Parcelize
-data class IssuePublication(
-    val feed: String,
-    val date: String
-) : Parcelable {
-    constructor(issueKey: AbstractIssueKey) : this(
-        issueKey.feedName,
-        issueKey.date
-    )
+data class MomentPublication(
+    override val feedName: String,
+    override val date: String
+) : AbstractIssuePublication {
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/moment"
+    }
+}
+
+/**
+ * The representation of a moment publication in form of [feedName] and [date]
+ */
+@Parcelize
+data class FrontpagePublication(
+    override val feedName: String,
+    override val date: String
+) : AbstractIssuePublication {
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/frontpage"
+    }
+}
+
+/**
+ * The representation of a [feedName], [date] and [status] determining the exact
+ * identity of a moment
+ */
+@Parcelize
+data class MomentKey(
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : AbstractIssueKey {
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/$status/moment"
+    }
+}
+
+/**
+ * The representation of a [feedName], [date] and [status] determining the exact
+ * identity of a moment
+ */
+@Parcelize
+data class FrontPageKey(
+    override val feedName: String,
+    override val date: String,
+    override val status: IssueStatus
+) : AbstractIssueKey {
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date/$status/frontPage"
+    }
 }

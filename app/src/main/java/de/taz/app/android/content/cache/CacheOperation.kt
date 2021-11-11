@@ -249,8 +249,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 if (update.complete) {
                     activeCacheOperations.remove(tag)
                 }
-                // We need to emit this blockingly to ensure sequentially correct updates
-                runBlocking {
+                CoroutineScope(Dispatchers.Default).launch {
                     cacheStatusFlow.emit(tag to update)
                 }
             }

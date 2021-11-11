@@ -10,10 +10,12 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheStateUpdate
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.CoverView
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 interface CoverViewActionListener {
@@ -22,10 +24,16 @@ interface CoverViewActionListener {
     fun onDateClicked(momentViewData: CoverViewData) = Unit
 }
 
+class CoverBindingException(
+    message: String = "Binding cover data failed",
+    cause: Exception?
+): Exception(message, cause)
+
 
 abstract class CoverViewBinding(
     private val applicationContext: Context,
     private val lifecycleOwner: LifecycleOwner,
+    protected val coverPublication: AbstractIssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener
@@ -44,8 +52,14 @@ abstract class CoverViewBinding(
 
     fun prepareDataAndBind(view: CoverView) {
         bindJob = lifecycleOwner.lifecycleScope.launch {
-            coverViewData = prepareData()
-            bindView(view)
+            try {
+                coverViewData = prepareData()
+                bindView(view)
+            } catch (e: CoverBindingException) {
+                val hint = "Binding cover failed on $coverPublication"
+                e.printStackTrace()
+                Sentry.captureException(e, hint)
+            }
         }
     }
 

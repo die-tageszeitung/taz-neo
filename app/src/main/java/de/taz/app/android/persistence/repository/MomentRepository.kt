@@ -22,7 +22,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         appDatabase.momentDao().insertOrReplace(momentStub)
     }
 
-    fun save(moment: Moment) {
+    fun save(moment: Moment): Moment {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
         fileEntryRepository.save(moment.momentList)
@@ -42,6 +42,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
             }
         )
+        return get(moment.issueKey)!!
     }
 
     fun momentStubToMoment(momentStub: MomentStub): Moment {
