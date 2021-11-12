@@ -39,7 +39,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val connectionHelper = APIConnectionHelper(graphQlClient)
 
     /**
-     * Wrap a block in this
+     * Wrap a block potentially throwing [ConnectivityException.Recoverable] in a [connectionHelper]
+     * to manage retries
      */
     suspend fun <T> retryOnConnectionFailure(
         onConnectionFailure: suspend () -> Unit = {},
