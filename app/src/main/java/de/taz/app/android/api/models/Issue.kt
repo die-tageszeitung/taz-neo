@@ -80,5 +80,6 @@ data class Issue(
 enum class IssueStatus {
     public,
     demo,
+    locked,
     regular
 }
