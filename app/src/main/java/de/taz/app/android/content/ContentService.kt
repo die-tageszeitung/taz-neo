@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for
@@ -171,6 +172,7 @@ class ContentService(
         download: ObservableDownload,
         maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
         forceExecution: Boolean = false,
+        minStatus: IssueStatus = IssueStatus.public,
         allowCache: Boolean = true
     ): ObservableDownload {
         return MetadataDownload
@@ -179,7 +181,8 @@ class ContentService(
                 download,
                 download.getDownloadTag(),
                 retriesOnConnectionError = maxRetries,
-                allowCache = allowCache
+                allowCache = allowCache,
+                minStatus = minStatus
             )
             .execute(forceExecution = forceExecution)
     }

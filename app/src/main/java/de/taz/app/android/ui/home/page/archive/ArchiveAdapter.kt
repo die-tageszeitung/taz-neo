@@ -3,7 +3,7 @@ package de.taz.app.android.ui.home.page.archive
 import androidx.annotation.LayoutRes
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.*
 
@@ -19,7 +19,7 @@ class ArchiveAdapter(
     glideRequestManager,
     HomeMomentViewActionListener(
         fragment,
-        DataService.getInstance(fragment.requireContext().applicationContext)
+        ContentService.getInstance(fragment.requireContext().applicationContext)
     )
 ) {
     override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay

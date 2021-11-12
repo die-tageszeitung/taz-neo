@@ -153,28 +153,6 @@ class DataService(applicationContext: Context) {
             issueRepository.isDownloaded(issueKey)
         }
 
-    suspend fun determineIssueKey(issuePublication: IssuePublication): IssueKey {
-        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
-        return if (issueRepository.exists(regularKey) && issueRepository.isDownloaded(regularKey)) {
-            regularKey
-        } else {
-            IssueKey(issuePublication, authHelper.getEligibleIssueStatus())
-        }
-    }
-
-    suspend fun determineIssueKeyWithPages(issuePublication: IssuePublication): IssueKeyWithPages {
-        val regularKey = IssueKey(issuePublication, IssueStatus.regular)
-        val regularKeyWithPages = IssueKeyWithPages(regularKey)
-        return if (issueRepository.exists(regularKey) && issueRepository.isDownloaded(
-                regularKeyWithPages
-            )
-        ) {
-            regularKeyWithPages
-        } else {
-            IssueKeyWithPages(IssueKey(issuePublication, authHelper.getEligibleIssueStatus()))
-        }
-    }
-
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
      * @param feedName to refresh
@@ -186,7 +164,10 @@ class DataService(applicationContext: Context) {
             val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
             newsestIssueDate?.let {
                 if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
-                    determineIssueKey(IssuePublication(feedName, simpleDateFormat.format(it)))
+                    (contentService.downloadMetadataIfNotPresent(
+                        IssuePublication(feedName, simpleDateFormat.format(it)),
+                        minStatus = authHelper.getEligibleIssueStatus()
+                    ) as Issue).issueKey
                 } else {
                     null
                 }

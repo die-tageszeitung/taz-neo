@@ -16,13 +16,14 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Moment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
@@ -45,6 +46,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
     private val contentService by lazy { ContentService.getInstance(requireContext().applicationContext) }
+    private val authHelper by lazy { AuthHelper.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -134,7 +136,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 itemLayout,
                 feed,
                 requestManager,
-                CoverflowCoverViewActionListener(this@CoverflowFragment, dataService)
+                CoverflowCoverViewActionListener(this@CoverflowFragment, contentService)
             )
             fragment_cover_flow_grid.adapter = adapter
             // If fragment was just constructed skip to issue in intent
@@ -213,18 +215,17 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             return
         }
         val observableKey = withContext(Dispatchers.IO) {
+            val issueKey = (contentService.downloadMetadataIfNotPresent(
+                MomentPublication(
+                    viewModel.feed.value!!.name, simpleDateFormat.format(date)
+                ),
+                minStatus = authHelper.getEligibleIssueStatus(),
+                maxRetries = -1
+            ) as Moment).issueKey
             if (viewModel.pdfModeLiveData.value == true) {
-                dataService.determineIssueKeyWithPages(
-                    IssuePublication(
-                        viewModel.feed.value!!.name, simpleDateFormat.format(date)
-                    )
-                )
+                IssueKeyWithPages(issueKey)
             } else {
-                dataService.determineIssueKey(
-                    IssuePublication(
-                        viewModel.feed.value!!.name, simpleDateFormat.format(date)
-                    )
-                )
+                issueKey
             }
         }
         downloadObserver?.unbindView()

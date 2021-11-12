@@ -36,7 +36,6 @@ class PdfPagerViewModel(
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
 
-    private val toastHelper = ToastHelper.getInstance(application)
 
     val issueKey = MutableLiveData<IssueKeyWithPages>()
     val navButton = MutableLiveData<Image?>(null)
@@ -74,25 +73,20 @@ class PdfPagerViewModel(
                 try {
                     issueDownloadFailedErrorFlow.emit(false)
                     val issue = contentService.downloadMetadata(
-                        IssuePublication(issueKey)
-                    ) as Issue
+                        issueKey
+                    ) as IssueWithPages
                     // Get latest shown page and set it before setting the issue
                     updateCurrentItem(issue.lastPagePosition ?: 0)
-                    val pdfIssue = IssueWithPages(issue)
-                    // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
-                    if (pdfIssue.status != issueKey.status) {
-                        this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
-                    }
 
                     navButton.postValue(
                         imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                     )
 
-                    contentService.downloadToCache(pdfIssue.issueKey)
+                    contentService.downloadToCache(issueKey)
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(
-                        pdfIssue.pageList.map {
+                        issue.pageList.map {
                             it.copy(pagePdf = requireNotNull(
                                 fileEntryRepository.get(it.pagePdf.name)
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })

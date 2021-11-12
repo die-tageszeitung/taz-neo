@@ -33,24 +33,32 @@ class MomentViewBinding(
     private val storageService = StorageService.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         try {
             val moment = contentService.downloadMetadata(
                 coverPublication,
                 // Retry indefinitely
-                maxRetries = -1
+                maxRetries = -1,
+                minStatus = authHelper.getEligibleIssueStatus()
             ) as Moment
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
             try {
-                contentService.downloadToCache(moment, priority = DownloadPriority.High)
+                contentService.downloadToCache(
+                    moment,
+                    priority = DownloadPriority.High
+                )
             } catch (e: CacheOperationFailedException) {
                 toastHelper.showConnectionToServerFailedToast()
             }
             // refresh moment after download
             val downloadedMoment =
-                contentService.downloadMetadata(coverPublication) as Moment
+                contentService.downloadMetadata(
+                    coverPublication,
+                    minStatus = authHelper.getEligibleIssueStatus()
+                ) as Moment
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
