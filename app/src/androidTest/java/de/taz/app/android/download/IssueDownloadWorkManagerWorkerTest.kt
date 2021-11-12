@@ -8,6 +8,7 @@ import androidx.work.workDataOf
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.TestDataUtil
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.Cycle
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
@@ -27,6 +28,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -67,6 +69,9 @@ class IssueDownloadWorkManagerWorkerTest {
     private lateinit var mockDataService: DataService
 
     @Mock
+    private lateinit var mockApiService: ApiService
+
+    @Mock
     private lateinit var mockContentService: ContentService
 
     @Mock
@@ -77,6 +82,7 @@ class IssueDownloadWorkManagerWorkerTest {
         context = ApplicationProvider.getApplicationContext()
         executor = Executors.newSingleThreadExecutor()
         DataService.inject(mockDataService)
+        ApiService.inject(mockApiService)
         ContentService.inject(mockContentService)
         DownloadScheduler.inject(mockDownloadScheduler)
     }
@@ -108,20 +114,17 @@ class IssueDownloadWorkManagerWorkerTest {
         )
 
         `when`(
-            mockDataService.getIssue(
-                any(IssuePublication::class.java),
-                eq(false),
-                eq(false)
+            mockApiService.getIssueByPublication(
+                any(IssuePublication::class.java)
             )
         ).thenReturn(
             TestDataUtil.getIssue()
         )
 
         `when`(
-            mockDataService.getMoment(
-                any(IssuePublication::class.java),
-                eq(true),
-                eq(false)
+            mockApiService.getMomentByFeedAndDate(
+                any(String::class.java),
+                any(Date::class.java)
             )
         ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
@@ -150,10 +153,9 @@ class IssueDownloadWorkManagerWorkerTest {
             TestDataUtil.getIssue().issueKey
         )
         `when`(
-            mockDataService.getMoment(
-                any(IssuePublication::class.java),
-                eq(true),
-                eq(false)
+            mockApiService.getMomentByFeedAndDate(
+                any(String::class.java),
+                any(Date::class.java)
             )
         ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)

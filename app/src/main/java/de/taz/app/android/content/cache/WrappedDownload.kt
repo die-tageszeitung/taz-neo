@@ -186,7 +186,7 @@ class WrappedDownload(
 
         issueDownloadNotifier?.stop()
         if (errorCount == 0) {
-            if (parentCollection is DownloadableCollection) {
+            if (parentCollection is DownloadableStub) {
                 parentCollection.setDownloadDate(Date(), applicationContext)
             }
             notifySuccess(Unit)

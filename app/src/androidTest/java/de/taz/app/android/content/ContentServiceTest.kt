@@ -81,7 +81,7 @@ class ContentServiceTest {
                 any(Int::class.java),
                 any(Function::class.java) as suspend () -> Any,
             )).then {
-                runBlocking { (it.arguments[1] as suspend () -> Any).invoke() }
+                runBlocking { (it.arguments[2] as suspend () -> Any).invoke() }
             }
 
             doReturn(testIssue)
@@ -102,7 +102,6 @@ class ContentServiceTest {
         // Call to content service ends without exception
         runBlocking {
             contentService.downloadToCacheIfNotPresent(testIssue.issueKey)
-
         }
         assert(issueRepository.isDownloaded(testIssue.issueKey))
     }
