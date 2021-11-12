@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page
 
-import android.content.Context
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.Moment
@@ -9,23 +8,20 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
-import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import io.sentry.Sentry
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
-    applicationContext: Context,
-    lifecycleOwner: LifecycleOwner,
+    private val fragment: Fragment,
     frontpagePublication: FrontpagePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
 ) : CoverViewBinding(
-    applicationContext,
-    lifecycleOwner,
+    fragment,
     frontpagePublication,
     dateFormat,
     glideRequestManager,
@@ -52,7 +48,8 @@ class FrontpageViewBinding(
             contentService.downloadToCacheIfNotPresent(frontPage)
 
             // Refresh front page
-            val downloadedFrontPage = contentService.downloadMetadataIfNotPresent(coverPublication) as Page
+            val downloadedFrontPage =
+                contentService.downloadMetadataIfNotPresent(coverPublication) as Page
 
             val fileEntry = fileEntryRepository.get(downloadedFrontPage.pagePdf.name)
             val pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
@@ -62,7 +59,8 @@ class FrontpageViewBinding(
                 MomentPublication(
                     coverPublication.feedName,
                     coverPublication.date
-                )) as Moment
+                )
+            ) as Moment
 
             val momentType = CoverType.FRONT_PAGE
             CoverViewData(
@@ -85,12 +83,10 @@ class FrontpageViewBinding(
                 try {
                     contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
                 } catch (e: CacheOperationFailedException) {
-                    // Pass the exception, if that process wen wrong the download indicator should reset,
-                    // and a toast is being shown in the observer in CoverViewBinding
-                    Sentry.captureException(
-                        e,
-                        "Something went wrong when downloading ${coverViewData.issueKey}"
-                    )
+                    withContext(Dispatchers.Main) {
+                        fragment.requireActivity()
+                            .showIssueDownloadFailedDialog(coverViewData.issueKey)
+                    }
                 }
             }
         }

@@ -1,18 +1,15 @@
 package de.taz.app.android.ui.home.page
 
-import android.app.AlertDialog
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.CoverView
 import io.sentry.Sentry
@@ -27,12 +24,11 @@ interface CoverViewActionListener {
 class CoverBindingException(
     message: String = "Binding cover data failed",
     cause: Exception?
-): Exception(message, cause)
+) : Exception(message, cause)
 
 
 abstract class CoverViewBinding(
-    private val applicationContext: Context,
-    private val lifecycleOwner: LifecycleOwner,
+    private val fragment: Fragment,
     protected val coverPublication: AbstractIssuePublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
@@ -40,6 +36,8 @@ abstract class CoverViewBinding(
 ) {
     private var boundView: CoverView? = null
     protected lateinit var coverViewData: CoverViewData
+
+    protected val applicationContext: Context = fragment.requireContext().applicationContext
 
     private val contentService = ContentService.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
@@ -51,7 +49,7 @@ abstract class CoverViewBinding(
     abstract suspend fun prepareData(): CoverViewData
 
     fun prepareDataAndBind(view: CoverView) {
-        bindJob = lifecycleOwner.lifecycleScope.launch {
+        bindJob = fragment.lifecycleScope.launch {
             try {
                 coverViewData = prepareData()
                 bindView(view)
@@ -69,7 +67,7 @@ abstract class CoverViewBinding(
 
     private fun onConnectionFailure() {
         if (!noConnectionShown) {
-            lifecycleOwner.lifecycleScope.launch {
+            fragment.lifecycleScope.launch {
                 toastHelper.showNoConnectionToast()
                 noConnectionShown = true
             }
@@ -97,7 +95,7 @@ abstract class CoverViewBinding(
                 .asLiveData()
                 .also {
                     if (!shouldNotShowDownloadIcon) {
-                        it.observe(lifecycleOwner, ::issueObserver)
+                        it.observe(fragment, ::issueObserver)
                     }
                 }
         }
@@ -109,7 +107,6 @@ abstract class CoverViewBinding(
         )
         when (update.type) {
             CacheStateUpdate.Type.BAD_CONNECTION -> onConnectionFailure()
-            CacheStateUpdate.Type.FAILED -> showIssueDownloadFailedDialog()
             else -> Unit
         }
     }
@@ -125,19 +122,5 @@ abstract class CoverViewBinding(
             setOnDateClickedListener(null)
             clear()
         }
-    }
-
-    private fun showIssueDownloadFailedDialog() {
-        AlertDialog.Builder(applicationContext)
-            .setMessage(
-                applicationContext.getString(
-                    R.string.error_issue_download_failed,
-                    DateHelper.dateToLongLocalizedString(
-                        DateHelper.stringToDate(coverViewData.issueKey.date)!!
-                    )
-                )
-            )
-            .setPositiveButton(android.R.string.ok) { _, _ -> }
-            .show()
     }
 }

@@ -3,7 +3,7 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
@@ -14,13 +14,13 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class DownloadObserver(
-    private val lifecycleOwner: LifecycleOwner,
+    private val fragment: Fragment,
     private val contentService: ContentService,
     private val toastHelper: ToastHelper,
     private val issueKey: AbstractIssueKey
@@ -47,7 +47,7 @@ class DownloadObserver(
         var noConnectionShown = false
         fun onConnectionFailure() {
             if (!noConnectionShown) {
-                lifecycleOwner.lifecycleScope.launch {
+                fragment.lifecycleScope.launch {
                     toastHelper.showNoConnectionToast()
                     noConnectionShown = true
                 }
@@ -55,13 +55,10 @@ class DownloadObserver(
         }
         contentService.getCacheStatusFlow(issueKey)
             .asLiveData(Dispatchers.Main)
-            .observe(lifecycleOwner) {
+            .observe(fragment) {
                 setDownloadIconForStatus(it.cacheState)
                 when (it.type) {
                     CacheStateUpdate.Type.BAD_CONNECTION -> onConnectionFailure()
-                    CacheStateUpdate.Type.FAILED -> boundView?.context?.let { context ->
-                        showIssueDownloadFailedDialog(context, issueKey)
-                    }
                     else -> Unit
                 }
             }
@@ -95,9 +92,9 @@ class DownloadObserver(
                 try {
                     contentService.downloadToCacheIfNotPresent(issueKey)
                 } catch (e: CacheOperationFailedException) {
-                    // Pass this exception as the download status will be reported in the observer
-                    // in bindView
-                    Sentry.captureException(e)
+                    withContext(Dispatchers.Main) {
+                        fragment.requireActivity().showIssueDownloadFailedDialog(issueKey)
+                    }
                 }
             }
         }

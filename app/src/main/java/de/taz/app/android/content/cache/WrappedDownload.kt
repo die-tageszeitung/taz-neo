@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
@@ -33,6 +34,7 @@ class WrappedDownload(
     val parent: ObservableDownload,
     val items: List<SubOperationCacheItem>,
     private val isAutomaticDownload: Boolean,
+    private val allowCache: Boolean,
     priority: DownloadPriority,
     tag: String
 ) : CacheOperation<SubOperationCacheItem, Unit>(
@@ -53,6 +55,7 @@ class WrappedDownload(
          * @param applicationContext An android application [Context] object
          * @param parent The [ObservableDownload] that should be downloaded after this operation
          * @param isAutomaticDownload Indicator whether this download was triggered automatically
+         * @param allowCache Whether this download should skip or take cache
          * @param priority The download priority of this operation
          * @param tag The tag to be used for this operation
          */
@@ -60,6 +63,7 @@ class WrappedDownload(
             applicationContext: Context,
             parent: ObservableDownload,
             isAutomaticDownload: Boolean,
+            allowCache: Boolean,
             priority: DownloadPriority,
             tag: String
         ): WrappedDownload = withContext(Dispatchers.Main) {
@@ -68,6 +72,7 @@ class WrappedDownload(
                 parent,
                 emptyList(),
                 isAutomaticDownload,
+                allowCache,
                 priority,
                 tag
             )
@@ -82,18 +87,36 @@ class WrappedDownload(
      */
     override suspend fun doWork() = withContext(Dispatchers.IO) {
         notifyStart()
+        val contentService = ContentService.getInstance(applicationContext)
+
+        // For a wrapped download a successful cache hit is if the download and it's content is
+        // complete, so we use the getCacheState function
+        if (allowCache && contentService.getCacheState(parent).cacheState == CacheState.PRESENT) {
+            notifySuccess(Unit)
+            return@withContext
+        }
+
         // Before downloading content we _always_ download the corresponding metadata.
         // Metadata can get stale and the references to the content will be broken
         val metadataDownload = MetadataDownload.prepare(
             applicationContext,
             parent,
-            parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
+            parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict,
             retriesOnConnectionError = METADATA_DOWNLOAD_DEFAULT_RETRIES
         )
+
         addItem(
             SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
         )
-        val parentCollection = metadataDownload.execute()
+        val parentCollection = try {
+            metadataDownload.execute()
+        } catch (originalException: Exception) {
+            val exception = CacheOperationFailedException("Retrieving metadata failed", originalException)
+            notifyFailiure(
+                exception
+            )
+            throw exception
+        }
         // corner case: If we invoke this function with an IssueKeyWithPages we need to cast
         // the Issue metadata to a IssueWithPages to also download the pdf pages
         val issueWithPages = if (parent is IssueKeyWithPages && parentCollection is Issue) {

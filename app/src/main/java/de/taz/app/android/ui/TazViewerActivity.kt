@@ -200,23 +200,4 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             super.onBackPressed()
         }
     }
-
-    fun showIssueDownloadFailedDialog(issueKey: AbstractIssueKey) {
-        runOnUiThread {
-            if (!downloadErrorShown) {
-                downloadErrorShown = true
-                android.app.AlertDialog.Builder(this)
-                    .setMessage(
-                        getString(
-                            R.string.error_issue_download_failed,
-                            DateHelper.dateToLongLocalizedString(
-                                DateHelper.stringToDate(issueKey.date)!!
-                            )
-                        )
-                    )
-                    .setPositiveButton(android.R.string.ok) { _, _ -> }
-                    .show()
-            }
-        }
-    }
 }

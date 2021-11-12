@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page
 
-import android.content.Context
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
@@ -12,20 +11,19 @@ import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.*
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
 
 class MomentViewBinding(
-    private val applicationContext: Context,
-    private val lifecycleOwner: LifecycleOwner,
+    private val fragment: Fragment,
     momentPublication: MomentPublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
 ) : CoverViewBinding(
-    applicationContext,
-    lifecycleOwner,
+    fragment,
     momentPublication,
     dateFormat,
     glideRequestManager,
@@ -51,7 +49,8 @@ class MomentViewBinding(
                 toastHelper.showConnectionToServerFailedToast()
             }
             // refresh moment after download
-            val downloadedMoment = contentService.downloadMetadataIfNotPresent(coverPublication) as Moment
+            val downloadedMoment =
+                contentService.downloadMetadataIfNotPresent(coverPublication) as Moment
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
@@ -80,7 +79,8 @@ class MomentViewBinding(
                 dimension
             )
         } catch (e: CacheOperationFailedException) {
-            val hint = "Error downloading metadata or cover content while binding cover for $coverPublication"
+            val hint =
+                "Error downloading metadata or cover content while binding cover for $coverPublication"
             throw CoverBindingException(hint, e)
         }
     }
@@ -92,7 +92,10 @@ class MomentViewBinding(
                 try {
                     contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
                 } catch (e: CacheOperationFailedException) {
-                    // Any visual error feedback should be done in CoverViewBinding listener
+                    withContext(Dispatchers.Main) {
+                        fragment.requireActivity()
+                            .showIssueDownloadFailedDialog(coverViewData.issueKey)
+                    }
                 }
             }
         }

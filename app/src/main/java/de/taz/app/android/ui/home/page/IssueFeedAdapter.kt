@@ -83,7 +83,6 @@ abstract class IssueFeedAdapter(
         fun bind(fragment: IssueFeedFragment, date: Date) {
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
-                    fragment.requireContext().applicationContext,
                     fragment,
                     FrontpagePublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
@@ -92,7 +91,6 @@ abstract class IssueFeedAdapter(
                 )
             } else {
                 MomentViewBinding(
-                    fragment.requireContext().applicationContext,
                     fragment,
                     MomentPublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,

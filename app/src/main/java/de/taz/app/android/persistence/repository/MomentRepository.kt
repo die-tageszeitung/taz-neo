@@ -116,6 +116,10 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun isDownloaded(momentKey: MomentKey): Boolean {
+        return getStub(momentKey.feedName, momentKey.date, momentKey.status)?.dateDownload != null
+    }
+
     fun get(issueOperations: IssueOperations): Moment? {
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }

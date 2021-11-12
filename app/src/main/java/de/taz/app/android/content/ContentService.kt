@@ -32,6 +32,9 @@ class ContentService(
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+    private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
 
@@ -102,6 +105,9 @@ class ContentService(
         withContext(Dispatchers.IO) {
             val isDownloaded = when (observableDownload) {
                 is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
+                is AppInfoKey -> appInfoRepository.get() != null
+                is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
+                is MomentKey -> momentRepository.isDownloaded(observableDownload)
                 is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
                 else -> false
             }
@@ -157,12 +163,7 @@ class ContentService(
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false
     ) = withContext(Dispatchers.IO) {
-        if (collection is DownloadableCollection && collection.isDownloaded(applicationContext)) {
-            // If this is a collection with a valid download date do nothing!
-            return@withContext
-        } else {
-            downloadToCache(collection, priority, isAutomaticDownload)
-        }
+        downloadToCache(collection, priority, isAutomaticDownload, allowCache = true)
     }
 
     /**
@@ -176,13 +177,15 @@ class ContentService(
     private suspend fun downloadToCache(
         download: ObservableDownload,
         priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
+        isAutomaticDownload: Boolean = false,
+        allowCache: Boolean = false
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,
             download,
             isAutomaticDownload,
+            allowCache,
             priority,
             tag
         )
@@ -199,7 +202,8 @@ class ContentService(
      */
     suspend fun downloadMetadataIfNotPresent(
         download: ObservableDownload,
-        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES
+        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+        forceExecution: Boolean = false
     ): ObservableDownload {
         return MetadataDownload
             .prepare(
@@ -209,7 +213,7 @@ class ContentService(
                 retriesOnConnectionError = maxRetries,
                 allowCache = true
             )
-            .execute()
+            .execute(forceExecution = forceExecution)
     }
 
     /**

@@ -40,6 +40,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
@@ -330,7 +331,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
             try {
                 contentService.downloadToCacheIfNotPresent(moment)
                 momentBinder = MomentViewBinding(
-                    requireContext().applicationContext, this@SectionDrawerFragment,
+                    this@SectionDrawerFragment,
                     momentPublication,
                     DateFormat.LongWithoutWeekDay,
                     Glide.with(this@SectionDrawerFragment),
@@ -344,7 +345,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 fragment_moment_date.visibility = View.GONE
 
             } catch (e: CacheOperationFailedException) {
-                (requireActivity() as TazViewerActivity).showIssueDownloadFailedDialog(moment.issueKey)
+                requireActivity().showIssueDownloadFailedDialog(moment.issueKey)
             }
         }
 

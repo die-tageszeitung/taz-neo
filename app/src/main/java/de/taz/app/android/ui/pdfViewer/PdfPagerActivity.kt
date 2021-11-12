@@ -27,6 +27,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.ktor.util.reflect.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.*
 import kotlinx.android.synthetic.main.activity_pdf_drawer_layout.drawer_logo
@@ -56,8 +57,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
     private lateinit var drawerAdapter: PdfDrawerRecyclerViewAdapter
     private var drawerLogoWidth = 0f
 
-    private var downloadErrorShown = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         issueKey = try {
@@ -70,7 +69,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             .filter { it }
             .asLiveData()
             .observe(this) {
-                showIssueDownloadFailedDialog()
+                showIssueDownloadFailedDialog(issueKey)
             }
 
         if (savedInstanceState == null) {
@@ -341,23 +340,6 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
             supportFragmentManager.popBackStack()
-        }
-    }
-
-    fun showIssueDownloadFailedDialog() {
-        if (!downloadErrorShown) {
-            downloadErrorShown = true
-            android.app.AlertDialog.Builder(this)
-                .setMessage(
-                    getString(
-                        R.string.error_issue_download_failed,
-                        DateHelper.dateToLongLocalizedString(
-                            DateHelper.stringToDate(issueKey.date)!!
-                        )
-                    )
-                )
-                .setPositiveButton(android.R.string.ok) { _, _ -> }
-                .show()
         }
     }
 }

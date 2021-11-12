@@ -25,8 +25,11 @@ abstract class ConnectionHelper {
 
     private val waitingCalls = ConcurrentLinkedQueue<WaitingCall>()
 
-    private var isCurrentlyReachable = true
+    private var failedAttempts = 0
+    private val isCurrentlyReachable
+        get() = failedAttempts == 0
     private var backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
+
 
     private var connectivityCheckJob: Job? = null
 
@@ -40,12 +43,19 @@ abstract class ConnectionHelper {
                 return block()
             } catch (e: ConnectivityException.Recoverable) {
                 onConnectionFailure()
-                isCurrentlyReachable = false
                 ensureConnectivityCheckRunning()
-                suspendCoroutine<Unit> { continuation -> waitingCalls.offer(WaitingCall(
-                    continuation,
-                    maxRetries
-                )) }
+                if (maxRetries > -1 && failedAttempts >= maxRetries) {
+                    throw ConnectivityException.Recoverable("Maximum retries exceeded", e)
+                } else {
+                    suspendCoroutine<Unit> { continuation ->
+                        waitingCalls.offer(
+                            WaitingCall(
+                                continuation,
+                                maxRetries
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -59,24 +69,28 @@ abstract class ConnectionHelper {
     }
 
     private suspend fun tryForConnectivity() {
-        var retries = 0
-        while (!isCurrentlyReachable) {
-            retries++
+        do {
+            failedAttempts++
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
-            isCurrentlyReachable = checkConnectivity()
-            // Signal all waiting calls if they maximum retry limit is reached
-            for (call in waitingCalls) {
-                if (call.maxRetries >= retries) {
-                    call.continuation.resumeWithException(ConnectivityException.Recoverable(
-                        "Maximum retries amount exceeded"
-                    ))
-                    waitingCalls.remove(call)
+            if (!checkConnectivity()) {
+                failedAttempts++
+                // Signal all waiting calls if they maximum retry limit is reached
+                for (call in waitingCalls) {
+                    if (call.maxRetries > -1 && call.maxRetries >= failedAttempts) {
+                        call.continuation.resumeWithException(ConnectivityException.Recoverable(
+                            "Maximum retries amount exceeded"
+                        ))
+                        waitingCalls.remove(call)
+                    }
                 }
+            } else {
+                failedAttempts = 0
             }
-        }
-        retries = 0
+
+        } while (!isCurrentlyReachable)
+
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
         waitingCalls.forEach {

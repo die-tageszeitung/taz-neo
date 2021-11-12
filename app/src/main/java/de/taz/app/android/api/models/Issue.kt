@@ -79,5 +79,6 @@ data class Issue(
 @JsonClass(generateAdapter = false)
 enum class IssueStatus {
     public,
+    demo,
     regular
 }

@@ -78,7 +78,8 @@ class ContentServiceTest {
             // stupid replication of the retry on connection failure method
             `when`(mockApiService.retryOnConnectionFailure(
                 any(Function::class.java) as suspend () -> Unit,
-                any(Function::class.java) as suspend () -> Any
+                any(Int::class.java),
+                any(Function::class.java) as suspend () -> Any,
             )).then {
                 runBlocking { (it.arguments[1] as suspend () -> Any).invoke() }
             }
