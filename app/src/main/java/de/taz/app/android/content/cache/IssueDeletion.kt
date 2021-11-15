@@ -91,9 +91,9 @@ class IssueDeletion(
                         )
                     )
                 })
-            addItems(contentDeletionCacheItems)
         }
 
+        addItems(contentDeletionCacheItems)
         contentDeletionCacheItems.forEach {
             try {
                 it.subOperation.execute()

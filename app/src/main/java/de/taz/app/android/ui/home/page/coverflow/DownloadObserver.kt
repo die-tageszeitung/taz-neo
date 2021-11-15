@@ -87,7 +87,7 @@ class DownloadObserver(
                             issuePublication
                         )
                     }
-                    Sentry.captureException(e, "Download of Issue $issueKey failed")
+                    Sentry.captureException(e, "Download of Issue $issuePublication failed")
                 }
             }
         }
