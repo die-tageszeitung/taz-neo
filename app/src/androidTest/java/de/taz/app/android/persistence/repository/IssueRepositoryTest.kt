@@ -26,7 +26,7 @@ class IssueRepositoryTest {
 
     @Before
     fun createDb() {
-        context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext()
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
@@ -58,7 +58,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun writeAndRead() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueByFeedAndDate(
+        val fromDB = issueRepository.getIssueByFeedDateAndStatus(
             issue.feedName, issue.date, issue.status
         )
         assertEquals(fromDB, issue)
@@ -68,7 +68,7 @@ class IssueRepositoryTest {
     @Throws(Exception::class)
     fun readBase() {
         issueRepository.save(issue)
-        val fromDB = issueRepository.getIssueStubByFeedAndDate(
+        val fromDB = issueRepository.getIssueStubByFeedDateAndStatus(
             issue.feedName, issue.date, issue.status
         )
         assertEquals(fromDB, IssueStub(issue))
@@ -80,11 +80,11 @@ class IssueRepositoryTest {
         issueRepository.save(issue)
         issueRepository.save(issue2)
 
-        val fromDB = issueRepository.getIssueByFeedAndDate(
+        val fromDB = issueRepository.getIssueByFeedDateAndStatus(
             issue.feedName, issue.date, issue.status
         )
-        val fromDB2 = issueRepository.getIssueByFeedAndDate(
-            issue2.feedName, issue2.date, issue.status
+        val fromDB2 = issueRepository.getIssueByFeedDateAndStatus(
+            issue2.feedName, issue2.date, issue2.status
         )
 
         assertEquals(fromDB, issue)
