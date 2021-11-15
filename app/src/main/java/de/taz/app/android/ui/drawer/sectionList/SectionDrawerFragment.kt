@@ -31,7 +31,6 @@ import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.TazViewerActivity
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
@@ -214,8 +213,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            val issueStub =
-                withContext(Dispatchers.IO) { contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) } as Issue
+            val issueStub = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
             currentIssueStub = IssueStub(issueStub)
             moment_container.setOnClickListener {
                 finishAndShowIssue(currentIssueStub.issueKey)

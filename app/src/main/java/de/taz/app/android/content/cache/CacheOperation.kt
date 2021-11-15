@@ -165,7 +165,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             log.warn("Operation with tag $tag and class ${this::class.simpleName} is already scheduled")
 
             if (forceExecution) {
-                // Wait for the blocking operation to finish but diregard any outcome
+                // Wait for the blocking operation to finish but disregard any outcome
                 try { e.blockingOperation.waitOnCompletion() } catch (e: Exception) {}
                 // Disregard the fact that there is a duplicating operation and execute this one
                 return@withContext execute(forceExecution)
@@ -180,7 +180,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 return@withContext e.blockingOperation.waitOnCompletion() as RESULT
             }
         } catch (e: DifferentOperationActiveException) {
-            // Wait for the blocking operation to finish but diregard any outcome
+            // Wait for the blocking operation to finish but disregard any outcome
             try { e.blockingOperation.waitOnCompletion() } catch (e: Exception) {}
             return@withContext execute(forceExecution)
         }
@@ -408,7 +408,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Suspend until the operation is either [CacheStateUpdate.Type.FAILED] or
      * [CacheStateUpdate.Type.SUCCEEDED]
      */
-    suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
+    private suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
         if (state.complete) return@withContext result!!
         // With locking the addListener function we ensure the order of the resumed
         // coroutines, the first invoker of waitOnCompletion will be the first to be resumed

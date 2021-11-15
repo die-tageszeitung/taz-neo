@@ -565,7 +565,7 @@ data class MomentPublication(
 }
 
 /**
- * The representation of a moment publication in form of [feedName] and [date]
+ * The representation of a frontpage publication in form of [feedName] and [date]
  */
 @Parcelize
 data class FrontpagePublication(
@@ -605,6 +605,6 @@ data class FrontPageKey(
 ) : AbstractIssueKey {
 
     override fun getDownloadTag(): String {
-        return "$feedName/$date/$status/frontPage"
+        return "$feedName/$date/$status/frontpage"
     }
 }

@@ -2,7 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.util.SingletonHolder
 

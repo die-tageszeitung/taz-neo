@@ -13,6 +13,7 @@ import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -180,6 +181,7 @@ class WrappedDownload(
                 } catch (e: Exception) {
                     errorCount++
                     notifyFailedItem(e)
+                    Sentry.captureException(e, "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}")
                 }
             }
         }.joinAll()
@@ -231,7 +233,7 @@ class WrappedDownload(
             is Section,
             is Moment,
             is ResourceInfo -> setOf(download as DownloadableCollection)
-            else -> throw IllegalArgumentException("Don\'t know how dow download $download")
+            else -> throw IllegalArgumentException("Don\'t know how to download $download")
         } + setOfNotNull(requiredResourceInfo)).toList()
     }
 

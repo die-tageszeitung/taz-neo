@@ -55,6 +55,7 @@ class FrontpageViewBinding(
             val pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
 
             // Still need to determine the issueKey, it's not part of a [Page]
+            // Therefore we need the [Moment]:
             val moment = contentService.downloadMetadataIfNotPresent(
                 MomentPublication(
                     coverPublication.feedName,

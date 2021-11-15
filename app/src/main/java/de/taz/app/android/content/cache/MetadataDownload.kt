@@ -5,7 +5,6 @@ import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
@@ -138,7 +137,7 @@ class MetadataDownload(
                 resourceInfoRepository.save(resourceInfo)
             } else {
                 throw CacheOperationFailedException(
-                    "ResourceInfo on server is lesser than requestet ${key.minVersion}"
+                    "ResourceInfo on server is lesser than requested ${key.minVersion}"
                 )
             }
         }

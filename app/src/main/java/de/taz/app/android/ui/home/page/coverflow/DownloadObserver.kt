@@ -14,6 +14,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
+import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -95,6 +96,7 @@ class DownloadObserver(
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity().showIssueDownloadFailedDialog(issueKey)
                     }
+                    Sentry.captureException(e, "Download of Issue $issueKey failed")
                 }
             }
         }
