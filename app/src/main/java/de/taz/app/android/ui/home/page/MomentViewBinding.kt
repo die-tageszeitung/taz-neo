@@ -41,7 +41,7 @@ class MomentViewBinding(
                 coverPublication,
                 // Retry indefinitely
                 maxRetries = -1,
-                minStatus = authHelper.getEligibleIssueStatus()
+                minStatus = authHelper.getMinStatus()
             ) as Moment
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -57,7 +57,7 @@ class MomentViewBinding(
             val downloadedMoment =
                 contentService.downloadMetadata(
                     coverPublication,
-                    minStatus = authHelper.getEligibleIssueStatus()
+                    minStatus = authHelper.getMinStatus()
                 ) as Moment
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
@@ -80,8 +80,6 @@ class MomentViewBinding(
             }
 
             CoverViewData(
-                downloadedMoment.issueKey,
-                CacheState.ABSENT,
                 momentType,
                 momentUri,
                 dimension
@@ -90,22 +88,6 @@ class MomentViewBinding(
             val hint =
                 "Error downloading metadata or cover content while binding cover for $coverPublication"
             throw CoverBindingException(hint, e)
-        }
-    }
-
-
-    override fun onDownloadClicked() {
-        if (dataInitialized()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    contentService.downloadToCache(coverViewData.issueKey)
-                } catch (e: CacheOperationFailedException) {
-                    withContext(Dispatchers.Main) {
-                        fragment.requireActivity()
-                            .showIssueDownloadFailedDialog(coverViewData.issueKey)
-                    }
-                }
-            }
         }
     }
 }

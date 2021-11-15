@@ -42,7 +42,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
             }
         )
-        return get(moment.issueKey)!!
+        return get(moment.momentKey)!!
     }
 
     fun momentStubToMoment(momentStub: MomentStub): Moment {
@@ -124,12 +124,12 @@ class MomentRepository private constructor(applicationContext: Context) :
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    fun get(issueKey: IssueKey): Moment? {
-        return get(issueKey.feedName, issueKey.date, issueKey.status)
+    fun get(momentKey: MomentKey): Moment? {
+        return get(momentKey.feedName, momentKey.date, momentKey.status)
     }
 
-    fun exists(issueKey: IssueKey): Boolean {
-        return get(issueKey) != null
+    fun exists(momentKey: MomentKey): Boolean {
+        return get(momentKey) != null
     }
 
     fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {

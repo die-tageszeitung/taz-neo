@@ -60,7 +60,7 @@ class DataService(applicationContext: Context) {
             while (downloadedCounter > max) {
                 runBlocking {
                     issueRepository.getEarliestDownloadedIssueStub()?.let {
-                        contentService.deleteIssue(it.issueKey)
+                        contentService.deleteIssue(IssuePublication(it.issueKey))
                     }
                     downloadedCounter--
                 }
@@ -166,7 +166,7 @@ class DataService(applicationContext: Context) {
                 if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
                     (contentService.downloadMetadataIfNotPresent(
                         IssuePublication(feedName, simpleDateFormat.format(it)),
-                        minStatus = authHelper.getEligibleIssueStatus()
+                        minStatus = authHelper.getMinStatus()
                     ) as Issue).issueKey
                 } else {
                     null

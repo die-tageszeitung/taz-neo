@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
@@ -90,7 +91,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
     )
 
-    val status = MappingDataStoreEntry(
+    final val status = MappingDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_STATUS), AuthStatus.notValid,
         { authStatus -> authStatus.name }, { string -> AuthStatus.valueOf(string) }
     )
@@ -102,8 +103,12 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid
 
-    suspend fun getEligibleIssueStatus() =
+    suspend fun getMinStatus() =
         if (isLoggedIn()) IssueStatus.regular else IssueStatus.public
+
+    val minStatusLiveData = status.asLiveData().map {
+        if (it == AuthStatus.valid) IssueStatus.regular else IssueStatus.public
+    }
 
     private var deletionJob: Job? = null
 

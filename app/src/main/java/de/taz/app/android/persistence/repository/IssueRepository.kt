@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -180,16 +181,16 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getLatest()
     }
 
-    fun getIssueStubByFeedAndDate(feedName: String, date: String, status: IssueStatus): IssueStub? {
-        return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
+    fun getIssueStubsByFeedAndDate(feedName: String, date: String): List<IssueStub> {
+        return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
     fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
         return appDatabase.issueImprintJoinDao().getIssueForImprintFileName(imprintFileName)
     }
 
-    fun getIssueByFeedAndDate(feedName: String, date: String, status: IssueStatus): Issue? {
-        return getIssueStubByFeedAndDate(feedName, date, status)?.let {
+    fun getIssuesByFeedAndDate(feedName: String, date: String): List<Issue> {
+        return getIssueStubsByFeedAndDate(feedName, date).map {
             issueStubToIssue(it)
         }
     }
@@ -282,10 +283,12 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
         getStub(issueWithPages.issueKey)?.let {
-            update(it.copy(
-                dateDownload = dateDownload,
-                dateDownloadWithPages = dateDownload
-            ))
+            update(
+                it.copy(
+                    dateDownload = dateDownload,
+                    dateDownloadWithPages = dateDownload
+                )
+            )
         }
     }
 
@@ -365,7 +368,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun saveLastPagePosition(issueKey: IssueKey, lastPagePosition: Int){
+    fun saveLastPagePosition(issueKey: IssueKey, lastPagePosition: Int) {
         getStub(issueKey)?.copy(lastPagePosition = lastPagePosition)?.let { update(it) }
     }
 
@@ -396,6 +399,32 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun getAllIssueStubs(): List<IssueStub> {
         return appDatabase.issueDao().getAllIssueStubs()
+    }
+
+    fun getAllPublicAndDemoIssueStubs(): List<IssueStub> {
+        return appDatabase.issueDao().getAllPublicAndDemoIssueStubs()
+    }
+
+    fun getByFeedAndDateLiveData(feedName: String, date: String): LiveData<List<IssueStub>> {
+        return appDatabase.issueDao().getByFeedAndDateLiveData(feedName, date)
+    }
+
+    fun getMostValuableIssueKeyForFeedAndDateLiveData(
+        feedName: String,
+        date: String
+    ): LiveData<IssueKey?> {
+        return getByFeedAndDateLiveData(feedName, date).map { issueList ->
+            issueList.maxByOrNull { it.status }?.issueKey
+        }
+    }
+
+    fun getMostValuableIssueKeyForFeedAndDate(
+        feedName: String,
+        date: String
+    ): IssueKey? {
+        return appDatabase.issueDao().getByFeedAndDate(feedName, date).maxByOrNull {
+            it.status
+        }?.issueKey
     }
 
     fun delete(issue: Issue) {
@@ -471,15 +500,70 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 }
 
-interface AbstractIssueKey : ObservableDownload, Parcelable, AbstractIssuePublication {
+interface AbstractCoverPublication : ObservableDownload, Parcelable {
+    val feedName: String
+    val date: String
+}
+
+interface AbstractCoverKey : AbstractCoverPublication {
     override val feedName: String
     override val date: String
     val status: IssueStatus
 }
 
-interface AbstractIssuePublication: ObservableDownload, Parcelable {
+interface AbstractIssuePublication : ObservableDownload, Parcelable {
     val feedName: String
     val date: String
+}
+
+interface AbstractIssueKey : AbstractIssuePublication {
+    override val feedName: String
+    override val date: String
+    val status: IssueStatus
+}
+
+
+/**
+ * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
+ * omitting the specification of an [IssueStatus]
+ */
+@Parcelize
+data class IssuePublication(
+    override val feedName: String,
+    override val date: String
+) : AbstractIssuePublication {
+    constructor(issueKey: AbstractIssuePublication) : this(
+        issueKey.feedName,
+        issueKey.date
+    )
+
+    constructor(coverPublication: AbstractCoverPublication): this(
+        coverPublication.feedName,
+        coverPublication.date
+    )
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date"
+    }
+}
+
+/**
+ * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
+ * omitting the specification of an [IssueStatus]
+ */
+@Parcelize
+data class IssuePublicationWithPages(
+    override val feedName: String,
+    override val date: String
+) : AbstractIssuePublication {
+    constructor(abstractIssuePublication: AbstractIssuePublication): this(
+        abstractIssuePublication.feedName,
+        abstractIssuePublication.date
+    )
+
+    override fun getDownloadTag(): String {
+        return "$feedName/$date"
+    }
 }
 
 /**
@@ -499,7 +583,7 @@ data class IssueKey(
         abstractIssueKey.status
     )
 
-    constructor(issuePublication: IssuePublication, status: IssueStatus) : this(
+    constructor(issuePublication: AbstractIssuePublication, status: IssueStatus) : this(
         issuePublication.feedName,
         issuePublication.date,
         status
@@ -507,26 +591,6 @@ data class IssueKey(
 
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status"
-    }
-}
-
-
-/**
- * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
- * omitting the specification of an [IssueStatus]
- */
-@Parcelize
-data class IssuePublication(
-    override val feedName: String,
-    override val date: String
-) : AbstractIssuePublication {
-    constructor(issueKey: AbstractIssueKey) : this(
-        issueKey.feedName,
-        issueKey.date
-    )
-
-    override fun getDownloadTag(): String {
-        return "$feedName/$date"
     }
 }
 
@@ -550,7 +614,6 @@ data class IssueKeyWithPages(
     fun getIssueKey() = IssueKey(feedName, date, status)
 }
 
-
 /**
  * The representation of a cover publication in form of [feedName] and [date]
  */
@@ -558,7 +621,7 @@ data class IssueKeyWithPages(
 data class MomentPublication(
     override val feedName: String,
     override val date: String
-) : AbstractIssuePublication {
+) : AbstractCoverPublication {
     override fun getDownloadTag(): String {
         return "$feedName/$date/moment"
     }
@@ -571,7 +634,7 @@ data class MomentPublication(
 data class FrontpagePublication(
     override val feedName: String,
     override val date: String
-) : AbstractIssuePublication {
+) : AbstractCoverPublication {
     override fun getDownloadTag(): String {
         return "$feedName/$date/frontpage"
     }
@@ -586,7 +649,7 @@ data class MomentKey(
     override val feedName: String,
     override val date: String,
     override val status: IssueStatus
-) : AbstractIssueKey {
+) : AbstractCoverKey {
 
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status/moment"
@@ -602,7 +665,7 @@ data class FrontPageKey(
     override val feedName: String,
     override val date: String,
     override val status: IssueStatus
-) : AbstractIssueKey {
+) : AbstractCoverKey {
 
     override fun getDownloadTag(): String {
         return "$feedName/$date/$status/frontpage"

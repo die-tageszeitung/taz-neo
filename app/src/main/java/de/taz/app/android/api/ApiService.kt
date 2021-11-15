@@ -7,6 +7,7 @@ import de.taz.app.android.api.dto.SearchDto
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
@@ -613,7 +614,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         } ?: emptyList()
     }
 
-    suspend fun getIssueByPublication(issuePublication: IssuePublication): Issue =
+    suspend fun getIssueByPublication(issuePublication: AbstractIssuePublication): Issue =
         withContext(Dispatchers.IO) {
             transformToConnectivityException {
                 val issues = graphQlClient.query(

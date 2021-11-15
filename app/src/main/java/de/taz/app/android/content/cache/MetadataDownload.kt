@@ -76,6 +76,7 @@ class MetadataDownload(
         try {
             when (download) {
                 is IssuePublication -> getIssue(download)
+                is IssuePublicationWithPages -> IssueWithPages(getIssue(download))
                 is IssueKey -> getIssue(download)
                 is MomentKey -> getMoment(download)
                 is MomentPublication -> getMoment(download)
@@ -148,7 +149,7 @@ class MetadataDownload(
             var cachedMoment: Moment? = null
             for (status in IssueStatus.values().sortedArrayDescending()) {
                 cachedMoment = momentRepository.get(
-                    IssueKey(momentPublication.feedName, momentPublication.date, status)
+                    MomentKey(momentPublication.feedName, momentPublication.date, status)
                 )
                 if (cachedMoment != null) {
                     // cache hit
@@ -179,7 +180,7 @@ class MetadataDownload(
     private suspend fun getMoment(momentKey: MomentKey): Moment {
         if (allowCache) {
             val cachedIssue = momentRepository.get(
-                IssueKey(momentKey)
+                momentKey
             )
             if (cachedIssue != null) {
                 return cachedIssue
@@ -274,7 +275,7 @@ class MetadataDownload(
         }
     }
 
-    private suspend fun getIssue(issuePublication: IssuePublication): Issue {
+    private suspend fun getIssue(issuePublication: AbstractIssuePublication): Issue {
         if (allowCache) {
             var cachedIssue: Issue? = null
             for (status in IssueStatus.values().sortedArrayDescending()) {

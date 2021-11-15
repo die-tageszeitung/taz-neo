@@ -1,33 +1,40 @@
 package de.taz.app.android.ui.home.page
 
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.cache.CacheState
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class HomeMomentViewActionListener(
-    private val issueFeedFragment: IssueFeedFragment,
-    private val contentService: ContentService,
+    private val issueFeedFragment: IssueFeedFragment
 ) : CoverViewActionListener {
-
-    override fun onImageClicked(momentViewData: CoverViewData) {
-        issueFeedFragment.onItemSelected(momentViewData.issueKey)
+    override fun onImageClicked(coverPublication: AbstractCoverPublication) {
+        val issuePublication = when(coverPublication) {
+            is MomentPublication -> IssuePublication(
+                coverPublication.feedName,
+                coverPublication.date
+            )
+            is FrontpagePublication -> IssuePublicationWithPages(
+                coverPublication.feedName,
+                coverPublication.date
+            )
+            else -> throw IllegalArgumentException("Did not expect a ${coverPublication::class.simpleName}")
+        }
+        issueFeedFragment.onItemSelected(issuePublication)
     }
 
-    override fun onLongClicked(momentViewData: CoverViewData) {
+    override fun onLongClicked(coverPublication: AbstractCoverPublication) {
         issueFeedFragment.lifecycleScope.launch(Dispatchers.IO) {
-            val cacheState = contentService.getCacheState(momentViewData.issueKey).cacheState
             withContext(Dispatchers.Main) {
                 issueFeedFragment.showBottomSheet(
                     IssueBottomSheetFragment.create(
-                        momentViewData.issueKey,
-                        cacheState == CacheState.PRESENT
+                        IssuePublication(coverPublication)
                     )
                 )
             }
         }
     }
+
 }

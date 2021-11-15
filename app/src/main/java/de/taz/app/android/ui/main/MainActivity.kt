@@ -50,7 +50,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
     val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     companion object {
-        const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
+        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

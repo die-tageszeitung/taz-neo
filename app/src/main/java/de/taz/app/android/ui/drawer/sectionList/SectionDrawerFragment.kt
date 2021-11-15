@@ -32,7 +32,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.home.page.CoverViewActionListener
-import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -213,10 +212,13 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            val issueStub = contentService.downloadMetadata(IssuePublication(issueKey)) as Issue
+            val issueStub =
+                    contentService.downloadMetadata(
+                        IssuePublication(issueKey)
+                    ) as Issue
             currentIssueStub = IssueStub(issueStub)
             moment_container.setOnClickListener {
-                finishAndShowIssue(currentIssueStub.issueKey)
+                finishAndShowIssue(IssuePublication(currentIssueStub.issueKey))
             }
 
             setMomentDate(currentIssueStub)
@@ -303,9 +305,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onSaveInstanceState(outState)
     }
 
-    private fun finishAndShowIssue(issueKey: IssueKey) {
+    private fun finishAndShowIssue(issuePublication: IssuePublication) {
         Intent(requireActivity(), MainActivity::class.java).apply {
-            putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
+            putExtra(MainActivity.KEY_ISSUE_PUBLICATION, issuePublication)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(this)
             requireActivity().finish()
@@ -334,8 +336,10 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                     DateFormat.LongWithoutWeekDay,
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
-                        override fun onImageClicked(momentViewData: CoverViewData) {
-                            finishAndShowIssue(moment.issueKey)
+                        override fun onImageClicked(coverPublication: AbstractCoverPublication) {
+                            finishAndShowIssue(
+                                IssuePublication(coverPublication)
+                            )
                         }
                     }
                 )

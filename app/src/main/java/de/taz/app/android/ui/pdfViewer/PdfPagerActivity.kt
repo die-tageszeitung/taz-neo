@@ -23,6 +23,8 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
@@ -42,13 +44,13 @@ const val LOGO_ANIMATION_DURATION_MS = 500L
 class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) {
 
     companion object {
-        const val KEY_ISSUE_KEY = "KEY_ISSUE_KEY"
+        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
     }
 
     private val log by Log
 
     private var navButton: Image? = null
-    private lateinit var issueKey: IssueKeyWithPages
+    private lateinit var issuePublication: IssuePublicationWithPages
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private lateinit var storageService: StorageService
 
@@ -59,8 +61,8 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        issueKey = try {
-            intent.getParcelableExtra(KEY_ISSUE_KEY)!!
+        issuePublication = try {
+            intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
         } catch (e: NullPointerException) {
             throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         }
@@ -69,11 +71,11 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
             .filter { it }
             .asLiveData()
             .observe(this) {
-                showIssueDownloadFailedDialog(issueKey)
+                showIssueDownloadFailedDialog(issuePublication)
             }
 
         if (savedInstanceState == null) {
-            pdfPagerViewModel.issueKey.postValue(issueKey)
+            pdfPagerViewModel.issuePublication.postValue(issuePublication)
         }
 
 
@@ -250,7 +252,7 @@ class PdfPagerActivity : NightModeActivity(R.layout.activity_pdf_drawer_layout) 
                 )
             }
             activity_pdf_drawer_date.text =
-                DateHelper.stringToLongLocalized2LineString(issueKey.date)
+                DateHelper.stringToLongLocalized2LineString(issuePublication.date)
 
             drawerAdapter =
                 PdfDrawerRecyclerViewAdapter(items.subList(1, items.size), Glide.with(this))

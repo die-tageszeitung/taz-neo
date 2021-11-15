@@ -8,7 +8,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
@@ -77,27 +76,17 @@ class IssueViewerViewModel(
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
                 try {
-                    val issue = contentService.downloadMetadata(issueKey) as Issue
-
-                    // Eventhough we might expect a "public" issue
-                    // we might have gotten a "regular" one (i.e. a demo issue).
-                    // In the next step where we search for sections we should NOT use the issueKey
-                    // we used to get the metadata, but the actual issuekey of the downloaded metadata
-                    // (as it might differ)
-                    // TODO: As this behavior is creating brittle code in multiple instances
-                    // we should think about how to handle this fact generally
-
                     // either displayable is specified, persisted or defaulted to first section
                     val displayable = displayableKey
-                        ?: dataService.getLastDisplayableOnIssue(issue.issueKey)
-                        ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
+                        ?: dataService.getLastDisplayableOnIssue(issueKey)
+                        ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
                     setDisplayable(
-                        IssueKeyWithDisplayableKey(issue.issueKey, displayable)
+                        IssueKeyWithDisplayableKey(issueKey, displayable)
                     )
                     // Start downloading the whole issue in background
                     launch {
                         try {
-                            contentService.downloadToCache(issue.issueKey)
+                            contentService.downloadToCache(IssuePublication(issueKey))
                         } catch (e: CacheOperationFailedException) {
                             issueLoadingFailedErrorFlow.emit(true)
                         }
