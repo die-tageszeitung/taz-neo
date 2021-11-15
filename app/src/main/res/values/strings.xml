@@ -118,6 +118,8 @@
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
 
+    <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
+
 
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
