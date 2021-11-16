@@ -44,7 +44,7 @@ class MomentViewBinding(
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
             try {
-                contentService.downloadToCacheIfNotPresent(moment, priority = DownloadPriority.High)
+                contentService.downloadToCache(moment, priority = DownloadPriority.High)
             } catch (e: CacheOperationFailedException) {
                 toastHelper.showConnectionToServerFailedToast()
             }
@@ -90,7 +90,7 @@ class MomentViewBinding(
         if (dataInitialized()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
+                    contentService.downloadToCache(coverViewData.issueKey)
                 } catch (e: CacheOperationFailedException) {
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity()

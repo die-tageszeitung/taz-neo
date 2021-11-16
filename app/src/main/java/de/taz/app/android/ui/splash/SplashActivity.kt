@@ -312,7 +312,7 @@ class SplashActivity : BaseActivity() {
             log.debug("Created tazApi.css")
         }
         try {
-            contentService.downloadToCacheIfNotPresent(
+            contentService.downloadToCache(
                 ResourceInfoKey(-1)
             )
         } catch (e: CacheOperationFailedException) {

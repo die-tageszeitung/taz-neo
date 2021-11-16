@@ -88,7 +88,7 @@ class PdfPagerViewModel(
                         imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                     )
 
-                    contentService.downloadToCacheIfNotPresent(pdfIssue.issueKey)
+                    contentService.downloadToCache(pdfIssue.issueKey)
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(

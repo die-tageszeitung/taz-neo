@@ -97,7 +97,7 @@ class IssueViewerViewModel(
                     // Start downloading the whole issue in background
                     launch {
                         try {
-                            contentService.downloadToCacheIfNotPresent(issue.issueKey)
+                            contentService.downloadToCache(issue.issueKey)
                         } catch (e: CacheOperationFailedException) {
                             issueLoadingFailedErrorFlow.emit(true)
                         }

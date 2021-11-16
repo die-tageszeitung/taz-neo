@@ -53,7 +53,7 @@ class IssueDownloadWorkManagerWorker(
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {
-                contentService.downloadToCacheIfNotPresent(newestIssueKey, isAutomaticDownload = true)
+                contentService.downloadToCache(newestIssueKey, isAutomaticDownload = true)
                 log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()
             }

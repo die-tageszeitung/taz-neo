@@ -101,7 +101,7 @@ class ContentServiceTest {
 
         // Call to content service ends without exception
         runBlocking {
-            contentService.downloadToCacheIfNotPresent(testIssue.issueKey)
+            contentService.downloadToCache(testIssue.issueKey)
         }
         assert(issueRepository.isDownloaded(testIssue.issueKey))
     }
@@ -115,7 +115,7 @@ class ContentServiceTest {
         Assert.assertThrows(
             CacheOperationFailedException::class.java
         ) {
-            runBlocking { contentService.downloadToCacheIfNotPresent(testIssue.issueKey) }
+            runBlocking { contentService.downloadToCache(testIssue.issueKey) }
         }
 
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
@@ -131,7 +131,7 @@ class ContentServiceTest {
         Assert.assertThrows(
             CacheOperationFailedException::class.java
         ) {
-            runBlocking { contentService.downloadToCacheIfNotPresent(testIssue.issueKey) }
+            runBlocking { contentService.downloadToCache(testIssue.issueKey) }
         }
 
         assert(!issueRepository.isDownloaded(testIssue.issueKey))

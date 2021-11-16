@@ -92,7 +92,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShowWelcomeSlides() {
         try {
-            contentService.downloadToCacheIfNotPresent(ResourceInfoKey(-1))
+            contentService.downloadToCache(ResourceInfoKey(-1))
             showWelcomeSlides()
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()

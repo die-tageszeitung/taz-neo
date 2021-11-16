@@ -45,7 +45,7 @@ class FrontpageViewBinding(
             ) as Page
 
             // get pdf front page
-            contentService.downloadToCacheIfNotPresent(frontPage)
+            contentService.downloadToCache(frontPage)
 
             // Refresh front page
             val downloadedFrontPage =
@@ -82,7 +82,7 @@ class FrontpageViewBinding(
         if (dataInitialized()) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    contentService.downloadToCacheIfNotPresent(coverViewData.issueKey)
+                    contentService.downloadToCache(coverViewData.issueKey)
                 } catch (e: CacheOperationFailedException) {
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity()

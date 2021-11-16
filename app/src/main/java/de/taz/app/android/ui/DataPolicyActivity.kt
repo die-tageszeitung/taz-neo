@@ -111,7 +111,7 @@ class DataPolicyActivity : AppCompatActivity() {
 
     private suspend fun ensureResourceInfoIsDownloadedAndShowDataPolicy() = withContext(Dispatchers.Main) {
         try {
-            contentService.downloadToCacheIfNotPresent(ResourceInfoKey(-1))
+            contentService.downloadToCache(ResourceInfoKey(-1))
             showDataPolicy()
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()

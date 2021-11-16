@@ -131,54 +131,19 @@ class ContentService(
         }
 
     /**
-     * This function will download an [issueKey] (both Metadata and Contents) if
-     * it is not yet marked as downloaded. If it is it will just return
-     * @param issueKey The key of the issue to be downloaded
-     * @param priority The priority of the download
-     * @param isAutomaticDownload Indicator if the download was triggered automatically
-     * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
-     */
-    @Throws(CacheOperationFailedException::class)
-    suspend fun downloadToCacheIfNotPresent(
-        issueKey: AbstractIssueKey,
-        priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
-    ) = withContext(Dispatchers.IO) {
-        if (!issueRepository.isDownloaded(issueKey)) {
-            downloadToCache(issueKey, priority, isAutomaticDownload)
-        }
-    }
-
-    /**
-     * This function will invoke [downloadToCache] if the provided collection is not downloaded
-     *
-     * @param collection The collection to be downloaded
-     * @param priority The priority of the download
-     * @param isAutomaticDownload Indicator if the download was triggered automatically
-     * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
-     */
-    @Throws(CacheOperationFailedException::class)
-    suspend fun downloadToCacheIfNotPresent(
-        collection: ObservableDownload,
-        priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
-    ) = withContext(Dispatchers.IO) {
-        downloadToCache(collection, priority, isAutomaticDownload, allowCache = true)
-    }
-
-    /**
      * This function will download a [download] (both Metadata and Contents) if
      * it is not yet marked as downloaded. If it is it will just return
      * @param download The [ObservableDownload] to be downloaded
      * @param priority The priority of the download
      * @param isAutomaticDownload Indicator if the download was triggered automatically
+     * @param allowCache Indicate whether cache should be ignored
      * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
      */
-    private suspend fun downloadToCache(
+    suspend fun downloadToCache(
         download: ObservableDownload,
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false,
-        allowCache: Boolean = false
+        allowCache: Boolean = true
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(

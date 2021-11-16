@@ -327,7 +327,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 return@withContext
             }
             try {
-                contentService.downloadToCacheIfNotPresent(moment)
+                contentService.downloadToCache(moment)
                 momentBinder = MomentViewBinding(
                     this@SectionDrawerFragment,
                     momentPublication,

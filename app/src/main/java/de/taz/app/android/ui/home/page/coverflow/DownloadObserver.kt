@@ -91,7 +91,7 @@ class DownloadObserver(
         boundView?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    contentService.downloadToCacheIfNotPresent(issueKey)
+                    contentService.downloadToCache(issueKey)
                 } catch (e: CacheOperationFailedException) {
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity().showIssueDownloadFailedDialog(issueKey)
