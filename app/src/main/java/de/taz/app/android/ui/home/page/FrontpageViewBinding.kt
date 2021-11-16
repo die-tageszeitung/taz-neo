@@ -38,7 +38,7 @@ class FrontpageViewBinding(
             val dimension =
                 feedRepository.get(coverPublication.feedName)?.momentRatioAsDimensionRatioString()
                     ?: DEFAULT_MOMENT_RATIO
-            val frontPage = contentService.downloadMetadataIfNotPresent(
+            val frontPage = contentService.downloadMetadata(
                 coverPublication,
                 // Retry indefinitely
                 maxRetries = -1
@@ -49,14 +49,14 @@ class FrontpageViewBinding(
 
             // Refresh front page
             val downloadedFrontPage =
-                contentService.downloadMetadataIfNotPresent(coverPublication) as Page
+                contentService.downloadMetadata(coverPublication) as Page
 
             val fileEntry = fileEntryRepository.get(downloadedFrontPage.pagePdf.name)
             val pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
 
             // Still need to determine the issueKey, it's not part of a [Page]
             // Therefore we need the [Moment]:
-            val moment = contentService.downloadMetadataIfNotPresent(
+            val moment = contentService.downloadMetadata(
                 MomentPublication(
                     coverPublication.feedName,
                     coverPublication.date

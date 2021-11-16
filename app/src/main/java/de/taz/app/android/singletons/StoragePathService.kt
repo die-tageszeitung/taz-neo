@@ -37,13 +37,13 @@ class StoragePathService private constructor(private val applicationContext: Con
         val contentService = ContentService.getInstance(applicationContext)
         when (fileEntry.storageType) {
             StorageType.global -> {
-                (contentService.downloadMetadataIfNotPresent(
+                (contentService.downloadMetadata(
                     AppInfoKey(),
                     maxRetries = -1 // retry indefinitely
                 ) as AppInfo).globalBaseUrl
             }
             StorageType.resource -> {
-                (contentService.downloadMetadataIfNotPresent(
+                (contentService.downloadMetadata(
                     ResourceInfoKey(-1),
                     maxRetries = -1 // retry indefinitely
                 ) as ResourceInfo).resourceBaseUrl

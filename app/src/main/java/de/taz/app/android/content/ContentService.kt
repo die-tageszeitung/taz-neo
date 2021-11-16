@@ -194,38 +194,19 @@ class ContentService(
 
     /**
      * This function will retrieve the Metadata of [ObservableDownload]
-     * Only if not found in database it will download it from the API
+     * Depending on [allowCache] parameter will return a cached version of the Metadata
      *
      * @param download [ObservableDownload] of which the Metadata should be retrieved
-     * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
-     * or [AppInfo]
-     */
-    suspend fun downloadMetadataIfNotPresent(
-        download: ObservableDownload,
-        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
-        forceExecution: Boolean = false
-    ): ObservableDownload {
-        return MetadataDownload
-            .prepare(
-                applicationContext,
-                download,
-                download.getDownloadTag(),
-                retriesOnConnectionError = maxRetries,
-                allowCache = true
-            )
-            .execute(forceExecution = forceExecution)
-    }
-
-    /**
-     * This function will retrieve the Metadata of [ObservableDownload]
-     *
-     * @param download [ObservableDownload] of which the Metadata should be retrieved
+     * @param maxRetries The amount of retries on connection errors
+     * @param forceExecution If this operation should be executed regardless if an equal operation has already been started
      * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
      * or [AppInfo]
      */
     suspend fun downloadMetadata(
         download: ObservableDownload,
-        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES
+        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+        forceExecution: Boolean = false,
+        allowCache: Boolean = true
     ): ObservableDownload {
         return MetadataDownload
             .prepare(
@@ -233,9 +214,9 @@ class ContentService(
                 download,
                 download.getDownloadTag(),
                 retriesOnConnectionError = maxRetries,
-                allowCache = false
+                allowCache = allowCache
             )
-            .execute()
+            .execute(forceExecution = forceExecution)
     }
 
     /**

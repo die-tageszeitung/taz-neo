@@ -36,7 +36,7 @@ class MomentViewBinding(
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         try {
-            val moment = contentService.downloadMetadataIfNotPresent(
+            val moment = contentService.downloadMetadata(
                 coverPublication,
                 // Retry indefinitely
                 maxRetries = -1
@@ -50,7 +50,7 @@ class MomentViewBinding(
             }
             // refresh moment after download
             val downloadedMoment =
-                contentService.downloadMetadataIfNotPresent(coverPublication) as Moment
+                contentService.downloadMetadata(coverPublication) as Moment
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }

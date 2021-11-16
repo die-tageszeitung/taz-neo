@@ -124,7 +124,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                var issue = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
+                var issue = contentService.downloadMetadata(IssuePublication(issueKey)) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
                     image.name
@@ -132,7 +132,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                     contentService.downloadSingleFileIfNotDownloaded(it, issue.baseUrl)
                 }
                 // refresh issue after altering file state
-                issue = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
+                issue = contentService.downloadMetadata(IssuePublication(issueKey)) as Issue
                 image = issue.moment.getMomentFileToShare()
 
                 fileHelper.getAbsolutePath(image)?.let { imageAsFile ->

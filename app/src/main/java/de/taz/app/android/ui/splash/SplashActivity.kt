@@ -156,7 +156,7 @@ class SplashActivity : BaseActivity() {
             // This call might be duplicated by the AppVersion check which is not allowing cache.
             // To make this call not fail due to a connectivity exception if there indeed is a
             // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
-            contentService.downloadMetadataIfNotPresent(AppInfoKey(), forceExecution = true)
+            contentService.downloadMetadata(AppInfoKey(), forceExecution = true)
         } catch (exception: ConnectivityException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
@@ -167,7 +167,7 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun checkAppVersion() {
         try {
-            val appInfo = contentService.downloadMetadata(AppInfoKey()) as AppInfo
+            val appInfo = contentService.downloadMetadata(AppInfoKey(), allowCache = false) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,

@@ -213,7 +213,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            val issueStub = contentService.downloadMetadataIfNotPresent(IssuePublication(issueKey)) as Issue
+            val issueStub = contentService.downloadMetadata(IssuePublication(issueKey)) as Issue
             currentIssueStub = IssueStub(issueStub)
             moment_container.setOnClickListener {
                 finishAndShowIssue(currentIssueStub.issueKey)
@@ -319,7 +319,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                 return@withContext
             }
             val moment = try {
-                contentService.downloadMetadataIfNotPresent(momentPublication) as Moment
+                contentService.downloadMetadata(momentPublication) as Moment
             } catch (e: CacheOperationFailedException) {
                 val hint = "Cache miss and failed download for moment $momentPublication"
                 log.error(hint)

@@ -73,7 +73,7 @@ class PdfPagerViewModel(
 
                 try {
                     issueDownloadFailedErrorFlow.emit(false)
-                    val issue = contentService.downloadMetadataIfNotPresent(
+                    val issue = contentService.downloadMetadata(
                         IssuePublication(issueKey)
                     ) as Issue
                     // Get latest shown page and set it before setting the issue

@@ -127,7 +127,7 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
             lifecycleScope.launch(Dispatchers.IO) {
-                val resourceInfo = contentService.downloadMetadataIfNotPresent(
+                val resourceInfo = contentService.downloadMetadata(
                     ResourceInfoKey(-1),
                     maxRetries = -1 // Retry indefinitely
                 ) as ResourceInfo

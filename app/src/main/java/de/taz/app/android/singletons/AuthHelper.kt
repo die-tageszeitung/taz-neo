@@ -159,7 +159,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue {
-        return contentService.downloadMetadataIfNotPresent(
+        return contentService.downloadMetadata(
             IssuePublication(
                 articleStub.issueFeedName,
                 articleStub.issueDate

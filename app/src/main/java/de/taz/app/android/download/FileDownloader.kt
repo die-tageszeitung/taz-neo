@@ -60,7 +60,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     private suspend fun ensureHelperInitialized() {
         val contentService = ContentService.getInstance(applicationContext)
         if (!::downloadConnectionHelper.isInitialized) {
-            val healthCheckUrl = (contentService.downloadMetadataIfNotPresent(
+            val healthCheckUrl = (contentService.downloadMetadata(
                 AppInfoKey()
             ) as AppInfo).globalBaseUrl
             downloadConnectionHelper = DownloadConnectionHelper(healthCheckUrl)
