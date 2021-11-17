@@ -26,6 +26,4 @@ interface SectionOperations {
         return@withContext SectionRepository.getInstance(applicationContext)
             .getNavButtonForSection(this@SectionOperations.key)
     }
-
-
 }

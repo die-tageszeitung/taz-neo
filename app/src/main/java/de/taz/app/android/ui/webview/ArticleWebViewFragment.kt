@@ -9,9 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
@@ -135,24 +133,24 @@ class ArticleWebViewFragment :
     }
 
     override fun hideLoadingScreen() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             viewModel.displayable?.let { article ->
-                if (article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public) {
-                    withContext(Dispatchers.Main) {
-                        try {
-                            childFragmentManager.beginTransaction().replace(
-                                R.id.fragment_article_bottom_fragment_placeholder,
-                                ArticleLoginFragment.create(article.key)
-                            ).commit()
-                        } catch (e: IllegalStateException) {
-                            // do nothing already hidden
-                        }
+                val issueStub = withContext(Dispatchers.IO) {
+                    article.getIssueStub(requireContext().applicationContext)
+                }
+                if (issueStub?.issueKey?.status == IssueStatus.public) {
+
+                    try {
+                        childFragmentManager.beginTransaction().replace(
+                            R.id.fragment_article_bottom_fragment_placeholder,
+                            ArticleLoginFragment.create(article.key)
+                        ).commit()
+                    } catch (e: IllegalStateException) {
+                        // do nothing already hidden
                     }
                 }
-                withContext(Dispatchers.Main) {
-                    super.hideLoadingScreen()
-                }
             }
+            super.hideLoadingScreen()
         }
     }
 }

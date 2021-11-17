@@ -177,13 +177,21 @@ class SectionRepository private constructor(applicationContext: Context) :
             )
         )
 
+        // TODO: Atm we are skipping contraint errors assuming, some foreign key constraint
+        // is still important enough to protect these things
+        // However we should have confidence over how and we we delete stuff and should refactor
+        // this to instead of catching constraints modifying the data model to behave predictably
         try {
             imageRepository.delete(section.navButton)
         } catch (e: SQLiteConstraintException) {
             // do not delete still used
         }
 
-        appDatabase.sectionDao().delete(SectionStub(section))
+        try {
+            appDatabase.sectionDao().delete(SectionStub(section))
+        } catch (e: SQLiteConstraintException) {
+            // do not delete still used
+        }
     }
 
     fun getNavButtonForSection(sectionFileName: String): Image? {

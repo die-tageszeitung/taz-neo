@@ -113,7 +113,7 @@ class IssueDeletion(
                     notifySuccessfulItem()
                 } catch (e: Exception) {
                     notifyFailedItem(e)
-                    throw CacheOperationFailedException("Deleting the metadata for issue publication $issuePublication failed")
+                    throw CacheOperationFailedException("Deleting the metadata for issue publication $issuePublication failed", e)
                 }
             }
 
