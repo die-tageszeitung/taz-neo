@@ -132,15 +132,10 @@ class WrappedDownload(
             throw exception
         }
 
-        val issueDownloadNotifier = when (parent) {
-            is AbstractIssueKey -> IssueDownloadNotifier(
-                applicationContext,
-                parent,
-                isAutomaticDownload
-            )
+        val issueDownloadNotifier = when (parentCollection) {
             is AbstractIssue -> IssueDownloadNotifier(
                 applicationContext,
-                parent.issueKey,
+                parentCollection.issueKey,
                 isAutomaticDownload
             )
             else -> null
