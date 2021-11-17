@@ -21,7 +21,7 @@ data class DownloadStartVariables(
     val deviceOS: String? = System.getProperty("os.version"),
     val pushToken: String?,
     val deviceMessageSound: String? = null,
-    val textNotification: Boolean? = null
+    val textNotification: Boolean = true
 ) : Variables {
     override fun toJson() = JsonHelper.toJson(this)
 }
