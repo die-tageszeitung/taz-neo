@@ -12,7 +12,7 @@ mutation DownloadStart(
     $isAutomatically: Boolean!,
     $pushToken: String,
     $deviceMessageSound: String,
-    $textNotification: Boolean
+    $textNotification: Boolean!
 ) {
     downloadStart(
         feedName: $feedName,
