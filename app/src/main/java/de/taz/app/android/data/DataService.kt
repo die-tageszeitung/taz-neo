@@ -164,7 +164,7 @@ class DataService(applicationContext: Context) {
             val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
             newsestIssueDate?.let {
                 if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
-                    (contentService.downloadMetadataIfNotPresent(
+                    (contentService.downloadMetadata(
                         IssuePublication(feedName, simpleDateFormat.format(it)),
                         minStatus = authHelper.getMinStatus()
                     ) as Issue).issueKey

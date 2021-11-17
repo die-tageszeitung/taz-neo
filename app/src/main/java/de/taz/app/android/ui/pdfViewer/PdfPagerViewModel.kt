@@ -39,7 +39,7 @@ class PdfPagerViewModel(
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
         addSource(issuePublication) {
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = contentService.downloadMetadataIfNotPresent(it) as Issue
+                val issue = contentService.downloadMetadata(it) as Issue
                 postValue(IssueKeyWithPages(issue.issueKey))
             }
         }

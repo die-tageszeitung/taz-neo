@@ -52,7 +52,7 @@ class IssueViewerActivity : TazViewerActivity() {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
             finishOnBackPressed = intent.getBooleanExtra(KEY_FINISH_ON_BACK_PRESSED, false)
             CoroutineScope(Dispatchers.Main).launch {
-                val issue = contentService.downloadMetadataIfNotPresent(
+                val issue = contentService.downloadMetadata(
                     issuePublication,
                     minStatus = authHelper.getMinStatus()
                 ) as Issue
