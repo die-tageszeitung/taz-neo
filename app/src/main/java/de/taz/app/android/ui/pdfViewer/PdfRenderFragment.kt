@@ -15,9 +15,11 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.StorageService
@@ -51,6 +53,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private var pdfReaderView: MuPDFReaderView? = null
+    private lateinit var issueKey: IssueKeyWithPages
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -82,6 +85,13 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                     log.error("Created with PAGE_NAME set")
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        pdfPagerViewModel.issueKey.observe(this) {
+            issueKey = it
         }
     }
 
@@ -137,8 +147,9 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                                 )
                                 .addToBackStack(null)
                                 .commit()
+
                             issueContentViewModel.setDisplayable(
-                                IssueKey(pdfPagerViewModel.issueKey.value!!),
+                                IssueKey(issueKey),
                                 link
                             )
                         }
