@@ -113,8 +113,8 @@ class ContentService(
                 is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
                 is MomentKey -> momentRepository.isDownloaded(observableDownload)
                 is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
-                is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForFeedAndDate(
-                    observableDownload.feedName, observableDownload.date
+                is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
+                    observableDownload
                 )?.let {
                     if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
                     else false

@@ -420,22 +420,14 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedAndDateLiveData(feedName, date)
     }
 
-    fun getMostValuableIssueKeyForFeedAndDateLiveData(
-        feedName: String,
-        date: String
-    ): LiveData<IssueKey?> {
-        return getByFeedAndDateLiveData(feedName, date).map { issueList ->
-            issueList.maxByOrNull { it.status }?.issueKey
-        }
-    }
-
-    fun getMostValuableIssueKeyForFeedAndDate(
-        feedName: String,
-        date: String
-    ): IssueKey? {
-        return appDatabase.issueDao().getByFeedAndDate(feedName, date).maxByOrNull {
-            it.status
-        }?.issueKey
+    fun getMostValuableIssueKeyForPublication(
+        issuePublication: AbstractIssuePublication
+    ): AbstractIssueKey? {
+        return appDatabase.issueDao().getByFeedAndDate(issuePublication.feedName, issuePublication.date)
+            .map { if (issuePublication is IssuePublicationWithPages) IssueKeyWithPages(it.issueKey) else it.issueKey }
+            .maxByOrNull {
+                it.status
+            }
     }
 
     fun delete(issue: Issue) {

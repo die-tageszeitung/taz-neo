@@ -29,6 +29,7 @@ import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
@@ -55,6 +56,10 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
         StorageService.getInstance(requireContext().applicationContext)
     }
 
+    private val pageRepository by lazy {
+        PageRepository.getInstance(requireContext().applicationContext)
+    }
+
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
@@ -70,9 +75,9 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             arguments?.getString(PAGE_NAME)?.let {
                 try {
                     lifecycleScope.launch(Dispatchers.IO) {
-                        page =
-                            PageRepository.getInstance(requireContext().applicationContext).get(it)
-                    }.invokeOnCompletion { showPdf() }
+                        page = pageRepository.get(it)
+                        withContext(Dispatchers.Main) { showPdf() }
+                    }
                 } catch (nfe: NotFoundException) {
                     log.error("Created with PAGE_NAME set")
                 }
