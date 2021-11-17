@@ -559,8 +559,8 @@ data class IssuePublication(
 }
 
 /**
- * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
- * omitting the specification of an [IssueStatus]
+ * An [IssuePublicationWithPages] is the description of an Issue released at a certain [date] in a [feedName],
+ * omitting the specification of an [IssueStatus]. It's referring to the publication including classic "pdf" pages
  */
 @Parcelize
 data class IssuePublicationWithPages(

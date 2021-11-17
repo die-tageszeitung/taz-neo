@@ -117,7 +117,6 @@
     <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehende Dateien migriert.</string>
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
-    <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
 
 
 

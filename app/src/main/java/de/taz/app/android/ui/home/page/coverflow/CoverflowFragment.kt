@@ -22,7 +22,6 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
@@ -45,7 +44,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
     private val contentService by lazy { ContentService.getInstance(requireContext().applicationContext) }
-    private val authHelper by lazy { AuthHelper.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()

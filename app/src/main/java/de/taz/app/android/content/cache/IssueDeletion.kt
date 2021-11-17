@@ -66,7 +66,7 @@ class IssueDeletion(
                         issue.getArticles().filter { !it.bookmarked } +
                         issue.pageList
 
-            // If no bookmarked article is attached, delte metadata, too
+            // If no bookmarked article is attached, delete metadata, too
             if (articleRepository.getBookmarkedArticleStubsForIssue(issue.issueKey).isEmpty()) {
                 val deletion = MetadataDeletion.prepare(applicationContext, issue)
                 SubOperationCacheItem(
@@ -104,7 +104,7 @@ class IssueDeletion(
         }
 
         if (failedCount > 0) {
-            // If we encoutered errors while deleting content skip deleting metadata, just indicate another failed item and throw exception
+            // If we encountered errors while deleting content skip deleting metadata, just indicate another failed item and throw exception
             notifyFailedItem(CacheOperationFailedException("Operation aborted due to previous errors"))
         } else {
             for (item in metadataDeletionCacheItems) {

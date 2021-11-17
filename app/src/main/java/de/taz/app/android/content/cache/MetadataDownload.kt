@@ -179,11 +179,11 @@ class MetadataDownload(
 
     private suspend fun getMoment(momentKey: MomentKey): Moment {
         if (allowCache) {
-            val cachedIssue = momentRepository.get(
+            val cachedMoment = momentRepository.get(
                 momentKey
             )
-            if (cachedIssue != null) {
-                return cachedIssue
+            if (cachedMoment != null) {
+                return cachedMoment
             }
         }
         return apiService.retryOnConnectionFailure(maxRetries = retriesOnConnectionError) {

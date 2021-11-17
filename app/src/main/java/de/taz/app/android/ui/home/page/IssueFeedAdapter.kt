@@ -8,10 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.content.cache.CacheState
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.FrontpagePublication
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
