@@ -10,7 +10,9 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
 import java.util.*
@@ -81,18 +83,16 @@ abstract class IssueFeedAdapter(
         fun bind(fragment: IssueFeedFragment, date: Date) {
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
-                    fragment.requireContext().applicationContext,
                     fragment,
-                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    FrontpagePublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
                     onMomentViewActionListener
                 )
             } else {
                 MomentViewBinding(
-                    fragment.requireContext().applicationContext,
                     fragment,
-                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    MomentPublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
                     onMomentViewActionListener

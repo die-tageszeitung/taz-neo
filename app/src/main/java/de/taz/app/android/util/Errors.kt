@@ -1,7 +1,6 @@
 package de.taz.app.android.util
 
 import android.app.Activity
-import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.AbstractIssueKey
@@ -38,11 +37,10 @@ fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
         .show()
 }
 
-
-fun showIssueDownloadFailedDialog(context: Context, issueKey: AbstractIssueKey) {
-    android.app.AlertDialog.Builder(context)
+fun Activity.showIssueDownloadFailedDialog(issueKey: AbstractIssueKey) {
+    android.app.AlertDialog.Builder(this)
         .setMessage(
-            context.getString(
+            getString(
                 R.string.error_issue_download_failed,
                 DateHelper.dateToLongLocalizedString(
                     DateHelper.stringToDate(issueKey.date)!!

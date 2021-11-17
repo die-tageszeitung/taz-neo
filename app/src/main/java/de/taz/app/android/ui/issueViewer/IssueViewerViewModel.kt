@@ -77,7 +77,7 @@ class IssueViewerViewModel(
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
                 try {
-                    val issue = contentService.downloadMetadataIfNotPresent(issueKey) as Issue
+                    val issue = contentService.downloadMetadata(issueKey) as Issue
 
                     // Eventhough we might expect a "public" issue
                     // we might have gotten a "regular" one (i.e. a demo issue).
@@ -97,7 +97,7 @@ class IssueViewerViewModel(
                     // Start downloading the whole issue in background
                     launch {
                         try {
-                            contentService.downloadToCacheIfNotPresent(issue.issueKey)
+                            contentService.downloadToCache(issue.issueKey)
                         } catch (e: CacheOperationFailedException) {
                             issueLoadingFailedErrorFlow.emit(true)
                         }

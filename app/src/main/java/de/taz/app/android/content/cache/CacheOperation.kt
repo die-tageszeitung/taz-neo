@@ -20,6 +20,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
+
 /**
  * Class representing a chunk of items that are part of some cached content that
  * are processed in some error prone, asynchronous operation. (Downloading, storing, erasing).
@@ -149,30 +150,39 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     /**
      * Execute this operation
      * ! Attention it is not guaranteed to be this exact operation
-     * If an operation of the same type and the same tag is already active, instead of
-     * executing this operation it will listen on the active one.
      * If a different Operation on the same tag is being executed the
      * running operation will be awaited before this operation is executed.
+     * @param forceExecution   If this flag is set to true the operation will be executed even if a
+     *                          another operation of the same type is currently running.
+     *                          Instead of waiting on the result of the running this operation is enqueued and
+     *                          executed afterwards
      * The function will suspend until the [CacheOperation] is completed
      */
-    suspend fun execute(): RESULT = withContext(NonCancellable) {
+    suspend fun execute(forceExecution: Boolean = false): RESULT = withContext(NonCancellable) {
         try {
             registerOperation()
         } catch (e: SameOperationActiveException) {
             log.warn("Operation with tag $tag and class ${this::class.simpleName} is already scheduled")
-            // if the blocking operation is of less priority than the new one bump it up
-            if (priority > e.blockingOperation.priority) {
-                e.blockingOperation.priority = priority
-            }
 
-            // wait on the blocking operation instead
-            e.blockingOperation.waitOnCompletion()
-            // Exception SameOperationActiveException guarantees us to have the same RESULT
-            return@withContext e.blockingOperation.getResult() as RESULT
+            if (forceExecution) {
+                // Wait for the blocking operation to finish but disregard any outcome
+                try { e.blockingOperation.waitOnCompletion() } catch (e: Exception) {}
+                // Disregard the fact that there is a duplicating operation and execute this one
+                return@withContext execute(forceExecution)
+            } else {
+                // wait on the blocking operation instead
+
+                // if the blocking operation is of less priority than the new one bump it up
+                if (priority > e.blockingOperation.priority) {
+                    e.blockingOperation.priority = priority
+                }
+                // Exception SameOperationActiveException guarantees us to have the same RESULT
+                return@withContext e.blockingOperation.waitOnCompletion() as RESULT
+            }
         } catch (e: DifferentOperationActiveException) {
-            // wait for the previous operation and then retry registering and execution
-            e.blockingOperation.waitOnCompletion()
-            return@withContext execute()
+            // Wait for the blocking operation to finish but disregard any outcome
+            try { e.blockingOperation.waitOnCompletion() } catch (e: Exception) {}
+            return@withContext execute(forceExecution)
         }
         return@withContext doWork()
     }
@@ -398,8 +408,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Suspend until the operation is either [CacheStateUpdate.Type.FAILED] or
      * [CacheStateUpdate.Type.SUCCEEDED]
      */
-    suspend fun waitOnCompletion() = withContext(Dispatchers.Default) {
-        if (state.complete) return@withContext
+    private suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
+        if (state.complete) return@withContext result!!
         // With locking the addListener function we ensure the order of the resumed
         // coroutines, the first invoker of waitOnCompletion will be the first to be resumed
         waiterLock.withLock {

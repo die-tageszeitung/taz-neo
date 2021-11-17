@@ -12,6 +12,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssueKey
@@ -36,11 +38,13 @@ class DatePickerFragment : BottomSheetDialogFragment() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var dataService: DataService
+    private lateinit var contentService: ContentService
     private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         dataService = DataService.getInstance(context.applicationContext)
@@ -120,17 +124,8 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         log.debug("call setIssue() with date $date")
         issueFeedViewModel.feed.value?.let { feed ->
             withContext(Dispatchers.IO) {
-                val issueStub = try {
-                    dataService.getIssueStub(
-                        IssuePublication(feed.name, date)
-                    )
-                } catch (e: ConnectivityException.Recoverable) {
-                    toastHelper.showNoConnectionToast()
-                    null
-                }
-
-                if (issueStub != null) {
-                    showIssue(issueStub.issueKey)
+                if (feed.publicationDates.contains(simpleDateFormat.parse(date)!!)) {
+                    showIssue(IssuePublication(feed.name, date))
                 } else {
                     toastHelper.showToast(R.string.issue_not_found)
                 }
@@ -140,9 +135,9 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
+    private suspend fun showIssue(issuePublication: IssuePublication) = withContext(Dispatchers.Main) {
         issueFeedViewModel.currentDate.postValue(
-            simpleDateFormat.parse(issueKey.date)!!
+            simpleDateFormat.parse(issuePublication.date)!!
         )
     }
 }

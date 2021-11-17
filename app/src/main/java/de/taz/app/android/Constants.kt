@@ -47,3 +47,6 @@ val simpleDateFormat
     get() = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
 const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
+
+const val METADATA_DOWNLOAD_DEFAULT_RETRIES = 3
+const val FILE_DOWNLOAD_DEFAULT_RETRIES = 3

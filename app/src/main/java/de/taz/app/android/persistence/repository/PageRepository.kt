@@ -20,7 +20,7 @@ class PageRepository private constructor(applicationContext: Context) :
         appDatabase.pageDao().update(pageStub)
     }
 
-    fun save(page: Page, issueKey: IssueKey) {
+    fun save(page: Page, issueKey: IssueKey): Page {
         appDatabase.pageDao().insertOrReplace(
             PageStub(
                 page.pagePdf.name,
@@ -42,6 +42,7 @@ class PageRepository private constructor(applicationContext: Context) :
                 0
             )
         )
+        return get(page.pagePdf.name)!!
     }
 
     fun save(pages: List<Page>, issueKey: IssueKey) {

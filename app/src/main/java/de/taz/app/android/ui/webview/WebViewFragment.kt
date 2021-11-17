@@ -227,7 +227,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         viewModel.displayable?.let { displayable ->
             log.info("Displayable is $displayable")
             try {
-                contentService.downloadToCacheIfNotPresent(displayable, priority = DownloadPriority.High)
+                contentService.downloadToCache(displayable, priority = DownloadPriority.High)
                 val displayableFile = withContext(Dispatchers.IO) {
                     fileEntryRepository.get(displayable.key)
                 }

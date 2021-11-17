@@ -5,10 +5,8 @@ import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.Moment
-import de.taz.app.android.api.models.Page
-import de.taz.app.android.data.DataService
+import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -36,13 +34,19 @@ class StoragePathService private constructor(private val applicationContext: Con
         fileEntry: FileEntry,
         collection: DownloadableCollection? = null,
     ): String = withContext(Dispatchers.IO) {
-        val dataService = DataService.getInstance(applicationContext)
+        val contentService = ContentService.getInstance(applicationContext)
         when (fileEntry.storageType) {
             StorageType.global -> {
-                dataService.getAppInfo().globalBaseUrl
+                (contentService.downloadMetadata(
+                    AppInfoKey(),
+                    maxRetries = -1 // retry indefinitely
+                ) as AppInfo).globalBaseUrl
             }
             StorageType.resource -> {
-                dataService.getResourceInfo().resourceBaseUrl
+                (contentService.downloadMetadata(
+                    ResourceInfoKey(-1),
+                    maxRetries = -1 // retry indefinitely
+                ) as ResourceInfo).resourceBaseUrl
             }
             StorageType.issue -> {
                 when (collection) {

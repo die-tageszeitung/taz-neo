@@ -71,10 +71,15 @@ data class Issue(
         get() = IssueKey(feedName, date, status)
 }
 
+
+/**
+ * The issue status should be in a ascending ordinal for they "value"
+ * So the regular issue is more favorable than the public.
+ */
 @JsonClass(generateAdapter = false)
 enum class IssueStatus {
-    regular,
+    public,
     demo,
     locked,
-    public
+    regular
 }

@@ -10,8 +10,9 @@ class AppInfoRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<AppInfoRepository, Context>(::AppInfoRepository)
 
-    fun save(appInfo: AppInfo) {
+    fun save(appInfo: AppInfo): AppInfo {
         appDatabase.appInfoDao().insertOrReplace(appInfo)
+        return get()!!
     }
 
     fun get(): AppInfo? {

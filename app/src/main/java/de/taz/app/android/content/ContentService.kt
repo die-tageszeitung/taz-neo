@@ -1,6 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -31,6 +32,9 @@ class ContentService(
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+    private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
 
@@ -101,6 +105,9 @@ class ContentService(
         withContext(Dispatchers.IO) {
             val isDownloaded = when (observableDownload) {
                 is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
+                is AppInfoKey -> appInfoRepository.get() != null
+                is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
+                is MomentKey -> momentRepository.isDownloaded(observableDownload)
                 is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
                 else -> false
             }
@@ -124,61 +131,26 @@ class ContentService(
         }
 
     /**
-     * This function will download an [issueKey] (both Metadata and Contents) if
-     * it is not yet marked as downloaded. If it is it will just return
-     * @param issueKey The key of the issue to be downloaded
-     * @param priority The priority of the download
-     * @param isAutomaticDownload Indicator if the download was triggered automatically
-     * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
-     */
-    @Throws(CacheOperationFailedException::class)
-    suspend fun downloadToCacheIfNotPresent(
-        issueKey: AbstractIssueKey,
-        priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
-    ) = withContext(Dispatchers.IO) {
-        if (!issueRepository.isDownloaded(issueKey)) {
-            downloadToCache(issueKey, priority, isAutomaticDownload)
-        }
-    }
-
-    /**
-     * This function will invoke [downloadToCache] if the provided collection is not downloaded
-     *
-     * @param collection The collection to be downloaded
-     * @param priority The priority of the download
-     * @param isAutomaticDownload Indicator if the download was triggered automatically
-     * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
-     */
-    @Throws(CacheOperationFailedException::class)
-    suspend fun downloadToCacheIfNotPresent(
-        collection: DownloadableCollection,
-        priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
-    ) = withContext(Dispatchers.IO) {
-        if (!collection.isDownloaded(applicationContext)) {
-            downloadToCache(collection, priority, isAutomaticDownload)
-        }
-    }
-
-    /**
      * This function will download a [download] (both Metadata and Contents) if
      * it is not yet marked as downloaded. If it is it will just return
      * @param download The [ObservableDownload] to be downloaded
      * @param priority The priority of the download
      * @param isAutomaticDownload Indicator if the download was triggered automatically
+     * @param allowCache Indicate whether cache should be ignored
      * @throws CacheOperationFailedException You are strongly advised to catch this exception as a lot of volatile subprocess happen (I/O etc)
      */
-    private suspend fun downloadToCache(
+    suspend fun downloadToCache(
         download: ObservableDownload,
         priority: DownloadPriority = DownloadPriority.Normal,
-        isAutomaticDownload: Boolean = false
+        isAutomaticDownload: Boolean = false,
+        allowCache: Boolean = true
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,
             download,
             isAutomaticDownload,
+            allowCache,
             priority,
             tag
         )
@@ -187,17 +159,29 @@ class ContentService(
 
     /**
      * This function will retrieve the Metadata of [ObservableDownload]
-     * Only if not found in database it will download it from the API
+     * Depending on [allowCache] parameter will return a cached version of the Metadata
      *
      * @param download [ObservableDownload] of which the Metadata should be retrieved
-     * @return A DownloadableStub representing the retrieved Metadata
+     * @param maxRetries The amount of retries on connection errors
+     * @param forceExecution If this operation should be executed regardless if an equal operation has already been started
+     * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
+     * or [AppInfo]
      */
-    suspend fun downloadMetadataIfNotPresent(
-        download: ObservableDownload
-    ): DownloadableStub {
+    suspend fun downloadMetadata(
+        download: ObservableDownload,
+        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+        forceExecution: Boolean = false,
+        allowCache: Boolean = true
+    ): ObservableDownload {
         return MetadataDownload
-            .prepare(applicationContext, download, download.getDownloadTag(), allowCache = true)
-            .execute()
+            .prepare(
+                applicationContext,
+                download,
+                download.getDownloadTag(),
+                retriesOnConnectionError = maxRetries,
+                allowCache = allowCache
+            )
+            .execute(forceExecution = forceExecution)
     }
 
     /**
@@ -235,6 +219,4 @@ class ContentService(
         val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
         deletion.execute()
     }
-
-
 }

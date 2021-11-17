@@ -1,16 +1,19 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -21,7 +24,7 @@ import java.util.*
  * can mandate [de.taz.app.android.api.models.ResourceInfo] to be downloaded.
  * It's a practical use case wanting to listen in on the download of a collection *and* it's dependents.
  *
- * @param context An android [Context] object
+ * @param applicationContext An android [Context] object
  * @param parent The [ObservableDownload] that should be downloaded after this operation
  * @param isAutomaticDownload Indicator whether this download was triggered automatically
  * @param priority The download priority of this operation
@@ -32,6 +35,7 @@ class WrappedDownload(
     val parent: ObservableDownload,
     val items: List<SubOperationCacheItem>,
     private val isAutomaticDownload: Boolean,
+    private val allowCache: Boolean,
     priority: DownloadPriority,
     tag: String
 ) : CacheOperation<SubOperationCacheItem, Unit>(
@@ -52,6 +56,7 @@ class WrappedDownload(
          * @param applicationContext An android application [Context] object
          * @param parent The [ObservableDownload] that should be downloaded after this operation
          * @param isAutomaticDownload Indicator whether this download was triggered automatically
+         * @param allowCache Whether this download should skip or take cache
          * @param priority The download priority of this operation
          * @param tag The tag to be used for this operation
          */
@@ -59,6 +64,7 @@ class WrappedDownload(
             applicationContext: Context,
             parent: ObservableDownload,
             isAutomaticDownload: Boolean,
+            allowCache: Boolean,
             priority: DownloadPriority,
             tag: String
         ): WrappedDownload = withContext(Dispatchers.Main) {
@@ -67,6 +73,7 @@ class WrappedDownload(
                 parent,
                 emptyList(),
                 isAutomaticDownload,
+                allowCache,
                 priority,
                 tag
             )
@@ -81,17 +88,36 @@ class WrappedDownload(
      */
     override suspend fun doWork() = withContext(Dispatchers.IO) {
         notifyStart()
+        val contentService = ContentService.getInstance(applicationContext)
+
+        // For a wrapped download a successful cache hit is if the download and it's content is
+        // complete, so we use the getCacheState function
+        if (allowCache && contentService.getCacheState(parent).cacheState == CacheState.PRESENT) {
+            notifySuccess(Unit)
+            return@withContext
+        }
+
         // Before downloading content we _always_ download the corresponding metadata.
         // Metadata can get stale and the references to the content will be broken
         val metadataDownload = MetadataDownload.prepare(
             applicationContext,
             parent,
-            parent.getDownloadTag() // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict
+            parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict,
+            retriesOnConnectionError = METADATA_DOWNLOAD_DEFAULT_RETRIES
         )
+
         addItem(
             SubOperationCacheItem(metadataDownload.tag, { priority }, metadataDownload),
         )
-        val parentCollection = metadataDownload.execute()
+        val parentCollection = try {
+            metadataDownload.execute()
+        } catch (originalException: Exception) {
+            val exception = CacheOperationFailedException("Retrieving metadata failed", originalException)
+            notifyFailiure(
+                exception
+            )
+            throw exception
+        }
         // corner case: If we invoke this function with an IssueKeyWithPages we need to cast
         // the Issue metadata to a IssueWithPages to also download the pdf pages
         val issueWithPages = if (parent is IssueKeyWithPages && parentCollection is Issue) {
@@ -155,13 +181,16 @@ class WrappedDownload(
                 } catch (e: Exception) {
                     errorCount++
                     notifyFailedItem(e)
+                    Sentry.captureException(e, "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}")
                 }
             }
         }.joinAll()
 
         issueDownloadNotifier?.stop()
         if (errorCount == 0) {
-            parentCollection.setDownloadDate(Date(), applicationContext)
+            if (parentCollection is DownloadableStub) {
+                parentCollection.setDownloadDate(Date(), applicationContext)
+            }
             notifySuccess(Unit)
         } else {
             val exception = CacheOperationFailedException(
@@ -179,7 +208,7 @@ class WrappedDownload(
      * In the case of an [Issue] that's most likely its [Section]s and [Article]s.
      * Any [download] might depend on an appropriate [ResourceInfo]
      */
-    private suspend fun resolveCollections(download: DownloadableStub): List<DownloadableCollection> {
+    private suspend fun resolveCollections(download: ObservableDownload): List<DownloadableCollection> {
         // Get the required resource info - if it already is marked as downloaded do not add it to the set of required items
         val requiredResourceInfo = getRequiredResourceInfo(download)?.let {
             if (it.isDownloaded(applicationContext)) null else it
@@ -197,8 +226,14 @@ class WrappedDownload(
                     download.imprint
                 ) + download.sectionList + download.getArticles() + download.moment + download.pageList
             }
-            is Article, is Page, is Section, is Moment, is ResourceInfo -> setOf(download as DownloadableCollection)
-            else -> throw IllegalArgumentException("Don\'t know how dow download $download")
+            // AppInfo has no collection
+            is AppInfo -> setOf()
+            is Article,
+            is Page,
+            is Section,
+            is Moment,
+            is ResourceInfo -> setOf(download as DownloadableCollection)
+            else -> throw IllegalArgumentException("Don\'t know how to download $download")
         } + setOfNotNull(requiredResourceInfo)).toList()
     }
 

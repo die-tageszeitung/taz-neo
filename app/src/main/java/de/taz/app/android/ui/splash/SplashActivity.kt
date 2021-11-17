@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
@@ -21,6 +20,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.MetadataDownload
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
@@ -96,6 +96,8 @@ class SplashActivity : BaseActivity() {
                     NightModeHelper.generateCssOverride(this@SplashActivity)
                 }
             } catch (e: InitializationException) {
+                log.error("Error while initializing")
+                e.printStackTrace()
                 showConnectionErrorDialog()
                 Sentry.captureException(e)
                 return@launch
@@ -151,9 +153,12 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun ensureAppInfo() {
         try {
-            dataService.getAppInfo()
-        } catch (e: ConnectivityException) {
-            throw InitializationException("Retrieving AppInfo failed")
+            // This call might be duplicated by the AppVersion check which is not allowing cache.
+            // To make this call not fail due to a connectivity exception if there indeed is a
+            // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
+            contentService.downloadMetadata(AppInfoKey(), forceExecution = true)
+        } catch (exception: ConnectivityException) {
+            throw InitializationException("Retrieving AppInfo failed: $exception")
         }
     }
 
@@ -162,7 +167,7 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun checkAppVersion() {
         try {
-            val appInfo = dataService.getAppInfo(allowCache = false)
+            val appInfo = contentService.downloadMetadata(AppInfoKey(), allowCache = false) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
@@ -307,8 +312,8 @@ class SplashActivity : BaseActivity() {
             log.debug("Created tazApi.css")
         }
         try {
-            contentService.downloadToCacheIfNotPresent(
-                dataService.getResourceInfo()
+            contentService.downloadToCache(
+                ResourceInfoKey(-1)
             )
         } catch (e: CacheOperationFailedException) {
             val hint = "Error while trying to download resource info on startup"

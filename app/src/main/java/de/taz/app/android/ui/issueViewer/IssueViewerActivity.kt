@@ -14,6 +14,7 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
