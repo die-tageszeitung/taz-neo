@@ -385,10 +385,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     issueDate,
                     isAutomatically,
                     installationId = authHelper.installationId.get(),
-                    isPush = firebaseHelper.isPush()
+                    isPush = firebaseHelper.isPush(),
+                    pushToken = firebaseHelper.token.get()
                 )
             ).data?.downloadStart?.let { id ->
-                log.debug("Notified server that download started. ID: $id")
+                log.debug("Notified server that download started. ID: $id with pushToken: ${firebaseHelper.token.get()}")
                 id
             }
         }
