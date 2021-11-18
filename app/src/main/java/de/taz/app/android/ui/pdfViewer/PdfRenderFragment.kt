@@ -97,7 +97,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pdfReaderView = MuPDFReaderView(context)
+        pdfReaderView = MuPDFReaderView(requireContext())
         pdfReaderView?.apply {
             clickCoordinatesListener = { coordinates ->
                 showFramesIfPossible(coordinates.first, coordinates.second)
@@ -107,6 +107,11 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             }
             onScaleListener = { scaling ->
                 pdfPagerViewModel.setRequestDisallowInterceptTouchEvent(scaling)
+            }
+            onSwipeListener = { swipeEvent ->
+                lifecycleScope.launch {
+                    pdfPagerViewModel.swipePageFlow.emit(swipeEvent)
+                }
             }
             mu_pdf_wrapper?.addView(this)
         }
