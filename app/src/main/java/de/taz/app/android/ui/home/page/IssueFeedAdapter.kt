@@ -8,10 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.content.cache.CacheState
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.FrontpagePublication
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
@@ -22,8 +19,6 @@ enum class CoverType {
 }
 
 data class CoverViewData(
-    val issueKey: AbstractIssueKey,
-    val downloadStatus: CacheState,
     val momentType: CoverType,
     val momentUri: String?,
     val dimension: String
@@ -81,6 +76,7 @@ abstract class IssueFeedAdapter(
         private var binder: CoverViewBinding? = null
 
         fun bind(fragment: IssueFeedFragment, date: Date) {
+
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
                     fragment,

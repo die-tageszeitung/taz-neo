@@ -4,6 +4,8 @@ import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import io.sentry.Sentry
 
@@ -37,13 +39,13 @@ fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
         .show()
 }
 
-fun Activity.showIssueDownloadFailedDialog(issueKey: AbstractIssueKey) {
+fun Activity.showIssueDownloadFailedDialog(issuePublication: AbstractIssuePublication) {
     android.app.AlertDialog.Builder(this)
         .setMessage(
             getString(
                 R.string.error_issue_download_failed,
                 DateHelper.dateToLongLocalizedString(
-                    DateHelper.stringToDate(issueKey.date)!!
+                    DateHelper.stringToDate(issuePublication.date)!!
                 )
             )
         )

@@ -33,24 +33,32 @@ class MomentViewBinding(
     private val storageService = StorageService.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
         try {
             val moment = contentService.downloadMetadata(
                 coverPublication,
                 // Retry indefinitely
-                maxRetries = -1
+                maxRetries = -1,
+                minStatus = authHelper.getMinStatus()
             ) as Moment
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
             try {
-                contentService.downloadToCache(moment, priority = DownloadPriority.High)
+                contentService.downloadToCache(
+                    moment,
+                    priority = DownloadPriority.High
+                )
             } catch (e: CacheOperationFailedException) {
                 toastHelper.showConnectionToServerFailedToast()
             }
             // refresh moment after download
             val downloadedMoment =
-                contentService.downloadMetadata(coverPublication) as Moment
+                contentService.downloadMetadata(
+                    coverPublication,
+                    minStatus = authHelper.getMinStatus()
+                ) as Moment
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
@@ -72,8 +80,6 @@ class MomentViewBinding(
             }
 
             CoverViewData(
-                downloadedMoment.issueKey,
-                CacheState.ABSENT,
                 momentType,
                 momentUri,
                 dimension
@@ -82,22 +88,6 @@ class MomentViewBinding(
             val hint =
                 "Error downloading metadata or cover content while binding cover for $coverPublication"
             throw CoverBindingException(hint, e)
-        }
-    }
-
-
-    override fun onDownloadClicked() {
-        if (dataInitialized()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    contentService.downloadToCache(coverViewData.issueKey)
-                } catch (e: CacheOperationFailedException) {
-                    withContext(Dispatchers.Main) {
-                        fragment.requireActivity()
-                            .showIssueDownloadFailedDialog(coverViewData.issueKey)
-                    }
-                }
-            }
         }
     }
 }

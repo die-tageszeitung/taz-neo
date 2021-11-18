@@ -10,6 +10,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.*
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +34,7 @@ class ContentService(
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
@@ -101,7 +103,9 @@ class ContentService(
      * @param observableDownload The [ObservableDownload] of which the state should be determined
      * @return A [CacheStateUpdate] indicating the current state of [observableDownload]
      */
-    suspend fun getCacheState(observableDownload: ObservableDownload): CacheStateUpdate =
+    suspend fun getCacheState(
+        observableDownload: ObservableDownload,
+    ): CacheStateUpdate =
         withContext(Dispatchers.IO) {
             val isDownloaded = when (observableDownload) {
                 is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
@@ -109,6 +113,12 @@ class ContentService(
                 is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
                 is MomentKey -> momentRepository.isDownloaded(observableDownload)
                 is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
+                is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
+                    observableDownload
+                )?.let {
+                    if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
+                    else false
+                } ?: false
                 else -> false
             }
             if (isDownloaded) {
@@ -171,6 +181,7 @@ class ContentService(
         download: ObservableDownload,
         maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
         forceExecution: Boolean = false,
+        minStatus: IssueStatus = IssueStatus.public,
         allowCache: Boolean = true
     ): ObservableDownload {
         return MetadataDownload
@@ -179,7 +190,8 @@ class ContentService(
                 download,
                 download.getDownloadTag(),
                 retriesOnConnectionError = maxRetries,
-                allowCache = allowCache
+                allowCache = allowCache,
+                minStatus = minStatus
             )
             .execute(forceExecution = forceExecution)
     }
@@ -204,19 +216,18 @@ class ContentService(
     }
 
     /**
-     * Retrieves the metadata of [issueKey] and delete its contents
+     * Deletes all issues on a publication date [issuePublication] and their contents
      *
-     * @param issueKey The issueKey the content of which should be deleted
-     * @throws NotFoundException If no Issue matching [issueKey] was found in the database
+     * @param issuePublication The issueKey the content of which should be deleted
      */
     @Throws(NotFoundException::class)
-    suspend fun deleteIssue(issueKey: AbstractIssueKey) = withContext(Dispatchers.IO) {
-        val issue = when (issueKey) {
-            is IssueKeyWithPages -> issueRepository.get(issueKey)
-            is IssueKey -> issueRepository.get(issueKey)
-            else -> null
-        } ?: throw NotFoundException("Issue not found")
-        val deletion = IssueDeletion.prepare(applicationContext, issue, determineParentTag(issueKey))
+    suspend fun deleteIssue(issuePublication: AbstractIssuePublication) = withContext(Dispatchers.IO) {
+
+        val deletion = IssueDeletion.prepare(
+            applicationContext,
+            issuePublication,
+            determineParentTag(issuePublication)
+        )
         deletion.execute()
     }
 }

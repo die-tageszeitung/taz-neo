@@ -12,7 +12,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -84,14 +84,14 @@ abstract class IssueFeedFragment(
     }
 
 
-    fun onItemSelected(issueKey: AbstractIssueKey) {
+    fun onItemSelected(issuePublication: AbstractIssuePublication) {
         val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfModeLiveData.value == true) {
-            PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_KEY
+            PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_PUBLICATION
         } else {
-            IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_KEY
+            IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_PUBLICATION
         }
         Intent(requireActivity(), viewerActivityClass).apply {
-            putExtra(extraKeyIssue, issueKey)
+            putExtra(extraKeyIssue, issuePublication)
             startActivity(this)
         }
     }

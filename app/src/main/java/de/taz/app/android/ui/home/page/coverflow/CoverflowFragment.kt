@@ -20,8 +20,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -65,7 +64,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
-            requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_KEY)
+            requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -134,7 +133,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 itemLayout,
                 feed,
                 requestManager,
-                CoverflowCoverViewActionListener(this@CoverflowFragment, dataService)
+                CoverflowCoverViewActionListener(this@CoverflowFragment)
             )
             fragment_cover_flow_grid.adapter = adapter
             // If fragment was just constructed skip to issue in intent
@@ -208,33 +207,22 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    private suspend fun skipToDate(date: Date, scroll: Boolean = true) {
+    private fun skipToDate(date: Date, scroll: Boolean = true) {
         if (!::adapter.isInitialized) {
             return
         }
-        val observableKey = withContext(Dispatchers.IO) {
-            if (viewModel.pdfModeLiveData.value == true) {
-                dataService.determineIssueKeyWithPages(
-                    IssuePublication(
-                        viewModel.feed.value!!.name, simpleDateFormat.format(date)
-                    )
-                )
-            } else {
-                dataService.determineIssueKey(
-                    IssuePublication(
-                        viewModel.feed.value!!.name, simpleDateFormat.format(date)
-                    )
-                )
-            }
-        }
-        downloadObserver?.unbindView()
+        downloadObserver?.stopObserving()
+
         downloadObserver = DownloadObserver(
             this,
             contentService,
             toastHelper,
-            observableKey
+            IssuePublication(viewModel.feed.value!!.name, simpleDateFormat.format(date)),
+            fragment_coverflow_moment_download,
+            fragment_coverflow_moment_download_finished,
+            fragment_coverflow_moment_downloading
         ).apply {
-            bindView(fragment_cover_flow_date_download_wrapper)
+            startObserving()
         }
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
         currentlyBoundPosition = adapter.getPosition(date)
@@ -306,7 +294,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                     )
                 val alphaPercentage = 1 -
                     (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
-                log.verbose("Alpha is now $alphaPercentage")
+
                 fragment_cover_flow_date_download_wrapper.alpha = alphaPercentage
 
                 val position = recyclerView.getChildAdapterPosition(it)

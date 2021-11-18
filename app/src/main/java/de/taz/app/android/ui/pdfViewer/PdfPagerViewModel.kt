@@ -10,11 +10,8 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,10 +32,18 @@ class PdfPagerViewModel(
         ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
+    private val authHelper = AuthHelper.getInstance(application)
 
-    private val toastHelper = ToastHelper.getInstance(application)
 
-    val issueKey = MutableLiveData<IssueKeyWithPages>()
+    val issuePublication = MutableLiveData<IssuePublicationWithPages>()
+    val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
+        addSource(issuePublication) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val issue = contentService.downloadMetadata(it) as IssueWithPages
+                postValue(issue.issueKey)
+            }
+        }
+    }
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
@@ -68,31 +73,26 @@ class PdfPagerViewModel(
     private val log by Log
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
-        addSource(issueKey) { issueKey ->
+        addSource(issuePublication) { issuePublication ->
             viewModelScope.launch(Dispatchers.IO) {
-
                 try {
                     issueDownloadFailedErrorFlow.emit(false)
                     val issue = contentService.downloadMetadata(
-                        IssuePublication(issueKey)
-                    ) as Issue
+                        issuePublication,
+                        minStatus = authHelper.getMinStatus()
+                    ) as IssueWithPages
                     // Get latest shown page and set it before setting the issue
                     updateCurrentItem(issue.lastPagePosition ?: 0)
-                    val pdfIssue = IssueWithPages(issue)
-                    // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
-                    if (pdfIssue.status != issueKey.status) {
-                        this@PdfPagerViewModel.issueKey.postValue(pdfIssue.issueKey)
-                    }
+
+                    contentService.downloadToCache(issuePublication)
 
                     navButton.postValue(
                         imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                     )
-
-                    contentService.downloadToCache(pdfIssue.issueKey)
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(
-                        pdfIssue.pageList.map {
+                        issue.pageList.map {
                             it.copy(pagePdf = requireNotNull(
                                 fileEntryRepository.get(it.pagePdf.name)
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })

@@ -84,6 +84,7 @@ class CoverView @JvmOverloads constructor(
      */
     fun show(
         data: CoverViewData,
+        date: String,
         dateFormat: DateFormat = DateFormat.LongWithoutWeekDay,
         glideRequestManager: RequestManager
     ) {
@@ -91,8 +92,7 @@ class CoverView @JvmOverloads constructor(
         data.momentUri?.let {
             showCover(it, data.momentType, glideRequestManager)
         }
-        setDownloadIconForStatus(data.downloadStatus)
-        setDate(data.issueKey.date, dateFormat)
+        setDate(date, dateFormat)
     }
 
     /**

@@ -76,6 +76,7 @@ class MetadataDownload(
         try {
             when (download) {
                 is IssuePublication -> getIssue(download)
+                is IssuePublicationWithPages -> IssueWithPages(getIssue(download))
                 is IssueKey -> getIssue(download)
                 is MomentKey -> getMoment(download)
                 is MomentPublication -> getMoment(download)
@@ -145,11 +146,16 @@ class MetadataDownload(
 
     private suspend fun getMoment(momentPublication: MomentPublication): Moment {
         if (allowCache) {
-            val cachedMoment = momentRepository.get(
-                IssueKey(momentPublication.feedName, momentPublication.date, IssueStatus.regular)
-            ) ?: momentRepository.get(
-                IssueKey(momentPublication.feedName, momentPublication.date, IssueStatus.public)
-            )
+            var cachedMoment: Moment? = null
+            for (status in IssueStatus.values().sortedArrayDescending()) {
+                cachedMoment = momentRepository.get(
+                    MomentKey(momentPublication.feedName, momentPublication.date, status)
+                )
+                if (cachedMoment != null) {
+                    // cache hit
+                    break
+                }
+            }
             if (cachedMoment != null && cachedMoment.issueStatus >= minStatus) {
                 // At this point we could have gotten any issueStatus, so
                 // only return if the minStatus is met
@@ -173,11 +179,11 @@ class MetadataDownload(
 
     private suspend fun getMoment(momentKey: MomentKey): Moment {
         if (allowCache) {
-            val cachedIssue = momentRepository.get(
-                IssueKey(momentKey)
+            val cachedMoment = momentRepository.get(
+                momentKey
             )
-            if (cachedIssue != null) {
-                return cachedIssue
+            if (cachedMoment != null) {
+                return cachedMoment
             }
         }
         return apiService.retryOnConnectionFailure(maxRetries = retriesOnConnectionError) {
@@ -269,13 +275,18 @@ class MetadataDownload(
         }
     }
 
-    private suspend fun getIssue(issuePublication: IssuePublication): Issue {
+    private suspend fun getIssue(issuePublication: AbstractIssuePublication): Issue {
         if (allowCache) {
-            val cachedIssue = issueRepository.get(
-                IssueKey(issuePublication, IssueStatus.regular)
-            ) ?: issueRepository.get(
-                IssueKey(issuePublication, IssueStatus.public)
-            )
+            var cachedIssue: Issue? = null
+            for (status in IssueStatus.values().sortedArrayDescending()) {
+                cachedIssue = issueRepository.get(
+                    IssueKey(issuePublication.feedName, issuePublication.date, status)
+                )
+                if (cachedIssue != null) {
+                    // cache hit
+                    break
+                }
+            }
             if (cachedIssue != null && cachedIssue.status >= minStatus) {
                 // At this point we could have gotten any issueStatus, so
                 // only return if the minStatus is met

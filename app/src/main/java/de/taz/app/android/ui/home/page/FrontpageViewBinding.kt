@@ -15,7 +15,7 @@ import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
-    private val fragment: Fragment,
+    fragment: Fragment,
     frontpagePublication: FrontpagePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
@@ -65,8 +65,6 @@ class FrontpageViewBinding(
 
             val momentType = CoverType.FRONT_PAGE
             CoverViewData(
-                IssueKeyWithPages(moment.issueKey),
-                CacheState.ABSENT,
                 momentType,
                 pdfMomentFilePath,
                 dimension
@@ -75,21 +73,6 @@ class FrontpageViewBinding(
             val hint =
                 "Error downloading metadata or cover content while binding cover for $coverPublication"
             throw CoverBindingException(hint, e)
-        }
-    }
-
-    override fun onDownloadClicked() {
-        if (dataInitialized()) {
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    contentService.downloadToCache(coverViewData.issueKey)
-                } catch (e: CacheOperationFailedException) {
-                    withContext(Dispatchers.Main) {
-                        fragment.requireActivity()
-                            .showIssueDownloadFailedDialog(coverViewData.issueKey)
-                    }
-                }
-            }
         }
     }
 }

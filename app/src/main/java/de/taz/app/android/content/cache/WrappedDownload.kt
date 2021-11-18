@@ -12,6 +12,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -118,15 +119,9 @@ class WrappedDownload(
             )
             throw exception
         }
-        // corner case: If we invoke this function with an IssueKeyWithPages we need to cast
-        // the Issue metadata to a IssueWithPages to also download the pdf pages
-        val issueWithPages = if (parent is IssueKeyWithPages && parentCollection is Issue) {
-            IssueWithPages(parentCollection)
-        } else {
-            null
-        }
+
         val dependentCollections = try {
-            resolveCollections(issueWithPages ?: parentCollection)
+            resolveCollections(parentCollection)
         } catch (originalException: Exception) {
             val exception = CacheOperationFailedException(
                 "Error while retrieving metadata",
@@ -137,15 +132,10 @@ class WrappedDownload(
             throw exception
         }
 
-        val issueDownloadNotifier = when (parent) {
-            is AbstractIssueKey -> IssueDownloadNotifier(
-                applicationContext,
-                parent,
-                isAutomaticDownload
-            )
+        val issueDownloadNotifier = when (parentCollection) {
             is AbstractIssue -> IssueDownloadNotifier(
                 applicationContext,
-                parent.issueKey,
+                parentCollection.issueKey,
                 isAutomaticDownload
             )
             else -> null

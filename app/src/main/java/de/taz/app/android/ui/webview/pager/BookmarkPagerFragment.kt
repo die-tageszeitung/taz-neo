@@ -15,6 +15,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.monkey.*
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -80,7 +81,7 @@ class BookmarkPagerFragment :
         issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this) {
             if (it != null) {
                 Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                    putExtra(IssueViewerActivity.KEY_ISSUE_KEY, it.issueKey)
+                    putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, IssuePublication(it.issueKey))
                     putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.displayableKey)
                     startActivity(this)
                 }
