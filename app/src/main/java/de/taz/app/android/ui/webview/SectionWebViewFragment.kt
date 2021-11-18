@@ -74,6 +74,11 @@ class SectionWebViewFragment :
         super.onCreate(savedInstanceState)
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
+
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
@@ -81,10 +86,6 @@ class SectionWebViewFragment :
                 sectionRepository.get(sectionFileName)
             )
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)

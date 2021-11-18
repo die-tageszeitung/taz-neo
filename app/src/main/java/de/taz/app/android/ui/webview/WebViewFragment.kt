@@ -190,7 +190,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                     dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
-            activity?.runOnUiThread {
+            withContext(Dispatchers.Main) {
                 viewModel.scrollPosition?.let {
                     scrollView?.scrollY = it
                 } ?: run {

@@ -206,16 +206,29 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
+    /**
+     * Alert - the same section can be referenced by multiple issues.
+     * By convention we'll return the "most valuable" issue here
+     * TODO: Clean up the DB model
+     */
     fun getIssueStubForSection(sectionFileName: String): IssueStub? {
-        return appDatabase.issueSectionJoinDao().getIssueStubForSection(sectionFileName)
+        return appDatabase.issueSectionJoinDao().getIssueStubsForSection(sectionFileName)
+            .maxByOrNull { it.status }
     }
 
     fun getIssueStubForPage(pageFileName: String): IssueStub? {
-        return appDatabase.issuePageJoinDao().getIssueStubForPage(pageFileName)
+        return appDatabase.issuePageJoinDao().getIssueStubsForPage(pageFileName)
+            .maxByOrNull { it.status }
     }
 
+    /**
+     * Alert - the same section can be referenced by multiple issues.
+     * By convention we'll return the "most valuable" issue here
+     * TODO: Clean up the DB model
+     */
     fun getIssueStubForArticle(articleFileName: String): IssueStub? {
-        return appDatabase.issueSectionJoinDao().getIssueStubForArticle(articleFileName)
+        return appDatabase.issueSectionJoinDao().getIssueStubsForArticle(articleFileName)
+            .maxByOrNull { it.status }
     }
 
     fun getEarliestDownloadedIssueStub(): IssueStub? {

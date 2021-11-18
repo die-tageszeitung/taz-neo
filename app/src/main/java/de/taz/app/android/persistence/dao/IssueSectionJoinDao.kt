@@ -42,7 +42,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
-    abstract fun getIssueStubForSection(sectionName: String): IssueStub?
+    abstract fun getIssueStubsForSection(sectionName: String): List<IssueStub>
 
     @Query(
         """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin INNER JOIN SectionArticleJoin
@@ -53,7 +53,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
-    abstract fun getIssueStubForArticle(articleFileName: String): IssueStub?
+    abstract fun getIssueStubsForArticle(articleFileName: String): List<IssueStub>
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
