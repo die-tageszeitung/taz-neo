@@ -15,6 +15,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -22,11 +23,14 @@ const val DEFAULT_NUMBER_OF_PAGES = 29
 const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
 
+enum class SwipeEvent {
+    LEFT, RIGHT
+}
+
 class PdfPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
-
     private val dataService = DataService.getInstance(application)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
@@ -50,6 +54,7 @@ class PdfPagerViewModel(
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
+    val swipePageFlow = MutableSharedFlow<SwipeEvent>(0)
 
     private val _currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
     val currentItem = _currentItem as LiveData<Int>
