@@ -11,8 +11,7 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.main.MainActivity
 
 @Deprecated(
-    message = "To make use of ViewBindings please use ViewBindingActivity or StartupActivity",
-    replaceWith = ReplaceWith("ViewBindingActivity")
+    message = "To make use of ViewBindings please use ViewBindingActivity or StartupActivity"
 )
 abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivity() {
 
