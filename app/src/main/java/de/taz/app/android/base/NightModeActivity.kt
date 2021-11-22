@@ -3,13 +3,14 @@ package de.taz.app.android.base
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.util.NightModeHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class NightModeActivity(layoutId: Int? = null) : BaseActivity(layoutId) {
+abstract class NightModeActivity<ViewBindingType: ViewBinding>() : ViewBindingActivity<ViewBindingType>() {
 
     private val tazApiCssDataStore by lazy {
         TazApiCssDataStore.getInstance(applicationContext)
