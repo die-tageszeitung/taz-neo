@@ -1,4 +1,4 @@
-image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:latest
+image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:jdk-11
 
 variables:
   SENTRY_ENVIRONMENT: official
