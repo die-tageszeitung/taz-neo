@@ -84,16 +84,27 @@ class MuPDFReaderView constructor(
         super.onScaleEnd(detector)
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        displayedView?.let {
-            currentBorder = when {
-                it.left >= 0 && it.right <= width -> ViewBorder.BOTH
-                it.left >= 0 -> ViewBorder.LEFT
-                it.right <= width -> ViewBorder.RIGHT
-                else -> ViewBorder.NONE
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        if (e1?.action == MotionEvent.ACTION_DOWN && e2?.action == MotionEvent.ACTION_MOVE) {
+            displayedView?.let {
+                currentBorder = when {
+                    it.left >= 0 && it.right <= width -> ViewBorder.BOTH
+                    it.left >= 0 -> ViewBorder.LEFT
+                    it.right <= width -> ViewBorder.RIGHT
+                    else -> ViewBorder.NONE
+                }
             }
-            onBorderListener?.invoke(currentBorder)
         }
+        return super.onScroll(e1, e2, distanceX, distanceY)
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        onBorderListener?.invoke(currentBorder)
         return super.onInterceptTouchEvent(ev)
     }
 

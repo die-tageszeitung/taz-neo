@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
@@ -65,11 +66,11 @@ class PdfPagerFragment : BaseMainFragment(
             }
         })
 
-        pdfPagerViewModel.userInputEnabled.observe(viewLifecycleOwner, { enabled ->
+        pdfPagerViewModel.userInputEnabled.observeDistinct(viewLifecycleOwner, { enabled ->
             pdf_viewpager.isUserInputEnabled = enabled
         })
 
-        pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(
+        pdfPagerViewModel.requestDisallowInterceptTouchEvent.observeDistinct(
             viewLifecycleOwner,
             { disallow ->
                 val delay = if (!disallow) {
