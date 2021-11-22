@@ -1,29 +1,17 @@
 package de.taz.app.android.base
 
 import android.content.Intent
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.util.Log
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.main.MainActivity
 
-@Deprecated(
-    message = "To make use of ViewBindings please use ViewBindingActivity or StartupActivity"
-)
-abstract class BaseActivity(private val layoutId: Int? = null) : AppCompatActivity() {
+abstract class StartupActivity<ViewBindingClass: ViewBinding> : ViewBindingActivity<ViewBindingClass>() {
 
-    private val log by Log
-
-    protected val generalDataStore by lazy {
+    private val generalDataStore by lazy {
         GeneralDataStore.getInstance(applicationContext)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        layoutId?.let { setContentView(layoutId) }
     }
 
     protected suspend fun startActualApp() {
