@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -19,7 +19,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migration) {
+class StorageMigrationActivity : StartupActivity() {
     private val log by Log
 
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -30,6 +30,8 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activty_storage_migration)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)

@@ -1,6 +1,7 @@
 package de.taz.app.android
 
 import android.app.Application
+import android.os.Build
 import android.os.StrictMode
 import com.facebook.stetho.Stetho
 import de.taz.app.android.singletons.AuthHelper
@@ -27,12 +28,17 @@ abstract class AbstractTazApplication : Application() {
 
         if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this)
-            StrictMode.setVmPolicy(
-                StrictMode.VmPolicy.Builder()
-                    .detectLeakedClosableObjects()
-                    .penaltyLog()
-                    .build()
-            )
+            val vmPolicyBuilder = StrictMode.VmPolicy.Builder()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                vmPolicyBuilder.detectNonSdkApiUsage()
+            }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                vmPolicyBuilder.detectUnsafeIntentLaunch()
+            }
+
+            StrictMode.setVmPolicy(vmPolicyBuilder.build())
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
                     .detectDiskReads()

@@ -11,13 +11,14 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.StringRes
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
-import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
@@ -38,7 +39,7 @@ import kotlin.Exception
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 
-class SplashActivity : BaseActivity() {
+class SplashActivity : StartupActivity() {
 
     private val log by Log
 
@@ -53,6 +54,10 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepVisibleCondition { true }
+
         dataService = DataService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
@@ -61,20 +66,6 @@ class SplashActivity : BaseActivity() {
         storageService = StorageService.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
-
-    }
-
-    private suspend fun verifyStorageLocation() {
-        // if the configured storage is set to external, but no external device is mounted we need to reset it
-        // likely this happened because the user ejected the sd card
-        if (storageDataStore.storageLocation.get() == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
-            storageDataStore.storageLocation.set(StorageLocation.INTERNAL)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        log.info("splashactivity onresume called")
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
@@ -121,6 +112,15 @@ class SplashActivity : BaseActivity() {
                 startActualApp()
             }
             finish()
+        }
+    }
+
+
+    private suspend fun verifyStorageLocation() {
+        // if the configured storage is set to external, but no external device is mounted we need to reset it
+        // likely this happened because the user ejected the sd card
+        if (storageDataStore.storageLocation.get() == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            storageDataStore.storageLocation.set(StorageLocation.INTERNAL)
         }
     }
 
