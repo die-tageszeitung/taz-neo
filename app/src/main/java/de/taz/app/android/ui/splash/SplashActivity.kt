@@ -20,7 +20,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.base.BaseActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.MetadataDownload
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
@@ -157,7 +156,7 @@ class SplashActivity : BaseActivity() {
             // To make this call not fail due to a connectivity exception if there indeed is a
             // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
             contentService.downloadMetadata(AppInfoKey(), forceExecution = true)
-        } catch (exception: ConnectivityException) {
+        } catch (exception: CacheOperationFailedException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
     }
