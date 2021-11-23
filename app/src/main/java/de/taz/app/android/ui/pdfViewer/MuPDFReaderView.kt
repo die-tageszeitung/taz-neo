@@ -84,7 +84,7 @@ class MuPDFReaderView constructor(
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         onScaleListener?.invoke(false)
-        checkWhichBOrdersAreVisible()
+        checkWhichBordersAreVisible()
         onBorderListener?.invoke(currentBorder)
         super.onScaleEnd(detector)
     }
@@ -99,7 +99,7 @@ class MuPDFReaderView constructor(
             e2?.action == MotionEvent.ACTION_MOVE &&
             abs(distanceX) > abs(distanceY)
         ) {
-            checkWhichBOrdersAreVisible()
+            checkWhichBordersAreVisible()
         }
         return super.onScroll(e1, e2, distanceX, distanceY)
     }
@@ -170,7 +170,7 @@ class MuPDFReaderView constructor(
         return x to y
     }
 
-    private fun checkWhichBOrdersAreVisible() {
+    private fun checkWhichBordersAreVisible() {
         displayedView?.let {
             currentBorder = when {
                 it.left >= 0 && it.right <= width -> ViewBorder.BOTH
