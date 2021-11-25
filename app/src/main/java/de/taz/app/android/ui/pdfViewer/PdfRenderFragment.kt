@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -51,6 +52,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private var pdfReaderView: MuPDFReaderView? = null
     private lateinit var issueKey: IssueKeyWithPages
+    private lateinit var articleRepository: ArticleRepository
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -66,6 +68,12 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                 requireActivity().application, requireActivity()
             )
         ).get(IssueViewerViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        articleRepository = ArticleRepository.getInstance(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,7 +150,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
                             val article = withContext(Dispatchers.IO) {
-                                ArticleRepository(requireContext()).get(link)
+                                articleRepository.get(link)
                             }
                             log.debug("isArticle imprint? ${article?.isImprint()}")
                             if (article?.isImprint() == true) {
