@@ -152,16 +152,17 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                             val article = withContext(Dispatchers.IO) {
                                 articleRepository.get(link)
                             }
-                            log.debug("isArticle imprint? ${article?.isImprint()}")
-                                 val fragment = if (article?.isImprint() == true) ImprintWebViewFragment() else ArticlePagerFragment()
-                                 requireActivity().supportFragmentManager.beginTransaction()
-                                    .add(
-                                        R.id.activity_pdf_fragment_placeholder,
-                                        fragment,
-                                        ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-                                    )
-                                    .addToBackStack(null)
-                                    .commit()
+                            val fragment =
+                                if (article?.isImprint() == true) ImprintWebViewFragment()
+                                else ArticlePagerFragment()
+                            requireActivity().supportFragmentManager.beginTransaction()
+                                .add(
+                                    R.id.activity_pdf_fragment_placeholder,
+                                    fragment,
+                                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+                                )
+                                .addToBackStack(null)
+                                .commit()
 
 
                             issueContentViewModel.setDisplayable(
