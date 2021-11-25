@@ -23,7 +23,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class StorageMigrationActivity : StartupActivity() {
+class StorageOrganizationActivity : StartupActivity() {
     private val log by Log
 
     private lateinit var fileEntryRepository: FileEntryRepository

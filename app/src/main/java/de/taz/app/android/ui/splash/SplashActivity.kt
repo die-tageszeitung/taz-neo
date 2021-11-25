@@ -28,7 +28,7 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.StorageMigrationActivity
+import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.NightModeHelper
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
@@ -115,7 +115,7 @@ class SplashActivity : StartupActivity() {
                 }
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
             if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
-                Intent(this@SplashActivity, StorageMigrationActivity::class.java).apply {
+                Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
                     startActivity(this)
                 }
             } else {

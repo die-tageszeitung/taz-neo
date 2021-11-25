@@ -28,7 +28,7 @@
             android:name=".ui.WebViewActivity"
             android:noHistory="true" />
         <activity android:name=".ui.DataPolicyActivity" />
-        <activity android:name=".ui.StorageMigrationActivity" />
+        <activity android:name=".ui.StorageOrganizationActivity" />
         <activity android:name=".ui.pdfViewer.PdfPagerActivity" />
         <activity
             android:name=".ui.ImagePagerActivity"
