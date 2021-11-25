@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -15,7 +16,9 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activty_storage_migration.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,6 +37,7 @@ class StorageOrganizationActivity : StartupActivity() {
     private lateinit var issueRepository: IssueRepository
     private lateinit var contentService: ContentService
     private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +51,7 @@ class StorageOrganizationActivity : StartupActivity() {
         issueRepository = IssueRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             migrateToSelectableStorage()
@@ -189,13 +194,24 @@ class StorageOrganizationActivity : StartupActivity() {
             migration_progress.max = issueCount
         }
         var count = 0
+        var errors = 0
         for (issueStub in issueStubsToDelete) {
-            contentService.deleteIssue(issueStub.issueKey)
+            try {
+                contentService.deleteIssue(issueStub.issueKey)
+            } catch (e: CacheOperationFailedException) {
+                val hint = "Issue deleting public issues during startup storage organization"
+                log.error(hint)
+                Sentry.captureException(e, hint)
+                errors++
+            }
             withContext(Dispatchers.Main) {
                 count++
                 migration_progress.progress = count
                 numeric_progress.text = "$count / $issueCount"
             }
+        }
+        if (errors > 0) {
+            toastHelper.showToast(R.string.storage_migration_help_text_delete_issues_error)
         }
     }
 }

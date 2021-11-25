@@ -119,6 +119,7 @@
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
 
     <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
+    <string name="storage_migration_help_text_delete_issues_error">Beim Löschen von ungenutzten Ausgaben trat ein Fehler auf.</string>
 
 
 
