@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<de.taz.app.android.ui.cover.FrontpageView
+<de.taz.app.android.ui.cover.CoverView
     android:id="@+id/fragment_cover_flow_item"
     app:do_not_show_download_icon="true"
     app:layout_constraintEnd_toEndOf="@id/guidelineEnd"

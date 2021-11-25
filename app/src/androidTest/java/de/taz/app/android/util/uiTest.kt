@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import de.taz.app.android.R
 import org.hamcrest.Description
@@ -53,4 +54,14 @@ fun childAtPosition(
                     && view == parent.getChildAt(position)
         }
     }
+}
+
+fun dismissTryPdfDialog() {
+    val okButton = onView(
+        allOf(
+            withId(R.id.button_close),
+            isDisplayed()
+        )
+    )
+    okButton.perform(ViewActions.click())
 }

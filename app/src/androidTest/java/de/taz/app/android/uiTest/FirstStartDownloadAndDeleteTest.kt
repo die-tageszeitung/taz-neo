@@ -68,23 +68,18 @@ class FirstStartDownloadAndDeleteTest {
         longSettle()
         longSettle()
         longSettle()
+
+        log.info("Dismiss try pdf dialog")
+        dismissTryPdfDialog()
+
+        longSettle()
         longSettle()
 
 
         log.info("Clicking on download")
         val constraintLayout = onView(
             allOf(
-                withId(R.id.view_moment_download_icon_wrapper),
-                childAtPosition(
-                    allOf(
-                        withId(R.id.fragment_archive_item),
-                        childAtPosition(
-                            withId(R.id.fragment_cover_flow_item),
-                            0
-                        )
-                    ),
-                    2
-                ),
+                withId(R.id.fragment_coverflow_moment_download),
                 isDisplayed()
             )
         )
@@ -109,7 +104,8 @@ class FirstStartDownloadAndDeleteTest {
         log.info("Clicking delete")
         val materialTextView2 = onView(
             allOf(
-                withId(R.id.fragment_bottom_sheet_issue_delete), withText(R.string.fragment_bottom_sheet_issue_delete),
+                withId(R.id.fragment_bottom_sheet_issue_delete),
+                withText(R.string.fragment_bottom_sheet_issue_delete),
                 childAtPosition(
                     childAtPosition(
                         withId(R.id.design_bottom_sheet),

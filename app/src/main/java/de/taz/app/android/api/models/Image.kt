@@ -1,5 +1,6 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import de.taz.app.android.api.dto.ImageDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
@@ -12,7 +13,7 @@ import java.io.File
 import java.util.*
 
 @ExperimentalSerializationApi
-@Serializable(with=DateSerializer::class)
+@Serializable(with = DateSerializer::class)
 data class Image(
     override val name: String,
     override val storageType: StorageType,
@@ -58,7 +59,8 @@ data class Image(
         storageLocation = fileEntry.storageLocation
     )
 
-    fun getIssueStub(): IssueStub = IssueRepository.getInstance().getIssueStubForImage(this@Image)
+    fun getIssueStub(applicationContext: Context): IssueStub =
+        IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
 }
 
 enum class ImageType {

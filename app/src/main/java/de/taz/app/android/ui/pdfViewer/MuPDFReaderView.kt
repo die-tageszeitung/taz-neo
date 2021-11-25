@@ -7,6 +7,7 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlin.math.abs
 
 enum class ViewBorder {
     LEFT,
@@ -16,15 +17,24 @@ enum class ViewBorder {
 }
 
 class MuPDFReaderView constructor(
-    context: Context?
+    context: Context
 ) : com.artifex.mupdfdemo.ReaderView(
     context
-), GestureDetector.OnDoubleTapListener {
+), GestureDetector.OnDoubleTapListener, GestureDetector.OnGestureListener {
     var clickCoordinatesListener: ((Pair<Float, Float>) -> Unit)? = null
     var onBorderListener: ((ViewBorder) -> Unit)? = null
     var onScaleOutListener: ((Boolean) -> Unit)? = null
     var onScaleListener: ((Boolean) -> (Unit))? = null
+    var onSwipeListener: ((SwipeEvent) -> Unit)? = null
+
+    private var currentBorder = ViewBorder.NONE
+
     val log by Log
+
+    companion object {
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
+    }
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         runIfNotNull(clickCoordinatesListener, displayedView) { listener, view ->
@@ -38,12 +48,10 @@ class MuPDFReaderView constructor(
     }
 
     override fun onDoubleTap(ev: MotionEvent): Boolean {
-        val newScale = if (mScale == 1f) {
-            2f
-        } else if (mScale > 2f) {
-            1f
-        } else {
-            4f
+        val newScale = when {
+            mScale == 1f -> 2f
+            mScale > 2f -> 1f
+            else -> 4f
         }
         // Work out the focus point relative to the view top left
         val viewFocusX = ev.x - (displayedView.left + mXScroll)
@@ -55,6 +63,9 @@ class MuPDFReaderView constructor(
         requestLayout()
         if (newScale == 1f) {
             onScaleOutListener?.invoke(true)
+            currentBorder = ViewBorder.BOTH
+        } else {
+            currentBorder = ViewBorder.NONE
         }
         return true
     }
@@ -73,20 +84,56 @@ class MuPDFReaderView constructor(
 
     override fun onScaleEnd(detector: ScaleGestureDetector?) {
         onScaleListener?.invoke(false)
+        checkWhichBordersAreVisible()
+        onBorderListener?.invoke(currentBorder)
         super.onScaleEnd(detector)
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        displayedView?.let {
-            val border = when {
-                it.left >= 0 && it.right <= width -> ViewBorder.BOTH
-                it.left >= 0 -> ViewBorder.LEFT
-                it.right <= width -> ViewBorder.RIGHT
-                else -> ViewBorder.NONE
-            }
-            onBorderListener?.invoke(border)
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent?,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        if (e1?.action == MotionEvent.ACTION_DOWN &&
+            e2?.action == MotionEvent.ACTION_MOVE &&
+            abs(distanceX) > abs(distanceY)
+        ) {
+            checkWhichBordersAreVisible()
         }
+        return super.onScroll(e1, e2, distanceX, distanceY)
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        onBorderListener?.invoke(currentBorder)
         return super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onFling(
+        e1: MotionEvent,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        var result = false
+        val diffY = e2.y - e1.y
+        val diffX = e2.x - e1.x
+        if (abs(diffX) > abs(diffY)) {
+            if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (diffX > 0) {
+                    if (currentBorder == ViewBorder.LEFT) {
+                        onSwipeListener?.invoke(SwipeEvent.RIGHT)
+                    }
+                } else {
+                    if (currentBorder == ViewBorder.RIGHT) {
+                        onSwipeListener?.invoke(SwipeEvent.LEFT)
+                    }
+                }
+                result = true
+            }
+        }
+
+        return result
     }
 
     /**
@@ -95,7 +142,11 @@ class MuPDFReaderView constructor(
      * If so, the according article will be shown.
      * returns Pair<Float, Float> as (x,y)
      */
-    private fun calculateClickCoordinates(view: View, clickedX: Float, clickedY: Float): Pair<Float, Float> {
+    private fun calculateClickCoordinates(
+        view: View,
+        clickedX: Float,
+        clickedY: Float
+    ): Pair<Float, Float> {
         // Cet the scale factor from dividing total image by viewed part (eg. 2.0):
         val scaleX: Float = view.width / width.toFloat()
         val scaleY: Float = view.height / height.toFloat()
@@ -118,4 +169,17 @@ class MuPDFReaderView constructor(
 
         return x to y
     }
+
+    private fun checkWhichBordersAreVisible() {
+        displayedView?.let {
+            currentBorder = when {
+                it.left >= 0 && it.right <= width -> ViewBorder.BOTH
+                it.left >= 0 -> ViewBorder.LEFT
+                it.right <= width -> ViewBorder.RIGHT
+                else -> ViewBorder.NONE
+            }
+        }
+    }
+
+
 }

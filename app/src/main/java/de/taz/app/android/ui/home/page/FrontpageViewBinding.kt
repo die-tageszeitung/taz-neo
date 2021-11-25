@@ -1,90 +1,78 @@
 package de.taz.app.android.ui.home.page
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
-import de.taz.app.android.api.models.*
-import de.taz.app.android.data.DataService
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.cover.FrontpageView
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
-    private val lifecycleOwner: LifecycleOwner,
-    private val issuePublication: IssuePublication,
+    fragment: Fragment,
+    frontpagePublication: FrontpagePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
-) : CoverViewBinding<FrontpageView>(
-    lifecycleOwner,
-    issuePublication,
+) : CoverViewBinding(
+    fragment,
+    frontpagePublication,
     dateFormat,
     glideRequestManager,
     onMomentViewActionListener
 ) {
 
-    private val storageService = StorageService.getInstance()
-    private val dataService = DataService.getInstance()
-    private val fileEntryRepository = FileEntryRepository.getInstance()
-    private val feedRepository = FeedRepository.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
-        val dimension = feedRepository.get(issuePublication.feed)?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
-        val frontPage = dataService.getFrontPage(issuePublication, retryOnFailure = true)
+        try {
+            val dimension =
+                feedRepository.get(coverPublication.feedName)?.momentRatioAsDimensionRatioString()
+                    ?: DEFAULT_MOMENT_RATIO
+            val frontPage = contentService.downloadMetadata(
+                coverPublication,
+                // Retry indefinitely
+                maxRetries = -1
+            ) as Page
 
             // get pdf front page
-        val pdfMomentFilePath = frontPage?.let {
-            dataService.ensureDownloaded(frontPage)
+            contentService.downloadToCache(frontPage)
+
+            // Refresh front page
             val downloadedFrontPage =
-                dataService.getFrontPage(issuePublication, allowCache = true)?.pagePdf
-            val fileEntry = downloadedFrontPage?.let { fileEntryRepository.get(it.name) }
-            fileEntry?.let { storageService.getFile(it)?.path }
-        }
+                contentService.downloadMetadata(coverPublication) as Page
 
-        val momentType = CoverType.FRONT_PAGE
-        val issueKey = dataService.determineIssueKeyWithPages(issuePublication)
-        CoverViewData(
-            issueKey,
-            DownloadStatus.pending,
-            momentType,
-            pdfMomentFilePath,
-            dimension
-        )
-    }
+            val fileEntry = fileEntryRepository.get(downloadedFrontPage.pagePdf.name)
+            val pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
 
-    override fun onDownloadClicked() {
-        if (dataInitialized()) {
-            boundView?.setDownloadIconForStatus(DownloadStatus.started)
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    lifecycleOwner.lifecycleScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
-            }
-
-            CoroutineScope(Dispatchers.IO).launch {
-                // TODO: We need to account for loading pdf issues instead of the whole issue atm
-                // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                val issue = dataService.getIssue(
-                    issuePublication,
-                    retryOnFailure = true,
-                    allowCache = false,
-                    forceUpdate = true,
-                    onConnectionFailure = { onConnectionFailure() },
-                    cacheWithPages = true
+            // Still need to determine the issueKey, it's not part of a [Page]
+            // Therefore we need the [Moment]:
+            val moment = contentService.downloadMetadata(
+                MomentPublication(
+                    coverPublication.feedName,
+                    coverPublication.date
                 )
-                dataService.ensureDownloaded(
-                    collection = IssueWithPages(issue),
-                    onConnectionFailure = { onConnectionFailure() }
-                )
-            }
+            ) as Moment
+
+            val momentType = CoverType.FRONT_PAGE
+            CoverViewData(
+                momentType,
+                pdfMomentFilePath,
+                dimension
+            )
+        } catch (e: CacheOperationFailedException) {
+            val hint =
+                "Error downloading metadata or cover content while binding cover for $coverPublication"
+            throw CoverBindingException(hint, e)
         }
     }
 }

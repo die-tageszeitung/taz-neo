@@ -8,18 +8,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.data.DataService
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
@@ -33,33 +34,29 @@ import java.io.File
 
 
 private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
-private const val KEY_IS_DOWNLOADED = "KEY_IS_DOWNLOADED"
 
 class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
     private val log by Log
-    private lateinit var issueKey: AbstractIssueKey
+    private lateinit var issuePublication: IssuePublication
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
-    private lateinit var fileHelper: StorageService
-    private lateinit var downloadService: DownloadService
+    private lateinit var storageService: StorageService
+    private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
-    private lateinit var dataService: DataService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var authHelper: AuthHelper
 
-    private var isDownloaded: Boolean = false
 
     private val homeViewModel: IssueFeedViewModel by activityViewModels()
 
     companion object {
         fun create(
-            issueKey: AbstractIssueKey,
-            isDownloaded: Boolean
+            issuePublication: AbstractIssuePublication
         ): IssueBottomSheetFragment {
             val args = Bundle()
-            args.putParcelable(KEY_ISSUE_PUBLICATION, issueKey)
-            args.putBoolean(KEY_IS_DOWNLOADED, isDownloaded)
+            args.putParcelable(KEY_ISSUE_PUBLICATION, issuePublication)
             return IssueBottomSheetFragment().apply {
                 arguments = args
             }
@@ -70,18 +67,17 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
-        fileHelper = StorageService.getInstance(context.applicationContext)
-        downloadService = DownloadService.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
-        dataService = DataService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        issueKey = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
-        isDownloaded = requireArguments().getBoolean(KEY_IS_DOWNLOADED, false)
+        issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
     }
 
     override fun onCreateView(
@@ -95,46 +91,54 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (isDownloaded) {
-            fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
-            fragment_bottom_sheet_issue_download?.visibility = View.GONE
-        } else {
-            fragment_bottom_sheet_issue_delete?.visibility = View.GONE
-            fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
+        loading_screen?.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            if (getIsDownloaded()) {
+                fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
+                fragment_bottom_sheet_issue_download?.visibility = View.GONE
+            } else {
+                fragment_bottom_sheet_issue_delete?.visibility = View.GONE
+                fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
+            }
+            loading_screen?.visibility = View.GONE
         }
 
         fragment_bottom_sheet_issue_read?.setOnClickListener {
-            when (issueKey) {
-                is IssueKey -> {
+            lifecycleScope.launch {
+                if (homeViewModel.getPdfMode()) {
+                    Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                        putExtra(
+                            PdfPagerActivity.KEY_ISSUE_PUBLICATION,
+                            IssuePublicationWithPages(issuePublication)
+                        )
+                        startActivity(this)
+                    }
+                } else {
+
                     Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                        putExtra(IssueViewerActivity.KEY_ISSUE_KEY, issueKey)
+                        putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
                         startActivityForResult(this, 0)
                     }
                 }
-                is IssueKeyWithPages -> {
-                    Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                        putExtra(PdfPagerActivity.KEY_ISSUE_KEY, issueKey)
-                        startActivity(this)
-                    }
-                }
             }
+
             dismiss()
         }
 
         fragment_bottom_sheet_issue_share?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
-                var issue = dataService.getIssue(IssuePublication(issueKey))
+                var issue = contentService.downloadMetadata(issuePublication) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
                     image.name
                 )?.let {
-                    dataService.ensureDownloaded(it, issue.baseUrl)
+                    contentService.downloadSingleFileIfNotDownloaded(it, issue.baseUrl)
                 }
                 // refresh issue after altering file state
-                issue = dataService.getIssue(IssuePublication(issueKey))
+                issue = contentService.downloadMetadata(issuePublication) as Issue
                 image = issue.moment.getMomentFileToShare()
 
-                fileHelper.getAbsolutePath(image)?.let { imageAsFile ->
+                storageService.getAbsolutePath(image)?.let { imageAsFile ->
                     val applicationId = view.context.packageName
                     val imageUriNew = FileProvider.getUriForFile(
                         view.context,
@@ -164,47 +168,38 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
 
             loading_screen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
+
             CoroutineScope(Dispatchers.IO).launch {
-                val issue = dataService.getIssue(IssuePublication(issueKey))
-                val issueToDelete = if (issueKey is IssueKeyWithPages) {
-                    IssueWithPages(issue)
-                } else {
-                    issue
-                }
-                dataService.ensureDeleted(issueToDelete)
+                contentService.deleteIssue(issuePublication)
+                viewModel.notifyMomentChanged(simpleDateFormat.parse(issuePublication.date)!!)
                 withContext(Dispatchers.Main) {
                     dismiss()
                 }
-                viewModel.notifyMomentChanged(simpleDateFormat.parse(issueKey.date)!!)
             }
         }
 
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    val issue =
-                        dataService.getIssue(
-                            IssuePublication(issueKey),
-                            allowCache = false,
-                            forceUpdate = true
-                        )
-                    val issueToDownload = if (issueKey is IssueKeyWithPages) {
-                        IssueWithPages(issue)
-                    } else {
-                        issue
-                    }
-                    dataService.ensureDownloaded(issueToDownload)
-                } catch (e: ConnectivityException.Recoverable) {
-                    toastHelper.showNoConnectionToast()
+                    contentService.downloadToCache(issuePublication)
+                } catch (e: CacheOperationFailedException) {
+                    // Errors are handled in CoverViewBinding
                 }
             }
             dismiss()
         }
     }
+
     override fun onStart() {
         super.onStart()
         //this forces the sheet to appear at max height even on landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private suspend fun getIsDownloaded(): Boolean {
+        return contentService.getCacheState(
+            issuePublication
+        ).cacheState == CacheState.PRESENT
     }
 }

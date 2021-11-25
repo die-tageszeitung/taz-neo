@@ -11,13 +11,13 @@ open class SingletonHolder<T, in A>(creator: (A) -> T) {
 
     protected val log by Log
 
-    fun getInstance(arg: A? = null): T {
-        if (arg != null && instance == null)
+    fun getInstance(arg: A): T {
+        if (instance == null)
             return createInstance(arg)
         return instance!!
     }
 
-    fun createInstance(arg: A): T {
+    private fun createInstance(arg: A): T {
         val i = instance
         if (i != null) {
             return i

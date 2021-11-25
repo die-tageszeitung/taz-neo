@@ -7,32 +7,30 @@ import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.StatFs
-import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
-import de.taz.app.android.base.BaseActivity
+import de.taz.app.android.base.StartupActivity
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageMigrationActivity
-import de.taz.app.android.ui.settings.SettingsViewModel
 import de.taz.app.android.util.NightModeHelper
-import de.taz.app.android.util.SharedPreferenceStorageLocationLiveData
+import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
-import io.sentry.protocol.User
 import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
@@ -41,7 +39,7 @@ import kotlin.Exception
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 
-class SplashActivity : BaseActivity() {
+class SplashActivity : StartupActivity() {
 
     private val log by Log
 
@@ -51,71 +49,31 @@ class SplashActivity : BaseActivity() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
-
-    private lateinit var preferences: SharedPreferences
-
-    private val settingsViewModel: SettingsViewModel by viewModels()
+    private lateinit var storageDataStore: StorageDataStore
+    private lateinit var contentService: ContentService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepVisibleCondition { true }
+
         dataService = DataService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
-
-        preferences = applicationContext.getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
-
-        // If not yet set we need to determine the storage
-        if (!preferences.contains(SETTINGS_GENERAL_STORAGE_LOCATION)) {
-            determineStorageLocationBySize()
-        }
-
-        val storageLocationLiveData = SharedPreferenceStorageLocationLiveData(
-            preferences,
-            SETTINGS_GENERAL_STORAGE_LOCATION,
-            SETTINGS_GENERAL_STORAGE_LOCATION_DEFAULT
-        )
-
-        // if the configured storage is set to external, but no external device is mounted we need to reset it
-        // likely this happened because the user ejected the sd card
-        if (storageLocationLiveData.value == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
-            storageLocationLiveData.value = StorageLocation.INTERNAL
-        }
-    }
-
-    private fun determineStorageLocationBySize() {
-        val externalFreeBytes = getExternalFilesDir(null)?.let { StatFs(it.path).availableBytes }
-        val internalFreeBytes = StatFs(filesDir.path).availableBytes
-
-        val selectedStorageMode =
-            if (externalFreeBytes != null && externalFreeBytes > internalFreeBytes && storageService.externalStorageAvailable()) {
-                StorageLocation.EXTERNAL
-            } else {
-                StorageLocation.INTERNAL
-            }
-
-        preferences.edit().apply {
-            putInt(SETTINGS_GENERAL_STORAGE_LOCATION, selectedStorageMode.ordinal)
-            apply()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        log.info("splashactivity onresume called")
+        contentService = ContentService.getInstance(applicationContext)
+        storageDataStore = StorageDataStore.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
             launch { sendPushToken() }
         }
         lifecycleScope.launch {
-            // create installation id before setting up sentry
-            generateInstallationId()
-            setupSentry()
-
             generateNotificationChannels()
+            verifyStorageLocation()
 
             try {
                 withContext(Dispatchers.IO) {
@@ -128,18 +86,14 @@ class SplashActivity : BaseActivity() {
                     NightModeHelper.generateCssOverride(this@SplashActivity)
                 }
             } catch (e: InitializationException) {
-                AlertDialog.Builder(this@SplashActivity)
-                    .setMessage(R.string.splash_error_no_connection)
-                    .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
-                    .setOnDismissListener {
-                        finish()
-                    }
-                    .show()
+                log.error("Error while initializing")
+                e.printStackTrace()
+                showConnectionErrorDialog()
                 Sentry.captureException(e)
                 return@launch
             }
 
-            val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+            val currentStorageLocation = storageDataStore.storageLocation.get()
 
             val unmigratedFiles = withContext(Dispatchers.IO) {
                 fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
@@ -161,65 +115,49 @@ class SplashActivity : BaseActivity() {
         }
     }
 
+
+    private suspend fun verifyStorageLocation() {
+        // if the configured storage is set to external, but no external device is mounted we need to reset it
+        // likely this happened because the user ejected the sd card
+        if (storageDataStore.storageLocation.get() == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            storageDataStore.storageLocation.set(StorageLocation.INTERNAL)
+        }
+    }
+
     private suspend fun initFeed() {
         try {
             val feed = dataService.getFeedByName(DISPLAYED_FEED)
             if (feed?.publicationDates?.isEmpty() == true) {
-                if (feed.publicationDates.isEmpty()) {
-                    dataService.getFeedByName(
-                        DISPLAYABLE_NAME,
-                        allowCache = false,
-                        retryOnFailure = true
-                    )
-                }
                 dataService.getFeedByName(
                     DISPLAYABLE_NAME,
                     allowCache = false,
                     retryOnFailure = true
                 )
             }
-        } catch (e: ConnectivityException.NoInternetException) {
+        } catch (e: ConnectivityException) {
             throw InitializationException("Could not retrieve feed during first start")
         }
     }
 
     private suspend fun checkForNewestIssue() {
         try {
-            dataService.refreshFeedAndGetIssueIfNew(DISPLAYED_FEED)
-        } catch (e: ConnectivityException.Recoverable) {
-            toastHelper.showNoConnectionToast()
+            dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+        } catch (e: ConnectivityException) {
+            toastHelper.showConnectionToServerFailedToast()
         }
     }
-
-    private suspend fun generateInstallationId() {
-        val installationId = authHelper.installationId.get()
-        if (installationId.isEmpty()) {
-            val uuid = UUID.randomUUID().toString()
-            authHelper.installationId.set(uuid)
-            log.debug("initialized InstallationId: $uuid")
-        } else {
-            log.debug("InstallationId: $installationId")
-        }
-    }
-
-
-    private suspend fun setupSentry() {
-        log.info("setting up sentry")
-
-        val user = User()
-        user.id = authHelper.installationId.get()
-        Sentry.setUser(user)
-    }
-
 
     /**
      * download AppInfo and persist it
      */
     private suspend fun ensureAppInfo() {
         try {
-            dataService.getAppInfo()
-        } catch (e: ConnectivityException) {
-            throw InitializationException("Retrieving AppInfo failed")
+            // This call might be duplicated by the AppVersion check which is not allowing cache.
+            // To make this call not fail due to a connectivity exception if there indeed is a
+            // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
+            contentService.downloadMetadata(AppInfoKey(), forceExecution = true)
+        } catch (exception: CacheOperationFailedException) {
+            throw InitializationException("Retrieving AppInfo failed: $exception")
         }
     }
 
@@ -228,7 +166,7 @@ class SplashActivity : BaseActivity() {
      */
     private suspend fun checkAppVersion() {
         try {
-            val appInfo = dataService.getAppInfo(allowCache = false)
+            val appInfo = contentService.downloadMetadata(AppInfoKey(), allowCache = false) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
@@ -264,7 +202,7 @@ class SplashActivity : BaseActivity() {
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
         val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
 
-        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+        val currentStorageLocation = storageDataStore.storageLocation.get()
         storageService.getAbsolutePath(
             RESOURCE_FOLDER,
             storageLocation = currentStorageLocation
@@ -373,11 +311,11 @@ class SplashActivity : BaseActivity() {
             log.debug("Created tazApi.css")
         }
         try {
-            dataService.ensureDownloaded(
-                dataService.getResourceInfo()
+            contentService.downloadToCache(
+                ResourceInfoKey(-1)
             )
-        } catch (e: ConnectivityException) {
-            val hint = "Connectivity exception during resource integration check on startup"
+        } catch (e: CacheOperationFailedException) {
+            val hint = "Error while trying to download resource info on startup"
             log.warn(hint)
             Sentry.captureException(e, hint)
         }

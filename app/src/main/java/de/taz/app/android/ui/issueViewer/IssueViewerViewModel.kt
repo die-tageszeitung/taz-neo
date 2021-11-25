@@ -4,13 +4,15 @@ import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,8 +38,9 @@ class IssueViewerViewModel(
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
-    private val toastHelper = ToastHelper.getInstance(application)
+    private val contentService = ContentService.getInstance(application)
 
+    val issueLoadingFailedErrorFlow = MutableStateFlow(false)
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
 
@@ -68,38 +71,29 @@ class IssueViewerViewModel(
         immediate: Boolean = false,
         loadIssue: Boolean = false
     ) {
-        var noConnectionShown = false
-        fun onConnectionFailure() {
-            if (!noConnectionShown) {
-                viewModelScope.launch {
-                    toastHelper.showNoConnectionToast()
-                    noConnectionShown = true
-                }
-            }
-        }
         if (loadIssue || displayableKey == null) {
+            issueLoadingFailedErrorFlow.emit(false)
             activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
-                val issue = dataService.getIssue(
-                    IssuePublication(issueKey),
-                    retryOnFailure = true,
-                    onConnectionFailure = {
-                        onConnectionFailure()
-                    })
-
-                dataService.ensureDownloaded(
-                    issue,
-                    skipIntegrityCheck = false,
-                    onConnectionFailure = ::onConnectionFailure
-                )
-
-                // either displayable is specified, persisted or defaulted to first section
-                val displayable = displayableKey
-                    ?: dataService.getLastDisplayableOnIssue(issueKey)
-                    ?: sectionRepository.getSectionStubsForIssue(issue.issueKey).first().key
-                setDisplayable(
-                    IssueKeyWithDisplayableKey(issue.issueKey, displayable)
-                )
+                try {
+                    // either displayable is specified, persisted or defaulted to first section
+                    val displayable = displayableKey
+                        ?: dataService.getLastDisplayableOnIssue(issueKey)
+                        ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
+                    setDisplayable(
+                        IssueKeyWithDisplayableKey(issueKey, displayable)
+                    )
+                    // Start downloading the whole issue in background
+                    launch {
+                        try {
+                            contentService.downloadToCache(IssuePublication(issueKey))
+                        } catch (e: CacheOperationFailedException) {
+                            issueLoadingFailedErrorFlow.emit(true)
+                        }
+                    }
+                } catch (e: CacheOperationFailedException) {
+                    issueLoadingFailedErrorFlow.emit(true)
+                }
             }
         } else {
             setDisplayable(

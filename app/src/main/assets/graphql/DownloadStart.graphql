@@ -9,7 +9,10 @@ mutation DownloadStart(
     $deviceType: DeviceType!,
     $deviceVersion: String!,
     $deviceOS: String,
-    $isAutomatically: Boolean!
+    $isAutomatically: Boolean!,
+    $pushToken: String,
+    $deviceMessageSound: String,
+    $textNotification: Boolean!
 ) {
     downloadStart(
         feedName: $feedName,
@@ -22,6 +25,9 @@ mutation DownloadStart(
         deviceType: $deviceType,
         deviceVersion: $deviceVersion,
         deviceOS: $deviceOS,
-        isAutomatically: $isAutomatically
+        isAutomatically: $isAutomatically,
+        pushToken: $pushToken,
+        deviceMessageSound: $deviceMessageSound,
+        textNotification: $textNotification
     )
 }

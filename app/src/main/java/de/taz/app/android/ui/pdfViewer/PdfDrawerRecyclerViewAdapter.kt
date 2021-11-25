@@ -4,9 +4,11 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PageType
 
 class PdfDrawerRecyclerViewAdapter(
-    private val itemList: List<PdfPageList>,
+    private val itemList: List<Page>,
     private val glideRequestManager: RequestManager
 ):
     RecyclerView.Adapter<PdfDrawerRecyclerViewAdapter.NavigationItemViewHolder>() {
@@ -37,11 +39,11 @@ class PdfDrawerRecyclerViewAdapter(
             binder?.bindView(
                 view,
                 PdfDrawerItemData(
-                    title = itemList[position].title,
-                    pageType = itemList[position].pageType,
+                    title = itemList[position].title ?: "",
+                    pageType = itemList[position].type ?: PageType.left,
                     position = position,
                     activePosition = activePosition,
-                    pdfFile = itemList[position].pdfFile
+                    pdfFile = itemList[position].pagePdf
                 ),
                 glideRequestManager
             )

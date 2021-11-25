@@ -3,8 +3,8 @@ package de.taz.app.android
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.data.DataService
+import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.download.DownloadService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -32,10 +32,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
-    private lateinit var downloadService: DownloadService
     private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var issueRepository: IssueRepository
     private lateinit var notificationHelper: NotificationHelper
+    private lateinit var downloadScheduler: DownloadScheduler
 
     private val messageTimestamps: MutableList<Long> = mutableListOf()
 
@@ -43,10 +43,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         super.onCreate()
         dataService = DataService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
-        downloadService = DownloadService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         notificationHelper = NotificationHelper.getInstance(applicationContext)
+        downloadScheduler = DownloadScheduler.getInstance(applicationContext)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -95,7 +95,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
         CoroutineScope(Dispatchers.IO).launch {
             if (DownloadDataStore.getInstance(applicationContext).enabled.get()) {
-                downloadService.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
+                downloadScheduler.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
             }
         }
     }

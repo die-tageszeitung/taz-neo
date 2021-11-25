@@ -9,6 +9,11 @@ import java.util.*
 
 @Dao
 abstract class IssueDao : BaseDao<IssueStub>() {
+    @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date")
+    abstract fun getByFeedAndDate(
+        feedName: String,
+        date: String
+    ): List<IssueStub>
 
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
     abstract fun getByFeedDateAndStatus(
@@ -60,6 +65,16 @@ abstract class IssueDao : BaseDao<IssueStub>() {
 
     @Query("SELECT * FROM Issue ORDER BY date DESC")
     abstract fun getAllIssueStubs(): List<IssueStub>
+
+    @Query("SELECT * FROM Issue WHERE status IN (\"public\", \"demo\") ORDER BY date DESC")
+    abstract fun getAllPublicAndDemoIssueStubs(): List<IssueStub>
+
+
+    @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date")
+    abstract fun getByFeedAndDateLiveData(
+        feedName: String,
+        date: String
+    ): LiveData<List<IssueStub>>
 
     @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>

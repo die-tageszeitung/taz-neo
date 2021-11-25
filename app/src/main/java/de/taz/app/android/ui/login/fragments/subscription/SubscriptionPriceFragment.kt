@@ -128,7 +128,7 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
     }
 
     private fun showPriceError() {
-        ToastHelper.getInstance(context?.applicationContext).showToast(R.string.price_error_none)
+        ToastHelper.getInstance(requireContext().applicationContext).showToast(R.string.price_error_none)
     }
 
     private fun setPriceList(it: List<PriceInfo>) {

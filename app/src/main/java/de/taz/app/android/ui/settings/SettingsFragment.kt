@@ -22,7 +22,8 @@ import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -35,6 +36,7 @@ import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
@@ -43,14 +45,18 @@ import java.util.*
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
     private val log by Log
 
-    private var storedIssueNumber: String? = null
+    private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
 
     private lateinit var toastHelper: ToastHelper
+    private lateinit var contentService: ContentService
+    private lateinit var issueRepository: IssueRepository
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,7 +126,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
-                StorageSelectionDialog(requireContext(), viewModel).show()
+                StorageSelectionDialog(requireContext()).show()
             }
 
             fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
@@ -142,7 +148,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_version_number?.text =
-                getString(R.string.settings_version_number, BuildConfig.VERSION_NAME, graphQlFlavorString)
+                getString(
+                    R.string.settings_version_number,
+                    BuildConfig.VERSION_NAME,
+                    graphQlFlavorString
+                )
 
             fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -193,7 +203,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
         }
 
-        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.status.asLiveData().observeDistinct(viewLifecycleOwner) { authStatus ->
             if (authStatus in arrayOf(
                     AuthStatus.valid,
@@ -230,79 +240,91 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             storedIssueNumber?.let {
                 dialog.findViewById<TextView>(
                     R.id.dialog_settings_keep_number
-                )?.text = storedIssueNumber
+                )?.text = storedIssueNumber.toString()
             }
         }
     }
 
     private fun showDeleteAllIssuesDialog() {
-        context?.let { context ->
-            val dialogView = LayoutInflater.from(context)
-                .inflate(R.layout.dialog_settings_delete_all_issues, null)
-            val dialog = MaterialAlertDialogBuilder(context)
-                .setView(dialogView)
-                .setPositiveButton(android.R.string.ok, null)
-                .setNegativeButton(R.string.cancel_button, null)
-                .create()
-            dialog.show()
-            var deletionJob: Job? = null
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positiveButton.setOnClickListener {
-                dialog.setCancelable(false)
-                if (deletionJob == null) {
-                    deletionJob = CoroutineScope(Dispatchers.IO).launch {
-                        deleteAllIssuesWithProgressBar(context, dialogView)
-                        dialog.dismiss()
-                    }
+        val dialogView = LayoutInflater.from(context)
+            .inflate(R.layout.dialog_settings_delete_all_issues, null)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(R.string.cancel_button, null)
+            .create()
+        dialog.show()
+        var deletionJob: Job? = null
+        val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        positiveButton.setOnClickListener {
+            dialog.setCancelable(false)
+            if (deletionJob == null) {
+                deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                    deleteAllIssuesWithProgressBar(dialogView)
+                    dialog.dismiss()
                 }
             }
-            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-            negativeButton.setOnClickListener {
-                deletionJob?.let {
-                    val hint = "deleteAllIssues job was cancelled"
-                    log.warn(hint)
-                    it.cancel(hint)
-                }
-                dialog.dismiss()
+        }
+        val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        negativeButton.setOnClickListener {
+            deletionJob?.let {
+                val hint = "deleteAllIssues job was cancelled"
+                log.warn(hint)
+                it.cancel(hint)
             }
+            dialog.dismiss()
         }
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
-        context: Context,
         dialogView: View
-    ) {
+    ) = withContext(Dispatchers.Main) {
+        var counter = 0
         val deletionProgress =
             dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
         val deletionProgressText =
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-        val issueStubList = IssueRepository.getInstance(context).getAllIssueStubs()
-        withContext(Dispatchers.Main) {
-            deletionProgress.visibility = View.VISIBLE
-            deletionProgress.progress = 0
-            deletionProgress.max = issueStubList.size
+        val issueStubList = withContext(Dispatchers.IO) {
+            issueRepository.getAllIssueStubs()
         }
-        issueStubList.forEachIndexed { index, issueStub ->
-            withContext(Dispatchers.Main) {
-                deletionProgress.progress = index + 1
-                deletionProgressText.visibility = View.VISIBLE
+
+
+        deletionProgress.visibility = View.VISIBLE
+        deletionProgress.progress = 0
+        deletionProgress.max = issueStubList.size
+        deletionProgressText.visibility = View.VISIBLE
+        deletionProgressText.text = getString(
+            R.string.settings_delete_progress_text,
+            counter,
+            deletionProgress.max
+        )
+
+        for (issueStub in issueStubList) {
+            try {
+
+                contentService.deleteIssue(issueStub.issueKey)
+                counter++
+                deletionProgress.progress = counter
                 deletionProgressText.text = getString(
                     R.string.settings_delete_progress_text,
-                    index + 1,
+                    counter,
                     deletionProgress.max
                 )
+            } catch (e: CacheOperationFailedException) {
+                val hint = "Error while deleting ${issueStub.issueKey}"
+                log.error(hint)
+                e.printStackTrace()
+                Sentry.captureException(e, hint)
+                toastHelper.showSomethingWentWrongToast()
+                break
             }
-            DataService.getInstance(context).ensureDeleted(
-                IssueRepository.getInstance(context).getIssue(issueStub)
-            )
-            IssueRepository.getInstance(context)
-                .delete(IssueRepository.getInstance(context).getIssue(issueStub))
         }
     }
 
     private fun inflateExperimentalOptions() {
         val experimentalContainer = view?.findViewById<FrameLayout>(R.id.experimental_container)
-        val experimentalOptionsView = layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
+        val experimentalOptionsView =
+            layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
         experimentalOptionsView.findViewById<TextView>(R.id.expirimental_search_button)
             .setOnClickListener {
                 startActivity(
@@ -314,10 +336,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
     }
 
-    private fun showStoredIssueNumber(number: String) {
+    private fun showStoredIssueNumber(number: Int) {
         storedIssueNumber = number
         val text = HtmlCompat.fromHtml(
-            getString(R.string.settings_general_keep_number_issues, number),
+            getString(R.string.settings_general_keep_number_issues, number.toString()),
             HtmlCompat.FROM_HTML_MODE_LEGACY
         )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
@@ -368,8 +390,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setStoredIssueNumber(number: Int) {
-        log.debug("setKeepNumber: $number")
-        viewModel.storedIssueNumberLiveData.postValue(number.toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            log.debug("setKeepNumber: $number")
+            viewModel.setKeepIssueNumber(number)
+        }
     }
 
     private fun disableNightMode() {
@@ -414,7 +438,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
-        val authHelper = AuthHelper.getInstance(activity?.applicationContext)
+        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
         authHelper.status.set(AuthStatus.notValid)
     }
@@ -429,8 +453,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
         } catch (e: ActivityNotFoundException) {
-            val toastHelper =
-                ToastHelper.getInstance(context)
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
         }
     }

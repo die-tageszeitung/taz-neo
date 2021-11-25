@@ -74,6 +74,11 @@ class SectionWebViewFragment :
         super.onCreate(savedInstanceState)
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
+
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         lifecycleScope.launch(Dispatchers.IO) {
             // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
             withContext(Dispatchers.Main) { viewModel }
@@ -81,10 +86,6 @@ class SectionWebViewFragment :
                 sectionRepository.get(sectionFileName)
             )
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
@@ -94,18 +95,20 @@ class SectionWebViewFragment :
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub = withContext(Dispatchers.IO) { displayable.getIssueStub() }
+                val issueStub =
+                    withContext(Dispatchers.IO) { displayable.getIssueStub(requireContext().applicationContext) }
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
                 toolbar?.removeAllViews()
 
                 // The first page of the weekend taz should not display the title but the date instead
-                val layout = if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
-                    R.layout.fragment_webview_header_title_weekend_section
-                } else {
-                    R.layout.fragment_webview_header_section
-                }
+                val layout =
+                    if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                        R.layout.fragment_webview_header_title_weekend_section
+                    } else {
+                        R.layout.fragment_webview_header_section
+                    }
 
                 val headerView =
                     LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
@@ -117,7 +120,7 @@ class SectionWebViewFragment :
                         val weekendTypefaceFile =
                             weekendTypefaceFileEntry?.let(storageService::getFile)
                         weekendTypefaceFile?.let {
-                            FontHelper.getInstance(context?.applicationContext)
+                            FontHelper.getInstance(requireContext().applicationContext)
                                 .getTypeFace(it)
                         }
                     }

@@ -1,6 +1,5 @@
 package de.taz.app.android.ui
 
-import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.util.TypedValue
@@ -15,10 +14,15 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.*
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
@@ -36,23 +40,24 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
+    private lateinit var contentService: ContentService
     private lateinit var dataService: DataService
-    private lateinit var preferences: SharedPreferences
 
+    private var downloadErrorShown = false
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
-    protected val sectionDrawerViewModel: SectionDrawerViewModel by viewModels()
+    private val sectionDrawerViewModel: SectionDrawerViewModel by viewModels()
 
-    protected var viewerFragment: Fragment? = null
+    private var viewerFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        preferences = getSharedPreferences(PREFERENCES_GENERAL, MODE_PRIVATE)
         storageService = StorageService.getInstance(applicationContext)
         dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
 
         // supportFragmentManager recovers state by itself
         if (savedInstanceState == null) {
@@ -122,13 +127,17 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
             lifecycleScope.launch(Dispatchers.IO) {
-                val baseUrl = dataService.getResourceInfo(retryOnFailure = true).resourceBaseUrl
+                val resourceInfo = contentService.downloadMetadata(
+                    ResourceInfoKey(-1),
+                    maxRetries = -1 // Retry indefinitely
+                ) as ResourceInfo
+                val baseUrl = resourceInfo.resourceBaseUrl
                 if (it != null) {
-                    dataService.ensureDownloaded(FileEntry(it), baseUrl)
+                    contentService.downloadSingleFileIfNotDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
                     imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
-                        dataService.ensureDownloaded(FileEntry(image), baseUrl)
+                        contentService.downloadSingleFileIfNotDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
                             image
                         )

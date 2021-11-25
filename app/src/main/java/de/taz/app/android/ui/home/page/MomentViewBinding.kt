@@ -1,105 +1,93 @@
 package de.taz.app.android.ui.home.page
 
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.cover.MomentView
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
 
 class MomentViewBinding(
-    private val lifecycleOwner: LifecycleOwner,
-    private val issuePublication: IssuePublication,
+    private val fragment: Fragment,
+    momentPublication: MomentPublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener
-) : CoverViewBinding<MomentView>(
-    lifecycleOwner,
-    issuePublication,
+) : CoverViewBinding(
+    fragment,
+    momentPublication,
     dateFormat,
     glideRequestManager,
     onMomentViewActionListener
 ) {
-    private val feedRepository = FeedRepository.getInstance()
-    private val toastHelper = ToastHelper.getInstance()
-    private val storageService = StorageService.getInstance()
-    private val dataService = DataService.getInstance()
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val toastHelper = ToastHelper.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
-        val moment = dataService.getMoment(issuePublication, retryOnFailure = true)
-            ?: throw IllegalStateException("Moment for expected publication $issuePublication not found")
-        val dimension = feedRepository.get(moment.issueFeedName)
-            ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
-
-        dataService.ensureDownloaded(moment)
-
-        // refresh moment after download
-        val downloadedMoment = dataService.getMoment(issuePublication, retryOnFailure = true)
-            ?: throw IllegalStateException("Moment for expected key $issuePublication not found")
-        val momentImageUri = downloadedMoment.getMomentImage()?.let {
-            storageService.getFileUri(FileEntry(it))
-        }
-        val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
-            storageService.getFileUri(it)
-        }
-
-        val momentType = if (animatedMomentUri != null) {
-            CoverType.ANIMATED
-        } else {
-            CoverType.STATIC
-        }
-
-
-        val momentUri = when (momentType) {
-            CoverType.ANIMATED -> animatedMomentUri
-            CoverType.STATIC -> momentImageUri
-            else -> throw IllegalStateException("MomentViewDataBinding only supports ANIMATED and STATIC")
-        }
-
-        CoverViewData(
-            dataService.determineIssueKey(issuePublication),
-            DownloadStatus.pending,
-            momentType,
-            momentUri,
-            dimension
-        )
-    }
-
-
-    override fun onDownloadClicked() {
-        if (dataInitialized()) {
-            boundView?.setDownloadIconForStatus(DownloadStatus.started)
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    lifecycleOwner.lifecycleScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
+        try {
+            val moment = contentService.downloadMetadata(
+                coverPublication,
+                // Retry indefinitely
+                maxRetries = -1,
+                minStatus = authHelper.getMinStatus()
+            ) as Moment
+            val dimension = feedRepository.get(moment.issueFeedName)
+                ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
+            try {
+                contentService.downloadToCache(
+                    moment,
+                    priority = DownloadPriority.High
+                )
+            } catch (e: CacheOperationFailedException) {
+                toastHelper.showConnectionToServerFailedToast()
+            }
+            // refresh moment after download
+            val downloadedMoment =
+                contentService.downloadMetadata(
+                    coverPublication,
+                    minStatus = authHelper.getMinStatus()
+                ) as Moment
+            val momentImageUri = downloadedMoment.getMomentImage()?.let {
+                storageService.getFileUri(FileEntry(it))
+            }
+            val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
+                storageService.getFileUri(it)
             }
 
-            CoroutineScope(Dispatchers.IO).launch {
-                // we refresh the issue from network, as the cache might be pretty stale at this point (issues might be edited after release)
-                val issue = dataService.getIssue(
-                    issuePublication,
-                    retryOnFailure = true,
-                    allowCache = false,
-                    forceUpdate = true,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
-                dataService.ensureDownloaded(
-                    collection = issue,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
+            val momentType = if (animatedMomentUri != null) {
+                CoverType.ANIMATED
+            } else {
+                CoverType.STATIC
             }
+
+
+            val momentUri = when (momentType) {
+                CoverType.ANIMATED -> animatedMomentUri
+                CoverType.STATIC -> momentImageUri
+                else -> throw IllegalStateException("MomentViewDataBinding only supports ANIMATED and STATIC")
+            }
+
+            CoverViewData(
+                momentType,
+                momentUri,
+                dimension
+            )
+        } catch (e: CacheOperationFailedException) {
+            val hint =
+                "Error downloading metadata or cover content while binding cover for $coverPublication"
+            throw CoverBindingException(hint, e)
         }
     }
 }

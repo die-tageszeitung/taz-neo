@@ -18,8 +18,10 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
-import de.taz.app.android.download.DownloadService
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -28,6 +30,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showConnectionErrorDialog
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
@@ -46,9 +49,9 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     abstract val nestedScrollViewId: Int
 
     private lateinit var apiService: ApiService
-    private lateinit var downloadService: DownloadService
     private lateinit var storageService: StorageService
     private lateinit var dataService: DataService
+    private lateinit var contentService: ContentService
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
 
@@ -105,7 +108,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
-        downloadService = DownloadService.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
         dataService = DataService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
@@ -135,7 +138,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             log.debug("Received a new displayable ${it.key}")
             lifecycleScope.launch(Dispatchers.Main) {
                 withContext(Dispatchers.IO) {
-                    currentIssueKey = it.getIssueStub()?.issueKey
+                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
                 }
                 configureWebView()
                 ensureDownloadedAndShow()
@@ -157,7 +160,10 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
         web_view?.apply {
-            webViewClient = AppWebViewClient(this@WebViewFragment)
+            webViewClient = AppWebViewClient(
+                requireContext().applicationContext,
+                this@WebViewFragment
+            )
             webChromeClient = AppWebChromeClient(::onPageRendered)
             settings.apply {
                 allowFileAccess = true
@@ -184,7 +190,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
                     dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
-            activity?.runOnUiThread {
+            withContext(Dispatchers.Main) {
                 viewModel.scrollPosition?.let {
                     scrollView?.scrollY = it
                 } ?: run {
@@ -217,31 +223,21 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
         web_view?.destroy()
     }
 
-    private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.IO) {
-        var resourceInfo = dataService.getResourceInfo()
-        if (!isResourceInfoUpToDate(resourceInfo)) {
-            log.debug("ResourceInfo is outdated - request newest")
-            resourceInfo = dataService.getResourceInfo(allowCache = false, retryOnFailure = true)
-        }
-
-        dataService.ensureDownloaded(resourceInfo,
-            skipIntegrityCheck = true,
-            onConnectionFailure = {
-                toastHelper.showNoConnectionToast()
-            })
-
+    private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.Main) {
         viewModel.displayable?.let { displayable ->
-            dataService.ensureDownloaded(
-                displayable,
-                skipIntegrityCheck = true,
-                onConnectionFailure = {
-                    toastHelper.showNoConnectionToast()
-                })
-            val displayableFile = fileEntryRepository.get(displayable.key)
-            val path = displayableFile?.let {
-                storageService.getFileUri(it)
+            log.info("Displayable is $displayable")
+            try {
+                contentService.downloadToCache(displayable, priority = DownloadPriority.High)
+                val displayableFile = withContext(Dispatchers.IO) {
+                    fileEntryRepository.get(displayable.key)
+                }
+                val path = displayableFile?.let {
+                    storageService.getFileUri(it)
+                }
+                path?.let { loadUrl(it) }
+            } catch (e: CacheOperationFailedException) {
+                issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             }
-            path?.let { loadUrl(it) }
         }
     }
 
@@ -263,7 +259,7 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
      */
     private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean =
         withContext(Dispatchers.IO) {
-            val issue = viewModel.displayable?.getIssueStub()
+            val issue = viewModel.displayable?.getIssueStub(requireContext().applicationContext)
             resourceInfo?.let {
                 val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
                 minResourceVersion <= resourceInfo.resourceVersion

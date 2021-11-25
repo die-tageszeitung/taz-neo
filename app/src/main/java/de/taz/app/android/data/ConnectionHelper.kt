@@ -8,31 +8,54 @@ import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 const val MAX_CONNECTION_CHECK_INTERVAL = 30000L
 const val BACK_OFF_FACTOR = 2f
 
+data class WaitingCall(
+    val continuation: Continuation<Unit>,
+    val maxRetries: Int
+)
+
 @Mockable
 abstract class ConnectionHelper {
     val log by Log
 
-    private val waitingCalls = ConcurrentLinkedQueue<Continuation<Unit>>()
+    private val waitingCalls = ConcurrentLinkedQueue<WaitingCall>()
 
-    private var isCurrentlyReachable = true
+    private var failedAttempts = 0
+    private val isCurrentlyReachable
+        get() = failedAttempts == 0
     private var backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
+
 
     private var connectivityCheckJob: Job? = null
 
-    suspend fun <T> retryOnConnectivityFailure(onConnectionFailure: suspend () -> Unit = {}, block: suspend () -> T): T {
+    suspend fun <T> retryOnConnectivityFailure(
+        onConnectionFailure: suspend () -> Unit = {},
+        maxRetries: Int = -1,
+        block: suspend () -> T
+    ): T {
         while (true) {
             try {
                 return block()
             } catch (e: ConnectivityException.Recoverable) {
                 onConnectionFailure()
-                isCurrentlyReachable = false
                 ensureConnectivityCheckRunning()
-                suspendCoroutine<Unit> { continuation -> waitingCalls.offer(continuation) }
+                if (maxRetries > -1 && failedAttempts >= maxRetries) {
+                    throw ConnectivityException.Recoverable("Maximum retries exceeded", e)
+                } else {
+                    suspendCoroutine<Unit> { continuation ->
+                        waitingCalls.offer(
+                            WaitingCall(
+                                continuation,
+                                maxRetries
+                            )
+                        )
+                    }
+                }
             }
         }
     }
@@ -46,17 +69,33 @@ abstract class ConnectionHelper {
     }
 
     private suspend fun tryForConnectivity() {
-        while (!isCurrentlyReachable) {
+        do {
+            failedAttempts++
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
-            isCurrentlyReachable = checkConnectivity()
-        }
+            if (!checkConnectivity()) {
+                failedAttempts++
+                // Signal all waiting calls if they maximum retry limit is reached
+                for (call in waitingCalls) {
+                    if (call.maxRetries > -1 && call.maxRetries >= failedAttempts) {
+                        call.continuation.resumeWithException(ConnectivityException.Recoverable(
+                            "Maximum retries amount exceeded"
+                        ))
+                        waitingCalls.remove(call)
+                    }
+                }
+            } else {
+                failedAttempts = 0
+            }
+
+        } while (!isCurrentlyReachable)
+
         resetBackOffTime()
         log.debug("Connection recovered, resuming ${waitingCalls.size} calls")
         waitingCalls.forEach {
             try {
-                it.resume(Unit)
+                it.continuation.resume(Unit)
             } catch (e: IllegalStateException) {
                 log.warn("Connection helper tried to resume Job twice")
             }

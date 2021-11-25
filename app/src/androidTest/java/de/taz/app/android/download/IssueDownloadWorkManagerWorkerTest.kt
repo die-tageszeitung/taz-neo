@@ -7,10 +7,13 @@ import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.Cycle
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
+import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
@@ -25,6 +28,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -65,14 +69,22 @@ class IssueDownloadWorkManagerWorkerTest {
     private lateinit var mockDataService: DataService
 
     @Mock
-    private lateinit var mockDownloadService: DownloadService
+    private lateinit var mockApiService: ApiService
+
+    @Mock
+    private lateinit var mockContentService: ContentService
+
+    @Mock
+    private lateinit var mockDownloadScheduler: DownloadScheduler
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         executor = Executors.newSingleThreadExecutor()
         DataService.inject(mockDataService)
-        DownloadService.inject(mockDownloadService)
+        ApiService.inject(mockApiService)
+        ContentService.inject(mockContentService)
+        DownloadScheduler.inject(mockDownloadScheduler)
     }
 
     @After
@@ -81,16 +93,40 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Test
     fun scheduleDownloadWithoutPoll() = runBlocking {
-        `when`(mockDataService.getFeedByName(any(String::class.java), eq(true), eq(false))).thenReturn(
+        `when`(
+            mockDataService.getFeedByName(
+                any(String::class.java),
+                eq(true),
+                eq(false)
+            )
+        ).thenReturn(
             oldFeedMock
         )
-        `when`(mockDataService.getFeedByName(any(String::class.java), eq(false), eq(false))).thenReturn(
+
+        `when`(
+            mockDataService.getFeedByName(
+                any(String::class.java),
+                eq(false),
+                eq(false)
+            )
+        ).thenReturn(
             newFeedMock
         )
-        `when`(mockDataService.getIssue(any(IssuePublication::class.java), eq(false), eq(false), eq(false), eq(false))).thenReturn(
-            IssueTestUtil.getIssue()
+
+        `when`(
+            mockApiService.getIssueByPublication(
+                any(IssuePublication::class.java)
+            )
+        ).thenReturn(
+            TestDataUtil.getIssue()
         )
-        `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
+
+        `when`(
+            mockApiService.getMomentByFeedAndDate(
+                any(String::class.java),
+                any(Date::class.java)
+            )
+        ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
         )
 
@@ -103,7 +139,7 @@ class IssueDownloadWorkManagerWorkerTest {
             worker.doWork()
         }
 
-        verify(mockDownloadService, times(0)).scheduleNewestIssueDownload(
+        verify(mockDownloadScheduler, times(0)).scheduleNewestIssueDownload(
             any(String::class.java),
             any(Boolean::class.java),
             any(Long::class.java)
@@ -113,10 +149,15 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Test
     fun pollNewIssue() = runBlocking {
-        `when`(mockDataService.refreshFeedAndGetIssueIfNew(any(String::class.java))).thenReturn(
-            IssueTestUtil.getIssue()
+        `when`(mockDataService.refreshFeedAndGetIssueKeyIfNew(any(String::class.java))).thenReturn(
+            TestDataUtil.getIssue().issueKey
         )
-        `when`(mockDataService.getMoment(any(IssuePublication::class.java), eq(true), eq(false))).thenReturn(
+        `when`(
+            mockApiService.getMomentByFeedAndDate(
+                any(String::class.java),
+                any(Date::class.java)
+            )
+        ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
         )
 
@@ -132,7 +173,7 @@ class IssueDownloadWorkManagerWorkerTest {
         val nextPollDelay = NewIssuePollingScheduler.getDelayForNextPoll()
 
         assert(nextPollDelay > 0)
-        verify(mockDownloadService).scheduleNewestIssueDownload(
+        verify(mockDownloadScheduler).scheduleNewestIssueDownload(
             any(String::class.java),
             eq(true),
             any(Long::class.java)

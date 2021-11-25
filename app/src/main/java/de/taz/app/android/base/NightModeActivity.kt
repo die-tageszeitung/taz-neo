@@ -1,6 +1,7 @@
 package de.taz.app.android.base
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -9,7 +10,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class NightModeActivity(layoutId: Int? = null) : BaseActivity(layoutId) {
+@Deprecated(
+    message = "To make use of ViewBindings use NightModeViewBindingActivity instead",
+    replaceWith = ReplaceWith(
+        "NightModeViewBindingActivity",
+        imports = ["de.taz.app.android.base.NightModeViewBindingActivity"]
+    )
+)
+abstract class NightModeActivity(layoutId: Int) : AppCompatActivity(layoutId) {
 
     private val tazApiCssDataStore by lazy {
         TazApiCssDataStore.getInstance(applicationContext)

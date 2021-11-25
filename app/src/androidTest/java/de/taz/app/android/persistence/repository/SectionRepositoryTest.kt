@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.IssueTestUtil
+import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
@@ -24,7 +24,7 @@ class SectionRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
-    private val issue = IssueTestUtil.getIssue()
+    private val issue = TestDataUtil.getIssue()
     private val sections = issue.sectionList
     private val section = sections.first()
 
@@ -35,13 +35,13 @@ class SectionRepositoryTest {
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
         ).build()
-        val fileEntryRepository = FileEntryRepository.createInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
 
-        val articleRepository = ArticleRepository.createInstance(context)
+        val articleRepository = ArticleRepository.getInstance(context)
         articleRepository.appDatabase = db
 
-        val imageRepository = ImageRepository.createInstance(context)
+        val imageRepository = ImageRepository.getInstance(context)
         imageRepository.appDatabase = db
 
         sectionRepository = SectionRepository.getInstance(context)

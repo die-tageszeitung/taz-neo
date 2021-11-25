@@ -18,8 +18,12 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
@@ -28,13 +32,14 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.home.page.CoverViewActionListener
-import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import de.taz.app.android.util.showIssueDownloadFailedDialog
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.android.synthetic.main.fragment_drawer_sections.*
 import kotlinx.android.synthetic.main.view_cover.*
@@ -70,6 +75,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private lateinit var fontHelper: FontHelper
     private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var contentService: ContentService
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
     private lateinit var feedRepository: FeedRepository
@@ -86,6 +92,7 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        contentService = ContentService.getInstance(context.applicationContext)
         fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         sectionRepository = SectionRepository.getInstance(context.applicationContext)
@@ -206,14 +213,16 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
             val issueStub =
-                withContext(Dispatchers.IO) { dataService.getIssueStub(IssuePublication(issueKey)) }
-            currentIssueStub = issueStub
+                    contentService.downloadMetadata(
+                        IssuePublication(issueKey)
+                    ) as Issue
+            currentIssueStub = IssueStub(issueStub)
             moment_container.setOnClickListener {
-                finishAndShowIssue(currentIssueStub.issueKey)
+                finishAndShowIssue(IssuePublication(currentIssueStub.issueKey))
             }
 
-            setMomentDate(issueStub)
-            showMoment(issueStub)
+            setMomentDate(currentIssueStub)
+            showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
 
             val sections = withContext(Dispatchers.IO) {
                 sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
@@ -296,44 +305,51 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onSaveInstanceState(outState)
     }
 
-    private fun finishAndShowIssue(issueKey: IssueKey) {
+    private fun finishAndShowIssue(issuePublication: IssuePublication) {
         Intent(requireActivity(), MainActivity::class.java).apply {
-            putExtra(MainActivity.KEY_ISSUE_KEY, issueKey)
+            putExtra(MainActivity.KEY_ISSUE_PUBLICATION, issuePublication)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(this)
             requireActivity().finish()
         }
     }
 
-    private suspend fun showMoment(issueStub: IssueStub?) = withContext(Dispatchers.IO) {
-        val moment = issueStub?.let { momentRepository.get(it) }
-        moment?.apply {
-            withContext(Dispatchers.Main) {
+    private suspend fun showMoment(momentPublication: MomentPublication?) =
+        withContext(Dispatchers.Main) {
+            if (momentPublication == null) {
                 momentBinder?.unbind()
+                return@withContext
             }
-            if (!isDownloaded()) {
-                dataService.ensureDownloaded(moment)
+            val moment = try {
+                contentService.downloadMetadata(momentPublication) as Moment
+            } catch (e: CacheOperationFailedException) {
+                val hint = "Cache miss and failed download for moment $momentPublication"
+                log.error(hint)
+                Sentry.captureException(e, hint)
+                return@withContext
             }
-            val feed = feedRepository.get(issueStub.feedName)
-            momentBinder = MomentViewBinding(
-                this@SectionDrawerFragment,
-                IssuePublication(feed!!.name, issueStub.date),
-                DateFormat.LongWithoutWeekDay,
-                Glide.with(this@SectionDrawerFragment),
-                object : CoverViewActionListener {
-                    override fun onImageClicked(momentViewData: CoverViewData) {
-                        finishAndShowIssue(issueStub.issueKey)
+            try {
+                contentService.downloadToCache(moment)
+                momentBinder = MomentViewBinding(
+                    this@SectionDrawerFragment,
+                    momentPublication,
+                    DateFormat.LongWithoutWeekDay,
+                    Glide.with(this@SectionDrawerFragment),
+                    object : CoverViewActionListener {
+                        override fun onImageClicked(coverPublication: AbstractCoverPublication) {
+                            finishAndShowIssue(
+                                IssuePublication(coverPublication)
+                            )
+                        }
                     }
-                }
-            )
-            withContext(Dispatchers.Main) {
+                )
                 momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
                 fragment_moment_date.visibility = View.GONE
+
+            } catch (e: CacheOperationFailedException) {
+                requireActivity().showIssueDownloadFailedDialog(moment.issueKey)
             }
-        } ?: run {
-            momentBinder?.unbind()
         }
-    }
 
 
     private fun showImprint() {

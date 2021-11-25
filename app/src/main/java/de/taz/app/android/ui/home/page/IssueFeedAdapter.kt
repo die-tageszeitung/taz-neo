@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.repository.AbstractIssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.FrontpagePublication
+import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateFormat
 import java.util.*
@@ -19,8 +19,6 @@ enum class CoverType {
 }
 
 data class CoverViewData(
-    val issueKey: AbstractIssueKey,
-    val downloadStatus: DownloadStatus,
     val momentType: CoverType,
     val momentUri: String?,
     val dimension: String
@@ -75,13 +73,14 @@ abstract class IssueFeedAdapter(
      * ViewHolder for this Adapter
      */
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        private var binder: CoverViewBinding<*>? = null
+        private var binder: CoverViewBinding? = null
 
         fun bind(fragment: IssueFeedFragment, date: Date) {
-            binder = if (fragment.viewModel.pdfMode.value == true) {
+
+            binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
                     fragment,
-                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    FrontpagePublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
                     onMomentViewActionListener
@@ -89,7 +88,7 @@ abstract class IssueFeedAdapter(
             } else {
                 MomentViewBinding(
                     fragment,
-                    IssuePublication(feed.name, simpleDateFormat.format(date)),
+                    MomentPublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
                     onMomentViewActionListener

@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
@@ -115,7 +116,10 @@ class ArticlePagerFragment : BaseMainFragment(
             val nextStub =
                 (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
             if (lastPage != null && lastPage != position) {
-                hasBeenSwiped = true
+                // if position has been changed by 1 (swipe to left or right)
+                if (abs(position - lastPage!!) ==1) {
+                    hasBeenSwiped = true
+                }
                 runIfNotNull(
                     issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                     nextStub
@@ -139,7 +143,7 @@ class ArticlePagerFragment : BaseMainFragment(
                     nextStub.onlineLink != null
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = nextStub.isBookmarkedLiveData()
+                isBookmarkedLiveData = nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
             }
@@ -159,12 +163,13 @@ class ArticlePagerFragment : BaseMainFragment(
         getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-                articleStub.getSectionStub(null)
+                articleStub.getSectionStub(requireContext().applicationContext)
             ) { issueKey, sectionStub ->
                 issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey(issueKey, sectionStub.key))
                 true
             }
         } ?: false
+        false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {

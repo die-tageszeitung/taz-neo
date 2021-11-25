@@ -2,15 +2,11 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import android.os.Environment
-import de.taz.app.android.PUBLIC_FOLDER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.interfaces.FileEntryOperations
-import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.api.models.GLOBAL_FOLDER
-import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.api.interfaces.*
+import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.SingletonHolder
@@ -38,7 +34,6 @@ class StorageService private constructor(private val applicationContext: Context
             val folder = when (storable.storageType) {
                 StorageType.global -> GLOBAL_FOLDER
                 StorageType.resource -> RESOURCE_FOLDER
-                StorageType.public -> PUBLIC_FOLDER
                 StorageType.issue -> {
                     if (issueKey == null) {
                         throw IllegalStateException("Determining the file path of an issue file requires issueKey to be non-null")

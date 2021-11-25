@@ -1,7 +1,10 @@
 package de.taz.app.android.api.interfaces
 
 import android.content.Context
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import java.util.*
@@ -24,18 +27,17 @@ interface IssueOperations: DownloadableStub {
     val tag: String
         get() = "$feedName/$date/$status"
 
-    val issueKey: IssueKey
-        get() = IssueKey(feedName, date, status)
+    val issueKey: AbstractIssueKey
 
     override fun getDownloadTag(): String {
         return tag
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return IssueRepository.getInstance(context).getDownloadDate(this@IssueOperations)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return IssueRepository.getInstance(applicationContext).getDownloadDate(this@IssueOperations)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        return IssueRepository.getInstance(context).setDownloadDate(this@IssueOperations, date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        return IssueRepository.getInstance(applicationContext).setDownloadDate(this@IssueOperations, date)
     }
 }

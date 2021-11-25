@@ -9,12 +9,14 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
@@ -67,6 +69,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         applicationContext.authDataStore
     )
 
+    private val contentService by lazy { ContentService.getInstance(applicationContext) }
     private val dataService by lazy { DataService.getInstance(applicationContext) }
     private val articleRepository by lazy { ArticleRepository.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
@@ -88,7 +91,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
     )
 
-    val status = MappingDataStoreEntry(
+    final val status = MappingDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_STATUS), AuthStatus.notValid,
         { authStatus -> authStatus.name }, { string -> AuthStatus.valueOf(string) }
     )
@@ -100,8 +103,12 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid
 
-    suspend fun getEligibleIssueStatus() =
+    suspend fun getMinStatus() =
         if (isLoggedIn()) IssueStatus.regular else IssueStatus.public
+
+    val minStatusLiveData = status.asLiveData().map {
+        if (it == AuthStatus.valid) IssueStatus.regular else IssueStatus.public
+    }
 
     private var deletionJob: Job? = null
 
@@ -157,11 +164,11 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue {
-        return dataService.getIssue(
+        return contentService.downloadMetadata(
             IssuePublication(
                 articleStub.issueFeedName,
                 articleStub.issueDate
             )
-        )
+        ) as Issue
     }
 }

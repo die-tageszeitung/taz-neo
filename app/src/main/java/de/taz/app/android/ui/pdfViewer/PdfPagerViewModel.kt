@@ -4,43 +4,57 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.api.models.PageType
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 const val DEFAULT_NUMBER_OF_PAGES = 29
 const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
 
+enum class SwipeEvent {
+    LEFT, RIGHT
+}
+
 class PdfPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
+    private val dataService = DataService.getInstance(application)
+    private val contentService: ContentService =
+        ContentService.getInstance(application.applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(application)
+    private val imageRepository = ImageRepository.getInstance(application)
+    private val authHelper = AuthHelper.getInstance(application)
 
-    private val dataService: DataService = DataService.getInstance(application.applicationContext)
-    private val storageService: StorageService =
-        StorageService.getInstance(application.applicationContext)
-    private val imageRepository: ImageRepository =
-        ImageRepository.getInstance(application.applicationContext)
-    private val toastHelper = ToastHelper.getInstance(application.applicationContext)
-    private val fileEntryRepository = FileEntryRepository.getInstance()
 
-    val issueKey = MutableLiveData<IssueKeyWithPages>()
+    val issuePublication = MutableLiveData<IssuePublicationWithPages>()
+    val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
+        addSource(issuePublication) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val issue = contentService.downloadMetadata(it) as IssueWithPages
+                postValue(issue.issueKey)
+            }
+        }
+    }
     val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
+
+    val issueDownloadFailedErrorFlow = MutableStateFlow(false)
+    val swipePageFlow = MutableSharedFlow<SwipeEvent>(0)
 
     private val _currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
     val currentItem = _currentItem as LiveData<Int>
@@ -63,57 +77,34 @@ class PdfPagerViewModel(
 
     private val log by Log
 
-    val pdfPageList = MediatorLiveData<List<PdfPageList>>().apply {
-        addSource(issueKey) { issueKey ->
-            var noConnectionShown = false
-            fun onConnectionFailure() {
-                if (!noConnectionShown) {
-                    viewModelScope.launch {
-                        toastHelper.showNoConnectionToast()
-                        noConnectionShown = true
-                    }
-                }
-            }
+    val pdfPageList = MediatorLiveData<List<Page>>().apply {
+        addSource(issuePublication) { issuePublication ->
             viewModelScope.launch(Dispatchers.IO) {
-                val issue = dataService.getIssue(
-                    IssuePublication(issueKey),
-                    retryOnFailure = true,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
-                // Get latest shown page and set it before setting the issue
-                updateCurrentItem(issue.lastPagePosition ?: 0)
-                val pdfIssue = IssueWithPages(issue)
-                val pdfIssueKey = IssueKeyWithPages(pdfIssue.issueKey)
-                // Update view models' issueKey if it has a different status (maybe it is a demo/regular issue)
-                if (pdfIssueKey.status != issueKey.status) {
-                    this@PdfPagerViewModel.issueKey.postValue(IssueKeyWithPages(pdfIssue.issueKey))
-                }
-                dataService.ensureDownloaded(
-                    pdfIssue,
-                    onConnectionFailure = { onConnectionFailure() }
-                )
+                try {
+                    issueDownloadFailedErrorFlow.emit(false)
+                    val issue = contentService.downloadMetadata(
+                        issuePublication,
+                        minStatus = authHelper.getMinStatus()
+                    ) as IssueWithPages
+                    // Get latest shown page and set it before setting the issue
+                    updateCurrentItem(issue.lastPagePosition ?: 0)
 
-                navButton.postValue(
-                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                )
+                    contentService.downloadToCache(issuePublication)
 
-                if (pdfIssue.isDownloaded()) {
-                    postValue(pdfIssue.pageList.map {
-                        val file = fileEntryRepository.get(it.pagePdf.name)?.let { fileEntry ->
-                            storageService.getFile(fileEntry)
+                    navButton.postValue(
+                        imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                    )
+                    // as we do not know before downloading where we stored the fileEntry
+                    // and the fileEntry storageLocation is in the model - get it freshly from DB
+                    postValue(
+                        issue.pageList.map {
+                            it.copy(pagePdf = requireNotNull(
+                                fileEntryRepository.get(it.pagePdf.name)
+                            ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
                         }
-                        PdfPageList(
-                            file!!,
-                            it.frameList ?: emptyList(),
-                            it.title ?: "",
-                            it.pagina ?: "",
-                            it.type ?: PageType.left
-                        )
-                    })
-                } else {
-                    val hint = "Something went wrong downloading issue with its pdfs"
-                    log.warn(hint)
-                    Sentry.captureMessage(hint)
+                    )
+                } catch (e: CacheOperationFailedException) {
+                    issueDownloadFailedErrorFlow.emit(true)
                 }
             }
         }
@@ -136,6 +127,7 @@ class PdfPagerViewModel(
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
-        return pdfPageList.value?.indexOfFirst { it.pdfFile.name == fileName } ?: 0
+        return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
+
 }

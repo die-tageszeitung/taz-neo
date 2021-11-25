@@ -22,7 +22,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         appDatabase.momentDao().insertOrReplace(momentStub)
     }
 
-    fun save(moment: Moment) {
+    fun save(moment: Moment): Moment {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
         fileEntryRepository.save(moment.momentList)
@@ -42,6 +42,7 @@ class MomentRepository private constructor(applicationContext: Context) :
                 MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
             }
         )
+        return get(moment.momentKey)!!
     }
 
     fun momentStubToMoment(momentStub: MomentStub): Moment {
@@ -115,16 +116,20 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun isDownloaded(momentKey: MomentKey): Boolean {
+        return getStub(momentKey.feedName, momentKey.date, momentKey.status)?.dateDownload != null
+    }
+
     fun get(issueOperations: IssueOperations): Moment? {
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    fun get(issueKey: IssueKey): Moment? {
-        return get(issueKey.feedName, issueKey.date, issueKey.status)
+    fun get(momentKey: MomentKey): Moment? {
+        return get(momentKey.feedName, momentKey.date, momentKey.status)
     }
 
-    fun exists(issueKey: IssueKey): Boolean {
-        return get(issueKey) != null
+    fun exists(momentKey: MomentKey): Boolean {
+        return get(momentKey) != null
     }
 
     fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {

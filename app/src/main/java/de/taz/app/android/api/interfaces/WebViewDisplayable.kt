@@ -1,5 +1,6 @@
 package de.taz.app.android.api.interfaces
 
+import android.content.Context
 import de.taz.app.android.api.models.IssueStub
 
 interface WebViewDisplayable: DownloadableCollection {
@@ -7,9 +8,9 @@ interface WebViewDisplayable: DownloadableCollection {
     val key: String
     val path: String
 
-    fun previous(): WebViewDisplayable?
+    fun previous(applicationContext: Context): WebViewDisplayable?
 
-    fun next(): WebViewDisplayable?
+    fun next(applicationContext: Context): WebViewDisplayable?
 
-    fun getIssueStub(): IssueStub?
+    fun getIssueStub(applicationContext: Context): IssueStub?
 }

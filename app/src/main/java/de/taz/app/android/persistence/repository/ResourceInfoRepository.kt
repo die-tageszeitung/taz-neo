@@ -23,14 +23,21 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().update(resourceInfoStub)
     }
 
-    fun save(resourceInfo: ResourceInfo) {
-        appDatabase.runInTransaction<Void> {
+    fun save(resourceInfo: ResourceInfo): ResourceInfo {
+        appDatabase.runInTransaction<Unit> {
+            val currentResourceInfo = getNewest()
+            // If the latest resource info is marked as downloaded and the new version
+            // is not different copy over the download date
+            val dateDownload = if (
+                currentResourceInfo != null &&
+                currentResourceInfo.resourceVersion == resourceInfo.resourceVersion
+            ) currentResourceInfo.dateDownload else null
             appDatabase.resourceInfoDao().insertOrReplace(
                 ResourceInfoStub(
                     resourceInfo.resourceVersion,
                     resourceInfo.resourceBaseUrl,
                     resourceInfo.resourceZip,
-                    resourceInfo.dateDownload
+                    dateDownload ?: resourceInfo.dateDownload,
                 )
             )
             // save file resourceList
@@ -43,8 +50,8 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                     ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
                 }
             )
-            null
         }
+        return getNewest()!!
     }
 
     fun getWithoutFiles(): ResourceInfoStub? {

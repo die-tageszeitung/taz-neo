@@ -6,6 +6,7 @@ import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.MomentKey
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.StorageService
 import java.util.*
@@ -56,6 +57,9 @@ data class Moment(
         null
     )
 
+    val issueKey = IssueKey(issueFeedName, issueDate, issueStatus)
+    val momentKey = MomentKey(issueFeedName, issueDate, issueStatus)
+
     private fun getImagesToDownload(): List<Image> {
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
     }
@@ -78,12 +82,12 @@ data class Moment(
         return "moment/$issueFeedName/$issueDate"
     }
 
-    override fun getDownloadDate(context: Context?): Date? {
-        return MomentRepository.getInstance(context).getDownloadDate(this@Moment)
+    override fun getDownloadDate(applicationContext: Context): Date? {
+        return MomentRepository.getInstance(applicationContext).getDownloadDate(this@Moment)
     }
 
-    override fun setDownloadDate(date: Date?, context: Context?) {
-        MomentRepository.getInstance(context).setDownloadDate(this@Moment, date)
+    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+        MomentRepository.getInstance(applicationContext).setDownloadDate(this@Moment, date)
     }
 
     fun getMomentFileToShare(): FileEntryOperations {

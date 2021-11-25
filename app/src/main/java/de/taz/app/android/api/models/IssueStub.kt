@@ -1,8 +1,11 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import de.taz.app.android.api.interfaces.IssueOperations
+import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,10 +44,12 @@ data class IssueStub(
         issue.lastDisplayableName,
         issue.lastPagePosition
     )
+    override val issueKey: IssueKey
+        get() = IssueKey(feedName, date, status)
 
-    suspend fun getIssue(): Issue {
+    suspend fun getIssue(applicationContext: Context): Issue {
         return withContext(Dispatchers.IO) {
-            IssueRepository.getInstance().getIssue(this@IssueStub)
+            IssueRepository.getInstance(applicationContext).getIssue(this@IssueStub)
         }
     }
 }

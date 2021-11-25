@@ -101,14 +101,14 @@ class ImprintWebViewFragment :
                 }
             }
 
-            val issueStub = displayable.getIssueStub()
+            val issueStub = displayable.getIssueStub(requireContext().applicationContext)
             issueStub?.apply {
                 if (isWeekend) {
                     val weekendTypefaceFileEntry =
                         fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
                     val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
                     weekendTypefaceFile?.let {
-                        FontHelper.getInstance(context?.applicationContext)
+                        FontHelper.getInstance(requireContext().applicationContext)
                             .getTypeFace(it)?.let { typeface ->
                                 withContext(Dispatchers.Main) {
                                     view?.findViewById<TextView>(R.id.section)?.typeface = typeface

@@ -2,16 +2,15 @@ package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.StartupActivity
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.settings.SettingsViewModel
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.activty_storage_migration.*
 import kotlinx.coroutines.Dispatchers
@@ -20,22 +19,24 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migration) {
+class StorageMigrationActivity : StartupActivity() {
     private val log by Log
 
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
     private lateinit var database: AppDatabase
 
-    private val settingsViewModel: SettingsViewModel by viewModels()
-
+    private lateinit var storageDataStore: StorageDataStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setContentView(R.layout.activty_storage_migration)
+
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
         database = AppDatabase.getInstance(applicationContext)
+        storageDataStore = StorageDataStore.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             migrateToSelectableStorage()
@@ -108,7 +109,7 @@ class StorageMigrationActivity : NightModeActivity(R.layout.activty_storage_migr
      */
     @SuppressLint("SetTextI18n")
     private suspend fun migrateFilesToDesiredStorage() {
-        val currentStorageLocation = settingsViewModel.storageLocationLiveData.value
+        val currentStorageLocation = storageDataStore.storageLocation.get()
         val allFilesNotOnDesiredStorage = fileEntryRepository.getExceptStorageLocation(
             listOf(currentStorageLocation, StorageLocation.NOT_STORED)
         )

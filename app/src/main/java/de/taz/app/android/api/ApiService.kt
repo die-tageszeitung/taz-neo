@@ -7,6 +7,7 @@ import de.taz.app.android.api.dto.SearchDto
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
@@ -38,14 +39,18 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     private val connectionHelper = APIConnectionHelper(graphQlClient)
 
-
+    /**
+     * Wrap a block potentially throwing [ConnectivityException.Recoverable] in a [connectionHelper]
+     * to manage retries
+     */
     suspend fun <T> retryOnConnectionFailure(
         onConnectionFailure: suspend () -> Unit = {},
+        maxRetries: Int = -1,
         block: suspend () -> T
     ): T {
         return connectionHelper.retryOnConnectivityFailure({
             onConnectionFailure()
-        }) {
+        }, maxRetries) {
             block()
         }
     }
@@ -326,6 +331,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
+     * // TODO it seems wasteful to request a whole issue for the single purpose of getting the frontpage
      * function to get the front page of an issue by feedName and date
      * @param feedName - the name of the feed
      * @param issueDate - date of an issue
@@ -335,14 +341,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun getFrontPageByFeedAndDate(
         feedName: String = "taz",
         issueDate: Date = Date()
-    ): Page? {
+    ): Pair<Page, IssueStatus>? {
         val dateString = simpleDateFormat.format(issueDate)
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
                 issue.pageList?.firstOrNull()?.let { page ->
-                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl)
+                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl) to issue.status
                 }
             }
         }
@@ -385,10 +391,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     issueDate,
                     isAutomatically,
                     installationId = authHelper.installationId.get(),
-                    isPush = firebaseHelper.isPush()
+                    isPush = firebaseHelper.isPush(),
+                    pushToken = firebaseHelper.token.get()
                 )
             ).data?.downloadStart?.let { id ->
-                log.debug("Notified server that download started. ID: $id")
+                log.debug("Notified server that download started. ID: $id with pushToken: ${firebaseHelper.token.get()}")
                 id
             }
         }
@@ -608,20 +615,20 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         } ?: emptyList()
     }
 
-    suspend fun getIssueByPublication(issuePublication: IssuePublication): Issue =
+    suspend fun getIssueByPublication(issuePublication: AbstractIssuePublication): Issue =
         withContext(Dispatchers.IO) {
             transformToConnectivityException {
                 val issues = graphQlClient.query(
                     QueryType.IssueByFeedAndDate,
                     IssueVariables(
                         issueDate = issuePublication.date,
-                        feedName = issuePublication.feed,
+                        feedName = issuePublication.feedName,
                         limit = 1
                     )
                 )
 
                 issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                    Issue(issuePublication.feed, it)
+                    Issue(issuePublication.feedName, it)
                 }
             } ?: throw NotFoundException()
         }

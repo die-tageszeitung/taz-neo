@@ -23,7 +23,7 @@ class AppInfoRepositoryTest {
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        appInfoRepository = AppInfoRepository.createInstance(context)
+        appInfoRepository = AppInfoRepository.getInstance(context)
         appInfoRepository.appDatabase = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java).build()
     }
