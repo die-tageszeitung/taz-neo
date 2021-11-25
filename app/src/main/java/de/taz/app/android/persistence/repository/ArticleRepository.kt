@@ -17,7 +17,7 @@ import java.lang.Exception
 import java.util.*
 
 @Mockable
-class ArticleRepository private constructor(applicationContext: Context) :
+class ArticleRepository(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)
 

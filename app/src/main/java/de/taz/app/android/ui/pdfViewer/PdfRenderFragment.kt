@@ -15,16 +15,13 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.NotFoundException
-import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -144,14 +141,29 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
-                            requireActivity().supportFragmentManager.beginTransaction()
-                                .add(
-                                    R.id.activity_pdf_fragment_placeholder,
-                                    ArticlePagerFragment(),
-                                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-                                )
-                                .addToBackStack(null)
-                                .commit()
+                            val article = withContext(Dispatchers.IO) {
+                                ArticleRepository(requireContext()).get(link)
+                            }
+                            log.debug("isArticle imprint? ${article?.isImprint()}")
+                            if (article?.isImprint() == true) {
+                                requireActivity().supportFragmentManager.beginTransaction()
+                                    .add(
+                                        R.id.activity_pdf_fragment_placeholder,
+                                        ImprintWebViewFragment(),
+                                        ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+                                    )
+                                    .addToBackStack(null)
+                                    .commit()
+                            } else {
+                                requireActivity().supportFragmentManager.beginTransaction()
+                                    .add(
+                                        R.id.activity_pdf_fragment_placeholder,
+                                        ArticlePagerFragment(),
+                                        ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+                                    )
+                                    .addToBackStack(null)
+                                    .commit()
+                            }
 
                             issueContentViewModel.setDisplayable(
                                 IssueKey(issueKey),
