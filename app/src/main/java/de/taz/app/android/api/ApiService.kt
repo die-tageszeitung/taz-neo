@@ -594,8 +594,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun requestSubscriptionPassword(
         subscriptionId: Int
     ): SubscriptionResetInfo? {
-        val tag = "resetPassword"
-        log.debug("$tag email: $subscriptionId")
+        val tag = "resetPassword with subscriptionId"
+        log.debug("$tag subscriptionId: $subscriptionId")
 
         return transformToConnectivityException {
             graphQlClient.query(

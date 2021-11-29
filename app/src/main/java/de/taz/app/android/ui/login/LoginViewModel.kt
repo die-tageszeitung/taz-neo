@@ -494,6 +494,7 @@ class LoginViewModel(
     private suspend fun handleSubscriptionPassword(subscriptionId: Int) {
         try {
             val subscriptionResetInfo = apiService.requestSubscriptionPassword(subscriptionId)
+            log.debug("handleSubscriptionPassword returned: subscriptionResetInfo: $subscriptionResetInfo")
             when (subscriptionResetInfo?.status) {
                 SubscriptionResetStatus.ok ->
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
