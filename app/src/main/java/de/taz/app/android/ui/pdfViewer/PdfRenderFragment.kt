@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -15,16 +16,13 @@ import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.NotFoundException
-import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -54,6 +52,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
 
     private var pdfReaderView: MuPDFReaderView? = null
     private lateinit var issueKey: IssueKeyWithPages
+    private lateinit var articleRepository: ArticleRepository
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -69,6 +68,12 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                 requireActivity().application, requireActivity()
             )
         ).get(IssueViewerViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        articleRepository = ArticleRepository.getInstance(context)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,14 +149,21 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
+                            val article = withContext(Dispatchers.IO) {
+                                articleRepository.get(link)
+                            }
+                            val fragment =
+                                if (article?.isImprint() == true) ImprintWebViewFragment()
+                                else ArticlePagerFragment()
                             requireActivity().supportFragmentManager.beginTransaction()
                                 .add(
                                     R.id.activity_pdf_fragment_placeholder,
-                                    ArticlePagerFragment(),
+                                    fragment,
                                     ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
                                 )
                                 .addToBackStack(null)
                                 .commit()
+
 
                             issueContentViewModel.setDisplayable(
                                 IssueKey(issueKey),
