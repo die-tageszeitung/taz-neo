@@ -25,9 +25,10 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.StorageMigrationActivity
+import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.NightModeHelper
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
@@ -51,6 +52,7 @@ class SplashActivity : StartupActivity() {
     private lateinit var storageService: StorageService
     private lateinit var storageDataStore: StorageDataStore
     private lateinit var contentService: ContentService
+    private lateinit var issueRepository: IssueRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +68,7 @@ class SplashActivity : StartupActivity() {
         storageService = StorageService.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
@@ -103,9 +106,16 @@ class SplashActivity : StartupActivity() {
                     listOf(StorageLocation.NOT_STORED, currentStorageLocation)
                 )
             }
+
+
+            val publicIssuesNeedDeletion =
+                withContext(Dispatchers.IO) {
+                    (issueRepository.getAllPublicAndDemoIssueStubs().count() > 0
+                            && authHelper.getMinStatus() == IssueStatus.regular)
+                }
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
-            if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty()) {
-                Intent(this@SplashActivity, StorageMigrationActivity::class.java).apply {
+            if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
+                Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
                     startActivity(this)
                 }
             } else {

@@ -5,13 +5,20 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.android.synthetic.main.activty_storage_migration.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +26,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 
-class StorageMigrationActivity : StartupActivity() {
+class StorageOrganizationActivity : StartupActivity() {
     private val log by Log
 
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -27,6 +34,10 @@ class StorageMigrationActivity : StartupActivity() {
     private lateinit var database: AppDatabase
 
     private lateinit var storageDataStore: StorageDataStore
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var contentService: ContentService
+    private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +48,19 @@ class StorageMigrationActivity : StartupActivity() {
         storageService = StorageService.getInstance(applicationContext)
         database = AppDatabase.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             migrateToSelectableStorage()
             migrateFilesToDesiredStorage()
+
+            if (authHelper.getMinStatus() == IssueStatus.regular) {
+                deletePublicIssues()
+            }
+
             withContext(Dispatchers.Main) {
                 startActualApp()
                 finish()
@@ -157,6 +177,41 @@ class StorageMigrationActivity : StartupActivity() {
                     numeric_progress.text = "${index + 1} / $fileCount"
                 }
             }
+        }
+    }
+
+    /**
+     * This function will prune all data associated to public / demo issues
+     */
+    private suspend fun deletePublicIssues() {
+        val issueStubsToDelete = issueRepository.getAllPublicAndDemoIssueStubs()
+        val issueCount = issueStubsToDelete.size
+        log.info("Will delete $issueCount public issues")
+
+        withContext(Dispatchers.Main) {
+            description.text = getString(R.string.storage_migration_help_text_delete_issues)
+            migration_progress.progress = 0
+            migration_progress.max = issueCount
+        }
+        var count = 0
+        var errors = 0
+        for (issueStub in issueStubsToDelete) {
+            try {
+                contentService.deleteIssue(issueStub.issueKey)
+            } catch (e: CacheOperationFailedException) {
+                val hint = "Issue deleting public issues during startup storage organization"
+                log.error(hint)
+                Sentry.captureException(e, hint)
+                errors++
+            }
+            withContext(Dispatchers.Main) {
+                count++
+                migration_progress.progress = count
+                numeric_progress.text = "$count / $issueCount"
+            }
+        }
+        if (errors > 0) {
+            toastHelper.showToast(R.string.storage_migration_help_text_delete_issues_error)
         }
     }
 }
