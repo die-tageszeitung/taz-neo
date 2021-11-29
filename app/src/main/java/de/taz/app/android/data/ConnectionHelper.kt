@@ -70,7 +70,6 @@ abstract class ConnectionHelper {
 
     private suspend fun tryForConnectivity() {
         do {
-            failedAttempts++
             log.debug("Connection lost, retrying in $backOffTimeMs ms")
             delay(backOffTimeMs)
             incrementBackOffTime()
@@ -78,7 +77,7 @@ abstract class ConnectionHelper {
                 failedAttempts++
                 // Signal all waiting calls if they maximum retry limit is reached
                 for (call in waitingCalls) {
-                    if (call.maxRetries > -1 && call.maxRetries >= failedAttempts) {
+                    if (call.maxRetries > -1 && failedAttempts > call.maxRetries) {
                         call.continuation.resumeWithException(ConnectivityException.Recoverable(
                             "Maximum retries amount exceeded"
                         ))
