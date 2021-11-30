@@ -164,6 +164,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
             fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
+                if (isChecked) setDownloadEnabled(isChecked)
             }
 
             fragment_settings_delete_all_issues.setOnClickListener {
@@ -362,6 +363,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+            isEnabled = downloadsEnabled
+        }
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)?.apply {
             isEnabled = downloadsEnabled
         }
     }
