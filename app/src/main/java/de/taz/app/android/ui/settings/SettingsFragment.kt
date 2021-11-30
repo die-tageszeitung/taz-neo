@@ -162,6 +162,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+            fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
+                setPdfDownloadEnabled(isChecked)
+            }
+
             fragment_settings_delete_all_issues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
@@ -435,6 +439,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
         viewModel.setDownloadsEnabled(downloadEnabled)
+    }
+
+    private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
+        viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
