@@ -164,7 +164,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
             fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
-                if (isChecked) setDownloadEnabled(isChecked)
             }
 
             fragment_settings_delete_all_issues.setOnClickListener {
