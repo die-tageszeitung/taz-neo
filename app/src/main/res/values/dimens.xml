@@ -22,7 +22,7 @@
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
     <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
-    <dimen name="fragment_drawer_date_margin_bottom">9dp</dimen>
+    <dimen name="fragment_drawer_date_margin_bottom">-3dp</dimen>
 
     <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_x">-5dp</dimen>
