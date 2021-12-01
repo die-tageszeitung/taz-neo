@@ -9,5 +9,5 @@
     <dimen name="fragment_webview_section_margin_top">30dp</dimen>
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
     <dimen name="drawer_width">390dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">23sp</dimen>
+    <dimen name="fragment_drawer_sections_item_text_size">23dp</dimen>
 </resources>

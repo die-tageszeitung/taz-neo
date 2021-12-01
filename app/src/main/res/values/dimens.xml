@@ -116,7 +116,7 @@
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">22sp</dimen>
+    <dimen name="fragment_drawer_sections_item_text_size">22dp</dimen>
     <dimen name="fragment_drawer_separator_line_height">0.25dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
