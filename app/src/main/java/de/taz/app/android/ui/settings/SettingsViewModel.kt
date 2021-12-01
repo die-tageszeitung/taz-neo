@@ -63,6 +63,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setPdfDownloadsEnabled(enabled: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.pdfAdditionally.set(enabled)
+        }
+    }
+
     fun resetFontSize() {
         CoroutineScope(Dispatchers.IO).launch {
             tazApiCssDataStore.fontSize.reset()

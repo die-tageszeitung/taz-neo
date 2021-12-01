@@ -14,6 +14,7 @@ private const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 // region setting keys
 private const val ONLY_WIFI = "download_only_wifi"
 private const val ENABLED = "download_enabled"
+private const val PDF_ADDITIONALLY = "download_pdf_additionally"
 // endregion
 
 private val Context.downloadDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -35,6 +36,8 @@ class DownloadDataStore private constructor(applicationContext: Context) {
     companion object : SingletonHolder<DownloadDataStore, Context>(::DownloadDataStore)
 
     val enabled = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ENABLED), true)
+
+    val pdfAdditionally = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), false)
 
     val onlyWifi = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ONLY_WIFI), true)
 

@@ -104,6 +104,7 @@
     <string name="settings_revocation"><u>revocation</u></string>
     <string name="settings_support_report_bug">Report a bug</string>
     <string name="settings_auto_downloads_switch">Download next issue automatically</string>
+    <string name="settings_auto_pdf_downloads_switch">Download printed issue (PDF) automatically</string>
     <string name="settings_auto_downloads_wifi_switch">Download only with wifi</string>
     <string name="settings_version_number">version %s%s</string>
     <string name="settings_download_issue">Download issue</string>

@@ -9,6 +9,8 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.app.android.data.DataService
 import de.taz.app.android.data.DownloadScheduler
+import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
@@ -53,7 +55,12 @@ class IssueDownloadWorkManagerWorker(
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {
-                contentService.downloadToCache(newestIssueKey, isAutomaticDownload = true)
+                if (DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {
+                    val issueKeyWithPages = IssueKeyWithPages(newestIssueKey)
+                    contentService.downloadToCache(issueKeyWithPages, isAutomaticDownload = true)
+                } else {
+                    contentService.downloadToCache(newestIssueKey, isAutomaticDownload = true)
+                }
                 log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()
             }
