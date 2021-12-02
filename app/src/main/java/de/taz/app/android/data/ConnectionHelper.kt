@@ -1,6 +1,7 @@
 package de.taz.app.android.data
 
 import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
+import de.taz.app.android.MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
@@ -11,8 +12,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-const val MAX_CONNECTION_CHECK_INTERVAL = 30000L
-const val BACK_OFF_FACTOR = 2f
+const val BACK_OFF_FACTOR = 1.75f
 
 data class WaitingCall(
     val continuation: Continuation<Unit>,
@@ -106,7 +106,7 @@ abstract class ConnectionHelper {
 
     private fun incrementBackOffTime() {
         backOffTimeMs = (BACK_OFF_FACTOR * backOffTimeMs).toLong().coerceAtMost(
-            MAX_CONNECTION_CHECK_INTERVAL
+            MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
         )
     }
 
