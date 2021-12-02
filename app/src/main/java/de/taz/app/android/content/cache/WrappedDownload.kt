@@ -10,9 +10,6 @@ import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
-import de.taz.app.android.persistence.repository.AbstractIssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import io.sentry.Sentry
 import kotlinx.coroutines.*
