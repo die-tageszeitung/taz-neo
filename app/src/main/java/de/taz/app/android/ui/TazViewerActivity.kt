@@ -20,9 +20,7 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import kotlinx.android.synthetic.main.activity_taz_viewer.*
