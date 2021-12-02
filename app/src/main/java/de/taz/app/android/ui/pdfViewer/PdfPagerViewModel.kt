@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
@@ -12,7 +11,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -74,8 +72,6 @@ class PdfPagerViewModel(
             }
         }
     }
-
-    private val log by Log
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issuePublication) { issuePublication ->
