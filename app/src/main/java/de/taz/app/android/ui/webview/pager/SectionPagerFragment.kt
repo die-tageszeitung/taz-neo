@@ -51,9 +51,6 @@ class SectionPagerFragment : BaseMainFragment(
         }
         setupViewPager()
 
-        loading_screen?.visibility = View.GONE
-
-
         issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
             if (
                 sectionStubs.map { it.key } !=
@@ -62,6 +59,7 @@ class SectionPagerFragment : BaseMainFragment(
                 log.debug("New set of sections: ${sectionStubs.map { it.key }}")
                 webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
                 tryScrollToSection()
+                loading_screen?.visibility = View.GONE
             }
         }
 
