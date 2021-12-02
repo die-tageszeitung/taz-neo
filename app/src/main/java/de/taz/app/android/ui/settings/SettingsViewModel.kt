@@ -18,7 +18,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     var nightModeLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
-    val  downloadAutomaticallyLiveData: LiveData<Boolean>
+    val downloadAutomaticallyLiveData: LiveData<Boolean>
+    val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
 
     var storageLocationLiveData: LiveData<StorageLocation>
     var storedIssueNumberLiveData: LiveData<Int>
@@ -37,6 +38,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
         downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
+        downloadAdditionallyDialogDoNotShowAgain = downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
     }
 
     fun setStorageLocation(storageLocation: StorageLocation?) {
@@ -66,6 +68,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setPdfDownloadsEnabled(enabled: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(enabled)
+        }
+    }
+
+    fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
         }
     }
 

@@ -16,6 +16,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
@@ -162,6 +163,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+            fragment_settings_auto_download_switch?.setOnClickListener {
+                log.debug("doNotShowAgain.value: ${viewModel.downloadAdditionallyDialogDoNotShowAgain.value}")
+                if (viewModel.downloadAutomaticallyLiveData.value == false
+                    && viewModel.downloadAdditionallyDialogDoNotShowAgain.value != true
+                ) {
+                    showAutomaticDownloadDialog()
+                }
+            }
+
             fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
             }
@@ -193,7 +203,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
                 showDownloadsEnabled(downloadsEnabled)
             }
-
+            downloadAdditionallyDialogDoNotShowAgain.observeDistinct(viewLifecycleOwner) { doNotShowAgain ->
+                setDoNotShowAgain(doNotShowAgain)
+            }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
                     toastHelper.showToast(R.string.settings_storage_migration_hint)
@@ -222,6 +234,39 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             fragment_settings_account_email.text = email
         }
+    }
+
+    private fun setDoNotShowAgain(doNotShowAgain: Boolean) {
+        viewModel.setPdfDialogDoNotShowAgain(doNotShowAgain)
+    }
+
+    private fun showAutomaticDownloadDialog() {
+        val dialogView = LayoutInflater.from(context)
+            .inflate(R.layout.dialog_settings_download_pdf, null)
+        val doNotShowAgainCheckboxView = dialogView?.findViewById<MaterialCheckBox>(R.id.dialog_settings_download_pdf_do_not_ask_again)
+        val pdfSwitchView = view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setTitle(R.string.settings_dialog_download_additionally_title)
+            .setMessage(R.string.settings_dialog_download_additionally_description)
+            .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
+                if (doNotShowAgainCheckboxView?.isChecked == true) {
+                    setDoNotShowAgain(true)
+                }
+                pdfSwitchView?.isChecked = false
+                setPdfDownloadEnabled(false)
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
+                if (doNotShowAgainCheckboxView?.isChecked == true) {
+                    setDoNotShowAgain(true)
+                }
+                pdfSwitchView?.isChecked = true
+                setPdfDownloadEnabled(true)
+                dialog.dismiss()
+            }
+            .create()
+        dialog.show()
     }
 
     private fun showKeepIssuesDialog() {
@@ -445,6 +490,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
+        //fragment_settings_auto_pdf_download_switch?.
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
