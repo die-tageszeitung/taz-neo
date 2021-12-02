@@ -85,7 +85,7 @@ class PdfPagerViewModel(
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadMetaData(3)
                 } catch (e: CacheOperationFailedException) {
-                    // show dialog and retry infinetly
+                    // show dialog and retry infinitely
                     issueDownloadFailedErrorFlow.emit(true)
                     downloadMetaData()
                 }
