@@ -7,10 +7,8 @@ import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 
 
