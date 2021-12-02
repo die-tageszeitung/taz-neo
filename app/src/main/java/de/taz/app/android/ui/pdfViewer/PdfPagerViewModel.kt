@@ -46,7 +46,6 @@ class PdfPagerViewModel(
             }
         }
     }
-    val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
@@ -73,23 +72,47 @@ class PdfPagerViewModel(
         }
     }
 
-    val pdfPageList = MediatorLiveData<List<Page>>().apply {
+    private val issue = MediatorLiveData<IssueWithPages>().apply {
         addSource(issuePublication) { issuePublication ->
+            suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
+                issuePublication,
+                minStatus = authHelper.getMinStatus(),
+                maxRetries = maxRetries
+            ) as IssueWithPages
+
             viewModelScope.launch(Dispatchers.IO) {
-                try {
+                val issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
-                    val issue = contentService.downloadMetadata(
-                        issuePublication,
-                        minStatus = authHelper.getMinStatus()
-                    ) as IssueWithPages
-                    // Get latest shown page and set it before setting the issue
-                    updateCurrentItem(issue.lastPagePosition ?: 0)
+                    downloadMetaData(3)
+                } catch (e: CacheOperationFailedException) {
+                    // show dialog and retry infinetly
+                    issueDownloadFailedErrorFlow.emit(true)
+                    downloadMetaData()
+                }
 
+                // TODO move?
+                // Get latest shown page and set it before setting the issue
+                updateCurrentItem(issue.lastPagePosition ?: 0)
+
+                postValue(issue)
+                launch {
                     contentService.downloadToCache(issuePublication)
+                    postValue(issue)
+                }
+            }
+        }
+    }
 
-                    navButton.postValue(
-                        imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                    )
+    val navButton = MediatorLiveData<Image>().apply {
+        viewModelScope.launch(Dispatchers.IO) {
+            postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
+        }
+    } as LiveData<Image>
+
+    val pdfPageList = MediatorLiveData<List<Page>>().apply {
+        addSource(issue) { issue ->
+            viewModelScope.launch(Dispatchers.IO) {
+                if (issue.isDownloaded(application)) {
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(
@@ -99,8 +122,6 @@ class PdfPagerViewModel(
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
                         }
                     )
-                } catch (e: CacheOperationFailedException) {
-                    issueDownloadFailedErrorFlow.emit(true)
                 }
             }
         }
