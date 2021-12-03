@@ -38,6 +38,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
+import kotlinx.android.synthetic.main.dialog_settings_download_pdf.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
@@ -247,8 +248,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         val pdfSwitchView = view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
-            .setTitle(R.string.settings_dialog_download_additionally_title)
-            .setMessage(R.string.settings_dialog_download_additionally_description)
             .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
                 if (doNotShowAgainCheckboxView?.isChecked == true) {
                     setDoNotShowAgain(true)
