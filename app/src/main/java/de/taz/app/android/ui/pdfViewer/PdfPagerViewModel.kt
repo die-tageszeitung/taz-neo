@@ -83,7 +83,7 @@ class PdfPagerViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
-                    downloadMetaData(3)
+                    downloadMetaData(maxRetries = 3)
                 } catch (e: CacheOperationFailedException) {
                     // show dialog and retry infinitely
                     issueDownloadFailedErrorFlow.emit(true)
