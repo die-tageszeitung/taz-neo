@@ -106,28 +106,29 @@
 
                         </androidx.cardview.widget.CardView>
 
-                        <TextView
-                            android:id="@+id/activity_pdf_drawer_front_page_title"
-                            style="@style/TextAppearance.Drawer.Sections"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
-                            android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                            android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
                     </LinearLayout>
-
                     <TextView
                         android:id="@+id/activity_pdf_drawer_date"
                         style="@style/TextAppearance.Drawer.Sections.Date"
                         android:layout_width="0dp"
-                        android:layout_weight="0.5"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
-                        android:layout_marginBottom="14dp"
-                        app:layout_constraintBottom_toTopOf="@id/navigation_recycler_view"
-                        app:layout_constraintEnd_toEndOf="parent" />
+                        android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                        android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
+                        android:layout_weight="0.5"
+                        android:textSize="@dimen/fragment_drawer_date_text_size"/>
+
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/activity_pdf_drawer_front_page_title"
+                    style="@style/TextAppearance.Drawer.Sections"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                    android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                    android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
+                    android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/navigation_recycler_view"
                     android:layout_width="match_parent"

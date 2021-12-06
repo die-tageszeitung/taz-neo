@@ -31,6 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
         style="@style/TextAppearance.Drawer.Sections"
         android:textSize="@dimen/fragment_drawer_thumbnail_text_size"/>
 
