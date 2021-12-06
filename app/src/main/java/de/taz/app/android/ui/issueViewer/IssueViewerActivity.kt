@@ -61,7 +61,7 @@ class IssueViewerActivity : TazViewerActivity() {
                     ) as Issue
 
                 val issue = try {
-                    downloadMetadata(3)
+                    downloadMetadata(maxRetries = 3)
                 } catch (e: CacheOperationFailedException) {
                     // show error then retry infinitely
                     issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
