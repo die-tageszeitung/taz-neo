@@ -165,7 +165,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_auto_download_switch?.setOnClickListener {
-                log.debug("doNotShowAgain.value: ${viewModel.downloadAdditionallyDialogDoNotShowAgain.value}")
                 if (viewModel.downloadAutomaticallyLiveData.value == false
                     && viewModel.downloadAdditionallyDialogDoNotShowAgain.value != true
                 ) {
@@ -175,6 +174,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
             fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
+            }
+
+            fragment_settings_auto_pdf_download_switch?.setOnClickListener {
+                if (viewModel.downloadAutomaticallyLiveData.value == true) {
+                    showAutomaticDownloadDialog()
+                }
             }
 
             fragment_settings_delete_all_issues.setOnClickListener {
