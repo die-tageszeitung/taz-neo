@@ -4,8 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.TazViewerActivity
@@ -15,7 +17,6 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -51,13 +52,27 @@ class IssueViewerActivity : TazViewerActivity() {
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
             finishOnBackPressed = intent.getBooleanExtra(KEY_FINISH_ON_BACK_PRESSED, false)
-            CoroutineScope(Dispatchers.Main).launch {
-                val issue = contentService.downloadMetadata(
-                    issuePublication,
-                    minStatus = authHelper.getMinStatus()
-                ) as Issue
+            lifecycleScope.launch(Dispatchers.Main) {
+                suspend fun downloadMetadata(maxRetries: Int = -1) =
+                    contentService.downloadMetadata(
+                        issuePublication,
+                        minStatus = authHelper.getMinStatus(),
+                        maxRetries = maxRetries
+                    ) as Issue
+
+                val issue = try {
+                    downloadMetadata(maxRetries = 3)
+                } catch (e: CacheOperationFailedException) {
+                    // show error then retry infinitely
+                    issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
+                    downloadMetadata()
+                }
                 if (displayableKey != null) {
-                    issueViewerViewModel.setDisplayable(issue.issueKey, displayableKey, loadIssue = true)
+                    issueViewerViewModel.setDisplayable(
+                        issue.issueKey,
+                        displayableKey,
+                        loadIssue = true
+                    )
                 } else {
                     issueViewerViewModel.setDisplayable(issue.issueKey, loadIssue = true)
                 }

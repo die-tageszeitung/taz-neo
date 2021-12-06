@@ -6,12 +6,10 @@ import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.*
-import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 

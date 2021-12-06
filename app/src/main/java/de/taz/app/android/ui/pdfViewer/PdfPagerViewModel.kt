@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
@@ -12,7 +11,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,7 +46,6 @@ class PdfPagerViewModel(
             }
         }
     }
-    val navButton = MutableLiveData<Image?>(null)
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
@@ -75,25 +72,47 @@ class PdfPagerViewModel(
         }
     }
 
-    private val log by Log
+    private val issue = MediatorLiveData<IssueWithPages>().apply {
+        addSource(issuePublication) { issuePublication ->
+            suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
+                issuePublication,
+                minStatus = authHelper.getMinStatus(),
+                maxRetries = maxRetries
+            ) as IssueWithPages
+
+            viewModelScope.launch(Dispatchers.IO) {
+                val issue = try {
+                    issueDownloadFailedErrorFlow.emit(false)
+                    downloadMetaData(maxRetries = 3)
+                } catch (e: CacheOperationFailedException) {
+                    // show dialog and retry infinitely
+                    issueDownloadFailedErrorFlow.emit(true)
+                    downloadMetaData()
+                }
+
+                // TODO move?
+                // Get latest shown page and set it before setting the issue
+                updateCurrentItem(issue.lastPagePosition ?: 0)
+
+                postValue(issue)
+                CoroutineScope(Dispatchers.IO).launch {
+                    contentService.downloadToCache(issuePublication)
+                    postValue(issue)
+                }
+            }
+        }
+    }
+
+    val navButton = MediatorLiveData<Image>().apply {
+        viewModelScope.launch(Dispatchers.IO) {
+            postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
+        }
+    } as LiveData<Image>
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
-        addSource(issuePublication) { issuePublication ->
+        addSource(issue) { issue ->
             viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    issueDownloadFailedErrorFlow.emit(false)
-                    val issue = contentService.downloadMetadata(
-                        issuePublication,
-                        minStatus = authHelper.getMinStatus()
-                    ) as IssueWithPages
-                    // Get latest shown page and set it before setting the issue
-                    updateCurrentItem(issue.lastPagePosition ?: 0)
-
-                    contentService.downloadToCache(issuePublication)
-
-                    navButton.postValue(
-                        imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                    )
+                if (issue.isDownloaded(application)) {
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
                     postValue(
@@ -103,8 +122,6 @@ class PdfPagerViewModel(
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
                         }
                     )
-                } catch (e: CacheOperationFailedException) {
-                    issueDownloadFailedErrorFlow.emit(true)
                 }
             }
         }

@@ -54,11 +54,13 @@ class SplashActivity : StartupActivity() {
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
 
+    private var showSplashScreen = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepVisibleCondition { true }
+        splashScreen.setKeepVisibleCondition { showSplashScreen }
 
         dataService = DataService.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
@@ -91,6 +93,8 @@ class SplashActivity : StartupActivity() {
             } catch (e: InitializationException) {
                 log.error("Error while initializing")
                 e.printStackTrace()
+                // hide splash screen so dialog can be shown
+                showSplashScreen = false
                 showConnectionErrorDialog()
                 Sentry.captureException(e)
                 return@launch
@@ -165,7 +169,7 @@ class SplashActivity : StartupActivity() {
             // This call might be duplicated by the AppVersion check which is not allowing cache.
             // To make this call not fail due to a connectivity exception if there indeed is a
             // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
-            contentService.downloadMetadata(AppInfoKey(), forceExecution = true)
+            contentService.downloadMetadata(AppInfoKey(), forceExecution = true, maxRetries = 3)
         } catch (exception: CacheOperationFailedException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
@@ -176,7 +180,11 @@ class SplashActivity : StartupActivity() {
      */
     private suspend fun checkAppVersion() {
         try {
-            val appInfo = contentService.downloadMetadata(AppInfoKey(), allowCache = false) as AppInfo
+            val appInfo = contentService.downloadMetadata(
+                AppInfoKey(),
+                allowCache = false,
+                maxRetries = 3
+            ) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
