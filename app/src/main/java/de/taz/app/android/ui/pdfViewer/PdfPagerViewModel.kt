@@ -95,7 +95,7 @@ class PdfPagerViewModel(
                 updateCurrentItem(issue.lastPagePosition ?: 0)
 
                 postValue(issue)
-                launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     contentService.downloadToCache(issuePublication)
                     postValue(issue)
                 }
