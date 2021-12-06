@@ -122,7 +122,11 @@
     <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
     <string name="storage_migration_help_text_delete_issues_error">Beim Löschen von ungenutzten Ausgaben trat ein Fehler auf.</string>
 
-
+    <string name="settings_dialog_download_additionally_title">Möchtest du zusätzlich auch die ePaper Version mit auf dein Gerät laden?</string>
+    <string name="settings_dialog_download_additionally_description">Für das klassische Zeitungsfeeling kannst du das ePaper gleich mit auf dein Gerät laden. Das heisst aber auch mehr Datenvolumen auf deinem Handy. Wenn du es nicht möchtest und dich zu einem späteren Zeitpunkt umentscheidest, musst du die ePaper separat laden. Das automatische Mitladen kannst du in deinen Einstellungen ein- und ausstellen.</string>
+    <string name="settings_dialog_download_do_not_ask_again">Nicht mehr fragen</string>
+    <string name="settings_dialog_download_load_pdf">ePaper laden</string>
+    <string name="settings_dialog_download_too_much_data">Nein, zuviel Daten</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues"><u>Alle Ausgaben löschen</u></string>

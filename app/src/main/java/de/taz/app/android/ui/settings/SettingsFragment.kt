@@ -16,6 +16,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
@@ -37,6 +38,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
+import kotlinx.android.synthetic.main.dialog_settings_download_pdf.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
@@ -162,8 +164,22 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 setDownloadEnabled(isChecked)
             }
 
+            fragment_settings_auto_download_switch?.setOnClickListener {
+                if (viewModel.downloadAutomaticallyLiveData.value == false
+                    && viewModel.downloadAdditionallyDialogDoNotShowAgain.value != true
+                ) {
+                    showAutomaticDownloadDialog()
+                }
+            }
+
             fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
+            }
+
+            fragment_settings_auto_pdf_download_switch?.setOnClickListener {
+                if (viewModel.downloadAutomaticallyLiveData.value == true) {
+                    showAutomaticDownloadDialog()
+                }
             }
 
             fragment_settings_delete_all_issues.setOnClickListener {
@@ -193,7 +209,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
                 showDownloadsEnabled(downloadsEnabled)
             }
-
+            downloadAdditionallyDialogDoNotShowAgain.observeDistinct(viewLifecycleOwner) { doNotShowAgain ->
+                setDoNotShowAgain(doNotShowAgain)
+            }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
                     toastHelper.showToast(R.string.settings_storage_migration_hint)
@@ -222,6 +240,41 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             fragment_settings_account_email.text = email
         }
+    }
+
+    private fun setDoNotShowAgain(doNotShowAgain: Boolean) {
+        viewModel.setPdfDialogDoNotShowAgain(doNotShowAgain)
+    }
+
+    private fun showAutomaticDownloadDialog() {
+        val dialogView = LayoutInflater.from(context)
+            .inflate(R.layout.dialog_settings_download_pdf, null)
+        val doNotShowAgainCheckboxView = dialogView?.findViewById<MaterialCheckBox>(R.id.dialog_settings_download_pdf_do_not_ask_again)
+        val pdfSwitchView = view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setView(dialogView)
+            .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
+                setPdfSwitch(pdfSwitchView, doNotShowAgainCheckboxView, enabled = false)
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
+                setPdfSwitch(pdfSwitchView, doNotShowAgainCheckboxView, enabled = true)
+                dialog.dismiss()
+            }
+            .create()
+        dialog.show()
+    }
+
+    private fun setPdfSwitch(
+        pdfSwitchView: SwitchCompat?,
+        doNotShowAgainCheckboxView: MaterialCheckBox?,
+        enabled: Boolean
+    ) {
+        if (doNotShowAgainCheckboxView?.isChecked == true) {
+            setDoNotShowAgain(true)
+        }
+        pdfSwitchView?.isChecked = enabled
+        setPdfDownloadEnabled(enabled)
     }
 
     private fun showKeepIssuesDialog() {
