@@ -249,23 +249,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         val dialog = MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
             .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
-                if (doNotShowAgainCheckboxView?.isChecked == true) {
-                    setDoNotShowAgain(true)
-                }
-                pdfSwitchView?.isChecked = false
-                setPdfDownloadEnabled(false)
+                setPdfSwitch(pdfSwitchView, doNotShowAgainCheckboxView, enabled = false)
                 dialog.dismiss()
             }
             .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
-                if (doNotShowAgainCheckboxView?.isChecked == true) {
-                    setDoNotShowAgain(true)
-                }
-                pdfSwitchView?.isChecked = true
-                setPdfDownloadEnabled(true)
+                setPdfSwitch(pdfSwitchView, doNotShowAgainCheckboxView, enabled = true)
                 dialog.dismiss()
             }
             .create()
         dialog.show()
+    }
+
+    private fun setPdfSwitch(
+        pdfSwitchView: SwitchCompat?,
+        doNotShowAgainCheckboxView: MaterialCheckBox?,
+        enabled: Boolean
+    ) {
+        if (doNotShowAgainCheckboxView?.isChecked == true) {
+            setDoNotShowAgain(true)
+        }
+        pdfSwitchView?.isChecked = enabled
+        setPdfDownloadEnabled(enabled)
     }
 
     private fun showKeepIssuesDialog() {
@@ -489,7 +493,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
-        //fragment_settings_auto_pdf_download_switch?.
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
