@@ -22,5 +22,5 @@ class CoverFlowLinearLayoutManager(
             return bouncyRecyclerView.width / 2 - it.measuredWidth / 2
         } else 0
     } ?: 0
-   
+
 }
