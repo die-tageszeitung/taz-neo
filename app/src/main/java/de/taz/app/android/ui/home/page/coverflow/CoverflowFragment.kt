@@ -4,18 +4,12 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.OrientationHelper
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -28,7 +22,6 @@ import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_coverflow.*
 import kotlinx.coroutines.*
 import java.util.*
-import kotlin.math.abs
 
 class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
@@ -37,9 +30,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     override lateinit var adapter: IssueFeedAdapter
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
-    private val onScrollListener = OnScrollListener()
-
-    private lateinit var orientationHelper: OrientationHelper
+    private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssuePublication? = null
@@ -56,20 +47,17 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_cover_flow_grid.apply {
-            layoutManager = CoverFlowLinearLayoutManager(requireContext(), fragment_cover_flow_grid)
-            orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
+        fragment_cover_flow_grid.layoutManager =
+            CoverFlowLinearLayoutManager(requireContext(), fragment_cover_flow_grid)
 
-            // transform the visible children visually
-            snapHelper.apply {
-                attachToRecyclerView(fragment_cover_flow_grid)
-                maxFlingSizeFraction = 0.75f
-                snapLastItem = true
-            }
+        snapHelper.apply {
+            attachToRecyclerView(fragment_cover_flow_grid)
+            maxFlingSizeFraction = 0.75f
+            snapLastItem = true
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
-            (parentFragment as?  HomeFragment)?.showArchive()
+            (parentFragment as? HomeFragment)?.showArchive()
         }
 
         fragment_cover_flow_date.setOnClickListener {
@@ -163,7 +151,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    private fun skipToDate(date: Date, scroll: Boolean = true) {
+    fun skipToDate(date: Date, scroll: Boolean = true) {
         if (!::adapter.isInitialized) {
             return
         }
@@ -214,83 +202,15 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    inner class OnScrollListener : RecyclerView.OnScrollListener() {
-
-        private var isDragEvent = false
-        private var isIdleEvent = false
-        private var isSettlingEvent = false
-
-        override fun onScrollStateChanged(
-            recyclerView: RecyclerView,
-            newState: Int
-        ) {
-            super.onScrollStateChanged(recyclerView, newState)
-
-            // if user is dragging to left if no newer issue -> refresh
-            if (isDragEvent && !recyclerView.canScrollHorizontally(-1)) {
-                activity?.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
-                    ?.setRefreshingWithCallback(true)
-            }
-            isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
-            isIdleEvent = newState == RecyclerView.SCROLL_STATE_IDLE
-            isSettlingEvent = newState == RecyclerView.SCROLL_STATE_SETTLING
-
-        }
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-
-            snapHelper.findSnapView(layoutManager)?.let {
-                val currentViewDistance = abs(
-                        orientationHelper.startAfterPadding
-                                - orientationHelper.getDecoratedStart(it)
-                    )
-                val alphaPercentage = 1 -
-                    (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
-
-                fragment_cover_flow_date_download_wrapper.alpha = alphaPercentage
-
-                val position = recyclerView.getChildAdapterPosition(it)
-                setSelectedDateByPosition(position)
-            }
-            applyZoomPageTransformer()
-        }
-
-        private fun setSelectedDateByPosition(position: Int) {
-            (parentFragment as? HomeFragment)?.apply {
-                if (position == 0) {
-                    setHomeIconFilled()
-                } else {
-                    setHomeIcon()
-                }
-            }
-            adapter.getItem(position)?.let { date ->
-                if (position != currentlyBoundPosition) {
-                    lifecycleScope.launch {
-                        skipToDate(date, scroll = false)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun applyZoomPageTransformer() {
-        (fragment_cover_flow_grid as? ViewGroup)?.apply {
-            children.forEach { child ->
-                val childPosition = (child.left + child.right) / 2f
-                val center = width / 2
-                if (childPosition != 0f) {
-                    ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
-                }
-            }
-        }
-    }
 
     override fun onDestroyView() {
         snapHelper.attachToRecyclerView(null)
         fragment_cover_flow_grid.adapter = null
         super.onDestroyView()
+    }
+
+    fun setTextAlpha(alpha: Float) {
+        fragment_cover_flow_date_download_wrapper.alpha = alpha
     }
 
 }
