@@ -34,10 +34,11 @@ class CoverFlowOnScrollListener(
         super.onScrolled(recyclerView, dx, dy)
         adjustViewSizes(recyclerView)
 
-        // only apply these changes if a user scroll
+        // set alpha of date
+        fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
+
+        // only if a user scroll
         if (dx != 0 || dy != 0) {
-            // set alpha of date
-            fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
             // set new date
             updateCurrentDate(recyclerView)
         }
