@@ -99,13 +99,16 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         super.onResume()
     }
 
-    private fun openDatePicker() = showBottomSheet(DatePickerFragment())
-
     override fun onPause() {
         fragment_cover_flow_grid.removeOnScrollListener(onScrollListener)
         super.onPause()
     }
 
+    override fun onDestroyView() {
+        snapHelper.attachToRecyclerView(null)
+        fragment_cover_flow_grid.adapter = null
+        super.onDestroyView()
+    }
 
     private fun scrollToHome() {
         if (!::adapter.isInitialized) {
@@ -173,15 +176,12 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     }
 
 
-    override fun onDestroyView() {
-        snapHelper.attachToRecyclerView(null)
-        fragment_cover_flow_grid.adapter = null
-        super.onDestroyView()
-    }
-
     fun setTextAlpha(alpha: Float) {
         fragment_cover_flow_date_download_wrapper.alpha = alpha
     }
 
     fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
+
+    private fun openDatePicker() = showBottomSheet(DatePickerFragment())
+
 }
