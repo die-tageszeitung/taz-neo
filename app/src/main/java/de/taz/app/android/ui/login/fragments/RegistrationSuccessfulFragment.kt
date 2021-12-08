@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
@@ -9,7 +8,8 @@ import de.taz.app.android.ui.main.MainActivity
 import kotlinx.android.synthetic.main.fragment_login_confirm_email.*
 import kotlinx.coroutines.runBlocking
 
-class RegistrationSuccessfulFragment: LoginBaseFragment(R.layout.fragment_login_registration_successful) {
+class RegistrationSuccessfulFragment :
+    LoginBaseFragment(R.layout.fragment_login_registration_successful) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -29,10 +29,7 @@ class RegistrationSuccessfulFragment: LoginBaseFragment(R.layout.fragment_login_
                 (activity as? LoginActivity)?.done() ?: activity?.finish()
             } else {
                 // go home
-                Intent(requireActivity(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    startActivity(this)
-                }
+                MainActivity.start(requireContext())
             }
         }
     }

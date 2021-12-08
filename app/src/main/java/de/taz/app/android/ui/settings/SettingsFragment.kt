@@ -38,7 +38,6 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.dialog_settings_download_pdf.*
 import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
@@ -442,10 +441,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            Intent(requireActivity(), MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(this)
-            }
+            MainActivity.start(requireContext())
         }
     }
 
