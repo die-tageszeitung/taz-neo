@@ -67,7 +67,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 snapLastItem = true
             }
 
-
             addOnChildAttachStateChangeListener(object :
                 RecyclerView.OnChildAttachStateChangeListener {
 
@@ -296,10 +295,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 }
             }
         }
-    }
-
-    override fun callbackWhenIssueIsSet() {
-        applyZoomPageTransformer()
     }
 
     override fun onDestroyView() {
