@@ -50,10 +50,11 @@ class CoverFlowOnScrollListener(
     private fun calculateDateTextAlpha(recyclerView: RecyclerView): Float {
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
+        val view = snapHelper.findSnapView(layoutManager)
         val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
         val currentViewDistance = abs(
-            orientationHelper.startAfterPadding - snapHelper.currentSnappedPosition
+            orientationHelper.startAfterPadding - orientationHelper.getDecoratedStart(view)
         )
         return 1 - (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
     }
