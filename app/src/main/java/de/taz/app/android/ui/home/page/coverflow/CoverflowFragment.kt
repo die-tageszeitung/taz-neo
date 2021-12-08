@@ -158,15 +158,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     }
     // endregion
 
-    fun setHomeIcon(position: Int) {
-        getHomeFragment().apply {
-            if (position == 0) {
-                setHomeIconFilled()
-            } else {
-                setHomeIcon()
-            }
-        }
-    }
 
     fun setTextAlpha(alpha: Float) {
         fragment_cover_flow_date_download_wrapper.alpha = alpha

@@ -38,7 +38,7 @@ class CoverFlowOnScrollListener(
         fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
 
         // set correct home icon
-        fragment.setHomeIcon(snapHelper.currentSnappedPosition)
+        setHomeIcon(snapHelper.currentSnappedPosition)
 
         // only if a user scroll
         if (dx != 0 || dy != 0) {
@@ -73,6 +73,16 @@ class CoverFlowOnScrollListener(
                 if (childPosition != 0f) {
                     ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
                 }
+            }
+        }
+    }
+
+    private fun setHomeIcon(position: Int) {
+        fragment.getHomeFragment().apply {
+            if (position == 0) {
+                setHomeIconFilled()
+            } else {
+                setHomeIcon()
             }
         }
     }
