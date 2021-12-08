@@ -11,16 +11,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.preventDismissal
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
+import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import kotlinx.android.synthetic.main.include_loading_screen.*
@@ -87,7 +85,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             }
         }
 
-        issueFeedViewModel.currentDate.observe(this) {
+        issueFeedViewModel.currentDate.value?.let {
             // Set newly selected date to focus in DatePicker
             val calendar = Calendar.getInstance()
             calendar.time = it
@@ -98,8 +96,6 @@ class DatePickerFragment : BottomSheetDialogFragment() {
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
         }
-
-
 
         fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener { confirmButton ->
             val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
@@ -135,9 +131,10 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun showIssue(issuePublication: IssuePublication) = withContext(Dispatchers.Main) {
-        issueFeedViewModel.currentDate.postValue(
-            simpleDateFormat.parse(issuePublication.date)!!
-        )
-    }
+    private suspend fun showIssue(issuePublication: IssuePublication) =
+        withContext(Dispatchers.Main) {
+            (parentFragment as CoverflowFragment).skipToDate(
+                simpleDateFormat.parse(issuePublication.date)!!
+            )
+        }
 }
