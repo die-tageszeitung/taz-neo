@@ -66,16 +66,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
             }
-
-            addOnChildAttachStateChangeListener(object :
-                RecyclerView.OnChildAttachStateChangeListener {
-
-                override fun onChildViewAttachedToWindow(view: View) {
-                    applyZoomPageTransformer()
-                }
-
-                override fun onChildViewDetachedFromWindow(view: View) = Unit
-            })
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
