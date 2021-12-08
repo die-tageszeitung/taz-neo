@@ -4,7 +4,6 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
@@ -36,7 +35,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private var initialIssueDisplay: IssuePublication? = null
 
     private var currentlyFocusedDate: Date? = null
-    private var currentlyBoundPosition: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,23 +82,15 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             // If fragment was just constructed skip to issue in intent
             if (fresh && savedInstanceState == null) {
                 initialIssueDisplay?.let { skipToPublication(it) } ?: skipToHome()
-            } else if (fresh && savedInstanceState != null) {
-                // if there is a currentdate in the viewmodel scroll to it to let it snap
-                // in again after rotating
-                lifecycleScope.launch {
-                    skipToDate(
-                        viewModel.currentDate.value ?: simpleDateFormat.parse(feed.issueMaxDate)!!
-                    )
-                }
-            } else {
-                // An update to the feed without fresh must mean there is an update!
-                skipToHome()
             }
         }
     }
 
 
     override fun onResume() {
+        viewModel.currentDate.observe(this) {
+            updateUIForDate(it)
+        }
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         snapHelper.setSnapListener { position ->
             (parentFragment as? HomeFragment)?.apply {
@@ -109,12 +99,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 } else {
                     setHomeIcon()
                 }
-            }
-
-            adapter.getItem(position)?.let { date ->
-                viewModel.currentDate.postValue(
-                    date
-                )
             }
         }
         super.onResume()
@@ -139,17 +123,14 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     }
 
     /**
-     * this function will only update the date text and the download icon
-     * it will NOT try to interfere with the recyclerview in any way
-     * @param date to be persisted and which will define the date text and which issue the
-     *          downloadObserver will listen to
+     * this function will update the date text and the download icon
+     * and will skip to the right position if we are not already there
      */
-    fun updateUIAndPersistDate(date: Date) {
+    private fun updateUIForDate(date: Date) {
         if (currentlyFocusedDate == date) {
             return
         }
         currentlyFocusedDate = date
-        viewModel.currentDate.postValue(date)
 
         downloadObserver?.stopObserving()
 
@@ -163,48 +144,36 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             startObserving()
         }
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
+
+        val position = adapter.getPosition(date)
+        val layoutManager = fragment_cover_flow_grid.layoutManager as LinearLayoutManager
+        val currentlySnappedView = snapHelper.findSnapView(layoutManager)
+        val currentPosition: Int =
+            currentlySnappedView?.let { fragment_cover_flow_grid.getChildAdapterPosition(it) } ?: -1
+        if (position > 0) {
+            if (position != currentPosition) {
+                fragment_cover_flow_grid.stopScroll()
+                layoutManager.scrollToPosition(position)
+            }
+        } else if (position == 0) {
+            scrollToHome()
+        }
     }
 
-    /**
-     * this function will change the position of the recyclerView and call
-     * [updateUIAndPersistDate] to make sure the UI is adequate and the state is
-     * persisted in the ViewModel
-     * @param date the date to immediately focus the issue of
-     */
     fun skipToDate(date: Date) {
-        if (!::adapter.isInitialized) {
-            return
-        }
-        updateUIAndPersistDate(date)
-
-        currentlyBoundPosition = adapter.getPosition(date)
-        currentlyBoundPosition?.let { position ->
-            (fragment_cover_flow_grid.layoutManager as? LinearLayoutManager)?.apply {
-                val currentPosition: Int =
-                    (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
-                if (position > 0) {
-                    viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-                        if (position != currentPosition) {
-                            fragment_cover_flow_grid.stopScroll()
-                            scrollToPosition(position)
-                        }
-                    }
-                } else if (position == 0) {
-                    scrollToHome()
-                }
-            }
-        }
+        if(viewModel.currentDate.value != date)
+            viewModel.currentDate.postValue(date)
     }
 
     fun skipToHome() {
         viewModel.feed.value?.issueMaxDate?.let {
-            lifecycleScope.launch { skipToDate(simpleDateFormat.parse(it)!!) }
+            skipToDate(simpleDateFormat.parse(it)!!)
         }
     }
 
     private fun skipToPublication(issueKey: IssuePublication) {
         simpleDateFormat.parse(issueKey.date)?.let {
-            lifecycleScope.launch { skipToDate(it) }
+            skipToDate(it)
         }
     }
 
