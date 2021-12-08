@@ -1,11 +1,13 @@
 package de.taz.app.android.ui.main
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -16,6 +18,7 @@ import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
@@ -36,15 +39,21 @@ const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 @Mockable
 class MainActivity : NightModeActivity(R.layout.activity_main) {
 
+    companion object {
+        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        fun start(context: Context, flags: Int = 0, issuePublication: IssuePublication? = null) {
+            val intent = Intent(context, MainActivity::class.java)
+            intent.flags = flags or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            issuePublication?.let { intent.putExtra(KEY_ISSUE_PUBLICATION, issuePublication) }
+            ContextCompat.startActivity(context, intent, null)
+        }
+    }
+
     private lateinit var authHelper: AuthHelper
 
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
 
     val issueFeedViewModel: IssueFeedViewModel by viewModels()
-
-    companion object {
-        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -213,9 +213,9 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
             val issueStub =
-                    contentService.downloadMetadata(
-                        IssuePublication(issueKey)
-                    ) as Issue
+                contentService.downloadMetadata(
+                    IssuePublication(issueKey)
+                ) as Issue
             currentIssueStub = IssueStub(issueStub)
             moment_container.setOnClickListener {
                 finishAndShowIssue(IssuePublication(currentIssueStub.issueKey))
@@ -305,14 +305,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
         super.onSaveInstanceState(outState)
     }
 
-    private fun finishAndShowIssue(issuePublication: IssuePublication) {
-        Intent(requireActivity(), MainActivity::class.java).apply {
-            putExtra(MainActivity.KEY_ISSUE_PUBLICATION, issuePublication)
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(this)
-            requireActivity().finish()
-        }
-    }
+    private fun finishAndShowIssue(issuePublication: IssuePublication) =
+        MainActivity.start(requireActivity(), issuePublication = issuePublication)
 
     private suspend fun showMoment(momentPublication: MomentPublication?) =
         withContext(Dispatchers.Main) {

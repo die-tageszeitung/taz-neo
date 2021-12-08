@@ -138,9 +138,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun startMainActivity() {
-        val intent = Intent(applicationContext, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-        startActivity(intent)
+        MainActivity.start(this, Intent.FLAG_ACTIVITY_NO_ANIMATION)
         finish()
     }
 }

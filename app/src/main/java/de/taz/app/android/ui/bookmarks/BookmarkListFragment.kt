@@ -80,12 +80,7 @@ class BookmarkListFragment :
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> {
-                Intent(requireActivity(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    startActivity(this)
-                }
-            }
+            R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
         }
     }
 }

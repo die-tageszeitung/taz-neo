@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.webview.pager
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -95,12 +94,7 @@ class SectionPagerFragment : BaseMainFragment(
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> {
-                Intent(requireActivity(), MainActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    startActivity(this)
-                }
-            }
+            R.id.bottom_navigation_action_home -> MainActivity.start(requireContext())
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
             }
