@@ -5,10 +5,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SnapHelper
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import de.taz.app.android.R
-import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import kotlin.math.abs
 
@@ -18,11 +14,6 @@ class CoverFlowOnScrollListener(
 ) : RecyclerView.OnScrollListener() {
 
     private var isDragEvent = false
-    private var isIdleEvent = false
-    private var isSettlingEvent = false
-
-    private val activity
-        get() = fragment.requireActivity()
 
     override fun onScrollStateChanged(
         recyclerView: RecyclerView,
@@ -32,17 +23,16 @@ class CoverFlowOnScrollListener(
 
         // if user is dragging to left if no newer issue -> refresh
         if (isDragEvent && !recyclerView.canScrollHorizontally(-1)) {
-            activity.findViewById<SwipeRefreshLayout>(R.id.coverflow_refresh_layout)
-                ?.setRefreshingWithCallback(true)
+            fragment.getHomeFragment().refresh()
         }
-        isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
-        isIdleEvent = newState == RecyclerView.SCROLL_STATE_IDLE
-        isSettlingEvent = newState == RecyclerView.SCROLL_STATE_SETTLING
 
+        // set possible Event states
+        isDragEvent = newState == RecyclerView.SCROLL_STATE_DRAGGING
     }
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
+
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
         val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
@@ -63,7 +53,7 @@ class CoverFlowOnScrollListener(
     }
 
     private fun setSelectedDateByPosition(recyclerView: RecyclerView, position: Int) {
-        (fragment.parentFragment as? HomeFragment)?.apply {
+        fragment.getHomeFragment().apply {
             if (position == 0) {
                 setHomeIconFilled()
             } else {
@@ -71,7 +61,7 @@ class CoverFlowOnScrollListener(
             }
         }
         (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
-           fragment.skipToDate(date, scroll = false)
+            fragment.skipToDate(date, scroll = false)
         }
     }
 

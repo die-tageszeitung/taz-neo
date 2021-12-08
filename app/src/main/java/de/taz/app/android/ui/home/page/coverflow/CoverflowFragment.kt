@@ -213,4 +213,5 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         fragment_cover_flow_date_download_wrapper.alpha = alpha
     }
 
+    fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 }

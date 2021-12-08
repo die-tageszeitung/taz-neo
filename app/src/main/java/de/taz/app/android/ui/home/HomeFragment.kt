@@ -12,6 +12,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
@@ -150,4 +151,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     fun showArchive() {
         feed_archive_pager.currentItem = ARCHIVE_PAGER_POSITION
     }
+
+    fun refresh() = coverflow_refresh_layout?.setRefreshingWithCallback(true)
 }
