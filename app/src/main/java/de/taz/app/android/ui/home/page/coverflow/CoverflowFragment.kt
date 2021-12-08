@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -15,14 +14,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
-import de.taz.app.android.content.ContentService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
@@ -39,10 +35,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     val log by Log
 
     override lateinit var adapter: IssueFeedAdapter
-    private lateinit var dataService: DataService
-
-    private val toastHelper by lazy { ToastHelper.getInstance(requireContext().applicationContext) }
-    private val contentService by lazy { ContentService.getInstance(requireContext().applicationContext) }
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = OnScrollListener()
@@ -53,11 +45,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private var initialIssueDisplay: IssuePublication? = null
 
     private var currentlyBoundPosition: Int? = null
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        dataService = DataService.getInstance(requireContext().applicationContext)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -195,8 +182,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
         downloadObserver = DownloadObserver(
             this,
-            contentService,
-            toastHelper,
             IssuePublication(viewModel.feed.value!!.name, simpleDateFormat.format(date)),
             fragment_coverflow_moment_download,
             fragment_coverflow_moment_download_finished,

@@ -28,7 +28,18 @@ class DownloadObserver(
     private val checkmarkIconView: ImageView,
     private val downloadProgressView: ProgressBar
 ) {
-    private val log by Log
+    constructor(
+        fragment: Fragment,
+        issuePublication: AbstractIssuePublication,
+        downloadIconView: ImageView,
+        checkmarkIconView: ImageView,
+        downloadProgressView: ProgressBar
+    ) : this(
+        fragment,
+        ContentService.getInstance(fragment.requireContext().applicationContext),
+        ToastHelper.getInstance(fragment.requireContext().applicationContext),
+        issuePublication, downloadIconView, checkmarkIconView, downloadProgressView
+    )
 
     private val issueCacheLiveData = IssuePublicationMonitor(
         fragment.requireContext().applicationContext,
