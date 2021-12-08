@@ -32,21 +32,20 @@ class CoverFlowOnScrollListener(
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
+        adjustViewSizes(recyclerView)
 
-        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-
-        // set alpha of date
-        fragment.setTextAlpha(calculateDateTextAlpha(layoutManager))
-
-        // TODO to function and /or change logic
-        snapHelper.findSnapView(layoutManager)?.let {
-            val position = recyclerView.getChildAdapterPosition(it)
-            setSelectedDateByPosition(recyclerView, position)
+        // only apply these changes if a user scroll
+        if (dx != 0 || dy != 0) {
+            // set alpha of date
+            fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
+            // set new date
+            updateCurrentDate(recyclerView)
         }
-        applyZoomPageTransformer(recyclerView)
     }
 
-    private fun calculateDateTextAlpha(layoutManager: LinearLayoutManager): Float {
+    private fun calculateDateTextAlpha(recyclerView: RecyclerView): Float {
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
         val view = snapHelper.findSnapView(layoutManager)
         val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
@@ -54,6 +53,13 @@ class CoverFlowOnScrollListener(
             orientationHelper.startAfterPadding - orientationHelper.getDecoratedStart(view)
         )
         return 1 - (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
+    }
+
+    private fun updateCurrentDate(recyclerView: RecyclerView) {
+        snapHelper.findSnapView(recyclerView.layoutManager)?.let {
+            val position = recyclerView.getChildAdapterPosition(it)
+            setSelectedDateByPosition(recyclerView, position)
+        }
     }
 
     private fun setSelectedDateByPosition(recyclerView: RecyclerView, position: Int) {
@@ -65,11 +71,11 @@ class CoverFlowOnScrollListener(
             }
         }
         (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
-            fragment.updateUIAndPersistDate(date)
+            fragment.skipToDate(date)
         }
     }
 
-    private fun applyZoomPageTransformer(recyclerView: RecyclerView) {
+    private fun adjustViewSizes(recyclerView: RecyclerView) {
         recyclerView.apply {
             children.forEach { child ->
                 val childPosition = (child.left + child.right) / 2f
