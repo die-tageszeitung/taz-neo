@@ -4,13 +4,13 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SnapHelper
+import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import kotlin.math.abs
 
 class CoverFlowOnScrollListener(
     private val fragment: CoverflowFragment,
-    private val snapHelper: SnapHelper,
+    private val snapHelper: GravitySnapHelper,
 ) : RecyclerView.OnScrollListener() {
 
     private var isDragEvent = false
@@ -46,23 +46,16 @@ class CoverFlowOnScrollListener(
     private fun calculateDateTextAlpha(recyclerView: RecyclerView): Float {
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
-        val view = snapHelper.findSnapView(layoutManager)
         val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
         val currentViewDistance = abs(
-            orientationHelper.startAfterPadding - orientationHelper.getDecoratedStart(view)
+            orientationHelper.startAfterPadding - snapHelper.currentSnappedPosition
         )
         return 1 - (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
     }
 
     private fun updateCurrentDate(recyclerView: RecyclerView) {
-        snapHelper.findSnapView(recyclerView.layoutManager)?.let {
-            val position = recyclerView.getChildAdapterPosition(it)
-            setSelectedDateByPosition(recyclerView, position)
-        }
-    }
-
-    private fun setSelectedDateByPosition(recyclerView: RecyclerView, position: Int) {
+        val position = snapHelper.currentSnappedPosition
         fragment.getHomeFragment().apply {
             if (position == 0) {
                 setHomeIconFilled()
