@@ -35,6 +35,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssuePublication? = null
 
+    private var currentlyFocusedDate: Date? = null
     private var currentlyBoundPosition: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,11 +102,6 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     override fun onResume() {
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
-        viewModel.currentDate.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                skipToDate(it)
-            }
-        }
         snapHelper.setSnapListener { position ->
             (parentFragment as? HomeFragment)?.apply {
                 if (position == 0) {
@@ -151,10 +147,14 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    fun skipToDate(date: Date, scroll: Boolean = true) {
-        if (!::adapter.isInitialized) {
+    // function to update the text (with download icon)
+    fun setDateTextAndDownloadObserver(date: Date) {
+        if (currentlyFocusedDate == date) {
             return
         }
+        currentlyFocusedDate = date
+        viewModel.currentDate.postValue(date)
+
         downloadObserver?.stopObserving()
 
         downloadObserver = DownloadObserver(
@@ -167,24 +167,29 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             startObserving()
         }
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
+    }
+
+    // this function will change the UI by skipping directly to a date
+    fun skipToDate(date: Date) {
+        if (!::adapter.isInitialized) {
+            return
+        }
+        setDateTextAndDownloadObserver(date)
+
         currentlyBoundPosition = adapter.getPosition(date)
         currentlyBoundPosition?.let { position ->
-            val layoutManager = fragment_cover_flow_grid.layoutManager as? LinearLayoutManager
-
-            if (scroll) {
-                layoutManager?.apply {
-                    val currentPosition: Int =
-                        (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
-                    if (position > 0) {
-                        viewLifecycleOwner.lifecycleScope.launchWhenResumed {
-                            if (position != currentPosition) {
-                                fragment_cover_flow_grid.stopScroll()
-                                layoutManager.scrollToPosition(position)
-                            }
+            (fragment_cover_flow_grid.layoutManager as? LinearLayoutManager)?.apply {
+                val currentPosition: Int =
+                    (findFirstVisibleItemPosition() + findLastVisibleItemPosition()) / 2
+                if (position > 0) {
+                    viewLifecycleOwner.lifecycleScope.launchWhenResumed {
+                        if (position != currentPosition) {
+                            fragment_cover_flow_grid.stopScroll()
+                            scrollToPosition(position)
                         }
-                    } else if (position == 0) {
-                        scrollToHome()
                     }
+                } else if (position == 0) {
+                    scrollToHome()
                 }
             }
         }
