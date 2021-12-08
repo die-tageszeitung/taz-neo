@@ -71,24 +71,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         super.onViewCreated(view, savedInstanceState)
 
         fragment_cover_flow_grid.apply {
-            layoutManager = object : LinearLayoutManager(requireContext(), HORIZONTAL, false) {
-                /**
-                 * We need to create a padding allow this recyclerview to snap also the first and the last item
-                 * in the middle of the screen. Without it the first item would stick to the left side of the screen
-                 */
-                override fun getPaddingLeft(): Int {
-                    return fragment_cover_flow_grid.children.firstOrNull()?.let {
-                        if (it.measuredWidth > 0) {
-                            return fragment_cover_flow_grid.width / 2 - it.measuredWidth / 2
-                        } else 0
-                    } ?: 0
-                }
-
-                override fun getPaddingRight(): Int {
-                    return paddingLeft
-                }
-            }
-
+            layoutManager = CoverFlowLinearLayoutManager(requireContext(), fragment_cover_flow_grid)
             orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
             // transform the visible children visually
