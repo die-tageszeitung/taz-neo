@@ -83,20 +83,9 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
 
     override fun onResume() {
-        fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
-
-        viewModel.currentDate.observe(this) { updateUIForDate(it) }
-
-        snapHelper.setSnapListener { position ->
-            (parentFragment as? HomeFragment)?.apply {
-                if (position == 0) {
-                    setHomeIconFilled()
-                } else {
-                    setHomeIcon()
-                }
-            }
-        }
         super.onResume()
+        fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
+        viewModel.currentDate.observe(this) { updateUIForDate(it) }
     }
 
     override fun onPause() {
@@ -111,6 +100,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     }
     // endregion
 
+    // region UI update function
     /**
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
@@ -139,15 +129,30 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         // set date text
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
 
-        // nextPosition would be currentSnappedPosition if scrolling
-        // if not scrolling skip to position
         val nextPosition = adapter.getPosition(date)
-        if(nextPosition != snapHelper.currentSnappedPosition) {
+        skipToPositionIfNecessary(nextPosition)
+        setHomeIcon(nextPosition)
+    }
+
+    private fun skipToPositionIfNecessary(position: Int) {
+        // nextPosition could already be correct because of scrolling if not skip
+        if (position != snapHelper.currentSnappedPosition) {
             fragment_cover_flow_grid.stopScroll()
-            fragment_cover_flow_grid.layoutManager?.scrollToPosition(nextPosition)
-            snapHelper.scrollToPosition(nextPosition)
+            fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
+            snapHelper.scrollToPosition(position)
         }
     }
+
+    private fun setHomeIcon(position: Int) {
+        getHomeFragment().apply {
+            if (position == 0) {
+                setHomeIconFilled()
+            } else {
+                setHomeIcon()
+            }
+        }
+    }
+    // endregion
 
     // region skip functions
     fun skipToDate(date: Date) {
