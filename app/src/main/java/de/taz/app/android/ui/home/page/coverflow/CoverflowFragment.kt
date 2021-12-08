@@ -4,7 +4,6 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
@@ -36,6 +35,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     private var currentlyFocusedDate: Date? = null
 
+    // region lifecycle functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
@@ -109,29 +109,23 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         fragment_cover_flow_grid.adapter = null
         super.onDestroyView()
     }
-
-    private fun scrollToHome() {
-        if (!::adapter.isInitialized) {
-            return
-        }
-        fragment_cover_flow_grid.stopScroll()
-        fragment_cover_flow_grid.layoutManager?.scrollToPosition(0)
-        snapHelper.scrollToPosition(0)
-        (parentFragment as? HomeFragment)?.setHomeIconFilled()
-    }
+    // endregion
 
     /**
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
      */
     private fun updateUIForDate(date: Date) {
+        // don't change UI if date is already used
         if (currentlyFocusedDate == date) {
             return
         }
         currentlyFocusedDate = date
 
+        // stop old downloadObserver
         downloadObserver?.stopObserving()
 
+        // start new downloadObserver
         downloadObserver = DownloadObserver(
             this,
             IssuePublication(viewModel.feed.value!!.name, simpleDateFormat.format(date)),
@@ -141,25 +135,23 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         ).apply {
             startObserving()
         }
+
+        // set date text
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
 
-        val position = adapter.getPosition(date)
-        val layoutManager = fragment_cover_flow_grid.layoutManager as LinearLayoutManager
-        val currentlySnappedView = snapHelper.findSnapView(layoutManager)
-        val currentPosition: Int =
-            currentlySnappedView?.let { fragment_cover_flow_grid.getChildAdapterPosition(it) } ?: -1
-        if (position > 0) {
-            if (position != currentPosition) {
-                fragment_cover_flow_grid.stopScroll()
-                layoutManager.scrollToPosition(position)
-            }
-        } else if (position == 0) {
-            scrollToHome()
+        // nextPosition would be currentSnappedPosition if scrolling
+        // if not scrolling skip to position
+        val nextPosition = adapter.getPosition(date)
+        if(nextPosition != snapHelper.currentSnappedPosition) {
+            fragment_cover_flow_grid.stopScroll()
+            fragment_cover_flow_grid.layoutManager?.scrollToPosition(nextPosition)
+            snapHelper.scrollToPosition(nextPosition)
         }
     }
 
+    // region skip functions
     fun skipToDate(date: Date) {
-        if(viewModel.currentDate.value != date)
+        if (viewModel.currentDate.value != date)
             viewModel.currentDate.postValue(date)
     }
 
@@ -174,7 +166,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             skipToDate(it)
         }
     }
-
+    // endregion
 
     fun setTextAlpha(alpha: Float) {
         fragment_cover_flow_date_download_wrapper.alpha = alpha
