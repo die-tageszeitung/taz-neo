@@ -79,23 +79,19 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
                 initialIssueDisplay?.let { skipToPublication(it) } ?: skipToHome()
             }
         }
+        fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
     }
 
 
     override fun onResume() {
         super.onResume()
-        fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
         viewModel.currentDate.observe(this) { updateUIForDate(it) }
-    }
-
-    override fun onPause() {
-        fragment_cover_flow_grid.removeOnScrollListener(onScrollListener)
-        super.onPause()
     }
 
     override fun onDestroyView() {
         snapHelper.attachToRecyclerView(null)
         fragment_cover_flow_grid.adapter = null
+        fragment_cover_flow_grid.removeOnScrollListener(onScrollListener)
         super.onDestroyView()
     }
     // endregion
