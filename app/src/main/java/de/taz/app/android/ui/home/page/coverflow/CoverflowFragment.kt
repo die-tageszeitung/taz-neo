@@ -120,16 +120,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         super.onResume()
     }
 
-    private fun openDatePicker() {
-        val bottomSheet = showBottomSheet(DatePickerFragment())
-        bottomSheet.dialog?.setOnDismissListener {
-            viewModel.currentDate.value?.let {
-                lifecycleScope.launch {
-                    skipToDate(it)
-                }
-            }
-        }
-    }
+    private fun openDatePicker() = showBottomSheet(DatePickerFragment())
 
     override fun onPause() {
         fragment_cover_flow_grid.removeOnScrollListener(onScrollListener)
