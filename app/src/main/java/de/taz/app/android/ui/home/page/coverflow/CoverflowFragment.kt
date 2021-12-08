@@ -55,13 +55,8 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             snapLastItem = true
         }
 
-        fragment_cover_flow_to_archive.setOnClickListener {
-            (parentFragment as? HomeFragment)?.showArchive()
-        }
-
-        fragment_cover_flow_date.setOnClickListener {
-            openDatePicker()
-        }
+        fragment_cover_flow_to_archive.setOnClickListener { getHomeFragment().showArchive() }
+        fragment_cover_flow_date.setOnClickListener { openDatePicker() }
 
         viewModel.feed.observeDistinct(this) { feed ->
             val fresh = !::adapter.isInitialized
@@ -88,10 +83,10 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
 
     override fun onResume() {
-        viewModel.currentDate.observe(this) {
-            updateUIForDate(it)
-        }
         fragment_cover_flow_grid.addOnScrollListener(onScrollListener)
+
+        viewModel.currentDate.observe(this) { updateUIForDate(it) }
+
         snapHelper.setSnapListener { position ->
             (parentFragment as? HomeFragment)?.apply {
                 if (position == 0) {
