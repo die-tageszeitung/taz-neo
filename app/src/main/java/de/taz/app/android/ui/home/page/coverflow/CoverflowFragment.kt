@@ -127,25 +127,14 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
-        setHomeIcon(nextPosition)
     }
 
     private fun skipToPositionIfNecessary(position: Int) {
-        // nextPosition could already be correct because of scrolling if not skip
+        // nextPosition could already be correct because of scrolling if not skip there
         if (position != snapHelper.currentSnappedPosition) {
             fragment_cover_flow_grid.stopScroll()
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
             snapHelper.scrollToPosition(position)
-        }
-    }
-
-    private fun setHomeIcon(position: Int) {
-        getHomeFragment().apply {
-            if (position == 0) {
-                setHomeIconFilled()
-            } else {
-                setHomeIcon()
-            }
         }
     }
     // endregion
@@ -168,6 +157,16 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         }
     }
     // endregion
+
+    fun setHomeIcon(position: Int) {
+        getHomeFragment().apply {
+            if (position == 0) {
+                setHomeIconFilled()
+            } else {
+                setHomeIcon()
+            }
+        }
+    }
 
     fun setTextAlpha(alpha: Float) {
         fragment_cover_flow_date_download_wrapper.alpha = alpha

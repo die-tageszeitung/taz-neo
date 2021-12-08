@@ -37,6 +37,9 @@ class CoverFlowOnScrollListener(
         // set alpha of date
         fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
 
+        // set correct home icon
+        fragment.setHomeIcon(snapHelper.currentSnappedPosition)
+
         // only if a user scroll
         if (dx != 0 || dy != 0) {
             // set new date
@@ -57,13 +60,6 @@ class CoverFlowOnScrollListener(
 
     private fun updateCurrentDate(recyclerView: RecyclerView) {
         val position = snapHelper.currentSnappedPosition
-        fragment.getHomeFragment().apply {
-            if (position == 0) {
-                setHomeIconFilled()
-            } else {
-                setHomeIcon()
-            }
-        }
         (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
             fragment.skipToDate(date)
         }
