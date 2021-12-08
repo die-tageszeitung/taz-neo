@@ -28,7 +28,7 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> :
             "inflate",
             LayoutInflater::class.java
         )
-        return method.invoke(layoutInflater) as ViewBindingClass
+        return method.invoke(this, layoutInflater) as ViewBindingClass
     }
 
 }
