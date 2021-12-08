@@ -51,7 +51,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
     private lateinit var orientationHelper: OrientationHelper
 
     private var downloadObserver: DownloadObserver? = null
-    private var initialIssueDisplay: IssueKey? = null
+    private var initialIssueDisplay: IssuePublication? = null
 
     private var currentlyBoundPosition: Int? = null
 
@@ -138,7 +138,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             fragment_cover_flow_grid.adapter = adapter
             // If fragment was just constructed skip to issue in intent
             if (fresh && savedInstanceState == null) {
-                initialIssueDisplay?.let { skipToKey(it) } ?: skipToHome()
+                initialIssueDisplay?.let { skipToPublication(it) } ?: skipToHome()
             } else if (fresh && savedInstanceState != null) {
                 // if there is a currentdate in the viewmodel scroll to it to let it snap
                 // in again after rotating
@@ -254,7 +254,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         }
     }
 
-    fun skipToKey(issueKey: IssueKey) {
+    private fun skipToPublication(issueKey: IssuePublication) {
         simpleDateFormat.parse(issueKey.date)?.let {
             lifecycleScope.launch { skipToDate(it) }
         }

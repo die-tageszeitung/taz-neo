@@ -17,7 +17,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
@@ -127,7 +126,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
         }
     }
 
-    fun showHome(skipToFirst: Boolean = false, issueKey: IssueKey? = null) {
+    fun showHome() {
         runOnUiThread {
             supportFragmentManager.popBackStackImmediate(
                 null,
@@ -140,11 +139,7 @@ class MainActivity : NightModeActivity(R.layout.activity_main) {
             this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
-            if (skipToFirst) {
-                coverFlowFragment?.skipToHome()
-            } else {
-                issueKey?.let { coverFlowFragment?.skipToKey(it) }
-            }
+            coverFlowFragment?.skipToHome()
         }
     }
 

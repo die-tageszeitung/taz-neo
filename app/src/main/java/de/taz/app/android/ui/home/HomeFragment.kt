@@ -116,9 +116,7 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
                 startActivity(Intent(intent))
             }
             R.id.bottom_navigation_action_home -> {
-                (activity as? MainActivity)?.showHome(
-                    skipToFirst = true
-                )
+                (activity as? MainActivity)?.showHome()
             }
             R.id.bottom_navigation_action_pdf -> {
                 CoroutineScope(Dispatchers.Main).launch {
