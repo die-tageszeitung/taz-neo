@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
 import java.util.*
 
-class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
+class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     val log by Log
 
     private var refreshJob: Job? = null
@@ -108,8 +108,14 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_bookmark -> Intent(requireActivity(), BookmarkListActivity::class.java).apply { startActivity(this) }
-            R.id.bottom_navigation_action_settings -> Intent(requireActivity(), SettingsActivity::class.java).apply { startActivity(this) }
+            R.id.bottom_navigation_action_bookmark -> Intent(
+                requireActivity(),
+                BookmarkListActivity::class.java
+            ).apply { startActivity(this) }
+            R.id.bottom_navigation_action_settings -> Intent(
+                requireActivity(),
+                SettingsActivity::class.java
+            ).apply { startActivity(this) }
             R.id.bottom_navigation_action_help -> {
                 val intent = Intent(context?.applicationContext, WelcomeActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
@@ -136,4 +142,12 @@ class HomeFragment: BaseMainFragment(R.layout.fragment_home) {
     fun setHomeIconFilled() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home_filled)
 
     fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
+
+    fun showCoverFlow() {
+        feed_archive_pager.currentItem = COVERFLOW_PAGER_POSITION
+    }
+
+    fun showArchive() {
+        feed_archive_pager.currentItem = ARCHIVE_PAGER_POSITION
+    }
 }

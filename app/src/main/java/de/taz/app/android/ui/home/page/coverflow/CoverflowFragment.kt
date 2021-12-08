@@ -111,9 +111,7 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         }
 
         fragment_cover_flow_to_archive.setOnClickListener {
-            activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
-                currentItem += 1
-            }
+            (parentFragment as?  HomeFragment)?.showArchive()
         }
 
         fragment_cover_flow_date.setOnClickListener {
