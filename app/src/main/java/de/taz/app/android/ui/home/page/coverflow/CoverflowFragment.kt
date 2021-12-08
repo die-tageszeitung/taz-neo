@@ -147,8 +147,13 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         (parentFragment as? HomeFragment)?.setHomeIconFilled()
     }
 
-    // function to update the text (with download icon)
-    fun setDateTextAndDownloadObserver(date: Date) {
+    /**
+     * this function will only update the date text and the download icon
+     * it will NOT try to interfere with the recyclerview in any way
+     * @param date to be persisted and which will define the date text and which issue the
+     *          downloadObserver will listen to
+     */
+    fun updateUIAndPersistDate(date: Date) {
         if (currentlyFocusedDate == date) {
             return
         }
@@ -169,12 +174,17 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         fragment_cover_flow_date?.text = DateHelper.dateToLongLocalizedString(date)
     }
 
-    // this function will change the UI by skipping directly to a date
+    /**
+     * this function will change the position of the recyclerView and call
+     * [updateUIAndPersistDate] to make sure the UI is adequate and the state is
+     * persisted in the ViewModel
+     * @param date the date to immediately focus the issue of
+     */
     fun skipToDate(date: Date) {
         if (!::adapter.isInitialized) {
             return
         }
-        setDateTextAndDownloadObserver(date)
+        updateUIAndPersistDate(date)
 
         currentlyBoundPosition = adapter.getPosition(date)
         currentlyBoundPosition?.let { position ->

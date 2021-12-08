@@ -65,7 +65,7 @@ class CoverFlowOnScrollListener(
             }
         }
         (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
-            fragment.setDateTextAndDownloadObserver(date)
+            fragment.updateUIAndPersistDate(date)
         }
     }
 
