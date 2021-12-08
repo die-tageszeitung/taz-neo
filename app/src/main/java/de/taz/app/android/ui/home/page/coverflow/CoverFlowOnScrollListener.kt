@@ -34,22 +34,26 @@ class CoverFlowOnScrollListener(
         super.onScrolled(recyclerView, dx, dy)
 
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-        val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
 
+        // set alpha of date
+        fragment.setTextAlpha(calculateDateTextAlpha(layoutManager))
+
+        // TODO to function and /or change logic
         snapHelper.findSnapView(layoutManager)?.let {
-            val currentViewDistance = abs(
-                orientationHelper.startAfterPadding
-                        - orientationHelper.getDecoratedStart(it)
-            )
-            val alphaPercentage = 1 -
-                    (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
-
-            fragment.setTextAlpha(alphaPercentage)
-
             val position = recyclerView.getChildAdapterPosition(it)
             setSelectedDateByPosition(recyclerView, position)
         }
         applyZoomPageTransformer(recyclerView)
+    }
+
+    private fun calculateDateTextAlpha(layoutManager: LinearLayoutManager): Float {
+        val view = snapHelper.findSnapView(layoutManager)
+        val orientationHelper = OrientationHelper.createHorizontalHelper(layoutManager)
+
+        val currentViewDistance = abs(
+            orientationHelper.startAfterPadding - orientationHelper.getDecoratedStart(view)
+        )
+        return 1 - (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
     }
 
     private fun setSelectedDateByPosition(recyclerView: RecyclerView, position: Int) {
