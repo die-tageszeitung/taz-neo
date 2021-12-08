@@ -12,12 +12,12 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> :
 
     private val log by Log
 
-    lateinit var binding: ViewBindingClass
+    lateinit var viewBinding: ViewBindingClass
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = createBinding(layoutInflater)
-        setContentView(binding.root)
+        viewBinding = createBinding(layoutInflater)
+        setContentView(viewBinding.root)
     }
 
     @Suppress("UNCHECKED_CAST")

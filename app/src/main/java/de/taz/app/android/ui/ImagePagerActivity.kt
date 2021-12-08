@@ -11,8 +11,9 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
 import de.taz.app.android.data.DataService
+import de.taz.app.android.databinding.ActivityImagePagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -20,12 +21,11 @@ import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_image_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 
-class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
+class ImagePagerActivity : NightModeViewBindingActivity<ActivityImagePagerBinding>() {
 
     private lateinit var viewPager2: ViewPager2
     private lateinit var tabLayout: TabLayout
@@ -89,7 +89,7 @@ class ImagePagerActivity : NightModeActivity(R.layout.activity_image_pager) {
             offscreenPageLimit = 2
         }
 
-        button_close.setOnClickListener {
+        viewBinding.buttonClose.setOnClickListener {
             finish()
         }
     }
