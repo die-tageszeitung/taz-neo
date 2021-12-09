@@ -1,6 +1,6 @@
 package de.taz.app.android.ui.settings
 
-import de.taz.app.android.R
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.databinding.ActivityErrorReportBinding
 
-class ErrorReportActivity: NightModeActivity(R.layout.activity_error_report)
+class ErrorReportActivity: NightModeViewBindingActivity<ActivityErrorReportBinding>()
