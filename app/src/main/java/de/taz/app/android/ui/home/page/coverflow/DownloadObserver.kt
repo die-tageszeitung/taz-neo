@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.IssuePublicationMonitor
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
