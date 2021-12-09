@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.IssuePublicationMonitor
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +27,18 @@ class DownloadObserver(
     private val checkmarkIconView: ImageView,
     private val downloadProgressView: ProgressBar
 ) {
-    private val log by Log
+    constructor(
+        fragment: Fragment,
+        issuePublication: AbstractIssuePublication,
+        downloadIconView: ImageView,
+        checkmarkIconView: ImageView,
+        downloadProgressView: ProgressBar
+    ) : this(
+        fragment,
+        ContentService.getInstance(fragment.requireContext().applicationContext),
+        ToastHelper.getInstance(fragment.requireContext().applicationContext),
+        issuePublication, downloadIconView, checkmarkIconView, downloadProgressView
+    )
 
     private val issueCacheLiveData = IssuePublicationMonitor(
         fragment.requireContext().applicationContext,
