@@ -215,6 +215,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
                 showDownloadsEnabled(downloadsEnabled)
             }
+            downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
+                showDownloadAdditionallyPdf(additionallyEnabled)
+            }
             downloadAdditionallyDialogDoNotShowAgain.observeDistinct(viewLifecycleOwner) { doNotShowAgain ->
                 setDoNotShowAgain(doNotShowAgain)
             }
@@ -429,6 +432,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         }
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)?.apply {
             isEnabled = downloadsEnabled
+        }
+    }
+
+    private fun showDownloadAdditionallyPdf(additionallyEnabled: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)?.apply {
+            isChecked = additionallyEnabled
         }
     }
 
