@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.*
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
@@ -156,9 +157,13 @@ class ContentService(
         allowCache: Boolean = true
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
+        val toDownload =
+            if (download is IssuePublication && DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {
+                IssuePublicationWithPages(download)
+            } else download
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,
-            download,
+            toDownload,
             isAutomaticDownload,
             allowCache,
             priority,
