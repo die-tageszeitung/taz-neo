@@ -69,7 +69,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                 val lastAction = fragment_error_report_last_action.text.toString().trim()
                 val conditions = fragment_error_report_conditions.text.toString().trim()
 
-                if (email.isNotEmpty() || message.isNotEmpty() || lastAction.isNotEmpty() || conditions.isNotEmpty()) {
+                if (email.isNotEmpty()) {
                     sendErrorReport(
                         email,
                         message,
@@ -79,6 +79,7 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
                         base64String
                     )
                 } else {
+                    fragment_error_report_email.error = requireContext().getString(R.string.login_email_error_empty)
                     loading_screen.visibility = View.GONE
                 }
             }
