@@ -245,7 +245,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                     )
                 } else {
                     throw DifferentOperationActiveException(
-                        "For tag $tag there is a diffrent operation already active",
+                        "For tag $tag there is a different operation already active",
                         operation
                     )
                 }
