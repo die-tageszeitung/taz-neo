@@ -578,7 +578,7 @@ data class IssuePublicationWithPages(
     )
 
     override fun getDownloadTag(): String {
-        return "$feedName/$date"
+        return "$feedName/$date/pdf"
     }
 }
 
