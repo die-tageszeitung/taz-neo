@@ -52,11 +52,18 @@ class DownloadObserver(
         issuePublication
     ).issueCacheLiveData
 
-    private val downloadDataStore = DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
+    private val issueWithPagesCacheLiveData = IssuePublicationMonitor(
+        fragment.requireContext().applicationContext,
+        IssuePublicationWithPages(issuePublication)
+    ).issueCacheLiveData
 
-    fun startObserving() {
+    private val downloadDataStore =
+        DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
+
+    fun startObserving(withPages: Boolean = false) {
         hideDownloadIcon()
-        issueCacheLiveData.observe(fragment, { update: CacheStateUpdate ->
+        val observingIssueLiveData = if (withPages) issueWithPagesCacheLiveData else issueCacheLiveData
+        observingIssueLiveData.observe(fragment, { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
                 if (!noConnectionShown) {
@@ -97,9 +104,10 @@ class DownloadObserver(
 
     private fun showDownloadIcon() {
         downloadIconView.setOnClickListener {
+            stopObserving()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    showAutomaticDownloadDialog()
+                    maybeShowAutomaticDownloadDialog()
                 } catch (e: CacheOperationFailedException) {
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity().showIssueDownloadFailedDialog(
@@ -139,7 +147,7 @@ class DownloadObserver(
         downloadProgressView.visibility = View.VISIBLE
     }
 
-    private suspend fun showAutomaticDownloadDialog() {
+    private suspend fun maybeShowAutomaticDownloadDialog() {
         val showDialog = !downloadDataStore.pdfDialogDoNotShowAgain.get()
                 && issuePublication is IssuePublication
 
@@ -155,7 +163,7 @@ class DownloadObserver(
                         setPdfSwitch(
                             doNotShowAgainCheckboxView,
                             issuePublication,
-                            enabled = false
+                            pdfAdditionally = false
                         )
                         dialog.dismiss()
                     }
@@ -163,7 +171,7 @@ class DownloadObserver(
                         setPdfSwitch(
                             doNotShowAgainCheckboxView,
                             IssuePublicationWithPages(issuePublication),
-                            enabled = true
+                            pdfAdditionally = true
                         )
                         dialog.dismiss()
                     }
@@ -178,14 +186,15 @@ class DownloadObserver(
     private fun setPdfSwitch(
         doNotShowAgainCheckboxView: MaterialCheckBox?,
         issuePublication: AbstractIssuePublication,
-        enabled: Boolean
+        pdfAdditionally: Boolean
     ) {
+        startObserving(withPages = pdfAdditionally)
         CoroutineScope(Dispatchers.IO).launch {
-            contentService.downloadToCache(issuePublication)
-            downloadDataStore.pdfAdditionally.set(enabled)
+            downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(
                 doNotShowAgainCheckboxView?.isChecked == true
             )
+            contentService.downloadToCache(issuePublication)
         }
     }
 }
