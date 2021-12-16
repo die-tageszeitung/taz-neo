@@ -40,6 +40,7 @@ class ContentService(
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
+    private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
@@ -158,7 +159,7 @@ class ContentService(
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
         val toDownload =
-            if (download is IssuePublication && DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {
+            if (download is IssuePublication && downloadDataStore.pdfAdditionally.get()) {
                 IssuePublicationWithPages(download)
             } else download
         val wrappedDownload = WrappedDownload.prepare(
