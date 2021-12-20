@@ -37,13 +37,16 @@ class TazApiCssHelper private constructor(applicationContext: Context){
             val importString = nightModeCssFile?.let { "@import \"${it.absolutePath}\";" } ?: ""
 
             val fontSizePx = computeFontSize(tazApiCssDataStore.fontSize.get())
-
+            val textAlign= if (tazApiCssDataStore.textJustification.get()) "justify" else "left"
             if (tazApiCssDataStore.nightMode.get()) {
                 return@withContext """
                             $importString
                             html, body {
                                 background-color : ${DEFAULT_NIGHT_COLOR};
                                 font-size        : ${fontSizePx}px;
+                            }
+                            p {
+                                text-align: ${textAlign};
                             }
                             div.demoDiv:before {
                                 background-image : --webkit_linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
@@ -54,6 +57,9 @@ class TazApiCssHelper private constructor(applicationContext: Context){
                             html, body {
                                 background-color : ${DEFAULT_DAY_COLOR};
                                 font-size        : ${fontSizePx}px;
+                            }
+                            p {
+                                text-align: ${textAlign};
                             }""".trimIndent()
             }
         }

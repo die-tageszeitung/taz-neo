@@ -14,6 +14,7 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 
 // region setting keys
 private const val FONT_SIZE = "text_font_size"
+private const val TEXT_JUSTIFICATION = "text_justification"
 private const val NIGHT_MODE = "text_night_mode"
 // endregion
 
@@ -41,6 +42,10 @@ class TazApiCssDataStore private constructor(applicationContext: Context) {
         dataStore,
         stringPreferencesKey(FONT_SIZE),
         applicationContext.resources.getInteger(R.integer.text_default_size).toString()
+    )
+
+    val textJustification: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(TEXT_JUSTIFICATION), false
     )
 
     val nightMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
