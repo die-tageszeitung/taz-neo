@@ -116,6 +116,7 @@
     <string name="fragment_error_report_title">Report a bug</string>
     <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>
     <string name="fragment_error_report_email_title">Your email address</string>
+    <string name="fragment_error_report_email_empty">Your email address must not be empty</string>
     <string name="fragment_error_report_message_title">Your message</string>
     <string name="fragment_error_report_message_hint">Describe here the problem you have encountered.</string>
     <string name="fragment_error_report_last_action_title">Last action</string>

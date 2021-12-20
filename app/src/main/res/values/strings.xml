@@ -140,6 +140,7 @@
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
     <string name="fragment_error_report_email_title">Ihre Email-Adresse</string>
+    <string name="fragment_error_report_email_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="fragment_error_report_message_title">Ihre Nachricht</string>
     <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
     <string name="fragment_error_report_last_action_title">Letzte Interaktion</string>
