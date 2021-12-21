@@ -182,7 +182,7 @@ class DownloadObserver(
             withContext(Dispatchers.Main) {
                 startObserving()
             }
-            contentService.downloadToCache(issuePublication)
+            contentService.downloadIssuePublicationToCache(issuePublication)
         }
     }
 
@@ -195,7 +195,7 @@ class DownloadObserver(
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
-            contentService.downloadToCache(issuePublication)
+            contentService.downloadIssuePublicationToCache(issuePublication)
         }
     }
 }

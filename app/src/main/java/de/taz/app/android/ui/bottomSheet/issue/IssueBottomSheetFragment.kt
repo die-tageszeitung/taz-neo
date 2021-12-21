@@ -181,7 +181,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         fragment_bottom_sheet_issue_download?.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    contentService.downloadToCache(issuePublication)
+                    contentService.downloadIssuePublicationToCache(issuePublication)
                 } catch (e: CacheOperationFailedException) {
                     // Errors are handled in CoverViewBinding
                 }

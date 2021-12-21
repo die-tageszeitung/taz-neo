@@ -143,6 +143,28 @@ class ContentService(
         }
 
     /**
+     * This function wraps downloadToCache calls of issuePublication.
+     * When calling downloadIssuePublicationToCache we do not know if [IssuePublicationWithPages] or
+     * just [IssuePublication] should be downloaded.
+     * That is defined in the [DownloadDataStore] with the [pdfAdditionally] flag.
+     * */
+    suspend fun downloadIssuePublicationToCache(
+        issuePublication: AbstractIssuePublication,
+        priority: DownloadPriority = DownloadPriority.Normal,
+        isAutomaticDownload: Boolean = false,
+        allowCache: Boolean = true
+    ) {
+        val download: ObservableDownload =
+            if (downloadDataStore.pdfAdditionally.get()) {
+                IssuePublicationWithPages(issuePublication)
+            } else {
+                issuePublication
+            }
+
+        downloadToCache(download, priority, isAutomaticDownload, allowCache)
+    }
+
+    /**
      * This function will download a [download] (both Metadata and Contents) if
      * it is not yet marked as downloaded. If it is it will just return
      * @param download The [ObservableDownload] to be downloaded
@@ -158,13 +180,9 @@ class ContentService(
         allowCache: Boolean = true
     ) = withContext(Dispatchers.IO) {
         val tag = determineParentTag(download)
-        val toDownload =
-            if (download is IssuePublication && downloadDataStore.pdfAdditionally.get()) {
-                IssuePublicationWithPages(download)
-            } else download
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,
-            toDownload,
+            download,
             isAutomaticDownload,
             allowCache,
             priority,

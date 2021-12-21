@@ -86,7 +86,7 @@ class IssueViewerViewModel(
                     // Start downloading the whole issue in background
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            contentService.downloadToCache(IssuePublication(issueKey))
+                            contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                         } catch (e: CacheOperationFailedException) {
                             issueLoadingFailedErrorFlow.emit(true)
                         }
