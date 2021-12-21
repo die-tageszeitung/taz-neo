@@ -160,18 +160,18 @@ class DownloadObserver(
                 val dialog = MaterialAlertDialogBuilder(fragment.requireContext())
                     .setView(dialogView)
                     .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
-                        setPdfSwitch(
-                            doNotShowAgainCheckboxView,
-                            issuePublication,
-                            pdfAdditionally = false
+                        setDownloadDataStoreEntriesAndDownloadIssuePublication(
+                            doNotShowAgain= doNotShowAgainCheckboxView?.isChecked == true,
+                            pdfAdditionally = false,
+                            issuePublication = issuePublication
                         )
                         dialog.dismiss()
                     }
                     .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
-                        setPdfSwitch(
-                            doNotShowAgainCheckboxView,
-                            IssuePublicationWithPages(issuePublication),
-                            pdfAdditionally = true
+                        setDownloadDataStoreEntriesAndDownloadIssuePublication(
+                            doNotShowAgain = doNotShowAgainCheckboxView?.isChecked == true,
+                            pdfAdditionally = true,
+                            issuePublication = IssuePublicationWithPages(issuePublication)
                         )
                         dialog.dismiss()
                     }
@@ -179,21 +179,22 @@ class DownloadObserver(
                 dialog.show()
             }
         } else {
+            withContext(Dispatchers.Main) {
+                startObserving()
+            }
             contentService.downloadToCache(issuePublication)
         }
     }
 
-    private fun setPdfSwitch(
-        doNotShowAgainCheckboxView: MaterialCheckBox?,
-        issuePublication: AbstractIssuePublication,
-        pdfAdditionally: Boolean
+    private fun setDownloadDataStoreEntriesAndDownloadIssuePublication(
+        doNotShowAgain: Boolean,
+        pdfAdditionally: Boolean,
+        issuePublication: AbstractIssuePublication
     ) {
         startObserving(withPages = pdfAdditionally)
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
-            downloadDataStore.pdfDialogDoNotShowAgain.set(
-                doNotShowAgainCheckboxView?.isChecked == true
-            )
+            downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
             contentService.downloadToCache(issuePublication)
         }
     }
