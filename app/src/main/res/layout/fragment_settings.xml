@@ -114,11 +114,18 @@
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_text" />
 
             <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_text_justified"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_text_justified"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
+
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_night_mode"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_text_night_mode"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_size" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_justified" />
 
             <TextView
                 android:id="@+id/fragment_settings_category_support"

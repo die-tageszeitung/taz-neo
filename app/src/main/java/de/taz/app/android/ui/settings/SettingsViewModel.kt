@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     var fontSizeLiveData: LiveData<String>
+    var textJustificationLiveData: LiveData<Boolean>
     var nightModeLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
@@ -31,6 +33,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     init {
         fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
 
+        textJustificationLiveData = tazApiCssDataStore.textJustification.asLiveData()
         nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
 
         storedIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
@@ -104,6 +107,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private fun setFontSize(value: String) {
         CoroutineScope(Dispatchers.IO).launch {
             tazApiCssDataStore.fontSize.set(value)
+        }
+    }
+
+    fun setTextJustification(justified: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.textJustification.set(justified)
         }
     }
 

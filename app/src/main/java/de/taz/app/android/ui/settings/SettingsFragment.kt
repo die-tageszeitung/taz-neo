@@ -130,6 +130,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 StorageSelectionDialog(requireContext()).show()
             }
 
+            fragment_settings_text_justified?.setOnCheckedChangeListener { _, isChecked ->
+                setTextJustification(isChecked)
+            }
+
             fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     enableNightMode()
@@ -195,6 +199,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showFontSize(textSizeInt)
                 }
+            }
+            textJustificationLiveData.observeDistinct(viewLifecycleOwner) { justified ->
+                showTextJustification(justified)
             }
             nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
@@ -401,6 +408,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
     }
 
+    private fun showTextJustification(justified: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_text_justified)?.isChecked = justified
+    }
+
     private fun showNightMode(nightMode: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
@@ -462,6 +473,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         viewModel.setNightMode(true)
     }
 
+    private fun setTextJustification(justified: Boolean) {
+        log.debug("setTextJustification to $justified")
+        viewModel.setTextJustification(justified)
+    }
 
     private fun decreaseFontSize() {
         viewModel.decreaseFontSize()
