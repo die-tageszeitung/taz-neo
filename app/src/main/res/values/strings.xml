@@ -245,8 +245,9 @@
     <string name="login_or_contact_support">Oder wenden Sie sich an unseren Service unter</string>
     <string name="fragment_login_subscription_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
 
-    <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse oder Abo-ID an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
+    <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse an und Sie erhalten eine E-Mail zum weiteren Vorgehen.</string>
     <string name="fragment_login_forgot_password_send">Senden und Link anfordern</string>
+    <string name="fragment_login_forgot_password_email_hint">E-Mail-Adresse</string>
     <string name="login_forgot_password_error_invalid_id">Ungültige Abo-ID</string>
 
     <string name="fragment_login_forgot_password_email_sent_header">Die E-Mail wurde abgeschickt. Bitte schauen Sie in Ihr Mail-Postfach. Sollten Sie sie nicht finden, schauen Sie bitte auch in Ihrem Spam-Ordner nach.</string>
