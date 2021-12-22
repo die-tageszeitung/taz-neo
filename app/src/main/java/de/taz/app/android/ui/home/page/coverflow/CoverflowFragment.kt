@@ -7,6 +7,7 @@ import android.view.View
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
@@ -35,12 +36,18 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     private var currentlyFocusedDate: Date? = null
 
+    private var pdfAdditionally: Boolean = false
+
     // region lifecycle functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            pdfAdditionally = DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,7 +131,9 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             fragment_coverflow_moment_download_finished,
             fragment_coverflow_moment_downloading
         ).apply {
-            startObserving()
+            startObserving(
+                withPages = pdfAdditionally
+            )
         }
 
         // set date text

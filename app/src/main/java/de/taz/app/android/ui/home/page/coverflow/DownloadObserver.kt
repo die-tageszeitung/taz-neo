@@ -1,13 +1,20 @@
 package de.taz.app.android.ui.home.page.coverflow
 
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.checkbox.MaterialCheckBox
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.*
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.IssuePublicationMonitor
@@ -45,9 +52,18 @@ class DownloadObserver(
         issuePublication
     ).issueCacheLiveData
 
-    fun startObserving() {
+    private val issueWithPagesCacheLiveData = IssuePublicationMonitor(
+        fragment.requireContext().applicationContext,
+        IssuePublicationWithPages(issuePublication)
+    ).issueCacheLiveData
+
+    private val downloadDataStore =
+        DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
+
+    fun startObserving(withPages: Boolean = false) {
         hideDownloadIcon()
-        issueCacheLiveData.observe(fragment, { update: CacheStateUpdate ->
+        val observingIssueLiveData = if (withPages) issueWithPagesCacheLiveData else issueCacheLiveData
+        observingIssueLiveData.observe(fragment, { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
                 if (!noConnectionShown) {
@@ -67,6 +83,7 @@ class DownloadObserver(
 
     fun stopObserving() {
         issueCacheLiveData.removeObservers(fragment)
+        issueWithPagesCacheLiveData.removeObservers(fragment)
     }
 
 
@@ -88,9 +105,10 @@ class DownloadObserver(
 
     private fun showDownloadIcon() {
         downloadIconView.setOnClickListener {
+            stopObserving()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    contentService.downloadToCache(issuePublication)
+                    maybeShowAutomaticDownloadDialog()
                 } catch (e: CacheOperationFailedException) {
                     withContext(Dispatchers.Main) {
                         fragment.requireActivity().showIssueDownloadFailedDialog(
@@ -128,5 +146,59 @@ class DownloadObserver(
         downloadIconView.visibility = View.GONE
         checkmarkIconView.visibility = View.GONE
         downloadProgressView.visibility = View.VISIBLE
+    }
+
+    private suspend fun maybeShowAutomaticDownloadDialog() {
+        val showDialog = !downloadDataStore.pdfDialogDoNotShowAgain.get()
+                && issuePublication is IssuePublication
+
+        if (showDialog) {
+            withContext(Dispatchers.Main) {
+                val dialogView = LayoutInflater.from(fragment.context)
+                    .inflate(R.layout.dialog_settings_download_pdf, null)
+                val doNotShowAgainCheckboxView =
+                    dialogView?.findViewById<MaterialCheckBox>(R.id.dialog_settings_download_pdf_do_not_ask_again)
+                val dialog = MaterialAlertDialogBuilder(fragment.requireContext())
+                    .setView(dialogView)
+                    .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
+                        setDownloadDataStoreEntriesAndDownloadIssuePublication(
+                            doNotShowAgain= doNotShowAgainCheckboxView?.isChecked == true,
+                            pdfAdditionally = false,
+                            issuePublication = issuePublication
+                        )
+                        dialog.dismiss()
+                    }
+                    .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
+                        setDownloadDataStoreEntriesAndDownloadIssuePublication(
+                            doNotShowAgain = doNotShowAgainCheckboxView?.isChecked == true,
+                            pdfAdditionally = true,
+                            issuePublication = IssuePublicationWithPages(issuePublication)
+                        )
+                        dialog.dismiss()
+                    }
+                    .create()
+                dialog.show()
+            }
+        } else {
+            withContext(Dispatchers.Main) {
+                startObserving(
+                    withPages = downloadDataStore.pdfAdditionally.get()
+                )
+            }
+            contentService.downloadIssuePublicationToCache(issuePublication)
+        }
+    }
+
+    private fun setDownloadDataStoreEntriesAndDownloadIssuePublication(
+        doNotShowAgain: Boolean,
+        pdfAdditionally: Boolean,
+        issuePublication: AbstractIssuePublication
+    ) {
+        startObserving(withPages = pdfAdditionally)
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.pdfAdditionally.set(pdfAdditionally)
+            downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
+            contentService.downloadIssuePublicationToCache(issuePublication)
+        }
     }
 }

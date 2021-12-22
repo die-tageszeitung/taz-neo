@@ -21,6 +21,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
+    val downloadAdditionallyPdf: LiveData<Boolean>
     val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
 
     var storageLocationLiveData: LiveData<StorageLocation>
@@ -41,6 +42,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
         downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
+        downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asLiveData()
         downloadAdditionallyDialogDoNotShowAgain = downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
     }
 

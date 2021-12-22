@@ -73,9 +73,9 @@ class PdfPagerViewModel(
     }
 
     private val issue = MediatorLiveData<IssueWithPages>().apply {
-        addSource(issuePublication) { issuePublication ->
+        addSource(issuePublication) { issuePublicationWithPages ->
             suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
-                issuePublication,
+                issuePublicationWithPages,
                 minStatus = authHelper.getMinStatus(),
                 maxRetries = maxRetries
             ) as IssueWithPages
@@ -96,7 +96,7 @@ class PdfPagerViewModel(
 
                 postValue(issue)
                 CoroutineScope(Dispatchers.IO).launch {
-                    contentService.downloadToCache(issuePublication)
+                    contentService.downloadToCache(issuePublicationWithPages)
                     postValue(issue)
                 }
             }

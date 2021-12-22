@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.*
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
@@ -39,6 +40,7 @@ class ContentService(
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
+    private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
@@ -139,6 +141,28 @@ class ContentService(
                 )
             }
         }
+
+    /**
+     * This function wraps downloadToCache calls of issuePublication.
+     * When calling downloadIssuePublicationToCache we do not know if [IssuePublicationWithPages] or
+     * just [IssuePublication] should be downloaded.
+     * That is defined in the [DownloadDataStore] with the [pdfAdditionally] flag.
+     * */
+    suspend fun downloadIssuePublicationToCache(
+        issuePublication: AbstractIssuePublication,
+        priority: DownloadPriority = DownloadPriority.Normal,
+        isAutomaticDownload: Boolean = false,
+        allowCache: Boolean = true
+    ) {
+        val download: ObservableDownload =
+            if (downloadDataStore.pdfAdditionally.get()) {
+                IssuePublicationWithPages(issuePublication)
+            } else {
+                issuePublication
+            }
+
+        downloadToCache(download, priority, isAutomaticDownload, allowCache)
+    }
 
     /**
      * This function will download a [download] (both Metadata and Contents) if
