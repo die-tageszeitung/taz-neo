@@ -83,6 +83,7 @@ class DownloadObserver(
 
     fun stopObserving() {
         issueCacheLiveData.removeObservers(fragment)
+        issueWithPagesCacheLiveData.removeObservers(fragment)
     }
 
 
