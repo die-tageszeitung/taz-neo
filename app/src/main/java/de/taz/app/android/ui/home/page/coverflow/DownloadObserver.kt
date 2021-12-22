@@ -180,7 +180,9 @@ class DownloadObserver(
             }
         } else {
             withContext(Dispatchers.Main) {
-                startObserving()
+                startObserving(
+                    withPages = downloadDataStore.pdfAdditionally.get()
+                )
             }
             contentService.downloadIssuePublicationToCache(issuePublication)
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.ToastHelper
@@ -43,6 +44,7 @@ abstract class CoverViewBinding(
     private var bindJob: Job? = null
 
     private var downloadObserver: DownloadObserver? = null
+    private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     abstract suspend fun prepareData(): CoverViewData
 
@@ -89,7 +91,9 @@ abstract class CoverViewBinding(
                 view.findViewById(R.id.view_moment_download_finished),
                 view.findViewById(R.id.view_moment_downloading)
             ).also {
-                it.startObserving()
+                it.startObserving(
+                    withPages = downloadDataStore.pdfAdditionally.get()
+                )
             }
         }
     }
