@@ -141,3 +141,9 @@
 }
 #
 -keep class com.artifex.mupdf.fitz.* {*;}
+
+# view bindings
+-keep class * extends androidx.viewbinding.ViewBinding {
+    public static *** bind(android.view.View);
+    public static *** inflate(android.view.LayoutInflater);
+}
