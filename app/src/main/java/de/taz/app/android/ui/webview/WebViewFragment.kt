@@ -16,7 +16,6 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -252,17 +251,4 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
             }
         }
     }
-
-    /**
-     * Check if minimal resource version of the issue is <= the current resource version.
-     * @return Boolean if resource info is up to date or not
-     */
-    private suspend fun isResourceInfoUpToDate(resourceInfo: ResourceInfo?): Boolean =
-        withContext(Dispatchers.IO) {
-            val issue = viewModel.displayable?.getIssueStub(requireContext().applicationContext)
-            resourceInfo?.let {
-                val minResourceVersion = issue?.minResourceVersion ?: Int.MAX_VALUE
-                minResourceVersion <= resourceInfo.resourceVersion
-            } ?: true
-        }
 }
