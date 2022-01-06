@@ -27,20 +27,6 @@ object NightModeHelper {
     }
 
     fun setThemeAndReCreate(
-        activity: NightModeActivity,
-        nightMode: Boolean
-    ) {
-        if (nightMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            log.debug("setTheme to NIGHT")
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            log.debug("setTheme to DAY")
-        }
-        activity.recreate()
-    }
-
-    fun setThemeAndReCreate(
         activity: NightModeViewBindingActivity<*>,
         nightMode: Boolean
     ) {
