@@ -38,6 +38,8 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
 
     private var pdfAdditionally: Boolean = false
 
+    private var firstTimeFragmentIsShown: Boolean = true
+
     // region lifecycle functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -143,9 +145,15 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         skipToPositionIfNecessary(nextPosition)
     }
 
+    /**
+     * Sometimes in the carousel the items are not snapped in the center correctly.
+     * That happens when the [adapter]s [position] is different from the [GravitySnapHelper]s or
+     * the first time the fragment is drawn (determined by [firstTimeFragmentIsShown]).
+     */
     private fun skipToPositionIfNecessary(position: Int) {
         // nextPosition could already be correct because of scrolling if not skip there
-        if (position != snapHelper.currentSnappedPosition) {
+        if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
+            firstTimeFragmentIsShown = false
             fragment_cover_flow_grid.stopScroll()
             fragment_cover_flow_grid.layoutManager?.scrollToPosition(position)
             snapHelper.scrollToPosition(position)
