@@ -22,7 +22,12 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
     @Suppress("UNCHECKED_CAST")
     private fun createBinding(layoutInflater: LayoutInflater): ViewBindingClass {
         val viewBindingClass =
-            (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<ViewBindingClass>
+            try {
+                (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
+            } catch (cce: ClassCastException) {
+                ((javaClass.genericSuperclass as Class<ViewBindingClass>)
+                    .genericSuperclass as ParameterizedType).actualTypeArguments[0]
+            } as Class<ViewBindingClass>
         val method = viewBindingClass.getMethod(
             "inflate",
             LayoutInflater::class.java

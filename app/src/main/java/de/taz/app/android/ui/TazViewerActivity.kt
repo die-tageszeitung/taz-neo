@@ -16,14 +16,14 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoKey
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
+import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
-import kotlinx.android.synthetic.main.activity_taz_viewer.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ import kotlin.reflect.full.createInstance
 
 const val DRAWER_OVERLAP_OFFSET = -5F
 
-abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewer) {
+abstract class TazViewerActivity : NightModeViewBindingActivity<ActivityTazViewerBinding>() {
 
     abstract val fragmentClass: KClass<out Fragment>
 
@@ -41,7 +41,6 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
     private lateinit var contentService: ContentService
     private lateinit var dataService: DataService
 
-    private var downloadErrorShown = false
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
@@ -72,52 +71,53 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
-        drawer_logo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-            drawer_layout.updateDrawerLogoBoundingBox(
-                v.width,
-                v.height
-            )
-        }
+        viewBinding.apply {
+            drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                drawerLayout.updateDrawerLogoBoundingBox(
+                    v.width,
+                    v.height
+                )
+            }
 
-        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            var opened = false
+            drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+                var opened = false
 
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                (drawerView.parent as? View)?.let { parentView ->
-                    val drawerWidth =
-                        drawerView.width + (drawer_layout.drawerLogoBoundingBox?.width() ?: 0)
-                    if (parentView.width < drawerWidth) {
-                        // translation needed for logo to be shown when drawer is too wide:
-                        val offsetOnOpenDrawer =
-                            slideOffset * (parentView.width - drawerWidth)
-                        // translation needed when drawer is closed then:
-                        val offsetOnClosedDrawer =
-                            (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                        drawer_logo_wrapper.translationX = offsetOnOpenDrawer + offsetOnClosedDrawer
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                    (drawerView.parent as? View)?.let { parentView ->
+                        val drawerWidth =
+                            drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
+                        if (parentView.width < drawerWidth) {
+                            // translation needed for logo to be shown when drawer is too wide:
+                            val offsetOnOpenDrawer =
+                                slideOffset * (parentView.width - drawerWidth)
+                            // translation needed when drawer is closed then:
+                            val offsetOnClosedDrawer =
+                                (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                            drawerLogoWrapper.translationX =
+                                offsetOnOpenDrawer + offsetOnClosedDrawer
+                        }
                     }
                 }
-            }
 
-            override fun onDrawerOpened(drawerView: View) {
-                opened = true
-            }
+                override fun onDrawerOpened(drawerView: View) {
+                    opened = true
+                }
 
-            override fun onDrawerClosed(drawerView: View) {
-                opened = false
-            }
+                override fun onDrawerClosed(drawerView: View) {
+                    opened = false
+                }
 
-            override fun onDrawerStateChanged(newState: Int) {}
-        })
+                override fun onDrawerStateChanged(newState: Int) {}
+            })
 
-        sectionDrawerViewModel.drawerOpen.observe(this) {
-            if (it) {
-                drawer_layout.openDrawer(GravityCompat.START)
-            } else {
-                drawer_layout.closeDrawers()
+            sectionDrawerViewModel.drawerOpen.observe(this@TazViewerActivity) {
+                if (it) {
+                    drawerLayout.openDrawer(GravityCompat.START)
+                } else {
+                    drawerLayout.closeDrawers()
+                }
             }
         }
-
-
     }
 
     override fun onResume() {
@@ -176,12 +176,14 @@ abstract class TazViewerActivity : NightModeActivity(R.layout.activity_taz_viewe
             ) * scaleFactor
 
             withContext(Dispatchers.Main) {
-                drawer_logo.setImageDrawable(imageDrawable)
-                drawer_logo.alpha = navButtonAlpha
-                drawer_logo.imageAlpha = (navButton.alpha * 255).toInt()
-                drawer_logo.layoutParams.width = logicalWidth.toInt()
-                drawer_logo.layoutParams.height = logicalHeight.toInt()
-                drawer_layout.requestLayout()
+                viewBinding.apply {
+                    drawerLogo.setImageDrawable(imageDrawable)
+                    drawerLogo.alpha = navButtonAlpha
+                    drawerLogo.imageAlpha = (navButton.alpha * 255).toInt()
+                    drawerLogo.layoutParams.width = logicalWidth.toInt()
+                    drawerLogo.layoutParams.height = logicalHeight.toInt()
+                    drawerLayout.requestLayout()
+                }
             }
         }
     }
