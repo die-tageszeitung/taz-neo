@@ -14,8 +14,9 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
@@ -36,7 +37,7 @@ const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
-class MainActivity : NightModeActivity(R.layout.activity_main) {
+class MainActivity : NightModeViewBindingActivity<ActivityMainBinding>() {
 
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
