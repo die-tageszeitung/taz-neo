@@ -14,7 +14,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.databinding.ActivityLoginBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
@@ -27,8 +28,6 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragm
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
-class LoginActivity : NightModeActivity(R.layout.activity_login) {
+class LoginActivity : NightModeViewBindingActivity<ActivityLoginBinding>() {
 
     private val log by Log
 
@@ -51,17 +50,19 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
+    private val loadingScreen by lazy { viewBinding.loadingScreen.root }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        view.moveContentBeneathStatusBar()
+        rootViewGroup?.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
 
-        navigation_bottom.apply {
+        viewBinding.navigationBottom.apply {
             itemIconTintList = null
 
             // hack to not auto select first item
@@ -254,12 +255,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
 
     private fun hideLoadingScreen() = runOnUiThread {
         log.debug("hideLoadingScreen")
-        loading_screen.visibility = View.GONE
+        loadingScreen.visibility = View.GONE
     }
 
     private fun showLoadingScreen() = runOnUiThread {
         log.debug("showLoadingScreen")
-        loading_screen.visibility = View.VISIBLE
+        loadingScreen.visibility = View.VISIBLE
     }
 
     private fun showConfirmEmail() {
@@ -336,16 +337,12 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         return try {
             ApiService.getInstance(applicationContext).getPriceList()
         } catch (nie: ConnectivityException.NoInternetException) {
-            view?.let {
-                Snackbar.make(it, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
-            } ?: ToastHelper.getInstance(applicationContext).showNoConnectionToast()
+            Snackbar.make(rootView, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
+                .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
             null
         } catch (ie: ConnectivityException.ImplementationException) {
-            view?.let {
-                Snackbar.make(it, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
-            } ?: ToastHelper.getInstance(applicationContext).showSomethingWentWrongToast()
+            Snackbar.make(rootView, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
+                .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
             null
         }
     }
@@ -422,13 +419,13 @@ class LoginActivity : NightModeActivity(R.layout.activity_login) {
         }
 
         fragment.lifecycleScope.launchWhenResumed {
-            view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
+            rootView.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
             hideLoadingScreen()
         }
     }
 
     override fun onBackPressed() {
-        if (loading_screen.visibility == View.VISIBLE) {
+        if (loadingScreen.visibility == View.VISIBLE) {
             hideLoadingScreen()
         } else {
             if (supportFragmentManager.backStackEntryCount == 1) {

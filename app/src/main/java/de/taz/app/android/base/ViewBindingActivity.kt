@@ -7,8 +7,7 @@ import androidx.viewbinding.ViewBinding
 import de.taz.app.android.util.Log
 import java.lang.reflect.ParameterizedType
 
-abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> :
-    AppCompatActivity() {
+abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatActivity() {
 
     private val log by Log
 

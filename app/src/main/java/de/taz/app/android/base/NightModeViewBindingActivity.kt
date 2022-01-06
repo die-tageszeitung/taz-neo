@@ -1,6 +1,8 @@
 package de.taz.app.android.base
 
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
@@ -10,7 +12,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-abstract class NightModeViewBindingActivity<ViewBindingType: ViewBinding>() : ViewBindingActivity<ViewBindingType>() {
+abstract class NightModeViewBindingActivity<ViewBindingType : ViewBinding> :
+    ViewBindingActivity<ViewBindingType>() {
+
+    protected val rootView: View by lazy { viewBinding.root }
+    protected val rootViewGroup by lazy { rootView as? ViewGroup }
 
     private val tazApiCssDataStore by lazy {
         TazApiCssDataStore.getInstance(applicationContext)
@@ -33,13 +39,13 @@ abstract class NightModeViewBindingActivity<ViewBindingType: ViewBinding>() : Vi
     override fun onResume() {
         super.onResume()
         tazApiCssDataStore.nightMode.asLiveData().observe(this) {
-            if(it != NightModeHelper.isDarkTheme(this))
-            CoroutineScope(Dispatchers.Main).launch {
-                NightModeHelper.apply {
-                    generateCssOverride(this@NightModeViewBindingActivity)
-                    setThemeAndReCreate(this@NightModeViewBindingActivity, it)
+            if (it != NightModeHelper.isDarkTheme(this))
+                CoroutineScope(Dispatchers.Main).launch {
+                    NightModeHelper.apply {
+                        generateCssOverride(this@NightModeViewBindingActivity)
+                        setThemeAndReCreate(this@NightModeViewBindingActivity, it)
+                    }
                 }
-            }
         }
         tazApiCssDataStore.fontSize.asLiveData().observe(this) {
             CoroutineScope(Dispatchers.Main).launch {
