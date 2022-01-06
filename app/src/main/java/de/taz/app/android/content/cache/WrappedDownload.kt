@@ -232,7 +232,7 @@ class WrappedDownload(
      */
     private suspend fun getRequiredResourceInfo(collection: ObservableDownload): ResourceInfo? {
         val minResourceVersion = when (collection) {
-            is IssueOperations -> collection.minResourceVersion
+            is IssueOperations -> return getNewestResourceInfo() // Always get the newest ResourceInfo
             is Article -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
             is Section -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
             else -> null
@@ -245,7 +245,7 @@ class WrappedDownload(
      * Get the latest cached [ResourceInfo]. If that one has a lower version than [minVersion]
      * query the server for a new one
      *
-     * @param minVersion The minimum requred version of [ResourceInfo]
+     * @param minVersion The minimum required version of [ResourceInfo]
      */
     private suspend fun getResourceInfo(minVersion: Int): ResourceInfo {
         val currentResourceInfo = resourceInfoRepository.getNewest()
@@ -256,5 +256,14 @@ class WrappedDownload(
         } else {
             currentResourceInfo
         }
+    }
+
+    /**
+     * Always query the server for the latest [ResourceInfo] and return that.
+     */
+    private suspend fun getNewestResourceInfo(): ResourceInfo {
+        val newResourceInfo = apiService.getResourceInfo()
+        resourceInfoRepository.save(newResourceInfo)
+        return newResourceInfo
     }
 }
