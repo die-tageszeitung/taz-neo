@@ -10,7 +10,6 @@ import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -38,7 +37,6 @@ class CoverView @JvmOverloads constructor(
         private set
 
     private var momentElevation: Float? = null
-    private var downloadButtonListener: ((View) -> Unit)? = null
 
     // region views
     private val coverPlaceholder by lazy { findViewById<FrameLayout>(R.id.cover_placeholder) }
@@ -48,7 +46,7 @@ class CoverView @JvmOverloads constructor(
     private val viewMomentDownloadIconWrapper by lazy { findViewById<ConstraintLayout>(R.id.view_moment_download_icon_wrapper) }
     private val viewMomentDownload by lazy { findViewById<ImageView>(R.id.view_moment_download) }
     private val viewMomentDownloadFinished by lazy { findViewById<ImageView>(R.id.view_moment_download_finished) }
-    private val viewMomentDownloading by lazy { findViewById<ImageView>(R.id.view_moment_downloading) }
+    private val viewMomentDownloading by lazy { findViewById<ProgressBar>(R.id.view_moment_downloading) }
     // endregion
 
     init {
@@ -105,25 +103,6 @@ class CoverView @JvmOverloads constructor(
         setDate(date, dateFormat)
     }
 
-    /**
-     * set the DownloadStatus of this view
-     */
-    fun setDownloadIconForStatus(downloadStatus: CacheState) {
-        when (downloadStatus) {
-            CacheState.PRESENT -> {
-                hideDownloadIcon(true)
-            }
-            CacheState.LOADING_CONTENT, CacheState.LOADING_METADATA,
-            CacheState.DELETING_METADATA, CacheState.DELETING_CONTENT,
-            CacheState.METADATA_PRESENT -> {
-                showLoadingIcon()
-            }
-            CacheState.ABSENT -> {
-                showDownloadIcon()
-            }
-        }
-    }
-
     // catch a long click on the container
     override fun setOnLongClickListener(l: OnLongClickListener?) {
         momentContainer.setOnLongClickListener(l)
@@ -161,10 +140,6 @@ class CoverView @JvmOverloads constructor(
         }
     }
 
-    fun setOnDownloadClickedListener(listener: ((View) -> Unit)?) {
-        downloadButtonListener = listener
-    }
-
     fun setOnDateClickedListener(listener: ((View) -> Unit)?) {
         momentDate?.setOnClickListener(listener)
     }
@@ -173,21 +148,8 @@ class CoverView @JvmOverloads constructor(
         momentContainer.setOnClickListener(listener)
     }
 
-    private fun activateDownloadButtonListener() {
-        downloadButtonListener?.let {
-            viewMomentDownloadIconWrapper.setOnClickListener(it)
-        }
-    }
-
     private fun deactivateDownloadButtonListener() {
         viewMomentDownloadIconWrapper.setOnLongClickListener(null)
-    }
-
-    private fun showDownloadIcon() {
-        viewMomentDownloading?.visibility = View.GONE
-        viewMomentDownloadFinished?.visibility = View.GONE
-        viewMomentDownload?.visibility = View.VISIBLE
-        activateDownloadButtonListener()
     }
 
     private fun hideDownloadIcon(fadeOutAnimation: Boolean = false) {
@@ -207,13 +169,6 @@ class CoverView @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-    private fun showLoadingIcon() {
-        viewMomentDownload?.visibility = View.GONE
-        viewMomentDownloadFinished?.visibility = View.GONE
-        viewMomentDownloading?.visibility = View.VISIBLE
-        viewMomentDownloadIconWrapper.setOnClickListener(null)
     }
 
     private fun showCover(
