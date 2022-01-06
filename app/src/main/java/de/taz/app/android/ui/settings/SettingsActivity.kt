@@ -1,6 +1,6 @@
 package de.taz.app.android.ui.settings
 
-import de.taz.app.android.R
-import de.taz.app.android.base.NightModeActivity
+import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.databinding.ActivitySettingsBinding
 
-class SettingsActivity: NightModeActivity(R.layout.activity_settings)
+class SettingsActivity: NightModeViewBindingActivity<ActivitySettingsBinding>()
