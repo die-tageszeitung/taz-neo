@@ -6,18 +6,16 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewOutlineProvider
-import android.widget.ImageView
-import android.widget.RelativeLayout
+import android.widget.*
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.MomentWebView
-import kotlinx.android.synthetic.main.view_cover.view.*
 
 
 const val MOMENT_FADE_DURATION_MS = 500L
@@ -39,15 +37,25 @@ class CoverView @JvmOverloads constructor(
         private set
 
     private var momentElevation: Float? = null
-    private var downloadButtonListener: ((View) -> Unit)? = null
+
+    // region views
+    private val coverPlaceholder by lazy { findViewById<FrameLayout>(R.id.cover_placeholder) }
+    private val momentContainer by lazy { findViewById<ConstraintLayout>(R.id.moment_container) }
+    private val momentDate by lazy { findViewById<TextView>(R.id.fragment_moment_date) }
+    private val momentProgressbar by lazy { findViewById<ProgressBar>(R.id.moment_progressbar) }
+    private val viewMomentDownloadIconWrapper by lazy { findViewById<ConstraintLayout>(R.id.view_moment_download_icon_wrapper) }
+    private val viewMomentDownload by lazy { findViewById<ImageView>(R.id.view_moment_download) }
+    private val viewMomentDownloadFinished by lazy { findViewById<ImageView>(R.id.view_moment_download_finished) }
+    private val viewMomentDownloading by lazy { findViewById<ProgressBar>(R.id.view_moment_downloading) }
+    // endregion
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_cover, this, true)
 
         // remove and store elevation, so we can restore it once the loading screen is hidden
         // otherwise the loading screen will have a shadow what is not wanted
-        momentElevation = moment_container.elevation
-        moment_container.elevation = 0f
+        momentElevation = momentContainer.elevation
+        momentContainer.elevation = 0f
 
         // if provided set [shouldNotShowDownloadIcon] if it is not provided downloads icons
         // will be shown
@@ -57,7 +65,7 @@ class CoverView @JvmOverloads constructor(
                 R.styleable.CoverView_do_not_show_download_icon,
                 false
             )
-            view_moment_download_icon_wrapper.visibility =
+            viewMomentDownloadIconWrapper.visibility =
                 if (shouldNotShowDownloadIcon) View.GONE else View.VISIBLE
             styledAttributes.recycle()
         }
@@ -65,14 +73,14 @@ class CoverView @JvmOverloads constructor(
 
     // reset all data
     fun clear() {
-        cover_placeholder.removeAllViews()
+        coverPlaceholder.removeAllViews()
         clearDate()
         hideDownloadIcon()
         showLoadingScreen()
     }
 
     private fun clearDate() {
-        fragment_moment_date.text = ""
+        momentDate.text = ""
     }
 
     /**
@@ -95,28 +103,9 @@ class CoverView @JvmOverloads constructor(
         setDate(date, dateFormat)
     }
 
-    /**
-     * set the DownloadStatus of this view
-     */
-    fun setDownloadIconForStatus(downloadStatus: CacheState) {
-        when (downloadStatus) {
-            CacheState.PRESENT -> {
-                hideDownloadIcon(true)
-            }
-            CacheState.LOADING_CONTENT, CacheState.LOADING_METADATA,
-            CacheState.DELETING_METADATA, CacheState.DELETING_CONTENT,
-            CacheState.METADATA_PRESENT -> {
-                showLoadingIcon()
-            }
-            CacheState.ABSENT -> {
-                showDownloadIcon()
-            }
-        }
-    }
-
     // catch a long click on the container
     override fun setOnLongClickListener(l: OnLongClickListener?) {
-        moment_container.setOnLongClickListener(l)
+        momentContainer.setOnLongClickListener(l)
     }
 
     /**
@@ -126,69 +115,52 @@ class CoverView @JvmOverloads constructor(
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
-                    fragment_moment_date.text = DateHelper.stringToLongLocalizedString(date)
+                    momentDate.text = DateHelper.stringToLongLocalizedString(date)
                 DateFormat.LongWithoutWeekDay ->
-                    fragment_moment_date.text = DateHelper.stringToMediumLocalizedString(date)
+                    momentDate.text = DateHelper.stringToMediumLocalizedString(date)
                 DateFormat.None ->
-                    fragment_moment_date.visibility = View.GONE
+                    momentDate.visibility = View.GONE
             }
         } else {
-            fragment_moment_date.visibility = View.GONE
+            momentDate.visibility = View.GONE
         }
     }
 
     private fun showLoadingScreen() {
-        cover_placeholder.removeAllViews()
-        moment_container.elevation = 0f
-        moment_progressbar.animate().alpha(1f).duration = LOADING_FADE_OUT_DURATION_MS
+        coverPlaceholder.removeAllViews()
+        momentContainer.elevation = 0f
+        momentProgressbar.animate().alpha(1f).duration = LOADING_FADE_OUT_DURATION_MS
     }
 
     private fun hideLoadingScreen() {
-        moment_progressbar.animate().alpha(0f).apply {
+        momentProgressbar.animate().alpha(0f).apply {
             duration = LOADING_FADE_OUT_DURATION_MS
         }.withEndAction {
-            momentElevation?.let { moment_container.elevation = it }
+            momentElevation?.let { momentContainer.elevation = it }
         }
-    }
-
-    fun setOnDownloadClickedListener(listener: ((View) -> Unit)?) {
-        downloadButtonListener = listener
     }
 
     fun setOnDateClickedListener(listener: ((View) -> Unit)?) {
-        fragment_moment_date?.setOnClickListener(listener)
+        momentDate?.setOnClickListener(listener)
     }
 
     fun setOnImageClickListener(listener: ((View) -> Unit)?) {
-        moment_container.setOnClickListener(listener)
-    }
-
-    private fun activateDownloadButtonListener() {
-        downloadButtonListener?.let {
-            view_moment_download_icon_wrapper.setOnClickListener(it)
-        }
+        momentContainer.setOnClickListener(listener)
     }
 
     private fun deactivateDownloadButtonListener() {
-        view_moment_download_icon_wrapper.setOnLongClickListener(null)
-    }
-
-    private fun showDownloadIcon() {
-        view_moment_downloading?.visibility = View.GONE
-        view_moment_download_finished?.visibility = View.GONE
-        view_moment_download?.visibility = View.VISIBLE
-        activateDownloadButtonListener()
+        viewMomentDownloadIconWrapper.setOnLongClickListener(null)
     }
 
     private fun hideDownloadIcon(fadeOutAnimation: Boolean = false) {
-        val wasDownloading = view_moment_downloading?.visibility == View.VISIBLE
-        view_moment_downloading?.visibility = View.GONE
-        view_moment_download?.visibility = View.GONE
-        view_moment_download_finished?.visibility = View.GONE
+        val wasDownloading = viewMomentDownloading?.visibility == View.VISIBLE
+        viewMomentDownloading?.visibility = View.GONE
+        viewMomentDownload?.visibility = View.GONE
+        viewMomentDownloadFinished?.visibility = View.GONE
         deactivateDownloadButtonListener()
 
         if (wasDownloading && fadeOutAnimation) {
-            view_moment_download_finished?.apply {
+            viewMomentDownloadFinished?.apply {
                 alpha = 1f
                 visibility = View.VISIBLE
                 animate().alpha(0f).apply {
@@ -199,19 +171,12 @@ class CoverView @JvmOverloads constructor(
         }
     }
 
-    private fun showLoadingIcon() {
-        view_moment_download?.visibility = View.GONE
-        view_moment_download_finished?.visibility = View.GONE
-        view_moment_downloading?.visibility = View.VISIBLE
-        view_moment_download_icon_wrapper.setOnClickListener(null)
-    }
-
     private fun showCover(
         uri: String,
         type: CoverType,
         glideRequestManager: RequestManager
     ) {
-        cover_placeholder.removeAllViews()
+        coverPlaceholder.removeAllViews()
         when (type) {
             CoverType.ANIMATED -> showAnimatedCover(uri)
             CoverType.FRONT_PAGE,
@@ -221,7 +186,7 @@ class CoverView @JvmOverloads constructor(
 
     private fun showAnimatedCover(uri: String) {
         val webView = MomentWebView(context)
-        cover_placeholder.addView(webView)
+        coverPlaceholder.addView(webView)
 
         // configure WebView
         webView.apply {
@@ -242,17 +207,17 @@ class CoverView @JvmOverloads constructor(
     }
 
     private fun showStaticCover(uri: String, glideRequestManager: RequestManager) {
-            val imageView = ImageView(context).apply {
-                layoutParams =
-                    LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-            }
-            imageView.alpha = 0f
-            cover_placeholder.addView(imageView)
-            glideRequestManager
-                .load(uri)
-                .into(imageView)
-            hideLoadingScreen()
-            imageView.animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
+        val imageView = ImageView(context).apply {
+            layoutParams =
+                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         }
+        imageView.alpha = 0f
+        coverPlaceholder.addView(imageView)
+        glideRequestManager
+            .load(uri)
+            .into(imageView)
+        hideLoadingScreen()
+        imageView.animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
+    }
 
 }
