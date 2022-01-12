@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.StorageDataStore
-import kotlinx.android.synthetic.main.listitem_select_storage.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +41,7 @@ class StorageSelectionDialog(
 
                 val textView = this.findViewById<TextView>(R.id.itemText)
                 val radioView = this.findViewById<RadioButton>(R.id.itemCheckbox)
+                val itemIcon = this.findViewById<ImageView>(R.id.itemIcon)
                 textView?.text = options[getItem(position)]
                 itemIcon?.visibility = View.GONE
                 if (!isEnabled(position)) {
