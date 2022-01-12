@@ -4,15 +4,15 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.data.DataService
+import de.taz.app.android.databinding.ActivityWebviewBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
@@ -21,14 +21,12 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showFatalErrorDialog
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_webview.*
-import kotlinx.android.synthetic.main.activity_webview.web_view_fullscreen_content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class WebViewActivity : AppCompatActivity() {
+class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
 
     private lateinit var storageService: StorageService
     private var resourceInfoRepository: ResourceInfoRepository? = null
@@ -52,24 +50,23 @@ class WebViewActivity : AppCompatActivity() {
         dataService = DataService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        setContentView(R.layout.activity_webview)
-
-        web_view_button.setOnClickListener {
-            finish()
-        }
-
-        web_view_fullscreen_content.apply {
-            webViewClient = object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                    view.loadUrl(url)
-                    return true
-                }
+        viewBinding.apply {
+            webViewButton.setOnClickListener {
+                finish()
             }
-            webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-            settings.javaScriptEnabled = true
+            webViewFullscreenContent.apply {
+                webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                        view.loadUrl(url)
+                        return true
+                    }
+                }
+                webChromeClient = AppWebChromeClient(::hideLoadingScreen)
+
+                settings.javaScriptEnabled = true
+            }
         }
-
 
         intent.extras?.getString(WEBVIEW_HTML_FILE)?.let {
             try {
@@ -92,7 +89,7 @@ class WebViewActivity : AppCompatActivity() {
                 storageService.getFileUri(it)
             }?.let {
                 withContext(Dispatchers.Main) {
-                    web_view_fullscreen_content.loadUrl(it)
+                    viewBinding.webViewFullscreenContent.loadUrl(it)
                 }
             } ?: run {
                 throw HTMLFileNotFoundException(
@@ -108,7 +105,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            web_view_loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            viewBinding.webViewLoadingScreen.root.animate().alpha(0f).duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 
