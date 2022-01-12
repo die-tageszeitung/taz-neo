@@ -7,8 +7,7 @@ import androidx.viewbinding.ViewBinding
 import de.taz.app.android.util.Log
 import java.lang.reflect.ParameterizedType
 
-abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> :
-    AppCompatActivity() {
+abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatActivity() {
 
     private val log by Log
 
@@ -23,7 +22,12 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> :
     @Suppress("UNCHECKED_CAST")
     private fun createBinding(layoutInflater: LayoutInflater): ViewBindingClass {
         val viewBindingClass =
-            (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<ViewBindingClass>
+            try {
+                (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
+            } catch (cce: ClassCastException) {
+                ((javaClass.genericSuperclass as Class<ViewBindingClass>)
+                    .genericSuperclass as ParameterizedType).actualTypeArguments[0]
+            } as Class<ViewBindingClass>
         val method = viewBindingClass.getMethod(
             "inflate",
             LayoutInflater::class.java
