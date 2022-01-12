@@ -5,15 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.R
 import de.taz.app.android.api.models.ResourceInfoKey
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.databinding.ActivityWelcomeBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
@@ -23,8 +23,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import de.taz.app.android.util.showFatalErrorDialog
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_welcome.*
-import kotlinx.android.synthetic.main.activity_welcome.web_view_fullscreen_content
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,7 +30,7 @@ import kotlinx.coroutines.withContext
 
 const val START_HOME_ACTIVITY = "START_HOME_ACTIVITY"
 
-class WelcomeActivity : AppCompatActivity() {
+class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
     private val log by Log
 
@@ -59,19 +57,19 @@ class WelcomeActivity : AppCompatActivity() {
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 
-        setContentView(R.layout.activity_welcome)
+        viewBinding.apply {
+            buttonClose.setOnClickListener {
+                log.debug("welcome screen close clicked")
+                setFirstTimeStart()
+                done()
+            }
 
-        button_close.setOnClickListener {
-            log.debug("welcome screen close clicked")
-            setFirstTimeStart()
-            done()
-        }
-
-        web_view_fullscreen_content.apply {
-            webViewClient = WebViewClient()
-            webChromeClient = AppWebChromeClient(::hideLoadingScreen)
-            settings.javaScriptEnabled = true
-            settings.allowFileAccess = true
+            webViewFullscreenContent.apply {
+                webViewClient = WebViewClient()
+                webChromeClient = AppWebChromeClient(::hideLoadingScreen)
+                settings.javaScriptEnabled = true
+                settings.allowFileAccess = true
+            }
         }
         lifecycleScope.launch {
             ensureResourceInfoIsDownloadedAndShowWelcomeSlides()
@@ -110,7 +108,7 @@ class WelcomeActivity : AppCompatActivity() {
             storageService.getFileUri(it)
         }?.let {
             withContext(Dispatchers.Main) {
-                web_view_fullscreen_content.loadUrl(it)
+                viewBinding.webViewFullscreenContent.loadUrl(it)
             }
         } ?: run {
             throw HTMLFileNotFoundException("Data policy html file ($welcomeSlidesHtmlFile) not found in database")
@@ -119,12 +117,13 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun hideLoadingScreen() {
         this.runOnUiThread {
-            welcome_loading_screen?.animate()?.apply {
-                alpha(0f)
-                duration = LOADING_SCREEN_FADE_OUT_TIME
-                withEndAction {
-                    welcome_loading_screen?.visibility = View.GONE
-                }
+            viewBinding.welcomeLoadingScreen.root.apply {
+                animate()
+                    .alpha(0f)
+                    .withEndAction {
+                        visibility = View.GONE
+                    }
+                    .duration = LOADING_SCREEN_FADE_OUT_TIME
             }
         }
     }
