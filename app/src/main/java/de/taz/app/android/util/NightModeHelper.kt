@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import de.taz.app.android.base.NightModeActivity
 import de.taz.app.android.base.NightModeViewBindingActivity
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.*
