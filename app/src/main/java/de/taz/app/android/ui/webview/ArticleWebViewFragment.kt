@@ -135,19 +135,19 @@ class ArticleWebViewFragment :
     override fun hideLoadingScreen() {
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.displayable?.let { article ->
-                val issueStub = withContext(Dispatchers.IO) {
-                    article.getIssueStub(requireContext().applicationContext)
-                }
-                if (issueStub?.issueKey?.status == IssueStatus.public) {
+                try {
+                    val issueStub = withContext(Dispatchers.IO) {
+                        article.getIssueStub(requireContext().applicationContext)
+                    }
+                    if (issueStub?.issueKey?.status == IssueStatus.public) {
 
-                    try {
                         childFragmentManager.beginTransaction().replace(
                             R.id.fragment_article_bottom_fragment_placeholder,
                             ArticleLoginFragment.create(article.key)
                         ).commit()
-                    } catch (e: IllegalStateException) {
-                        // do nothing already hidden
                     }
+                } catch (e: IllegalStateException) {
+                    // do nothing already hidden
                 }
             }
             super.hideLoadingScreen()
