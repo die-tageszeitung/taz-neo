@@ -275,6 +275,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         var deletionJob: Job? = null
         val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         positiveButton.setOnClickListener {
+            it.isEnabled = false
             dialog.setCancelable(false)
             if (deletionJob == null) {
                 deletionJob = CoroutineScope(Dispatchers.IO).launch {
@@ -306,7 +307,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             issueRepository.getAllIssueStubs()
         }
 
-
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
         deletionProgress.max = issueStubList.size
@@ -319,7 +319,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
         for (issueStub in issueStubList) {
             try {
-
                 contentService.deleteIssue(issueStub.issueKey)
                 counter++
                 deletionProgress.progress = counter
