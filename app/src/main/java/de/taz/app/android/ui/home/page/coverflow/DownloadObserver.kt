@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -104,7 +105,9 @@ class DownloadObserver(
     }
 
     private fun showDownloadIcon() {
-        downloadIconView.setOnClickListener {
+        val parent = downloadIconView.parent as? ConstraintLayout
+        val clickable = parent ?: downloadIconView
+        clickable.setOnClickListener {
             stopObserving()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
