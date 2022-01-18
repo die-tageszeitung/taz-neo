@@ -14,7 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
@@ -39,7 +39,7 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
-class LoginActivity : NightModeViewBindingActivity<ActivityLoginBinding>() {
+class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private val log by Log
 

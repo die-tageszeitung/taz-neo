@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.map
 
 
 interface DataStoreEntry<T> {
+    fun asFlow(): Flow<T>
+
     fun asLiveData(): LiveData<T>
 
     /**
@@ -46,7 +48,7 @@ class SimpleDataStoreEntry<T>(
     private val default: T,
     private val initFunction: (suspend () -> T?)? = null
 ) : DataStoreEntry<T> {
-    private fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: initFunction?.invoke() ?: default }
+    override fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: initFunction?.invoke() ?: default }
 
     override fun asLiveData(): LiveData<T> = asFlow().asLiveData()
 
@@ -94,4 +96,5 @@ class MappingDataStoreEntry<S, T>(
     override suspend fun get(): S = mapTtoS(dataStoreEntry.get())
 
     override suspend fun reset() = dataStoreEntry.reset()
+    override fun asFlow(): Flow<S> = dataStoreEntry.asFlow().map { mapTtoS(it) }
 }

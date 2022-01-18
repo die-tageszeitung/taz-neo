@@ -29,7 +29,6 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
-import de.taz.app.android.util.NightModeHelper
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -62,15 +61,15 @@ class SplashActivity : StartupActivity() {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepVisibleCondition { showSplashScreen }
 
-        dataService = DataService.getInstance(applicationContext)
-        firebaseHelper = FirebaseHelper.getInstance(applicationContext)
-        authHelper = AuthHelper.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-        storageService = StorageService.getInstance(applicationContext)
-        contentService = ContentService.getInstance(applicationContext)
-        storageDataStore = StorageDataStore.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
+        dataService = DataService.getInstance(application)
+        firebaseHelper = FirebaseHelper.getInstance(application)
+        authHelper = AuthHelper.getInstance(application)
+        toastHelper = ToastHelper.getInstance(application)
+        fileEntryRepository = FileEntryRepository.getInstance(application)
+        storageService = StorageService.getInstance(application)
+        contentService = ContentService.getInstance(application)
+        storageDataStore = StorageDataStore.getInstance(application)
+        issueRepository = IssueRepository.getInstance(application)
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
@@ -88,7 +87,6 @@ class SplashActivity : StartupActivity() {
                     launch {
                         checkForNewestIssue()
                     }
-                    NightModeHelper.generateCssOverride(this@SplashActivity)
                 }
             } catch (e: InitializationException) {
                 log.error("Error while initializing")

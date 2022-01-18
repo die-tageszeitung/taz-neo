@@ -11,7 +11,7 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.ActivityImagePagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -25,7 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 
-class ImagePagerActivity : NightModeViewBindingActivity<ActivityImagePagerBinding>() {
+class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
 
     private lateinit var viewPager2: ViewPager2
     private lateinit var tabLayout: TabLayout

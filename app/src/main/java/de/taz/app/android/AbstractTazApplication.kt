@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.StrictMode
 import com.facebook.stetho.Stetho
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.NightModeHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import io.sentry.protocol.User
@@ -46,6 +47,8 @@ abstract class AbstractTazApplication : Application() {
                     .build()
             )
         }
+
+        NightModeHelper.getInstance(this)
     }
 
     private suspend fun generateInstallationId() {

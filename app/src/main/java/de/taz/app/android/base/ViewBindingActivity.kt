@@ -2,6 +2,8 @@ package de.taz.app.android.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.util.Log
@@ -12,6 +14,8 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
     private val log by Log
 
     lateinit var viewBinding: ViewBindingClass
+    protected val rootView: View by lazy { viewBinding.root }
+    protected val rootViewGroup by lazy { rootView as? ViewGroup }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
