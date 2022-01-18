@@ -142,7 +142,7 @@
     <dimen name="button_max_width">375dp</dimen>
 
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
-    <dimen name="cover_item_padding">36dp</dimen>
+    <dimen name="cover_item_padding">21dp</dimen>
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
 </resources>
