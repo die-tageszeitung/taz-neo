@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -31,14 +30,14 @@ class DownloadObserver(
     private val contentService: ContentService,
     private val toastHelper: ToastHelper,
     private val issuePublication: AbstractIssuePublication,
-    private val downloadIconView: ImageView,
+    private val downloadIconView: View,
     private val checkmarkIconView: ImageView,
     private val downloadProgressView: ProgressBar
 ) {
     constructor(
         fragment: Fragment,
         issuePublication: AbstractIssuePublication,
-        downloadIconView: ImageView,
+        downloadIconView: View,
         checkmarkIconView: ImageView,
         downloadProgressView: ProgressBar
     ) : this(
@@ -105,9 +104,7 @@ class DownloadObserver(
     }
 
     private fun showDownloadIcon() {
-        val parent = downloadIconView.parent as? ConstraintLayout
-        val clickable = parent ?: downloadIconView
-        clickable.setOnClickListener {
+        downloadIconView.setOnClickListener {
             stopObserving()
             CoroutineScope(Dispatchers.IO).launch {
                 try {

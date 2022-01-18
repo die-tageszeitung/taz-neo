@@ -66,19 +66,19 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/fragment_coverflow_moment_download"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:id="@+id/fragment_coverflow_moment_download"
                         android:layout_width="@dimen/text_appearance_archive_date_text_size"
                         android:layout_height="@dimen/text_appearance_archive_date_text_size"
                         android:contentDescription="@string/settings_download_issue"
                         android:src="@drawable/ic_file_download"
-                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
