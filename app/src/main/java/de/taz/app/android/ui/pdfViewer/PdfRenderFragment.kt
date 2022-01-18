@@ -30,6 +30,7 @@ import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.NullPointerException
 
 
 class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
@@ -62,6 +63,10 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
         PageRepository.getInstance(requireContext().applicationContext)
     }
 
+    private val toastHelper by lazy {
+        ToastHelper.getInstance(requireContext().applicationContext)
+    }
+
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
@@ -84,7 +89,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                 try {
                     lifecycleScope.launch(Dispatchers.IO) {
                         page = pageRepository.get(it)
-                        withContext(Dispatchers.Main) { showPdf() }
+                        withContext(Dispatchers.Main) { initializeThePageAdapter() }
                     }
                 } catch (nfe: NotFoundException) {
                     log.error("Created with PAGE_NAME set")
@@ -118,17 +123,22 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                     pdfPagerViewModel.swipePageFlow.emit(swipeEvent)
                 }
             }
-            mu_pdf_wrapper?.addView(this)
         }
-        showPdf()
+        initializeThePageAdapter()
     }
 
-    private fun showPdf() {
+    private fun initializeThePageAdapter() {
         page?.pagePdf?.let { fileEntry ->
             storageService.getAbsolutePath(fileEntry)?.let { path ->
-                pdfReaderView?.adapter = PageAdapter(context, MuPDFCore(path))
-            }
-        }
+                try {
+                    pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(path))
+                    mu_pdf_wrapper?.addView(pdfReaderView!!)
+                } catch (npe: NullPointerException) {
+                    Sentry.captureException(npe)
+                    finishActivityWithErrorToast()
+                }
+            } ?: finishActivityWithErrorToast()
+        } ?: finishActivityWithErrorToast()
     }
 
     override fun onDestroyView() {
@@ -205,5 +215,10 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
                 toastHelper.showToast(R.string.toast_unknown_error)
             }
         }
+    }
+
+    private fun finishActivityWithErrorToast() {
+        requireActivity().finish()
+        toastHelper.showToast(R.string.toast_problem_showing_pdf)
     }
 }

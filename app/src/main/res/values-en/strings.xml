@@ -23,6 +23,7 @@
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
+    <string name="toast_problem_showing_pdf">There was a problem showing the pdf.</string>
 
     <string name="toast_login_failed_retry">Login failed. Please try again.</string>
     <string name="toast_login_successful">Login succeeded.</string>
