@@ -1,20 +1,34 @@
-package de.taz.app.android.util
+package de.taz.app.android.singletons
 
-import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.singletons.*
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-object NightModeHelper {
+class NightModeHelper private constructor(private val applicationContext: Context) {
+    companion object : SingletonHolder<NightModeHelper, Context>(::NightModeHelper)
 
     private val log by Log
 
-    suspend fun generateCssOverride(applicationContext: Context)  = withContext(Dispatchers.IO) {
+    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.nightMode.asFlow().collect {
+                generateCssOverride()
+                setNightMode(it)
+            }
+        }
+    }
+
+    private suspend fun generateCssOverride() = withContext(Dispatchers.IO) {
         val cssFileEntry =
             FileEntryRepository.getInstance(applicationContext).get("tazApi.css")
 
@@ -25,10 +39,9 @@ object NightModeHelper {
         }
     }
 
-    fun setThemeAndReCreate(
-        activity: NightModeViewBindingActivity<*>,
+    private suspend fun setNightMode(
         nightMode: Boolean
-    ) {
+    ) = withContext(Dispatchers.Main) {
         if (nightMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             log.debug("setTheme to NIGHT")
@@ -36,12 +49,5 @@ object NightModeHelper {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             log.debug("setTheme to DAY")
         }
-        activity.recreate()
     }
-
-    fun isDarkTheme(activity: Activity): Boolean {
-        return activity.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-    }
-
 }

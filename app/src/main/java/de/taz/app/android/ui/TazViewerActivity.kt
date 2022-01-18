@@ -16,7 +16,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoKey
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.ActivityTazViewerBinding
@@ -32,7 +32,7 @@ import kotlin.reflect.full.createInstance
 
 const val DRAWER_OVERLAP_OFFSET = -5F
 
-abstract class TazViewerActivity : NightModeViewBindingActivity<ActivityTazViewerBinding>() {
+abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>() {
 
     abstract val fragmentClass: KClass<out Fragment>
 

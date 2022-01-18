@@ -19,7 +19,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -36,7 +36,7 @@ const val LOGO_PEAK = 8
 const val HIDE_LOGO_DELAY_MS = 1000L
 const val LOGO_ANIMATION_DURATION_MS = 500L
 
-class PdfPagerActivity : NightModeViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
+class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"

@@ -5,12 +5,12 @@ import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.variables.SearchVariables
-import de.taz.app.android.base.NightModeViewBindingActivity
+import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityExperimentalSearchBinding
 import kotlinx.coroutines.launch
 
 class ExperimentalSearchActivity :
-    NightModeViewBindingActivity<ActivityExperimentalSearchBinding>() {
+    ViewBindingActivity<ActivityExperimentalSearchBinding>() {
 
     private lateinit var apiService: ApiService
 
