@@ -5,33 +5,44 @@
     android:layout_height="match_parent"
     android:padding="?dialogPreferredPadding">
 
-    <TextView
-        android:id="@+id/dialog_settings_download_pdf_title"
-        style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:maxLines="3"
-        android:singleLine="false"
-        android:text="@string/settings_dialog_download_additionally_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/dialog_settings_download_pdf_message"
-        style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_alert_dialog_message_marginTop"
-        android:text="@string/settings_dialog_download_additionally_description"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dialog_settings_download_pdf_title" />
-
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/dialog_settings_download_pdf_do_not_ask_again"
-        style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_dialog_download_do_not_ask_again"
-        app:layout_constraintTop_toBottomOf="@id/dialog_settings_download_pdf_message" />
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/dialog_settings_download_pdf_title"
+                style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="3"
+                android:singleLine="false"
+                android:text="@string/settings_dialog_download_additionally_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/dialog_settings_download_pdf_message"
+                style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_alert_dialog_message_marginTop"
+                android:text="@string/settings_dialog_download_additionally_description"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dialog_settings_download_pdf_title" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/dialog_settings_download_pdf_do_not_ask_again"
+                style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_dialog_download_do_not_ask_again"
+                app:layout_constraintTop_toBottomOf="@id/dialog_settings_download_pdf_message" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
