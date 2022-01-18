@@ -81,7 +81,7 @@
     <dimen name="fragment_webview_section_margin_top">0dp</dimen>
     <dimen name="fragment_webview_article_margin_top">0dp</dimen>
     <dimen name="fragment_archive_padding_top">22dp</dimen>
-    <dimen name="fragment_archive_moment_date_padding_vertical">5dp</dimen>
+    <dimen name="fragment_archive_moment_date_padding_vertical">0dp</dimen>
     <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
@@ -142,7 +142,7 @@
     <dimen name="button_max_width">375dp</dimen>
 
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
-    <dimen name="cover_item_padding">36dp</dimen>
+    <dimen name="cover_item_padding">21dp</dimen>
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
 </resources>
