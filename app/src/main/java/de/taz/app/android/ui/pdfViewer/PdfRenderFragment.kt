@@ -132,6 +132,7 @@ class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
             storageService.getAbsolutePath(fileEntry)?.let { path ->
                 try {
                     pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(path))
+                    mu_pdf_wrapper?.removeAllViews()
                     mu_pdf_wrapper?.addView(pdfReaderView!!)
                 } catch (npe: NullPointerException) {
                     Sentry.captureException(npe)
