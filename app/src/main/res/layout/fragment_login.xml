@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/login_username_hint"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_description">
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_description">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_login_username"
@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/login_password_hint"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_layout"
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_username_layout"
         app:passwordToggleEnabled="true">
 
         <de.taz.app.android.util.AppTextInputEditText
@@ -57,7 +57,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_layout" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout" />
 
     <TextView
         android:id="@+id/fragment_login_missing_subscription_subscription"
@@ -76,7 +76,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_subscription" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription" />
 
     <TextView
         android:id="@+id/fragment_login_missing_subscription_forgot_password"
@@ -84,7 +84,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_register_button" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_register_button" />
 
     <TextView
         android:id="@+id/fragment_login_forgot_help"
@@ -92,6 +92,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/help"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_login_missing_subscription_forgot_password" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

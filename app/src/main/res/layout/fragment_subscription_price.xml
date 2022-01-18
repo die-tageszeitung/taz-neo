@@ -34,6 +34,6 @@
         android:text="@string/next_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_price_list" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_price_list" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
