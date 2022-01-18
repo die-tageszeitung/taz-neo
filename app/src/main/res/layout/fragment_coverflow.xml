@@ -64,9 +64,8 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_cover_flow_download_wrapper"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/text_appearance_archive_date_text_size"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="1,1"
                 app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
@@ -74,8 +73,9 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fragment_coverflow_moment_download"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/text_appearance_archive_date_text_size"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -96,8 +96,9 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fragment_coverflow_moment_download_finished"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/text_appearance_archive_date_text_size"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -117,8 +118,9 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fragment_coverflow_moment_downloading"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/text_appearance_archive_date_text_size"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
