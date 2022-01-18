@@ -1,15 +1,17 @@
 package de.taz.app.android.ui.main
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
@@ -60,8 +62,11 @@ class MainActivity : NightModeViewBindingActivity<ActivityMainBinding>() {
         authHelper = AuthHelper.getInstance(applicationContext)
 
         lifecycleScope.launch(Dispatchers.Main) {
-            checkIfSubscriptionElapsed()
-            maybeShowTryPdfDialog()
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                checkIfSubscriptionElapsed()
+                maybeShowTryPdfDialog()
+                maybeShowLoggedOutDialog()
+            }
         }
 
         // create WebView then throw it away so later instantiations are faster
@@ -71,34 +76,39 @@ class MainActivity : NightModeViewBindingActivity<ActivityMainBinding>() {
 
     override fun onResume() {
         super.onResume()
-        maybeShowLoggedOutDialog()
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
     }
 
-    private fun maybeShowLoggedOutDialog() {
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (issueFeedViewModel.getPdfMode() && !authHelper.isLoggedIn()) {
-                AlertDialog.Builder(this@MainActivity)
-                    .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                    .setNegativeButton(R.string.login_button) { dialog, _ ->
-                        startActivityForResult(
-                            Intent(this@MainActivity, LoginActivity::class.java),
-                            ACTIVITY_LOGIN_REQUEST_CODE
-                        )
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
+    override fun onStop() {
+        showLoggedOutDialog?.dismiss()
+        tryPdfDialog?.dismiss()
+        super.onStop()
+    }
+
+    private var showLoggedOutDialog: AlertDialog? = null
+    private suspend fun maybeShowLoggedOutDialog() {
+        if (issueFeedViewModel.getPdfMode() && !authHelper.isLoggedIn()) {
+            showLoggedOutDialog = AlertDialog.Builder(this@MainActivity)
+                .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                .setNegativeButton(R.string.login_button) { dialog, _ ->
+                    startActivityForResult(
+                        Intent(this@MainActivity, LoginActivity::class.java),
+                        ACTIVITY_LOGIN_REQUEST_CODE
+                    )
+                    dialog.dismiss()
+                }
+                .show()
         }
     }
 
+    private var tryPdfDialog: AlertDialog? = null
     private suspend fun maybeShowTryPdfDialog() {
         val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
         if (timesPdfShown < 1) {
-            val dialog = AlertDialog.Builder(this)
+            tryPdfDialog = AlertDialog.Builder(this)
                 .setView(R.layout.dialog_try_pdf)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     CoroutineScope(Dispatchers.Main).launch {
@@ -107,15 +117,12 @@ class MainActivity : NightModeViewBindingActivity<ActivityMainBinding>() {
                     }
                 }
                 .show()
-            dialog.findViewById<ImageButton>(R.id.button_close).setOnClickListener {
+            tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                    dialog.dismiss()
+                    tryPdfDialog?.dismiss()
                 }
             }
-            // force this dialog to be white with black text (ignoring night mode and system theme)
-            // - the animation is not compatible with other shades
-            dialog.window?.setBackgroundDrawableResource(R.drawable.layout_rounded_corners_bg)
         }
     }
 
