@@ -2,8 +2,6 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageView
-import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -30,16 +28,16 @@ class DownloadObserver(
     private val contentService: ContentService,
     private val toastHelper: ToastHelper,
     private val issuePublication: AbstractIssuePublication,
-    private val downloadIconView: ImageView,
-    private val checkmarkIconView: ImageView,
-    private val downloadProgressView: ProgressBar
+    private val downloadIconView: View,
+    private val checkmarkIconView: View,
+    private val downloadProgressView: View
 ) {
     constructor(
         fragment: Fragment,
         issuePublication: AbstractIssuePublication,
-        downloadIconView: ImageView,
-        checkmarkIconView: ImageView,
-        downloadProgressView: ProgressBar
+        downloadIconView: View,
+        checkmarkIconView: View,
+        downloadProgressView:View
     ) : this(
         fragment,
         ContentService.getInstance(fragment.requireContext().applicationContext),
