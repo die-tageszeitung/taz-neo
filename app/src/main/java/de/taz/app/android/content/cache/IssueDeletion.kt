@@ -31,7 +31,7 @@ class IssueDeletion(
     companion object {
         /**
          * @param applicationContext An android application context object
-         * @param issue The issue that should be deleted (both contents and metadata)
+         * @param issuePublication The issue that should be deleted (both contents and metadata)
          * @param tag The tag on which this operation should be registered
          */
         fun prepare(
@@ -59,7 +59,8 @@ class IssueDeletion(
         val metadataDeletionCacheItems: MutableList<SubOperationCacheItem> = mutableListOf()
 
         for (issue in issues) {
-            issue.setDownloadDate(null, applicationContext)
+            issueRepository.setDownloadDate(issue, null)
+            issueRepository.setDownloadDate(IssueWithPages(issue), null)
             val collectionsToDeleteContent =
                 listOfNotNull(issue.imprint) +
                         issue.sectionList +
