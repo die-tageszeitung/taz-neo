@@ -2,6 +2,7 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.models.AbstractIssue
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -31,7 +32,7 @@ class IssueDeletion(
     companion object {
         /**
          * @param applicationContext An android application context object
-         * @param issue The issue that should be deleted (both contents and metadata)
+         * @param issuePublication The issue that should be deleted (both contents and metadata)
          * @param tag The tag on which this operation should be registered
          */
         fun prepare(
@@ -59,7 +60,9 @@ class IssueDeletion(
         val metadataDeletionCacheItems: MutableList<SubOperationCacheItem> = mutableListOf()
 
         for (issue in issues) {
-            issue.setDownloadDate(null, applicationContext)
+            // Maybe the issue is IssueWithPages, we do not know at this moment,
+            // so set download date to null of IssueWithPages will set both downloadDates to null
+            issueRepository.setDownloadDate(IssueWithPages(issue), null)
             val collectionsToDeleteContent =
                 listOfNotNull(issue.imprint) +
                         issue.sectionList +
