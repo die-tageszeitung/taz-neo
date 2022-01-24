@@ -60,7 +60,8 @@ class IssueDeletion(
         val metadataDeletionCacheItems: MutableList<SubOperationCacheItem> = mutableListOf()
 
         for (issue in issues) {
-            issueRepository.setDownloadDate(issue, null)
+            // Maybe the issue is IssueWithPages, we do not know at this moment,
+            // so set download date to null of IssueWithPages will set both downloadDates to null
             issueRepository.setDownloadDate(IssueWithPages(issue), null)
             val collectionsToDeleteContent =
                 listOfNotNull(issue.imprint) +
