@@ -2,6 +2,7 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.models.AbstractIssue
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.ArticleRepository
