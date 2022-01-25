@@ -35,6 +35,7 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.util.*
 import kotlin.Exception
+import kotlin.io.path.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
@@ -78,6 +79,7 @@ class SplashActivity : StartupActivity() {
         lifecycleScope.launch {
             generateNotificationChannels()
             verifyStorageLocation()
+            deleteAllZombieIssueDirectories()
 
             try {
                 withContext(Dispatchers.IO) {
@@ -401,6 +403,49 @@ class SplashActivity : StartupActivity() {
         val notificationManager: NotificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+    }
+
+    /**
+     * In versions prior 1.3.8 (10308300) it is possible to have a lot of abandoned files of issues as we did not correctly removed them.
+     * This function checks if there still some left and deletes them.
+     * From versions after 1.3.8 that should not happen anymore as deleting works properly.
+     * @param feedName [String] name of the feed to check
+     */
+    private fun deleteAllZombieIssueDirectories(feedName: String = DISPLAYED_FEED) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // get all downloaded issues
+            val holdIssues = issueRepository.getAllIssueStubs()
+
+            // get all issue directories (ie /files/taz/2021-12-13)
+            // therefore we need to determine the directory of a random file of a random issue;
+            val fileToDeterminePath = storageService.getDirForLocation(
+                holdIssues.first().getIssue(applicationContext).moment.getMomentFileToShare().storageLocation
+            )
+            val allDirectoriesHoldingIssueFiles =
+                fileToDeterminePath?.absolutePath?.let {
+                    Path("$it/$feedName/").listDirectoryEntries()
+                } ?: emptyList()
+
+            // Now get the directories which are abandoned by filtering out the holdIssues
+            val abandonedDirectoriesTobeDeleted =
+                allDirectoriesHoldingIssueFiles.filterNot {
+                    it.name in holdIssues.map { issue-> issue.date }
+                }
+
+            // delete them:
+            abandonedDirectoriesTobeDeleted.forEach {
+                log.debug("This directory of an issue is abandoned and will be deleted: ${it.absolutePathString()}")
+                File(it.absolutePathString()).deleteRecursively()
+            }
+
+            // capture to Sentry if later on there are still some zombies left
+            if (abandonedDirectoriesTobeDeleted.isNotEmpty() && BuildConfig.VERSION_CODE > 10308300) {
+                Sentry.captureMessage(
+                    "Unfortunately here were sill some abandoned issue files found: " +
+                            "$abandonedDirectoriesTobeDeleted. The reason should be investigated"
+                )
+            }
+        }
     }
 }
 
