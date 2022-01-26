@@ -12,8 +12,7 @@ abstract class ViewBindingFragment<ViewBindingClass : ViewBinding> : Fragment() 
 
     private var _binding: ViewBindingClass? = null
 
-    // This property is only valid between onCreateView and
-// onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     protected val viewBinding get() = _binding!!
 
     protected val rootView: View get() = viewBinding.root
