@@ -24,8 +24,7 @@ abstract class ViewBindingFragment<ViewBindingClass : ViewBinding> : Fragment() 
         savedInstanceState: Bundle?
     ): View? {
         _binding = createBinding(inflater, container)
-        val view = rootView
-        return view
+        return rootView
     }
 
     override fun onDestroyView() {
