@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -12,7 +13,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.android.parcel.Parcelize
@@ -29,7 +29,6 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
-    private val storageService = StorageService.getInstance(applicationContext)
 
 
     fun save(issues: List<Issue>) {
@@ -446,7 +445,6 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun delete(issue: Issue) {
         log.info("deleting issue ${issue.tag}")
-
         // delete moment
         momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
