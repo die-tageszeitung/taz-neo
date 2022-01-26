@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/settings_delete_all_issues_for_sure_detail"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_settings_delete_all_issues_title" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_all_issues_title" />
 
     <ProgressBar
         android:id="@+id/fragment_settings_delete_progress"
@@ -34,6 +34,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_settings_delete_progress" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_progress" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
