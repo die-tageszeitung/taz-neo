@@ -5,8 +5,12 @@ import android.os.Environment
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
-import de.taz.app.android.api.interfaces.*
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.interfaces.FileEntryOperations
+import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.GLOBAL_FOLDER
+import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.util.SingletonHolder
@@ -14,7 +18,10 @@ import io.ktor.utils.io.*
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.*
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStreamReader
 import java.security.MessageDigest
 
 const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
@@ -279,5 +286,17 @@ class StorageService private constructor(private val applicationContext: Context
 
     suspend fun ensureFileListIntegrity(files: List<FileEntry>): Boolean {
         return getCorruptedFilesFromList(files).isEmpty()
+    }
+
+    suspend fun deleteAllIssueFolders(feedName: String) {
+        withContext(Dispatchers.IO) {
+            val storageLocation =
+                StorageDataStore.getInstance(applicationContext).storageLocation.get()
+            val path = getFullPath(storageLocation, "$feedName/")
+            path?.let {
+                log.debug("deleting recursively: $it")
+                File(it).deleteRecursively()
+            }
+        }
     }
 }

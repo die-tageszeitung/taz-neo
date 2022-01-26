@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -17,7 +16,6 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.android.parcel.Parcelize
-import java.io.File
 import java.util.*
 
 @Mockable
@@ -448,7 +446,7 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     fun delete(issue: Issue) {
         log.info("deleting issue ${issue.tag}")
-        val directory = getFolder(issue)
+
         // delete moment
         momentRepository.deleteMoment(issue.feedName, issue.date, issue.status)
 
@@ -517,16 +515,6 @@ class IssueRepository private constructor(applicationContext: Context) :
         appDatabase.issueDao().delete(
             IssueStub(issue)
         )
-        // delete issue directory from device:
-        directory?.let {
-            File(directory).deleteRecursively()
-        }
-    }
-
-    private fun getFolder(issue: Issue): String? {
-        return storageService.getDirForLocation(
-            issue.moment.getMomentFileToShare().storageLocation
-        )?.let { "${it.absoluteFile}/${issue.feedName}/${issue.date}" }
     }
 }
 

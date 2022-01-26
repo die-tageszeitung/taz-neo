@@ -28,6 +28,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
@@ -52,12 +53,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private lateinit var toastHelper: ToastHelper
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var storageService: StorageService
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -306,6 +309,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         val issueStubList = withContext(Dispatchers.IO) {
             issueRepository.getAllIssueStubs()
         }
+        val feedName = issueStubList.first().feedName
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
@@ -336,6 +340,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 break
             }
         }
+        storageService.deleteAllIssueFolders(feedName)
     }
 
     private fun inflateExperimentalOptions() {
