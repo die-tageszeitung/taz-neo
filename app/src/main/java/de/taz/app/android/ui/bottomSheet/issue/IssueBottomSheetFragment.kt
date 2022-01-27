@@ -28,7 +28,6 @@ import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
-import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -48,6 +47,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
 
+    private val loadingScreen by lazy { view?.findViewById<View>(R.id.loading_screen) }
 
     private val homeViewModel: IssueFeedViewModel by activityViewModels()
 
@@ -91,7 +91,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loading_screen?.visibility = View.VISIBLE
+        loadingScreen?.visibility = View.VISIBLE
         lifecycleScope.launch {
             if (getIsDownloaded()) {
                 fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
@@ -100,7 +100,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
                 fragment_bottom_sheet_issue_delete?.visibility = View.GONE
                 fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
             }
-            loading_screen?.visibility = View.GONE
+            loadingScreen?.visibility = View.GONE
         }
 
         fragment_bottom_sheet_issue_read?.setOnClickListener {
@@ -166,7 +166,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             fragment_bottom_sheet_issue_share?.setOnClickListener(null)
             fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
 
-            loading_screen?.visibility = View.VISIBLE
+            loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
 
             CoroutineScope(Dispatchers.IO).launch {
