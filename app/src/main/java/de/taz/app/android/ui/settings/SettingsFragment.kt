@@ -24,6 +24,7 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -39,12 +40,11 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
 
 @Suppress("UNUSED")
-class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
+class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
     private val log by Log
 
     private var storedIssueNumber: Int? = null
@@ -66,78 +66,64 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.apply {
-            findViewById<TextView>(R.id.fragment_header_default_title).text =
+        viewBinding.apply {
+            root.findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).lowercase(Locale.GERMAN)
-            findViewById<TextView>(R.id.fragment_settings_category_general).text =
+            fragmentSettingsCategoryGeneral.text =
                 getString(R.string.settings_category_general).lowercase(Locale.GERMAN)
-            findViewById<TextView>(R.id.fragment_settings_category_text).text =
+            fragmentSettingsCategoryText.text =
                 getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
-            findViewById<TextView>(R.id.fragment_settings_category_account).text =
+            fragmentSettingsCategoryAccount.text =
                 getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
-            findViewById<TextView>(R.id.fragment_settings_category_support).text =
+            fragmentSettingsCategorySupport.text =
                 getString(R.string.settings_category_support).lowercase(Locale.GERMAN)
 
-            findViewById<TextView>(R.id.fragment_settings_general_keep_issues).setOnClickListener {
-                showKeepIssuesDialog()
+            fragmentSettingsGeneralKeepIssues.setOnClickListener { showKeepIssuesDialog() }
+            fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
+            fragmentSettingsFaq.setOnClickListener { openFAQ() }
+            fragmentSettingsAccountManageAccount.setOnClickListener {
+                activity?.startActivityForResult(
+                    Intent(activity, LoginActivity::class.java),
+                    ACTIVITY_LOGIN_REQUEST_CODE
+                )
+            }
+            fragmentSettingsWelcomeSlides.setOnClickListener {
+                activity?.startActivity(
+                    Intent(activity, WelcomeActivity::class.java)
+                )
             }
 
-            findViewById<Button>(R.id.fragment_settings_support_report_bug).setOnClickListener {
-                reportBug()
-            }
-
-            findViewById<TextView>(R.id.fragment_settings_faq)?.setOnClickListener {
-                openFAQ()
-            }
-
-            findViewById<TextView>(R.id.fragment_settings_account_manage_account)
-                .setOnClickListener {
-                    activity?.startActivityForResult(
-                        Intent(activity, LoginActivity::class.java),
-                        ACTIVITY_LOGIN_REQUEST_CODE
-                    )
-                }
-
-            findViewById<TextView>(R.id.fragment_settings_welcome_slides)
-                .setOnClickListener {
-                    activity?.startActivity(
-                        Intent(activity, WelcomeActivity::class.java)
-                    )
-                }
-
-            findViewById<TextView>(R.id.fragment_settings_terms)
-                .setOnClickListener {
+            fragmentSettingsTerms.setOnClickListener {
                     val intent = Intent(activity, WebViewActivity::class.java)
                     intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
                     activity?.startActivity(intent)
                 }
 
-            findViewById<TextView>(R.id.fragment_settings_revocation)
-                .setOnClickListener {
-                    val intent = Intent(activity, WebViewActivity::class.java)
-                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
-                    activity?.startActivity(intent)
+            fragmentSettingsRevocation.setOnClickListener {
+                val intent = Intent(activity, WebViewActivity::class.java)
+                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+                activity?.startActivity(intent)
+            }
+
+            fragmentSettingsTextSize.apply {
+                settingsTextDecreaseWrapper.setOnClickListener {
+                    decreaseFontSize()
                 }
-
-            findViewById<View>(R.id.settings_text_decrease_wrapper).setOnClickListener {
-                decreaseFontSize()
+                settingsTextIncreaseWrapper.setOnClickListener {
+                    increaseFontSize()
+                }
+                settingsTextSizeWrapper.setOnClickListener {
+                    resetFontSize()
+                }
             }
-            findViewById<View>(R.id.settings_text_increase_wrapper).setOnClickListener {
-                increaseFontSize()
-            }
-            findViewById<View>(R.id.settings_text_size_wrapper).setOnClickListener {
-                resetFontSize()
-            }
-
-            findViewById<View>(R.id.fragment_settings_storage_location).setOnClickListener {
+            fragmentSettingsStorageLocation.root.setOnClickListener {
                 StorageSelectionDialog(requireContext()).show()
             }
-
-            fragment_settings_text_justified?.setOnCheckedChangeListener { _, isChecked ->
+            fragmentSettingsTextJustified.setOnCheckedChangeListener { _, isChecked ->
                 setTextJustification(isChecked)
             }
 
-            fragment_settings_night_mode?.setOnCheckedChangeListener { _, isChecked ->
+            fragmentSettingsNightMode.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     enableNightMode()
                 } else {
@@ -145,14 +131,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 }
             }
 
-            fragment_settings_account_elapsed.setOnClickListener {
+            fragmentSettingsAccountElapsed.setOnClickListener {
                 activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
                     putExtra(LOGIN_EXTRA_REGISTER, true)
                 })
             }
 
-            fragment_settings_account_logout.setOnClickListener {
-                fragment_settings_account_elapsed.visibility = View.GONE
+            fragmentSettingsAccountLogout.setOnClickListener {
+                fragmentSettingsAccountElapsed.visibility = View.GONE
                 logout()
             }
 
@@ -162,26 +148,26 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 ""
             }
 
-            fragment_settings_version_number?.text =
+            fragmentSettingsVersionNumber.text =
                 getString(
                     R.string.settings_version_number,
                     BuildConfig.VERSION_NAME,
                     graphQlFlavorString
                 )
 
-            fragment_settings_auto_download_wifi_switch?.setOnCheckedChangeListener { _, isChecked ->
+            fragmentSettingsAutoDownloadWifiSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
             }
 
-            fragment_settings_auto_download_switch?.setOnCheckedChangeListener { _, isChecked ->
+            fragmentSettingsAutoDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadEnabled(isChecked)
             }
 
-            fragment_settings_auto_pdf_download_switch?.setOnCheckedChangeListener { _, isChecked ->
+            fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setPdfDownloadEnabled(isChecked)
             }
 
-            fragment_settings_delete_all_issues.setOnClickListener {
+            fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
             if (BuildConfig.DEBUG) {
@@ -241,7 +227,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
-            fragment_settings_account_email.text = email
+            viewBinding.fragmentSettingsAccountEmail.text = email
         }
     }
 
@@ -389,7 +375,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     }
 
     private fun showTextJustification(justified: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_text_justified)?.isChecked = justified
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_text_justified)?.isChecked =
+            justified
     }
 
     private fun showNightMode(nightMode: Boolean) {
@@ -421,16 +408,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    private fun showLogoutButton() {
-        fragment_settings_account_email.visibility = View.VISIBLE
-        fragment_settings_account_logout.visibility = View.VISIBLE
-        fragment_settings_account_manage_account.visibility = View.GONE
+    private fun showLogoutButton() = viewBinding.apply {
+        fragmentSettingsAccountEmail.visibility = View.VISIBLE
+        fragmentSettingsAccountLogout.visibility = View.VISIBLE
+        fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
-    private fun showManageAccountButton() {
-        fragment_settings_account_email.visibility = View.GONE
-        fragment_settings_account_logout.visibility = View.GONE
-        fragment_settings_account_manage_account.visibility = View.VISIBLE
+    private fun showManageAccountButton() = viewBinding.apply {
+        fragmentSettingsAccountEmail.visibility = View.GONE
+        fragmentSettingsAccountLogout.visibility = View.GONE
+        fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
