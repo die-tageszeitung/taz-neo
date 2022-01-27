@@ -13,6 +13,7 @@ import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentErrorReportBinding
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
@@ -27,14 +28,14 @@ import java.lang.Exception
 import java.util.*
 
 @Suppress("UNUSED")
-class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
+class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
     private val log by Log
 
     private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
-    var base64String: String? = null
-    var uploadedFileName: String? = null
+    private var base64String: String? = null
+    private var uploadedFileName: String? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
