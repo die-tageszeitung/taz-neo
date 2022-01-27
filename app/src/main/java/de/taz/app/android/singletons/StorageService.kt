@@ -9,20 +9,29 @@ import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.GLOBAL_FOLDER
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.*
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
+import java.nio.file.Path
 import java.security.MessageDigest
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.listDirectoryEntries
+import kotlin.io.path.name
 
 const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
 
@@ -53,6 +62,7 @@ class StorageService private constructor(private val applicationContext: Context
     }
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     fun getInternalFilesDir(): File {
         return applicationContext.filesDir
@@ -288,15 +298,51 @@ class StorageService private constructor(private val applicationContext: Context
         return getCorruptedFilesFromList(files).isEmpty()
     }
 
-    suspend fun deleteAllIssueFolders(feedName: String) {
-        withContext(Dispatchers.IO) {
+    /**
+     * All issue files of given [feedName] will be deleted except for those issues which are hold.
+     * @param feedName - [String] representing a feed (ie "taz")
+     */
+    suspend fun deleteAllUnusedIssueFolders(feedName: String) {
+        val holdIssues = withContext(Dispatchers.IO) {
+            issueRepository.getAllIssueStubs()
+        }
+        val allDirs = getAllIssueDirectories(feedName)
+
+        val abandonedDirectoriesTobeDeleted = filterOutHoldIssues(holdIssues, allDirs)
+
+        abandonedDirectoriesTobeDeleted.forEach {
+            log.debug("deleting recursively: ${it.absolutePathString()}")
+            File(it.absolutePathString()).deleteRecursively()
+        }
+
+    }
+
+    /**
+     * The issues are represented in our file system like
+     * .../files/[feedName]/[IssueKey.date]
+     * This function returns a list of all those [Path]s existing in file system.
+     * @param feedName - [String] representing a feed (ie "taz")
+     * @return a [List] of [Path]s of directories below .../files/[feedName]/
+     */
+    private suspend fun getAllIssueDirectories(feedName: String): List<Path> {
+        return withContext(Dispatchers.IO) {
             val storageLocation =
                 StorageDataStore.getInstance(applicationContext).storageLocation.get()
             val path = getFullPath(storageLocation, "$feedName/")
-            path?.let {
-                log.debug("deleting recursively: $it")
-                File(it).deleteRecursively()
-            }
+            path?.let { Path(it).listDirectoryEntries() } ?: emptyList()
+        }
+    }
+
+    /**
+     * This function returns a list of file system paths
+     * which are not connected to the given issues.
+     * @param issueList - [List] holding [IssueStub]s
+     * @param pathList - [List] holding [Path]s to file system issue representations
+     * @return a [List] of [Path]s to directories of issues which are not part of the given [issueList]
+     */
+    private fun filterOutHoldIssues(issueList: List<IssueStub>, pathList: List<Path>): List<Path> {
+        return pathList.filterNot {
+            it.name in issueList.map { issue -> issue.date }
         }
     }
 }

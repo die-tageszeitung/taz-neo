@@ -340,7 +340,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 break
             }
         }
-        storageService.deleteAllIssueFolders(feedName)
+        // clean up file system:
+        storageService.deleteAllUnusedIssueFolders(feedName)
     }
 
     private fun inflateExperimentalOptions() {
