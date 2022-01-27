@@ -22,6 +22,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
@@ -38,8 +39,11 @@ class SectionWebViewViewModel(application: Application, savedStateHandle: SavedS
 
 const val PADDING_RIGHT_OF_LOGO = 20
 
-class SectionWebViewFragment :
-    WebViewFragment<Section, SectionWebViewViewModel>(R.layout.fragment_webview_section) {
+class SectionWebViewFragment : WebViewFragment<
+        Section,
+        SectionWebViewViewModel,
+        FragmentWebviewSectionBinding
+>() {
 
     private lateinit var sectionRepository: SectionRepository
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -50,7 +54,7 @@ class SectionWebViewFragment :
             this, SavedStateViewModelFactory(
                 this.requireActivity().application, this
             )
-        ).get(SectionWebViewViewModel::class.java)
+        )[SectionWebViewViewModel::class.java]
     }
 
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
