@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
@@ -29,8 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class BookmarkPagerFragment :
-    BaseViewModelFragment<BookmarkPagerViewModel>(R.layout.fragment_webview_pager) {
+class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewPagerBinding>() {
 
     val log by Log
 
