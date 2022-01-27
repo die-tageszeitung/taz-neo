@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentPdfPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.settings.SettingsActivity
@@ -27,9 +28,7 @@ import kotlinx.coroutines.launch
  * The PdfPagerFragment creates a [ViewPager2] and populates it with the
  * [PdfPagerViewModel.pdfPageList]
  */
-class PdfPagerFragment : BaseMainFragment(
-    R.layout.fragment_pdf_pager
-) {
+class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
@@ -39,7 +38,7 @@ class PdfPagerFragment : BaseMainFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner, {
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
                 pdf_viewpager.apply {
                     adapter = PdfPagerAdapter(this@PdfPagerFragment, it)
@@ -63,32 +62,32 @@ class PdfPagerFragment : BaseMainFragment(
                 }
                 hideLoadingScreen()
             }
-        })
+        }
 
-        pdfPagerViewModel.userInputEnabled.observe(viewLifecycleOwner, { enabled ->
+        pdfPagerViewModel.userInputEnabled.observe(viewLifecycleOwner) { enabled ->
             pdf_viewpager.isUserInputEnabled = enabled
-        })
+        }
 
         pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(
-            viewLifecycleOwner,
-            { disallow ->
-                val delay = if (!disallow) {
-                    100L
-                } else
-                    0L
-                lifecycleScope.launch {
-                    delay(delay)
-                    pdf_viewpager.isUserInputEnabled = !disallow
-                    pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
-                }
-            })
+            viewLifecycleOwner
+        ) { disallow ->
+            val delay = if (!disallow) {
+                100L
+            } else
+                0L
+            lifecycleScope.launch {
+                delay(delay)
+                pdf_viewpager.isUserInputEnabled = !disallow
+                pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
+            }
+        }
 
-        pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
+        pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
-            if(pdf_viewpager.currentItem != position) {
+            if (pdf_viewpager.currentItem != position) {
                 pdf_viewpager.setCurrentItem(position, true)
             }
-        })
+        }
 
         lifecycleScope.launchWhenResumed {
             pdfPagerViewModel.swipePageFlow
@@ -101,9 +100,6 @@ class PdfPagerFragment : BaseMainFragment(
                         SwipeEvent.RIGHT -> {
                             log.verbose("Swipe event RIGHT received")
                             (pdfPagerViewModel.currentItem.value ?: 0) - 1
-                        }
-                        else -> {
-                            return@collect
                         }
                     }
 
