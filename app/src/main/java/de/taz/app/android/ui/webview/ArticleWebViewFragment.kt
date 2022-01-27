@@ -9,21 +9,23 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
+import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import kotlinx.coroutines.*
 
-class ArticleWebViewFragment :
-    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_article) {
+class ArticleWebViewFragment : WebViewFragment<
+        Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
+>() {
 
     override val viewModel by lazy {
         ViewModelProvider(
             this, SavedStateViewModelFactory(
                 this.requireActivity().application, this
             )
-        ).get(ArticleWebViewViewModel::class.java)
+        )[ArticleWebViewViewModel::class.java]
     }
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
