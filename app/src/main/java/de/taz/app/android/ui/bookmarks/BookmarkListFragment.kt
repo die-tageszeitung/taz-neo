@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
@@ -20,8 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
-class BookmarkListFragment :
-    BaseMainFragment(R.layout.fragment_bookmarks) {
+class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     private var recycleAdapter: BookmarkListAdapter? = null
     private var articleRepository: ArticleRepository? = null
@@ -57,8 +57,8 @@ class BookmarkListFragment :
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
-                R.string.fragment_bookmarks_title
-            ).toLowerCase(Locale.getDefault())
+                        R.string.fragment_bookmarks_title
+                    ).lowercase(Locale.getDefault())
         }
     }
 
