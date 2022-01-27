@@ -7,20 +7,17 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
-import androidx.annotation.LayoutRes
 import androidx.annotation.MenuRes
 import androidx.core.view.iterator
 import androidx.fragment.app.Fragment
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import java.lang.IndexOutOfBoundsException
 
-abstract class BaseMainFragment(
-    @LayoutRes layoutResourceId: Int
-) : Fragment(layoutResourceId) {
+abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
 
     @MenuRes
     open val bottomNavigationMenuRes: Int? = null
