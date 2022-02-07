@@ -2,7 +2,9 @@ package de.taz.app.android.api
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.SearchDto
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
@@ -26,13 +28,19 @@ import java.util.*
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
     private val authHelper: AuthHelper,
-    private val firebaseHelper: FirebaseHelper
+    private val firebaseHelper: FirebaseHelper,
+    private val deviceFormat: DeviceFormat
 ) {
 
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
-        firebaseHelper = FirebaseHelper.getInstance(applicationContext)
+        firebaseHelper = FirebaseHelper.getInstance(applicationContext),
+        deviceFormat = if (applicationContext.resources.getBoolean(R.bool.isTablet)) {
+            DeviceFormat.tablet
+        }  else {
+            DeviceFormat.mobile
+        }
     )
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
@@ -85,7 +93,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     subscriptionId,
                     subscriptionPassword,
                     surname,
-                    firstName
+                    firstName,
+                    deviceFormat = deviceFormat
                 )
             ).data?.subscriptionId2tazId
         }
@@ -135,7 +144,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.CheckSubscriptionId,
-                CheckSubscriptionIdVariables(subscriptionId, password)
+                CheckSubscriptionIdVariables(subscriptionId, password),
             ).data?.checkSubscriptionId
         }
     }
@@ -392,7 +401,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     isAutomatically,
                     installationId = authHelper.installationId.get(),
                     isPush = firebaseHelper.isPush(),
-                    pushToken = firebaseHelper.token.get()
+                    pushToken = firebaseHelper.token.get(),
+                    deviceFormat = deviceFormat
                 )
             ).data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id with pushToken: ${firebaseHelper.token.get()}")
@@ -479,7 +489,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     iban = iban,
                     accountHolder = accountHolder,
                     comment = comment,
-                    nameAffix = nameAffix
+                    nameAffix = nameAffix,
+                    deviceFormat = deviceFormat
                 )
             ).data?.subscription
         }
@@ -512,7 +523,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     firstName = firstName,
                     nameAffix = nameAffix,
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.token.get()
+                    pushToken = firebaseHelper.token.get(),
+                    deviceFormat = deviceFormat
                 )
             ).data?.trialSubscription
         }
@@ -558,7 +570,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     ramUsed = ramUsed,
                     ramAvailable = ramAvailable,
                     screenshotName = screenshotName,
-                    screenshot = screenshot
+                    screenshot = screenshot,
+                    deviceFormat = deviceFormat
                 )
             )
         }
