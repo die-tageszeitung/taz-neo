@@ -66,6 +66,9 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue ORDER BY date DESC")
     abstract fun getAllIssueStubs(): List<IssueStub>
 
+    @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL ORDER BY date DESC")
+    abstract fun getAllDownloadedIssueStubs(): List<IssueStub>
+
     @Query("SELECT * FROM Issue WHERE status IN (\"public\", \"demo\") ORDER BY date DESC")
     abstract fun getAllPublicAndDemoIssueStubs(): List<IssueStub>
 

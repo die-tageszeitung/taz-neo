@@ -16,7 +16,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
@@ -306,14 +305,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
         val deletionProgressText =
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-        val issueStubList = withContext(Dispatchers.IO) {
-            issueRepository.getAllIssueStubs()
+        val downloadedIssueStubList = withContext(Dispatchers.IO) {
+            issueRepository.getAllDownloadedIssueStubs()
         }
-        val feedName = issueStubList.first().feedName
+
+        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
-        deletionProgress.max = issueStubList.size
+        deletionProgress.max = downloadedIssueStubList.size
         deletionProgressText.visibility = View.VISIBLE
         deletionProgressText.text = getString(
             R.string.settings_delete_progress_text,
@@ -321,7 +321,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             deletionProgress.max
         )
 
-        for (issueStub in issueStubList) {
+        for (issueStub in downloadedIssueStubList) {
             try {
                 contentService.deleteIssue(issueStub.issueKey)
                 counter++
