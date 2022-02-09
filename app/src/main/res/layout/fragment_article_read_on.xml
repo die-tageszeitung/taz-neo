@@ -1,51 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="@dimen/fragment_padding_horizontal"
     android:paddingEnd="@dimen/fragment_padding_horizontal"
-    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom"
-    tools:context=".ui.WebViewActivity">
+    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
 
     <TextView
-        android:id="@+id/fragment_article_read_on_description"
+        android:id="@+id/read_on_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_article_read_ondescription_margin_top"
-        android:layout_marginBottom="@dimen/fragment_article_read_ondescription_margin_bottom"
+        android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
+        android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
         android:text="@string/fragment_login_description"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_article_read_on_username_layout"
+        android:id="@+id/read_on_username_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/fragment_article_read_on_description">
+        app:layout_constraintTop_toBottomOf="@id/read_on_description">
 
         <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_article_read_on_username"
+            android:id="@+id/read_on_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_username_hint"
             android:imeOptions="actionNext"
             android:inputType="textEmailAddress"
             android:autofillHints="username|emailAddress"
-            android:nextFocusForward="@id/fragment_article_read_on_password_layout" />
+            android:nextFocusForward="@id/read_on_password_layout" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_article_read_on_password_layout"
+        android:id="@+id/read_on_password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_username_layout"
+        app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
         app:passwordToggleEnabled="true">
 
         <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_article_read_on_password"
+            android:id="@+id/read_on_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/login_password_hint"
@@ -55,28 +53,27 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
-        android:id="@+id/fragment_article_read_on_login_button"
+        android:id="@+id/read_on_login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/login_button_margin_top"
         android:text="@string/login_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_password_layout" />
+        app:layout_constraintTop_toBottomOf="@id/read_on_password_layout" />
 
     <TextView
-        android:id="@+id/fragment_article_read_on_trial_subscription"
+        android:id="@+id/read_on_trial_subscription_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_article_read_ondescription_margin_top"
-        android:layout_marginBottom="@dimen/fragment_article_read_ondescription_margin_bottom"
+        android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
+        android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
         android:text="@string/trial_subscription_title"
         android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/fragment_article_read_on_login_button" />
+        app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
 
     <Button
-        android:id="@+id/fragment_article_read_on_register_button"
+        android:id="@+id/read_on_register_button"
         style="@style/AppTheme.ButtonStyle.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,6 +82,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_article_read_on_trial_subscription" />
+        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

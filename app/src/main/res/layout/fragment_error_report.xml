@@ -64,17 +64,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
                     android:text="@string/fragment_error_report_description"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_title" />
 
                 <TextView
                     android:id="@+id/fragment_error_report_email_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
-                    android:labelFor="@+id/fragment_error_report_email"
+                    android:labelFor="@id/fragment_error_report_email"
                     android:text="@string/fragment_error_report_email_title"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_description" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_description" />
 
                 <EditText
                     android:id="@+id/fragment_error_report_email"
@@ -83,13 +83,13 @@
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:nextFocusForward="@id/fragment_error_report_message"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_email_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_email_title" />
 
                 <TextView
                     android:id="@+id/fragment_error_report_message_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/fragment_error_report_message"
+                    android:labelFor="@id/fragment_error_report_message"
                     android:text="@string/fragment_error_report_message_title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_email" />
@@ -102,13 +102,13 @@
                     android:imeOptions="actionNext"
                     android:inputType="textMultiLine"
                     android:nextFocusForward="@id/fragment_error_report_last_action"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_message_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_message_title" />
 
                 <TextView
                     android:id="@+id/fragment_error_report_last_action_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/fragment_error_report_last_action"
+                    android:labelFor="@id/fragment_error_report_last_action"
                     android:text="@string/fragment_error_report_last_action_title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_message" />
@@ -121,13 +121,13 @@
                     android:imeOptions="actionNext"
                     android:inputType="textMultiLine"
                     android:nextFocusForward="@id/fragment_error_report_conditions"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_last_action_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action_title" />
 
                 <TextView
                     android:id="@+id/fragment_error_report_conditions_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@+id/fragment_error_report_conditions"
+                    android:labelFor="@id/fragment_error_report_conditions"
                     android:text="@string/fragment_error_report_conditions_title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action" />
@@ -139,7 +139,7 @@
                     android:hint="@string/fragment_error_report_conditions_hint"
                     android:imeOptions="actionDone"
                     android:inputType="textMultiLine"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions_title" />
 
                 <Button
                     android:id="@+id/fragment_error_report_send_button"
@@ -148,7 +148,7 @@
                     android:layout_marginTop="@dimen/login_button_margin_top"
                     android:text="@string/fragment_error_report_send_button"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/fragment_error_report_upload"
@@ -158,7 +158,7 @@
                     android:layout_marginTop="@dimen/login_button_margin_top"
                     android:text="@string/fragment_error_report_upload_button"
                     app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/fragment_error_report_conditions" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions" />
 
                 <ImageView
                     android:id="@+id/fragment_error_report_screenshot_thumbnail"

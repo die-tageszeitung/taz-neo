@@ -5,13 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import androidx.fragment.app.Fragment
-import de.taz.app.android.R
+import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.ui.login.*
-import kotlinx.android.synthetic.main.fragment_article_read_on.*
 
-class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
+class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>() {
 
     private var articleFileName: String? = null
 
@@ -27,37 +26,37 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_article_read_on_login_button.setOnClickListener {
-            login()
-        }
+        viewBinding.apply {
+            readOnLoginButton.setOnClickListener {
+                login()
+            }
 
-        fragment_article_read_on_password.setOnEditorActionListener(
-            OnEditorActionDoneListener(::login)
-        )
+            readOnPassword.setOnEditorActionListener(
+                OnEditorActionDoneListener(::login)
+            )
 
-        fragment_article_read_on_register_button.setOnClickListener {
-            register()
+            readOnRegisterButton.setOnClickListener {
+                register()
+            }
         }
     }
 
-    private fun login() {
+    private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim()
+    private fun getPassword(): String = viewBinding.readOnPassword.text.toString()
+
+    private fun login() = startLoginActivity(false)
+    private fun register() = startLoginActivity(true)
+
+    private fun startLoginActivity(register: Boolean) {
         activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
-            putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString().trim())
-            putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
+            putExtra(LOGIN_EXTRA_USERNAME, getUsername())
+            putExtra(LOGIN_EXTRA_PASSWORD, getPassword())
+            putExtra(LOGIN_EXTRA_REGISTER, register)
             putExtra(LOGIN_EXTRA_ARTICLE, articleFileName)
         }, ACTIVITY_LOGIN_REQUEST_CODE)
         hideKeyBoard()
     }
 
-    private fun register() {
-        activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
-            putExtra(LOGIN_EXTRA_USERNAME, fragment_article_read_on_username.text.toString().trim())
-            putExtra(LOGIN_EXTRA_PASSWORD, fragment_article_read_on_password.text.toString())
-            putExtra(LOGIN_EXTRA_REGISTER, true)
-            putExtra(LOGIN_EXTRA_ARTICLE, articleFileName)
-        }, ACTIVITY_LOGIN_REQUEST_CODE)
-        hideKeyBoard()
-    }
 
     private fun hideKeyBoard() {
         activity?.apply {
@@ -67,5 +66,4 @@ class ArticleLoginFragment : Fragment(R.layout.fragment_article_read_on) {
             }
         }
     }
-
 }

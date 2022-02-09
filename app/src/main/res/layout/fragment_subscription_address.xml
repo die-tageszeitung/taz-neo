@@ -44,7 +44,7 @@
         app:counterMaxLength="23"
         app:helperText="@string/login_surname_helper"
         app:helperTextEnabled="true"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_first_name_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_first_name_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_surname"
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="25"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_surname_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_surname_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_name_affix"
@@ -88,7 +88,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="25"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_name_affix_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_name_affix_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_street"
@@ -109,7 +109,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="25"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_street_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_street_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_country"
@@ -129,7 +129,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="10"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_country_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_country_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_postcode"
@@ -150,7 +150,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="25"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_postcode_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_postcode_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_city"
@@ -171,7 +171,7 @@
         android:layout_height="wrap_content"
         app:counterEnabled="true"
         app:counterMaxLength="25"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_city_layout">
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_city_layout">
 
         <de.taz.app.android.util.AppTextInputEditText
             android:id="@+id/fragment_subscription_address_phone"
@@ -192,6 +192,6 @@
         android:text="@string/next_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_subscription_address_phone_layout" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_phone_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
