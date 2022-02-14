@@ -35,9 +35,10 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
 
         homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-            navigation_bottom.menu.findItem(R.id.bottom_navigation_action_pdf)
-                .setIcon(if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view)
+            val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+            fab_action_pdf.setImageResource(drawable)
         }
+        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_home).isChecked = true
 
         feed_archive_pager.adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
 
@@ -72,6 +73,12 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             }
         }
         coverflow_refresh_layout?.reduceDragSensitivity(10)
+
+        fab_action_pdf.setOnClickListener {
+            CoroutineScope(Dispatchers.Main).launch {
+                homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
+            }
+        }
     }
 
     private suspend fun onRefresh() {
@@ -124,11 +131,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             }
             R.id.bottom_navigation_action_home -> {
                 (activity as? MainActivity)?.showHome()
-            }
-            R.id.bottom_navigation_action_pdf -> {
-                CoroutineScope(Dispatchers.Main).launch {
-                    homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
-                }
             }
         }
     }
