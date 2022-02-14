@@ -396,9 +396,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.DownloadStart,
                 DownloadStartVariables(
-                    feedName,
-                    issueDate,
-                    isAutomatically,
+                    feedName = feedName,
+                    issueDate = issueDate,
+                    isAutomatically = isAutomatically,
                     installationId = authHelper.installationId.get(),
                     isPush = firebaseHelper.isPush(),
                     pushToken = firebaseHelper.token.get(),
