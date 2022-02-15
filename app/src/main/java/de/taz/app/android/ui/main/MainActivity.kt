@@ -22,12 +22,16 @@ import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
+import de.taz.app.android.ui.ExperimentalSearchActivity
+import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.settings.SettingsActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,6 +82,37 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         super.onResume()
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
+        }
+
+        navigation_bottom.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.bottom_navigation_action_home -> {
+                    showHome()
+                    true
+                }
+                R.id.bottom_navigation_action_bookmark -> {
+                    Intent(
+                        this,
+                        BookmarkListActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_search -> {
+                    Intent(
+                        this,
+                        ExperimentalSearchActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_settings -> {
+                    Intent(
+                        this,
+                        SettingsActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    true
+                }
+                else -> false
+            }
         }
     }
 

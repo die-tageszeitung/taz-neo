@@ -38,8 +38,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
             val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
             fab_action_pdf.setImageResource(drawable)
         }
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_home).isChecked = true
-
         feed_archive_pager.adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
 
         // reduce viewpager2 sensitivity to make the view less finicky
