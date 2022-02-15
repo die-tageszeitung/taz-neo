@@ -14,11 +14,10 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
@@ -112,27 +111,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         coverflow_refresh_layout?.isRefreshing = false
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_bookmark -> Intent(
-                requireActivity(),
-                BookmarkListActivity::class.java
-            ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_settings -> Intent(
-                requireActivity(),
-                SettingsActivity::class.java
-            ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_help -> {
-                val intent = Intent(context?.applicationContext, WelcomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-                startActivity(Intent(intent))
-            }
-            R.id.bottom_navigation_action_home -> {
-                (activity as? MainActivity)?.showHome()
-            }
-        }
-    }
-
     override fun onDestroyView() {
         feed_archive_pager.adapter = null
         refreshJob?.cancel()
@@ -143,10 +121,6 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     fun setHomeIconFilled() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home_filled)
 
     fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
-
-    fun showCoverFlow() {
-        feed_archive_pager.currentItem = COVERFLOW_PAGER_POSITION
-    }
 
     fun showArchive() {
         feed_archive_pager.currentItem = ARCHIVE_PAGER_POSITION

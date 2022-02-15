@@ -83,7 +83,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
-
+        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
         navigation_bottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
@@ -94,21 +94,27 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                     Intent(
                         this,
                         BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
                     true
                 }
                 R.id.bottom_navigation_action_search -> {
                     Intent(
                         this,
                         ExperimentalSearchActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
                     true
                 }
                 R.id.bottom_navigation_action_settings -> {
                     Intent(
                         this,
                         SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION).apply { startActivity(this) }
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
                     true
                 }
                 else -> false
