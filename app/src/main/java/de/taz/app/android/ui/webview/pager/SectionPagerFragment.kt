@@ -1,7 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -15,11 +15,13 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.ExperimentalSearchActivity
+import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -30,8 +32,6 @@ class SectionPagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
 ) {
     private val log by Log
-
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
@@ -92,15 +92,6 @@ class SectionPagerFragment : BaseMainFragment(
         }
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> MainActivity.start(requireContext())
-            R.id.bottom_navigation_action_size -> {
-                showBottomSheet(TextSettingsFragment())
-            }
-        }
-    }
-
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         super.onDestroyView()
@@ -109,6 +100,52 @@ class SectionPagerFragment : BaseMainFragment(
     override fun onStop() {
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        navigation_bottom_webview_pager.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
+        navigation_bottom_webview_pager.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.bottom_navigation_action_home -> {
+                    Intent(
+                        requireActivity(),
+                        MainActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_bookmark -> {
+                    Intent(
+                        requireActivity(),
+                        BookmarkListActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_search -> {
+                    Intent(
+                        requireActivity(),
+                        ExperimentalSearchActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_settings -> {
+                    Intent(
+                        requireActivity(),
+                        SettingsActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>) :

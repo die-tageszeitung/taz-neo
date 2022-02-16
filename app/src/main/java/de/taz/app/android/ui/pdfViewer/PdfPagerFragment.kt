@@ -114,7 +114,6 @@ class PdfPagerFragment : BaseMainFragment(
     }
 
     override fun onResume() {
-        log.debug("!!! pdfPagerActivity resumed ?!?!?! ${navigation_bottom_pdf.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked}!!!")
         super.onResume()
         navigation_bottom_pdf.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
         navigation_bottom_pdf.setOnItemSelectedListener { menuItem ->

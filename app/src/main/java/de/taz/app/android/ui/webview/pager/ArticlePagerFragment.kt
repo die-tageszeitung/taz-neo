@@ -77,6 +77,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigation_bottom_webview_pager.visibility = View.GONE
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
