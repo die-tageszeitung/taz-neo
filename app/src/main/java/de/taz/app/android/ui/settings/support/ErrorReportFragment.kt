@@ -175,11 +175,4 @@ class ErrorReportFragment : BaseMainFragment(R.layout.fragment_error_report) {
         requireActivity().finish()
 
     }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            log.debug("Show home clicked")
-            requireActivity().finish()
-        }
-    }
 }

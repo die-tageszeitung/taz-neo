@@ -20,6 +20,8 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
+import de.taz.app.android.ui.ExperimentalSearchActivity
+import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
@@ -28,6 +30,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragm
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,8 +64,8 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         rootViewGroup?.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
-
-        viewBinding.navigationBottom.apply {
+        // TODO:  Check if we need that to apply on resume
+       /* viewBinding.navigationBottom.apply {
             itemIconTintList = null
 
             // hack to not auto select first item
@@ -77,7 +80,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 }
                 true
             }
-        }
+        }*/
 
         val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
@@ -238,6 +241,45 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
+    }
+    override fun onResume() {
+        super.onResume()
+        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
+        navigation_bottom.setOnItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.bottom_navigation_action_home -> {
+                    Intent(
+                        this,
+                        MainActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_bookmark -> {
+                    Intent(
+                        this,
+                        BookmarkListActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_search -> {
+                    Intent(
+                        this,
+                        ExperimentalSearchActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
+                    true
+                }
+                R.id.bottom_navigation_action_settings -> {
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun showLoginForm(
