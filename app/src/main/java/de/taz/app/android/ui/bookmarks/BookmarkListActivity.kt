@@ -4,7 +4,6 @@ import android.content.Intent
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityBookmarksBinding
-import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
