@@ -11,6 +11,7 @@ import de.taz.app.android.singletons.JsonHelper
 @JsonClass(generateAdapter = true)
 data class ErrorReportVariables(
     val installationId: String,
+    val deviceFormat: DeviceFormat,
     val pushToken: String? = null,
     val eMail: String? = null,
     val message: String? = null,
@@ -24,7 +25,6 @@ data class ErrorReportVariables(
     val storageUsed: String? = "${StatFs(Environment.getDataDirectory().path).totalBytes - StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
     val ramAvailable: String?,
     val ramUsed: String?,
-    val deviceFormat: DeviceFormat,
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,
     val deviceName: String = android.os.Build.MODEL,
