@@ -107,7 +107,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.SubscriptionPoll,
-                SubscriptionPollVariables(authHelper.installationId.get())
+                SubscriptionPollVariables(
+                    installationId = authHelper.installationId.get(),
+                    deviceFormat = deviceFormat
+                )
             ).data?.subscriptionPoll
         }
     }
@@ -125,7 +128,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
-                AuthenticationVariables(user, password)
+                AuthenticationVariables(
+                    user = user,
+                    password = password,
+                    deviceFormat = deviceFormat
+                )
             ).data?.authentificationToken
         }
     }
@@ -144,7 +151,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.CheckSubscriptionId,
-                CheckSubscriptionIdVariables(subscriptionId, password),
+                CheckSubscriptionIdVariables(
+                    subscriptionId = subscriptionId,
+                    password = password,
+                    deviceFormat = deviceFormat
+                ),
             ).data?.checkSubscriptionId
         }
     }
@@ -424,7 +435,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         transformToConnectivityException {
             graphQlClient.query(
                 QueryType.DownloadStop,
-                DownloadStopVariables(id, time)
+                DownloadStopVariables(
+                    id = id,
+                    time = time,
+                    deviceFormat = deviceFormat
+                )
             )
         }
     }
@@ -438,7 +453,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             transformToConnectivityException {
                 graphQlClient.query(
                     QueryType.Notification,
-                    NotificationVariables(token, oldToken = oldToken)
+                    NotificationVariables(
+                        pushToken = token,
+                        oldToken = oldToken,
+                        deviceFormat = deviceFormat
+                    )
                 ).data?.notification
                     ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
             }
@@ -595,7 +614,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.PasswordReset,
                 PasswordResetVariables(
-                    email
+                    email = email,
+                    deviceFormat = deviceFormat
                 )
             ).data?.passwordReset
         }
@@ -614,7 +634,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.SubscriptionReset,
                 SubscriptionResetVariables(
-                    subscriptionId
+                    subscriptionId = subscriptionId,
+                    deviceFormat = deviceFormat
                 )
             ).data?.subscriptionReset
         }

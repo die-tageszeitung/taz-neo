@@ -24,11 +24,11 @@ data class ErrorReportVariables(
     val storageUsed: String? = "${StatFs(Environment.getDataDirectory().path).totalBytes - StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
     val ramAvailable: String?,
     val ramUsed: String?,
+    val deviceFormat: DeviceFormat,
     val architecture: String? = android.os.Build.SUPPORTED_ABIS.joinToString (", "),
     val deviceType: DeviceType = DeviceType.android,
     val deviceName: String = android.os.Build.MODEL,
     val deviceVersion: String? = "${android.os.Build.VERSION.SDK_INT} (Android ${android.os.Build.VERSION.RELEASE})",
-    val deviceFormat: DeviceFormat = DeviceFormat.mobile,
     val screenshotName: String? = null,
     val screenshot: String? = null
 ): Variables {
