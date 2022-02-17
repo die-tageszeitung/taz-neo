@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <bool name="isTablet">true</bool>
     <integer name="text_default_size">120</integer>
     <fraction name="nav_button_scale_factor">43%</fraction>
 </resources>

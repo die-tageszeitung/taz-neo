@@ -16,10 +16,10 @@ data class SubscriptionId2TazIdVariables(
     val subscriptionPassword: String,
     val surname: String? = null,
     val firstName: String? = null,
+    val deviceFormat: DeviceFormat,
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,
-    val deviceFormat: DeviceFormat = DeviceFormat.mobile,
     val deviceType: DeviceType = DeviceType.android,
     val deviceOS: String? = System.getProperty("os.version"),
 ) : Variables {

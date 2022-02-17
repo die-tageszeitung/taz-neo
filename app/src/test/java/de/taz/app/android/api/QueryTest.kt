@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
 import de.taz.app.android.singletons.JsonHelper
 import org.junit.Assert.assertEquals
@@ -14,7 +15,7 @@ class QueryTest {
     fun withVariables() {
         val queryString = "query AppInfoQuery { product { appName }}"
         val instance = Query(queryString)
-        val variables = AuthenticationVariables("user", "pass")
+        val variables = AuthenticationVariables("user", "pass", DeviceFormat.mobile)
         instance.variables = variables
         val jsonString = instance.toJson()
 
@@ -31,7 +32,7 @@ class QueryTest {
 
         val queryJsonHelper = jsonAdapter.fromJson(jsonString)
         assertEquals(queryJsonHelper?.query, queryString)
-        assertEquals(queryJsonHelper?.variables, TestAuthenticationVariables(null, null))
+        assertEquals(queryJsonHelper?.variables, TestAuthenticationVariables(null, null, null))
     }
 
     data class QueryTestHelper(
@@ -39,7 +40,7 @@ class QueryTest {
         val variables: TestAuthenticationVariables
     )
 
-    data class TestAuthenticationVariables(val user: String?, val password: String?) {
+    data class TestAuthenticationVariables(val user: String?, val password: String?, val deviceFormat: DeviceFormat?) {
         fun equalsAuth(authenticationVariables: AuthenticationVariables): Boolean {
             return this.user == authenticationVariables.user &&
                     this.password == authenticationVariables.password
