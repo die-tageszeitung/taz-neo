@@ -114,7 +114,7 @@
     <string name="settings_delete_all_issues_for_sure">Are you sure?</string>
     <string name="settings_delete_all_issues_for_sure_detail">All downloaded issues will be removed. Bookmarked article will remain.</string>
     <string name="settings_delete_progress_text">%d of %d issues deleted</string>>
-    <string name="settings_delete_no_more_issues_found">No issues found</string>
+    <string name="settings_delete_all_issues_deleted">All issues deleted</string>
 
     <string name="fragment_error_report_title">Report a bug</string>
     <string name="fragment_error_report_description">Here you can report an error you have encountered.</string>
