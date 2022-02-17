@@ -88,12 +88,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 SubscriptionId2TazIdVariables(
                     installationId = authHelper.installationId.get(),
                     pushToken = firebaseHelper.token.get(),
-                    tazId,
-                    idPassword,
-                    subscriptionId,
-                    subscriptionPassword,
-                    surname,
-                    firstName,
+                    tazId = tazId,
+                    idPassword = idPassword,
+                    subscriptionId = subscriptionId,
+                    subscriptionPassword = subscriptionPassword,
+                    surname = surname,
+                    firstName = firstName,
                     deviceFormat = deviceFormat
                 )
             ).data?.subscriptionId2tazId
