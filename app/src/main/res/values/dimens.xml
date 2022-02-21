@@ -110,12 +110,13 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
 
     <dimen name="fragment_bookmarks_thumbnail_size">65dp</dimen>
-    <dimen name="fragment_bookmarks_icons_vertical_margin">4dp</dimen>
+    <dimen name="fragment_bookmarks_icons_vertical_margin">16dp</dimen>
+    <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
     <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="fragment_bookmarks_icon_size">50dp</dimen>
+    <dimen name="fragment_bookmarks_icon_size">28dp</dimen>
 
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
