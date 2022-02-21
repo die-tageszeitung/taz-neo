@@ -5,12 +5,11 @@
 
     <dimen name="nav_bottom_height">52dp</dimen>
     <!-- overriding android dimens: -->
-    <dimen name="design_bottom_navigation_icon_size" tools:override="true">32dp</dimen>
-    <dimen name="design_fab_image_size" tools:override="true">32dp</dimen>
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
     <dimen name="view_moment_download_icon_size">25dp</dimen>
+
     <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
