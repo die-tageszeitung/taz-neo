@@ -28,6 +28,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFra
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.*
+import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -63,23 +64,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         rootViewGroup?.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
-        // TODO:  Check if we need that to apply on resume
-        viewBinding.navigationBottom.apply {
-            itemIconTintList = null
-
-            // hack to not auto select first item
-            menu.getItem(0).isCheckable = false
-
-            setOnNavigationItemSelectedListener {
-                this@LoginActivity.apply {
-                    val data = Intent()
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
-                    setResult(Activity.RESULT_CANCELED, data)
-                    finish()
-                }
-                true
-            }
-        }
 
         val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
@@ -271,6 +255,11 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     true
                 }
                 R.id.bottom_navigation_action_settings -> {
+                    Intent(
+                        this,
+                        SettingsActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
                     true
                 }
                 else -> false

@@ -40,6 +40,11 @@ class ErrorReportActivity: ViewBindingActivity<ActivityErrorReportBinding>() {
                     true
                 }
                 R.id.bottom_navigation_action_settings -> {
+                    Intent(
+                        this,
+                        SettingsActivity::class.java
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .apply { startActivity(this) }
                     true
                 }
                 else -> false
