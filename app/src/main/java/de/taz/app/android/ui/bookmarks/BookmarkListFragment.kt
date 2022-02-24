@@ -12,9 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.ExperimentalSearchActivity
-import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import kotlinx.coroutines.Dispatchers
@@ -79,5 +76,4 @@ class BookmarkListFragment :
             }
         }
     }
-
 }

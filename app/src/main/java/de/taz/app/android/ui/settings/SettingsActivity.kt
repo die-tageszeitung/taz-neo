@@ -7,14 +7,13 @@ import de.taz.app.android.databinding.ActivitySettingsBinding
 import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
-import kotlinx.android.synthetic.main.activity_settings.*
 
 class SettingsActivity: ViewBindingActivity<ActivitySettingsBinding>() {
 
     override fun onResume() {
         super.onResume()
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
-        navigation_bottom.setOnItemSelectedListener { menuItem ->
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
+        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
                     Intent(

@@ -30,7 +30,6 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragm
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,7 +64,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
         // TODO:  Check if we need that to apply on resume
-       /* viewBinding.navigationBottom.apply {
+        viewBinding.navigationBottom.apply {
             itemIconTintList = null
 
             // hack to not auto select first item
@@ -80,7 +79,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 }
                 true
             }
-        }*/
+        }
 
         val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
@@ -244,8 +243,8 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
     override fun onResume() {
         super.onResume()
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
-        navigation_bottom.setOnItemSelectedListener { menuItem ->
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
+        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
                     Intent(

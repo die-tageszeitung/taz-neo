@@ -46,8 +46,8 @@ class ExperimentalSearchActivity :
     }
     override fun onResume() {
         super.onResume()
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_search)?.isChecked = true
-        navigation_bottom.setOnItemSelectedListener { menuItem ->
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_search)?.isChecked = true
+        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
                     Intent(

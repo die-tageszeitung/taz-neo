@@ -7,14 +7,13 @@ import de.taz.app.android.databinding.ActivityBookmarksBinding
 import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
-import kotlinx.android.synthetic.main.activity_bookmarks.*
 
-class BookmarkListActivity: ViewBindingActivity<ActivityBookmarksBinding>() {
+class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
 
     override fun onResume() {
         super.onResume()
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_bookmark)?.isChecked = true
-        navigation_bottom.setOnItemSelectedListener { menuItem ->
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_bookmark)?.isChecked = true
+        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
                     Intent(

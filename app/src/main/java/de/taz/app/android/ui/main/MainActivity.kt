@@ -31,7 +31,6 @@ import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.settings.SettingsActivity
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,8 +82,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
-        navigation_bottom.setOnItemSelectedListener { menuItem ->
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
+        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_navigation_action_home -> {
                     showHome()
