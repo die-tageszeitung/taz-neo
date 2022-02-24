@@ -27,10 +27,8 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
@@ -39,7 +37,6 @@ import kotlinx.android.synthetic.main.fragment_settings.*
 import kotlinx.coroutines.*
 import java.util.*
 
-@Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragment_settings) {
     private val log by Log
 
@@ -86,9 +83,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
 
             findViewById<TextView>(R.id.fragment_settings_account_manage_account)
                 .setOnClickListener {
-                    activity?.startActivityForResult(
-                        Intent(activity, LoginActivity::class.java),
-                        ACTIVITY_LOGIN_REQUEST_CODE
+                    activity?.startActivity(
+                        Intent(activity, LoginActivity::class.java)
                     )
                 }
 
@@ -171,9 +167,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             fragment_settings_delete_all_issues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
-            if (BuildConfig.DEBUG) {
-                inflateExperimentalOptions()
-            }
         }
 
 
@@ -229,10 +222,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             fragment_settings_account_email.text = email
         }
-    }
-
-    private fun setDoNotShowAgain(doNotShowAgain: Boolean) {
-        viewModel.setPdfDialogDoNotShowAgain(doNotShowAgain)
     }
 
     private fun showKeepIssuesDialog() {
@@ -333,21 +322,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 break
             }
         }
-    }
-
-    private fun inflateExperimentalOptions() {
-        val experimentalContainer = view?.findViewById<FrameLayout>(R.id.experimental_container)
-        val experimentalOptionsView =
-            layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
-        experimentalOptionsView.findViewById<TextView>(R.id.expirimental_search_button)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        requireActivity(),
-                        ExperimentalSearchActivity::class.java
-                    )
-                )
-            }
     }
 
     private fun showStoredIssueNumber(number: Int) {

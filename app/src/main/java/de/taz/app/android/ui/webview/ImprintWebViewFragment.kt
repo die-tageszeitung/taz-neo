@@ -97,8 +97,7 @@ class ImprintWebViewFragment :
                     Intent(
                         requireActivity(),
                         MainActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
@@ -106,8 +105,7 @@ class ImprintWebViewFragment :
                     Intent(
                         requireActivity(),
                         BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
@@ -115,8 +113,7 @@ class ImprintWebViewFragment :
                     Intent(
                         requireActivity(),
                         ExperimentalSearchActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
@@ -124,8 +121,7 @@ class ImprintWebViewFragment :
                     Intent(
                         requireActivity(),
                         SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }

@@ -53,8 +53,7 @@ class ExperimentalSearchActivity :
                     Intent(
                         this,
                         MainActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
@@ -62,8 +61,7 @@ class ExperimentalSearchActivity :
                     Intent(
                         this,
                         BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
@@ -74,8 +72,7 @@ class ExperimentalSearchActivity :
                     Intent(
                         this,
                         SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         .apply { startActivity(this) }
                     true
                 }
