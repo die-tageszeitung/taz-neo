@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
@@ -15,6 +16,7 @@ import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_home.feed_archive_pager
 import kotlinx.android.synthetic.main.fragment_home.fab_action_pdf
 import kotlinx.android.synthetic.main.fragment_home.coverflow_refresh_layout
@@ -115,9 +117,21 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
         super.onDestroyView()
     }
 
-    fun setHomeIconFilled() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home_filled)
+    fun setHomeIconFilled() {
+        val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
+        val menu = menuView?.menu
+        menuView?.post {
+            menu?.findItem(R.id.bottom_navigation_action_home)?.setIcon(R.drawable.ic_home_filled)
+        }
+    }
 
-    fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
+    fun setHomeIcon() {
+        val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
+        val menu = menuView?.menu
+        menuView?.post {
+            menu?.findItem(R.id.bottom_navigation_action_home)?.setIcon(R.drawable.ic_home)
+        }
+    }
 
     fun showArchive() {
         feed_archive_pager.currentItem = ARCHIVE_PAGER_POSITION
