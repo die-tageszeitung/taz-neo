@@ -26,9 +26,7 @@ class ExperimentalSearchActivity :
             searchButton.setOnClickListener {
                 lifecycleScope.launch {
                     val result = apiService.search(
-                        SearchVariables(
-                            text = searchInput.text?.toString()
-                        )
+                        searchText = searchInput.text?.toString() ?: ""
                     )
                     listAdapter.clear()
                     result?.searchHitList?.let { hits ->

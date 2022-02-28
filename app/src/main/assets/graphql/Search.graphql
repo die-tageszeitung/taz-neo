@@ -2,25 +2,42 @@ query SearchQuery(
     $text: String,
     $title: String,
     $author: String,
+    $sessionId: String,
     $offset: Int,
+    $rowCnt: Int,
     $sorting: Sorting,
+    $searchTime: String,
+    $filter: SearchFilter,
     $pubDateFrom: String,
     $pubDateUntil: String,
+    $deviceName: String,
+    $deviceVersion: String,
+    $appVersion: String,
+    $deviceFormat: DeviceFormat,
+    $deviceType: DeviceType,
+    $deviceOS: String
 ) {
     search(
         text: $text,
         title: $title,
         author: $author,
+        sessionId: $sessionId,
         offset: $offset,
+        rowCnt: $rowCnt,
         sorting: $sorting,
+        searchTime: $searchTime,
+        filter: $filter,
         pubDateFrom: $pubDateFrom,
-        pubDateUntil: $pubDateUntil
+        pubDateUntil: $pubDateUntil,
+        deviceName: $deviceName,
+        deviceVersion: $deviceVersion,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceType: $deviceType,
+        deviceOS: $deviceOS
     ) {
-        authInfo {
-            status
-            message
-        }
         sessionId
+        searchTime
         searchHitList {
             article {
                 id
@@ -68,13 +85,13 @@ query SearchQuery(
                     }
                 }
             }
-            baseUrl
             snippet
+            sectionTitle
             title
             teaser
-            sectionTitle
-            date
             articleHtml
+            date
+            baseUrl
         }
         total
         totalFound
@@ -84,11 +101,17 @@ query SearchQuery(
         next
         prev
         text
+        title
         author
+        pubDateFrom
+        pubDateUntil
         snippetWords
-        sorting
-        searchTime
         minPubDate
-        maxPubDate
+        sorting
+        filter
+        authInfo {
+            status
+            message
+        }
     }
 }

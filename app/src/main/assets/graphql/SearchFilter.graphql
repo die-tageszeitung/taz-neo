@@ -1,0 +1,7 @@
+enum SearchFilter {
+    all,
+    taz,
+    LMd,
+    Kontext,
+    weekend
+}
