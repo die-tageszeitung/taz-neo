@@ -1,10 +1,10 @@
 package de.taz.app.android.ui
 
 import android.os.Bundle
+import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.variables.SearchVariables
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityExperimentalSearchBinding
 import kotlinx.coroutines.launch
@@ -23,16 +23,23 @@ class ExperimentalSearchActivity :
         )
         viewBinding.apply {
             searchList.adapter = listAdapter
-            searchButton.setOnClickListener {
-                lifecycleScope.launch {
-                    val result = apiService.search(
-                        searchText = searchInput.text?.toString() ?: ""
-                    )
-                    listAdapter.clear()
-                    result?.searchHitList?.let { hits ->
-                        listAdapter.addAll(hits.map { it.title })
+            cancelButton.setOnClickListener {
+                searchInput.editText?.text?.clear()
+            }
+            searchText.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    lifecycleScope.launch {
+                        val result = apiService.search(
+                            searchText = searchInput.editText?.text.toString()
+                        )
+                        listAdapter.clear()
+                        result?.searchHitList?.let { hits ->
+                            listAdapter.addAll(hits.map { it.title })
+                        }
                     }
+                    return@setOnEditorActionListener true
                 }
+                false
             }
         }
     }
