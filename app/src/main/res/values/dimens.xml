@@ -154,6 +154,11 @@
     <dimen name="search_input_field_margin_horizontally">18dp</dimen>
     <dimen name="search_icon_size">24dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
+    <dimen name="search_result_title_text_size">18sp</dimen>
+    <dimen name="search_result_title_margin_top">14dp</dimen>
+    <dimen name="search_result_snippet_text_size">15sp</dimen>
+    <dimen name="search_result_small_text_size">14sp</dimen>
+    <dimen name="search_results_small_margin">7dp</dimen>
 
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">68dp</dimen>

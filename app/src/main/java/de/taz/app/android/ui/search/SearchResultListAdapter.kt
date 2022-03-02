@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.search
 
+import android.os.Build
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +9,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.ui.webview.AppWebView
+import java.sql.Date
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SearchResultListAdapter(
     private var searchResultList: List<SearchHitDto>
@@ -15,6 +24,11 @@ class SearchResultListAdapter(
 
     class SearchResultListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var titleTextView: TextView = view.findViewById(R.id.search_result_title)
+
+        //  var authorTextView: TextView = view.findViewById(R.id.search_result_author)
+        var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
+        var dateTextView: TextView = view.findViewById(R.id.search_result_date)
+        var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
     }
 
     override fun onCreateViewHolder(
@@ -31,7 +45,27 @@ class SearchResultListAdapter(
         position: Int
     ) {
         val searchResultItem = searchResultList[position]
+
+        // get the snippet to show in a TextView:
+        val snippetWithParsableHtml =
+            searchResultItem.snippet?.replace("<span class=\"snippet\">", "<font color='#d50d2e'>")
+                ?.replace("</span>", "</font>")
+        val snippet = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(snippetWithParsableHtml, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            Html.fromHtml(snippetWithParsableHtml)
+        }
+        // Parse the date correctly, as it is given as a string but needs to be shown in different way
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
+        val dateString = date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
+
+        // get the author from the article
+
         holder.titleTextView.text = searchResultItem.title
+        //   holder.authorTextView.text = searchResultItem.article?.authorList?.toString()
+        holder.snippetTextView.text = snippet
+        holder.dateTextView.text = dateString
+        holder.sectionTextView.text = searchResultItem.sectionTitle
     }
 
     override fun getItemCount() = searchResultList.size

@@ -12,6 +12,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 
 class SearchActivity :
@@ -20,20 +21,17 @@ class SearchActivity :
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
+    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
-        val listAdapter = ArrayAdapter<String>(
-            this,
-            android.R.layout.simple_list_item_1
-        )
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
                 searchInput.editText?.text?.clear()
-                listAdapter.clear()
                 showSearchDescription()
+                initRecyclerView()
             }
             searchText.setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -45,7 +43,6 @@ class SearchActivity :
                         result?.searchHitList?.let { hits ->
                             searchResultItemsList.addAll(hits)
                             initRecyclerView()
-                           // listAdapter.addAll(hits.map { it.title })
                         }
                     }
                     return@setOnEditorActionListener true
@@ -60,7 +57,6 @@ class SearchActivity :
             val recyclerView = searchResultList
             searchResultListAdapter = SearchResultListAdapter(searchResultItemsList)
             recyclerView.apply {
-                setHasFixedSize(true) // TODO <- check if needed
                 layoutManager = LinearLayoutManager(applicationContext)
                 adapter = searchResultListAdapter
             }
@@ -71,6 +67,7 @@ class SearchActivity :
         viewBinding.apply {
             searchDescription.visibility = View.VISIBLE
             searchDescriptionIcon.visibility = View.VISIBLE
+            searchResultList.visibility = View.GONE
         }
         hideKeyboard()
     }
@@ -79,6 +76,7 @@ class SearchActivity :
         viewBinding.apply {
             searchDescription.visibility = View.GONE
             searchDescriptionIcon.visibility = View.GONE
+            searchResultList.visibility = View.VISIBLE
         }
         hideKeyboard()
     }
