@@ -303,4 +303,6 @@
 
     <string name="experimental_search_activity">Suche</string>
     <string name="experimental_search_input_hint">taz Archiv durchsuchen</string>
+    <string name="experimental_search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
+    <string name="experimental_search_filter">Suche filtern</string>
 </resources>
