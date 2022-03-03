@@ -9,11 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
-import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.ui.webview.AppWebView
-import java.sql.Date
 import java.text.SimpleDateFormat
 import java.util.*
 

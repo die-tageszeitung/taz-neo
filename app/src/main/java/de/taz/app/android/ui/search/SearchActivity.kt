@@ -5,14 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 
 class SearchActivity :
@@ -21,7 +19,6 @@ class SearchActivity :
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
-    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +27,15 @@ class SearchActivity :
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
                 searchInput.editText?.text?.clear()
+                clearRecyclerView()
                 showSearchDescription()
-                initRecyclerView()
             }
             searchText.setOnEditorActionListener { _, actionId, _ ->
+                // search button in keyboard layout clicked:
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    searchLoadingScreen.visibility = View.VISIBLE
+                    hideKeyboard()
+                    clearRecyclerView()
                     lifecycleScope.launch {
                         val result = apiService.search(
                             searchText = searchInput.editText?.text.toString()
@@ -54,13 +55,17 @@ class SearchActivity :
 
     private fun initRecyclerView() {
         viewBinding.apply {
-            val recyclerView = searchResultList
             searchResultListAdapter = SearchResultListAdapter(searchResultItemsList)
-            recyclerView.apply {
+            searchResultList.apply {
                 layoutManager = LinearLayoutManager(applicationContext)
                 adapter = searchResultListAdapter
             }
+            searchLoadingScreen.visibility = View.GONE
         }
+    }
+
+    private fun clearRecyclerView() {
+        searchResultItemsList.clear()
     }
 
     private fun showSearchDescription() {
