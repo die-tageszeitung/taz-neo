@@ -21,7 +21,7 @@ class SearchResultListAdapter(
     class SearchResultListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var titleTextView: TextView = view.findViewById(R.id.search_result_title)
 
-        //  var authorTextView: TextView = view.findViewById(R.id.search_result_author)
+        var authorTextView: TextView = view.findViewById(R.id.search_result_author)
         var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
         var dateTextView: TextView = view.findViewById(R.id.search_result_date)
         var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
@@ -55,10 +55,18 @@ class SearchResultListAdapter(
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
         val dateString = date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
 
-        // get the author from the article
+        // get the author(s) from the article
+        val authorList = searchResultItem.article?.authorList?.map { it.name }
+        if (authorList?.isNotEmpty() == true) {
+            val authorString = authorList.toString()
+                .replace("[", "")
+                .replace("]", "")
+            holder.authorTextView.text = authorString
+        } else {
+            holder.authorTextView.visibility = View.GONE
+        }
 
         holder.titleTextView.text = searchResultItem.title
-        //   holder.authorTextView.text = searchResultItem.article?.authorList?.toString()
         holder.snippetTextView.text = snippet
         holder.dateTextView.text = dateString
         holder.sectionTextView.text = searchResultItem.sectionTitle
