@@ -9,6 +9,7 @@
     <color name="darkGrey">#1C1C1E</color>
     <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
+    <color name="tazRedWithOpacity">#33d50d2e</color>
 
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -41,5 +42,7 @@
     <color name="bottom_sheet_background">@color/white</color>
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
     <color name="bottom_sheet_text_color">@color/textColor</color>
+
+    <color name="text_highlight_mark_color">@color/tazRedWithOpacity</color>
 
 </resources>
