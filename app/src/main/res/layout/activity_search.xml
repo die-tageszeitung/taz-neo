@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
         android:layout_marginTop="@dimen/search_input_field_margin_top"
-        android:hint="@string/experimental_search_input_hint"
+        android:hint="@string/search_input_hint"
         android:importantForAutofill="no"
         app:endIconMode="clear_text"
         app:layout_constraintEnd_toStartOf="@id/search_cancel_button"
@@ -47,7 +47,7 @@
         android:layout_margin="@dimen/search_input_field_margin_horizontally"
         android:adjustViewBounds="true"
         android:backgroundTint="@color/backgroundColor"
-        android:contentDescription="@string/experimental_search_filter"
+        android:contentDescription="@string/search_filter"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_filter"
         app:layout_constraintEnd_toEndOf="parent"
@@ -74,7 +74,7 @@
         android:id="@+id/search_description_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/experimental_search_description"
+        android:contentDescription="@string/search_description"
         android:src="@drawable/ic_search"
         app:layout_constraintBottom_toTopOf="@id/search_description"
         app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_separator_line_margin"
         android:fontFamily="@font/appFontRegular"
-        android:text="@string/experimental_search_description"
+        android:text="@string/search_description"
         android:textAlignment="center"
         android:textColor="@color/lightGrey"
         android:textSize="@dimen/search_description_text_size"
@@ -131,5 +131,14 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/search_button_load_more"
+        android:layout_width="60dp"
+        android:layout_height="56dp"
+        android:layout_margin="@dimen/search_results_small_margin"
+        android:text="@string/search_plus_20"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

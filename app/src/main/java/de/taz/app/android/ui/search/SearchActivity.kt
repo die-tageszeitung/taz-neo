@@ -7,11 +7,14 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import kotlinx.coroutines.launch
+
+const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
@@ -50,15 +53,45 @@ class SearchActivity :
                 }
                 false
             }
+            searchButtonLoadMore.setOnClickListener {
+                lifecycleScope.launch {
+                    val offset = searchResultItemsList.size+ DEFAULT_SEARCH_RESULTS_TO_FETCH
+                    val result = apiService.search(
+                        searchText = searchInput.editText?.text.toString(),
+                        rowCnt = DEFAULT_SEARCH_RESULTS_TO_FETCH,
+                        offset = offset
+                    )
+                    result?.searchHitList?.let { hits ->
+                        searchResultItemsList.addAll(hits)
+                        searchResultListAdapter.notifyItemRangeChanged(
+                            offset,
+                            DEFAULT_SEARCH_RESULTS_TO_FETCH
+                        )
+                    }
+                }
+            }
         }
     }
 
     private fun initRecyclerView() {
         viewBinding.apply {
             searchResultListAdapter = SearchResultListAdapter(searchResultItemsList)
+            val llm = LinearLayoutManager(applicationContext)
             searchResultList.apply {
-                layoutManager = LinearLayoutManager(applicationContext)
+                layoutManager = llm
                 adapter = searchResultListAdapter
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        if (llm.findLastCompletelyVisibleItemPosition() == searchResultItemsList.size - 1
+                            && searchResultList.visibility == View.VISIBLE
+                        ) {
+                            searchButtonLoadMore.visibility = View.VISIBLE
+                        } else {
+                            searchButtonLoadMore.visibility = View.GONE
+                        }
+                        super.onScrolled(recyclerView, dx, dy)
+                    }
+                })
             }
             searchLoadingScreen.visibility = View.GONE
         }

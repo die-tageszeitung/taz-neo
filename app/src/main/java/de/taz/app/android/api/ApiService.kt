@@ -295,14 +295,18 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * Assembles a search query
      */
     suspend fun search(
-        searchText: String
+        searchText: String,
+        rowCnt: Int = 20,
+        offset: Int = 0
     ): SearchDto? {
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Search,
                 SearchVariables(
                     text = searchText,
-                    deviceFormat = deviceFormat
+                    deviceFormat = deviceFormat,
+                    rowCnt = rowCnt,
+                    offset = offset
                 )
             ).data?.search
         }
