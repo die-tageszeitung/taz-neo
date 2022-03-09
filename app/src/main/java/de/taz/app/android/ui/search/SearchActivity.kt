@@ -2,16 +2,20 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.transition.AutoTransition
+import android.transition.TransitionManager
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
@@ -22,7 +26,7 @@ class SearchActivity :
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
-
+private val log by Log
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
@@ -32,6 +36,9 @@ class SearchActivity :
                 searchInput.editText?.text?.clear()
                 clearRecyclerView()
                 showSearchDescription()
+                searchInput.clearFocus()
+                searchButtonLoadMore.visibility = View.GONE
+                expandableAdvancedSearch.visibility = View.GONE
             }
             searchText.setOnEditorActionListener { _, actionId, _ ->
                 // search button in keyboard layout clicked:
@@ -51,7 +58,15 @@ class SearchActivity :
                     }
                     return@setOnEditorActionListener true
                 }
+                searchInput.hint = ""
                 false
+            }
+            searchText.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    searchInput.hint = ""
+                } else {
+                    searchInput.hint = getString(R.string.search_input_hint)
+                }
             }
             searchButtonLoadMore.setOnClickListener {
                 lifecycleScope.launch {
@@ -62,12 +77,25 @@ class SearchActivity :
                         offset = offset
                     )
                     result?.searchHitList?.let { hits ->
+                        log.debug("!!! result: ${result.searchHitList}")
                         searchResultItemsList.addAll(hits)
                         searchResultListAdapter.notifyItemRangeChanged(
                             offset,
                             DEFAULT_SEARCH_RESULTS_TO_FETCH
                         )
                     }
+                    searchButtonLoadMore.visibility = View.GONE
+                }
+            }
+            searchFilterButton.setOnClickListener {
+                if (expandableAdvancedSearch.visibility == View.VISIBLE) {
+                    expandableAdvancedSearch.visibility = View.GONE
+                    advancedSearchTitle.visibility = View.GONE
+                    searchFilterButton.setImageResource(R.drawable.ic_filter)
+                } else {
+                    expandableAdvancedSearch.visibility = View.VISIBLE
+                    advancedSearchTitle.visibility = View.VISIBLE
+                    searchFilterButton.setImageResource(R.drawable.ic_filter_filled)
                 }
             }
         }
@@ -82,7 +110,7 @@ class SearchActivity :
                 adapter = searchResultListAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (llm.findLastCompletelyVisibleItemPosition() == searchResultItemsList.size - 1
+                        if (llm.findLastVisibleItemPosition() == searchResultItemsList.size - 1
                             && searchResultList.visibility == View.VISIBLE
                         ) {
                             searchButtonLoadMore.visibility = View.VISIBLE
@@ -124,5 +152,10 @@ class SearchActivity :
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+
+    override fun onDestroy() {
+        viewBinding.searchResultList.adapter = null
+        super.onDestroy()
     }
 }
