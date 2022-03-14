@@ -2,14 +2,17 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.os.Bundle
-import android.transition.AutoTransition
-import android.transition.TransitionManager
+import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
@@ -17,6 +20,7 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
+
 
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 
@@ -26,7 +30,7 @@ class SearchActivity :
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
-private val log by Log
+    private val log by Log
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
@@ -70,14 +74,14 @@ private val log by Log
             }
             searchButtonLoadMore.setOnClickListener {
                 lifecycleScope.launch {
-                    val offset = searchResultItemsList.size+ DEFAULT_SEARCH_RESULTS_TO_FETCH
+                    val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
                     val result = apiService.search(
                         searchText = searchInput.editText?.text.toString(),
                         rowCnt = DEFAULT_SEARCH_RESULTS_TO_FETCH,
                         offset = offset
                     )
                     result?.searchHitList?.let { hits ->
-                        log.debug("!!! result: ${result.searchHitList}")
+                        log.verbose("search result: ${result.searchHitList}")
                         searchResultItemsList.addAll(hits)
                         searchResultListAdapter.notifyItemRangeChanged(
                             offset,
@@ -89,14 +93,24 @@ private val log by Log
             }
             searchFilterButton.setOnClickListener {
                 if (expandableAdvancedSearch.visibility == View.VISIBLE) {
+                    searchDescription.visibility = View.VISIBLE
+                    searchDescriptionIcon.visibility = View.VISIBLE
                     expandableAdvancedSearch.visibility = View.GONE
                     advancedSearchTitle.visibility = View.GONE
                     searchFilterButton.setImageResource(R.drawable.ic_filter)
                 } else {
+                    searchDescription.visibility = View.GONE
+                    searchDescriptionIcon.visibility = View.GONE
                     expandableAdvancedSearch.visibility = View.VISIBLE
                     advancedSearchTitle.visibility = View.VISIBLE
                     searchFilterButton.setImageResource(R.drawable.ic_filter_filled)
                 }
+            }
+            advancedSearchTimeslot.setOnClickListener {
+                showTimeslotDialog()
+            }
+            advancedSearchPublishedIn.setOnClickListener {
+                showPublishedInDialog()
             }
         }
     }
@@ -152,6 +166,57 @@ private val log by Log
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+
+    private fun showTimeslotDialog() {
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.dialog_advanced_search_timeslot, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
+                val radioGroup =
+                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_timeslot)
+                log.debug("radioGroup: $radioGroup")
+                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
+                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
+                    val radioId: Int = radioGroup.indexOfChild(radioButton)
+                    val btn = radioGroup.getChildAt(radioId)
+                    val chosenTimeslot = (btn as RadioButton).text.toString()
+                    log.debug("chosen timeslot: $chosenTimeslot")
+                    viewBinding.advancedSearchTimeslot.text = chosenTimeslot
+                }
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                (dialog as AlertDialog).hide()
+            }
+            .create()
+        dialog.show()
+
+    }
+    private fun showPublishedInDialog() {
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.dialog_advanced_search_published_in, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
+                val radioGroup =
+                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_published_in)
+                log.debug("radioGroup: $radioGroup")
+                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
+                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
+                    val radioId: Int = radioGroup.indexOfChild(radioButton)
+                    val btn = radioGroup.getChildAt(radioId)
+                    val chosenPublishedIn = (btn as RadioButton).text.toString()
+                    log.debug("chosen published in: $chosenPublishedIn")
+                    viewBinding.advancedSearchPublishedIn.text = chosenPublishedIn
+                }
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                (dialog as AlertDialog).hide()
+            }
+            .create()
+        dialog.show()
+
     }
 
     override fun onDestroy() {

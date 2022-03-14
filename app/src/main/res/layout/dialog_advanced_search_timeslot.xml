@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="?dialogPreferredPadding">
+
+    <RadioGroup
+        android:id="@+id/search_radio_group_timeslot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/radio_button_any"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:checked="true"
+            android:text="@string/search_advanced_radio_timeslot_any" />
+
+        <RadioButton
+            android:id="@+id/radio_button_last_day"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_timeslot_last_day" />
+
+        <RadioButton
+            android:id="@+id/radio_button_last_week"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_timeslot_last_week" />
+
+        <RadioButton
+            android:id="@+id/radio_button_last_month"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_timeslot_last_month" />
+
+        <RadioButton
+            android:id="@+id/radio_button_last_year"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_timeslot_last_year" />
+
+        <RadioButton
+            android:id="@+id/radio_button_custom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_timeslot_custom" />
+    </RadioGroup>
+
+</LinearLayout>

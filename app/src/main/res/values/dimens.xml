@@ -147,10 +147,13 @@
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
 
+    <dimen name="fab_margin_start">24dp</dimen>
+    <dimen name="fab_margin_bottom">68dp</dimen>
+    
     <dimen name="search_separator_line_height">0.5dp</dimen>
     <dimen name="search_separator_line_margin">20dp</dimen>
-    <dimen name="search_cancel_button_margin_top">57dp</dimen>
-    <dimen name="search_input_field_margin_top">48dp</dimen>
+    <dimen name="search_cancel_button_margin_top">54dp</dimen>
+    <dimen name="search_input_field_margin_top">43dp</dimen>
     <dimen name="search_input_field_margin_horizontally">18dp</dimen>
     <dimen name="search_icon_size">24dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
@@ -160,8 +163,11 @@
     <dimen name="search_result_snippet_text_size">15sp</dimen>
     <dimen name="search_result_small_text_size">14sp</dimen>
     <dimen name="search_results_small_margin">7dp</dimen>
+    <dimen name="search_advanced_category_padding_top">13dp</dimen>
+    <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
     <dimen name="search_advanced_title_margin_bottom">-15dp</dimen>
-
+    <dimen name="search_advanced_text_size">18sp</dimen>
+    
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">68dp</dimen>
 

@@ -247,6 +247,14 @@
         <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_bottom</item>
     </style>
 
+    <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">@dimen/search_advanced_text_size</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:paddingTop">@dimen/search_advanced_category_padding_top</item>
+        <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
+    </style>
+
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>

@@ -65,6 +65,39 @@
                 android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            style="@style/TextAppearance.Search.Category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_advanced_timeslot" />
+
+        <TextView
+            android:id="@+id/advanced_search_timeslot"
+            style="@style/TextAppearance.Settings.Entry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/search_advanced_radio_timeslot_any" />
+
+        <TextView
+            style="@style/TextAppearance.Search.Category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_advanced_published_in" />
+
+        <TextView
+            android:id="@+id/advanced_search_published_in"
+            style="@style/TextAppearance.Settings.Entry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/search_advanced_radio_published_in_any" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/advanced_search_start_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/search_advanced_start_search" />
+
     </LinearLayout>
 
     <Button
@@ -81,7 +114,7 @@
 
     <TextView
         android:id="@+id/advanced_search_title"
-        style="@style/TextAppearance.Settings.Category"
+        style="@style/TextAppearance.Search.Category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
