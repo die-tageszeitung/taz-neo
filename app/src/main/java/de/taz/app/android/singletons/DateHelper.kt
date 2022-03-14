@@ -145,4 +145,32 @@ object DateHelper {
         }
         return Date(calenderItem.time.time)
     }
+
+    fun yesterday(): Date {
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.DAY_OF_YEAR,-1)
+        return cal.time
+    }
+
+    fun lastWeek(): Date {
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.DAY_OF_YEAR,-7)
+        return cal.time
+    }
+
+    fun lastMonth(): Date {
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.MONTH,-1)
+        return cal.time
+    }
+
+    fun lastYear(): Date {
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.YEAR,-1)
+        return cal.time
+    }
 }

@@ -15,11 +15,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
@@ -28,41 +33,34 @@ class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
 
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
+    private var searchFilter = SearchFilter.all
+    private var pubDateFrom: String? = null
+    private var pubDateUntil: String? = null
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
     private val log by Log
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
-                searchInput.editText?.text?.clear()
-                clearRecyclerView()
-                showSearchDescription()
-                searchInput.clearFocus()
-                searchButtonLoadMore.visibility = View.GONE
-                expandableAdvancedSearch.visibility = View.GONE
+                clearSearchList()
             }
             searchText.setOnEditorActionListener { _, actionId, _ ->
                 // search button in keyboard layout clicked:
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    searchLoadingScreen.visibility = View.VISIBLE
-                    hideKeyboard()
-                    clearRecyclerView()
-                    lifecycleScope.launch {
-                        val result = apiService.search(
-                            searchText = searchInput.editText?.text.toString()
-                        )
-                        hideSearchDescription()
-                        result?.searchHitList?.let { hits ->
-                            searchResultItemsList.addAll(hits)
-                            initRecyclerView()
-                        }
-                    }
+                    advancedSearch(
+                        searchText = searchInput.editText?.text.toString(),
+                        title =  searchTitle.editText?.text.toString(),
+                        author =  searchAuthor.editText?.text.toString(),
+                        pubDateFrom = pubDateFrom,
+                        pubDateUntil = pubDateUntil,
+                        searchFilter = searchFilter
+                    )
                     return@setOnEditorActionListener true
                 }
-                searchInput.hint = ""
                 false
             }
             searchText.setOnFocusChangeListener { _, hasFocus ->
@@ -73,23 +71,18 @@ class SearchActivity :
                 }
             }
             searchButtonLoadMore.setOnClickListener {
-                lifecycleScope.launch {
-                    val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
-                    val result = apiService.search(
-                        searchText = searchInput.editText?.text.toString(),
-                        rowCnt = DEFAULT_SEARCH_RESULTS_TO_FETCH,
-                        offset = offset
-                    )
-                    result?.searchHitList?.let { hits ->
-                        log.verbose("search result: ${result.searchHitList}")
-                        searchResultItemsList.addAll(hits)
-                        searchResultListAdapter.notifyItemRangeChanged(
-                            offset,
-                            DEFAULT_SEARCH_RESULTS_TO_FETCH
-                        )
-                    }
-                    searchButtonLoadMore.visibility = View.GONE
-                }
+                val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
+                advancedSearch(
+                    searchText = searchInput.editText?.text.toString(),
+                    title =  searchTitle.editText?.text.toString(),
+                    author =  searchAuthor.editText?.text.toString(),
+                    offset = offset,
+                    pubDateFrom = pubDateFrom,
+                    pubDateUntil = pubDateUntil,
+                    searchFilter = searchFilter
+                )
+                searchButtonLoadMore.visibility = View.GONE
+
             }
             searchFilterButton.setOnClickListener {
                 if (expandableAdvancedSearch.visibility == View.VISIBLE) {
@@ -107,10 +100,20 @@ class SearchActivity :
                 }
             }
             advancedSearchTimeslot.setOnClickListener {
-                showTimeslotDialog()
+                showSearchTimeDialog()
             }
             advancedSearchPublishedIn.setOnClickListener {
                 showPublishedInDialog()
+            }
+            advancedSearchStartSearch.setOnClickListener {
+                advancedSearch(
+                    searchText = searchInput.editText?.text.toString(),
+                    title =  searchTitle.editText?.text.toString(),
+                    author =  searchAuthor.editText?.text.toString(),
+                    pubDateFrom = pubDateFrom,
+                    pubDateUntil = pubDateUntil,
+                    searchFilter = searchFilter
+                )
             }
         }
     }
@@ -168,7 +171,7 @@ class SearchActivity :
         }
     }
 
-    private fun showTimeslotDialog() {
+    private fun showSearchTimeDialog() {
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_advanced_search_timeslot, null)
         val dialog = MaterialAlertDialogBuilder(this)
@@ -176,13 +179,12 @@ class SearchActivity :
             .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
                 val radioGroup =
                     dialogView.findViewById<RadioGroup>(R.id.search_radio_group_timeslot)
-                log.debug("radioGroup: $radioGroup")
                 if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
                     val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
                     val radioId: Int = radioGroup.indexOfChild(radioButton)
                     val btn = radioGroup.getChildAt(radioId)
                     val chosenTimeslot = (btn as RadioButton).text.toString()
-                    log.debug("chosen timeslot: $chosenTimeslot")
+                    mapTimeSlot(chosenTimeslot)
                     viewBinding.advancedSearchTimeslot.text = chosenTimeslot
                 }
             }
@@ -191,8 +193,8 @@ class SearchActivity :
             }
             .create()
         dialog.show()
-
     }
+
     private fun showPublishedInDialog() {
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_advanced_search_published_in, null)
@@ -201,13 +203,12 @@ class SearchActivity :
             .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
                 val radioGroup =
                     dialogView.findViewById<RadioGroup>(R.id.search_radio_group_published_in)
-                log.debug("radioGroup: $radioGroup")
                 if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
                     val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
                     val radioId: Int = radioGroup.indexOfChild(radioButton)
                     val btn = radioGroup.getChildAt(radioId)
                     val chosenPublishedIn = (btn as RadioButton).text.toString()
-                    log.debug("chosen published in: $chosenPublishedIn")
+                    searchFilter = mapSearchFilter(chosenPublishedIn)
                     viewBinding.advancedSearchPublishedIn.text = chosenPublishedIn
                 }
             }
@@ -216,7 +217,108 @@ class SearchActivity :
             }
             .create()
         dialog.show()
+    }
 
+    private fun advancedSearch(
+        searchText: String,
+        title: String? = null,
+        author: String? = null,
+        rowCnt: Int = DEFAULT_SEARCH_RESULTS_TO_FETCH,
+        offset: Int = 0,
+        pubDateFrom: String? = null,
+        pubDateUntil: String? = null,
+        searchFilter: SearchFilter = SearchFilter.all
+    ) {
+        hideKeyboard()
+        log.debug("SEARCH with params")
+
+        log.debug("searchText: $searchText")
+        log.debug("title: $title")
+        log.debug("author: $author")
+        log.debug("offset: $offset")
+        log.debug("rowCnt: $rowCnt")
+        log.debug("pubDateFrom: $pubDateFrom")
+        log.debug("pubDateUntil: $pubDateUntil")
+        log.debug("searchFilter: $searchFilter")
+        if (offset == 0) {
+            clearRecyclerView()
+            viewBinding.searchLoadingScreen.visibility = View.VISIBLE
+        }
+        lifecycleScope.launch {
+            val result = apiService.search(
+                searchText = searchText,
+                title = title,
+                author = author,
+                rowCnt = rowCnt,
+                offset = offset,
+                pubDateFrom = pubDateFrom,
+                pubDateUntil = pubDateUntil,
+                filter = searchFilter
+            )
+            hideSearchDescription()
+            result?.searchHitList?.let { hits ->
+                searchResultItemsList.addAll(hits)
+                if (offset>0) {
+                    searchResultListAdapter.notifyItemRangeChanged(
+                        offset,
+                        rowCnt
+                    )
+                } else {
+                    initRecyclerView()
+                }
+            }
+        }
+    }
+
+    private fun mapSearchFilter(publishedIn: String): SearchFilter {
+        return when (publishedIn) {
+            getString(R.string.search_advanced_radio_published_in_taz) -> SearchFilter.taz
+            getString(R.string.search_advanced_radio_published_in_lmd) -> SearchFilter.LMd
+            getString(R.string.search_advanced_radio_published_in_kontext) -> SearchFilter.Kontext
+            getString(R.string.search_advanced_radio_published_in_weekend) -> SearchFilter.weekend
+            else -> SearchFilter.all
+        }
+    }
+
+    private fun mapTimeSlot(timeSlotString: String) {
+        val todayString = simpleDateFormat.format(Date() )
+        when (timeSlotString) {
+            getString(R.string.search_advanced_radio_timeslot_last_day) ->  {
+                val yesterdayString = simpleDateFormat.format(DateHelper.yesterday())
+                pubDateUntil = todayString
+                pubDateFrom = yesterdayString
+            }
+            getString(R.string.search_advanced_radio_timeslot_last_week) ->  {
+                val lastWeekString = simpleDateFormat.format(DateHelper.lastWeek())
+                pubDateUntil = todayString
+                pubDateFrom = lastWeekString
+            }
+            getString(R.string.search_advanced_radio_timeslot_last_month) ->  {
+                val lastMonthString = simpleDateFormat.format(DateHelper.lastMonth())
+                pubDateUntil = todayString
+                pubDateFrom = lastMonthString
+            }
+            getString(R.string.search_advanced_radio_timeslot_last_year) ->  {
+                val lastYearString = simpleDateFormat.format(DateHelper.lastYear())
+                pubDateUntil = todayString
+                pubDateFrom = lastYearString
+            }
+            else -> {
+                pubDateUntil = null
+                pubDateFrom = null
+            }
+        }
+    }
+
+    private fun clearSearchList() {
+        viewBinding.apply {
+            searchInput.editText?.text?.clear()
+            clearRecyclerView()
+            showSearchDescription()
+            searchInput.clearFocus()
+            searchButtonLoadMore.visibility = View.GONE
+            expandableAdvancedSearch.visibility = View.GONE
+        }
     }
 
     override fun onDestroy() {

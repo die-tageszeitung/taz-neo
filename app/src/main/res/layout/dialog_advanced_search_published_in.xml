@@ -34,6 +34,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/search_advanced_radio_published_in_kontext" />
+
+        <RadioButton
+            android:id="@+id/radio_button_published_in_weekend"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/search_advanced_radio_published_in_weekend" />
     </RadioGroup>
 
 </LinearLayout>

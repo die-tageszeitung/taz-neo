@@ -6,12 +6,12 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.SearchDto
+import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
@@ -296,17 +296,27 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun search(
         searchText: String,
+        title: String?,
+        author: String?,
         rowCnt: Int = 20,
-        offset: Int = 0
+        offset: Int = 0,
+        pubDateFrom: String? = null,
+        pubDateUntil: String? = null,
+        filter: SearchFilter = SearchFilter.all
     ): SearchDto? {
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Search,
                 SearchVariables(
                     text = searchText,
-                    deviceFormat = deviceFormat,
+                    title = title,
+                    author = author,
                     rowCnt = rowCnt,
-                    offset = offset
+                    offset = offset,
+                    pubDateFrom = pubDateFrom,
+                    pubDateUntil = pubDateUntil,
+                    filter = filter,
+                    deviceFormat = deviceFormat
                 )
             ).data?.search
         }

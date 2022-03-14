@@ -313,7 +313,7 @@
     <string name="search_advanced_author">Autor*in</string>
     <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>
     <string name="search_advanced_radio_timeslot_last_day">letzter Tag</string>
-    <string name="search_advanced_radio_timeslot_last_week">letzter Woche</string>
+    <string name="search_advanced_radio_timeslot_last_week">letzte Woche</string>
     <string name="search_advanced_radio_timeslot_last_month">letzten Monat</string>
     <string name="search_advanced_radio_timeslot_last_year">letztes Jahr</string>
     <string name="search_advanced_radio_timeslot_custom">Zeitraum festlegen…</string>
@@ -321,6 +321,7 @@
     <string name="search_advanced_radio_published_in_taz">taz</string>
     <string name="search_advanced_radio_published_in_lmd">Le monde Diplomatique</string>
     <string name="search_advanced_radio_published_in_kontext">Kontext</string>
+    <string name="search_advanced_radio_published_in_weekend">Wochenendausgabe</string>
     <string name="search_advanced_apply_filter">Filter anwenden</string>
     <string name="search_advanced_start_search">Suche starten</string>
 </resources>
