@@ -135,6 +135,8 @@ class ArticlePagerFragment : BaseMainFragment(
                         )
                     }
                 }
+                // reset lastSectionKey as it might have changed the section by swiping
+                if (hasBeenSwiped) issueContentViewModel.lastSectionKey = null
             }
             lastPage = position
 
