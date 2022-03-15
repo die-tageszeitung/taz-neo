@@ -48,7 +48,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -62,7 +64,9 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -137,15 +141,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_cancel_button" />
 
+    <TextView
+        android:id="@+id/search_result_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/expandable_advanced_search" />
+
     <View
         android:id="@+id/search_separator_line"
         android:layout_width="0dp"
         android:layout_height="@dimen/search_separator_line_height"
-        android:layout_margin="@dimen/search_separator_line_margin"
+        android:layout_marginTop="@dimen/search_results_small_margin"
+        android:layout_marginHorizontal="@dimen/search_separator_line_margin"
         android:background="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expandable_advanced_search" />
+        app:layout_constraintTop_toBottomOf="@id/search_result_amount" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_result_list"
@@ -223,6 +236,7 @@
         android:layout_margin="@dimen/search_results_small_margin"
         android:text="@string/search_plus_20"
         android:visibility="gone"
+        android:backgroundTint="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
