@@ -51,9 +51,11 @@ class SearchResultListAdapter(
             null
         )
 
-        val toHighLight =
+        val toHighLightEntry =
             searchResultItem.snippet?.extractAllSubstrings("<span class=\"snippet\">", "</span>")
                 ?: emptyList()
+        val toHighLightTitle =
+            searchResultItem.title.extractAllSubstrings("<span class=\"snippet\">", "</span>")
 
         // get the snippet  without HTML tags:
         val snippet = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -61,6 +63,14 @@ class SearchResultListAdapter(
         } else {
             Html.fromHtml(searchResultItem.snippet)
         }
+
+        // get the snippet  without HTML tags:
+        val title = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(searchResultItem.title, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            Html.fromHtml(searchResultItem.title)
+        }
+
         // Parse the date correctly, as it is given as a string but needs to be shown in different way
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
         val dateString = date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
@@ -76,9 +86,13 @@ class SearchResultListAdapter(
             holder.authorTextView.visibility = View.GONE
         }
 
-        holder.titleTextView.text = searchResultItem.title
+        holder.titleTextView.text = title
+        toHighLightTitle.map {
+            setHighLightedText(holder.titleTextView, it, highLightColor)
+        }
         holder.snippetTextView.text = snippet
-        toHighLight.map { text ->
+        holder.snippetTextView.text = snippet
+        toHighLightEntry.map { text ->
             setHighLightedText(holder.snippetTextView, text, highLightColor)
         }
         holder.dateTextView.text = dateString
