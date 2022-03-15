@@ -160,6 +160,7 @@ class SearchActivity :
             searchDescription.visibility = View.GONE
             searchDescriptionIcon.visibility = View.GONE
             searchResultList.visibility = View.VISIBLE
+            expandableAdvancedSearch.visibility = View.GONE
         }
         hideKeyboard()
     }
@@ -230,8 +231,8 @@ class SearchActivity :
         searchFilter: SearchFilter = SearchFilter.all
     ) {
         hideKeyboard()
-        log.debug("SEARCH with params")
-
+        viewBinding.searchLoadingScreen.visibility = View.VISIBLE
+        log.debug("advanced SEARCH with following parameters:")
         log.debug("searchText: $searchText")
         log.debug("title: $title")
         log.debug("author: $author")
@@ -240,9 +241,9 @@ class SearchActivity :
         log.debug("pubDateFrom: $pubDateFrom")
         log.debug("pubDateUntil: $pubDateUntil")
         log.debug("searchFilter: $searchFilter")
+
         if (offset == 0) {
             clearRecyclerView()
-            viewBinding.searchLoadingScreen.visibility = View.VISIBLE
         }
         lifecycleScope.launch {
             val result = apiService.search(
