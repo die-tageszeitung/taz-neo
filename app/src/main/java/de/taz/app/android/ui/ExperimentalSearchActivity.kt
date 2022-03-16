@@ -4,15 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.variables.SearchVariables
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityExperimentalSearchBinding
-import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.settings.SettingsActivity
-import kotlinx.android.synthetic.main.activity_settings.*
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.launch
 
 class ExperimentalSearchActivity :
@@ -44,41 +42,14 @@ class ExperimentalSearchActivity :
             }
         }
     }
+
     override fun onResume() {
         super.onResume()
-        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_search)?.isChecked = true
-        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.bottom_navigation_action_home -> {
-                    Intent(
-                        this,
-                        MainActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_bookmark -> {
-                    Intent(
-                        this,
-                        BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_search -> {
-                    true
-                }
-                R.id.bottom_navigation_action_settings -> {
-                    Intent(
-                        this,
-                        SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                else -> false
-            }
-        }
+
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.Search
+        )
     }
 
     override fun onBackPressed() {

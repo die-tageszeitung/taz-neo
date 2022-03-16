@@ -16,19 +16,22 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.*
-import de.taz.app.android.ui.ExperimentalSearchActivity
-import de.taz.app.android.ui.bookmarks.BookmarkListActivity
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
-import de.taz.app.android.ui.main.*
-import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -225,46 +228,13 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         }
 
     }
+
     override fun onResume() {
         super.onResume()
-        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_settings)?.isChecked = true
-        viewBinding.navigationBottom.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.bottom_navigation_action_home -> {
-                    Intent(
-                        this,
-                        MainActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_bookmark -> {
-                    Intent(
-                        this,
-                        BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_search -> {
-                    Intent(
-                        this,
-                        ExperimentalSearchActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_settings -> {
-                    Intent(
-                        this,
-                        SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                else -> false
-            }
-        }
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
+        )
     }
 
     private fun showLoginForm(

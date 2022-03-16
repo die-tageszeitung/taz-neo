@@ -1,0 +1,76 @@
+package de.taz.app.android.ui.navigation
+
+import android.app.Activity
+import android.content.Intent
+import androidx.annotation.IdRes
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import de.taz.app.android.R
+import de.taz.app.android.ui.ExperimentalSearchActivity
+import de.taz.app.android.ui.bookmarks.BookmarkListActivity
+import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.settings.SettingsActivity
+import kotlin.reflect.KClass
+
+sealed class BottomNavigationItem(
+    @IdRes val itemId: Int
+) {
+    object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
+    object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
+    object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
+    object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
+    class ChildOf(val parent: BottomNavigationItem) : BottomNavigationItem(0)
+}
+
+fun Activity.setupBottomNavigation(
+    navigationBottom: BottomNavigationView,
+    currentItem: BottomNavigationItem
+) {
+    val menuId = when (currentItem) {
+        is BottomNavigationItem.ChildOf -> currentItem.parent.itemId
+        else -> currentItem.itemId
+    }
+    navigationBottom.menu.findItem(menuId)?.isChecked = true
+
+    navigationBottom.setOnItemSelectedListener { menuItem ->
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> {
+                if (currentItem is BottomNavigationItem.Home) {
+                    // FIXME: This is bad style. this helper should not have to know about the MainActivities behavior.
+                    //        But for the first iteration it seems okay to me
+                    (this as? MainActivity)?.showHome()
+                } else {
+                    startActivity(this, MainActivity::class)
+                }
+                true
+            }
+
+            R.id.bottom_navigation_action_bookmark -> {
+                if (currentItem !is BottomNavigationItem.Bookmark) {
+                    startActivity(this, BookmarkListActivity::class)
+                }
+                true
+            }
+
+            R.id.bottom_navigation_action_search -> {
+                if (currentItem !is BottomNavigationItem.Search) {
+                    startActivity(this, ExperimentalSearchActivity::class)
+                }
+                true
+            }
+
+            R.id.bottom_navigation_action_settings -> {
+                if (currentItem !is BottomNavigationItem.Settings) {
+                    startActivity(this, SettingsActivity::class)
+                }
+                true
+            }
+            else -> false
+        }
+    }
+}
+
+private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {
+    Intent(parentActivity, activityClass.java)
+        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .apply(parentActivity::startActivity)
+}
