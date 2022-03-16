@@ -22,7 +22,18 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
-
+/**
+ * Activity to show an issue with sections and articles in a Pager.
+ *
+ * This class takes care of getting the metadata from the backend and handing the information to the
+ * [IssueViewerViewModel]
+ *
+ * Additionally this activity shows a dialog if downloading the metadata fails - this error will be
+ * triggered by other fragments as well (e.g. by [de.taz.app.android.ui.webview.WebViewFragment]
+ * We want to have this error handling in one position to ensure we do not show the dialog more
+ * often then necessary (once)
+ *
+ */
 class IssueViewerActivity : TazViewerActivity() {
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issuePublication: IssuePublication
@@ -43,6 +54,7 @@ class IssueViewerActivity : TazViewerActivity() {
         issuePublication = requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) {
             "IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
+
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
             lifecycleScope.launch(Dispatchers.Main) {
@@ -70,6 +82,8 @@ class IssueViewerActivity : TazViewerActivity() {
                 }
             }
         }
+
+        // show an error if downloading the metadata, the issue, or another file fails
         issueViewerViewModel.issueLoadingFailedErrorFlow
             .filter { isError -> isError }
             .asLiveData()
