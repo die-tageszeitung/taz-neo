@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.TazViewerActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
@@ -28,7 +27,6 @@ class IssueViewerActivity : TazViewerActivity() {
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issuePublication: IssuePublication
     private lateinit var contentService: ContentService
-    private lateinit var authHelper: AuthHelper
 
     override val fragmentClass: KClass<IssueViewerFragment> = IssueViewerFragment::class
 
@@ -40,7 +38,6 @@ class IssueViewerActivity : TazViewerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        authHelper = AuthHelper.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 
         issuePublication = requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) {
@@ -52,7 +49,6 @@ class IssueViewerActivity : TazViewerActivity() {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
                     contentService.downloadMetadata(
                         issuePublication,
-                        minStatus = authHelper.getMinStatus(),
                         maxRetries = maxRetries
                     ) as Issue
 
