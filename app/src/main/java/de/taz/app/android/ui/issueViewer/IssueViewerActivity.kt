@@ -33,6 +33,9 @@ import kotlin.reflect.KClass
  * We want to have this error handling in one position to ensure we do not show the dialog more
  * often then necessary (once)
  *
+ * If a user logs in via an [de.taz.app.android.ui.login.fragments.ArticleLoginFragment] this
+ * activity gets an activityResult and will restart with the new issue.
+ *
  */
 class IssueViewerActivity : TazViewerActivity() {
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
