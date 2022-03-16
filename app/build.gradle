@@ -113,10 +113,6 @@ android {
         viewBinding true
     }
 
-    dataBinding {
-        enabled = true
-    }
-    
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 21
