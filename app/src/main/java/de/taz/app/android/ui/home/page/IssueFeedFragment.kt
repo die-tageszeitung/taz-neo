@@ -86,13 +86,19 @@ abstract class IssueFeedFragment(
 
         // notify the adapter to redraw the item if it changed (e.g. got deleted)
         momentChangedListener = viewModel.addNotifyMomentChangedListener { date ->
-            adapter.notifyItemChanged(adapter.getPosition(date))
+            lifecycleScope.launch(Dispatchers.Main) {
+                adapter.notifyItemChanged(adapter.getPosition(date))
+            }
         }
 
         // redraw once the user logs in
         authHelper.status.asLiveData().observeDistinctIgnoreFirst(viewLifecycleOwner) {
             if (AuthStatus.valid == it) {
-                adapter.notifyDataSetChanged()
+                lifecycleScope.launchWhenResumed {
+                    withContext(Dispatchers.Main) {
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }
         }
     }
