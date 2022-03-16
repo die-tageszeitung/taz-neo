@@ -134,22 +134,6 @@ class DataService(applicationContext: Context) {
             feed
         }
 
-    suspend fun getFeeds(allowCache: Boolean = true): List<Feed> = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            feedRepository.getAll().let {
-                if (it.isNotEmpty()) return@withContext it
-            }
-        }
-        val feeds = apiService.getFeeds()
-        feedRepository.save(feeds)
-        feeds
-    }
-
-    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean =
-        withContext(Dispatchers.IO) {
-            issueRepository.isDownloaded(issueKey)
-        }
-
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
      * @param feedName to refresh
