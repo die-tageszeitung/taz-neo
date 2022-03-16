@@ -25,7 +25,6 @@ import kotlin.reflect.KClass
 
 
 class IssueViewerActivity : TazViewerActivity() {
-    private var finishOnBackPressed: Boolean = false
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issuePublication: IssuePublication
     private lateinit var contentService: ContentService
@@ -36,7 +35,6 @@ class IssueViewerActivity : TazViewerActivity() {
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
-        const val KEY_FINISH_ON_BACK_PRESSED = "KEY_FINISHED_ON_BACK_PRESSED"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +50,6 @@ class IssueViewerActivity : TazViewerActivity() {
         }
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
-            finishOnBackPressed = intent.getBooleanExtra(KEY_FINISH_ON_BACK_PRESSED, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
                     contentService.downloadMetadata(
@@ -119,13 +116,5 @@ class IssueViewerActivity : TazViewerActivity() {
     override fun onDestroy() {
         super.onDestroy()
         setBottomNavigationBackActivity(null)
-    }
-
-    override fun onBackPressed() {
-        if (finishOnBackPressed) {
-            finish()
-        } else {
-            super.onBackPressed()
-        }
     }
 }
