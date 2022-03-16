@@ -14,7 +14,6 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -32,7 +31,7 @@ class IssueViewerFragment :
         ViewModelProvider(
             requireActivity(),
             SavedStateViewModelFactory(this.requireActivity().application, requireActivity())
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
     private val log by Log

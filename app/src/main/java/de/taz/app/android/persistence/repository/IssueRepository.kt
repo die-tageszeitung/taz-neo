@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
