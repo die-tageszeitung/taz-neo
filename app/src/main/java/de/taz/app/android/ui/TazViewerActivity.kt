@@ -31,6 +31,15 @@ import kotlin.reflect.full.createInstance
 
 const val DRAWER_OVERLAP_OFFSET = -5F
 
+/**
+ * Abstract base class for
+ * [de.taz.app.android.ui.issueViewer.IssueViewerActivity] and
+ * [de.taz.app.android.ui.bookmarks.BookmarkViewerActivity]
+ *
+ * This activity handles the navButton and
+ * creates an instance of [fragmentClass] which is then shown
+ *
+ */
 abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>() {
 
     abstract val fragmentClass: KClass<out Fragment>
