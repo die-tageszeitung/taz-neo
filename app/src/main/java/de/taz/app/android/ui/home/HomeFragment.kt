@@ -24,8 +24,8 @@ import kotlinx.coroutines.*
 import java.util.*
 
 class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
-    val log by Log
-
+    private val log by Log
+    var onHome: Boolean = true
     private var refreshJob: Job? = null
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
@@ -118,6 +118,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     }
 
     fun setHomeIconFilled() {
+        onHome = true
         val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
         val menu = menuView?.menu
         menuView?.post {
@@ -126,6 +127,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
     }
 
     fun setHomeIcon() {
+        onHome = false
         val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
         val menu = menuView?.menu
         menuView?.post {
@@ -135,6 +137,7 @@ class HomeFragment : BaseMainFragment(R.layout.fragment_home) {
 
     fun showArchive() {
         feed_archive_pager.currentItem = ARCHIVE_PAGER_POSITION
+        setHomeIcon()
     }
 
     fun refresh() = coverflow_refresh_layout?.setRefreshingWithCallback(true)

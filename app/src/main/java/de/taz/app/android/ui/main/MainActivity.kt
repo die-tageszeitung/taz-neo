@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
@@ -200,8 +201,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var doubleBackToExitPressedOnce = false
     override fun onBackPressed() {
+        val homeFragment =
+            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
 
-        if (true) {
+        if (homeFragment?.onHome == true) {
             if (doubleBackToExitPressedOnce) {
                 moveTaskToBack(true)
                 finish()
