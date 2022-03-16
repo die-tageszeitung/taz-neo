@@ -3,6 +3,8 @@ package de.taz.app.android.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
@@ -57,7 +59,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private lateinit var authHelper: AuthHelper
 
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
-
+    private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -194,5 +196,25 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             supportFragmentManager,
             "showSubscriptionElapsed"
         )
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+
+        if (true) {
+            if (doubleBackToExitPressedOnce) {
+                moveTaskToBack(true)
+                finish()
+            }
+
+            this.doubleBackToExitPressedOnce = true
+            toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
+
+            Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                doubleBackToExitPressedOnce = false
+            }, 2000)
+        } else {
+            showHome()
+        }
     }
 }

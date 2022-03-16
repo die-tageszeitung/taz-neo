@@ -80,4 +80,13 @@ class ExperimentalSearchActivity :
             }
         }
     }
+
+    override fun onBackPressed() {
+        Intent(
+            this,
+            MainActivity::class.java
+        ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            .apply { startActivity(this) }
+        finish()
+    }
 }
