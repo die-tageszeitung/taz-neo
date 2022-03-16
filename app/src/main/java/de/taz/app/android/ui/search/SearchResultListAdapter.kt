@@ -9,11 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,12 +25,21 @@ class SearchResultListAdapter(
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
     class SearchResultListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var searchResultItem: ConstraintLayout = view.findViewById(R.id.search_result_item)
         var titleTextView: TextView = view.findViewById(R.id.search_result_title)
-
         var authorTextView: TextView = view.findViewById(R.id.search_result_author)
         var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
         var dateTextView: TextView = view.findViewById(R.id.search_result_date)
         var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
+        private val log by Log
+        fun bind(articleKey: String?) {
+            searchResultItem.setOnClickListener {
+                articleKey?.let {
+                    log.debug("SHOW ARTICLE $articleKey!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                    //TODO show article
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(
@@ -97,6 +108,8 @@ class SearchResultListAdapter(
         }
         holder.dateTextView.text = dateString
         holder.sectionTextView.text = searchResultItem.sectionTitle
+
+        holder.bind(searchResultItem.article?.articleHtml?.name)
     }
 
     override fun getItemCount() = searchResultList.size
