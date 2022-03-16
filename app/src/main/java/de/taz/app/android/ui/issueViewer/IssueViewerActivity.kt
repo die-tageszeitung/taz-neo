@@ -139,6 +139,7 @@ class IssueViewerFragment2 : TazViewerFragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        // TODO MOVE THIS - but where? should not use activity
         if (requestCode == ACTIVITY_LOGIN_REQUEST_CODE) {
             data?.let {
                 data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
