@@ -11,9 +11,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlin.reflect.KClass
 
-sealed class BottomNavigationItem(
-    @IdRes val itemId: Int
-) {
+sealed class BottomNavigationItem(@IdRes val itemId: Int) {
     object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
     object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
     object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
@@ -39,28 +37,28 @@ fun Activity.setupBottomNavigation(
                     //        But for the first iteration it seems okay to me
                     (this as? MainActivity)?.showHome()
                 } else {
-                    startActivity(this, MainActivity::class)
+                    navigateToMain()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_bookmark -> {
                 if (currentItem !is BottomNavigationItem.Bookmark) {
-                    startActivity(this, BookmarkListActivity::class)
+                    navigateToBookmarks()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_search -> {
                 if (currentItem !is BottomNavigationItem.Search) {
-                    startActivity(this, ExperimentalSearchActivity::class)
+                    navigateToSearch()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_settings -> {
                 if (currentItem !is BottomNavigationItem.Settings) {
-                    startActivity(this, SettingsActivity::class)
+                    navigateToSettings()
                 }
                 true
             }
@@ -68,6 +66,31 @@ fun Activity.setupBottomNavigation(
         }
     }
 }
+
+// DANGER: this is global state. this is dangerous! we should not do that!
+// but in this case it is okay as even if the variable is reset to null due to the app being backgrounded
+// and killed by android having the behavior is still acceptable.
+private var backActivityClass: KClass<out Activity>? = null
+fun setBottomNavigationBackActivity(activity: Activity?) {
+    backActivityClass = activity?.let { it::class }
+}
+
+// Navigate back to Home (MainActivity)
+// Or if an explicit activity is set via setBottomNavigationBackActivity navigate back to that one.
+// To be used from the root bottom navigation activities.
+fun Activity.bottomNavigationBack() {
+    val currentBackActivityClass = backActivityClass
+    if (currentBackActivityClass != null) {
+        startActivity(this, currentBackActivityClass)
+    } else {
+        navigateToMain()
+    }
+}
+
+private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
+private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
+private fun Activity.navigateToSearch() = startActivity(this, ExperimentalSearchActivity::class)
+private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
 
 private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {
     Intent(parentActivity, activityClass.java)

@@ -8,6 +8,7 @@ import de.taz.app.android.api.variables.SearchVariables
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityExperimentalSearchBinding
 import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.launch
 
@@ -48,5 +49,9 @@ class ExperimentalSearchActivity :
             viewBinding.navigationBottom,
             BottomNavigationItem.Search
         )
+    }
+
+    override fun onBackPressed() {
+        bottomNavigationBack()
     }
 }

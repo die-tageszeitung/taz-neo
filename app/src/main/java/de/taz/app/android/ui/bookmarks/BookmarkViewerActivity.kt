@@ -5,6 +5,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import de.taz.app.android.ui.TazViewerActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
@@ -32,9 +33,15 @@ class BookmarkViewerActivity : TazViewerActivity() {
 
     override fun onResume() {
         super.onResume()
+        setBottomNavigationBackActivity(this)
         setupBottomNavigation(
             navigation_bottom_webview_pager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
         )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null)
     }
 }

@@ -3,6 +3,7 @@ package de.taz.app.android.ui.bookmarks
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityBookmarksBinding
 import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 
 class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
@@ -16,4 +17,7 @@ class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
         )
     }
 
+    override fun onBackPressed() {
+        bottomNavigationBack()
+    }
 }

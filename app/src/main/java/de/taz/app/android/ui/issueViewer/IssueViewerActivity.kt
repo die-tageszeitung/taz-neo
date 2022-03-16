@@ -2,6 +2,7 @@ package de.taz.app.android.ui.issueViewer
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +17,7 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -108,6 +110,18 @@ class IssueViewerActivity : TazViewerActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("ACT", "IssueViewActivity onResume")
+        setBottomNavigationBackActivity(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("ACT", "IssueViewActivity onDestroy")
+        setBottomNavigationBackActivity(null)
     }
 
     override fun onBackPressed() {
