@@ -18,7 +18,6 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -39,7 +38,6 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var contentService: ContentService
-    private lateinit var dataService: DataService
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
@@ -52,7 +50,6 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
         super.onCreate(savedInstanceState)
 
         storageService = StorageService.getInstance(applicationContext)
-        dataService = DataService.getInstance(applicationContext)
         imageRepository = ImageRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 
