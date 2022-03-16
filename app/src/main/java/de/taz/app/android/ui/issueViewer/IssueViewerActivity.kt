@@ -43,10 +43,8 @@ class IssueViewerActivity : TazViewerActivity() {
         authHelper = AuthHelper.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 
-        issuePublication = try {
-            intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
-        } catch (e: NullPointerException) {
-            throw IllegalStateException("IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
+        issuePublication = requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) {
+            "IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
