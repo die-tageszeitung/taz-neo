@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -14,10 +13,8 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.ExperimentalSearchActivity
-import de.taz.app.android.ui.bookmarks.BookmarkListActivity
-import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.delay
@@ -84,7 +81,7 @@ class PdfPagerFragment : BaseMainFragment(
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
             // only update currentItem if it has not been swiped
-            if(pdf_viewpager.currentItem != position) {
+            if (pdf_viewpager.currentItem != position) {
                 pdf_viewpager.setCurrentItem(position, true)
             }
         })
@@ -115,44 +112,10 @@ class PdfPagerFragment : BaseMainFragment(
 
     override fun onResume() {
         super.onResume()
-        navigation_bottom_pdf.menu.findItem(R.id.bottom_navigation_action_home)?.isChecked = true
-        navigation_bottom_pdf.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.bottom_navigation_action_home -> {
-                    Intent(
-                        requireActivity(),
-                        MainActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_bookmark -> {
-                    Intent(
-                        requireActivity(),
-                        BookmarkListActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_search -> {
-                    Intent(
-                        requireActivity(),
-                        ExperimentalSearchActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                R.id.bottom_navigation_action_settings -> {
-                    Intent(
-                        requireActivity(),
-                        SettingsActivity::class.java
-                    ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .apply { startActivity(this) }
-                    true
-                }
-                else -> false
-            }
-        }
+        requireActivity().setupBottomNavigation(
+            navigation_bottom_pdf,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
+        )
     }
 
     private fun hideLoadingScreen() {

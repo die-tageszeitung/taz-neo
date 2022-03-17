@@ -16,6 +16,7 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
 import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -108,6 +109,16 @@ class IssueViewerActivity : TazViewerActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null)
     }
 
     override fun onBackPressed() {
