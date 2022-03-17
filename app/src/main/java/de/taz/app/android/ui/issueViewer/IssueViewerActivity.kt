@@ -2,7 +2,6 @@ package de.taz.app.android.ui.issueViewer
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
@@ -114,13 +113,11 @@ class IssueViewerActivity : TazViewerActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.e("ACT", "IssueViewActivity onResume")
         setBottomNavigationBackActivity(this)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.e("ACT", "IssueViewActivity onDestroy")
         setBottomNavigationBackActivity(null)
     }
 

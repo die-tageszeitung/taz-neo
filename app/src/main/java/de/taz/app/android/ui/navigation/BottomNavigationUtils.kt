@@ -81,6 +81,7 @@ fun setBottomNavigationBackActivity(activity: Activity?) {
 fun Activity.bottomNavigationBack() {
     val currentBackActivityClass = backActivityClass
     if (currentBackActivityClass != null) {
+        backActivityClass = null
         startActivity(this, currentBackActivityClass)
     } else {
         navigateToMain()
