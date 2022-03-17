@@ -71,7 +71,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             setOnNavigationItemSelectedListener {
                 this@LoginActivity.apply {
                     val data = Intent()
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
                     setResult(Activity.RESULT_CANCELED, data)
                     finish()
                 }
@@ -391,10 +390,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 article = article?.replace("public.", "")
 
                 article?.let {
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
                     data.putExtra(MAIN_EXTRA_ARTICLE, article)
-                } ?: run {
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
                 }
 
                 withContext(Dispatchers.Main) {
