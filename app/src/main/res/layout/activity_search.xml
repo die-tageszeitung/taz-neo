@@ -153,8 +153,8 @@
         android:id="@+id/search_separator_line"
         android:layout_width="0dp"
         android:layout_height="@dimen/search_separator_line_height"
-        android:layout_marginTop="@dimen/search_results_small_margin"
         android:layout_marginHorizontal="@dimen/search_separator_line_margin"
+        android:layout_marginTop="@dimen/search_results_small_margin"
         android:background="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +164,7 @@
         android:id="@+id/search_result_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
         app:layout_constraintTop_toBottomOf="@id/search_separator_line" />
 
     <ImageView
@@ -194,19 +194,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_description_icon" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navigation_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_bottom_height"
-        android:layout_gravity="bottom"
-        android:theme="@style/Widget.Design.BottomNavigationView.Dark"
-        app:itemIconTint="@color/bottom_nav_icon_color"
-        app:itemTextColor="@color/bottom_nav_icon_color"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/navigation_bottom_home" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/search_button_load_more"
+        android:layout_width="60dp"
+        android:layout_height="56dp"
+        android:layout_margin="@dimen/search_results_small_margin"
+        android:backgroundTint="@color/blue"
+        android:text="@string/search_plus_20"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/search_loading_screen"
@@ -229,15 +226,18 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/search_button_load_more"
-        android:layout_width="60dp"
-        android:layout_height="56dp"
-        android:layout_margin="@dimen/search_results_small_margin"
-        android:text="@string/search_plus_20"
-        android:visibility="gone"
-        android:backgroundTint="@color/blue"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bottom_height"
+        android:layout_gravity="bottom"
+        android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+        app:itemIconTint="@color/bottom_nav_icon_color"
+        app:itemTextColor="@color/bottom_nav_icon_color"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/navigation_bottom_home" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
