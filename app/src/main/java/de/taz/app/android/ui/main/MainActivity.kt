@@ -33,9 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-const val MAIN_EXTRA_TARGET = "MAIN_EXTRA_TARGET"
-const val MAIN_EXTRA_TARGET_HOME = "MAIN_EXTRA_TARGET_HOME"
-const val MAIN_EXTRA_TARGET_ARTICLE = "MAIN_EXTRA_TARGET_ARTICLE"
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 
 @Mockable
