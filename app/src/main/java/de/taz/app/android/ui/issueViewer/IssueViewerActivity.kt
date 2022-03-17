@@ -58,7 +58,7 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val fragment =
-            supportFragmentManager.fragments.firstOrNull { it is BackFragment } as BackFragment
+            supportFragmentManager.fragments.firstOrNull { it is IssueViewerFragment2 } as BackFragment
         if (fragment.onBackPressed()) {
             return
         }
