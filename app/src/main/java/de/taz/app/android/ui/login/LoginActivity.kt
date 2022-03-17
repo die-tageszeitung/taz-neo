@@ -16,16 +16,22 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.*
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
-import de.taz.app.android.ui.main.*
+import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -61,23 +67,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         rootViewGroup?.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
-
-        viewBinding.navigationBottom.apply {
-            itemIconTintList = null
-
-            // hack to not auto select first item
-            menu.getItem(0).isCheckable = false
-
-            setOnNavigationItemSelectedListener {
-                this@LoginActivity.apply {
-                    val data = Intent()
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
-                    setResult(Activity.RESULT_CANCELED, data)
-                    finish()
-                }
-                true
-            }
-        }
 
         val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
@@ -238,6 +227,14 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
+        )
     }
 
     private fun showLoginForm(

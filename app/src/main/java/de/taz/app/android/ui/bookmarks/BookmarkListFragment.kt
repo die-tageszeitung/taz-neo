@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.android.synthetic.main.fragment_bookmarks.*
 import kotlinx.coroutines.Dispatchers
@@ -75,12 +74,6 @@ class BookmarkListFragment :
                 val shareIntent = Intent.createChooser(sendIntent, null)
                 startActivity(shareIntent)
             }
-        }
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
         }
     }
 }
