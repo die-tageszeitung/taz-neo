@@ -31,7 +31,6 @@ import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
@@ -392,15 +391,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 article?.let {
                     data.putExtra(MAIN_EXTRA_ARTICLE, article)
                 }
-
-                withContext(Dispatchers.Main) {
-                    setResult(Activity.RESULT_OK, data)
-                    finish()
-                }
-            } else {
-                setResult(Activity.RESULT_OK, data)
-                finish()
             }
+            setResult(Activity.RESULT_OK, data)
+            finish()
         }
     }
 
