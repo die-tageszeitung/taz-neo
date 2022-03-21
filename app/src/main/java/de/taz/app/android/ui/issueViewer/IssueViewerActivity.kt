@@ -71,7 +71,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
 
     val issuePublication: IssuePublication
         get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
-            "IssueViewerFragment2 needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
+            "IssueViewerWrapperFragment needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
     private val displayableKey: String?
         get() = arguments?.getString(KEY_DISPLAYABLE)
