@@ -24,6 +24,17 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
 
+/**
+ * Show an Issue with sections and articles in their respective pager fragments
+ *
+ * Additional fragments are loaded to ensure the transitions are smooth.
+ *
+ * [sectionPagerFragment] is used to show the sections of the issue
+ * [articlePagerFragment] is used to show the articles of the issue
+ * [imprintFragment] is used to show the imprint
+ * [loaderFragment] shows the initial loading screen
+ *
+ */
 class IssueViewerFragment :
     BaseViewModelFragment<IssueViewerViewModel>(R.layout.fragment_issue_content), BackFragment {
 
@@ -41,6 +52,7 @@ class IssueViewerFragment :
     private lateinit var articlePagerFragment: ArticlePagerFragment
     private lateinit var imprintFragment: ImprintWebViewFragment
     private lateinit var loaderFragment: IssueLoaderFragment
+
     private lateinit var dataService: DataService
     private lateinit var sectionRepository: SectionRepository
     private lateinit var imageRepository: ImageRepository

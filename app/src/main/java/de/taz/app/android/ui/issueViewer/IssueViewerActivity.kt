@@ -43,7 +43,7 @@ class IssueViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportFragmentManager.beginTransaction().add(
             android.R.id.content,
-            IssueViewerFragment2.instance(
+            IssueViewerWrapperFragment.instance(
                 intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
                 intent.getStringExtra(KEY_DISPLAYABLE),
             )
@@ -52,7 +52,7 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         val fragment =
-            supportFragmentManager.fragments.firstOrNull { it is IssueViewerFragment2 } as BackFragment
+            supportFragmentManager.fragments.firstOrNull { it is IssueViewerWrapperFragment } as BackFragment
         if (fragment.onBackPressed()) {
             return
         }
@@ -60,7 +60,14 @@ class IssueViewerActivity : AppCompatActivity() {
     }
 }
 
-class IssueViewerFragment2 : TazViewerFragment() {
+/**
+ * This fragment downloads the given [IssuePublication] and uses an [IssueViewerFragment] to then
+ * show the displayable
+ *
+ * This fragment encapsulates what was in the activity before refactoring
+ * TODO Hopefully we can merge this with the [IssueViewerFragment]
+ */
+class IssueViewerWrapperFragment : TazViewerFragment() {
 
     val issuePublication: IssuePublication
         get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
@@ -82,7 +89,7 @@ class IssueViewerFragment2 : TazViewerFragment() {
         fun instance(
             issuePublication: IssuePublication,
             displayableKey: String? = null
-        ) = IssueViewerFragment2().apply {
+        ) = IssueViewerWrapperFragment().apply {
             arguments = bundleOf(
                 KEY_ISSUE_PUBLICATION to issuePublication,
                 KEY_DISPLAYABLE to displayableKey

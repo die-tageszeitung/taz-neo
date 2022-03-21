@@ -10,7 +10,7 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.ui.issueViewer.IssueViewerFragment2
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
@@ -90,18 +90,18 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onActivityResult(result: LoginContract.Output) {
         if (result.success && result.articleFileName != null) {
             var parentFragment = parentFragment
-            while (parentFragment !is IssueViewerFragment2) {
+            while (parentFragment !is IssueViewerWrapperFragment) {
                 parentFragment = requireNotNull(parentFragment?.parentFragment) {
                     "ArticleLoginFragment can only be used in a IssueViewer2Fragment hierarchy"
                 }
             }
 
-            val issueViewerFragment2: IssueViewerFragment2 = parentFragment
+            val issueViewerWrapperFragment: IssueViewerWrapperFragment = parentFragment
 
-            issueViewerFragment2.parentFragmentManager.apply {
+            issueViewerWrapperFragment.parentFragmentManager.apply {
                 beginTransaction().replace(
                     android.R.id.content,
-                    IssueViewerFragment2.instance(issueViewerFragment2.issuePublication, result.articleFileName)
+                    IssueViewerWrapperFragment.instance(issueViewerWrapperFragment.issuePublication, result.articleFileName)
                 ).commit()
             }
         }
