@@ -4,12 +4,11 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="nav_bottom_height">52dp</dimen>
-    <!-- overriding android dimens: -->
+    <dimen name="design_bottom_navigation_icon_size" tools:override="true">50dp</dimen>
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
     <dimen name="view_moment_download_icon_size">25dp</dimen>
-
     <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
@@ -108,16 +107,14 @@
     <dimen name="bottom_sheet_setting_padding_vertical">20dp</dimen>
 
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
-    <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
 
     <dimen name="fragment_bookmarks_thumbnail_size">65dp</dimen>
-    <dimen name="fragment_bookmarks_icons_vertical_margin">16dp</dimen>
-    <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
+    <dimen name="fragment_bookmarks_icons_vertical_margin">4dp</dimen>
     <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="fragment_bookmarks_icon_size">28dp</dimen>
+    <dimen name="fragment_bookmarks_icon_size">50dp</dimen>
 
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
@@ -149,7 +146,4 @@
     <dimen name="cover_item_padding">21dp</dimen>
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
-
-    <dimen name="fab_margin_start">24dp</dimen>
-    <dimen name="fab_margin_bottom">68dp</dimen>
 </resources>

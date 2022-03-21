@@ -34,19 +34,14 @@
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
-        <activity android:name=".ui.main.MainActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity android:name=".ui.main.MainActivity" />
         <activity android:name=".ui.issueViewer.IssueViewerActivity" />
-        <activity android:name=".ui.ExperimentalSearchActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.bookmarks.BookmarkListActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity android:name=".ui.ExperimentalSearchActivity" />
+        <activity android:name=".ui.bookmarks.BookmarkListActivity" />
         <activity android:name=".ui.bookmarks.BookmarkViewerActivity" />
-        <activity android:name=".ui.settings.SettingsActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity android:name=".ui.settings.SettingsActivity" />
         <activity android:name=".ui.settings.ErrorReportActivity" />
-        <activity android:name=".ui.login.LoginActivity"
-            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".ui.login.LoginActivity" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"

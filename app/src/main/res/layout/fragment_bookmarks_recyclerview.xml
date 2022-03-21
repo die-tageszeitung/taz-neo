@@ -80,6 +80,7 @@
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
+                    tools:text="ASDF"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
@@ -87,6 +88,7 @@
                     style="@style/TextAppearance.Bookmarks.Entry.Date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    tools:text="bla nwzhtwe"
                     android:layout_gravity="top|start"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title" />
@@ -105,26 +107,22 @@
                     android:id="@+id/fragment_bookmark_share"
                     android:layout_width="@dimen/fragment_bookmarks_icon_size"
                     android:layout_height="@dimen/fragment_bookmarks_icon_size"
-                    android:layout_marginVertical="@dimen/fragment_bookmarks_icons_vertical_margin"
+                    android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_share"
                     android:src="@drawable/ic_share"
                     app:layout_constraintStart_toStartOf="@id/fragment_bookmark_date"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_date"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:tint="@color/textColorAccent" />
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_delete"
                     android:layout_width="@dimen/fragment_bookmarks_icon_size"
                     android:layout_height="@dimen/fragment_bookmarks_icon_size"
-                    android:layout_marginVertical="@dimen/fragment_bookmarks_icons_vertical_margin"
-                    android:layout_marginHorizontal="@dimen/fragment_bookmarks_icons_horizontal_margin"
-                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_delete"
                     android:src="@drawable/ic_delete"
                     app:layout_constraintStart_toEndOf="@id/fragment_bookmark_share"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_date"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:tint="@color/textColorAccent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
