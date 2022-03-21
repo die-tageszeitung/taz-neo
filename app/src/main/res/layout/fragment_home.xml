@@ -21,19 +21,14 @@
             android:nestedScrollingEnabled="true"
             android:orientation="vertical" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_action_pdf"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|bottom"
-            android:layout_marginStart="@dimen/fab_margin_start"
-            android:layout_marginBottom="@dimen/fab_margin_bottom"
-            android:contentDescription="@string/bottom_navigation_action_pdf"
-            android:scaleType="center"
-            android:src="@drawable/ic_pdf_view"
-            app:backgroundTint="@color/navigation_bottom_background"
-            app:tint="@color/lightGrey" />
-
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nav_bottom_height"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+            android:layout_gravity="bottom"
+            app:labelVisibilityMode="unlabeled"
+            app:menu="@menu/navigation_bottom_home" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -77,7 +77,6 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navigation_bottom_webview_pager.visibility = View.GONE
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -177,7 +176,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
+            R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let {

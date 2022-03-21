@@ -26,7 +26,6 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
-import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.ktor.util.reflect.*
@@ -370,15 +369,5 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
             supportFragmentManager.popBackStack()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setBottomNavigationBackActivity(this)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        setBottomNavigationBackActivity(null)
     }
 }

@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -14,20 +15,23 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
 class SectionPagerFragment : BaseMainFragment(
     R.layout.fragment_webview_pager
 ) {
     private val log by Log
+
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
@@ -80,16 +84,20 @@ class SectionPagerFragment : BaseMainFragment(
                     (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
                 ) { issueKey, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
-                        issueContentViewModel.setDisplayable(
-                            IssueKeyWithDisplayableKey(
-                                issueKey,
-                                displayable.key
-                            )
-                        )
+                        issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey( issueKey, displayable.key))
                     }
                 }
             }
             lastPage = position
+        }
+    }
+
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> MainActivity.start(requireContext())
+            R.id.bottom_navigation_action_size -> {
+                showBottomSheet(TextSettingsFragment())
+            }
         }
     }
 
@@ -101,14 +109,6 @@ class SectionPagerFragment : BaseMainFragment(
     override fun onStop() {
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        requireActivity().setupBottomNavigation(
-            navigation_bottom_webview_pager,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
-        )
     }
 
     private inner class SectionPagerAdapter(val sectionStubs: List<SectionStub>) :

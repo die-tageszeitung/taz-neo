@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,8 +15,8 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.WelcomeActivity
+import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.delay
@@ -28,6 +30,8 @@ import kotlinx.coroutines.launch
 class PdfPagerFragment : BaseMainFragment(
     R.layout.fragment_pdf_pager
 ) {
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
+
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private val log by Log
@@ -81,7 +85,7 @@ class PdfPagerFragment : BaseMainFragment(
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner, { position ->
             // only update currentItem if it has not been swiped
-            if (pdf_viewpager.currentItem != position) {
+            if(pdf_viewpager.currentItem != position) {
                 pdf_viewpager.setCurrentItem(position, true)
             }
         })
@@ -108,14 +112,24 @@ class PdfPagerFragment : BaseMainFragment(
                     )
                 }
         }
+
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().setupBottomNavigation(
-            navigation_bottom_pdf,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
-        )
+    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+        when (menuItem.itemId) {
+            R.id.bottom_navigation_action_home -> requireActivity().finish()
+            R.id.bottom_navigation_action_settings -> {
+                Intent(requireActivity(), SettingsActivity::class.java).apply {
+                    startActivity(this)
+                }
+            }
+            R.id.bottom_navigation_action_help -> {
+                Intent(requireActivity(), WelcomeActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    startActivity(this)
+                }
+            }
+        }
     }
 
     private fun hideLoadingScreen() {
