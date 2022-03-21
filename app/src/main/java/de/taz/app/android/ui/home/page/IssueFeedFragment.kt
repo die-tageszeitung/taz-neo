@@ -105,7 +105,7 @@ abstract class IssueFeedFragment(
 
 
     /**
-     * function open the given issue in the corresponding reading activity
+     * function to open the given issue in the corresponding reading activity
      * @param issuePublication the issue to be opened
      */
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
