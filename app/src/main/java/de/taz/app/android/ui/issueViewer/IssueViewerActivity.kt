@@ -117,12 +117,4 @@ class IssueViewerActivity : TazViewerActivity() {
             }
         }
     }
-
-    override fun onBackPressed() {
-        if (finishOnBackPressed) {
-            finish()
-        } else {
-            super.onBackPressed()
-        }
-    }
 }
