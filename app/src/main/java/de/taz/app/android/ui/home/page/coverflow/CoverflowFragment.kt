@@ -48,7 +48,9 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
         CoroutineScope(Dispatchers.IO).launch {
-            pdfAdditionally = DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
+            pdfAdditionally = DownloadDataStore.getInstance(
+                requireContext().applicationContext
+            ).pdfAdditionally.get()
         }
     }
 
