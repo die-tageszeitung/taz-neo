@@ -31,7 +31,6 @@ import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
@@ -39,6 +38,14 @@ const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
+/**
+ * Activity used to register or login a user
+ *
+ * This activity can be called via [LoginContract] with [LoginContract.Input] to login or register a
+ * user from another part of the app
+ * e.g. [de.taz.app.android.ui.login.fragments.ArticleLoginFragment]
+ *
+ */
 class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private val log by Log
@@ -71,7 +78,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             setOnNavigationItemSelectedListener {
                 this@LoginActivity.apply {
                     val data = Intent()
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
                     setResult(Activity.RESULT_CANCELED, data)
                     finish()
                 }
@@ -391,20 +397,11 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 article = article?.replace("public.", "")
 
                 article?.let {
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_ARTICLE)
                     data.putExtra(MAIN_EXTRA_ARTICLE, article)
-                } ?: run {
-                    data.putExtra(MAIN_EXTRA_TARGET, MAIN_EXTRA_TARGET_HOME)
                 }
-
-                withContext(Dispatchers.Main) {
-                    setResult(Activity.RESULT_OK, data)
-                    finish()
-                }
-            } else {
-                setResult(Activity.RESULT_OK, data)
-                finish()
             }
+            setResult(Activity.RESULT_OK, data)
+            finish()
         }
     }
 

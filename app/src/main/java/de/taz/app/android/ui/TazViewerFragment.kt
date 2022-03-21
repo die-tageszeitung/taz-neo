@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
-import androidx.activity.viewModels
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import de.taz.app.android.*
@@ -16,7 +16,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoKey
-import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.monkey.observeDistinct
@@ -40,7 +40,7 @@ const val DRAWER_OVERLAP_OFFSET = -5F
  * creates an instance of [fragmentClass] which is then shown
  *
  */
-abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>() {
+abstract class TazViewerFragment: ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
 
     abstract val fragmentClass: KClass<out Fragment>
 
@@ -51,31 +51,35 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
-    private val sectionDrawerViewModel: SectionDrawerViewModel by viewModels()
+    private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     private var viewerFragment: Fragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        storageService = StorageService.getInstance(applicationContext)
-        imageRepository = ImageRepository.getInstance(applicationContext)
-        contentService = ContentService.getInstance(applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+        imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
 
         // supportFragmentManager recovers state by itself
         if (savedInstanceState == null) {
             viewerFragment = fragmentClass.createInstance()
-            supportFragmentManager.beginTransaction().add(
+            childFragmentManager.beginTransaction().add(
                 R.id.main_viewer_fragment,
                 viewerFragment!!
             ).commit()
         } else {
-            viewerFragment = supportFragmentManager.fragments.find { it::class == fragmentClass }!!
+            viewerFragment = childFragmentManager.fragments.find { it::class == fragmentClass }!!
         }
 
-        if (0 != (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+        if (0 != (requireActivity().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
             drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
@@ -116,7 +120,7 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
                 override fun onDrawerStateChanged(newState: Int) {}
             })
 
-            sectionDrawerViewModel.drawerOpen.observe(this@TazViewerActivity) {
+            sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
                 if (it) {
                     drawerLayout.openDrawer(GravityCompat.START)
                 } else {
@@ -157,7 +161,7 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
             this.navButton = navButton
             val imageDrawable = withContext(Dispatchers.IO) {
                 Glide
-                    .with(this@TazViewerActivity)
+                    .with(this@TazViewerFragment)
                     .load(navButtonPath)
                     .submit()
                     .get()
@@ -194,16 +198,11 @@ abstract class TazViewerActivity : ViewBindingActivity<ActivityTazViewerBinding>
         }
     }
 
-    override fun onBackPressed() {
+    override fun onBackPressed(): Boolean {
         if (sectionDrawerViewModel.drawerOpen.value == true) {
             sectionDrawerViewModel.drawerOpen.value = false
-            return
+            return true
         }
-        val handled = (viewerFragment as? BackFragment)?.onBackPressed() ?: false
-        if (handled) {
-            return
-        } else {
-            super.onBackPressed()
-        }
+        return (viewerFragment as? BackFragment)?.onBackPressed() ?: false
     }
 }

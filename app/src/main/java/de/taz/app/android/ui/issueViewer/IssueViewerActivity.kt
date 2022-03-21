@@ -1,20 +1,17 @@
 package de.taz.app.android.ui.issueViewer
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.ui.TazViewerActivity
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -36,13 +33,7 @@ import kotlin.reflect.KClass
  * activity gets an activityResult and will restart with the new issue.
  *
  */
-class IssueViewerActivity : TazViewerActivity() {
-    private val issueViewerViewModel: IssueViewerViewModel by viewModels()
-    private lateinit var issuePublication: IssuePublication
-    private lateinit var contentService: ContentService
-
-    override val fragmentClass: KClass<IssueViewerFragment> = IssueViewerFragment::class
-
+class IssueViewerActivity : AppCompatActivity() {
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
@@ -50,15 +41,68 @@ class IssueViewerActivity : TazViewerActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportFragmentManager.beginTransaction().add(
+            android.R.id.content,
+            IssueViewerWrapperFragment.instance(
+                intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
+                intent.getStringExtra(KEY_DISPLAYABLE),
+            )
+        ).commit()
+    }
 
-        contentService = ContentService.getInstance(applicationContext)
-
-        issuePublication = requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) {
-            "IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
+    override fun onBackPressed() {
+        val fragment =
+            supportFragmentManager.fragments.firstOrNull { it is IssueViewerWrapperFragment } as BackFragment
+        if (fragment.onBackPressed()) {
+            return
         }
+        super.onBackPressed()
+    }
+}
+
+/**
+ * This fragment downloads the given [IssuePublication] and uses an [IssueViewerFragment] to then
+ * show the displayable
+ *
+ * This fragment encapsulates what was in the activity before refactoring
+ * TODO Hopefully we can merge this with the [IssueViewerFragment]
+ */
+class IssueViewerWrapperFragment : TazViewerFragment() {
+
+    val issuePublication: IssuePublication
+        get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
+            "IssueViewerWrapperFragment needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
+        }
+    private val displayableKey: String?
+        get() = arguments?.getString(KEY_DISPLAYABLE)
+
+    private lateinit var contentService: ContentService
+
+    private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
+
+    override val fragmentClass: KClass<IssueViewerFragment> = IssueViewerFragment::class
+
+    companion object {
+        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+
+        fun instance(
+            issuePublication: IssuePublication,
+            displayableKey: String? = null
+        ) = IssueViewerWrapperFragment().apply {
+            arguments = bundleOf(
+                KEY_ISSUE_PUBLICATION to issuePublication,
+                KEY_DISPLAYABLE to displayableKey
+            )
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        contentService = ContentService.getInstance(requireContext().applicationContext)
 
         if (savedInstanceState == null) {
-            val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
                     contentService.downloadMetadata(
@@ -90,31 +134,7 @@ class IssueViewerActivity : TazViewerActivity() {
             .filter { isError -> isError }
             .asLiveData()
             .observe(this) {
-                showIssueDownloadFailedDialog(issuePublication)
+                requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == ACTIVITY_LOGIN_REQUEST_CODE) {
-            data?.let {
-                data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
-                    if (it == MAIN_EXTRA_TARGET_ARTICLE) {
-                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            Intent(this, IssueViewerActivity::class.java).apply {
-                                putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
-                                putExtra(KEY_DISPLAYABLE, articleName.replace("public.", ""))
-                                startActivity(this)
-                                finish()
-                            }
-                        }
-                    }
-                    if (it == MAIN_EXTRA_TARGET_HOME) {
-                        finish()
-                    }
-                }
-            }
-        }
     }
 }
