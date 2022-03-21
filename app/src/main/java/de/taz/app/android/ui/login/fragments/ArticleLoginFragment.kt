@@ -84,7 +84,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     }
 
     /**
-     * After a login we replace the IssueViewerFragment 2 with a new instance of the
+     * After a login we replace the [IssueViewerWrapperFragment] with a new instance of the
      * regular issue
      */
     override fun onActivityResult(result: LoginContract.Output) {
