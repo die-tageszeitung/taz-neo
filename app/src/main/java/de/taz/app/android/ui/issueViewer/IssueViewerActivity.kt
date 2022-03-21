@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.TazViewerActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
@@ -23,41 +22,48 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
-
+/**
+ * Activity to show an issue with sections and articles in a Pager.
+ *
+ * This class takes care of getting the metadata from the backend and handing the information to the
+ * [IssueViewerViewModel]
+ *
+ * Additionally this activity shows a dialog if downloading the metadata fails - this error will be
+ * triggered by other fragments as well (e.g. by [de.taz.app.android.ui.webview.WebViewFragment]
+ * We want to have this error handling in one position to ensure we do not show the dialog more
+ * often then necessary (once)
+ *
+ * If a user logs in via an [de.taz.app.android.ui.login.fragments.ArticleLoginFragment] this
+ * activity gets an activityResult and will restart with the new issue.
+ *
+ */
 class IssueViewerActivity : TazViewerActivity() {
-    private var finishOnBackPressed: Boolean = false
     private val issueViewerViewModel: IssueViewerViewModel by viewModels()
     private lateinit var issuePublication: IssuePublication
     private lateinit var contentService: ContentService
-    private lateinit var authHelper: AuthHelper
 
     override val fragmentClass: KClass<IssueViewerFragment> = IssueViewerFragment::class
 
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
-        const val KEY_FINISH_ON_BACK_PRESSED = "KEY_FINISHED_ON_BACK_PRESSED"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        authHelper = AuthHelper.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 
-        issuePublication = try {
-            intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
-        } catch (e: NullPointerException) {
-            throw IllegalStateException("IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
+        issuePublication = requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) {
+            "IssueViewerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
+
         if (savedInstanceState == null) {
             val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
-            finishOnBackPressed = intent.getBooleanExtra(KEY_FINISH_ON_BACK_PRESSED, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
                     contentService.downloadMetadata(
                         issuePublication,
-                        minStatus = authHelper.getMinStatus(),
                         maxRetries = maxRetries
                     ) as Issue
 
@@ -79,6 +85,8 @@ class IssueViewerActivity : TazViewerActivity() {
                 }
             }
         }
+
+        // show an error if downloading the metadata, the issue, or another file fails
         issueViewerViewModel.issueLoadingFailedErrorFlow
             .filter { isError -> isError }
             .asLiveData()
@@ -119,13 +127,5 @@ class IssueViewerActivity : TazViewerActivity() {
     override fun onDestroy() {
         super.onDestroy()
         setBottomNavigationBackActivity(null)
-    }
-
-    override fun onBackPressed() {
-        if (finishOnBackPressed) {
-            finish()
-        } else {
-            super.onBackPressed()
-        }
     }
 }

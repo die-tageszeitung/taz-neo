@@ -10,7 +10,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.AuthHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,8 +33,6 @@ class PdfPagerViewModel(
         ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
-    private val authHelper = AuthHelper.getInstance(application)
-
 
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
@@ -76,7 +73,6 @@ class PdfPagerViewModel(
         addSource(issuePublication) { issuePublicationWithPages ->
             suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
                 issuePublicationWithPages,
-                minStatus = authHelper.getMinStatus(),
                 maxRetries = maxRetries
             ) as IssueWithPages
 

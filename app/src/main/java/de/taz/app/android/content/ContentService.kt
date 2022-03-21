@@ -198,6 +198,7 @@ class ContentService(
      * @param download [ObservableDownload] of which the Metadata should be retrieved
      * @param maxRetries The amount of retries on connection errors
      * @param forceExecution If this operation should be executed regardless if an equal operation has already been started
+     * @param minStatus the minimal required [IssueStatus] - if not manually given [AuthHelper.getMinStatus] will be used
      * @return The returned object, might be a [DownloadableCollection] of any kind, [Issue], [IssueKeyWithPages]
      * or [AppInfo]
      */
@@ -205,7 +206,7 @@ class ContentService(
         download: ObservableDownload,
         maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
         forceExecution: Boolean = false,
-        minStatus: IssueStatus = IssueStatus.public,
+        minStatus: IssueStatus? = null,
         allowCache: Boolean = true
     ): ObservableDownload {
         return MetadataDownload
@@ -215,7 +216,7 @@ class ContentService(
                 download.getDownloadTag(),
                 retriesOnConnectionError = maxRetries,
                 allowCache = allowCache,
-                minStatus = minStatus
+                minStatus = minStatus ?: authHelper.getMinStatus()
             )
             .execute(forceExecution = forceExecution)
     }

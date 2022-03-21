@@ -8,8 +8,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
@@ -30,7 +28,6 @@ class DataService(applicationContext: Context) {
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
     private val feedRepository = FeedRepository.getInstance(applicationContext)
-    private val authHelper = AuthHelper.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
     private val maxStoredIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
@@ -137,22 +134,6 @@ class DataService(applicationContext: Context) {
             feed
         }
 
-    suspend fun getFeeds(allowCache: Boolean = true): List<Feed> = withContext(Dispatchers.IO) {
-        if (allowCache) {
-            feedRepository.getAll().let {
-                if (it.isNotEmpty()) return@withContext it
-            }
-        }
-        val feeds = apiService.getFeeds()
-        feedRepository.save(feeds)
-        feeds
-    }
-
-    suspend fun isIssueDownloaded(issueKey: AbstractIssueKey): Boolean =
-        withContext(Dispatchers.IO) {
-            issueRepository.isDownloaded(issueKey)
-        }
-
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
      * @param feedName to refresh
@@ -166,7 +147,6 @@ class DataService(applicationContext: Context) {
                 if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
                     (contentService.downloadMetadata(
                         IssuePublication(feedName, simpleDateFormat.format(it)),
-                        minStatus = authHelper.getMinStatus()
                     ) as Issue).issueKey
                 } else {
                     null
