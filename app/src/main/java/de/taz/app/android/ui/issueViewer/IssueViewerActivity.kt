@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.issueViewer
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -13,11 +12,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -44,7 +38,7 @@ class IssueViewerActivity : AppCompatActivity() {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
     }
-   
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportFragmentManager.beginTransaction().add(
@@ -67,7 +61,8 @@ class IssueViewerActivity : AppCompatActivity() {
 }
 
 class IssueViewerFragment2 : TazViewerFragment() {
-    private val issuePublication: IssuePublication
+
+    val issuePublication: IssuePublication
         get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
             "IssueViewerFragment2 needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey"
         }
@@ -134,30 +129,5 @@ class IssueViewerFragment2 : TazViewerFragment() {
             .observe(this) {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        // TODO MOVE THIS - but where? should not use activity
-        if (requestCode == ACTIVITY_LOGIN_REQUEST_CODE) {
-            data?.let {
-                data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
-                    if (it == MAIN_EXTRA_TARGET_ARTICLE) {
-                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
-                            Intent(requireContext(), IssueViewerActivity::class.java).apply {
-                                putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
-                                putExtra(KEY_DISPLAYABLE, articleName.replace("public.", ""))
-                                startActivity(this)
-                                // TODO finish()
-                            }
-                        }
-                    }
-                    if (it == MAIN_EXTRA_TARGET_HOME) {
-                        // TODO finish()
-                    }
-                }
-            }
-        }
     }
 }
