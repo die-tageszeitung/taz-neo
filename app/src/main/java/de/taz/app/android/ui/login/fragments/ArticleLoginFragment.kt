@@ -1,17 +1,24 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.LoginContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
@@ -41,16 +48,38 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            readOnLoginButton.setOnClickListener {
-                login()
-            }
+            lifecycleScope.launch(Dispatchers.Main) {
+                if (authHelper.isElapsed()) {
+                    readOnDescription.visibility = View.GONE
+                    readOnUsernameLayout.visibility = View.GONE
+                    readOnPasswordLayout.visibility = View.GONE
+                    readOnLoginButton.visibility = View.GONE
+                    readOnTrialSubscriptionText.visibility = View.GONE
+                    readOnRegisterButton.visibility = View.GONE
 
-            readOnPassword.setOnEditorActionListener(
-                OnEditorActionDoneListener(::login)
-            )
+                    readOnElapsedTitle.visibility = View.VISIBLE
+                    readOnElapsedDescription.visibility = View.VISIBLE
+                    readOnElapsedEmail.visibility = View.VISIBLE
+                    readOnElapsedOrder.visibility = View.VISIBLE
 
-            readOnRegisterButton.setOnClickListener {
-                register()
+                    readOnElapsedOrder.setOnClickListener {
+                        activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
+                            putExtra(LOGIN_EXTRA_REGISTER, true)
+                        }, ACTIVITY_LOGIN_REQUEST_CODE)
+                    }
+                } else {
+                    readOnLoginButton.setOnClickListener {
+                        login()
+                    }
+
+                    readOnPassword.setOnEditorActionListener(
+                        OnEditorActionDoneListener(::login)
+                    )
+
+                    readOnRegisterButton.setOnClickListener {
+                        register()
+                    }
+                }
             }
         }
     }

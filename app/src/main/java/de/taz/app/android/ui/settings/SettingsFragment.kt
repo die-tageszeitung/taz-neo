@@ -149,6 +149,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_account_logout.setOnClickListener {
+                fragment_settings_account_elapsed.visibility = View.GONE
                 logout()
             }
 
