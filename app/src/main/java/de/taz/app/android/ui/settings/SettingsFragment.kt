@@ -16,7 +16,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
@@ -33,6 +32,7 @@ import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -142,6 +142,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 }
             }
 
+            fragment_settings_account_elapsed.setOnClickListener {
+                activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
+                    putExtra(LOGIN_EXTRA_REGISTER, true)
+                }, ACTIVITY_LOGIN_REQUEST_CODE)
+            }
+
             fragment_settings_account_logout.setOnClickListener {
                 logout()
             }
@@ -224,8 +230,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     AuthStatus.elapsed
                 )
             ) {
-                // TODO: show elapsed hint
                 showLogoutButton()
+                showElapsedIndication(authStatus == AuthStatus.elapsed)
             } else {
                 showManageAccountButton()
             }
@@ -361,6 +367,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             HtmlCompat.FROM_HTML_MODE_LEGACY
         )
         view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
+    }
+
+    private fun showElapsedIndication(elapsed: Boolean) {
+        if (elapsed) {
+            view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.visibility =
+                View.VISIBLE
+        } else {
+            view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.visibility =
+                View.GONE
+        }
     }
 
     private fun showTextJustification(justified: Boolean) {

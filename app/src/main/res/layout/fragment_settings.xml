@@ -180,6 +180,16 @@
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
 
             <TextView
+                android:id="@+id/fragment_settings_account_elapsed"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:text="@string/settings_account_elapsed"
+                android:textAlignment="textEnd"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
                 android:id="@+id/fragment_settings_account_logout"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
