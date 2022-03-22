@@ -393,7 +393,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         showLoadingScreen()
         lifecycleScope.launch(Dispatchers.Main) {
             val data = Intent()
-            if (authHelper.isLoggedIn()) {
+            if (authHelper.isValid()) {
                 article = article?.replace("public.", "")
 
                 article?.let {

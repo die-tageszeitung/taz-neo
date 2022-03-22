@@ -224,6 +224,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                     AuthStatus.elapsed
                 )
             ) {
+                // TODO: show elapsed hint
                 showLogoutButton()
             } else {
                 showManageAccountButton()
