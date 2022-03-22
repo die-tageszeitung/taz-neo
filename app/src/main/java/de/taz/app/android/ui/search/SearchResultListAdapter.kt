@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -24,19 +25,32 @@ class SearchResultListAdapter(
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
-    class SearchResultListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        var searchResultItem: ConstraintLayout = view.findViewById(R.id.search_result_item)
+    class SearchResultListViewHolder(
+        val view: View
+    ) : RecyclerView.ViewHolder(view) {
+        private var searchResultItem: ConstraintLayout = view.findViewById(R.id.search_result_item)
         var titleTextView: TextView = view.findViewById(R.id.search_result_title)
         var authorTextView: TextView = view.findViewById(R.id.search_result_author)
         var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
         var dateTextView: TextView = view.findViewById(R.id.search_result_date)
         var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
         private val log by Log
+
         fun bind(articleKey: String?) {
             searchResultItem.setOnClickListener {
                 articleKey?.let {
                     log.debug("SHOW ARTICLE $articleKey!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     //TODO show article
+
+                    val fragment = SearchResultViewerFragment(it)
+                    val activity: AppCompatActivity = view.context as AppCompatActivity
+                    activity.supportFragmentManager.beginTransaction()
+                        .add(
+                            android.R.id.content,
+                            fragment
+                        )
+                        .addToBackStack(null)
+                        .commit()
                 }
             }
         }
@@ -114,6 +128,8 @@ class SearchResultListAdapter(
 
     override fun getItemCount() = searchResultList.size
 
+    // region helper functions
+
     /**
      * Use this method to highlight a text in TextView with a given color.
      *
@@ -155,7 +171,7 @@ class SearchResultListAdapter(
      * @param toString   String which is the last delimiter
      * @return List of the sub strings
      */
-    private fun String.extractAllSubstrings(fromString: String, toString: String): List<String>{
+    private fun String.extractAllSubstrings(fromString: String, toString: String): List<String> {
         val resultList = mutableListOf<String>()
 
         var lastIndex = indexOf(fromString, 0)
@@ -163,7 +179,7 @@ class SearchResultListAdapter(
         while (lastIndex >= 0) {
             sub = substring(lastIndex)
             resultList.add(
-                sub.substringAfter(fromString ).substringBefore(toString)
+                sub.substringAfter(fromString).substringBefore(toString)
             )
             // Find the next occurrence if any
             lastIndex = sub.indexOf(
@@ -173,4 +189,6 @@ class SearchResultListAdapter(
         }
         return resultList
     }
+
+    // endregion
 }
