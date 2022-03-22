@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class SearchResultListAdapter(
-    private var searchResultList: List<SearchHitDto>
+    var searchResultList: List<SearchHitDto>
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
@@ -42,7 +42,7 @@ class SearchResultListAdapter(
                     log.debug("SHOW ARTICLE $articleKey!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                     //TODO show article
 
-                    val fragment = SearchResultViewerFragment(it)
+                    val fragment = SearchResultPagerFragment()
                     val activity: AppCompatActivity = view.context as AppCompatActivity
                     activity.supportFragmentManager.beginTransaction()
                         .add(

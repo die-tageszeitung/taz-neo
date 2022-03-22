@@ -2,11 +2,7 @@ package de.taz.app.android.ui.search
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import de.taz.app.android.api.dto.SearchHitDto
 
 private const val KEY_ARTICLE_FILE_NAME = "KEY_ARTICLE_FILE_NAME"
 
@@ -15,11 +11,8 @@ class SearchResultPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    val articleRepository = ArticleRepository.getInstance(application)
-
     val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
 
-    val bookmarkedArticleStubsLiveData = articleRepository.getBookmarkedArticleStubsLiveData()
-    val bookmarkedArticlesLiveData = articleRepository.getBookmarkedArticlesLiveData()
+    val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
 
 }

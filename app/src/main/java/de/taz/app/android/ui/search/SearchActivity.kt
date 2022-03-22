@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +43,7 @@ class SearchActivity :
     private lateinit var searchResultListAdapter: SearchResultListAdapter
     private val log by Log
 
+    private val viewModel by viewModels<SearchResultPagerViewModel>()
 
     // region Activity functions
 
@@ -166,6 +168,7 @@ class SearchActivity :
                 showAmountFound(total)
                 it.searchHitList?.let { hits ->
                     searchResultItemsList.addAll(hits)
+                    viewModel.searchResultsLiveData.postValue(searchResultItemsList)
                     if (offset > 0) {
                         searchResultListAdapter.notifyItemRangeChanged(
                             offset,
@@ -214,6 +217,7 @@ class SearchActivity :
 
     private fun clearRecyclerView() {
         searchResultItemsList.clear()
+        viewModel.searchResultsLiveData.postValue(emptyList())
     }
 
     private fun showSearchDescription() {
