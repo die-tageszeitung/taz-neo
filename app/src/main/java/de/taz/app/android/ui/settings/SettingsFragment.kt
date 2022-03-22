@@ -30,7 +30,6 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -169,9 +168,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
-            }
-            if (BuildConfig.DEBUG) {
-                inflateExperimentalOptions()
             }
         }
 
@@ -338,21 +334,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         // clean up file system:
         storageService.deleteAllUnusedIssueFolders(feedName)
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
-    }
-
-    private fun inflateExperimentalOptions() {
-        val experimentalContainer = view?.findViewById<FrameLayout>(R.id.experimental_container)
-        val experimentalOptionsView =
-            layoutInflater.inflate(R.layout.view_experimental_options, experimentalContainer)
-        experimentalOptionsView.findViewById<TextView>(R.id.expirimental_search_button)
-            .setOnClickListener {
-                startActivity(
-                    Intent(
-                        requireActivity(),
-                        ExperimentalSearchActivity::class.java
-                    )
-                )
-            }
     }
 
     private fun showStoredIssueNumber(number: Int) {

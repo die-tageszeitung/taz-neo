@@ -9,7 +9,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,12 +20,8 @@ import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
-import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.bottomNavigationBack
-import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
@@ -106,18 +101,13 @@ class SearchActivity :
                     searchFilter = searchFilter
                 )
             }
+            navigationBottom.setOnItemSelectedListener {
+                if (it.itemId == R.id.bottom_navigation_action_home) {
+                    this@SearchActivity.finish()
+                    true
+                } else { false}
+            }
         }
-    }
-    override fun onResume() {
-        super.onResume()
-        setupBottomNavigation(
-            viewBinding.navigationBottom,
-            BottomNavigationItem.Search
-        )
-    }
-
-    override fun onBackPressed() {
-        bottomNavigationBack()
     }
 
     override fun onDestroy() {

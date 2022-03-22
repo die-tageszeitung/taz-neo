@@ -19,6 +19,7 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
@@ -124,11 +125,10 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 requireActivity(),
                 SettingsActivity::class.java
             ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_help -> {
-                val intent = Intent(context?.applicationContext, WelcomeActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
-                startActivity(Intent(intent))
-            }
+            R.id.bottom_navigation_action_search -> Intent(
+                requireActivity(),
+                SearchActivity::class.java
+            ).apply { startActivity(this) }
             R.id.bottom_navigation_action_home -> {
                 (activity as? MainActivity)?.showHome()
             }
