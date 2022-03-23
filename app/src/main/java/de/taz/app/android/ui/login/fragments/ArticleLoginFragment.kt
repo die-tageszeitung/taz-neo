@@ -8,6 +8,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
@@ -66,6 +67,14 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                         activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
                             putExtra(LOGIN_EXTRA_REGISTER, true)
                         }, ACTIVITY_LOGIN_REQUEST_CODE)
+                    }
+                    readOnElapsedEmail.setOnClickListener {
+                        val email = Intent(Intent.ACTION_SEND)
+                        email.putExtra(Intent.EXTRA_EMAIL, arrayOf(SUBSCRIPTION_EMAIL_ADDRESS))
+                        email.putExtra(Intent.EXTRA_SUBJECT, "")
+                        email.putExtra(Intent.EXTRA_TEXT, "")
+                        email.type = "message/rfc822"
+                        startActivity(Intent.createChooser(email, null))
                     }
                 } else {
                     readOnLoginButton.setOnClickListener {
