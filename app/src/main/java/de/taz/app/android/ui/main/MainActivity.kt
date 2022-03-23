@@ -86,7 +86,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var showLoggedOutDialog: AlertDialog? = null
     private suspend fun maybeShowLoggedOutDialog() {
-        if (issueFeedViewModel.getPdfMode() && !authHelper.isLoggedIn()) {
+        if (issueFeedViewModel.getPdfMode() && !authHelper.isValid()) {
             showLoggedOutDialog = AlertDialog.Builder(this@MainActivity)
                 .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
                 .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }

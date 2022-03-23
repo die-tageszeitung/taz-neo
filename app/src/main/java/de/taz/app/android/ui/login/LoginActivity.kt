@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
@@ -287,6 +288,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
+        setAuthStatusElapsed()
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
@@ -393,7 +395,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         showLoadingScreen()
         lifecycleScope.launch(Dispatchers.Main) {
             val data = Intent()
-            if (authHelper.isLoggedIn()) {
+            if (authHelper.isValid()) {
                 article = article?.replace("public.", "")
 
                 article?.let {
@@ -402,6 +404,13 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
             setResult(Activity.RESULT_OK, data)
             finish()
+        }
+    }
+
+    fun setAuthStatusElapsed() {
+        log.debug("set auth status elapsed")
+        lifecycleScope.launch(Dispatchers.IO) {
+            authHelper.status.set(AuthStatus.elapsed)
         }
     }
 

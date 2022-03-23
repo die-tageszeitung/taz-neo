@@ -101,10 +101,11 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     )
 
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
-    suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid
+    suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
+    suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid || status.get() == AuthStatus.elapsed
 
     suspend fun getMinStatus() =
-        if (isLoggedIn()) IssueStatus.regular else IssueStatus.public
+        if (isValid()) IssueStatus.regular else IssueStatus.public
 
     val minStatusLiveData = status.asLiveData().map {
         if (it == AuthStatus.valid) IssueStatus.regular else IssueStatus.public

@@ -84,4 +84,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_text" />
 
+    <TextView
+        android:id="@+id/read_on_elapsed_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/popup_login_elapsed_header"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/read_on_elapsed_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/popup_login_elapsed_text"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
+
+    <TextView
+        android:id="@+id/read_on_elapsed_email"
+        style="@style/TextAppearance.Login.Text.Link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/popup_login_elapsed_taz_mail_underlined"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description" />
+
+    <Button
+        android:id="@+id/read_on_elapsed_order"
+        style="@style/AppTheme.ButtonStyle.Outlined"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/login_button_margin_top"
+        android:text="@string/order_button"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_email"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
