@@ -143,9 +143,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             }
 
             fragment_settings_account_elapsed.setOnClickListener {
-                activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
+                activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
                     putExtra(LOGIN_EXTRA_REGISTER, true)
-                }, ACTIVITY_LOGIN_REQUEST_CODE)
+                })
             }
 
             fragment_settings_account_logout.setOnClickListener {

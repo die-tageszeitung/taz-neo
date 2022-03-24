@@ -409,7 +409,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     fun setAuthStatusElapsed() {
         log.debug("set auth status elapsed")
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Main) {
             authHelper.status.set(AuthStatus.elapsed)
         }
     }

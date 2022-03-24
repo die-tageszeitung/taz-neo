@@ -51,17 +51,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         viewBinding.apply {
             lifecycleScope.launch(Dispatchers.Main) {
                 if (authHelper.isElapsed()) {
-                    readOnDescription.visibility = View.GONE
-                    readOnUsernameLayout.visibility = View.GONE
-                    readOnPasswordLayout.visibility = View.GONE
-                    readOnLoginButton.visibility = View.GONE
-                    readOnTrialSubscriptionText.visibility = View.GONE
-                    readOnRegisterButton.visibility = View.GONE
-
-                    readOnElapsedTitle.visibility = View.VISIBLE
-                    readOnElapsedDescription.visibility = View.VISIBLE
-                    readOnElapsedEmail.visibility = View.VISIBLE
-                    readOnElapsedOrder.visibility = View.VISIBLE
+                    readOnLoginGroup.visibility = View.GONE
+                    readOnElapsedGroup.visibility = View.VISIBLE
 
                     readOnElapsedOrder.setOnClickListener {
                         activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
@@ -77,6 +68,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                         startActivity(Intent.createChooser(email, null))
                     }
                 } else {
+                    // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
                         login()
                     }
