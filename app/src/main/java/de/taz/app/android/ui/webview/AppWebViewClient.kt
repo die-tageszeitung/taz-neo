@@ -61,7 +61,7 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
     private fun handleLinks(webView: WebView?, url: String?): Boolean {
         url?.let { urlString ->
             webView?.let {
-                return urlString.startsWith("file:///")
+                return urlString.startsWith("file:///") || urlString.startsWith("https://dl.taz.de/data/tApp/")
             }
         }
         return false
