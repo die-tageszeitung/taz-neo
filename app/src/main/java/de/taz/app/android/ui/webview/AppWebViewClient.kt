@@ -61,7 +61,7 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
     private fun handleLinks(webView: WebView?, url: String?): Boolean {
         url?.let { urlString ->
             webView?.let {
-                return urlString.startsWith("file:///") || urlString.startsWith("https://dl.taz.de/data/tApp/")
+                return urlString.startsWith("file:///") || checkIfWeHaveLocally(url)
             }
         }
         return false
@@ -172,6 +172,11 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
             Sentry.captureException(e, hint)
             null
         }
+    }
+
+    private fun checkIfWeHaveLocally(url: String): Boolean {
+        val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
+        return fileEntryRepository.get(fileName) != null
     }
 
     override fun onPageFinished(webview: WebView, url: String) {

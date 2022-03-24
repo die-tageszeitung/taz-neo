@@ -3,11 +3,10 @@ package de.taz.app.android.ui.search
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.webkit.*
+import android.webkit.WebSettings
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.ui.webview.*
-import kotlinx.android.synthetic.main.fragment_webview_section.*
 
 class SearchResultPagerAdapter(
     var searchResultList: List<SearchHitDto>
@@ -35,7 +34,8 @@ class SearchResultPagerAdapter(
     ) {
         val searchResultItem = searchResultList[position]
         holder.view.apply {
-            val webView = ArticleWebViewFragment.createInstance(searchResultItem.article!!.articleHtml.name)
+            val webView =
+                ArticleWebViewFragment.createInstance(searchResultItem.article!!.articleHtml.name)
             webViewClient = AppWebViewClient(this.context.applicationContext, webView)
             webChromeClient = AppWebChromeClient()
 
@@ -46,21 +46,14 @@ class SearchResultPagerAdapter(
                 domStorageEnabled = true
                 javaScriptEnabled = true
                 cacheMode = WebSettings.LOAD_NO_CACHE
-                setSupportZoom(true)
-                settings.builtInZoomControls = true
             }
             addJavascriptInterface(TazApiJS(webView), TAZ_API_JS)
 
-            loadDataWithBaseURL(
-                searchResultItem.baseUrl,
-                searchResultItem.articleHtml!!,
-                "text/html",
-                "UTF-8",
-                null
-            )
-            //contentService.downloadToCache(ResourceInfoKey(-1))
+            val url = "${searchResultItem.baseUrl}/${searchResultItem.article.articleHtml.name}"
+            loadUrl(url)
         }
     }
+
     override fun getItemCount() = searchResultList.size
 
 }
