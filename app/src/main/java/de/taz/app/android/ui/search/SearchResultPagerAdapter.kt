@@ -51,6 +51,7 @@ class SearchResultPagerAdapter(
 
             val url = "${searchResultItem.baseUrl}/${searchResultItem.article.articleHtml.name}"
             loadUrl(url)
+           // loadDataWithBaseURL(searchResultItem.baseUrl, searchResultItem.articleHtml!!, "text/html", "utf-8", null)
         }
     }
 

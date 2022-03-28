@@ -308,7 +308,6 @@
     <string name="search_input_hint">taz Archiv durchsuchen</string>
     <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
     <string name="search_filter">Suche filtern</string>
-    <string name="search_plus_20">+20</string>
     <string name="search_advanced_title">Titel</string>
     <string name="search_advanced_author">Autor*in</string>
     <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>

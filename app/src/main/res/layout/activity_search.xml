@@ -194,17 +194,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_description_icon" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/search_button_load_more"
-        android:layout_width="60dp"
-        android:layout_height="56dp"
-        android:layout_margin="@dimen/search_results_small_margin"
-        android:backgroundTint="@color/blue"
-        android:text="@string/search_plus_20"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/search_loading_screen"
         android:layout_width="match_parent"

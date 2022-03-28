@@ -29,6 +29,7 @@ import java.util.*
 
 
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
+const val BEGIN_INFINITE_SCROLL_BEFORE_LAST = 5
 
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
@@ -38,6 +39,7 @@ class SearchActivity :
     private var pubDateFrom: String? = null
     private var pubDateUntil: String? = null
     private var total: Int = 0
+    private var currentlyLoadingMore = false
 
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
@@ -69,20 +71,6 @@ class SearchActivity :
                     return@setOnEditorActionListener true
                 }
                 false
-            }
-            searchButtonLoadMore.setOnClickListener {
-                val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
-                advancedSearch(
-                    searchText = searchInput.editText?.text.toString(),
-                    title = searchTitle.editText?.text.toString(),
-                    author = searchAuthor.editText?.text.toString(),
-                    offset = offset,
-                    pubDateFrom = pubDateFrom,
-                    pubDateUntil = pubDateUntil,
-                    searchFilter = searchFilter
-                )
-                searchButtonLoadMore.visibility = View.GONE
-
             }
             searchFilterButton.setOnClickListener {
                 toggleAdvancedSearchLayout(expandableAdvancedSearch.visibility == View.VISIBLE)
@@ -126,11 +114,12 @@ class SearchActivity :
         offset: Int = 0,
         pubDateFrom: String? = null,
         pubDateUntil: String? = null,
-        searchFilter: SearchFilter = SearchFilter.all
+        searchFilter: SearchFilter = SearchFilter.all,
+        showLoadingScreen: Boolean = true
     ) {
         hideKeyboard()
         hideSearchDescription()
-        showLoadingScreen()
+        if (showLoadingScreen) showLoadingScreen()
 
         // region throw debug logs
         log.debug("advanced SEARCH with following parameters:")
@@ -179,6 +168,7 @@ class SearchActivity :
                     }
                 }
             }
+            currentlyLoadingMore = false
         }
     }
 
@@ -191,18 +181,30 @@ class SearchActivity :
                 adapter = searchResultListAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (llm.findLastVisibleItemPosition() == searchResultItemsList.size - 1
-                            && searchResultList.visibility == View.VISIBLE
-                            && llm.findLastVisibleItemPosition() < total - 1
-                        ) {
-                            searchButtonLoadMore.visibility = View.VISIBLE
-                        } else {
-                            searchButtonLoadMore.visibility = View.GONE
+                        if (checkIfLoadMore(lastVisible = llm.findLastVisibleItemPosition())) {
+                            currentlyLoadingMore = true
+                            loadMore()
                         }
                         super.onScrolled(recyclerView, dx, dy)
                     }
                 })
             }
+        }
+    }
+
+    private fun loadMore() {
+        val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
+        viewBinding.apply {
+            advancedSearch(
+                searchText = searchInput.editText?.text.toString(),
+                title = searchTitle.editText?.text.toString(),
+                author = searchAuthor.editText?.text.toString(),
+                offset = offset,
+                pubDateFrom = pubDateFrom,
+                pubDateUntil = pubDateUntil,
+                searchFilter = searchFilter,
+                showLoadingScreen = false
+            )
         }
     }
 
@@ -253,7 +255,6 @@ class SearchActivity :
             clearRecyclerView()
             showSearchDescription()
             searchInput.clearFocus()
-            searchButtonLoadMore.visibility = View.GONE
             expandableAdvancedSearch.visibility = View.GONE
             advancedSearchTitle.visibility = View.GONE
             searchResultAmount.text = ""
@@ -399,6 +400,10 @@ class SearchActivity :
                 pubDateFrom = null
             }
         }
+    }
+
+    private fun checkIfLoadMore(lastVisible: Int): Boolean {
+        return lastVisible >= searchResultItemsList.size - BEGIN_INFINITE_SCROLL_BEFORE_LAST && !currentlyLoadingMore
     }
     // endregion
 }
