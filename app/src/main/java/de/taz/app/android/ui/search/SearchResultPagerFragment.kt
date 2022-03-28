@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SearchResultPagerFragment : BaseMainFragment(
+class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
     R.layout.fragment_webview_pager
 ) {
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
@@ -52,6 +52,9 @@ class SearchResultPagerFragment : BaseMainFragment(
         webview_pager_viewpager?.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
+            post {
+                this.setCurrentItem(position, false)
+            }
         }
     }
 

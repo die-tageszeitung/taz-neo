@@ -34,24 +34,18 @@ class SearchResultListAdapter(
         var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
         var dateTextView: TextView = view.findViewById(R.id.search_result_date)
         var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
-        private val log by Log
 
-        fun bind(articleKey: String?) {
+        fun bind(position: Int) {
             searchResultItem.setOnClickListener {
-                articleKey?.let {
-                    log.debug("SHOW ARTICLE $articleKey!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                    //TODO show article
-
-                    val fragment = SearchResultPagerFragment()
-                    val activity: AppCompatActivity = view.context as AppCompatActivity
-                    activity.supportFragmentManager.beginTransaction()
-                        .add(
-                            android.R.id.content,
-                            fragment
-                        )
-                        .addToBackStack(null)
-                        .commit()
-                }
+                val fragment = SearchResultPagerFragment(position)
+                val activity: AppCompatActivity = view.context as AppCompatActivity
+                activity.supportFragmentManager.beginTransaction()
+                    .add(
+                        android.R.id.content,
+                        fragment
+                    )
+                    .addToBackStack(null)
+                    .commit()
             }
         }
     }
@@ -123,7 +117,7 @@ class SearchResultListAdapter(
         holder.dateTextView.text = dateString
         holder.sectionTextView.text = searchResultItem.sectionTitle
 
-        holder.bind(searchResultItem.article?.articleHtml?.name)
+        holder.bind(position)
     }
 
     override fun getItemCount() = searchResultList.size
