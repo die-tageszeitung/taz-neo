@@ -56,6 +56,7 @@ class SearchActivity :
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
                 clearSearchList()
+                clearAdvancedSettings()
             }
             searchText.setOnEditorActionListener { _, actionId, _ ->
                 // search button in keyboard layout clicked:
@@ -305,6 +306,18 @@ class SearchActivity :
             } else {
                 searchFilterButton.setImageResource(R.drawable.ic_filter)
             }
+        }
+    }
+
+    private fun clearAdvancedSettings() {
+        viewBinding.apply {
+            searchTitle.editText?.text?.clear()
+            searchAuthor.editText?.text?.clear()
+            advancedSearchTimeslot.text = getString(R.string.search_advanced_radio_timeslot_any)
+            pubDateFrom = null
+            pubDateUntil = null
+            advancedSearchPublishedIn.text = getString(R.string.search_advanced_radio_published_in_any)
+            searchFilter = SearchFilter.all
         }
     }
     // endregion
