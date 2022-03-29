@@ -7,6 +7,7 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.SearchDto
 import de.taz.app.android.api.dto.SearchFilter
+import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.firebase.FirebaseHelper
@@ -302,7 +303,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         offset: Int = 0,
         pubDateFrom: String? = null,
         pubDateUntil: String? = null,
-        filter: SearchFilter = SearchFilter.all
+        filter: SearchFilter = SearchFilter.all,
+        sorting: Sorting = Sorting.relevance
     ): SearchDto? {
         return transformToConnectivityException {
             graphQlClient.query(
@@ -316,6 +318,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     pubDateFrom = pubDateFrom,
                     pubDateUntil = pubDateUntil,
                     filter = filter,
+                    sorting = sorting,
                     deviceFormat = deviceFormat
                 )
             ).data?.search

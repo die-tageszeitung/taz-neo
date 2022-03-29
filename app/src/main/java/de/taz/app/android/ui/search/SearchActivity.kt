@@ -19,6 +19,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.simpleDateFormat
@@ -36,6 +37,7 @@ class SearchActivity :
 
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
     private var searchFilter = SearchFilter.all
+    private var sorting = Sorting.relevance
     private var pubDateFrom: String? = null
     private var pubDateUntil: String? = null
     private var total: Int = 0
@@ -48,7 +50,6 @@ class SearchActivity :
     private val viewModel by viewModels<SearchResultPagerViewModel>()
 
     // region Activity functions
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
@@ -67,7 +68,8 @@ class SearchActivity :
                         author = searchAuthor.editText?.text.toString(),
                         pubDateFrom = pubDateFrom,
                         pubDateUntil = pubDateUntil,
-                        searchFilter = searchFilter
+                        searchFilter = searchFilter,
+                        sorting = sorting
                     )
                     return@setOnEditorActionListener true
                 }
@@ -82,6 +84,9 @@ class SearchActivity :
             advancedSearchPublishedIn.setOnClickListener {
                 showPublishedInDialog()
             }
+            advancedSearchSortBy.setOnClickListener {
+                showSortByDialog()
+            }
             advancedSearchStartSearch.setOnClickListener {
                 advancedSearch(
                     searchText = searchInput.editText?.text.toString(),
@@ -89,14 +94,17 @@ class SearchActivity :
                     author = searchAuthor.editText?.text.toString(),
                     pubDateFrom = pubDateFrom,
                     pubDateUntil = pubDateUntil,
-                    searchFilter = searchFilter
+                    searchFilter = searchFilter,
+                    sorting = sorting
                 )
             }
             navigationBottom.setOnItemSelectedListener {
                 if (it.itemId == R.id.bottom_navigation_action_home) {
                     this@SearchActivity.finish()
                     true
-                } else { false}
+                } else {
+                    false
+                }
             }
         }
     }
@@ -105,8 +113,9 @@ class SearchActivity :
         viewBinding.searchResultList.adapter = null
         super.onDestroy()
     }
-    // endregion
 
+    // endregion
+    // region main functions
     private fun advancedSearch(
         searchText: String,
         title: String? = null,
@@ -116,6 +125,7 @@ class SearchActivity :
         pubDateFrom: String? = null,
         pubDateUntil: String? = null,
         searchFilter: SearchFilter = SearchFilter.all,
+        sorting: Sorting = Sorting.relevance,
         showLoadingScreen: Boolean = true
     ) {
         hideKeyboard()
@@ -132,6 +142,7 @@ class SearchActivity :
         log.debug("pubDateFrom: $pubDateFrom")
         log.debug("pubDateUntil: $pubDateUntil")
         log.debug("searchFilter: $searchFilter")
+        log.debug("sorting: $sorting")
         // endregion
 
         if (offset == 0) {
@@ -151,11 +162,11 @@ class SearchActivity :
                 offset = offset,
                 pubDateFrom = pubDateFrom,
                 pubDateUntil = pubDateUntil,
-                filter = searchFilter
+                filter = searchFilter,
+                sorting = sorting
             )
             result?.let {
                 total = it.total
-                showAmountFound(total)
                 it.searchHitList?.let { hits ->
                     searchResultItemsList.addAll(hits)
                     viewModel.searchResultsLiveData.postValue(searchResultItemsList)
@@ -168,6 +179,7 @@ class SearchActivity :
                         initRecyclerView()
                     }
                 }
+                showAmountFound(searchResultItemsList.size, total)
             }
             currentlyLoadingMore = false
         }
@@ -204,11 +216,13 @@ class SearchActivity :
                 pubDateFrom = pubDateFrom,
                 pubDateUntil = pubDateUntil,
                 searchFilter = searchFilter,
+                sorting = sorting,
                 showLoadingScreen = false
             )
         }
     }
 
+    // endregion
     // region UI update functions
     private fun showLoadingScreen() {
         viewBinding.searchLoadingScreen.visibility = View.VISIBLE
@@ -265,7 +279,7 @@ class SearchActivity :
         }
     }
 
-    private fun showAmountFound(amount: Int) {
+    private fun showAmountFound(index: Int, amount: Int) {
         viewBinding.apply {
             hideLoadingScreen()
             if (amount == 0) {
@@ -273,6 +287,7 @@ class SearchActivity :
             } else {
                 searchResultAmount.text = getString(
                     R.string.search_result_amount_found,
+                    index,
                     amount
                 )
             }
@@ -316,14 +331,16 @@ class SearchActivity :
             advancedSearchTimeslot.text = getString(R.string.search_advanced_radio_timeslot_any)
             pubDateFrom = null
             pubDateUntil = null
-            advancedSearchPublishedIn.text = getString(R.string.search_advanced_radio_published_in_any)
+            advancedSearchPublishedIn.text =
+                getString(R.string.search_advanced_radio_published_in_any)
             searchFilter = SearchFilter.all
+            advancedSearchSortBy.text = getString(R.string.search_advanced_radio_sort_by_relevance)
+            sorting = Sorting.relevance
         }
     }
+
     // endregion
-
     // region dialog functions
-
     private fun showSearchTimeDialog() {
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_advanced_search_timeslot, null)
@@ -371,10 +388,33 @@ class SearchActivity :
             .create()
         dialog.show()
     }
+
+    private fun showSortByDialog() {
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.dialog_advanced_search_sort_by, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
+                val radioGroup =
+                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_sort_by)
+                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
+                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
+                    val radioId: Int = radioGroup.indexOfChild(radioButton)
+                    val btn = radioGroup.getChildAt(radioId)
+                    val chosenSortBy = (btn as RadioButton).text.toString()
+                    sorting = mapSortingFilter(chosenSortBy)
+                    viewBinding.advancedSearchSortBy.text = chosenSortBy
+                }
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                (dialog as AlertDialog).hide()
+            }
+            .create()
+        dialog.show()
+    }
+
     // endregion
-
     // region helper functions
-
     private fun mapSearchFilter(publishedIn: String): SearchFilter {
         return when (publishedIn) {
             getString(R.string.search_advanced_radio_published_in_taz) -> SearchFilter.taz
@@ -382,6 +422,14 @@ class SearchActivity :
             getString(R.string.search_advanced_radio_published_in_kontext) -> SearchFilter.Kontext
             getString(R.string.search_advanced_radio_published_in_weekend) -> SearchFilter.weekend
             else -> SearchFilter.all
+        }
+    }
+
+    private fun mapSortingFilter(sortBy: String): Sorting {
+        return when (sortBy) {
+            getString(R.string.search_advanced_radio_sort_by_appearance) -> Sorting.appearance
+            getString(R.string.search_advanced_radio_sort_by_actuality) -> Sorting.actuality
+            else -> Sorting.relevance
         }
     }
 

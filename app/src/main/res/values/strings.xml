@@ -305,6 +305,7 @@
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>
     <string name="search_advanced_published_in">erschienen in</string>
+    <string name="search_advanced_sort_by">sortierung</string>
     <string name="search_input_hint">taz Archiv durchsuchen</string>
     <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
     <string name="search_filter">Suche filtern</string>
@@ -312,17 +313,20 @@
     <string name="search_advanced_author">Autor*in</string>
     <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>
     <string name="search_advanced_radio_timeslot_last_day">letzter Tag</string>
-    <string name="search_advanced_radio_timeslot_last_week">letzte Woche</string>
-    <string name="search_advanced_radio_timeslot_last_month">letzten Monat</string>
-    <string name="search_advanced_radio_timeslot_last_year">letztes Jahr</string>
+    <string name="search_advanced_radio_timeslot_last_week">letzte 7 Tage</string>
+    <string name="search_advanced_radio_timeslot_last_month">letzte 31 Tage</string>
+    <string name="search_advanced_radio_timeslot_last_year">letzte 365 Tage</string>
     <string name="search_advanced_radio_timeslot_custom">Zeitraum festlegen…</string>
     <string name="search_advanced_radio_published_in_any">überall</string>
     <string name="search_advanced_radio_published_in_taz">taz</string>
     <string name="search_advanced_radio_published_in_lmd">Le monde Diplomatique</string>
     <string name="search_advanced_radio_published_in_kontext">Kontext</string>
     <string name="search_advanced_radio_published_in_weekend">Wochenendausgabe</string>
+    <string name="search_advanced_radio_sort_by_relevance">nach Relevanz</string>
+    <string name="search_advanced_radio_sort_by_appearance">äteste Artikel vorne</string>
+    <string name="search_advanced_radio_sort_by_actuality">neueste Artikel vorne</string>
     <string name="search_advanced_apply_filter">Filter anwenden</string>
     <string name="search_advanced_start_search">Suche starten</string>
-    <string name="search_result_amount_found">%d Treffer:</string>
+    <string name="search_result_amount_found">%d von %d Treffer:</string>
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
 </resources>

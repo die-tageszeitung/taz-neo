@@ -163,14 +163,14 @@ object DateHelper {
     fun lastMonth(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.MONTH,-1)
+        cal.add(Calendar.DAY_OF_YEAR,-31)
         return cal.time
     }
 
     fun lastYear(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.YEAR,-1)
+        cal.add(Calendar.DAY_OF_YEAR,-365)
         return cal.time
     }
 }
