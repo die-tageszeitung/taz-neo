@@ -49,12 +49,19 @@ class SearchResultPagerAdapter(
             }
             addJavascriptInterface(TazApiJS(webView), TAZ_API_JS)
 
-            val url = "${searchResultItem.baseUrl}/${searchResultItem.article.articleHtml.name}"
-            loadUrl(url)
-           // loadDataWithBaseURL(searchResultItem.baseUrl, searchResultItem.articleHtml!!, "text/html", "utf-8", null)
+            val html = searchResultItem.articleHtml.toString()
+            val baseUrl = searchResultItem.baseUrl
+            loadDataWithBaseURL(baseUrl, addBaseUrlToImgSrc(html, baseUrl), "text/html", "utf-8", null)
         }
     }
 
     override fun getItemCount() = searchResultList.size
 
+
+    /**
+     * Search for eg "src="Media.10977995.norm.jpg"" and add the given baseUrl
+     */
+    private fun addBaseUrlToImgSrc(html: String, baseUrl: String): String {
+        return html.replace(Regex("""src=["'](.+?\.(?:png|jpg|jpeg))["']""", RegexOption.IGNORE_CASE),"src=\"$baseUrl/$1\"")
+    }
 }
