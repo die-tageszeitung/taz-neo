@@ -36,7 +36,7 @@
         android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_filter_button">
+        app:layout_constraintTop_toBottomOf="@id/expand_advanced_search_button">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/search_title"
@@ -138,11 +138,11 @@
         android:layout_marginBottom="@dimen/search_advanced_title_margin_bottom"
         android:text="@string/search_advanced"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/search_filter_button"
+        app:layout_constraintBottom_toBottomOf="@id/expand_advanced_search_button"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/search_filter_button"
+        android:id="@+id/expand_advanced_search_button"
         android:layout_width="@dimen/search_icon_size"
         android:layout_height="@dimen/search_icon_size"
         android:layout_margin="@dimen/search_input_field_margin_horizontally"

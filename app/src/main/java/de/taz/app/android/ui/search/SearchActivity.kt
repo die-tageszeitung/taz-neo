@@ -75,7 +75,7 @@ class SearchActivity :
                 }
                 false
             }
-            searchFilterButton.setOnClickListener {
+            expandAdvancedSearchButton.setOnClickListener {
                 toggleAdvancedSearchLayout(expandableAdvancedSearch.visibility == View.VISIBLE)
             }
             advancedSearchTimeslot.setOnClickListener {
@@ -150,7 +150,7 @@ class SearchActivity :
         }
 
         toggleAdvancedSearchIndicator(
-            title != "" || author != "" || pubDateUntil != null || searchFilter != SearchFilter.all
+            title != "" || author != "" || pubDateUntil != null || searchFilter != SearchFilter.all || sorting != Sorting.relevance
         )
 
         lifecycleScope.launch {
@@ -275,7 +275,7 @@ class SearchActivity :
             searchResultAmount.text = ""
             searchAuthor.editText?.text?.clear()
             searchTitle.editText?.text?.clear()
-            searchFilterButton.setImageResource(R.drawable.ic_filter)
+            expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
         }
     }
 
@@ -303,13 +303,13 @@ class SearchActivity :
                 }
                 expandableAdvancedSearch.visibility = View.GONE
                 advancedSearchTitle.visibility = View.GONE
-                searchFilterButton.setImageResource(R.drawable.ic_filter)
+                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
             } else {
                 searchDescription.visibility = View.GONE
                 searchDescriptionIcon.visibility = View.GONE
                 expandableAdvancedSearch.visibility = View.VISIBLE
                 advancedSearchTitle.visibility = View.VISIBLE
-                searchFilterButton.setImageResource(R.drawable.ic_filter_filled)
+                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
             }
         }
     }
@@ -317,9 +317,9 @@ class SearchActivity :
     private fun toggleAdvancedSearchIndicator(advancedActive: Boolean) {
         viewBinding.apply {
             if (advancedActive) {
-                searchFilterButton.setImageResource(R.drawable.ic_filter_active)
+                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
             } else {
-                searchFilterButton.setImageResource(R.drawable.ic_filter)
+                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
             }
         }
     }
