@@ -1,7 +1,10 @@
 package de.taz.app.android.ui.search
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
 
 private const val KEY_ARTICLE_FILE_NAME = "KEY_ARTICLE_FILE_NAME"
@@ -11,8 +14,12 @@ class SearchResultPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
-
+    var chosenTimeSlot: MutableLiveData<String> =
+        MutableLiveData(application.getString(R.string.search_advanced_radio_timeslot_any))
+    var pubDateFrom: MutableLiveData<String> = MutableLiveData(null)
+    var pubDateUntil: MutableLiveData<String> = MutableLiveData(null)
+    val articleFileNameLiveData: MutableLiveData<String?> =
+        savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
     val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
 
 }

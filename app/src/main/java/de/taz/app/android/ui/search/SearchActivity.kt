@@ -22,6 +22,7 @@ import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
@@ -104,6 +105,21 @@ class SearchActivity :
                     true
                 } else {
                     false
+                }
+            }
+            viewModel.chosenTimeSlot.observeDistinct(this@SearchActivity) {
+                mapTimeSlot(it)
+            }
+            viewModel.pubDateFrom.observeDistinct(this@SearchActivity) {
+                pubDateFrom = it
+                if (pubDateUntil != null) {
+                    updateCustomTimeSlot(pubDateFrom, pubDateUntil)
+                }
+            }
+            viewModel.pubDateUntil.observeDistinct(this@SearchActivity) {
+                pubDateUntil = it
+                if (pubDateFrom != null) {
+                    updateCustomTimeSlot(pubDateFrom, pubDateUntil)
                 }
             }
         }
@@ -329,8 +345,8 @@ class SearchActivity :
             searchTitle.editText?.text?.clear()
             searchAuthor.editText?.text?.clear()
             advancedSearchTimeslot.text = getString(R.string.search_advanced_radio_timeslot_any)
-            pubDateFrom = null
-            pubDateUntil = null
+            viewModel.pubDateFrom.postValue(null)
+            viewModel.pubDateUntil.postValue(null)
             advancedSearchPublishedIn.text =
                 getString(R.string.search_advanced_radio_published_in_any)
             searchFilter = SearchFilter.all
@@ -339,30 +355,29 @@ class SearchActivity :
         }
     }
 
+    private fun updateCustomTimeSlot(pubDateFrom: String?, pubDateUntil: String?) {
+        val formattedFromDate = pubDateFrom?.let {
+            DateHelper.stringToDate(it)
+                ?.let { date -> DateHelper.dateToMediumLocalizedString(date) }
+        } ?: ""
+        val formattedUntilDate = pubDateUntil?.let {
+            DateHelper.stringToDate(it)
+                ?.let { date -> DateHelper.dateToMediumLocalizedString(date) }
+        } ?: ""
+        viewBinding.advancedSearchTimeslot.text = getString(
+            R.string.search_advanced_timeslot_from_until,
+            formattedFromDate,
+            formattedUntilDate
+        )
+    }
+
     // endregion
     // region dialog functions
     private fun showSearchTimeDialog() {
-        val dialogView = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_advanced_search_timeslot, null)
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(dialogView)
-            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
-                val radioGroup =
-                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_timeslot)
-                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
-                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
-                    val radioId: Int = radioGroup.indexOfChild(radioButton)
-                    val btn = radioGroup.getChildAt(radioId)
-                    val chosenTimeslot = (btn as RadioButton).text.toString()
-                    mapTimeSlot(chosenTimeslot)
-                    viewBinding.advancedSearchTimeslot.text = chosenTimeslot
-                }
-            }
-            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                (dialog as AlertDialog).hide()
-            }
-            .create()
-        dialog.show()
+        AdvancedTimeslotDialogFragment().show(
+            supportFragmentManager,
+            "advancedTimeslotDialog"
+        )
     }
 
     private fun showPublishedInDialog() {
@@ -433,8 +448,10 @@ class SearchActivity :
         }
     }
 
-    private fun mapTimeSlot(timeSlotString: String) {
+    private fun mapTimeSlot(timeSlotString: String?) {
         val todayString = simpleDateFormat.format(Date())
+        viewBinding.advancedSearchTimeslot.text =
+            timeSlotString ?: getString(R.string.search_advanced_radio_timeslot_any)
         when (timeSlotString) {
             getString(R.string.search_advanced_radio_timeslot_last_day) -> {
                 val yesterdayString = simpleDateFormat.format(DateHelper.yesterday())
@@ -461,6 +478,7 @@ class SearchActivity :
                 pubDateFrom = null
             }
         }
+
     }
 
     private fun checkIfLoadMore(lastVisible: Int): Boolean {
