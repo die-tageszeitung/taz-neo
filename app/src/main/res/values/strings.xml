@@ -304,7 +304,7 @@
     <string name="search_activity">Suche</string>
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>
-    <string name="search_advanced_timeslot_until">-</string>
+    <string name="search_advanced_timeslot_until"> bis </string>
     <string name="search_advanced_timeslot_from_until">%s bis %s</string>
     <string name="search_advanced_published_in">erschienen in</string>
     <string name="search_advanced_sort_by">sortierung</string>
@@ -319,8 +319,6 @@
     <string name="search_advanced_radio_timeslot_last_month">letzte 31 Tage</string>
     <string name="search_advanced_radio_timeslot_last_year">letzte 365 Tage</string>
     <string name="search_advanced_radio_timeslot_custom">Zeitraum festlegen…</string>
-    <string name="search_advanced_radio_timeslot_from">von:</string>
-    <string name="search_advanced_radio_timeslot_until">bis:</string>
     <string name="search_advanced_radio_published_in_any">überall</string>
     <string name="search_advanced_radio_published_in_taz">taz</string>
     <string name="search_advanced_radio_published_in_lmd">Le monde Diplomatique</string>

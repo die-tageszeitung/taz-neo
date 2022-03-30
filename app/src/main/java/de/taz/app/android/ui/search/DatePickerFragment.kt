@@ -28,11 +28,8 @@ class DatePickerFragment(private val buttonView: View) : DialogFragment() {
 
     private fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
         val dateString = "$year-${month + 1}-$day"
-        val date = DateHelper.stringToDate(dateString)
-        val localizedDateString =
-            date?.let { DateHelper.dateToMediumLocalizedString(it) }.toString()
 
-        (buttonView as Button).text = localizedDateString
+        (buttonView as Button).text = DateHelper.stringToMediumLocalizedString(dateString)
 
         if (buttonView.id == R.id.timeslot_pub_date_from) {
             viewModel.pubDateFrom.postValue(dateString)

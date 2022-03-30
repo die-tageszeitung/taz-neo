@@ -2,19 +2,14 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.size
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchFilter
@@ -109,6 +104,12 @@ class SearchActivity :
             }
             viewModel.chosenTimeSlot.observeDistinct(this@SearchActivity) {
                 mapTimeSlot(it)
+            }
+            viewModel.chosenPublishedIn.observeDistinct(this@SearchActivity) {
+                searchFilter = mapSearchFilter(it)
+            }
+            viewModel.chosenSortBy.observeDistinct(this@SearchActivity) {
+                sorting = mapSortingFilter(it)
             }
             viewModel.pubDateFrom.observeDistinct(this@SearchActivity) {
                 pubDateFrom = it
@@ -344,9 +345,9 @@ class SearchActivity :
         viewBinding.apply {
             searchTitle.editText?.text?.clear()
             searchAuthor.editText?.text?.clear()
-            advancedSearchTimeslot.text = getString(R.string.search_advanced_radio_timeslot_any)
             viewModel.pubDateFrom.postValue(null)
             viewModel.pubDateUntil.postValue(null)
+            viewModel.chosenTimeSlot.value = getString(R.string.search_advanced_radio_timeslot_any)
             advancedSearchPublishedIn.text =
                 getString(R.string.search_advanced_radio_published_in_any)
             searchFilter = SearchFilter.all
@@ -357,13 +358,11 @@ class SearchActivity :
 
     private fun updateCustomTimeSlot(pubDateFrom: String?, pubDateUntil: String?) {
         val formattedFromDate = pubDateFrom?.let {
-            DateHelper.stringToDate(it)
-                ?.let { date -> DateHelper.dateToMediumLocalizedString(date) }
-        } ?: ""
+            DateHelper.stringToMediumLocalizedString(it)
+        }
         val formattedUntilDate = pubDateUntil?.let {
-            DateHelper.stringToDate(it)
-                ?.let { date -> DateHelper.dateToMediumLocalizedString(date) }
-        } ?: ""
+            DateHelper.stringToMediumLocalizedString(it)
+        }
         viewBinding.advancedSearchTimeslot.text = getString(
             R.string.search_advanced_timeslot_from_until,
             formattedFromDate,
@@ -381,56 +380,23 @@ class SearchActivity :
     }
 
     private fun showPublishedInDialog() {
-        val dialogView = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_advanced_search_published_in, null)
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(dialogView)
-            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
-                val radioGroup =
-                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_published_in)
-                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
-                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
-                    val radioId: Int = radioGroup.indexOfChild(radioButton)
-                    val btn = radioGroup.getChildAt(radioId)
-                    val chosenPublishedIn = (btn as RadioButton).text.toString()
-                    searchFilter = mapSearchFilter(chosenPublishedIn)
-                    viewBinding.advancedSearchPublishedIn.text = chosenPublishedIn
-                }
-            }
-            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                (dialog as AlertDialog).hide()
-            }
-            .create()
-        dialog.show()
+        AdvancedPublishedInDialog().show(
+            supportFragmentManager,
+            "advancedPublishedInDialog"
+        )
     }
 
     private fun showSortByDialog() {
-        val dialogView = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_advanced_search_sort_by, null)
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(dialogView)
-            .setPositiveButton(R.string.search_advanced_apply_filter) { _, _ ->
-                val radioGroup =
-                    dialogView.findViewById<RadioGroup>(R.id.search_radio_group_sort_by)
-                if (radioGroup != null && radioGroup.checkedRadioButtonId != -1) {
-                    val radioButton: View = radioGroup.findViewById(radioGroup.checkedRadioButtonId)
-                    val radioId: Int = radioGroup.indexOfChild(radioButton)
-                    val btn = radioGroup.getChildAt(radioId)
-                    val chosenSortBy = (btn as RadioButton).text.toString()
-                    sorting = mapSortingFilter(chosenSortBy)
-                    viewBinding.advancedSearchSortBy.text = chosenSortBy
-                }
-            }
-            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                (dialog as AlertDialog).hide()
-            }
-            .create()
-        dialog.show()
+        AdvancedSortByDialog().show(
+            supportFragmentManager,
+            "advancedSortByDialog"
+        )
     }
 
     // endregion
     // region helper functions
     private fun mapSearchFilter(publishedIn: String): SearchFilter {
+        viewBinding.advancedSearchPublishedIn.text = publishedIn
         return when (publishedIn) {
             getString(R.string.search_advanced_radio_published_in_taz) -> SearchFilter.taz
             getString(R.string.search_advanced_radio_published_in_lmd) -> SearchFilter.LMd
@@ -441,6 +407,7 @@ class SearchActivity :
     }
 
     private fun mapSortingFilter(sortBy: String): Sorting {
+        viewBinding.advancedSearchSortBy.text = sortBy
         return when (sortBy) {
             getString(R.string.search_advanced_radio_sort_by_appearance) -> Sorting.appearance
             getString(R.string.search_advanced_radio_sort_by_actuality) -> Sorting.actuality

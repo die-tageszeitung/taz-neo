@@ -16,6 +16,10 @@ class SearchResultPagerViewModel(
 
     var chosenTimeSlot: MutableLiveData<String> =
         MutableLiveData(application.getString(R.string.search_advanced_radio_timeslot_any))
+    var chosenPublishedIn: MutableLiveData<String> =
+        MutableLiveData(application.getString(R.string.search_advanced_radio_published_in_any))
+    var chosenSortBy: MutableLiveData<String> =
+        MutableLiveData(application.getString(R.string.search_advanced_radio_sort_by_relevance))
     var pubDateFrom: MutableLiveData<String> = MutableLiveData(null)
     var pubDateUntil: MutableLiveData<String> = MutableLiveData(null)
     val articleFileNameLiveData: MutableLiveData<String?> =
