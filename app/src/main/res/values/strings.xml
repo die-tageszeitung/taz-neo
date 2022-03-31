@@ -136,6 +136,7 @@
     <string name="settings_delete_all_issues_for_sure">Sind Sie sicher?</string>
     <string name="settings_delete_all_issues_for_sure_detail">Es werden alle heruntergeladenen Ausgaben gelöscht. Die Lesezeichen bleiben erhalten. Der Vorgang kann einige Sekunden dauern.</string>
     <string name="settings_delete_progress_text">%d von %d Ausgaben gelöscht</string>
+    <string name="settings_delete_all_issues_deleted">Alle Ausgaben erfolgreich gelöscht</string>
 
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>

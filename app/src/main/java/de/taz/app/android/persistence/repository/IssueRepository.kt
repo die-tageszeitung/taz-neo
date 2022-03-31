@@ -424,6 +424,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getAllIssueStubs()
     }
 
+    fun getAllDownloadedIssueStubs(): List<IssueStub> {
+        return appDatabase.issueDao().getAllDownloadedIssueStubs()
+    }
+
     fun getAllPublicAndDemoIssueStubs(): List<IssueStub> {
         return appDatabase.issueDao().getAllPublicAndDemoIssueStubs()
     }

@@ -27,6 +27,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.WebViewActivity
@@ -52,12 +53,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
     private lateinit var toastHelper: ToastHelper
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var storageService: StorageService
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -311,13 +314,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
         val deletionProgressText =
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-        val issueStubList = withContext(Dispatchers.IO) {
-            issueRepository.getAllIssueStubs()
+        val downloadedIssueStubList = withContext(Dispatchers.IO) {
+            issueRepository.getAllDownloadedIssueStubs()
         }
+
+        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
-        deletionProgress.max = issueStubList.size
+        deletionProgress.max = downloadedIssueStubList.size
         deletionProgressText.visibility = View.VISIBLE
         deletionProgressText.text = getString(
             R.string.settings_delete_progress_text,
@@ -325,7 +330,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
             deletionProgress.max
         )
 
-        for (issueStub in issueStubList) {
+        for (issueStub in downloadedIssueStubList) {
             try {
                 contentService.deleteIssue(issueStub.issueKey)
                 counter++
@@ -344,6 +349,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel>(R.layout.fragm
                 break
             }
         }
+        // clean up file system:
+        storageService.deleteAllUnusedIssueFolders(feedName)
+        toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
     private fun inflateExperimentalOptions() {
