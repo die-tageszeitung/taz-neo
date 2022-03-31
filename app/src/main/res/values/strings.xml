@@ -309,6 +309,7 @@
     <string name="search_advanced_published_in">erschienen in</string>
     <string name="search_advanced_sort_by">sortierung</string>
     <string name="search_input_hint">taz Archiv durchsuchen</string>
+    <string name="search_input_error">Nach was wollen Sie suchen?</string>
     <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
     <string name="search_filter">Suche filtern</string>
     <string name="search_advanced_title">Titel</string>

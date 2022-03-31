@@ -7,6 +7,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.core.view.size
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.concurrent.schedule
 
 
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
@@ -70,6 +72,9 @@ class SearchActivity :
                     return@setOnEditorActionListener true
                 }
                 false
+            }
+            searchText.doOnTextChanged { _, _, _, _ ->
+                searchInput.error = null
             }
             expandAdvancedSearchButton.setOnClickListener {
                 toggleAdvancedSearchLayout(expandableAdvancedSearch.visibility == View.VISIBLE)
@@ -145,6 +150,10 @@ class SearchActivity :
         sorting: Sorting = Sorting.relevance,
         showLoadingScreen: Boolean = true
     ) {
+        if (searchText.isNullOrBlank() && title.isNullOrBlank() && author.isNullOrBlank()) {
+            showNoInputError()
+            return
+        }
         hideKeyboard()
         hideSearchDescription()
         if (showLoadingScreen) showLoadingScreen()
@@ -327,6 +336,7 @@ class SearchActivity :
                 expandableAdvancedSearch.visibility = View.VISIBLE
                 advancedSearchTitle.visibility = View.VISIBLE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
+                searchInput.error = null
             }
         }
     }
@@ -370,6 +380,11 @@ class SearchActivity :
         )
     }
 
+    private fun showNoInputError() {
+        viewBinding.apply {
+            searchInput.error = getString(R.string.search_input_error)
+        }
+    }
     // endregion
     // region dialog functions
     private fun showSearchTimeDialog() {
