@@ -15,14 +15,26 @@ import java.util.*
 class DatePickerFragment(private val buttonView: View) : DialogFragment() {
 
     private val viewModel by activityViewModels<SearchResultPagerViewModel>()
+    private var isUntilDate = false
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        if (buttonView.id == R.id.timeslot_pub_date_until) isUntilDate = true
+
         val c = Calendar.getInstance()
         val year = c[Calendar.YEAR]
         val month = c[Calendar.MONTH]
         val day = c[Calendar.DAY_OF_MONTH]
         val dialog = DatePickerDialog(requireActivity(), ::onDateSet, year, month, day)
-        dialog.datePicker.maxDate = c.timeInMillis
+        if (isUntilDate && viewModel.pubDateFrom.value != null) {
+            val minDate = DateHelper.stringToDate(viewModel.pubDateFrom.value!!)!!.time
+            dialog.datePicker.minDate = minDate
+        }
+        val maxDate = if (!isUntilDate && viewModel.pubDateUntil.value != null) {
+            DateHelper.stringToDate(viewModel.pubDateUntil.value!!)!!.time
+        } else {
+            c.timeInMillis
+        }
+        dialog.datePicker.maxDate = maxDate
         return dialog
     }
 

@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Button
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -34,6 +36,8 @@ class AdvancedTimeslotDialogFragment : DialogFragment() {
 
             dialogView?.let { onViewCreated(it, savedInstanceState) }
             setView(dialogView)
+            setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
+            setPositiveButton(R.string.search_advanced_apply_filter) { dialog, _ -> dialog.dismiss() }
         }.create()
     }
 
@@ -98,7 +102,6 @@ class AdvancedTimeslotDialogFragment : DialogFragment() {
                 customTimeslot.visibility = View.VISIBLE
             } else {
                 customTimeslot.visibility = View.GONE
-                dismiss()
             }
         }
 
@@ -109,18 +112,12 @@ class AdvancedTimeslotDialogFragment : DialogFragment() {
 
         view.findViewById<Button>(R.id.timeslot_pub_date_until).setOnClickListener { untilView ->
             val newFragment: DialogFragment = DatePickerFragment(untilView)
-            activity?.supportFragmentManager?.let { sfm -> newFragment.show(sfm, "datePickerUntil") }
+            activity?.supportFragmentManager?.let { sfm ->
+                newFragment.show(
+                    sfm,
+                    "datePickerUntil"
+                )
+            }
         }
-
-        view.findViewById<Button>(R.id.timeslot_custom_apply).setOnClickListener {
-            dismiss()
-        }
-    }
-
-    override fun onResume() {
-        if (viewModel.pubDateFrom.value != null && viewModel.pubDateUntil.value != null) {
-            dismiss()
-        }
-        super.onResume()
     }
 }

@@ -32,6 +32,8 @@ class AdvancedSortByDialog : DialogFragment() {
 
             dialogView?.let { onViewCreated(it, savedInstanceState) }
             setView(dialogView)
+            setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
+            setPositiveButton(R.string.search_advanced_apply_filter) { dialog, _ -> dialog.dismiss() }
         }.create()
     }
 
@@ -64,8 +66,6 @@ class AdvancedSortByDialog : DialogFragment() {
             val btn = group.getChildAt(radioId)
             val chosenSortBy = (btn as RadioButton).text.toString()
             viewModel.chosenSortBy.postValue(chosenSortBy)
-
-            dismiss()
         }
     }
 }

@@ -16,7 +16,6 @@ class AdvancedPublishedInDialog : DialogFragment() {
 
     private var dialogView: View? = null
     private val viewModel by activityViewModels<SearchResultPagerViewModel>()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,6 +31,8 @@ class AdvancedPublishedInDialog : DialogFragment() {
 
             dialogView?.let { onViewCreated(it, savedInstanceState) }
             setView(dialogView)
+            setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
+            setPositiveButton(R.string.search_advanced_apply_filter) { dialog, _ -> dialog.dismiss() }
         }.create()
     }
 
@@ -52,7 +53,6 @@ class AdvancedPublishedInDialog : DialogFragment() {
             radioGroup.findViewById<RadioButton>(R.id.radio_button_published_in_kontext)
         val radioButtonWeekend =
             radioGroup.findViewById<RadioButton>(R.id.radio_button_published_in_weekend)
-
         when (viewModel.chosenPublishedIn.value) {
             getString(R.string.search_advanced_radio_published_in_any) ->
                 radioButtonAny.isChecked = true
@@ -72,8 +72,6 @@ class AdvancedPublishedInDialog : DialogFragment() {
             val btn = group.getChildAt(radioId)
             val chosenPublishedIn = (btn as RadioButton).text.toString()
             viewModel.chosenPublishedIn.postValue(chosenPublishedIn)
-
-            dismiss()
         }
     }
 }
