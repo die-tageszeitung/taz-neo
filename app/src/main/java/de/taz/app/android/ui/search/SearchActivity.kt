@@ -223,7 +223,7 @@ class SearchActivity :
     }
 
     private fun loadMore() {
-        val offset = searchResultItemsList.size + DEFAULT_SEARCH_RESULTS_TO_FETCH
+        val offset = searchResultItemsList.size
         viewBinding.apply {
             advancedSearch(
                 searchText = searchInput.editText?.text.toString(),
@@ -449,7 +449,9 @@ class SearchActivity :
     }
 
     private fun checkIfLoadMore(lastVisible: Int): Boolean {
-        return lastVisible >= searchResultItemsList.size - BEGIN_INFINITE_SCROLL_BEFORE_LAST && !currentlyLoadingMore
+        return lastVisible >= searchResultItemsList.size - BEGIN_INFINITE_SCROLL_BEFORE_LAST
+                && !currentlyLoadingMore
+                && searchResultItemsList.size < total
     }
     // endregion
 }
