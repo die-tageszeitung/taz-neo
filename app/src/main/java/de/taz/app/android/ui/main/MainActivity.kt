@@ -24,6 +24,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
+import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
@@ -82,6 +83,18 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         showLoggedOutDialog?.dismiss()
         tryPdfDialog?.dismiss()
         super.onStop()
+    }
+
+    override fun onBackPressed() {
+        val archiveFragment =
+            supportFragmentManager.fragments.firstOrNull { it is HomeFragment }
+                ?.childFragmentManager?.fragments?.firstOrNull { it is ArchiveFragment }
+        // if in archive fragment the back button should show home
+        if (archiveFragment?.isVisible == true) {
+            showHome()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     private var showLoggedOutDialog: AlertDialog? = null
