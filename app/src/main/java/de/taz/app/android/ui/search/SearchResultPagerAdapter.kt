@@ -10,8 +10,7 @@ import de.taz.app.android.ui.webview.*
 
 class SearchResultPagerAdapter(
     var searchResultList: List<SearchHitDto>
-) :
-    RecyclerView.Adapter<SearchResultPagerAdapter.SearchResultPagerViewHolder>() {
+) :  RecyclerView.Adapter<SearchResultPagerAdapter.SearchResultPagerViewHolder>() {
 
     class SearchResultPagerViewHolder(
         val view: AppWebView
@@ -21,10 +20,10 @@ class SearchResultPagerAdapter(
         parent: ViewGroup,
         viewType: Int
     ): SearchResultPagerViewHolder {
-        val textView = AppWebView(parent.context).apply {
+        val webView = AppWebView(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }
-        return SearchResultPagerViewHolder(textView)
+        return SearchResultPagerViewHolder(webView)
     }
 
     @SuppressLint("SetJavaScriptEnabled")

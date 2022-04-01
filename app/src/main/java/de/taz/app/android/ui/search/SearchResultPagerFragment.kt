@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
@@ -15,26 +16,27 @@ import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
-    R.layout.fragment_webview_pager
+    R.layout.search_result_webview_pager
 ) {
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+    private lateinit var webViewPager : ViewPager2
+    private lateinit var loadingScreen: ConstraintLayout
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        webview_pager_viewpager.apply {
+        webViewPager = view.findViewById(R.id.webview_pager_viewpager)
+        loadingScreen = view.findViewById(R.id.loading_screen)
+        webViewPager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
-
-            (adapter as SearchResultPagerAdapter?)?.notifyDataSetChanged()
         }
-        loading_screen.visibility = View.GONE
+        loadingScreen.visibility = View.GONE
     }
 
     override fun onStart() {
@@ -44,12 +46,11 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
 
     override fun onResume() {
         super.onResume()
-        webview_pager_viewpager.adapter = SearchResultPagerAdapter(viewModel.searchResultsLiveData.value ?: emptyList())
+        webViewPager.adapter = SearchResultPagerAdapter(viewModel.searchResultsLiveData.value ?: emptyList())
     }
 
-
     private fun setupViewPager() {
-        webview_pager_viewpager?.apply {
+        webViewPager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             post {
@@ -79,10 +80,10 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
 
     fun share() {
         lifecycleScope.launch(Dispatchers.IO) {
-            getCurrentSearchHit()?.let { articleStub ->
-                val url: String? = null // TODO articleStub.onlineLink
+            getCurrentSearchHit()?.let { hit ->
+                val url: String? = hit.article?.onlineLink
                 url?.let {
-                    shareArticle(url, articleStub.title)
+                    shareArticle(url, hit.title)
                 }
             }
         }
@@ -102,30 +103,18 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
         startActivity(shareIntent)
     }
 
-    private fun getCurrentPagerPosition(): Int? {
-        return webview_pager_viewpager?.currentItem
-    }
-
-    private fun getSupposedPagerPosition(): Int? {
-        val position =
-            (webview_pager_viewpager.adapter as? SearchResultPagerAdapter)?.searchResultList?.indexOfFirst {
-                it.article?.articleHtml?.name == viewModel.articleFileNameLiveData.value
-            }
-        return if (position != null && position >= 0) {
-            position
-        } else {
-            null
-        }
+    private fun getCurrentPagerPosition(): Int {
+        return webViewPager.currentItem
     }
 
     private fun getCurrentSearchHit(): SearchHitDto? {
-        return getCurrentPagerPosition()?.let {
+        return getCurrentPagerPosition().let {
             viewModel.searchResultsLiveData.value?.get(it)
         }
     }
 
     override fun onDestroyView() {
-        webview_pager_viewpager.adapter = null
+        webViewPager.adapter = null
         super.onDestroyView()
     }
 }
