@@ -66,7 +66,6 @@ class BookmarkSheetFragment :
     private fun setArticleFileName() {
         viewModel.articleFileName = this.articleFileName
     }
-
     private fun toggleBookmark() {
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.articleStub?.let { articleStub: ArticleStub ->
@@ -75,7 +74,7 @@ class BookmarkSheetFragment :
                 } else {
                     articleRepository?.bookmarkArticle(articleStub)
                 }
-            }
+            } ?: viewModel.articleFileName?.let { articleRepository?.bookmarkArticle(it) }
         }
     }
 }

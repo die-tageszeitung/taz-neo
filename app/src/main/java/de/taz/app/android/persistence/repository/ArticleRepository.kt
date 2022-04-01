@@ -196,10 +196,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun bookmarkArticle(articleName: String) {
-        log.debug("bookmarked from article $articleName")
+        log.debug("bookmarked from article ${getStub(articleName)}")
         getStub(articleName)?.copy(bookmarked = true)?.let {
             appDatabase.articleDao().update(it)
-        }
+        } // TODO: if null download article if bookmarked from search list
     }
 
     fun debookmarkArticle(article: Article) {
