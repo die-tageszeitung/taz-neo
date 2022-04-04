@@ -25,7 +25,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,14 +49,14 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         ViewModelProvider(
             this.requireActivity(),
             SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        ).get(BookmarkPagerViewModel::class.java)
+        )[BookmarkPagerViewModel::class.java]
     }
 
     private val issueViewerViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             this.requireActivity(),
             SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
 
@@ -69,7 +68,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             log.debug("Set new stubs $it")
 
             articlePagerAdapter.articleStubs = it
-            loading_screen.visibility = View.GONE
+            viewBinding.loadingScreen.root.visibility = View.GONE
             tryScrollToArticle()
         }
 
@@ -93,7 +92,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        webview_pager_viewpager.apply {
+        viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
@@ -106,12 +105,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
 
     private fun setupViewPager() {
-        webview_pager_viewpager?.apply {
+        viewBinding.webviewPagerViewpager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
             articlePagerAdapter = BookmarkPagerAdapter()
-            webview_pager_viewpager.adapter = articlePagerAdapter
+            adapter = articlePagerAdapter
         }
 
         articlePagerAdapter.registerAdapterDataObserver(object :
@@ -119,7 +118,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             override fun onChanged() {
                 lifecycleScope.launchWhenResumed {
                     articlePagerAdapter.getArticleStub(
-                        webview_pager_viewpager.currentItem
+                        viewBinding.webviewPagerViewpager.currentItem
                     )?.let {
                         rebindBottomNavigation(
                             it
@@ -136,7 +135,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 drawerViewModel.navButton.postValue(it)
             }
         }
-        navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
             articleToBindTo.onlineLink != null
 
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
@@ -203,22 +202,18 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             lifecycleScope.launchWhenResumed {
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
-                        webview_pager_viewpager.setCurrentItem(it, false)
+                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
                     }
                 }
             }
         }
     }
 
-    private fun getCurrentlyDisplayedArticleStub(): ArticleStub? {
-        return getCurrentPagerPosition()?.let {
-            articlePagerAdapter.getArticleStub(it)
+    private fun getCurrentlyDisplayedArticleStub(): ArticleStub? =
+        articlePagerAdapter.getArticleStub(getCurrentPagerPosition())
 
-        }
-    }
-
-    private fun getCurrentPagerPosition(): Int? {
-        return webview_pager_viewpager?.currentItem
+    private fun getCurrentPagerPosition(): Int {
+        return viewBinding.webviewPagerViewpager.currentItem
     }
 
     private fun getSupposedPagerPosition(): Int? {
@@ -279,7 +274,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     override fun onDestroyView() {
-        webview_pager_viewpager.adapter = null
+        viewBinding.webviewPagerViewpager.adapter = null
         super.onDestroyView()
     }
 
