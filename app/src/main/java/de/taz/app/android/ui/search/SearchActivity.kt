@@ -21,6 +21,7 @@ import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
@@ -43,6 +44,7 @@ class SearchActivity :
 
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
+    private lateinit var toastHelper: ToastHelper
     private val log by Log
 
     private val viewModel by viewModels<SearchResultPagerViewModel>()
@@ -51,6 +53,7 @@ class SearchActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
@@ -180,34 +183,40 @@ class SearchActivity :
         )
 
         lifecycleScope.launch {
-            val result = apiService.search(
-                searchText = searchText,
-                title = title,
-                author = author,
-                rowCnt = rowCnt,
-                offset = offset,
-                pubDateFrom = pubDateFrom,
-                pubDateUntil = pubDateUntil,
-                filter = searchFilter,
-                sorting = sorting
-            )
-            result?.let {
-                total = it.total
-                it.searchHitList?.let { hits ->
-                    searchResultItemsList.addAll(hits)
-                    viewModel.searchResultsLiveData.postValue(searchResultItemsList)
-                    if (offset > 0) {
-                        searchResultListAdapter.notifyItemRangeChanged(
-                            offset,
-                            rowCnt
-                        )
-                    } else {
-                        initRecyclerView()
+            if (apiService.checkForConnectivity()) {
+                val result = apiService.search(
+                    searchText = searchText,
+                    title = title,
+                    author = author,
+                    rowCnt = rowCnt,
+                    offset = offset,
+                    pubDateFrom = pubDateFrom,
+                    pubDateUntil = pubDateUntil,
+                    filter = searchFilter,
+                    sorting = sorting
+                )
+                result?.let {
+                    total = it.total
+                    it.searchHitList?.let { hits ->
+                        searchResultItemsList.addAll(hits)
+                        viewModel.searchResultsLiveData.postValue(searchResultItemsList)
+                        if (offset > 0) {
+                            searchResultListAdapter.notifyItemRangeChanged(
+                                offset,
+                                rowCnt
+                            )
+                        } else {
+                            initRecyclerView()
+                        }
                     }
+                    showAmountFound(searchResultItemsList.size, total)
                 }
-                showAmountFound(searchResultItemsList.size, total)
+                currentlyLoadingMore = false
+            }else {
+                toastHelper.showNoConnectionToast()
+                clearSearchList()
+                clearAdvancedSettings()
             }
-            currentlyLoadingMore = false
         }
     }
 
@@ -295,6 +304,7 @@ class SearchActivity :
             searchInput.editText?.text?.clear()
             clearRecyclerView()
             showSearchDescription()
+            hideLoadingScreen()
             searchInput.clearFocus()
             expandableAdvancedSearch.visibility = View.GONE
             advancedSearchTitle.visibility = View.GONE

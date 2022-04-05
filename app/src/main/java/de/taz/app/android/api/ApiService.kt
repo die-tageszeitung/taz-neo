@@ -65,6 +65,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
+     * function to check whether the graph ql endpoint is reachable
+     */
+    suspend fun checkForConnectivity(): Boolean {
+        return connectionHelper.checkConnectivity()
+    }
+
+    /**
      * function to connect subscriptionId to tazId
      * @param tazId
      * @param idPassword - password for the tazId
