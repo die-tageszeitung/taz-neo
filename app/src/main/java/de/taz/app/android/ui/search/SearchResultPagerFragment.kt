@@ -46,11 +46,13 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             offscreenPageLimit = 2
         }
     }
-
-    val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
             viewModel.positionLiveData.postValue(position)
+            if (viewModel.checkIfLoadMore(position)) {
+                (activity as SearchActivity).loadMore()
+            }
         }
     }
 

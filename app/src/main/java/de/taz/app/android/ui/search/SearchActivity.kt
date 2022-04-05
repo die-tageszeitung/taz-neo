@@ -25,21 +25,12 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.concurrent.schedule
-
-
-const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
-const val BEGIN_INFINITE_SCROLL_BEFORE_LAST = 5
 
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
 
     private val searchResultItemsList = mutableListOf<SearchHitDto>()
-    private var searchFilter = SearchFilter.all
-    private var sorting = Sorting.relevance
-    private var pubDateFrom: String? = null
-    private var pubDateUntil: String? = null
-    private var currentlyLoadingMore = false
+    private var lastVisiblePosition = 0
 
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
@@ -66,10 +57,10 @@ class SearchActivity :
                         searchText = searchInput.editText?.text.toString(),
                         title = searchTitle.editText?.text.toString(),
                         author = searchAuthor.editText?.text.toString(),
-                        pubDateFrom = pubDateFrom,
-                        pubDateUntil = pubDateUntil,
-                        searchFilter = searchFilter,
-                        sorting = sorting
+                        pubDateFrom = viewModel.pubDateFrom.value,
+                        pubDateUntil = viewModel.pubDateUntil.value,
+                        searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+                        sorting = viewModel.sorting.value ?: Sorting.relevance
                     )
                     return@setOnEditorActionListener true
                 }
@@ -95,11 +86,12 @@ class SearchActivity :
                     searchText = searchInput.editText?.text.toString(),
                     title = searchTitle.editText?.text.toString(),
                     author = searchAuthor.editText?.text.toString(),
-                    pubDateFrom = pubDateFrom,
-                    pubDateUntil = pubDateUntil,
-                    searchFilter = searchFilter,
-                    sorting = sorting
+                    pubDateFrom = viewModel.pubDateFrom.value,
+                    pubDateUntil = viewModel.pubDateUntil.value,
+                    searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+                    sorting = viewModel.sorting.value ?: Sorting.relevance
                 )
+                return@setOnClickListener
             }
             navigationBottom.setOnItemSelectedListener {
                 if (it.itemId == R.id.bottom_navigation_action_home) {
@@ -113,21 +105,19 @@ class SearchActivity :
                 mapTimeSlot(it)
             }
             viewModel.chosenPublishedIn.observeDistinct(this@SearchActivity) {
-                searchFilter = mapSearchFilter(it)
+                viewModel.searchFilter.postValue(mapSearchFilter(it))
             }
             viewModel.chosenSortBy.observeDistinct(this@SearchActivity) {
-                sorting = mapSortingFilter(it)
+                viewModel.sorting.postValue(mapSortingFilter(it))
             }
             viewModel.pubDateFrom.observeDistinct(this@SearchActivity) {
-                pubDateFrom = it
-                if (pubDateUntil != null) {
-                    updateCustomTimeSlot(pubDateFrom, pubDateUntil)
+                if (viewModel.pubDateUntil.value != null) {
+                    updateCustomTimeSlot(it, viewModel.pubDateUntil.value)
                 }
             }
             viewModel.pubDateUntil.observeDistinct(this@SearchActivity) {
-                pubDateUntil = it
-                if (pubDateFrom != null) {
-                    updateCustomTimeSlot(pubDateFrom, pubDateUntil)
+                if (viewModel.pubDateFrom.value != null) {
+                    updateCustomTimeSlot(viewModel.pubDateFrom.value, it)
                 }
             }
         }
@@ -152,7 +142,7 @@ class SearchActivity :
         sorting: Sorting = Sorting.relevance,
         showLoadingScreen: Boolean = true
     ) {
-        if (searchText.isNullOrBlank() && title.isNullOrBlank() && author.isNullOrBlank()) {
+        if (searchText.isBlank() && title.isNullOrBlank() && author.isNullOrBlank()) {
             showNoInputError()
             return
         }
@@ -172,6 +162,11 @@ class SearchActivity :
         log.debug("searchFilter: $searchFilter")
         log.debug("sorting: $sorting")
         // endregion
+
+        // save search parameter to viewModel:
+        viewModel.searchText.postValue(searchText)
+        viewModel.searchTitle.postValue(title)
+        viewModel.searchAuthor.postValue(author)
 
         if (offset == 0) {
             clearRecyclerView()
@@ -210,11 +205,12 @@ class SearchActivity :
                     }
                     showAmountFound(searchResultItemsList.size, it.total)
                 }
-                currentlyLoadingMore = false
+                viewModel.currentlyLoadingMore.postValue(false)
             }else {
                 toastHelper.showNoConnectionToast()
                 clearSearchList()
                 clearAdvancedSettings()
+                return@launch
             }
         }
     }
@@ -228,9 +224,12 @@ class SearchActivity :
                 adapter = searchResultListAdapter
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (checkIfLoadMore(lastVisible = llm.findLastVisibleItemPosition())) {
-                            currentlyLoadingMore = true
-                            loadMore()
+                        if (lastVisiblePosition !=llm.findLastVisibleItemPosition()) {
+                            lastVisiblePosition = llm.findLastVisibleItemPosition()
+                            if (viewModel.checkIfLoadMore(lastVisible = lastVisiblePosition)) {
+                                viewModel.currentlyLoadingMore.postValue(true)
+                                loadMore()
+                            }
                         }
                         super.onScrolled(recyclerView, dx, dy)
                     }
@@ -239,21 +238,19 @@ class SearchActivity :
         }
     }
 
-    private fun loadMore() {
+    fun loadMore() {
         val offset = searchResultItemsList.size
-        viewBinding.apply {
             advancedSearch(
-                searchText = searchInput.editText?.text.toString(),
-                title = searchTitle.editText?.text.toString(),
-                author = searchAuthor.editText?.text.toString(),
+                searchText = viewModel.searchText.value.toString(),
+                title = viewModel.searchTitle.value.toString(),
+                author = viewModel.searchAuthor.value.toString(),
                 offset = offset,
-                pubDateFrom = pubDateFrom,
-                pubDateUntil = pubDateUntil,
-                searchFilter = searchFilter,
-                sorting = sorting,
+                pubDateFrom = viewModel.pubDateFrom.value,
+                pubDateUntil = viewModel.pubDateUntil.value,
+                searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+                sorting = viewModel.sorting.value ?: Sorting.relevance,
                 showLoadingScreen = false
             )
-        }
     }
 
     // endregion
@@ -299,6 +296,7 @@ class SearchActivity :
     }
 
     private fun clearSearchList() {
+        viewModel.total = 0
         viewBinding.apply {
             searchInput.editText?.text?.clear()
             clearRecyclerView()
@@ -369,9 +367,9 @@ class SearchActivity :
             viewModel.chosenTimeSlot.value = getString(R.string.search_advanced_radio_timeslot_any)
             advancedSearchPublishedIn.text =
                 getString(R.string.search_advanced_radio_published_in_any)
-            searchFilter = SearchFilter.all
+            viewModel.searchFilter.postValue(SearchFilter.all)
             advancedSearchSortBy.text = getString(R.string.search_advanced_radio_sort_by_relevance)
-            sorting = Sorting.relevance
+            viewModel.sorting.postValue(Sorting.relevance)
         }
     }
 
@@ -446,36 +444,30 @@ class SearchActivity :
         when (timeSlotString) {
             getString(R.string.search_advanced_radio_timeslot_last_day) -> {
                 val yesterdayString = simpleDateFormat.format(DateHelper.yesterday())
-                pubDateUntil = todayString
-                pubDateFrom = yesterdayString
+                viewModel.pubDateUntil.postValue(todayString)
+                viewModel.pubDateFrom.postValue(yesterdayString)
             }
             getString(R.string.search_advanced_radio_timeslot_last_week) -> {
                 val lastWeekString = simpleDateFormat.format(DateHelper.lastWeek())
-                pubDateUntil = todayString
-                pubDateFrom = lastWeekString
+                viewModel.pubDateUntil.postValue(todayString)
+                viewModel.pubDateFrom.postValue(lastWeekString)
             }
             getString(R.string.search_advanced_radio_timeslot_last_month) -> {
                 val lastMonthString = simpleDateFormat.format(DateHelper.lastMonth())
-                pubDateUntil = todayString
-                pubDateFrom = lastMonthString
+                viewModel.pubDateUntil.postValue(todayString)
+                viewModel.pubDateFrom.postValue(lastMonthString)
             }
             getString(R.string.search_advanced_radio_timeslot_last_year) -> {
                 val lastYearString = simpleDateFormat.format(DateHelper.lastYear())
-                pubDateUntil = todayString
-                pubDateFrom = lastYearString
+                viewModel.pubDateUntil.postValue(todayString)
+                viewModel.pubDateFrom.postValue(lastYearString)
             }
             else -> {
-                pubDateUntil = null
-                pubDateFrom = null
+                viewModel.pubDateUntil.postValue(null)
+                viewModel.pubDateFrom.postValue(null)
             }
         }
 
-    }
-
-    private fun checkIfLoadMore(lastVisible: Int): Boolean {
-        return lastVisible >= searchResultItemsList.size - BEGIN_INFINITE_SCROLL_BEFORE_LAST
-                && !currentlyLoadingMore
-                && searchResultItemsList.size < viewModel.total
     }
     // endregion
 }
