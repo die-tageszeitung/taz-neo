@@ -1,29 +1,35 @@
 package de.taz.app.android.ui.search
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.WebSettings
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.ui.webview.*
+import kotlinx.android.synthetic.main.fragment_webview_article.view.*
+import kotlinx.android.synthetic.main.fragment_webview_header_article.view.*
 
 class SearchResultPagerAdapter(
+    private val fragment: Fragment,
     var searchResultList: List<SearchHitDto>
-) :  RecyclerView.Adapter<SearchResultPagerAdapter.SearchResultPagerViewHolder>() {
-
-    class SearchResultPagerViewHolder(
-        val view: AppWebView
-    ) : RecyclerView.ViewHolder(view)
+) : RecyclerView.Adapter<SearchResultPagerViewHolder>() {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): SearchResultPagerViewHolder {
-        val webView = AppWebView(parent.context).apply {
-            layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-        }
-        return SearchResultPagerViewHolder(webView)
+        val binding = FragmentWebviewArticleBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return SearchResultPagerViewHolder(binding)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -32,10 +38,17 @@ class SearchResultPagerAdapter(
         position: Int
     ) {
         val searchResultItem = searchResultList[position]
-        holder.view.apply {
-            val webView =
-                ArticleWebViewFragment.createInstance(searchResultItem.article!!.articleHtml.name)
-            webViewClient = AppWebViewClient(this.context.applicationContext, webView)
+        holder.viewBinding.webView.apply {
+            val callBack = object : AppWebViewClientCallBack {
+                override fun onLinkClicked(displayableKey: String) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onPageFinishedLoading() {
+                    holder.viewBinding.loadingScreen.root.visibility = View.GONE
+                }
+            }
+            webViewClient = AppWebViewClient(this.context.applicationContext, callBack)
             webChromeClient = AppWebChromeClient()
 
             settings.apply {
@@ -46,12 +59,22 @@ class SearchResultPagerAdapter(
                 javaScriptEnabled = true
                 cacheMode = WebSettings.LOAD_NO_CACHE
             }
-            addJavascriptInterface(TazApiJS(webView), TAZ_API_JS)
+            addJavascriptInterface(SearchTazApiJS(fragment), TAZ_API_JS)
 
             val html = searchResultItem.articleHtml.toString()
             val baseUrl = searchResultItem.baseUrl
-            loadDataWithBaseURL(baseUrl, addBaseUrlToImgSrc(html, baseUrl), "text/html", "utf-8", null)
+            loadDataWithBaseURL(
+                baseUrl,
+                addBaseUrlToImgSrc(html, baseUrl),
+                "text/html",
+                "utf-8",
+                null
+            )
         }
+        holder.viewBinding.collapsingToolbarLayout.header.article_num.text =
+            fragment.requireActivity().getString(
+                R.string.fragment_header_article, position + 1, itemCount
+            )
     }
 
     override fun getItemCount() = searchResultList.size
@@ -61,6 +84,11 @@ class SearchResultPagerAdapter(
      * Search for eg "src="Media.10977995.norm.jpg"" and add the given baseUrl
      */
     private fun addBaseUrlToImgSrc(html: String, baseUrl: String): String {
-        return html.replace(Regex("""src=["'](.+?\.(?:png|jpg|jpeg))["']""", RegexOption.IGNORE_CASE),"src=\"$baseUrl/$1\"")
+        return html.replace(
+            Regex(
+                """src=["'](.+?\.(?:png|jpg|jpeg))["']""",
+                RegexOption.IGNORE_CASE
+            ), "src=\"$baseUrl/$1\""
+        )
     }
 }

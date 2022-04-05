@@ -46,7 +46,7 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
 
     override fun onResume() {
         super.onResume()
-        webViewPager.adapter = SearchResultPagerAdapter(viewModel.searchResultsLiveData.value ?: emptyList())
+        webViewPager.adapter = SearchResultPagerAdapter(this, viewModel.searchResultsLiveData.value ?: emptyList())
     }
 
     private fun setupViewPager() {
