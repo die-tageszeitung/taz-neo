@@ -39,7 +39,6 @@ class SearchActivity :
     private var sorting = Sorting.relevance
     private var pubDateFrom: String? = null
     private var pubDateUntil: String? = null
-    private var total: Int = 0
     private var currentlyLoadingMore = false
 
     private lateinit var apiService: ApiService
@@ -196,7 +195,7 @@ class SearchActivity :
                     sorting = sorting
                 )
                 result?.let {
-                    total = it.total
+                    viewModel.total = it.total
                     it.searchHitList?.let { hits ->
                         searchResultItemsList.addAll(hits)
                         viewModel.searchResultsLiveData.postValue(searchResultItemsList)
@@ -209,7 +208,7 @@ class SearchActivity :
                             initRecyclerView()
                         }
                     }
-                    showAmountFound(searchResultItemsList.size, total)
+                    showAmountFound(searchResultItemsList.size, it.total)
                 }
                 currentlyLoadingMore = false
             }else {
@@ -476,7 +475,7 @@ class SearchActivity :
     private fun checkIfLoadMore(lastVisible: Int): Boolean {
         return lastVisible >= searchResultItemsList.size - BEGIN_INFINITE_SCROLL_BEFORE_LAST
                 && !currentlyLoadingMore
-                && searchResultItemsList.size < total
+                && searchResultItemsList.size < viewModel.total
     }
     // endregion
 }

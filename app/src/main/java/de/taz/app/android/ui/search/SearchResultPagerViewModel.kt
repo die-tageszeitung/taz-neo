@@ -25,5 +25,5 @@ class SearchResultPagerViewModel(
     val positionLiveData: MutableLiveData<Int?> =
         savedStateHandle.getLiveData(KEY_POSITION)
     val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
-
+    var total = 0
 }

@@ -1,7 +1,8 @@
 package de.taz.app.android.ui.search
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.os.Build
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +12,14 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.webview.*
 import kotlinx.android.synthetic.main.fragment_webview_article.view.*
 import kotlinx.android.synthetic.main.fragment_webview_header_article.view.*
 
 class SearchResultPagerAdapter(
     private val fragment: Fragment,
+    private val total: Int,
     var searchResultList: List<SearchHitDto>
 ) : RecyclerView.Adapter<SearchResultPagerViewHolder>() {
 
@@ -71,10 +74,21 @@ class SearchResultPagerAdapter(
                 null
             )
         }
-        holder.viewBinding.collapsingToolbarLayout.header.article_num.text =
-            fragment.requireActivity().getString(
-                R.string.fragment_header_article, position + 1, itemCount
-            )
+
+        val headerTextWithHtml = fragment.requireActivity().getString(
+            R.string.fragment_header_search_result,
+            position + 1,
+            total,
+            searchResultItem.sectionTitle,
+            DateHelper.stringToMediumLocalizedString(searchResultItem.date)
+        )
+        val headerText  = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(headerTextWithHtml, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            Html.fromHtml(headerTextWithHtml)
+        }
+
+        holder.viewBinding.collapsingToolbarLayout.header.article_num.text = headerText
     }
 
     override fun getItemCount() = searchResultList.size

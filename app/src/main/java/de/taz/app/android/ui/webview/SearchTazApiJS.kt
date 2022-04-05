@@ -2,24 +2,14 @@ package de.taz.app.android.ui.webview
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class SearchTazApiJS constructor(private val fragment: Fragment) {
@@ -87,7 +77,7 @@ class SearchTazApiJS constructor(private val fragment: Fragment) {
                 }
             }
     }
-
+/* NOT WORKING AT THE MOMENT AS WE DO NOT HAVE THE ARTICLE:
     @JavascriptInterface
     fun openImage(name: String) {
         log.verbose("openImage $name")
@@ -98,5 +88,5 @@ class SearchTazApiJS constructor(private val fragment: Fragment) {
         fragment.requireActivity().startActivity(
             intent
         )
-    }
+    } */
 }

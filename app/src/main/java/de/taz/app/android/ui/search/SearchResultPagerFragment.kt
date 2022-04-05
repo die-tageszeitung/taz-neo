@@ -60,6 +60,7 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             if (webViewPager.adapter == null) {
                 adapter = SearchResultPagerAdapter(
                     this@SearchResultPagerFragment,
+                    viewModel.total,
                     viewModel.searchResultsLiveData.value ?: emptyList()
                 )
 
