@@ -23,7 +23,7 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
     R.layout.search_result_webview_pager
 ) {
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
-    private lateinit var webViewPager : ViewPager2
+    private lateinit var webViewPager: ViewPager2
     private lateinit var loadingScreen: ConstraintLayout
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
@@ -44,9 +44,34 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
         webViewPager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
-            adapter = SearchResultPagerAdapter(this@SearchResultPagerFragment, viewModel.searchResultsLiveData.value ?: emptyList())
-            setCurrentItem(position, false)
         }
+    }
+
+    val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            viewModel.positionLiveData.postValue(position)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        webViewPager.apply {
+            if (webViewPager.adapter == null) {
+                adapter = SearchResultPagerAdapter(
+                    this@SearchResultPagerFragment,
+                    viewModel.searchResultsLiveData.value ?: emptyList()
+                )
+
+                setCurrentItem(viewModel.positionLiveData.value ?: position, false)
+            }
+            registerOnPageChangeCallback(pageChangeCallback)
+        }
+    }
+
+    override fun onStop() {
+        webViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
+        super.onStop()
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
