@@ -37,25 +37,15 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             moveContentBeneathStatusBar()
         }
         loadingScreen.visibility = View.GONE
-    }
-
-    override fun onStart() {
-        super.onStart()
         setupViewPager()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        webViewPager.adapter = SearchResultPagerAdapter(this, viewModel.searchResultsLiveData.value ?: emptyList())
     }
 
     private fun setupViewPager() {
         webViewPager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
-            post {
-                this.setCurrentItem(position, false)
-            }
+            adapter = SearchResultPagerAdapter(this@SearchResultPagerFragment, viewModel.searchResultsLiveData.value ?: emptyList())
+            setCurrentItem(position, false)
         }
     }
 
