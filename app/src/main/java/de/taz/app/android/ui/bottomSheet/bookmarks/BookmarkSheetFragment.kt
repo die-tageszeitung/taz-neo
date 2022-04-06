@@ -16,17 +16,20 @@ import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 class BookmarkSheetFragment :
     BaseViewModelFragment<BookmarkSheetViewModel, FragmentBottomSheetBookmarksBinding>() {
 
     private var articleRepository: ArticleRepository? = null
     private var articleFileName: String? = null
+    private var datePublished: Date? = null
 
     companion object {
-        fun create(articleFileName: String): BookmarkSheetFragment {
+        fun create(articleFileName: String, datePublished: Date? = null): BookmarkSheetFragment {
             val fragment = BookmarkSheetFragment()
             fragment.articleFileName = articleFileName
+            fragment.datePublished = datePublished
             return fragment
         }
     }
@@ -74,7 +77,10 @@ class BookmarkSheetFragment :
                 } else {
                     articleRepository?.bookmarkArticle(articleStub)
                 }
-            } ?: viewModel.articleFileName?.let { articleRepository?.bookmarkArticle(it) }
+            } ?: viewModel.articleFileName?.let {
+                // no articleStub so probably article not downloaded, so download it:
+                datePublished?.let { date -> viewModel.downloadArticleAndASetBookmark(it, date) }
+            }
         }
     }
 }

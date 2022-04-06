@@ -13,6 +13,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.monkey.*
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -82,8 +83,15 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
-                getCurrentSearchHit()?.article?.articleHtml?.name?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it))
+                getCurrentSearchHit()?.let { hit ->
+                    hit.article?.let { article ->
+                        showBottomSheet(
+                            BookmarkSheetFragment.create(
+                                article.articleHtml.name,
+                                DateHelper.stringToDate(hit.date)
+                            )
+                        )
+                    }
                 }
             }
 
