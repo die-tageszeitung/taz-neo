@@ -31,8 +31,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
 
 const val LOGO_PEAK = 8
-const val HIDE_LOGO_DELAY_MS = 1000L
-const val LOGO_ANIMATION_DURATION_MS = 500L
+const val HIDE_LOGO_DELAY_MS = 200L
+const val LOGO_ANIMATION_DURATION_MS = 300L
 
 class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
