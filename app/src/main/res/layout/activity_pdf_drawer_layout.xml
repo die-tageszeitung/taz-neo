@@ -116,6 +116,7 @@
                         android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                         android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
                         android:layout_weight="0.5"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/fragment_drawer_date_text_size"/>
 
                 </LinearLayout>
@@ -128,6 +129,7 @@
                     android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/navigation_recycler_view"
