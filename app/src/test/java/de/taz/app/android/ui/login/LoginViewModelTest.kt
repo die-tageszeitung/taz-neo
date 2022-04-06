@@ -208,7 +208,7 @@ class LoginViewModelTest {
     fun loginCredentialsAlreadyLinked() = runBlocking {
         // Do not test as this should not happen and therefore there exists no defined way to proceed
     }
-/* TODO readd those tests when checkSubscriptionId is used again
+
     @Test
     fun loginSubscriptionValid() = runBlocking {
         doReturn(validAuthInfo).`when`(apiService).checkSubscriptionId(
@@ -254,7 +254,7 @@ class LoginViewModelTest {
         assertTrue(loginViewModel.username == message)
         assertTrue(loginViewModel.status.value == LoginViewModelState.INITIAL)
     }
-*/
+
     @Test
     fun loginNull() = runBlocking {
         doReturn(null).`when`(apiService).checkSubscriptionId(
