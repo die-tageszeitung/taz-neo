@@ -79,10 +79,7 @@ class LoginViewModel(
 
     fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
         val initialSubscriptionId = initialUsername?.toIntOrNull()
-        // for a period of time the login should be possible with the subscription id
-        // (the creation of the corresponding taz id is going to be refactored)
-        val onlyLoginWithTazId = false
-        return if (initialSubscriptionId != null && onlyLoginWithTazId) {
+        return if (initialSubscriptionId != null) {
             subscriptionId = initialSubscriptionId
             subscriptionPassword = initialPassword
 
