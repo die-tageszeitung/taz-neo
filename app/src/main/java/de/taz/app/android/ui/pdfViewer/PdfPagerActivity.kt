@@ -21,20 +21,18 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
-import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import io.ktor.util.reflect.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
 
 const val LOGO_PEAK = 8
-const val HIDE_LOGO_DELAY_MS = 1000L
-const val LOGO_ANIMATION_DURATION_MS = 500L
+const val HIDE_LOGO_DELAY_MS = 200L
+const val LOGO_ANIMATION_DURATION_MS = 300L
 
 class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
