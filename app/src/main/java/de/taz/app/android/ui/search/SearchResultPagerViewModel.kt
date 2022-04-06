@@ -1,13 +1,14 @@
 package de.taz.app.android.ui.search
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.*
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.api.dto.Sorting
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.persistence.repository.ArticleRepository
+import kotlinx.coroutines.Dispatchers
 
 private const val KEY_POSITION = "KEY_POSITION"
 const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
@@ -35,7 +36,25 @@ class SearchResultPagerViewModel(
         savedStateHandle.getLiveData(KEY_POSITION)
     val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
+    private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
+    private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
     var total = 0
+
+
+    var articleFileName
+        get() = articleFileNameLiveData.value
+        set(value) { articleFileNameLiveData.value = value }
+
+    private val articleLiveData: LiveData<ArticleStub> = articleFileNameLiveData.switchMap {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            it?.let {
+                emitSource(articleRepository.getStubLiveData(it))
+            }
+        }
+    }
+
+    val isBookmarkedLiveData: LiveData<Boolean> =
+        articleLiveData.map { article -> article?.bookmarked ?: false }
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
         val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: total

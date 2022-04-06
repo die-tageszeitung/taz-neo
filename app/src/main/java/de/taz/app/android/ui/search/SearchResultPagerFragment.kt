@@ -6,13 +6,16 @@ import android.view.MenuItem
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.monkey.*
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -28,7 +31,6 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
     private lateinit var loadingScreen: ConstraintLayout
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         webViewPager = view.findViewById(R.id.webview_pager_viewpager)
@@ -48,11 +50,26 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
         }
     }
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
+        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+            if (isBookmarked) {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+            } else {
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
+            }
+        }
+        private var isBookmarkedLiveData: LiveData<Boolean>? = null
+
         override fun onPageSelected(position: Int) {
+            viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
             super.onPageSelected(position)
             viewModel.positionLiveData.postValue(position)
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
+            }
+            lifecycleScope.launchWhenResumed {
+                isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
+                isBookmarkedLiveData = viewModel.isBookmarkedLiveData
+                isBookmarkedLiveData?.observe(this@SearchResultPagerFragment, isBookmarkedObserver)
             }
         }
     }
