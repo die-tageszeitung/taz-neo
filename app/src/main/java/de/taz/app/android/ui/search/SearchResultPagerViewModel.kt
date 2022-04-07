@@ -58,8 +58,9 @@ class SearchResultPagerViewModel(
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
         val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: total
+        val searchResultListSize = searchResultsLiveData.value?.size ?: 0
         return rangeInWhereToLoadMore in 1..lastVisible
                 && currentlyLoadingMore.value == false
-                && rangeInWhereToLoadMore < total
+                && searchResultListSize < total
     }
 }

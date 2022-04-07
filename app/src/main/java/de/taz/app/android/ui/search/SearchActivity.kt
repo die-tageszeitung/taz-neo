@@ -120,14 +120,18 @@ class SearchActivity :
             viewModel.chosenSortBy.observeDistinct(this@SearchActivity) {
                 viewModel.sorting.postValue(mapSortingFilter(it))
             }
-            viewModel.pubDateFrom.observeDistinct(this@SearchActivity) {
-                if (viewModel.pubDateUntil.value != null) {
-                    updateCustomTimeSlot(it, viewModel.pubDateUntil.value)
+            viewModel.pubDateFrom.observeDistinct(this@SearchActivity) { from ->
+                if (from != null) {
+                    if (viewModel.pubDateUntil.value != null) {
+                        updateCustomTimeSlot(from, viewModel.pubDateUntil.value)
+                    }
                 }
             }
-            viewModel.pubDateUntil.observeDistinct(this@SearchActivity) {
-                if (viewModel.pubDateFrom.value != null) {
-                    updateCustomTimeSlot(viewModel.pubDateFrom.value, it)
+            viewModel.pubDateUntil.observeDistinct(this@SearchActivity) { until ->
+                if (until != null) {
+                    if (viewModel.pubDateFrom.value != null) {
+                        updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
+                    }
                 }
             }
         }
