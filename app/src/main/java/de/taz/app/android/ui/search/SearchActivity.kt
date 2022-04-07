@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.search
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -93,12 +95,20 @@ class SearchActivity :
                 )
                 return@setOnClickListener
             }
-            navigationBottom.setOnItemSelectedListener {
-                if (it.itemId == R.id.bottom_navigation_action_home) {
-                    this@SearchActivity.finish()
-                    true
-                } else {
-                    false
+
+            navigationBottom.apply {
+                itemIconTintList = null
+
+                // hack to not auto select first item
+                menu.getItem(0).isCheckable = false
+
+                setOnItemSelectedListener {
+                    if (it.itemId == R.id.bottom_navigation_action_home) {
+                        this@SearchActivity.finish()
+                        true
+                    } else {
+                        false
+                    }
                 }
             }
             viewModel.chosenTimeSlot.observeDistinct(this@SearchActivity) {
