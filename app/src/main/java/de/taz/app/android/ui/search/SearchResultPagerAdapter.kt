@@ -79,7 +79,7 @@ class SearchResultPagerAdapter(
             R.string.fragment_header_search_result,
             position + 1,
             total,
-            searchResultItem.sectionTitle,
+            searchResultItem.sectionTitle ?: "",
             DateHelper.stringToMediumLocalizedString(searchResultItem.date)
         )
         val headerText  = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

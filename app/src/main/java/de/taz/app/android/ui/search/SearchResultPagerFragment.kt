@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -23,14 +24,23 @@ import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
+class SearchResultPagerFragment : BaseMainFragment(
     R.layout.search_result_webview_pager
 ) {
+    companion object {
+        private const val INITIAL_POSITION = "INITIAL_POSITION"
+        fun instance(position: Int) = SearchResultPagerFragment().apply {
+            arguments = bundleOf(INITIAL_POSITION to position)
+        }
+    }
+
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private lateinit var webViewPager: ViewPager2
     private lateinit var loadingScreen: ConstraintLayout
+    private var initialPosition = 0
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         webViewPager = view.findViewById(R.id.webview_pager_viewpager)
@@ -39,6 +49,8 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
+        initialPosition = requireArguments().getInt(INITIAL_POSITION, 0)
+        viewModel.positionLiveData.postValue(initialPosition)
         loadingScreen.visibility = View.GONE
         setupViewPager()
     }
@@ -48,8 +60,9 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
         }
-        pageChangeCallback.onPageSelected(position)
+        pageChangeCallback.onPageSelected(initialPosition)
     }
+
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
             if (isBookmarked) {
@@ -85,7 +98,7 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
                     viewModel.searchResultsLiveData.value ?: emptyList()
                 )
 
-                setCurrentItem(viewModel.positionLiveData.value ?: position, false)
+                setCurrentItem(viewModel.positionLiveData.value ?: initialPosition, false)
             }
             registerOnPageChangeCallback(pageChangeCallback)
         }

@@ -16,12 +16,11 @@ import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.util.Log
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SearchResultListAdapter(
-    var searchResultList: List<SearchHitDto>
+    private var searchResultList: List<SearchHitDto>
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
@@ -37,7 +36,7 @@ class SearchResultListAdapter(
 
         fun bind(position: Int) {
             searchResultItem.setOnClickListener {
-                val fragment = SearchResultPagerFragment(position)
+                val fragment = SearchResultPagerFragment.instance(position)
                 val activity: AppCompatActivity = view.context as AppCompatActivity
                 activity.supportFragmentManager.beginTransaction()
                     .add(
