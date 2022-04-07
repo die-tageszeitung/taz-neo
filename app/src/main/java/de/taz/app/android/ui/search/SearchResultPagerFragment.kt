@@ -50,7 +50,7 @@ class SearchResultPagerFragment : BaseMainFragment(
             moveContentBeneathStatusBar()
         }
         initialPosition = requireArguments().getInt(INITIAL_POSITION, 0)
-        viewModel.positionLiveData.postValue(initialPosition)
+        viewModel.positionLiveData.value = initialPosition
         loadingScreen.visibility = View.GONE
         setupViewPager()
     }
