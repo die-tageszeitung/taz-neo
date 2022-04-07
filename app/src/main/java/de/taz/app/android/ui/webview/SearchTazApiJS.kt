@@ -77,16 +77,4 @@ class SearchTazApiJS constructor(private val fragment: Fragment) {
                 }
             }
     }
-/* NOT WORKING AT THE MOMENT AS WE DO NOT HAVE THE ARTICLE:
-    @JavascriptInterface
-    fun openImage(name: String) {
-        log.verbose("openImage $name")
-
-        val intent = Intent(applicationContext, ImagePagerActivity::class.java)
-        intent.putExtra(IMAGE_NAME, name)
-
-        fragment.requireActivity().startActivity(
-            intent
-        )
-    } */
 }

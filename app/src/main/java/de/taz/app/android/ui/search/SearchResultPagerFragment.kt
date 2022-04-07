@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.search
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -15,12 +17,16 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
+import kotlinx.android.synthetic.main.fragment_webview_section.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -40,6 +46,7 @@ class SearchResultPagerFragment : BaseMainFragment(
     private var initialPosition = 0
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,6 +60,11 @@ class SearchResultPagerFragment : BaseMainFragment(
         viewModel.positionLiveData.value = initialPosition
         loadingScreen.visibility = View.GONE
         setupViewPager()
+
+        val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+        fontSizeLiveData.observeDistinct(this) {
+            reloadAfterCssChange()
+        }
     }
 
     private fun setupViewPager() {
@@ -168,6 +180,19 @@ class SearchResultPagerFragment : BaseMainFragment(
         return getCurrentPagerPosition().let {
             viewModel.searchResultsLiveData.value?.get(it)
         }
+    }
+
+    private fun reloadAfterCssChange() {
+        CoroutineScope(Dispatchers.Main).launch {
+            web_view?.injectCss()
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+                web_view?.reload()
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
 
     override fun onDestroyView() {
