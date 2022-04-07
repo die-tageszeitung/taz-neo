@@ -7,7 +7,9 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 class BookmarkSheetViewModel(application: Application) : AndroidViewModel(application) {
@@ -36,12 +38,15 @@ class BookmarkSheetViewModel(application: Application) : AndroidViewModel(applic
     val isBookmarkedLiveData: LiveData<Boolean> =
         articleLiveData.map { article -> article?.bookmarked ?: false }
 
-    suspend fun downloadArticleAndASetBookmark(articleFileName: String, datePublished: Date) {
-        val issueForMetadata = apiService.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
-        contentService.downloadMetadata(issueForMetadata)
-        articleRepository.get(articleFileName)?.let {
-            contentService.downloadToCache(it)
-            articleRepository.bookmarkArticle(it)
+    fun downloadArticleAndSetBookmark(articleFileName: String, datePublished: Date) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val issueForMetadata = apiService.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+            contentService.downloadMetadata(issueForMetadata, maxRetries = 5)
+            articleRepository.get(articleFileName)?.let {
+                contentService.downloadToCache(it)
+                articleRepository.bookmarkArticle(it)
+            }
         }
     }
+
 }

@@ -79,7 +79,7 @@ class BookmarkSheetFragment :
                 }
             } ?: viewModel.articleFileName?.let {
                 // no articleStub so probably article not downloaded, so download it:
-                datePublished?.let { date -> viewModel.downloadArticleAndASetBookmark(it, date) }
+                datePublished?.let { date -> viewModel.downloadArticleAndSetBookmark(it, date) }
             }
         }
     }

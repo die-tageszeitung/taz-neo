@@ -48,6 +48,7 @@ class SearchResultPagerFragment(var position: Int) : BaseMainFragment(
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
         }
+        pageChangeCallback.onPageSelected(position)
     }
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
