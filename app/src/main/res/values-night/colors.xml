@@ -42,4 +42,6 @@
     <color name="bottom_sheet_divider_color">@color/lightGrey</color>
     <color name="bottom_sheet_text_color">@color/lightGrey</color>
 
+    <color name="search_field_background_color">@color/darkGrey</color>
+
 </resources>

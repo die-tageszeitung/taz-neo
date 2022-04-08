@@ -11,9 +11,16 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
         android:layout_marginTop="@dimen/search_input_field_margin_top"
-        android:hint="@string/search_input_hint"
         android:importantForAutofill="no"
+        app:boxBackgroundColor="@color/search_field_background_color"
+        app:boxCornerRadiusBottomEnd="@dimen/search_input_field_corner_radius"
+        app:boxCornerRadiusBottomStart="@dimen/search_input_field_corner_radius"
+        app:boxCornerRadiusTopEnd="@dimen/search_input_field_corner_radius"
+        app:boxCornerRadiusTopStart="@dimen/search_input_field_corner_radius"
+        app:boxStrokeColor="@color/search_field_background_color"
+        app:boxStrokeWidth="0dp"
         app:endIconMode="clear_text"
+        app:hintEnabled="false"
         app:layout_constraintEnd_toStartOf="@id/search_cancel_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,6 +31,7 @@
             android:id="@+id/search_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/search_input_hint"
             android:imeOptions="actionSearch"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -44,11 +52,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            android:hint="@string/search_advanced_title">
+            app:endIconMode="clear_text"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/search_advanced_title"
                 android:inputType="text"
                 android:maxLines="1" />
 
@@ -60,11 +70,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            android:hint="@string/search_advanced_author">
+            app:endIconMode="clear_text"
+            app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/search_advanced_author"
                 android:inputType="text"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -125,6 +137,7 @@
         android:layout_marginTop="@dimen/search_cancel_button_margin_top"
         android:layout_marginEnd="@dimen/search_input_field_margin_horizontally"
         android:text="@string/cancel_button"
+        android:textColor="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/search_input"
         app:layout_constraintTop_toTopOf="parent" />

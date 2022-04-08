@@ -46,4 +46,6 @@
 
     <color name="text_highlight_mark_color">@color/tazRedWithOpacity</color>
 
+    <color name="search_field_background_color">@color/superLightGrey</color>
+
 </resources>
