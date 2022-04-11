@@ -255,6 +255,26 @@
         <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
     </style>
 
+    <style name="TextAppearance.Search.Input" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginStart">@dimen/search_input_field_margin_horizontally</item>
+        <item name="android:layout_marginEnd">@dimen/search_input_field_margin_horizontally</item>
+        <item name="android:layout_marginTop">@dimen/search_input_field_margin_top</item>
+        <item name="boxBackgroundColor">@color/search_field_background_color</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/search_input_field_corner_radius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/search_input_field_corner_radius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/search_input_field_corner_radius</item>
+        <item name="boxCornerRadiusTopStart">@dimen/search_input_field_corner_radius</item>
+        <item name="boxStrokeColor">@color/search_field_background_color</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="endIconMode">clear_text</item>
+        <item name="hintEnabled">false</item>
+        <item name="layout_constraintEnd_toStartOf">@id/search_cancel_button</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="startIconContentDescription">@string/search</item>
+        <item name="startIconDrawable">@drawable/ic_search</item>
+    </style>
+
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>

@@ -6,26 +6,9 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/search_input"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        style="@style/TextAppearance.Search.Input"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
-        android:layout_marginTop="@dimen/search_input_field_margin_top"
-        android:importantForAutofill="no"
-        app:boxBackgroundColor="@color/search_field_background_color"
-        app:boxCornerRadiusBottomEnd="@dimen/search_input_field_corner_radius"
-        app:boxCornerRadiusBottomStart="@dimen/search_input_field_corner_radius"
-        app:boxCornerRadiusTopEnd="@dimen/search_input_field_corner_radius"
-        app:boxCornerRadiusTopStart="@dimen/search_input_field_corner_radius"
-        app:boxStrokeColor="@color/search_field_background_color"
-        app:boxStrokeWidth="0dp"
-        app:endIconMode="clear_text"
-        app:hintEnabled="false"
-        app:layout_constraintEnd_toStartOf="@id/search_cancel_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:startIconContentDescription="@string/search"
-        app:startIconDrawable="@drawable/ic_search">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/search_text"
