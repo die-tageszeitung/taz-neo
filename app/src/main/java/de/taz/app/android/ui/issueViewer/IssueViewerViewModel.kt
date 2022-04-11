@@ -73,7 +73,6 @@ class IssueViewerViewModel(
     ) {
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
-            activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
                 try {
                     // either displayable is specified, persisted or defaulted to first section
