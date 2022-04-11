@@ -110,7 +110,7 @@ class IssueViewerViewModel(
     val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
-        MutableLiveData(IssueContentDisplayMode.Section)
+        MutableLiveData(IssueContentDisplayMode.Loading)
 
     private val issueKeyLiveData: LiveData<IssueKey?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }
