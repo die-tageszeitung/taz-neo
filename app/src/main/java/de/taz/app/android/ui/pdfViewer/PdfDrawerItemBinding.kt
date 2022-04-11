@@ -36,11 +36,11 @@ class PdfDrawerItemBinding(
         boundView = itemView
         if (itemData.position == itemData.activePosition) {
             boundView?.view_drawer_pdf_title?.setTextColor(
-                ContextCompat.getColor(context, R.color.drawer_sections_item_highlighted)
+                ContextCompat.getColor(context, R.color.pdf_drawer_sections_item_highlighted)
             )
         } else {
             boundView?.view_drawer_pdf_title?.setTextColor(
-                ContextCompat.getColor(context, R.color.drawer_sections_item)
+                ContextCompat.getColor(context, R.color.pdf_drawer_sections_item)
             )
         }
         // Set the title:

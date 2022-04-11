@@ -94,6 +94,10 @@
         <item name="android:lineSpacingExtra">0dp</item>
     </style>
 
+    <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>

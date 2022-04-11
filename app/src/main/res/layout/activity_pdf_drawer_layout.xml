@@ -123,13 +123,12 @@
 
                 <TextView
                     android:id="@+id/activity_pdf_drawer_front_page_title"
-                    style="@style/TextAppearance.Drawer.Sections"
+                    style="@style/TextAppearance.Drawer.PDF.Sections"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
-                    android:textColor="@color/white"
                     android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/navigation_recycler_view"
