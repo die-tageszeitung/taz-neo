@@ -73,7 +73,6 @@ class IssueViewerViewModel(
     ) {
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
-            activeDisplayMode.postValue(IssueContentDisplayMode.Loading)
             withContext(Dispatchers.IO) {
                 try {
                     // either displayable is specified, persisted or defaulted to first section
@@ -111,7 +110,7 @@ class IssueViewerViewModel(
     val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
-        MutableLiveData(IssueContentDisplayMode.Section)
+        MutableLiveData(IssueContentDisplayMode.Loading)
 
     private val issueKeyLiveData: LiveData<IssueKey?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }

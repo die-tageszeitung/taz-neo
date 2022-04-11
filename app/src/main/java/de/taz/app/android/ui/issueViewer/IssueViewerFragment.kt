@@ -48,11 +48,6 @@ class IssueViewerFragment :
     private val log by Log
 
 
-    private lateinit var sectionPagerFragment: SectionPagerFragment
-    private lateinit var articlePagerFragment: ArticlePagerFragment
-    private lateinit var imprintFragment: ImprintWebViewFragment
-    private lateinit var loaderFragment: IssueLoaderFragment
-
     private lateinit var dataService: DataService
     private lateinit var sectionRepository: SectionRepository
     private lateinit var imageRepository: ImageRepository
@@ -63,14 +58,12 @@ class IssueViewerFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sectionPagerFragment = SectionPagerFragment()
-        articlePagerFragment = ArticlePagerFragment()
-        imprintFragment = ImprintWebViewFragment()
-        loaderFragment = IssueLoaderFragment()
-        addFragment(sectionPagerFragment)
-        addFragment(articlePagerFragment)
-        addFragment(imprintFragment)
-        addFragment(loaderFragment)
+        if (savedInstanceState == null) {
+            addFragment(SectionPagerFragment())
+            addFragment(ArticlePagerFragment())
+            addFragment(ImprintWebViewFragment())
+            addFragment(IssueLoaderFragment())
+        }
     }
 
     override fun onAttach(context: Context) {
