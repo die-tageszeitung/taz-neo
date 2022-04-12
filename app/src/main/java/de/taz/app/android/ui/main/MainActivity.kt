@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
+import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
@@ -139,8 +140,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private suspend fun checkIfSubscriptionElapsed() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting) {
+        val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
             showSubscriptionElapsedPopup()
+            (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
 
