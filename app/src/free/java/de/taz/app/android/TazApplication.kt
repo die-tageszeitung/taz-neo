@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 
 @Suppress("UNUSED")
 class TazApplication : AbstractTazApplication() {
+    var elapsedPopupAlreadyShown = false
     override fun onCreate() {
         super.onCreate()
         DownloadScheduler(applicationContext).apply {
