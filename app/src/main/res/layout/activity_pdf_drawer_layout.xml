@@ -21,7 +21,7 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/navigation_drawer_background"
+        android:background="@color/navigation_drawer_pdf_background"
         android:clipChildren="false"
         android:clipToPadding="false"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,13 +116,14 @@
                         android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                         android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
                         android:layout_weight="0.5"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/fragment_drawer_date_text_size"/>
 
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/activity_pdf_drawer_front_page_title"
-                    style="@style/TextAppearance.Drawer.Sections"
+                    style="@style/TextAppearance.Drawer.PDF.Sections"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"

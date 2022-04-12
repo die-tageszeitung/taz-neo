@@ -248,7 +248,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 activityPdfDrawerFrontPageTitle.setTextColor(
                     ContextCompat.getColor(
                         this@PdfPagerActivity,
-                        R.color.drawer_sections_item_highlighted
+                        R.color.pdf_drawer_sections_item_highlighted
                     )
                 )
                 pdfDrawerLayout.closeDrawers()
@@ -258,7 +258,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 setTextColor(
                     ContextCompat.getColor(
                         this@PdfPagerActivity,
-                        R.color.drawer_sections_item_highlighted
+                        R.color.pdf_drawer_sections_item_highlighted
                     )
                 )
             }
@@ -273,11 +273,11 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             pdfPagerViewModel.currentItem.observe(this@PdfPagerActivity, { position ->
                 drawerAdapter.activePosition = position - 1
                 if (position > 0) {
-                    log.debug("set front page title color to: ${R.color.drawer_sections_item}")
+                    log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
                     activityPdfDrawerFrontPageTitle.setTextColor(
                         ContextCompat.getColor(
                             this@PdfPagerActivity,
-                            R.color.drawer_sections_item
+                            R.color.pdf_drawer_sections_item
                         )
                     )
                 }
