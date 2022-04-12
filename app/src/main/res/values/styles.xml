@@ -268,9 +268,6 @@
         <item name="boxStrokeWidth">0dp</item>
         <item name="endIconMode">clear_text</item>
         <item name="hintEnabled">false</item>
-        <item name="layout_constraintEnd_toStartOf">@id/search_cancel_button</item>
-        <item name="layout_constraintStart_toStartOf">parent</item>
-        <item name="layout_constraintTop_toTopOf">parent</item>
         <item name="startIconContentDescription">@string/search</item>
         <item name="startIconDrawable">@drawable/ic_search</item>
     </style>
