@@ -124,7 +124,7 @@ class SearchResultListAdapter(
     // region helper functions
 
     /**
-     * Use this method to highlight a text in TextView with a given color.
+     * Highlight a [textToHighlight] in a given [textView] with a given [color].
      *
      * @param textView        TextView or Edittext or Button (or derived from TextView)
      * @param textToHighlight String to highlight
@@ -132,11 +132,10 @@ class SearchResultListAdapter(
      */
     private fun setHighLightedText(textView: TextView, textToHighlight: String, color: Int) {
         val textViewText = textView.text.toString()
-        var index = textViewText.indexOf(textToHighlight, 0)
         val wordToSpan = SpannableString(textView.text)
-        var startIndex = 0
-        while (startIndex < textViewText.length && index != -1) {
-            index = textViewText.indexOf(textToHighlight, startIndex)
+        var currentIndex = 0
+        while (currentIndex < textViewText.length) {
+            val index = textViewText.indexOf(textToHighlight, currentIndex)
             if (index == -1) break else {
                 // set color here
                 wordToSpan.setSpan(
@@ -149,16 +148,16 @@ class SearchResultListAdapter(
                 )
                 textView.setText(wordToSpan, TextView.BufferType.SPANNABLE)
             }
-            startIndex = index + textToHighlight.length
+            currentIndex = index + textToHighlight.length
         }
     }
 
     /**
-     * Use this method to extract all character between [fromString] and [toString].
+     * Extract all characters between [fromString] and [toString].
      *
      * eg the String this function is called upon is:
      * "The <span class="snippet">image</span> of many <span class="snippet">images</span>."
-     * would return ["image". "images"]
+     * would return ["image", "images"]
      *
      * @param fromString String which is the first delimiter
      * @param toString   String which is the last delimiter
@@ -177,7 +176,7 @@ class SearchResultListAdapter(
             // Find the next occurrence if any
             lastIndex = sub.indexOf(
                 fromString,
-                lastIndex + 29
+                lastIndex + fromString.length + toString.length
             )
         }
         return resultList
