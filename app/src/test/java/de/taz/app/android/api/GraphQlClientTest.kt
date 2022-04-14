@@ -43,7 +43,7 @@ class GraphQlClientTest {
     private val mockClient = HttpClient(MockEngine) {
         engine {
             addHandler { request ->
-                if (request.url.toString() == BuildConfig.GRAPHQL_ENDPOINT) {
+                if (request.url.toString() == BuildConfig.GRAPHQL_ENDPOINT_PREFIX + BuildConfig.GRAPHQL_ENDPOINT) {
                     val responseHeaders = headersOf("Content-Type" to listOf("application/json"))
                     respond("{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}", headers = responseHeaders)
 
@@ -68,7 +68,7 @@ class GraphQlClientTest {
 
         graphQlClient = GraphQlClient(
             mockClient,
-            BuildConfig.GRAPHQL_ENDPOINT,
+            BuildConfig.GRAPHQL_ENDPOINT_PREFIX + BuildConfig.GRAPHQL_ENDPOINT,
             queryService = queryServiceMock,
             authHelper = AuthHelper(application, dataStore)
         )

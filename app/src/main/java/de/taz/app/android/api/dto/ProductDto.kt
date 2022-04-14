@@ -18,7 +18,7 @@ data class ProductDto (
 )
 
 @JsonClass(generateAdapter = false)
-enum class AppName { taz, lmd }
+enum class AppName { taz, LMd }
 
 @JsonClass(generateAdapter = false)
 enum class AppType { production, test, local }

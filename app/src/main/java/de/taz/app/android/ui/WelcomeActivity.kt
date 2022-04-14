@@ -111,7 +111,8 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
                 viewBinding.webViewFullscreenContent.loadUrl(it)
             }
         } ?: run {
-            throw HTMLFileNotFoundException("Data policy html file ($welcomeSlidesHtmlFile) not found in database")
+            log.error("welcome slides html file ($welcomeSlidesHtmlFile) not found in database")
+            viewBinding.buttonClose.callOnClick()
         }
     }
 

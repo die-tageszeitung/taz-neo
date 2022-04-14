@@ -176,11 +176,13 @@ android {
         taz {
             dimension "owner"
             applicationId "de.taz.android.app"
+            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"taz.de/appGraphQl\""
         }
 
         lmd {
             dimension "owner"
             applicationId "de.monde_diplomatique.android.app"
+            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
         }
 
         free {
@@ -195,12 +197,12 @@ android {
         staging {
             applicationIdSuffix ".staging"
             dimension "graphql"
-            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://testdl.taz.de/appGraphQl\""
+            buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://testdl.\""
         }
 
         production {
             dimension "graphql"
-            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://dl.taz.de/appGraphQl\""
+            buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://dl.\""
         }
 
     }
