@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <fraction name="cover_width_screen_factor">80%</fraction>
+    <fraction name="cover_width_screen_factor">70%</fraction>
 </resources>
