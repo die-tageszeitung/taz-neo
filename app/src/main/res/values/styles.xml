@@ -22,11 +22,15 @@
         <item name="android:ambientShadowAlpha">0.1</item>
     </style>
 
-    <style name="AppDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:background">@drawable/layout_rounded_corners_bg</item>
+    <style name="AppDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.MaterialAlertDialog.Rounded</item>
         <item name="android:textColor">@color/black</item>
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:textColorSecondary">@color/black</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.MaterialAlertDialog.Rounded" parent="">
+        <item name="cornerSize">30dp</item>
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
