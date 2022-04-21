@@ -7,7 +7,7 @@ import android.os.StatFs
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -62,11 +62,11 @@ class StorageSelectionDialog(
                         } else {
                             itemIcon?.visibility = View.VISIBLE
                             itemIcon.setOnClickListener {
-                                AlertDialog.Builder(context)
+                                val dialog = MaterialAlertDialogBuilder(context)
                                     .setMessage(R.string.settings_storage_external_unavailable_hint)
                                     .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                                    .show()
-
+                                    .create()
+                                dialog.show()
                             }
                         }
                     }
@@ -97,7 +97,7 @@ class StorageSelectionDialog(
     fun show() {
         CoroutineScope(Dispatchers.Main).launch {
             val currentLocation = storageDataStore.storageLocation.get()
-            AlertDialog.Builder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setNegativeButton(R.string.cancel_button) { dialog, _ -> dialog.dismiss() }
                 .setSingleChoiceItems(
                     listAdapter, listAdapter.getPosition(currentLocation)
@@ -106,8 +106,10 @@ class StorageSelectionDialog(
                         listAdapter.getItem(which)?.let { storageDataStore.storageLocation.set(it) }
                         dialog.dismiss()
                     }
-                }.show()
+                }
+                .create()
 
+            dialog.show()
         }
     }
 }
