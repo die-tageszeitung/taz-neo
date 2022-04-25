@@ -135,7 +135,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 }
                 .create()
 
-            tryPdfDialog!!.show()
+            tryPdfDialog?.show()
             tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
