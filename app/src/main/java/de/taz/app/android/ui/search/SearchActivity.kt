@@ -202,7 +202,7 @@ class SearchActivity :
                     sorting = sorting
                 )
                 result?.let {
-                    viewModel.total = it.total
+                    viewModel.totalFound = it.totalFound
                     it.searchHitList?.let { hits ->
                         searchResultItemsList.addAll(hits)
                         viewModel.searchResultsLiveData.postValue(searchResultItemsList)
@@ -215,7 +215,7 @@ class SearchActivity :
                             initRecyclerView()
                         }
                     }
-                    showAmountFound(searchResultItemsList.size, it.total)
+                    showAmountFound(searchResultItemsList.size, viewModel.totalFound)
                 }
                 viewModel.currentlyLoadingMore.postValue(false)
             }else {
@@ -239,7 +239,7 @@ class SearchActivity :
                         if (lastVisiblePosition !=llm.findLastVisibleItemPosition()) {
                             lastVisiblePosition = llm.findLastVisibleItemPosition()
                             if (viewModel.checkIfLoadMore(lastVisible = lastVisiblePosition)) {
-                                viewModel.currentlyLoadingMore.postValue(true)
+                                viewModel.currentlyLoadingMore.value = true
                                 loadMore()
                             }
                         }
@@ -308,7 +308,7 @@ class SearchActivity :
     }
 
     private fun clearSearchList() {
-        viewModel.total = 0
+        viewModel.totalFound = 0
         viewBinding.apply {
             searchInput.editText?.text?.clear()
             clearRecyclerView()

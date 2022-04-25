@@ -38,7 +38,7 @@ class SearchResultPagerViewModel(
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
-    var total = 0
+    var totalFound = 0
 
 
     var articleFileName
@@ -57,10 +57,10 @@ class SearchResultPagerViewModel(
         articleLiveData.map { article -> article?.bookmarked ?: false }
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
-        val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: total
+        val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: totalFound
         val searchResultListSize = searchResultsLiveData.value?.size ?: 0
         return rangeInWhereToLoadMore in 1..lastVisible
                 && currentlyLoadingMore.value == false
-                && searchResultListSize < total
+                && searchResultListSize < totalFound
     }
 }
