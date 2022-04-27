@@ -146,10 +146,5 @@
     <dimen name="cover_item_padding">21dp</dimen>
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
-    
-    <dimen name="mtrl_alert_dialog_background_inset_start" tools:override="true" >10dp</dimen>
-    <dimen name="mtrl_alert_dialog_background_inset_end" tools:override="true" >10dp</dimen>
-    <dimen name="mtrl_alert_dialog_background_inset_top" tools:override="true" >10dp</dimen>
-    <dimen name="mtrl_alert_dialog_background_inset_bottom" tools:override="true"  >10dp</dimen>
 
 </resources>

@@ -24,6 +24,10 @@
     </style>
 
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/AppTheme.MaterialAlertDialog.MaterialComponents</item>
+    </style>
+
+    <style name="AppTheme.MaterialAlertDialog.MaterialComponents" parent="MaterialAlertDialog.MaterialComponents">
         <item name="backgroundInsetStart">10dp</item>
         <item name="backgroundInsetEnd">10dp</item>
         <item name="backgroundInsetTop">10dp</item>
