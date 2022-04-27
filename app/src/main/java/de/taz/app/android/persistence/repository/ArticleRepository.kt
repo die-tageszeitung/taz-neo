@@ -304,7 +304,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
-                    log.warn("article not deleted", e)
+                    log.warn(
+                        "article ${articleStub.articleFileName} not deleted. Maybe it is an imprint used by another issue",
+                        e
+                    )
+                    // if an issue has no imprint, it uses an imprint of an older issue. That is why it cannot be deleted here.
+                    // TODO need to refactor this
                 }
             }
         }
