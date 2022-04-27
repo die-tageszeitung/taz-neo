@@ -304,7 +304,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
-                    log.warn("article not deleted", e)
+                    log.warn("article not deleted: ${e.localizedMessage}")
                 }
             }
         }
