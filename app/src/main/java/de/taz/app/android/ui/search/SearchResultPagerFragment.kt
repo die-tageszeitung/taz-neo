@@ -18,6 +18,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
+import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -25,15 +26,12 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SearchResultPagerFragment : BaseMainFragment(
-    R.layout.search_result_webview_pager
-) {
+class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBinding>() {
     companion object {
         private const val INITIAL_POSITION = "INITIAL_POSITION"
         fun instance(position: Int) = SearchResultPagerFragment().apply {
