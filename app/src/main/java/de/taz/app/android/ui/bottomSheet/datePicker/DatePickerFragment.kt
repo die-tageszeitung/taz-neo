@@ -18,7 +18,6 @@ import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
-import kotlinx.android.synthetic.main.include_loading_screen.*
 import java.util.*
 
 
@@ -91,7 +90,7 @@ class DatePickerFragment : BottomSheetDialogFragment() {
             val month = if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 
-            loading_screen?.visibility = View.VISIBLE
+            view.findViewById<View>(R.id.loading_screen)?.visibility = View.VISIBLE
             confirmButton.isClickable = false
             log.debug("new date set: $day.$month.$year")
 

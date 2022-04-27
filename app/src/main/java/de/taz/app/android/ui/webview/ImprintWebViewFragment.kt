@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.databinding.FragmentWebviewImprintBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -24,8 +25,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ImprintWebViewFragment :
-    WebViewFragment<Article, WebViewViewModel<Article>>(R.layout.fragment_webview_imprint) {
+class ImprintWebViewFragment : WebViewFragment<
+        Article,
+        WebViewViewModel<Article>,
+        FragmentWebviewImprintBinding
+>() {
 
     override val nestedScrollViewId = R.id.nested_scroll_view
 
@@ -35,7 +39,7 @@ class ImprintWebViewFragment :
             this, SavedStateViewModelFactory(
                 this.requireActivity().application, this
             )
-        ).get(ArticleWebViewViewModel::class.java)
+        )[ArticleWebViewViewModel::class.java]
     }
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
@@ -43,7 +47,7 @@ class ImprintWebViewFragment :
             requireActivity().viewModelStore, SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()

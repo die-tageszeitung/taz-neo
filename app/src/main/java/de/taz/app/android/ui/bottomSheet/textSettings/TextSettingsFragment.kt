@@ -3,13 +3,13 @@ package de.taz.app.android.ui.bottomSheet.textSettings
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.databinding.FragmentBottomSheetTextSizeBinding
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
 
 class TextSettingsFragment :
-    BaseViewModelFragment<TextSettingsViewModel>(R.layout.fragment_bottom_sheet_text_size) {
+    BaseViewModelFragment<TextSettingsViewModel, FragmentBottomSheetTextSizeBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

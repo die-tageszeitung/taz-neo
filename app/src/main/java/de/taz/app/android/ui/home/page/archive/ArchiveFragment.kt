@@ -8,19 +8,22 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.data.DataService
+import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
-import kotlinx.android.synthetic.main.fragment_archive.*
 import kotlin.math.floor
 
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
+class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
 
     override lateinit var adapter: IssueFeedAdapter
     private lateinit var dataService: DataService
+
+    private val grid by lazy { viewBinding.fragmentArchiveGrid }
+    private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -31,11 +34,11 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
         super.onViewCreated(view, savedInstanceState)
 
         context?.let { context ->
-            fragment_archive_grid.layoutManager =
+            grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns())
         }
 
-        fragment_archive_to_cover_flow.setOnClickListener {
+        toCoverFlow.setOnClickListener {
             activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
                 currentItem -= 1
             }
@@ -48,14 +51,14 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
             } else {
                 R.layout.fragment_archive_moment_item
             }
-            fragment_archive_grid.setHasFixedSize(true)
+            grid.setHasFixedSize(true)
             adapter = ArchiveAdapter(
                 this,
                 itemLayout,
                 feed,
                 requestManager
             )
-            fragment_archive_grid.adapter = adapter
+            grid.adapter = adapter
         }
     }
 
@@ -71,7 +74,7 @@ class ArchiveFragment: IssueFeedFragment(R.layout.fragment_archive) {
     }
 
     override fun onDestroyView() {
-        fragment_archive_grid.adapter = null
+        grid.adapter = null
         super.onDestroyView()
     }
 }

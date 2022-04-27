@@ -8,6 +8,7 @@ import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.databinding.FragmentBottomSheetBookmarksBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
@@ -17,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BookmarkSheetFragment :
-    BaseViewModelFragment<BookmarkSheetViewModel>(R.layout.fragment_bottom_sheet_bookmarks) {
+    BaseViewModelFragment<BookmarkSheetViewModel, FragmentBottomSheetBookmarksBinding>() {
 
     private var articleRepository: ArticleRepository? = null
     private var articleFileName: String? = null
@@ -62,7 +63,7 @@ class BookmarkSheetFragment :
         }
     }
 
-    fun setArticleFileName() {
+    private fun setArticleFileName() {
         viewModel.articleFileName = this.articleFileName
     }
 

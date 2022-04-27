@@ -12,6 +12,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
@@ -29,9 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
-class ArticlePagerFragment : BaseMainFragment(
-    R.layout.fragment_webview_pager
-), BackFragment {
+class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
 
     private val log by Log
 
@@ -83,7 +82,7 @@ class ArticlePagerFragment : BaseMainFragment(
 
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }
-        loading_screen.visibility = View.GONE
+        viewBinding.loadingScreen.root.visibility = View.GONE
     }
 
     override fun onStart() {
@@ -170,7 +169,7 @@ class ArticlePagerFragment : BaseMainFragment(
                 issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey(issueKey, sectionStub.key))
                 true
             }
-        } ?: false
+        }
         false
     }
 

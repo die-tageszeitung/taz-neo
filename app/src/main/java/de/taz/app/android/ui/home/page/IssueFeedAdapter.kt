@@ -29,7 +29,7 @@ data class CoverViewData(
  *  [ViewHolder] is used to recycle views
  */
 abstract class IssueFeedAdapter(
-    private val fragment: IssueFeedFragment,
+    private val fragment: IssueFeedFragment<*>,
     @LayoutRes private val itemLayoutRes: Int,
     private val feed: Feed,
     private val glideRequestManager: RequestManager,
@@ -75,7 +75,7 @@ abstract class IssueFeedAdapter(
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         private var binder: CoverViewBinding? = null
 
-        fun bind(fragment: IssueFeedFragment, date: Date) {
+        fun bind(fragment: IssueFeedFragment<*>, date: Date) {
 
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
