@@ -18,6 +18,7 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentPdfRenderBinding
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -33,7 +34,7 @@ import kotlinx.coroutines.withContext
 import java.lang.NullPointerException
 
 
-class PdfRenderFragment : BaseMainFragment(R.layout.fragment_pdf_render) {
+class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
     private var page: Page? = null
 

@@ -12,6 +12,7 @@ import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.databinding.FragmentIssueContentBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.BackFragment
@@ -35,8 +36,7 @@ import kotlinx.coroutines.*
  * [loaderFragment] shows the initial loading screen
  *
  */
-class IssueViewerFragment :
-    BaseViewModelFragment<IssueViewerViewModel>(R.layout.fragment_issue_content), BackFragment {
+class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
 
     override val viewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
@@ -35,9 +36,7 @@ import kotlinx.coroutines.withContext
  * see [onItemSelected]
  *
  */
-abstract class IssueFeedFragment(
-    layoutID: Int
-) : BaseViewModelFragment<IssueFeedViewModel>(layoutID) {
+abstract class IssueFeedFragment<VIEW_BINDING: ViewBinding> : BaseViewModelFragment<IssueFeedViewModel, VIEW_BINDING>() {
 
     private val log by Log
 

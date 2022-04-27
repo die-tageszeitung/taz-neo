@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class HomeMomentViewActionListener(
-    private val issueFeedFragment: IssueFeedFragment
+    private val issueFeedFragment: IssueFeedFragment<*>
 ) : CoverViewActionListener {
     override fun onImageClicked(coverPublication: AbstractCoverPublication) {
         val issuePublication = when(coverPublication) {

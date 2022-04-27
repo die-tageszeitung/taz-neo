@@ -8,9 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import java.lang.reflect.ParameterizedType
 
-abstract class ViewBindingFragment<ViewBindingClass : ViewBinding> : Fragment() {
+/**
+ * The basic ViewBindingFragment which uses a ViewBinding to populate
+ * Make sure that the ViewBinding is always the last generic!
+ * Otherwise [createBinding] will fail
+ */
+abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
 
-    private var _binding: ViewBindingClass? = null
+    private var _binding: VIEW_BINDING? = null
 
     // This property is only valid between onCreateView and onDestroyView.
     protected val viewBinding get() = _binding!!
@@ -33,21 +38,21 @@ abstract class ViewBindingFragment<ViewBindingClass : ViewBinding> : Fragment() 
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun createBinding(layoutInflater: LayoutInflater, container: ViewGroup?): ViewBindingClass {
+    private fun createBinding(layoutInflater: LayoutInflater, container: ViewGroup?): VIEW_BINDING {
         val viewBindingClass =
             try {
-                (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments[0]
+                (javaClass.genericSuperclass as ParameterizedType).actualTypeArguments.last()
             } catch (cce: ClassCastException) {
-                ((javaClass.genericSuperclass as Class<ViewBindingClass>)
-                    .genericSuperclass as ParameterizedType).actualTypeArguments[0]
-            } as Class<ViewBindingClass>
+                ((javaClass.genericSuperclass as Class<VIEW_BINDING>)
+                    .genericSuperclass as ParameterizedType).actualTypeArguments.last()
+            } as Class<VIEW_BINDING>
         val method = viewBindingClass.getMethod(
             "inflate",
             LayoutInflater::class.java,
             ViewGroup::class.java,
             Boolean::class.java
         )
-        return method.invoke(this, layoutInflater, container, false) as ViewBindingClass
+        return method.invoke(this, layoutInflater, container, false) as VIEW_BINDING
     }
 
 }

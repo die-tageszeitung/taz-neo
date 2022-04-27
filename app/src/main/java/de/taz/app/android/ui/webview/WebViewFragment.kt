@@ -7,10 +7,10 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
-import androidx.annotation.LayoutRes
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -29,16 +29,15 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.showConnectionErrorDialog
-import kotlinx.android.synthetic.main.fragment_webview_section.*
-import kotlinx.android.synthetic.main.include_loading_screen.*
 import kotlinx.coroutines.*
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
-abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : WebViewViewModel<DISPLAYABLE>>(
-    @LayoutRes layoutResourceId: Int
-) : BaseViewModelFragment<VIEW_MODEL>(layoutResourceId), AppWebViewCallback,
+abstract class WebViewFragment<
+        DISPLAYABLE : WebViewDisplayable,
+        VIEW_MODEL : WebViewViewModel<DISPLAYABLE>,
+        VIEW_BINDING: ViewBinding
+> : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(), AppWebViewCallback,
     AppWebViewClientCallBack {
 
     abstract override val viewModel: VIEW_MODEL
@@ -62,11 +61,14 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
+    private val webView: AppWebView
+        get() = viewBinding.root.findViewById(R.id.web_view)
+
     private fun reloadAfterCssChange() {
         CoroutineScope(Dispatchers.Main).launch {
-            web_view?.injectCss()
+            webView.injectCss()
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                web_view?.reload()
+                webView.reload()
         }
     }
 
@@ -158,7 +160,8 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     private fun configureWebView() {
-        web_view?.apply {
+
+        webView.apply {
             webViewClient = AppWebViewClient(
                 requireContext().applicationContext,
                 this@WebViewFragment
@@ -207,19 +210,19 @@ abstract class WebViewFragment<DISPLAYABLE : WebViewDisplayable, VIEW_MODEL : We
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loading_screen?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            view?.findViewById<View>(R.id.loading_screen)?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 
     private fun loadUrl(url: String) {
         activity?.runOnUiThread {
-            web_view?.loadUrl(url)
+            webView.loadUrl(url)
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        web_view?.destroy()
+    override fun onDestroyView() {
+        webView.destroy()
+        super.onDestroyView()
     }
 
     private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.Main) {

@@ -8,9 +8,9 @@ import android.webkit.JavascriptInterface
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
@@ -25,7 +25,7 @@ const val TAZ_API_JS = "ANDROIDAPI"
 const val PREFERENCES_TAZAPI = "preferences_tazapi"
 const val IMAGE_NAME = "image_name"
 
-class TazApiJS<DISPLAYABLE : WebViewDisplayable> constructor(private val webViewFragment: WebViewFragment<DISPLAYABLE, out WebViewViewModel<DISPLAYABLE>>) {
+class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out WebViewViewModel<*>, out ViewBinding>) {
 
     private val log by Log
 

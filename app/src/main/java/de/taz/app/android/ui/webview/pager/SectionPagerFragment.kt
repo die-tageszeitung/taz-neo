@@ -12,6 +12,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -24,11 +25,8 @@ import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
-import kotlinx.android.synthetic.main.fragment_webview_pager.loading_screen
 
-class SectionPagerFragment : BaseMainFragment(
-    R.layout.fragment_webview_pager
-) {
+class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val log by Log
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_section
@@ -38,7 +36,7 @@ class SectionPagerFragment : BaseMainFragment(
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,7 +56,7 @@ class SectionPagerFragment : BaseMainFragment(
                 log.debug("New set of sections: ${sectionStubs.map { it.key }}")
                 webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
                 tryScrollToSection()
-                loading_screen?.visibility = View.GONE
+                viewBinding.loadingScreen.root.visibility = View.GONE
             }
         }
 
