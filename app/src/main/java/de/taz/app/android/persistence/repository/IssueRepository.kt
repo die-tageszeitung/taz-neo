@@ -346,8 +346,16 @@ class IssueRepository private constructor(applicationContext: Context) :
 
         val imprint = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueStub.feedName, issueStub.date, issueStub.status
-        )?.let { articleRepository.get(it) }
-
+        )
+        val imprintFile = try {
+            imprint?.let { articleRepository.get(it) }
+        } catch (nfe: NotFoundException) {
+            val hint = "No imprint file for ${issueStub.issueKey} was found, this is unexpected"
+            log.error(hint)
+            Sentry.captureMessage(hint)
+            null
+        }
+        
         val moment = momentRepository.get(issueStub) ?: run {
             val hint = "No moment for ${issueStub.issueKey} was found, this is unexpected"
             log.error(hint)
@@ -379,7 +387,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.baseUrl,
             issueStub.status,
             issueStub.minResourceVersion,
-            imprint,
+            imprintFile,
             issueStub.isWeekend,
             sections,
             pageList,
