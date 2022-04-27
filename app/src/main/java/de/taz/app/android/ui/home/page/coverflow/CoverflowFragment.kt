@@ -122,22 +122,26 @@ class CoverflowFragment : IssueFeedFragment(R.layout.fragment_coverflow) {
         // stop old downloadObserver
         downloadObserver?.stopObserving()
 
-        val issuePublication = if (viewModel.pdfModeLiveData.value == true)  {
-            IssuePublicationWithPages(viewModel.feed.value!!.name, simpleDateFormat.format(date))
-        } else {
-            IssuePublication(viewModel.feed.value!!.name, simpleDateFormat.format(date))
-        }
-        // start new downloadObserver
-        downloadObserver = DownloadObserver(
-            this,
-            issuePublication,
-            fragment_coverflow_moment_download,
-            fragment_coverflow_moment_download_finished,
-            fragment_coverflow_moment_downloading
-        ).apply {
-            startObserving(
-                withPages = pdfAdditionally
-            )
+        viewModel.feed.value?.let { feed ->
+            val issuePublication = if (viewModel.pdfModeLiveData.value == true)  {
+                IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
+            } else {
+                IssuePublication(feed.name, simpleDateFormat.format(date))
+            }
+
+            // start new downloadObserver
+            downloadObserver = DownloadObserver(
+                this,
+                issuePublication,
+                fragment_coverflow_moment_download,
+                fragment_coverflow_moment_download_finished,
+                fragment_coverflow_moment_downloading
+            ).apply {
+                startObserving(
+                    withPages = pdfAdditionally
+                )
+            }
+
         }
 
         // set date text
