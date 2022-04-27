@@ -12,6 +12,7 @@ import java.util.*
 typealias MomentChangedListener = (Date) -> Unit
 
 const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
+private const val KEY_FEED = "KEY_FEED"
 
 class IssueFeedViewModel(
     application: Application,
@@ -36,7 +37,7 @@ class IssueFeedViewModel(
         mutableFeedLiveData.value = feed
     }
 
-    private val mutableFeedLiveData = MutableLiveData<Feed>()
+    private val mutableFeedLiveData = savedStateHandle.getLiveData<Feed>(KEY_FEED)
     val feed: LiveData<Feed> = mutableFeedLiveData
 
 
