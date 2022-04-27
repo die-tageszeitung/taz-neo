@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -194,7 +195,6 @@ class SearchResultPagerFragment : BaseMainFragment(
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
-
     override fun onDestroyView() {
         webViewPager.adapter = null
         super.onDestroyView()

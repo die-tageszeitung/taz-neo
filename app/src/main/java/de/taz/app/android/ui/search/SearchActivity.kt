@@ -6,6 +6,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
+import androidx.core.view.isNotEmpty
 import androidx.core.view.size
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -130,6 +131,12 @@ class SearchActivity :
                     if (viewModel.pubDateFrom.value != null) {
                         updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
                     }
+                }
+            }
+            viewModel.positionLiveData.observeDistinct(this@SearchActivity) { position ->
+                log.debug("scroll to $position !!!!")
+                if (position!= null && searchResultList.isNotEmpty()) {
+                    searchResultList.smoothScrollToPosition(position)
                 }
             }
         }
