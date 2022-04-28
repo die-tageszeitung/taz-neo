@@ -7,6 +7,7 @@ import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -81,7 +82,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     override fun onStop() {
-        showLoggedOutDialog?.dismiss()
+        loggedOutDialog?.dismiss()
         tryPdfDialog?.dismiss()
         super.onStop()
     }
@@ -98,12 +99,14 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    private var showLoggedOutDialog: AlertDialog? = null
+    private var loggedOutDialog: AlertDialog? = null
     private suspend fun maybeShowLoggedOutDialog() {
         if (issueFeedViewModel.getPdfMode() && !authHelper.isValid()) {
-            showLoggedOutDialog = AlertDialog.Builder(this@MainActivity)
+            loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
                 .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
                 .setNegativeButton(R.string.login_button) { dialog, _ ->
                     startActivityForResult(
                         Intent(this@MainActivity, LoginActivity::class.java),
@@ -111,7 +114,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                     )
                     dialog.dismiss()
                 }
-                .show()
+                .create()
+
+            loggedOutDialog!!.show()
+
         }
     }
 
@@ -119,7 +125,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private suspend fun maybeShowTryPdfDialog() {
         val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
         if (timesPdfShown < 1) {
-            tryPdfDialog = AlertDialog.Builder(this)
+            tryPdfDialog = MaterialAlertDialogBuilder(this)
                 .setView(R.layout.dialog_try_pdf)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     CoroutineScope(Dispatchers.Main).launch {
@@ -127,7 +133,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                         dialog.dismiss()
                     }
                 }
-                .show()
+                .create()
+
+            tryPdfDialog?.show()
             tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)

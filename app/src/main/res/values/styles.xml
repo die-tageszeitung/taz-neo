@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="alertDialogTheme">@style/AppDialogTheme</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -9,6 +9,7 @@
         <item name="android:colorButtonNormal">@color/tazRed</item>
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
         <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">#0F000000</item>
@@ -22,11 +23,15 @@
         <item name="android:ambientShadowAlpha">0.1</item>
     </style>
 
-    <style name="AppDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:background">@drawable/layout_rounded_corners_bg</item>
-        <item name="android:textColor">@color/black</item>
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/black</item>
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/AppTheme.MaterialAlertDialog.MaterialComponents</item>
+    </style>
+
+    <style name="AppTheme.MaterialAlertDialog.MaterialComponents" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="backgroundInsetStart">10dp</item>
+        <item name="backgroundInsetEnd">10dp</item>
+        <item name="backgroundInsetTop">10dp</item>
+        <item name="backgroundInsetBottom">10dp</item>
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
@@ -87,7 +92,9 @@
 
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
         <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize" tools:ignore="SpUsage">@dimen/fragment_drawer_sections_item_text_size</item>
+        <item name="android:textSize" tools:ignore="SpUsage">
+            @dimen/fragment_drawer_sections_item_text_size
+        </item>
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:maxLines">2</item>
         <item name="android:includeFontPadding">false</item>

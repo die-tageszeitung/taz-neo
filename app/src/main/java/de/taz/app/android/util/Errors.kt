@@ -1,11 +1,9 @@
 package de.taz.app.android.util
 
 import android.app.Activity
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import io.sentry.Sentry
 
@@ -19,28 +17,31 @@ fun <T> reportAndRethrowExceptions(block: () -> T): T {
 }
 
 fun Activity.showConnectionErrorDialog(onDismiss: () -> Unit = { finish() }) {
-    AlertDialog.Builder(this)
+    val dialog = MaterialAlertDialogBuilder(this)
         .setMessage(R.string.splash_error_no_connection)
         .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
         .setOnDismissListener {
             onDismiss()
         }
-        .show()
+        .create()
+
+    dialog.show()
 }
 
 
 fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
-    AlertDialog.Builder(this)
+    val dialog = MaterialAlertDialogBuilder(this)
         .setMessage(R.string.dialog_fatal_error_description)
         .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
         .setOnDismissListener {
             onDismiss()
         }
-        .show()
+        .create()
+    dialog.show()
 }
 
 fun Activity.showIssueDownloadFailedDialog(issuePublication: AbstractIssuePublication) {
-    android.app.AlertDialog.Builder(this)
+    val dialog = MaterialAlertDialogBuilder(this)
         .setMessage(
             getString(
                 R.string.error_issue_download_failed,
@@ -50,5 +51,7 @@ fun Activity.showIssueDownloadFailedDialog(issuePublication: AbstractIssuePublic
             )
         )
         .setPositiveButton(android.R.string.ok) { _, _ -> }
-        .show()
+        .create()
+
+    dialog.show()
 }
