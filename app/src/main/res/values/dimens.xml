@@ -146,4 +146,5 @@
     <dimen name="cover_item_padding">21dp</dimen>
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
+
 </resources>
