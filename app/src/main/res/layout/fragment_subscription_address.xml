@@ -190,6 +190,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/next_button"
+        app:layout_constraintWidth="@dimen/button_max_width"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_phone_layout" />
