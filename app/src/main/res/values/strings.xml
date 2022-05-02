@@ -47,6 +47,7 @@
 
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
+    <string name="fragment_header_search_result">Suche %1$d/%2$d: &lt;b>%3$s&lt;/b> (%4$s)</string>
 
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
     <string name="trial_subscription_name">6 Wochen Testabo</string>
@@ -301,5 +302,35 @@
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die PDF-Ansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
-    <string name="experimental_search_activity">Suche</string>
+    <string name="search_activity">Suche</string>
+    <string name="search_advanced">erweiterte suche</string>
+    <string name="search_advanced_timeslot">zeitraum</string>
+    <string name="search_advanced_timeslot_until"> bis </string>
+    <string name="search_advanced_timeslot_from_until">%s bis %s</string>
+    <string name="search_advanced_published_in">erschienen in</string>
+    <string name="search_advanced_sort_by">sortierung</string>
+    <string name="search_input_hint">taz Archiv durchsuchen</string>
+    <string name="search_input_error">Nach was wollen Sie suchen?</string>
+    <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
+    <string name="search_filter">Suche filtern</string>
+    <string name="search_advanced_title">Titel</string>
+    <string name="search_advanced_author">Autor*in</string>
+    <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>
+    <string name="search_advanced_radio_timeslot_last_day">letzter Tag</string>
+    <string name="search_advanced_radio_timeslot_last_week">letzte 7 Tage</string>
+    <string name="search_advanced_radio_timeslot_last_month">letzte 31 Tage</string>
+    <string name="search_advanced_radio_timeslot_last_year">letzte 365 Tage</string>
+    <string name="search_advanced_radio_timeslot_custom">Zeitraum festlegen…</string>
+    <string name="search_advanced_radio_published_in_any">überall</string>
+    <string name="search_advanced_radio_published_in_taz">taz</string>
+    <string name="search_advanced_radio_published_in_lmd">Le monde Diplomatique</string>
+    <string name="search_advanced_radio_published_in_kontext">Kontext</string>
+    <string name="search_advanced_radio_published_in_weekend">Wochenendausgabe</string>
+    <string name="search_advanced_radio_sort_by_relevance">nach Relevanz</string>
+    <string name="search_advanced_radio_sort_by_appearance">äteste Artikel vorne</string>
+    <string name="search_advanced_radio_sort_by_actuality">neueste Artikel vorne</string>
+    <string name="search_advanced_apply_filter">Filter anwenden</string>
+    <string name="search_advanced_start_search">Suche starten</string>
+    <string name="search_result_amount_found">%d von %d Treffer:</string>
+    <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
 </resources>

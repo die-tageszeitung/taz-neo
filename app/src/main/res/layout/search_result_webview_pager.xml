@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    app:statusBarBackground="@android:color/transparent"
+    tools:context="de.taz.app.android.ui.search.SearchActivity">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/webview_pager_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true" />
+
+    <include
+        android:id="@+id/loading_screen"
+        layout="@layout/include_loading_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/navigation_bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        android:orientation="vertical"
+        app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/nav_bottom_height"
+            android:theme="@style/Widget.Design.BottomNavigationView.Dark"
+            app:labelVisibilityMode="unlabeled" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

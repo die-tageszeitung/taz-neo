@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/search_result_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/search_result_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/search_result_title_margin_top"
+        android:textSize="@dimen/search_result_title_text_size"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/search_result_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/search_result_author_text_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_result_title" />
+
+    <TextView
+        android:id="@+id/search_result_snippet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/search_results_small_margin"
+        android:textSize="@dimen/search_result_snippet_text_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_result_author" />
+
+    <TextView
+        android:id="@+id/search_result_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/search_results_small_margin"
+        android:textSize="@dimen/search_result_small_text_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_result_snippet" />
+
+    <TextView
+        android:id="@+id/search_result_section"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_results_small_margin"
+        android:layout_marginTop="@dimen/search_results_small_margin"
+        android:textSize="@dimen/search_result_small_text_size"
+        app:layout_constraintStart_toEndOf="@id/search_result_date"
+        app:layout_constraintTop_toBottomOf="@id/search_result_snippet" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/fragment_drawer_separator_line_height"
+        android:layout_marginTop="17dp"
+        android:background="@color/textColor"
+        app:layout_constraintTop_toBottomOf="@id/search_result_section" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

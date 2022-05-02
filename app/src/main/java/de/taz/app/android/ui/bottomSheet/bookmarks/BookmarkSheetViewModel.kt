@@ -2,14 +2,24 @@ package de.taz.app.android.ui.bottomSheet.bookmarks
 
 import android.app.Application
 import androidx.lifecycle.*
+import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.*
 
 class BookmarkSheetViewModel(application: Application) : AndroidViewModel(application) {
 
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
+    private val contentService: ContentService =
+        ContentService.getInstance(application.applicationContext)
+    private val apiService: ApiService =
+        ApiService.getInstance(application.applicationContext)
 
     var articleFileName
         get() = articleFileNameLiveData.value
@@ -25,7 +35,18 @@ class BookmarkSheetViewModel(application: Application) : AndroidViewModel(applic
 
     val articleStub: ArticleStub?
         get() = articleLiveData.value
-
     val isBookmarkedLiveData: LiveData<Boolean> =
-        articleLiveData.map { article -> article.bookmarked }
+        articleLiveData.map { article -> article?.bookmarked ?: false }
+
+    fun downloadArticleAndSetBookmark(articleFileName: String, datePublished: Date) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val issueForMetadata = apiService.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+            contentService.downloadMetadata(issueForMetadata, maxRetries = 5)
+            articleRepository.get(articleFileName)?.let {
+                contentService.downloadToCache(it)
+                articleRepository.bookmarkArticle(it)
+            }
+        }
+    }
+
 }

@@ -196,7 +196,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun bookmarkArticle(articleName: String) {
-        log.debug("bookmarked from article $articleName")
         getStub(articleName)?.copy(bookmarked = true)?.let {
             appDatabase.articleDao().update(it)
         }
