@@ -147,9 +147,6 @@
 
     <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
 
-    <dimen name="fab_margin_start">24dp</dimen>
-    <dimen name="fab_margin_bottom">68dp</dimen>
-    
     <dimen name="search_separator_line_height">0.5dp</dimen>
     <dimen name="search_separator_line_margin">20dp</dimen>
     <dimen name="search_cancel_button_margin_top">57dp</dimen>
