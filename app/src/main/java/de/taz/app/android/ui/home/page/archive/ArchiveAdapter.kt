@@ -18,7 +18,8 @@ class ArchiveAdapter(
     glideRequestManager,
     HomeMomentViewActionListener(
         fragment
-    )
+    ),
+    observeDownloads = true
 ) {
     override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
 }

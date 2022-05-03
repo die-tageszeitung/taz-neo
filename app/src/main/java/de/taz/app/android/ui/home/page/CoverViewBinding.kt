@@ -32,7 +32,8 @@ abstract class CoverViewBinding(
     protected val coverPublication: AbstractCoverPublication,
     private val dateFormat: DateFormat,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: CoverViewActionListener
+    private val onMomentViewActionListener: CoverViewActionListener,
+    private val observeDownloads: Boolean = true
 ) {
     private var boundView: CoverView? = null
     private lateinit var coverViewData: CoverViewData
@@ -82,18 +83,20 @@ abstract class CoverViewBinding(
                 else -> throw IllegalStateException("Unknown publication type ${coverPublication::class.simpleName}")
             }
 
-            downloadObserver = DownloadObserver(
-                fragment,
-                contentService,
-                toastHelper,
-                issuePublication,
-                view.findViewById(R.id.view_moment_download),
-                view.findViewById(R.id.view_moment_download_finished),
-                view.findViewById(R.id.view_moment_downloading)
-            ).also {
-                it.startObserving(
-                    withPages = downloadDataStore.pdfAdditionally.get()
-                )
+            if(observeDownloads) {
+                downloadObserver = DownloadObserver(
+                    fragment,
+                    contentService,
+                    toastHelper,
+                    issuePublication,
+                    view.findViewById(R.id.view_moment_download),
+                    view.findViewById(R.id.view_moment_download_finished),
+                    view.findViewById(R.id.view_moment_downloading)
+                ).also {
+                    it.startObserving(
+                        withPages = downloadDataStore.pdfAdditionally.get()
+                    )
+                }
             }
         }
     }
