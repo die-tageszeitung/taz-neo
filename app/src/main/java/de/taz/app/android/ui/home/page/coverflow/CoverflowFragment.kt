@@ -100,7 +100,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.currentDate.observe(this) { updateUIForDate(it) }
+        viewModel.currentDate.observe(this) { updateUIForCurrentDate() }
+        viewModel.feed.observe(this) { updateUIForCurrentDate() }
     }
 
     override fun onDestroyView() {
@@ -116,9 +117,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
      */
-    private fun updateUIForDate(date: Date) {
+    private fun updateUIForCurrentDate() {
+        val date = viewModel.currentDate.value
+        val feed = viewModel.feed.value
         // don't change UI if date is already used
-        if (currentlyFocusedDate == date) {
+        if (currentlyFocusedDate == date || date == null || feed == null) {
             return
         }
         currentlyFocusedDate = date
@@ -126,28 +129,26 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // stop old downloadObserver
         downloadObserver?.stopObserving()
 
-        viewModel.feed.value?.let { feed ->
-            val issuePublication = if (viewModel.pdfModeLiveData.value == true) {
-                IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
-            } else {
-                IssuePublication(feed.name, simpleDateFormat.format(date))
-            }
-
-            // start new downloadObserver
-            downloadObserver = DownloadObserver(
-                this,
-                issuePublication,
-                momentDownload,
-                momentDownloadFinished,
-                momentDownloading
-            ).apply {
-                startObserving(
-                    withPages = pdfAdditionally
-                )
-            }
-            val nextPosition = adapter.getPosition(date)
-            skipToPositionIfNecessary(nextPosition)
+        val issuePublication = if (viewModel.pdfModeLiveData.value == true) {
+            IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
+        } else {
+            IssuePublication(feed.name, simpleDateFormat.format(date))
         }
+
+        // start new downloadObserver
+        downloadObserver = DownloadObserver(
+            this,
+            issuePublication,
+            momentDownload,
+            momentDownloadFinished,
+            momentDownloading
+        ).apply {
+            startObserving(
+                withPages = pdfAdditionally
+            )
+        }
+        val nextPosition = adapter.getPosition(date)
+        skipToPositionIfNecessary(nextPosition)
         // set date text
         this.date.text = DateHelper.dateToLongLocalizedString(date)
     }
