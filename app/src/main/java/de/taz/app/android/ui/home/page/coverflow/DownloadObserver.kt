@@ -61,7 +61,7 @@ class DownloadObserver(
     fun startObserving(withPages: Boolean = false) {
         hideDownloadIcon()
         val observingIssueLiveData = if (withPages) issueWithPagesCacheLiveData else issueCacheLiveData
-        observingIssueLiveData.observe(fragment, { update: CacheStateUpdate ->
+        observingIssueLiveData.observe(fragment) { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
                 if (!noConnectionShown) {
@@ -76,7 +76,7 @@ class DownloadObserver(
                 CacheStateUpdate.Type.BAD_CONNECTION -> onConnectionFailure()
                 else -> Unit
             }
-        })
+        }
     }
 
     fun stopObserving() {

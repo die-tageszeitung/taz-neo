@@ -15,17 +15,19 @@ import kotlin.IllegalStateException
 
 
 class MomentViewBinding(
-    private val fragment: Fragment,
+    fragment: Fragment,
     momentPublication: MomentPublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
-    onMomentViewActionListener: CoverViewActionListener
+    onMomentViewActionListener: CoverViewActionListener,
+    observeDownload: Boolean
 ) : CoverViewBinding(
     fragment,
     momentPublication,
     dateFormat,
     glideRequestManager,
-    onMomentViewActionListener
+    onMomentViewActionListener,
+    observeDownload
 ) {
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
