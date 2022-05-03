@@ -127,7 +127,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         downloadObserver?.stopObserving()
 
         viewModel.feed.value?.let { feed ->
-            val issuePublication = if (viewModel.pdfModeLiveData.value == true)  {
+            val issuePublication = if (viewModel.pdfModeLiveData.value == true) {
                 IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
             } else {
                 IssuePublication(feed.name, simpleDateFormat.format(date))
@@ -145,14 +145,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     withPages = pdfAdditionally
                 )
             }
-
+            val nextPosition = adapter.getPosition(date)
+            skipToPositionIfNecessary(nextPosition)
         }
-
         // set date text
         this.date.text = DateHelper.dateToLongLocalizedString(date)
-
-        val nextPosition = adapter.getPosition(date)
-        skipToPositionIfNecessary(nextPosition)
     }
 
     /**
