@@ -27,6 +27,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
 
@@ -67,7 +68,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         super.onCreate(savedInstanceState)
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
-        } catch (e: NullPointerException) {
+        } catch(e: ClassCastException) {
+            val hint = "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it"
+            Sentry.captureException(e, hint)
+            IssuePublicationWithPages(
+                intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
+            )
+        }
+        catch (e: NullPointerException) {
             throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         }
 
