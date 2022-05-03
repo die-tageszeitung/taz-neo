@@ -335,7 +335,8 @@ class SectionDrawerFragment : Fragment(R.layout.fragment_drawer_sections) {
                                 IssuePublication(coverPublication)
                             )
                         }
-                    }
+                    },
+                    observeDownload = false
                 )
                 momentBinder?.prepareDataAndBind(fragment_drawer_sections_moment)
                 fragment_moment_date.visibility = View.GONE

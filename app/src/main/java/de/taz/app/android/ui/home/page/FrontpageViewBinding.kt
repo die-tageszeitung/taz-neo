@@ -17,13 +17,15 @@ class FrontpageViewBinding(
     frontpagePublication: FrontpagePublication,
     dateFormat: DateFormat,
     glideRequestManager: RequestManager,
-    onMomentViewActionListener: CoverViewActionListener
+    onMomentViewActionListener: CoverViewActionListener,
+    observeDownload: Boolean
 ) : CoverViewBinding(
     fragment,
     frontpagePublication,
     dateFormat,
     glideRequestManager,
-    onMomentViewActionListener
+    onMomentViewActionListener,
+    observeDownload
 ) {
 
     private val storageService = StorageService.getInstance(applicationContext)

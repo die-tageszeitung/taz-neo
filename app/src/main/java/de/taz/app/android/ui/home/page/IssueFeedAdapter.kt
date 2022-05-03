@@ -33,7 +33,8 @@ abstract class IssueFeedAdapter(
     @LayoutRes private val itemLayoutRes: Int,
     private val feed: Feed,
     private val glideRequestManager: RequestManager,
-    private val onMomentViewActionListener: CoverViewActionListener
+    private val onMomentViewActionListener: CoverViewActionListener,
+    private val observeDownloads: Boolean
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
 
     abstract val dateFormat: DateFormat
@@ -83,7 +84,8 @@ abstract class IssueFeedAdapter(
                     FrontpagePublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
-                    onMomentViewActionListener
+                    onMomentViewActionListener,
+                    observeDownloads
                 )
             } else {
                 MomentViewBinding(
@@ -91,7 +93,8 @@ abstract class IssueFeedAdapter(
                     MomentPublication(feed.name, simpleDateFormat.format(date)),
                     dateFormat = dateFormat,
                     glideRequestManager = glideRequestManager,
-                    onMomentViewActionListener
+                    onMomentViewActionListener,
+                    observeDownloads
                 )
             }
             binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))

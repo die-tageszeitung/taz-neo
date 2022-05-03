@@ -21,7 +21,8 @@ class CoverflowAdapter(
     itemLayoutRes,
     feed,
     glideRequestManager,
-    onCoverViewActionListener
+    onCoverViewActionListener,
+    observeDownloads = false
 ) {
     override val dateFormat: DateFormat = DateFormat.None
 
