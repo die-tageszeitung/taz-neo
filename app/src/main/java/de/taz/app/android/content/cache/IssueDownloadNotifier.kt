@@ -23,7 +23,7 @@ class IssueDownloadNotifier(
     private val apiService = ApiService.getInstance(context)
     private val log by Log
     private lateinit var started: Date
-    private lateinit var downloadId: String
+    private var downloadId: String? = null
 
 
     /**
@@ -76,9 +76,12 @@ class IssueDownloadNotifier(
      */
     private suspend fun notifyIssueDownloadStop() = withContext(Dispatchers.IO) {
         val secondsTaken = (Date().time - started.time).toFloat() / 1000
-        apiService.notifyServerOfDownloadStop(
-            downloadId, secondsTaken
-        )
-        log.debug("Issue download of $issueKey completed after $secondsTaken")
+
+        downloadId?.let {
+            apiService.notifyServerOfDownloadStop(
+                it, secondsTaken
+            )
+            log.debug("Issue download of $issueKey completed after $secondsTaken")
+        } ?: log.warn("Somehow download Id was null so information of downloadStop failed!")
     }
 }
