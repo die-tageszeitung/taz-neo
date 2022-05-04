@@ -181,5 +181,10 @@ class MuPDFReaderView constructor(
         }
     }
 
+    fun zoomPanoramaPage() {
+            val newScale = 2f
+            mScale = newScale
+    }
+
 
 }
