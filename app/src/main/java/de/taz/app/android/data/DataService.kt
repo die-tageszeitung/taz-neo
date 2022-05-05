@@ -49,18 +49,15 @@ class DataService(applicationContext: Context) {
     }
 
     private suspend fun ensureIssueCount() = ensureCountLock.withLock {
-        runIfNotNull(
-            downloadIssueNumberLiveData.value,
-            maxStoredIssueNumberLiveData.value
-        ) { downloaded, max ->
+        val downloaded = downloadIssueNumberLiveData.value
+        val max = maxStoredIssueNumberLiveData.value
+        if (downloaded != null && max != null) {
             var downloadedCounter = downloaded
             while (downloadedCounter > max) {
-                runBlocking {
-                    issueRepository.getEarliestDownloadedIssueStub()?.let {
-                        contentService.deleteIssue(IssuePublication(it.issueKey))
-                    }
-                    downloadedCounter--
+                issueRepository.getEarliestDownloadedIssueStub()?.let {
+                    contentService.deleteIssue(IssuePublication(it.issueKey))
                 }
+                downloadedCounter--
             }
         }
     }
