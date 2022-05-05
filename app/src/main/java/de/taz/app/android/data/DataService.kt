@@ -9,7 +9,6 @@ import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
