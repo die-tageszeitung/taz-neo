@@ -61,14 +61,16 @@ class IssueDeletion(
             // Maybe the issue is IssueWithPages, we do not know at this moment,
             // so set download date to null of IssueWithPages will set both downloadDates to null
             issueRepository.setDownloadDate(IssueWithPages(issue), null)
+            val articles = issue.getArticles()
+
             val collectionsToDeleteContent =
                 listOfNotNull(issue.imprint) +
                         issue.sectionList +
-                        issue.getArticles().filter { !it.bookmarked } +
+                        articles.filter { !it.bookmarked } +
                         issue.pageList
 
             // If no bookmarked article is attached, delete metadata, too
-            if (articleRepository.getBookmarkedArticleStubsForIssue(issue.issueKey).isEmpty()) {
+            if (articles.none { it.bookmarked }) {
                 val deletion = MetadataDeletion.prepare(applicationContext, issue)
                 SubOperationCacheItem(
                     deletion.tag,
