@@ -5,7 +5,6 @@ import de.taz.app.android.api.models.AbstractIssue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
-import de.taz.app.android.persistence.repository.ArticleRepository
 
 /**
  * A [CacheOperation] composed of a [ContentDeletion] and subsequent [MetadataDeletion]
@@ -27,7 +26,6 @@ class IssueDeletion(
     tag
 ) {
     override val loadingState: CacheState = CacheState.DELETING_CONTENT
-    private val articleRepository = ArticleRepository.getInstance(applicationContext)
 
     companion object {
         /**
