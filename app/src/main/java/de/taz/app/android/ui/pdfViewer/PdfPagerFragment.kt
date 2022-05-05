@@ -104,7 +104,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                     }
 
                     pdfPagerViewModel.updateCurrentItem(
-                        newPosition.coerceAtLeast(0)
+                        newPosition.coerceIn(0, pdfPagerViewModel.getAmountOfPdfPages() - 1)
                     )
                 }
         }
