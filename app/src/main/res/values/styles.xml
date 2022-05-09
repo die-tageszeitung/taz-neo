@@ -304,7 +304,7 @@
 
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textAlignment">center</item>
         <item name="android:lineSpacingExtra">7dp</item>
         <item name="android:paddingTop">@dimen/fragment_login_text_padding_vertical</item>
@@ -321,7 +321,7 @@
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
     </style>
