@@ -86,6 +86,7 @@ class IssueViewerViewModel(
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
+                            issueRepository.updateLastViewedDate(issueKey)
                         } catch (e: CacheOperationFailedException) {
                             issueLoadingFailedErrorFlow.emit(true)
                         }
