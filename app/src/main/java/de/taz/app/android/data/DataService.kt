@@ -5,61 +5,27 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 /**
  * A central service providing data intransparent if from cache or remotely fetched
  */
 @Mockable
+@Deprecated("This class should not be used anymore - either use the respective repositories" +
+        "or the CacheOperations")
 class DataService(applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
     private val apiService = ApiService.getInstance(applicationContext)
-    private val storageDataStore = StorageDataStore.getInstance(applicationContext)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
-
-    private val maxStoredIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
-    private val downloadIssueNumberLiveData = issueRepository.getDownloadedIssuesCountLiveData()
-
-    private val ensureCountLock = Mutex()
-
-    init {
-        maxStoredIssueNumberLiveData.observeForever {
-            CoroutineScope(Dispatchers.IO).launch {
-                ensureIssueCount()
-            }
-        }
-        downloadIssueNumberLiveData.observeForever {
-            CoroutineScope(Dispatchers.IO).launch {
-                ensureIssueCount()
-            }
-        }
-    }
-
-    private suspend fun ensureIssueCount() = ensureCountLock.withLock {
-        val downloaded = downloadIssueNumberLiveData.value
-        val max = maxStoredIssueNumberLiveData.value
-        if (downloaded != null && max != null) {
-            var downloadedCounter = downloaded
-            while (downloadedCounter > max) {
-                issueRepository.getEarliestDownloadedIssueStub()?.let {
-                    contentService.deleteIssue(IssuePublication(it.issueKey))
-                }
-                downloadedCounter--
-            }
-        }
-    }
 
     suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? =
         withContext(Dispatchers.IO) {

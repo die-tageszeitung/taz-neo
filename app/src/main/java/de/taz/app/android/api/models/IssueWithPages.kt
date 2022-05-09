@@ -1,8 +1,6 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
 
@@ -25,7 +23,8 @@ data class IssueWithPages(
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?,
-    override val lastPagePosition: Int?
+    override val lastPagePosition: Int?,
+    override val lastViewedDate: Date?,
 ) : AbstractIssue {
 
     constructor(issue: Issue) : this(
@@ -44,7 +43,8 @@ data class IssueWithPages(
         issue.dateDownload,
         issue.dateDownloadWithPages,
         issue.lastDisplayableName,
-        issue.lastPagePosition
+        issue.lastPagePosition,
+        issue.lastViewedDate,
     )
 
     override val issueKey: IssueKeyWithPages
