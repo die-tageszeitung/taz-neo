@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
     <color name="tazRed">#d50d2e</color>
 
     <color name="white">#fff</color>
@@ -9,12 +9,13 @@
     <color name="darkGrey">#1C1C1E</color>
     <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
+    <color name="deleteRed">#d50e2f</color>
 
+    <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
 
     <color name="colorAccent">@color/tazRed</color>
-    <color name="deleteRed">#d50e2f</color>
 
     <color name="backgroundColor">@color/superDarkGrey</color>
     <color name="textColor">@color/superLightGrey</color>
