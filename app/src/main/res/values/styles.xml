@@ -4,7 +4,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorError">@color/tazRed</item>
+        <item name="colorError">@color/error</item>
         <item name="colorButtonNormal">@color/tazRed</item>
         <item name="android:colorButtonNormal">@color/tazRed</item>
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>

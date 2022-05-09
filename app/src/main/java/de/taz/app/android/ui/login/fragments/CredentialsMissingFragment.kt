@@ -213,7 +213,7 @@ class CredentialsMissingFragment :
         if (!fragment_login_missing_credentials_terms_and_conditions.isChecked) {
             done = false
             fragment_login_missing_credentials_terms_and_conditions.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.tazRed)
+                ContextCompat.getColor(requireContext(), R.color.error)
             )
         }
 
