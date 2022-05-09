@@ -30,7 +30,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/itemText"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/tazRed" />
+        app:tint="@color/info_icon" />
 
     <RadioButton
         android:id="@+id/itemCheckbox"
