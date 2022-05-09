@@ -93,8 +93,8 @@ abstract class IssueDao : BaseDao<IssueStub>() {
      */
     @Query("""
         SELECT * FROM Issue
-        WHERE dateDownload IS NOT NULL
-        ORDER BY IFNULL(lastViewedDate, dateDownload) ASC LIMIT 1
+        WHERE NOT lastViewedDate IS (SELECT MAX(lastViewedDate) FROM Issue)
+        ORDER BY dateDownload ASC LIMIT 1
         """)
     abstract fun getIssueToDelete(): IssueStub?
 

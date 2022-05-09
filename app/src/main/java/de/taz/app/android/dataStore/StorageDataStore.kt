@@ -55,8 +55,8 @@ class StorageDataStore private constructor(applicationContext: Context) {
         dataStore,
         stringPreferencesKey(KEEP_ISSUES_NUMBER),
         KEEP_ISSUES_DEFAULT,
-        { it.toString() },
-        { it.toInt() }
+        { it.coerceAtLeast(2).toString() },
+        { it.toInt().coerceAtLeast(2) }
     )
 
     val storageLocation = MappingDataStoreEntry(
