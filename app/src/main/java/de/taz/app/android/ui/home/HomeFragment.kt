@@ -16,11 +16,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.search.SearchActivity
-import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -55,7 +51,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                                 enableRefresh()
                             }
                             ARCHIVE_PAGER_POSITION -> {
-                                setHomeIcon()
+                                setHomeIconFilled(false)
                                 disableRefresh()
                             }
                         }
@@ -79,9 +75,9 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 }
                 reduceDragSensitivity(10)
             }
-           coverflowRefreshLayout?.reduceDragSensitivity(10)
+            coverflowRefreshLayout.reduceDragSensitivity(10)
 
-            faActionPdf.setOnClickListener {
+            fabActionPdf.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
                 }
@@ -122,31 +118,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         viewBinding.coverflowRefreshLayout.isRefreshing = false
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        when (menuItem.itemId) {
-            R.id.bottom_navigation_action_bookmark -> Intent(
-                requireActivity(),
-                BookmarkListActivity::class.java
-            ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_settings -> Intent(
-                requireActivity(),
-                SettingsActivity::class.java
-            ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_search -> Intent(
-                requireActivity(),
-                SearchActivity::class.java
-            ).apply { startActivity(this) }
-            R.id.bottom_navigation_action_home -> {
-                (activity as? MainActivity)?.showHome()
-            }
-            R.id.bottom_navigation_action_pdf -> {
-                CoroutineScope(Dispatchers.Main).launch {
-                    homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
-                }
-            }
-        }
-    }
-
     override fun onDestroyView() {
         viewBinding.feedArchivePager.adapter = null
         refreshJob?.cancel()
@@ -154,16 +125,22 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onDestroyView()
     }
 
-    fun setHomeIconFilled() {
-        onHome = true
+    fun setHomeIconFilled(filled: Boolean = true) {
         val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
         val menu = menuView?.menu
-        menuView?.post {
-            menu?.findItem(R.id.bottom_navigation_action_home)?.setIcon(R.drawable.ic_home_filled)
+        if (filled) {
+            onHome = true
+            menuView?.post {
+                menu?.findItem(R.id.bottom_navigation_action_home)
+                    ?.setIcon(R.drawable.ic_home_filled)
+            }
+        } else {
+            menuView?.post {
+                menu?.findItem(R.id.bottom_navigation_action_home)
+                    ?.setIcon(R.drawable.ic_home)
+            }
         }
     }
-
-    fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
 
     fun showArchive() {
         viewBinding.feedArchivePager.currentItem = ARCHIVE_PAGER_POSITION

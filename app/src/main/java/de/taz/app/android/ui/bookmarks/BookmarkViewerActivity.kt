@@ -6,6 +6,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
@@ -26,6 +29,20 @@ class BookmarkViewerActivity : AppCompatActivity() {
                 intent.getStringExtra(KEY_SHOWN_ARTICLE),
             )
         ).commit()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this)
+        setupBottomNavigation(
+            navigation_bottom_webview_pager,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null)
     }
 }
 
@@ -48,19 +65,5 @@ class BookmarkViewerFragment : TazViewerFragment() {
                 bookmarkPagerViewModel.articleFileNameLiveData.postValue(it)
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setBottomNavigationBackActivity(this)
-        setupBottomNavigation(
-            navigation_bottom_webview_pager,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
-        )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        setBottomNavigationBackActivity(null)
     }
 }

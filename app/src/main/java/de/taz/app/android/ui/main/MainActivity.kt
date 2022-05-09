@@ -98,18 +98,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         super.onStop()
     }
 
-    override fun onBackPressed() {
-        val archiveFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment }
-                ?.childFragmentManager?.fragments?.firstOrNull { it is ArchiveFragment }
-        // if in archive fragment the back button should show home
-        if (archiveFragment?.isVisible == true) {
-            showHome()
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     private var loggedOutDialog: AlertDialog? = null
     private suspend fun maybeShowLoggedOutDialog() {
         if (issueFeedViewModel.getPdfMode() && !authHelper.isValid()) {
@@ -205,7 +193,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             this.doubleBackToExitPressedOnce = true
             toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-            Handler(Looper.getMainLooper()).postDelayed(Runnable {
+            Handler(Looper.getMainLooper()).postDelayed({
                 doubleBackToExitPressedOnce = false
             }, 2000)
         } else {

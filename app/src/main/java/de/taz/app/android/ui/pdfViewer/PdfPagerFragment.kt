@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
  * [PdfPagerViewModel.pdfPageList]
  */
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_pdf_pager
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_home
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 

@@ -5,9 +5,9 @@ import android.content.Intent
 import androidx.annotation.IdRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
-import de.taz.app.android.ui.ExperimentalSearchActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlin.reflect.KClass
 
@@ -90,7 +90,7 @@ fun Activity.bottomNavigationBack() {
 
 private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
 private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
-private fun Activity.navigateToSearch() = startActivity(this, ExperimentalSearchActivity::class)
+private fun Activity.navigateToSearch() = startActivity(this, SearchActivity::class)
 private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
 
 private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {

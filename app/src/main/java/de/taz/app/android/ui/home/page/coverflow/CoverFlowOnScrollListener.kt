@@ -80,11 +80,7 @@ class CoverFlowOnScrollListener(
 
     private fun setHomeIcon(position: Int) {
         fragment.getHomeFragment().apply {
-            if (position == 0) {
-                setHomeIconFilled()
-            } else {
-                setHomeIcon()
-            }
+            setHomeIconFilled(filled = position == 0)
         }
     }
 }

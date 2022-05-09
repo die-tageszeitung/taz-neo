@@ -29,9 +29,6 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFra
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
 import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
-import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log

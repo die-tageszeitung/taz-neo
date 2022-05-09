@@ -23,6 +23,9 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.bottomNavigationBack
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
@@ -140,6 +143,18 @@ class SearchActivity :
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.Search
+        )
+    }
+
+    override fun onBackPressed() {
+        bottomNavigationBack()
     }
 
     override fun onDestroy() {
