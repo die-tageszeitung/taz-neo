@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +26,8 @@ data class IssueStub(
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?,
-    override val lastPagePosition: Int?
+    override val lastPagePosition: Int?,
+    override val lastViewedDate: Date?,
 ): IssueOperations {
 
     constructor(issue: IssueOperations): this (
@@ -42,7 +42,8 @@ data class IssueStub(
         issue.dateDownload,
         issue.dateDownloadWithPages,
         issue.lastDisplayableName,
-        issue.lastPagePosition
+        issue.lastPagePosition,
+        issue.lastViewedDate,
     )
     override val issueKey: IssueKey
         get() = IssueKey(feedName, date, status)

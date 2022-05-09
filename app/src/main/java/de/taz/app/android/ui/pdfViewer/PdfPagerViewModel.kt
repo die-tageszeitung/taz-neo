@@ -32,6 +32,7 @@ class PdfPagerViewModel(
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
+    private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
 
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
@@ -90,6 +91,7 @@ class PdfPagerViewModel(
                 // Get latest shown page and set it before setting the issue
                 updateCurrentItem(issue.lastPagePosition ?: 0)
 
+                issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
                 CoroutineScope(Dispatchers.IO).launch {
                     contentService.downloadToCache(issuePublicationWithPages)
