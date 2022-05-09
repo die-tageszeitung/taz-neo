@@ -84,17 +84,14 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
 
     /**
-     * We want to delete the issue that has not been opened for the longest time - if there are
-     * multiple issues that have not been opened yet we want to delete the issue that has been
-     * downloaded the farthest in the past.
-     * As we do not want to delete the newest issue if we opened all the other issues we consider
-     * the downloadTime as a view of the issue. (Otherwise automatically downloading an issue would
-     * result in this issue being immediately deleted afterwards again)
+     * We exclude the last viewed issue from deletion, otherwise we might end up deleting an issue
+     * that is currently being read.
+     * Apart from the mentioned issue we will delete the one downloaded the furthest in the past.
      */
     @Query("""
         SELECT * FROM Issue
-        WHERE dateDownload IS NOT NULL
-        ORDER BY IFNULL(lastViewedDate, dateDownload) ASC LIMIT 1
+        WHERE NOT lastViewedDate IS (SELECT MAX(lastViewedDate) FROM Issue)
+        ORDER BY dateDownload ASC LIMIT 1
         """)
     abstract fun getIssueToDelete(): IssueStub?
 
