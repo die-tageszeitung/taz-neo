@@ -243,7 +243,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     (dialog as AlertDialog).findViewById<EditText>(
                         R.id.dialog_settings_keep_number
                     )?.text.toString().toIntOrNull()?.let { number ->
-                        setStoredIssueNumber(number.coerceAtLeast(1))
+                        setStoredIssueNumber(number)
                         dialog.hide()
                     }
                 }
