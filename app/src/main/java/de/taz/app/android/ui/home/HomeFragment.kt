@@ -1,13 +1,13 @@
 package de.taz.app.android.ui.home
 
-import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.*
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.data.DataService
@@ -15,19 +15,19 @@ import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.util.Log
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.coroutines.*
 import java.util.*
 
 class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     val log by Log
 
+    var onHome: Boolean = true
     private var refreshJob: Job? = null
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
@@ -37,13 +37,13 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         viewBinding.apply {
             homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                navigationBottom.menu.findItem(R.id.bottom_navigation_action_pdf)
-                    .setIcon(if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view)
+                val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                fabActionPdf.setImageResource(drawable)
             }
 
             feedArchivePager.apply {
                 adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
-
+           
                 // reduce viewpager2 sensitivity to make the view less finicky
                 reduceDragSensitivity(6)
                 registerOnPageChangeCallback(object :
@@ -78,6 +78,13 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                     }
                 }
                 reduceDragSensitivity(10)
+            }
+           coverflowRefreshLayout?.reduceDragSensitivity(10)
+
+            faActionPdf.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
+                }
             }
         }
     }
@@ -147,7 +154,14 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onDestroyView()
     }
 
-    fun setHomeIconFilled() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home_filled)
+    fun setHomeIconFilled() {
+        onHome = true
+        val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
+        val menu = menuView?.menu
+        menuView?.post {
+            menu?.findItem(R.id.bottom_navigation_action_home)?.setIcon(R.drawable.ic_home_filled)
+        }
+    }
 
     fun setHomeIcon() = setIcon(R.id.bottom_navigation_action_home, R.drawable.ic_home)
 

@@ -11,7 +11,8 @@
     <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
-    <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der Zeitungsansicht.</string>
+    <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
+    <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
     <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
     <string name="popup_login_elapsed_text">
@@ -37,6 +38,11 @@
     <string name="something_went_wrong_try_later">Etwas unerwartetes ist passiert. Bitte versuchen Sie es später erneut.</string>
 
     <string name="help">Hilfe</string>
+
+    <string name="tab_bar_home">Home</string>
+    <string name="tab_bar_bookmarks">Leseliste</string>
+    <string name="tab_bar_search">Suche</string>
+    <string name="tab_bar_settings">Einstellungen</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
     <string name="bottom_navigation_action_help">Hilfe anzeigen</string>

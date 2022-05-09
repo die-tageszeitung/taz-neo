@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -38,7 +37,6 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
@@ -237,10 +235,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountEmail.text = email
         }
-    }
-
-    private fun setDoNotShowAgain(doNotShowAgain: Boolean) {
-        viewModel.setPdfDialogDoNotShowAgain(doNotShowAgain)
     }
 
     private fun showKeepIssuesDialog() {
@@ -445,12 +439,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         fragmentSettingsAccountLogout.visibility = View.GONE
         fragmentSettingsAccountDelete.visibility = View.GONE
         fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            MainActivity.start(requireContext())
-        }
     }
 
     private fun setStoredIssueNumber(number: Int) {

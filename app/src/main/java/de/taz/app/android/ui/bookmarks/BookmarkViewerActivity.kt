@@ -8,6 +8,7 @@ import androidx.fragment.app.activityViewModels
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
+import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlin.reflect.KClass
 
 const val KEY_SHOWN_ARTICLE = "KEY_SHOWN_ARTICLE"
@@ -47,5 +48,19 @@ class BookmarkViewerFragment : TazViewerFragment() {
                 bookmarkPagerViewModel.articleFileNameLiveData.postValue(it)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this)
+        setupBottomNavigation(
+            navigation_bottom_webview_pager,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null)
     }
 }

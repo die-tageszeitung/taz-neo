@@ -12,6 +12,14 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.ui.TazViewerActivity
+import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_ARTICLE
+import de.taz.app.android.ui.main.MAIN_EXTRA_TARGET_HOME
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -136,5 +144,47 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             .observe(this) {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == ACTIVITY_LOGIN_REQUEST_CODE) {
+            data?.let {
+                data.getStringExtra(MAIN_EXTRA_TARGET)?.let {
+                    if (it == MAIN_EXTRA_TARGET_ARTICLE) {
+                        data.getStringExtra(MAIN_EXTRA_ARTICLE)?.let { articleName ->
+                            Intent(this, IssueViewerActivity::class.java).apply {
+                                putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+                                putExtra(KEY_DISPLAYABLE, articleName.replace("public.", ""))
+                                startActivity(this)
+                                finish()
+                            }
+                        }
+                    }
+                    if (it == MAIN_EXTRA_TARGET_HOME) {
+                        finish()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null)
+    }
+
+    override fun onBackPressed() {
+        if (finishOnBackPressed) {
+            finish()
+        } else {
+            super.onBackPressed()
+        }
     }
 }
