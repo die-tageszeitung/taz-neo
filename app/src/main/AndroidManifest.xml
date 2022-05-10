@@ -36,10 +36,13 @@
             android:noHistory="true" />
         <activity android:name=".ui.main.MainActivity"
             android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.issueViewer.IssueViewerActivity" />
+        <activity android:name=".ui.issueViewer.IssueViewerActivity"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.search.SearchActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize"/>
-        <activity android:name=".ui.bookmarks.BookmarkListActivity" />
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity android:name=".ui.bookmarks.BookmarkListActivity"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.bookmarks.BookmarkViewerActivity" />
         <activity android:name=".ui.settings.SettingsActivity"
             android:theme="@style/noAnimationOnActivityChange"/>

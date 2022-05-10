@@ -154,7 +154,14 @@ class SearchActivity :
     }
 
     override fun onBackPressed() {
-        bottomNavigationBack()
+        val searchResultPagerFragment =
+            supportFragmentManager.fragments.firstOrNull { it is SearchResultPagerFragment } as? SearchResultPagerFragment
+
+        if (searchResultPagerFragment?.isAdded == false) {
+            bottomNavigationBack()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onDestroy() {
