@@ -268,7 +268,7 @@
         <item name="endIconMode">clear_text</item>
         <item name="hintEnabled">false</item>
         <item name="startIconContentDescription">@string/search</item>
-        <item name="startIconDrawable">@drawable/ic_search</item>
+        <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">

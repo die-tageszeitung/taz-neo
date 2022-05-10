@@ -188,7 +188,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/search_description"
-        android:src="@drawable/ic_search"
+        android:src="@drawable/ic_search_small"
         app:layout_constraintBottom_toTopOf="@id/search_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
