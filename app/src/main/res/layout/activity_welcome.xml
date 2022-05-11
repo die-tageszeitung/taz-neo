@@ -24,7 +24,7 @@
         android:includeFontPadding="false"
         android:text="@string/button_close_text"
         android:elevation="@dimen/ic_close_button_elevation"
-        android:textColor="@color/lightGrey"
+        android:textColor="@color/textColorAccent"
         android:textSize="@dimen/activity_welcome_button_text_size" />
 
     <include
