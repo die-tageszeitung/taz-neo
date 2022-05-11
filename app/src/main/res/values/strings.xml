@@ -205,6 +205,9 @@
     <string name="fragment_subscription_price_title">Monatlicher Bezugspreis</string>
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
 
+    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_description">Aufgrund der neuen Google-Richtlinien können Sie sich hier nur einmal für ein Probeabo registrieren. Kostenpflichtige Abos können Sie über usnere Webseite taz.de bestellen. Mit den Zugangsdaten können Sie sich dann auch in der App anmelden.</string>
+
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
 
     <string name="fragment_subscription_bank_title">Bankdaten</string>

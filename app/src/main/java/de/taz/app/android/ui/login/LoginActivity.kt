@@ -10,6 +10,8 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.NON_FREE_BUILD_FLAVOR
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -22,10 +24,7 @@ import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.login.fragments.*
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
+import de.taz.app.android.ui.login.fragments.subscription.*
 import de.taz.app.android.ui.main.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -326,15 +325,21 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionPrice(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
-        lifecycleScope.launch(Dispatchers.IO) {
-            getPriceList()?.let {
-                showFragment(
-                    SubscriptionPriceFragment.createInstance(
-                        it,
-                        invalidPrice = priceInvalid
+        // if on non free flavor it is not allowed to buy stuff from the app,
+        // so we show a fragment where we only allow the trial subscription:
+        if (BuildConfig.FLAVOR == NON_FREE_BUILD_FLAVOR) {
+            showFragment(SubscriptionTrialOnlyFragment.createInstance())
+        } else {
+            lifecycleScope.launch(Dispatchers.IO) {
+                getPriceList()?.let {
+                    showFragment(
+                        SubscriptionPriceFragment.createInstance(
+                            it,
+                            invalidPrice = priceInvalid
+                        )
                     )
-                )
-            } ?: hideLoadingScreen()
+                } ?: hideLoadingScreen()
+            }
         }
     }
 
