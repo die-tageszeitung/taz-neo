@@ -65,4 +65,6 @@
     <color name="drawer_pdf_sections_text">@color/white</color>
     <color name="archive_navigation_end_list_item">@color/white</color>
     <color name="icon_tint">@color/lightGrey</color>
+
+    <color name="icon_active_filter" >@color/blue</color>
 </resources>
