@@ -70,4 +70,6 @@
     <color name="button_cancel_background">@color/darkGrey</color>
     <color name="cover_placeholder">@color/darkGrey</color>
     <color name="coverflow_background">@color/superDarkGrey</color>
+    <color name="dialog_try_pdf_text">@color/black</color>
+    <color name="navigation_bottom_highlight">@color/black</color>
 </resources>
