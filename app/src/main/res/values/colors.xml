@@ -74,4 +74,7 @@
     <color name="navigation_bottom_highlight">@color/black</color>
 
     <color name="fragment_bookmarks_delete_background">@color/deleteRed</color>
+
+<!--    TODO(peter@ctrl.alt.coop) Check if obsolete -->
+    <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>
 </resources>
