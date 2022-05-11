@@ -4,37 +4,29 @@
     <!--    no extra colors so far defined-->
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
-    <color name="colorPrimary">@color/tazRed</color>
-    <color name="colorPrimaryDark">@color/tazRed</color>
-
-    <color name="colorAccent">@color/tazRed</color>
 
     <color name="backgroundColor">@color/superDarkGrey</color>
-    <color name="textColor">@color/superLightGrey</color>
-    <color name="textColorAccent">@color/lightGrey</color>
-    <color name="textColorSection">@color/superLightGrey</color>
-
-    <color name="colorEdgeEffect">@color/lightGrey</color>
-
-    <color name="splashBackground">@color/tazRed</color>
-
-    <color name="drawer_sections_item">@color/lightGrey</color>
-    <color name="drawer_sections_date">@color/lightGrey</color>
-    <color name="drawer_sections_item_highlighted">@color/white</color>
-    <color name="pdf_drawer_sections_item">@color/lightGrey</color>
-    <color name="pdf_drawer_sections_item_highlighted">@color/white</color>
-    <color name="navigation_drawer_background">@color/darkGrey</color>
-    <color name="navigation_drawer_pdf_background">@color/darkGrey</color>
-
-    <color name="navigation_bottom_background">@color/darkGrey</color>
-    <color name="navigation_bottom_item">@color/lightGrey</color>
-
-    <color name="fragment_archive_background">@color/superDarkGrey</color>
-
     <color name="bottom_sheet_background">@color/darkGrey</color>
     <color name="bottom_sheet_divider_color">@color/lightGrey</color>
     <color name="bottom_sheet_text_color">@color/lightGrey</color>
-
+    <color name="colorAccent">@color/tazRed</color>
+    <color name="colorEdgeEffect">@color/lightGrey</color>
+    <color name="colorPrimary">@color/tazRed</color>
+    <color name="colorPrimaryDark">@color/tazRed</color>
+    <color name="drawer_sections_date">@color/lightGrey</color>
+    <color name="drawer_sections_item">@color/lightGrey</color>
+    <color name="drawer_sections_item_highlighted">@color/white</color>
+    <color name="fragment_archive_background">@color/superDarkGrey</color>
+    <color name="navigation_bottom_background">@color/darkGrey</color>
+    <color name="navigation_bottom_item">@color/lightGrey</color>
+    <color name="navigation_drawer_background">@color/darkGrey</color>
+    <color name="navigation_drawer_pdf_background">@color/darkGrey</color>
+    <color name="pdf_drawer_sections_item">@color/lightGrey</color>
+    <color name="pdf_drawer_sections_item_highlighted">@color/white</color>
     <color name="search_field_background_color">@color/darkGrey</color>
+    <color name="splashBackground">@color/tazRed</color>
+    <color name="textColor">@color/superLightGrey</color>
+    <color name="textColorAccent">@color/lightGrey</color>
+    <color name="textColorSection">@color/superLightGrey</color>
 
 </resources>
