@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_horizontal_margin"
-        android:backgroundTint="@color/darkGrey"
+        android:backgroundTint="@color/button_cancel_background"
         android:text="@string/cancel_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subscription_elapsed_popup_email" />
