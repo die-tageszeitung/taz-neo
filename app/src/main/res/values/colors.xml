@@ -54,4 +54,14 @@
 
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
+    <color name="data_policy_background">@color/white</color>
+    <color name="pdf_drawer_card_background">@color/white</color>
+    <color name="pdf_drawer_item_card_background">@color/white</color>
+    <color name="fragment_drawer_date_text_color">@color/white</color>
+    <color name="web_view_background">@color/white</color>
+    <color name="welcome_text_background_tint">@color/white</color>
+    <color name="fragment_bookmarks_delete">@color/white</color>
+    <color name="button_text">@color/white</color>
+    <color name="drawer_pdf_sections_text">@color/white</color>
+    <color name="archive_navigation_end_list_item">@color/white</color>
 </resources>

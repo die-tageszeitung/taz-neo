@@ -94,7 +94,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
-                            app:cardBackgroundColor="@color/white"
+                            app:cardBackgroundColor="@color/pdf_drawer_card_background"
                             app:cardElevation="@dimen/moment_elevation">
 
                             <ImageView
@@ -116,7 +116,7 @@
                         android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                         android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
                         android:layout_weight="0.5"
-                        android:textColor="@color/white"
+                        android:textColor="@color/fragment_drawer_date_text_color"
                         android:textSize="@dimen/fragment_drawer_date_text_size"/>
 
                 </LinearLayout>

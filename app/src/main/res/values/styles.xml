@@ -35,7 +35,7 @@
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/button_text</item>
         <item name="fontFamily">@font/appFontRegular</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
@@ -104,7 +104,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/drawer_pdf_sections_text</item>
     </style>
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
@@ -149,7 +149,7 @@
     </style>
 
     <style name="TextAppearance.Archive.NavigationEnd.ListItem" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/archive_navigation_end_list_item</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
