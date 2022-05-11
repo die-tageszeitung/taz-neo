@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
-    <color name="tazRed">#d50d2e</color>
-    <color name="white">#fff</color>
-    <color name="superSuperLightGrey">#F0F0F0</color>
-    <color name="superLightGrey">#E3E3E3</color>
-    <color name="lightGrey">#9C9C9C</color>
-    <color name="blue">#007AFF</color>
-    <color name="mediumLightGrey">#707070</color>
-    <color name="darkGrey">#1C1C1E</color>
-    <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
-    <color name="tazRedWithOpacity">#33d50d2e</color>
+    <color name="blue">#007AFF</color>
+    <color name="darkGrey">#1C1C1E</color>
     <color name="deleteRed">#d50e2f</color>
+    <color name="lightGrey">#9C9C9C</color>
+    <color name="mediumLightGrey">#707070</color>
+    <color name="superDarkGrey">#121212</color>
+    <color name="superLightGrey">#E3E3E3</color>
+    <color name="superSuperLightGrey">#F0F0F0</color>
+    <color name="tazRed">#d50d2e</color>
+    <color name="tazRedWithOpacity">#33d50d2e</color>
+    <color name="white">#fff</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="colorPrimary">@color/tazRed</color>
