@@ -104,6 +104,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         super.onDestroyView()
     }
 
+    override fun onStart() {
+        webview_pager_viewpager?.registerOnPageChangeCallback(pageChangeListener)
+        super.onStart()
+    }
+
     override fun onStop() {
         webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
