@@ -5,16 +5,20 @@
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
-    <color name="backgroundColor">@color/superDarkGrey</color>
     <color name="bottom_sheet_background">@color/darkGrey</color>
+    <color name="navigation_drawer_background">@color/darkGrey</color>
+    <color name="search_field_background_color">@color/darkGrey</color>
+
     <color name="bottom_sheet_divider_color">@color/lightGrey</color>
     <color name="bottom_sheet_text_color">@color/lightGrey</color>
     <color name="drawer_sections_date">@color/lightGrey</color>
     <color name="drawer_sections_item">@color/lightGrey</color>
-    <color name="drawer_sections_item_highlighted">@color/white</color>
-    <color name="navigation_drawer_background">@color/darkGrey</color>
-    <color name="search_field_background_color">@color/darkGrey</color>
+
+    <color name="backgroundColor">@color/superDarkGrey</color>
+
     <color name="textColor">@color/superLightGrey</color>
     <color name="textColorSection">@color/superLightGrey</color>
+
+    <color name="drawer_sections_item_highlighted">@color/white</color>
 
 </resources>
