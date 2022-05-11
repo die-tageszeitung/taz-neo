@@ -72,4 +72,6 @@
     <color name="coverflow_background">@color/superDarkGrey</color>
     <color name="dialog_try_pdf_text">@color/black</color>
     <color name="navigation_bottom_highlight">@color/black</color>
+
+    <color name="fragment_bookmarks_delete_background">@color/deleteRed</color>
 </resources>
