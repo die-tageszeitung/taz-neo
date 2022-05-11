@@ -69,4 +69,5 @@
     <color name="icon_active_filter" >@color/blue</color>
     <color name="button_cancel_background">@color/darkGrey</color>
     <color name="cover_placeholder">@color/darkGrey</color>
+    <color name="coverflow_background">@color/superDarkGrey</color>
 </resources>
