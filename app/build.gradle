@@ -190,6 +190,7 @@ android {
 
         nonfree {
             dimension "source"
+            buildConfigField "Boolean", "IS_NON_FREE", "true"
         }
 
         staging {

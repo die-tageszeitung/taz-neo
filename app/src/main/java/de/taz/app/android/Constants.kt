@@ -52,5 +52,3 @@ const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
 
 const val METADATA_DOWNLOAD_DEFAULT_RETRIES = -1
 const val FILE_DOWNLOAD_DEFAULT_RETRIES = -1
-
-const val NON_FREE_BUILD_FLAVOR = "nonfreeTazProduction"

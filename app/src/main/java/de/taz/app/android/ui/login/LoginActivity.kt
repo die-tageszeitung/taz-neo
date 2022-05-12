@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.NON_FREE_BUILD_FLAVOR
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -328,7 +327,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         lifecycleScope.launch(Dispatchers.IO) {
             // if on non free flavor it is not allowed to buy stuff from the app,
             // so we show a fragment where we only allow the trial subscription:
-            if (BuildConfig.FLAVOR == NON_FREE_BUILD_FLAVOR) {
+            if (BuildConfig.IS_NON_FREE) {
                 showFragment(SubscriptionTrialOnlyFragment.createInstance(
                     elapsed = authHelper.isElapsed())
                 )
