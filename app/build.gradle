@@ -145,6 +145,7 @@ android {
         resConfig "de"
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
+        buildConfigField "Boolean", "IS_NON_FREE", "false"
 
         def ENV = System.getenv()
         def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
