@@ -220,11 +220,11 @@
         \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
     </string>
 
-    <string name="popup_login_elapsed_text_nonfree">
+    <string name="popup_login_elapsed_text_non_free">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
-        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        Sie müssen Ihr Abo über www.taz.de/Abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
-        Bei Fragen wenden Sie sich an unseren Service unter:
+        \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
+        \nSie müssen Ihr Abo über www.taz.de/Abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
+        \nBei Fragen wenden Sie sich an unseren Service unter:
     </string>
     <string name="fragment_subscription_bank_title">Bankdaten</string>
     <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
