@@ -43,7 +43,6 @@
     <color name="coverflow_background">@color/superDarkGrey</color>
     <color name="fragment_archive_background">@color/superDarkGrey</color>
 
-    <!--    TODO(peter@ctrl.alt.coop) Check if obsolete -->
     <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
