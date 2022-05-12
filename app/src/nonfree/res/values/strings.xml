@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_description">
+        Testen Sie uns für 6 Wochen!
+        \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
+        \nAber wir haben etwas für Sie: Testen sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.
+        \nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/Abo
+        \neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!
+    </string>
+    <string name="fragment_subscription_trial_only_description_elapsed">
+        Ihr kostenloses Probeabo ist abgelaufen, sie können über taz.de ein kostenpflichtiges Abo abschließen.
+        \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
+    </string>
+
+    <string name="popup_login_elapsed_text">
+        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
+        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
+        Sie müssen Ihr Abo über taz.de verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
+        Bei Fragen wenden Sie sich an unseren Service unter:
+    </string>
+    <string name="popup_login_elapsed_cancel_button">
+        Alles klar
+    </string>
+</resources>
