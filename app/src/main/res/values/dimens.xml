@@ -40,6 +40,8 @@
     <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
     <dimen name="fragment_login_text_link_padding_bottom">10dp</dimen>
 
+    <dimen name="fragment_subscription_trial_only_margin_top">30dp</dimen>
+
     <dimen name="login_button_margin_top">7dp</dimen>
 
     <dimen name="fragment_article_read_on_description_margin_bottom">30dp</dimen>

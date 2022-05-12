@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.ui.login.LoginViewModelState
-import kotlinx.android.synthetic.nonfree.fragment_subscription_trial_only.*
+import kotlinx.android.synthetic.main.fragment_subscription_trial_only.*
 
 
 class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_trial_only) {
@@ -25,7 +25,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment(R.layout.fragment
             fragment_subscription_trial_only_description.visibility = View.GONE
             fragment_subscription_trial_only_description_elapsed.visibility = View.VISIBLE
             fragment_subscription_address_proceed.text =
-                getString(R.string.popup_login_elapsed_cancel_button)
+                getString(R.string.close_okay)
             fragment_subscription_address_proceed.setOnClickListener { this.activity?.finish() }
         } else {
             fragment_subscription_address_proceed.setOnClickListener { ifDoneNext() }
