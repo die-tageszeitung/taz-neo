@@ -212,7 +212,7 @@
         Testen Sie uns für 6 Wochen!
         \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
         \nAber wir haben etwas für Sie: Testen sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.
-        \nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/Abo
+        \nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/abo
         \neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!
     </string>
     <string name="fragment_subscription_trial_only_description_elapsed">
@@ -223,7 +223,7 @@
     <string name="popup_login_elapsed_text_non_free">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
         \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        \nSie müssen Ihr Abo über www.taz.de/Abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
+        \nSie müssen Ihr Abo über www.taz.de/abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
         \nBei Fragen wenden Sie sich an unseren Service unter:
     </string>
     <string name="fragment_subscription_bank_title">Bankdaten</string>
