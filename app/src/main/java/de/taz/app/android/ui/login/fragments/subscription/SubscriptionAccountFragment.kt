@@ -215,7 +215,7 @@ class SubscriptionAccountFragment :
         if (!fragment_subscription_account_terms_and_conditions.isChecked) {
             done = false
             fragment_subscription_account_terms_and_conditions.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.tazRed)
+                ContextCompat.getColor(requireContext(), R.color.error)
             )
         }
         return done

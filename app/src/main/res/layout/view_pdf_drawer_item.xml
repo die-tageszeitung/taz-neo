@@ -13,7 +13,7 @@
         android:id="@+id/view_drawer_pdf_page_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/pdf_drawer_item_card_background"
         app:cardElevation="@dimen/moment_elevation">
 
         <ImageView

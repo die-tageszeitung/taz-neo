@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/deleteRed"
+        android:background="@color/fragment_bookmarks_delete_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +32,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white"
+                app:tint="@color/fragment_bookmarks_delete"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_bookmarks_delete_text_margin_top"
                 android:text="@string/fragment_bookmarks_delete"
-                android:textColor="@color/white"
+                android:textColor="@color/fragment_bookmarks_delete"
                 android:textSize="@dimen/fragment_bookmarks_delete_text_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -4,9 +4,9 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorError">@color/tazRed</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorButtonNormal">@color/button</item>
+        <item name="android:colorButtonNormal">@color/button</item>
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
         <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
@@ -35,12 +35,12 @@
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/button_text</item>
         <item name="fontFamily">@font/appFontRegular</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:theme">@style/Theme.MaterialComponents</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
+        <item name="colorButtonNormal">@color/button</item>
+        <item name="android:colorButtonNormal">@color/button</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:includeFontPadding">false</item>
@@ -104,7 +104,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/drawer_pdf_sections_text</item>
     </style>
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
@@ -149,17 +149,17 @@
     </style>
 
     <style name="TextAppearance.Archive.NavigationEnd.ListItem" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/archive_navigation_end_list_item</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
-        <item name="colorControlHighlight">@color/black</item>
+        <item name="colorControlHighlight">@color/navigation_bottom_highlight</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
         <item name="android:backgroundTint">@color/navigation_bottom_background</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
+        <item name="colorButtonNormal">@color/button</item>
+        <item name="android:colorButtonNormal">@color/button</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
@@ -211,14 +211,14 @@
 
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:paddingBottom">5dp</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
@@ -304,7 +304,7 @@
 
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textAlignment">center</item>
         <item name="android:lineSpacingExtra">7dp</item>
         <item name="android:paddingTop">@dimen/fragment_login_text_padding_vertical</item>
@@ -321,7 +321,7 @@
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
     </style>

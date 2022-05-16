@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">15sp</item>
         <item name="android:fontFamily">@font/appFontRegular</item>

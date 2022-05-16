@@ -65,7 +65,7 @@ class BookmarkListAdapter(
             setActionTextColor(
                 ResourcesCompat.getColor(
                     viewHolder.itemView.resources,
-                    R.color.deleteRed,
+                    R.color.fragment_bookmarks_delete_background,
                     null
                 )
             )

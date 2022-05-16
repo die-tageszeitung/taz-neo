@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/superDarkGrey"
+    android:background="@color/coverflow_background"
     android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.Guideline
@@ -60,7 +61,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="donnerstag, 1.1.1970" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_coverflow_moment_download"
@@ -71,7 +73,8 @@
                 app:layout_constraintDimensionRatio="1,1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
 
                 <ImageView
                     android:layout_width="@dimen/text_appearance_archive_date_text_size"
@@ -82,7 +85,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/lightGrey" />
+                    app:tint="@color/icon_tint"
+                    tools:src="@drawable/ic_file_download" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -116,7 +120,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/lightGrey" />
+                    app:tint="@color/icon_tint" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -151,6 +155,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/ic_arrow_down" />
+        app:srcCompat="@drawable/ic_arrow_down"
+        tools:srcCompat="@drawable/ic_arrow_down" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

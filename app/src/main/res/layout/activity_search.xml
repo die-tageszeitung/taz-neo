@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/superSuperLightGrey"
+            app:boxBackgroundColor="@color/activity_search_field_background_color"
             app:endIconMode="clear_text"
             app:hintEnabled="false">
 
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/superSuperLightGrey"
+            app:boxBackgroundColor="@color/activity_search_field_background_color"
             app:endIconMode="clear_text"
             app:hintEnabled="false">
 
@@ -203,7 +203,7 @@
         android:fontFamily="@font/appFontRegular"
         android:text="@string/search_description"
         android:textAlignment="center"
-        android:textColor="@color/lightGrey"
+        android:textColor="@color/textColorAccent"
         android:textSize="@dimen/search_description_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
