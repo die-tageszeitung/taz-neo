@@ -24,12 +24,10 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
+import de.taz.app.android.ui.login.fragments.subscription.*
 import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
 import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -253,10 +251,16 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     override fun onResume() {
         super.onResume()
+        setBottomNavigationBackActivity(this)
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
         )
+    }
+
+    override fun onDestroy() {
+        setBottomNavigationBackActivity(null)
+        super.onDestroy()
     }
 
     private fun showLoginForm(
@@ -342,7 +346,8 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             // if on non free flavor it is not allowed to buy stuff from the app,
             // so we show a fragment where we only allow the trial subscription:
             if (BuildConfig.IS_NON_FREE) {
-                showFragment(SubscriptionTrialOnlyFragment.createInstance(
+                showFragment(
+                    SubscriptionTrialOnlyFragment.createInstance(
                     elapsed = authHelper.isElapsed())
                 )
             }

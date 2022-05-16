@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
@@ -97,22 +98,6 @@ class SearchActivity :
                 )
                 return@setOnClickListener
             }
-
-            navigationBottom.apply {
-                itemIconTintList = null
-
-                // hack to not auto select first item
-                menu.getItem(0).isCheckable = false
-
-                setOnItemSelectedListener {
-                    if (it.itemId == R.id.bottom_navigation_action_home) {
-                        this@SearchActivity.finish()
-                        true
-                    } else {
-                        false
-                    }
-                }
-            }
             viewModel.chosenTimeSlot.observeDistinct(this@SearchActivity) {
                 mapTimeSlot(it)
             }
@@ -147,6 +132,7 @@ class SearchActivity :
 
     override fun onResume() {
         super.onResume()
+        setBottomNavigationBackActivity(this)
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.Search

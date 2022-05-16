@@ -2,7 +2,6 @@ package de.taz.app.android.ui.navigation
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.annotation.IdRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
@@ -29,7 +28,6 @@ fun Activity.setupBottomNavigation(
         else -> currentItem.itemId
     }
     if (currentItem is BottomNavigationItem.ChildOf) {
-        Log.d("11", "!!! ima child")
         navigationBottom.menu.setGroupCheckable(0, false, true)
     } else {
         navigationBottom.menu.setGroupCheckable(0, true, true)
