@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
+    <color name="crimsonRed">#D30D2E</color>
+
+    <!--    Colors with purpose name: Should be used outside of colors.xml -->
+    <color name="ic_launcher_background">@color/crimsonRed</color>
+</resources>
