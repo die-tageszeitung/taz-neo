@@ -102,7 +102,6 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         super.onCreate(savedInstanceState)
 
         contentService = ContentService.getInstance(requireContext().applicationContext)
-        android.util.Log.d("111","!!! IssueViewerWrapperFragment.onCreate. savedInstanceState = $savedInstanceState")
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
