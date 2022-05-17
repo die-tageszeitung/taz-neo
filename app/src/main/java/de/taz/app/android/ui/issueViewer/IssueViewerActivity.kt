@@ -41,13 +41,15 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.beginTransaction().add(
-            android.R.id.content,
-            IssueViewerWrapperFragment.instance(
-                intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
-                intent.getStringExtra(KEY_DISPLAYABLE),
-            )
-        ).commit()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().add(
+                android.R.id.content,
+                IssueViewerWrapperFragment.instance(
+                    intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
+                    intent.getStringExtra(KEY_DISPLAYABLE),
+                )
+            ).commit()
+        }
     }
 
     override fun onBackPressed() {
@@ -96,12 +98,11 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             )
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         contentService = ContentService.getInstance(requireContext().applicationContext)
-
+        android.util.Log.d("111","!!! IssueViewerWrapperFragment.onCreate. savedInstanceState = $savedInstanceState")
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
