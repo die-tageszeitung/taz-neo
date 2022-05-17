@@ -2,7 +2,6 @@ package de.taz.app.android.ui.navigation
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.annotation.IdRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
@@ -10,6 +9,7 @@ import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.util.Log
 import kotlin.reflect.KClass
 
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
@@ -37,7 +37,6 @@ fun Activity.setupBottomNavigation(
 
     navigationBottom.menu.findItem(menuId)?.isChecked = true
     navigationBottom.setOnItemSelectedListener { menuItem ->
-        Log.d("!!!", "currentItem: $currentItem with bottomGroup: $bottomGroup on back $backActivityClass")
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
                 if (currentItem is BottomNavigationItem.Home) {
