@@ -5,4 +5,5 @@
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="ic_launcher_background">@android:color/white</color>
+    <color name="splashBackground">@android:color/white</color>
 </resources>
