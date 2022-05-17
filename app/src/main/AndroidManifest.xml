@@ -29,7 +29,8 @@
             android:noHistory="true" />
         <activity android:name=".ui.DataPolicyActivity" />
         <activity android:name=".ui.StorageOrganizationActivity" />
-        <activity android:name=".ui.pdfViewer.PdfPagerActivity" />
+        <activity android:name=".ui.pdfViewer.PdfPagerActivity"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
@@ -43,12 +44,15 @@
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.bookmarks.BookmarkListActivity"
             android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.bookmarks.BookmarkViewerActivity" />
+        <activity android:name=".ui.bookmarks.BookmarkViewerActivity"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.settings.SettingsActivity"
             android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.settings.ErrorReportActivity" />
+        <activity android:name=".ui.settings.ErrorReportActivity"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.login.LoginActivity"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/noAnimationOnActivityChange"/>
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"

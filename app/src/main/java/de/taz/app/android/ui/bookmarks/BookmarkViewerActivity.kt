@@ -33,7 +33,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        setBottomNavigationBackActivity(this)
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Bookmark)
         setupBottomNavigation(
             navigation_bottom_webview_pager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
@@ -42,7 +42,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        setBottomNavigationBackActivity(null)
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
     }
 }
 

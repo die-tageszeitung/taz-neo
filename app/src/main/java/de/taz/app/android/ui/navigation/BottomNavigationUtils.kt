@@ -9,6 +9,7 @@ import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.util.Log
 import kotlin.reflect.KClass
 
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
@@ -18,22 +19,28 @@ sealed class BottomNavigationItem(@IdRes val itemId: Int) {
     object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
     class ChildOf(val parent: BottomNavigationItem) : BottomNavigationItem(0)
 }
-
+private var bottomGroup: BottomNavigationItem? = null
 fun Activity.setupBottomNavigation(
     navigationBottom: BottomNavigationView,
     currentItem: BottomNavigationItem
 ) {
     val menuId = when (currentItem) {
-        is BottomNavigationItem.ChildOf -> currentItem.parent.itemId
-        else -> currentItem.itemId
+        is BottomNavigationItem.ChildOf -> {
+            bottomGroup = currentItem.parent
+            currentItem.parent.itemId
+        }
+        else ->  {
+            if (bottomGroup == currentItem) bottomGroup = null
+            currentItem.itemId
+        }
     }
     if (currentItem is BottomNavigationItem.ChildOf) {
         navigationBottom.menu.setGroupCheckable(0, false, true)
     } else {
         navigationBottom.menu.setGroupCheckable(0, true, true)
-        navigationBottom.menu.findItem(menuId)?.isChecked = true
-    }
 
+    }
+    navigationBottom.menu.findItem(menuId)?.isChecked = true
     navigationBottom.setOnItemSelectedListener { menuItem ->
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
@@ -76,8 +83,19 @@ fun Activity.setupBottomNavigation(
 // but in this case it is okay as even if the variable is reset to null due to the app being backgrounded
 // and killed by android having the behavior is still acceptable.
 private var backActivityClass: KClass<out Activity>? = null
-fun setBottomNavigationBackActivity(activity: Activity?) {
+private var homeBackActivityClass: KClass<out Activity>? = null
+private var bookmarkBackActivityClass: KClass<out Activity>? = null
+private var searchBackActivityClass: KClass<out Activity>? = null
+private var settingsBackActivityClass: KClass<out Activity>? = null
+fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavigationItem? = null) {
     backActivityClass = activity?.let { it::class }
+    when (bottomGroup) {
+        BottomNavigationItem.Home -> homeBackActivityClass = backActivityClass
+        BottomNavigationItem.Bookmark -> bookmarkBackActivityClass = backActivityClass
+        BottomNavigationItem.Search -> searchBackActivityClass = backActivityClass
+        BottomNavigationItem.Settings -> settingsBackActivityClass = backActivityClass
+        else -> {}
+    }
 }
 
 // Navigate back to Home (MainActivity)
@@ -93,10 +111,11 @@ fun Activity.bottomNavigationBack() {
     }
 }
 
-private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
-private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
-private fun Activity.navigateToSearch() = startActivity(this, SearchActivity::class)
-private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
+private fun Activity.navigateToMain() = startActivity(this, homeBackActivityClass ?: MainActivity::class)
+private fun Activity.navigateToBookmarks() = startActivity(this, bookmarkBackActivityClass ?: BookmarkListActivity::class)
+private fun Activity.navigateToSearch() = startActivity(this, searchBackActivityClass ?: SearchActivity::class)
+private fun Activity.navigateToSettings() = startActivity(this, settingsBackActivityClass ?: SettingsActivity::class)
+
 
 private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {
     Intent(parentActivity, activityClass.java)

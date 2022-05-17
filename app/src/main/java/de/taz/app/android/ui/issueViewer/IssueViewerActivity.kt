@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.issueViewer
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -13,8 +12,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
@@ -67,12 +65,12 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        setBottomNavigationBackActivity(this)
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Home)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        setBottomNavigationBackActivity(null)
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
     }
 
 }

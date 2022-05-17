@@ -132,7 +132,7 @@ class SearchActivity :
 
     override fun onResume() {
         super.onResume()
-        setBottomNavigationBackActivity(this)
+
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.Search
@@ -143,10 +143,10 @@ class SearchActivity :
         val searchResultPagerFragment =
             supportFragmentManager.fragments.firstOrNull { it is SearchResultPagerFragment } as? SearchResultPagerFragment
 
-        if (searchResultPagerFragment?.isAdded == false) {
-            bottomNavigationBack()
-        } else {
+        if (searchResultPagerFragment?.isAdded == true) {
             super.onBackPressed()
+        } else {
+            bottomNavigationBack()
         }
     }
 

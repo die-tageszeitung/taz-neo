@@ -251,7 +251,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     override fun onResume() {
         super.onResume()
-        setBottomNavigationBackActivity(this)
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Settings)
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
@@ -259,7 +259,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     override fun onDestroy() {
-        setBottomNavigationBackActivity(null)
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
         super.onDestroy()
     }
 
