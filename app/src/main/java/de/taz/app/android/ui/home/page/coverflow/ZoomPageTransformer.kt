@@ -7,9 +7,6 @@ import kotlin.math.abs
 import kotlin.math.max
 
 object ZoomPageTransformer {
-    private const val MIN_SCALE = 0.85f
-    private const val SCALE_DIFF = 1 - MIN_SCALE
-
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = view.findViewById<View>(R.id.moment_container)
@@ -20,14 +17,18 @@ object ZoomPageTransformer {
     val log by Log
 
     fun transformPage(view: View, position: Float) = view.run {
-        scaleX = MIN_SCALE
-        scaleY = MIN_SCALE
+        val minScale = resources.getFraction(R.fraction.cover_scale_factor, 1, 1)
+        val scaleDiff = 1 - minScale
+
+        log.debug("******** Fraction from ressources: $minScale")
+        scaleX = minScale
+        scaleY = minScale
 
         translationX = translationXAtScale(view, position)
 
         when {
             position <= 1 && position >= -1 -> {
-                val scaleFactor = max(MIN_SCALE, 1 - (SCALE_DIFF * abs(position)))
+                val scaleFactor = max(minScale, 1 - (scaleDiff * abs(position)))
                 translationX = translationXAtScale(view, position)
                 scaleX = scaleFactor
                 scaleY = scaleFactor
