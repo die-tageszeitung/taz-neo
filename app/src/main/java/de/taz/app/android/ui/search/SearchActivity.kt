@@ -133,6 +133,7 @@ class SearchActivity :
     override fun onResume() {
         super.onResume()
 
+        android.util.Log.d("!!!","SearchActivity.onResume")
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.Search
@@ -151,6 +152,7 @@ class SearchActivity :
     }
 
     override fun onDestroy() {
+        android.util.Log.d("!!!","SearchActivity.onDestroy")
         viewBinding.searchResultList.adapter = null
         super.onDestroy()
     }

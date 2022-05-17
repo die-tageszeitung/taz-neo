@@ -81,6 +81,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     override fun onResume() {
         super.onResume()
+        android.util.Log.d("!!!","MainActivity.onResume")
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
@@ -94,6 +95,12 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         loggedOutDialog?.dismiss()
         tryPdfDialog?.dismiss()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+
+        android.util.Log.d("!!!","MainActivity.onDestroy")
+        super.onDestroy()
     }
 
     private var loggedOutDialog: AlertDialog? = null
