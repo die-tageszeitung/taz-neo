@@ -2,7 +2,9 @@
 <resources>
     <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
     <color name="crimsonRed">#D30D2E</color>
+    <color name="transparentWhite">#33FFFFFF</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="ic_launcher_background">@color/crimsonRed</color>
+    <color name="ic_launcher_background_debug_stroke_color">@color/transparentWhite</color>
 </resources>

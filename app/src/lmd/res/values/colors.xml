@@ -2,8 +2,10 @@
 <resources>
     <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
     <!--    no color palette defined-->
+    <color name="transparentBlack">#33000000</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="ic_launcher_background">@android:color/white</color>
     <color name="splashBackground">@android:color/white</color>
+    <color name="ic_launcher_background_debug_stroke_color">@color/transparentBlack</color>
 </resources>
