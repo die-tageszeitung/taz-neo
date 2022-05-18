@@ -120,6 +120,6 @@ private fun Activity.navigateToSettings() = startActivity(this, settingsBackActi
 
 private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {
     Intent(parentActivity, activityClass.java)
-        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         .apply(parentActivity::startActivity)
 }
