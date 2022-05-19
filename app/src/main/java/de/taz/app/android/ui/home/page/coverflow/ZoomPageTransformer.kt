@@ -3,7 +3,7 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
-import java.lang.Float.min
+import kotlin.math.min
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
