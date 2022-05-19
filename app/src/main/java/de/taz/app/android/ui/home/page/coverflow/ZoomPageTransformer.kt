@@ -31,13 +31,11 @@ object ZoomPageTransformer {
 
         translationX = translationXAtScale(view, position)
 
-        when {
-            position <= 1 && position >= -1 -> {
-                val scaleFactor = max(minScale, 1 - (scaleDiff * abs(position)))
-                translationX = translationXAtScale(view, position)
-                scaleX = scaleFactor
-                scaleY = scaleFactor
-            }
+        if (position in -1.0f..1.0f){
+            val scaleFactor = max(minScale, 1 - (scaleDiff * abs(position)))
+            translationX = translationXAtScale(view, position)
+            scaleX = scaleFactor
+            scaleY = scaleFactor
         }
     }
 }
