@@ -9,6 +9,8 @@ import kotlin.math.max
 import kotlin.math.pow
 
 object ZoomPageTransformer {
+    val log by Log
+
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = view.findViewById<View>(R.id.moment_container)
@@ -19,7 +21,6 @@ object ZoomPageTransformer {
             if (isLandscape) result * factor else result
         }
 
-    val log by Log
 
     fun transformPage(view: View, position: Float) = view.run {
         val minScale = resources.getFraction(R.fraction.cover_scale_factor, 1, 1)
