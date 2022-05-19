@@ -14,7 +14,9 @@ object ZoomPageTransformer {
             val child = view.findViewById<View>(R.id.moment_container)
             val border = (width - child.width).toFloat()
             val result = border * position
-            val factor = min((1+position.pow(2)).pow(8), 5f)
+            // this factor is found by experimentation :)
+            // The idea behind is: the more outer you are (bigger position) the higher the factor should be
+            val factor = min((1+position.pow(2)).pow(8), 5.5f)
             val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
             if (isLandscape) result * factor else result
         }
@@ -26,7 +28,6 @@ object ZoomPageTransformer {
 
         scaleX = minScale
         scaleY = minScale
-
         translationX = translationXAtScale(view, position)
 
         if (position in -1.0f..1.0f){
