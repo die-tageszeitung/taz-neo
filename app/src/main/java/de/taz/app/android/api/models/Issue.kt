@@ -2,10 +2,7 @@ package de.taz.app.android.api.models
 
 import com.squareup.moshi.JsonClass
 import de.taz.app.android.api.dto.IssueDto
-import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
 
 import java.util.*
 
@@ -25,7 +22,8 @@ data class Issue(
     override val dateDownload: Date?,
     override val dateDownloadWithPages: Date?,
     override val lastDisplayableName: String?,
-    override val lastPagePosition: Int?
+    override val lastPagePosition: Int?,
+    override val lastViewedDate: Date?,
 ) : AbstractIssue {
 
     constructor(feedName: String, issueDto: IssueDto) : this(
@@ -41,6 +39,7 @@ data class Issue(
         issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
         issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
         issueDto.moTime,
+        null,
         null,
         null,
         null,
@@ -64,7 +63,8 @@ data class Issue(
         issue.dateDownload,
         issue.dateDownloadWithPages,
         issue.lastDisplayableName,
-        issue.lastPagePosition
+        issue.lastPagePosition,
+        issue.lastViewedDate,
     )
 
     override val issueKey: IssueKey

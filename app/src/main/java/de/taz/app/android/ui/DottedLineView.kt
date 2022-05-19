@@ -14,15 +14,18 @@ class DottedLineView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
     companion object {
-        const val DOTTED_LINE_CIRCLE_RADIUS_DP = 1.5f
-        const val DOTTED_LINE_SPACING_DP = 8f
+        const val DOT_SIZE_PX = 4.07625f
+        const val DOT_TO_SPACE_RELATION = 4.9f
     }
+
+    private val dottedLineCircleRadiusDp = DOT_SIZE_PX / context.resources.displayMetrics.density
+    private val dottedLineSpacingDp = dottedLineCircleRadiusDp * DOT_TO_SPACE_RELATION
 
     private val path: Path = Path()
     private val circlePath = Path().apply {
         val radius = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            DOTTED_LINE_CIRCLE_RADIUS_DP,
+            dottedLineCircleRadiusDp,
             resources.displayMetrics
         )
         addCircle(0f, 0f, radius, Path.Direction.CW)
@@ -31,7 +34,7 @@ class DottedLineView @JvmOverloads constructor(
         circlePath,
         TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            DOTTED_LINE_SPACING_DP,
+            dottedLineSpacingDp,
             resources.displayMetrics
         ),
         0f,

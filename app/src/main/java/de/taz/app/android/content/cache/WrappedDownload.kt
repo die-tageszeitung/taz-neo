@@ -65,7 +65,7 @@ class WrappedDownload(
             allowCache: Boolean,
             priority: DownloadPriority,
             tag: String
-        ): WrappedDownload = withContext(Dispatchers.Main) {
+        ): WrappedDownload = withContext(Dispatchers.IO) {
             WrappedDownload(
                 applicationContext,
                 parent,

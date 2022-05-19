@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
@@ -82,8 +83,17 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     @Query("SELECT * FROM Issue WHERE Issue.status == :status ORDER BY date DESC")
     abstract fun getIssueStubsByStatus(status: IssueStatus): List<IssueStub>
 
-    @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL ORDER BY dateDownload ASC LIMIT 1")
-    abstract fun getEarliestDownloaded(): IssueStub?
+    /**
+     * We exclude the last viewed issue from deletion, otherwise we might end up deleting an issue
+     * that is currently being read.
+     * Apart from the mentioned issue we will delete the one downloaded the furthest in the past.
+     */
+    @Query("""
+        SELECT * FROM Issue
+        WHERE NOT lastViewedDate IS (SELECT MAX(lastViewedDate) FROM Issue)
+        ORDER BY dateDownload ASC LIMIT 1
+        """)
+    abstract fun getIssueToDelete(): IssueStub?
 
     @Query("SELECT * FROM Issue ORDER BY date ASC LIMIT 1")
     abstract fun getEarliest(): IssueStub?
@@ -95,7 +105,7 @@ abstract class IssueDao : BaseDao<IssueStub>() {
     abstract fun getAllDownloadedLiveData(): LiveData<List<IssueStub>?>
 
     @Query("SELECT COUNT(date) FROM Issue WHERE dateDownload IS NOT NULL")
-    abstract fun getDownloadedIssuesCountLiveData(): LiveData<Int>
+    abstract fun getDownloadedIssuesCountFlow(): Flow<Int>
 
     @Query("SELECT EXISTS (SELECT * FROM Issue WHERE dateDownload IS NOT NULL AND feedName == :feedName AND date == :date AND status == :status)")
     abstract fun isDownloadedLiveData(

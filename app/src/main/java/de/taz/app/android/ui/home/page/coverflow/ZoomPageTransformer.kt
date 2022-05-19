@@ -3,15 +3,20 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
+import java.lang.Float.min
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.pow
 
 object ZoomPageTransformer {
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = view.findViewById<View>(R.id.moment_container)
             val border = (width - child.width).toFloat()
-            (border * position)
+            val result = border * position
+            val factor = min((1+position.pow(2)).pow(8), 5f)
+            val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
+            if (isLandscape) result * factor else result
         }
 
     val log by Log
@@ -20,7 +25,6 @@ object ZoomPageTransformer {
         val minScale = resources.getFraction(R.fraction.cover_scale_factor, 1, 1)
         val scaleDiff = 1 - minScale
 
-        log.debug("******** Fraction from ressources: $minScale")
         scaleX = minScale
         scaleY = minScale
 

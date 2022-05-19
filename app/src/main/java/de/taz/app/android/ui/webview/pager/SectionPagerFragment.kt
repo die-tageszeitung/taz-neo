@@ -68,7 +68,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private fun setupViewPager() {
         webview_pager_viewpager?.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
-            registerOnPageChangeCallback(pageChangeListener)
             offscreenPageLimit = 2
         }
     }
@@ -102,6 +101,11 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         super.onDestroyView()
+    }
+
+    override fun onStart() {
+        webview_pager_viewpager?.registerOnPageChangeCallback(pageChangeListener)
+        super.onStart()
     }
 
     override fun onStop() {
