@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.PasswordResetInfo
 import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -25,7 +26,9 @@ class LoginViewModel(
     register: Boolean = false,
     private val apiService: ApiService = ApiService.getInstance(application),
     private val authHelper: AuthHelper = AuthHelper.getInstance(application),
-    private val toastHelper: ToastHelper = ToastHelper.getInstance(application)
+    private val toastHelper: ToastHelper = ToastHelper.getInstance(application),
+    // even if IDE says it is unused - it will be initialized with the view model starting observing:
+    private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(application)
 ) : AndroidViewModel(application) {
 
     private val log by Log
@@ -65,10 +68,13 @@ class LoginViewModel(
         }
     }
 
-    suspend fun setDone(startPolling: Boolean = true) {
+    fun setDone() {
+        status.postValue(LoginViewModelState.DONE)
+    }
+
+    suspend fun setPolling(startPolling: Boolean = true) {
         authHelper.email.set(username ?: "")
         authHelper.isPolling.set(startPolling)
-        status.postValue(LoginViewModelState.DONE)
     }
 
     fun backToMissingSubscription() {

@@ -9,6 +9,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
@@ -97,6 +98,9 @@ class LoginViewModelTest {
     @Mock
     lateinit var toastHelper: ToastHelper
 
+    @Mock
+    lateinit var subscriptionPollHelper: SubscriptionPollHelper
+
     private lateinit var loginViewModel: LoginViewModel
 
     @ObsoleteCoroutinesApi
@@ -113,7 +117,8 @@ class LoginViewModelTest {
             application = application,
             apiService = apiService,
             authHelper = authHelper,
-            toastHelper = toastHelper
+            toastHelper = toastHelper,
+            subscriptionPollHelper = subscriptionPollHelper
         )
     }
 
