@@ -68,10 +68,13 @@ class LoginViewModel(
         }
     }
 
-    suspend fun setDone(startPolling: Boolean = true) {
+    fun setDone() {
+        status.postValue(LoginViewModelState.DONE)
+    }
+
+    suspend fun setPolling(startPolling: Boolean = true) {
         authHelper.email.set(username ?: "")
         authHelper.isPolling.set(startPolling)
-        status.postValue(LoginViewModelState.DONE)
     }
 
     fun backToMissingSubscription() {

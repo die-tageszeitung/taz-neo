@@ -9,12 +9,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class ConfirmEmailFragment: LoginBaseFragment(R.layout.fragment_login_confirm_email) {
+class ConfirmEmailFragment : LoginBaseFragment(R.layout.fragment_login_confirm_email) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         hideKeyBoard()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.setPolling(startPolling = !viewModel.isElapsed())
+        }
 
         if (!viewModel.backToArticle) {
             fragment_login_confirm_done.text = getString(
@@ -34,11 +38,7 @@ class ConfirmEmailFragment: LoginBaseFragment(R.layout.fragment_login_confirm_em
         }
 
         fragment_login_confirm_done.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.setDone(
-                    startPolling = !viewModel.isElapsed()
-                )
-            }
+            viewModel.setDone()
         }
     }
 
