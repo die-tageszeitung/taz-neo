@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
@@ -18,6 +19,9 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val defaultNavButtonDrawerFileName =
+        applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
     fun update(resourceInfoStub: ResourceInfoStub) {
         appDatabase.resourceInfoDao().update(resourceInfoStub)
@@ -44,6 +48,16 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
             fileEntryRepository.save(
                 resourceInfo.resourceList
             )
+
+            val imageStub = ImageStub(
+                defaultNavButtonDrawerFileName,
+                ImageType.button,
+                alpha = 1f,
+                ImageResolution.normal
+            )
+            val imageFileEntry =
+                resourceInfo.resourceList.findLast { it.name == defaultNavButtonDrawerFileName }
+            imageRepository.save(Image(imageFileEntry!!, imageStub))
             // save relation to files
             appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
                 resourceInfo.resourceList.mapIndexed { index, fileEntry ->

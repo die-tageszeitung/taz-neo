@@ -109,11 +109,12 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         super.onViewCreated(view, savedInstanceState)
         viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
             lifecycleScope.launch(Dispatchers.IO) {
+                val defaultDrawerFileName = resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
                 val navButton = when {
-                    it == null -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                    it == null -> imageRepository.get(defaultDrawerFileName)
                     it.startsWith("art") -> sectionRepository.getNavButtonForArticle(it)
                     it.startsWith("sec") -> sectionRepository.getNavButtonForSection(it)
-                    else -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+                    else -> imageRepository.get(defaultDrawerFileName)
                 }
                 sectionDrawerViewModel.navButton.postValue(navButton)
             }
