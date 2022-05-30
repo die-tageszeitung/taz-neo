@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenResumed
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
@@ -65,10 +66,12 @@ abstract class WebViewFragment<
         get() = viewBinding.root.findViewById(R.id.web_view)
 
     private fun reloadAfterCssChange() {
-        CoroutineScope(Dispatchers.Main).launch {
-            webView.injectCss()
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                webView.reload()
+        CoroutineScope(Dispatchers.Main + lifecycleScope.coroutineContext).launch {
+            whenResumed {
+                webView.injectCss()
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+                    webView.reload()
+            }
         }
     }
 
