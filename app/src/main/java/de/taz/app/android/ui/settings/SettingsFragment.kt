@@ -141,6 +141,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 logout()
             }
 
+            fragmentSettingsAccountDelete.setOnClickListener {
+                //TODO show are you sure dialog
+            }
+
             val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
                 "-staging"
             } else {
@@ -392,12 +396,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showLogoutButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.VISIBLE
         fragmentSettingsAccountLogout.visibility = View.VISIBLE
+        fragmentSettingsAccountDelete.visibility = View.VISIBLE
         fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
     private fun showManageAccountButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.GONE
         fragmentSettingsAccountLogout.visibility = View.GONE
+        fragmentSettingsAccountDelete.visibility = View.GONE
         fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
     }
 

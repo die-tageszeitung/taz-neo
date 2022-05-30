@@ -100,6 +100,7 @@
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Logout</u></string>
+    <string name="settings_account_delete"><u>Konto löschen</u></string>
     <string name="settings_account_elapsed"><u>abgelaufen</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
