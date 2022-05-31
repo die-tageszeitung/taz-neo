@@ -23,6 +23,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.CancellationInfo
+import de.taz.app.android.api.models.CancellationStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -148,13 +149,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsAccountDelete.setOnClickListener {
                 lifecycleScope.launch {
                     val result = apiService.cancellation()
-                    log.debug(" cancellationInfo: ${result?.info} cancellationLink: ${result?.cancellationLink}")
-                    when (result?.info) {
-                        CancellationInfo.tazId -> log.debug("SHOW DIALOG WITH LINK TO ${result.cancellationLink}")
-                        CancellationInfo.aboId -> log.debug("SHOW DIALOG WITH DIRECT DELETION")
-                        CancellationInfo.specialAccess -> log.debug("SHOW NOT POSSIBLE AS YOU HAVE TAZ ACCOUNT")
-                        else -> log.debug("SHOW DIALOG WITH LINK ${result?.cancellationLink}")
-                    }
+                    showCancellationDialog(result)
                 }
             }
 
@@ -353,6 +348,38 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
+    private fun showCancellationDialog(status: CancellationStatus?) {
+        val view = when (status?.info) {
+            CancellationInfo.tazId -> R.layout.dialog_cancellation_taz_id
+            CancellationInfo.aboId -> R.layout.dialog_cancellation_abo_id
+            else -> R.layout.dialog_cancellation_special_access
+        }
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setView(view)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    when (status?.info) {
+                        CancellationInfo.aboId -> lifecycleScope.launch {
+                            apiService.cancellation(isForce = true)
+                        }
+                        CancellationInfo.specialAccess ->
+                            log.debug("special access - so cancellation not possible")
+                        else -> status?.cancellationLink?.let { link ->
+                            openCancellationExternalPage(
+                                link
+                            )
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+            dialog.show()
+        }
+    }
+
     private fun showStoredIssueNumber(number: Int) {
         storedIssueNumber = number
         val text = HtmlCompat.fromHtml(
@@ -497,6 +524,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+            toastHelper.showToast(R.string.toast_unknown_error)
+        }
+    }
+
+    private fun openCancellationExternalPage(link: String) {
+        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply { launchUrl(requireContext(), Uri.parse(link)) }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
