@@ -11,7 +11,7 @@
     <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
-    <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
+    <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der Zeitungsansicht.</string>
 
     <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
     <string name="popup_login_elapsed_text">
@@ -43,7 +43,7 @@
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
-    <string name="bottom_navigation_action_pdf">PDF-Ansicht</string>
+    <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
     <string name="bottom_navigation_action_app">Web-Ansicht</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
@@ -71,7 +71,6 @@
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
-    <string name="fragment_bottom_sheet_issue_read_pdf">PDF lesen</string>
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
@@ -319,7 +318,7 @@
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
-    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die PDF-Ansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
+    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
     <string name="search_activity">Suche</string>
     <string name="search_advanced">erweiterte suche</string>
