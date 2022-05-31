@@ -34,12 +34,7 @@ fun Activity.setupBottomNavigation(
             currentItem.itemId
         }
     }
-    if (currentItem is BottomNavigationItem.ChildOf) {
-        navigationBottom.menu.setGroupCheckable(0, false, true)
-    } else {
-        navigationBottom.menu.setGroupCheckable(0, true, true)
 
-    }
     navigationBottom.menu.findItem(menuId)?.isChecked = true
     navigationBottom.setOnItemSelectedListener { menuItem ->
         Log.d("!!!", "currentItem: $currentItem with bottomGroup: $bottomGroup on back $backActivityClass")
@@ -50,6 +45,9 @@ fun Activity.setupBottomNavigation(
                     //        But for the first iteration it seems okay to me
                     (this as? MainActivity)?.showHome()
                 } else {
+                    if (bottomGroup == BottomNavigationItem.Home) {
+                        homeBackActivityClass = null
+                    }
                     navigateToMain()
                 }
                 true
@@ -57,6 +55,9 @@ fun Activity.setupBottomNavigation(
 
             R.id.bottom_navigation_action_bookmark -> {
                 if (currentItem !is BottomNavigationItem.Bookmark) {
+                    if (bottomGroup == BottomNavigationItem.Bookmark) {
+                        bookmarkBackActivityClass = null
+                    }
                     navigateToBookmarks()
                 }
                 true
@@ -64,6 +65,9 @@ fun Activity.setupBottomNavigation(
 
             R.id.bottom_navigation_action_search -> {
                 if (currentItem !is BottomNavigationItem.Search) {
+                    if (bottomGroup == BottomNavigationItem.Search) {
+                        searchBackActivityClass = null
+                    }
                     navigateToSearch()
                 }
                 true
@@ -71,6 +75,9 @@ fun Activity.setupBottomNavigation(
 
             R.id.bottom_navigation_action_settings -> {
                 if (currentItem !is BottomNavigationItem.Settings) {
+                    if (bottomGroup == BottomNavigationItem.Settings) {
+                        settingsBackActivityClass = null
+                    }
                     navigateToSettings()
                 }
                 true
