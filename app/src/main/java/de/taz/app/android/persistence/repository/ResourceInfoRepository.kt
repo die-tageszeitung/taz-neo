@@ -57,7 +57,9 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
             )
             val imageFileEntry =
                 resourceInfo.resourceList.findLast { it.name == defaultNavButtonDrawerFileName }
-            imageRepository.save(Image(imageFileEntry!!, imageStub))
+            if (imageFileEntry != null){
+                imageRepository.save(Image(imageFileEntry, imageStub))
+            }
             // save relation to files
             appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
                 resourceInfo.resourceList.mapIndexed { index, fileEntry ->
