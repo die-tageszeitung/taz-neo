@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
+import androidx.core.view.marginTop
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
@@ -162,6 +163,7 @@ class SectionWebViewFragment : WebViewFragment<
                             ceil(0.1 * resources.displayMetrics.density).toInt(),
                             TypedValue.COMPLEX_UNIT_PX
                         )
+                        translationY = resources.getDimension(R.dimen.fragment_header_section_title_y_translation)
                     }
                 }
 
