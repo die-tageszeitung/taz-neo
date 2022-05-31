@@ -39,6 +39,7 @@
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
     <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
+    <string name="bottom_navigation_action_audio">Audio abspielen</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
     <string name="bottom_navigation_action_pdf">PDF-Ansicht</string>

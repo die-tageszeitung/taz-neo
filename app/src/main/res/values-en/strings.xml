@@ -45,6 +45,7 @@
     <string name="bottom_navigation_action_bookmark">add to bookmarks</string>
     <string name="bottom_navigation_action_help">show help</string>
     <string name="bottom_navigation_action_home">go to home</string>
+    <string name="bottom_navigation_action_audio">play audio</string>
     <string name="bottom_navigation_action_share">share</string>
     <string name="bottom_navigation_action_size">change font size</string>
     <string name="bottom_navigation_action_pdf">PDF view</string>
