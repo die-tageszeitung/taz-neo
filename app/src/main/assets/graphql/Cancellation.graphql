@@ -6,12 +6,6 @@ mutation Cancellation(
     ) {
         tazIdMail
         cancellationLink
-        info {
-            aboId
-            tazId
-            noAuthToken
-            elapsed
-            specialAccess
-        }
+        info
     }
 }

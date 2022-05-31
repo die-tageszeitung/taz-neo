@@ -1,0 +1,7 @@
+enum CancellationInfo {
+    aboId,
+    tazId,
+    noAuthToken,
+    elapsed,
+    specialAccess
+}

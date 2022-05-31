@@ -19,8 +19,10 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.CancellationInfo
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -49,17 +51,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
 
-    private lateinit var toastHelper: ToastHelper
+    private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
+    private lateinit var toastHelper: ToastHelper
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        apiService = ApiService.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,7 +146,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsAccountDelete.setOnClickListener {
-                //TODO show are you sure dialog
+                lifecycleScope.launch {
+                    val result = apiService.cancellation()
+                    log.debug(" cancellationInfo: ${result?.info} cancellationLink: ${result?.cancellationLink}")
+                    when (result?.info) {
+                        CancellationInfo.tazId -> log.debug("SHOW DIALOG WITH LINK TO ${result.cancellationLink}")
+                        CancellationInfo.aboId -> log.debug("SHOW DIALOG WITH DIRECT DELETION")
+                        CancellationInfo.specialAccess -> log.debug("SHOW NOT POSSIBLE AS YOU HAVE TAZ ACCOUNT")
+                        else -> log.debug("SHOW DIALOG WITH LINK ${result?.cancellationLink}")
+                    }
+                }
             }
 
             val graphQlFlavorString = if (FLAVOR_graphql == "staging") {

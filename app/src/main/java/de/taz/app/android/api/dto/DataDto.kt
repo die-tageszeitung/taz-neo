@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.*
 @Mockable
 data class DataDto (
     val authentificationToken: AuthTokenInfo? = null,
-    val cancellationStatus: CancellationStatus? = null,
+    val cancellation: CancellationStatus? = null,
     val checkSubscriptionId: AuthInfo? = null,
     val downloadStop: Boolean? = null,
     val downloadStart: String? = null,
