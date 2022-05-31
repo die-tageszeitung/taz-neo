@@ -144,7 +144,8 @@ abstract class TazViewerFragment: ViewBindingFragment<ActivityTazViewerBinding>(
                     contentService.downloadSingleFileIfNotDownloaded(FileEntry(it), baseUrl)
                     showNavButton(it)
                 } else {
-                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
+                    val defaultDrawerFileName = resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
+                    imageRepository.get(defaultDrawerFileName)?.let { image ->
                         contentService.downloadSingleFileIfNotDownloaded(FileEntry(image), baseUrl)
                         showNavButton(
                             image

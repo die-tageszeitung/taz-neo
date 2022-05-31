@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
+    <!--    no color palette defined-->
+    <color name="transparentBlack">#33000000</color>
+    <color name="lightGrayishYellow">#F0F0ED</color>
+
+    <!--    Colors with purpose name: Should be used outside of colors.xml -->
+    <color name="ic_launcher_background">@android:color/white</color>
+    <color name="splashBackground">@android:color/white</color>
+    <color name="ic_launcher_background_debug_stroke_color">@color/transparentBlack</color>
+    <color name="navigation_drawer_pdf_background">@color/lightGrayishYellow</color>
+    <color name="navigation_drawer_background">@color/lightGrayishYellow</color>
+    <color name="fragment_archive_background">@color/lightGrayishYellow</color>
+    <color name="coverflow_background">@color/lightGrayishYellow</color>
+</resources>
