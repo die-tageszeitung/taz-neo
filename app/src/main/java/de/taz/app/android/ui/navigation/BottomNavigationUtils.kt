@@ -45,7 +45,10 @@ fun Activity.setupBottomNavigation(
                     //        But for the first iteration it seems okay to me
                     (this as? MainActivity)?.showHome()
                 } else {
-                    if (bottomGroup == BottomNavigationItem.Home) {
+                    if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Home) {
+                        if (homeBackActivityClass == backActivityClass) {
+                            backActivityClass = null
+                        }
                         homeBackActivityClass = null
                     }
                     navigateToMain()
@@ -54,30 +57,39 @@ fun Activity.setupBottomNavigation(
             }
 
             R.id.bottom_navigation_action_bookmark -> {
-                if (currentItem !is BottomNavigationItem.Bookmark) {
-                    if (bottomGroup == BottomNavigationItem.Bookmark) {
-                        bookmarkBackActivityClass = null
+                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Bookmark) {
+                    if (bookmarkBackActivityClass == backActivityClass) {
+                        backActivityClass = null
                     }
+                    bookmarkBackActivityClass = null
+                }
+                if (currentItem !is BottomNavigationItem.Bookmark) {
                     navigateToBookmarks()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_search -> {
-                if (currentItem !is BottomNavigationItem.Search) {
-                    if (bottomGroup == BottomNavigationItem.Search) {
-                        searchBackActivityClass = null
+                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Search) {
+                    if (searchBackActivityClass == backActivityClass) {
+                        backActivityClass = null
                     }
+                    searchBackActivityClass = null
+                }
+                if (currentItem !is BottomNavigationItem.Search) {
                     navigateToSearch()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_settings -> {
-                if (currentItem !is BottomNavigationItem.Settings) {
-                    if (bottomGroup == BottomNavigationItem.Settings) {
-                        settingsBackActivityClass = null
+                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Settings) {
+                    if (settingsBackActivityClass == backActivityClass) {
+                        backActivityClass = null
                     }
+                    settingsBackActivityClass = null
+                }
+                if (currentItem !is BottomNavigationItem.Settings) {
                     navigateToSettings()
                 }
                 true
@@ -97,6 +109,7 @@ private var searchBackActivityClass: KClass<out Activity>? = null
 private var settingsBackActivityClass: KClass<out Activity>? = null
 fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavigationItem? = null) {
     backActivityClass = activity?.let { it::class }
+    Log.d("!!!", "setBottomNavigationBackActivity to $backActivityClass")
     when (bottomGroup) {
         BottomNavigationItem.Home -> homeBackActivityClass = backActivityClass
         BottomNavigationItem.Bookmark -> bookmarkBackActivityClass = backActivityClass
@@ -111,12 +124,13 @@ fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavi
 // To be used from the root bottom navigation activities.
 fun Activity.bottomNavigationBack() {
     val currentBackActivityClass = backActivityClass
-    if (currentBackActivityClass != null) {
+    Log.d("!!!", "bottomNavigationBack with backActivityClass: $currentBackActivityClass and bottomGroup $bottomGroup")
+   /* if (currentBackActivityClass != null) {
         backActivityClass = null
         startActivity(this, currentBackActivityClass)
-    } else {
+    } else {*/
         navigateToMain()
-    }
+    //}
 }
 
 private fun Activity.navigateToMain() = startActivity(this, homeBackActivityClass ?: MainActivity::class)

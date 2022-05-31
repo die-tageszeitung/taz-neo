@@ -44,6 +44,11 @@ class BookmarkViewerActivity : AppCompatActivity() {
         super.onDestroy()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
+    }
 }
 
 class BookmarkViewerFragment : TazViewerFragment() {

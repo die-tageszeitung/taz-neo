@@ -21,4 +21,9 @@ class ErrorReportActivity : ViewBindingActivity<ActivityErrorReportBinding>() {
         setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
         super.onDestroy()
     }
+
+    override fun onBackPressed() {
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
+        super.onBackPressed()
+    }
 }

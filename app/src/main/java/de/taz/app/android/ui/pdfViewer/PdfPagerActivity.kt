@@ -388,4 +388,9 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         super.onDestroy()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
+    }
 }

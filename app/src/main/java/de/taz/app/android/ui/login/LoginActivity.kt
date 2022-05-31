@@ -466,6 +466,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
             } else {
+                setBottomNavigationBackActivity(null,  BottomNavigationItem.Settings)
                 super.onBackPressed()
             }
         }

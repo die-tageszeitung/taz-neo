@@ -60,6 +60,7 @@ class IssueViewerActivity : AppCompatActivity() {
         if (fragment.onBackPressed()) {
             return
         }
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
         super.onBackPressed()
     }
 
