@@ -13,7 +13,6 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
-import androidx.core.view.marginTop
 import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
