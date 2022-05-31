@@ -378,4 +378,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
      fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
          return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
+
+    fun hasAudioLiveData(articleFileName: String): LiveData<Boolean> {
+        return appDatabase.articleAudioFileJoinDao().hasAudioFile(articleFileName)
+    }
 }

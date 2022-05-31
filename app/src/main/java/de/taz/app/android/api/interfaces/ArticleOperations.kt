@@ -43,4 +43,8 @@ interface ArticleOperations {
     suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
         return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
     }
+
+    fun hasAudio(applicationContext: Context): LiveData<Boolean> {
+        return ArticleRepository.getInstance(applicationContext).hasAudioLiveData(this.key)
+    }
 }
