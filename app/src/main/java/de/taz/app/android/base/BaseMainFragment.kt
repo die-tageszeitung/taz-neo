@@ -113,6 +113,28 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         menuItem.isCheckable = false
     }
 
+    fun hideItem(itemId: Int){
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            hideItem(menuItem)
+        }
+    }
+
+    fun hideItem(menuItem: MenuItem){
+        menuItem.setVisible(false)
+    }
+
+    fun showItem(itemId: Int){
+        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
+        menu?.findItem(itemId)?.let { menuItem ->
+            showItem(menuItem)
+        }
+    }
+
+    fun showItem(menuItem: MenuItem){
+        menuItem.setVisible(true)
+    }
+
     fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
         menu.iterator().forEach {
             if (it.itemId !in permanentlyActiveItemIds && it != except) {
