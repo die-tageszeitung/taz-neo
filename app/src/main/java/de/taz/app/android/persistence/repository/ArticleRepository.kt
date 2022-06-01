@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
-import androidx.room.Query
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
@@ -378,5 +377,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
      */
      fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
          return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
+    }
+
+    fun hasAudioLiveData(articleFileName: String): LiveData<Boolean> {
+        return appDatabase.articleAudioFileJoinDao().hasAudioFile(articleFileName)
     }
 }

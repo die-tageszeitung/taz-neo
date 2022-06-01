@@ -1,6 +1,8 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -11,9 +13,12 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -35,6 +40,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val log by Log
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private lateinit var storageService: StorageService
+    private lateinit var articleRepository: ArticleRepository
+    private var mediaPlayer: MediaPlayer? = MediaPlayer()
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
 
@@ -83,6 +91,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }
         viewBinding.loadingScreen.root.visibility = View.GONE
+
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onStart() {
@@ -109,7 +120,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
             }
         }
+        private var hasAudioObserver = Observer<Boolean> { hasAudio ->
+            if (hasAudio) {
+                showItem(R.id.bottom_navigation_action_audio)
+            } else {
+                hideItem(R.id.bottom_navigation_action_audio)
+            }
+        }
         private var isBookmarkedLiveData: LiveData<Boolean>? = null
+        private var hasAudioLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
             val nextStub =
@@ -147,11 +166,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 isBookmarkedLiveData = nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
+                // determine if articleStub has audio file
+                hasAudioLiveData?.removeObserver(hasAudioObserver)
+                hasAudioLiveData = nextStub.hasAudio(requireContext().applicationContext)
+                hasAudioLiveData?.observe(this@ArticlePagerFragment, hasAudioObserver)
             }
         }
     }
 
     override fun onBackPressed(): Boolean {
+        destroyMediaPlayer()
         return if (hasBeenSwiped) {
             lifecycleScope.launch { showSectionOrGoBack() }
             true
@@ -188,6 +212,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
+            }
+
+            R.id.bottom_navigation_action_audio -> {
+                if (mediaPlayer != null && mediaPlayer?.isPlaying == true) {
+                    stopMediaPlayer()
+                } else {
+                    playAudioOfArticle()
+                }
             }
         }
     }
@@ -257,6 +289,53 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
+    private fun getCurrentArticleAudioFile(): FileEntry? {
+        return getCurrentArticleStub()?.articleFileName?.let { articleStub ->
+            articleRepository.get(articleStub)
+        }?.audioFile
+    }
+
+    private fun playAudioOfArticle() {
+        if (getCurrentArticleStub()?.hasAudio == true) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                getCurrentArticleAudioFile()?.let { audioFile ->
+                    mediaPlayer?.apply {
+                        reset()
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .build()
+                        )
+                        setDataSource(
+                            storageService.getFileUri(audioFile)
+                        )
+                        prepare()
+                        start()
+                    }
+                }
+            }
+            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio_filled)
+        }
+    }
+
+    private fun stopMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer?.stop()
+            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio)
+        }
+    }
+
+    private fun destroyMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer?.apply {
+                stop()
+                release()
+            }
+            mediaPlayer = null
+        }
+    }
+
     override fun onDestroyView() {
         webview_pager_viewpager.adapter = null
         if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
@@ -267,6 +346,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             if(!this.requireActivity().isDestroyed)
                 pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
+        destroyMediaPlayer()
         super.onDestroyView()
     }
 }

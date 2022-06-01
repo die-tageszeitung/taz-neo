@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Article
@@ -21,4 +22,7 @@ abstract class ArticleAudioFileJoinDao : BaseDao<ArticleAudioFileJoin>() {
     fun getAudioFileForArticle(article: Article): FileEntry? = article.audioFile?.name?.let {
         getAudioFileForArticle(it)
     }
+
+    @Query("SELECT EXISTS(SELECT * FROM ArticleAudioFileJoin where articleFileName = :articleFileName)")
+    abstract fun hasAudioFile(articleFileName: String): LiveData<Boolean>
 }
