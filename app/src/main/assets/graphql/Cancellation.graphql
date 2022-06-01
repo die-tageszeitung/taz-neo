@@ -1,0 +1,11 @@
+mutation Cancellation(
+    $isForce: Boolean
+) {
+    cancellation(
+        isForce: $isForce,
+    ) {
+        tazIdMail
+        cancellationLink
+        info
+    }
+}

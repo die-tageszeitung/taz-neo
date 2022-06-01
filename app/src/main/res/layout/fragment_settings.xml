@@ -192,9 +192,19 @@
             <TextView
                 android:id="@+id/fragment_settings_account_logout"
                 style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:text="@string/settings_account_logout"
                 android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_delete"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="wrap_content"
+                android:text="@string/settings_account_delete"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
 
             <TextView
