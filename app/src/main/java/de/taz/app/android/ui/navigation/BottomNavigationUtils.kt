@@ -9,7 +9,6 @@ import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
-import de.taz.app.android.util.Log
 import kotlin.reflect.KClass
 
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
@@ -108,7 +107,6 @@ private var searchBackActivityClass: KClass<out Activity>? = null
 private var settingsBackActivityClass: KClass<out Activity>? = null
 fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavigationItem? = null) {
     backActivityClass = activity?.let { it::class }
-    Log.d("!!!", "setBottomNavigationBackActivity to $backActivityClass")
     when (bottomGroup) {
         BottomNavigationItem.Home -> homeBackActivityClass = backActivityClass
         BottomNavigationItem.Bookmark -> bookmarkBackActivityClass = backActivityClass
@@ -118,18 +116,10 @@ fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavi
     }
 }
 
-// Navigate back to Home (MainActivity)
-// Or if an explicit activity is set via setBottomNavigationBackActivity navigate back to that one.
+// Always navigate back to Home (MainActivity)
 // To be used from the root bottom navigation activities.
 fun Activity.bottomNavigationBack() {
-    val currentBackActivityClass = backActivityClass
-    Log.d("!!!", "bottomNavigationBack with backActivityClass: $currentBackActivityClass and bottomGroup $bottomGroup")
-   /* if (currentBackActivityClass != null) {
-        backActivityClass = null
-        startActivity(this, currentBackActivityClass)
-    } else {*/
-        navigateToMain()
-    //}
+    navigateToMain()
 }
 
 private fun Activity.navigateToMain() = startActivity(this, homeBackActivityClass ?: MainActivity::class)
