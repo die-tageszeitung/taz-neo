@@ -668,4 +668,20 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
 
 
+    /**
+     * function to start a cancellation. The id is taken from the JWT
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
+        val tag = "cancellation"
+        log.debug("graphql call: $tag")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Cancellation,
+                CancellationVariables(
+                    isForce
+                )
+            ).data?.cancellation
+        }
+    }
 }
