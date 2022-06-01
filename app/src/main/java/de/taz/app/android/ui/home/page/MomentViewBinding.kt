@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page
 
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_FILE
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
@@ -93,7 +92,7 @@ class MomentViewBinding(
             }
             CoverViewData(
                 CoverType.STATIC,
-                momentUri ?: "file:///data/user/0/de.taz.android.app/files/taz/2022-05-27/regular/MomentFax.1149396.w660.high.jpg",
+                momentUri,
                 DEFAULT_MOMENT_RATIO
             )
         }
