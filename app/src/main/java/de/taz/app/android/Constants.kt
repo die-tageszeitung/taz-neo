@@ -9,6 +9,7 @@ const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debu
 
 // UI
 const val DEFAULT_MOMENT_RATIO = "0.670219:1"
+const val DEFAULT_MOMENT_FILE = "navButton.taz.normal.png"
 const val DEFAULT_NAV_DRAWER_FILE_NAME = "navButton.taz.normal.png"
 const val SUBSCRIPTION_EMAIL_ADDRESS = "digiabo@taz.de"
 const val WEBVIEW_DRAG_SENSITIVITY_FACTOR = 2
@@ -53,5 +54,6 @@ val simpleDateFormat
 
 const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
 
-const val METADATA_DOWNLOAD_DEFAULT_RETRIES = -1
-const val FILE_DOWNLOAD_DEFAULT_RETRIES = -1
+const val METADATA_DOWNLOAD_RETRY_INDEFINITELY = -1
+const val METADATA_DOWNLOAD_DEFAULT_RETRIES = 7
+const val FILE_DOWNLOAD_RETRY_INDEFINITELY = -1
