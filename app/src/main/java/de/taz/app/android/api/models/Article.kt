@@ -60,9 +60,6 @@ data class Article(
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
             .map { FileEntry(it) })
-        // TODO That will add much more data to issues with audioFiles!
-        //  That needs to be discussed in Apprunde
-        audioFile?.let { list.add(it) }
         return list.distinct()
     }
 

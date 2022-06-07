@@ -299,6 +299,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         if (getCurrentArticleStub()?.hasAudio == true) {
             lifecycleScope.launch(Dispatchers.IO) {
                 getCurrentArticleAudioFile()?.let { audioFile ->
+                    val baseUrl =
+                        getCurrentArticleStub()?.getIssueStub(requireContext().applicationContext)?.baseUrl
                     mediaPlayer?.apply {
                         reset()
                         setAudioAttributes(
@@ -308,7 +310,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                                 .build()
                         )
                         setDataSource(
-                            storageService.getFileUri(audioFile)
+                            "$baseUrl/${audioFile.name}"
                         )
                         prepare()
                         start()
@@ -343,7 +345,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             // Thus we cant initialize a ViewModel instance from onDestroyView. 
             // As the `by activityViewModels()` is called lazily and not being used before, the ViewModel can not be initialized.
             // To prevent the app from crashing in this case we check explicitly that the Activity has not been destroyed yet.
-            if(!this.requireActivity().isDestroyed)
+            if (!this.requireActivity().isDestroyed)
                 pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
         destroyMediaPlayer()
