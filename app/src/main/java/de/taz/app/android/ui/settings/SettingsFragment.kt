@@ -176,6 +176,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
+            fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                setNotificationsEnabled(isChecked)
+            }
+
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
@@ -495,6 +499,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
+    }
+
+    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
+        viewModel.setNotificationsEnabled(notificationsEnabled)
     }
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {

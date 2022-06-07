@@ -75,6 +75,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setNotificationsEnabled(enabled: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.notificationsEnabled.set(enabled)
+        }
+    }
+
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)

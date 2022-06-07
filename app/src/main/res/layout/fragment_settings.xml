@@ -82,12 +82,19 @@
                 android:text="@string/settings_auto_pdf_downloads_switch"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_wifi_switch" />
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_notifications_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_notifications_switch"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_pdf_download_switch" />
+
             <include
                 android:id="@+id/fragment_settings_storage_location"
                 layout="@layout/storage_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_pdf_download_switch" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_notifications_switch" />
 
             <TextView
                 android:id="@+id/fragment_settings_delete_all_issues"
