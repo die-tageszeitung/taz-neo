@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.util.SingletonHolder
 
 // region old setting names
@@ -55,7 +56,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     )
 
     val pdfMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(PDF_MODE), false
+        dataStore, booleanPreferencesKey(PDF_MODE), BuildConfig.IS_PDF_MODE_DEFAULT
     )
 
     val tryPdfDialogCount: DataStoreEntry<Int> = SimpleDataStoreEntry(
