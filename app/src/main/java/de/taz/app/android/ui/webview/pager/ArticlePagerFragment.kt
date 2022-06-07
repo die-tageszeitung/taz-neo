@@ -135,7 +135,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     }
                 }
                 // reset lastSectionKey as it might have changed the section by swiping
-                if (hasBeenSwiped) issueContentViewModel.lastSectionKey = null
+                if (hasBeenSwiped) {
+                    issueContentViewModel.lastSectionKey = null
+                    // in pdf mode update the corresponding page:
+                    if (tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
+                        val pdfPageWhereArticleBegins = nextStub.pageNameList.first()
+                        pdfPagerViewModel.goToPdfPage(pdfPageWhereArticleBegins)
+                    }
+                }
             }
             lastPage = position
 
