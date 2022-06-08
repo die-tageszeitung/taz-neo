@@ -14,7 +14,6 @@ private const val PREFERENCES_DOWNLOADS = "preferences_downloads"
 // region setting keys
 private const val ONLY_WIFI = "download_only_wifi"
 private const val ENABLED = "download_enabled"
-private const val NOTIFICATIONS_ENABLED = "notifications_enabled"
 private const val PDF_ADDITIONALLY = "download_pdf_additionally"
 private const val PDF_DIALOG_DO_NOT_SHOW_AGAIN = "download_pdf_dialog_do_not_show_again"
 // endregion
@@ -41,9 +40,6 @@ class DownloadDataStore private constructor(applicationContext: Context) {
 
     val pdfAdditionally =
         SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), false)
-
-    val notificationsEnabled =
-        SimpleDataStoreEntry(dataStore, booleanPreferencesKey(NOTIFICATIONS_ENABLED), false)
 
     val pdfDialogDoNotShowAgain =
         SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_DIALOG_DO_NOT_SHOW_AGAIN), false)

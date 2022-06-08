@@ -62,4 +62,7 @@ class NotificationHelper private constructor(private val applicationContext: Con
         notificationManagerCompat.notify(notificationId, builder.build())
     }
 
+    fun areNotificationsEnabled(): Boolean {
+        return notificationManagerCompat.areNotificationsEnabled()
+    }
 }

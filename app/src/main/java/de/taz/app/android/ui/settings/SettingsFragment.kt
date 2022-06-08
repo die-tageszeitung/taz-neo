@@ -4,7 +4,9 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -30,6 +32,7 @@ import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
@@ -53,6 +56,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var notificationHelper: NotificationHelper
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
 
@@ -61,6 +65,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         apiService = ApiService.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
+        notificationHelper = NotificationHelper.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
     }
@@ -176,13 +181,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
-            fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-                setNotificationsEnabled(isChecked)
+            fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, _ ->
+                openAppNotificationSettings()
             }
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
+
         }
 
 
@@ -445,6 +451,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
     }
 
+    override fun onResume() {
+        viewBinding.fragmentSettingsNotificationsSwitch.isChecked =
+            notificationHelper.areNotificationsEnabled()
+        super.onResume()
+    }
+
     private fun setStoredIssueNumber(number: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             log.debug("setKeepNumber: $number")
@@ -501,9 +513,22 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
-    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
-        viewModel.setNotificationsEnabled(notificationsEnabled)
+    private fun openAppNotificationSettings() {
+        activity?.applicationContext?.let { context ->
+            val intent = Intent().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                } else {
+                    action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                    putExtra("app_package", context.packageName)
+                    putExtra("app_uid", context.applicationInfo.uid)
+                }
+            }
+            activity?.startActivity(intent)
+        }
     }
+
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
