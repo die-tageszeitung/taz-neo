@@ -3,6 +3,8 @@ package de.taz.app.android.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.activity.viewModels
@@ -23,7 +25,8 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
@@ -31,6 +34,8 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,7 +59,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private lateinit var authHelper: AuthHelper
 
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
-
+    private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,24 +84,16 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
             recreate()
         }
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.Home
+        )
     }
 
     override fun onStop() {
         loggedOutDialog?.dismiss()
         tryPdfDialog?.dismiss()
         super.onStop()
-    }
-
-    override fun onBackPressed() {
-        val archiveFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment }
-                ?.childFragmentManager?.fragments?.firstOrNull { it is ArchiveFragment }
-        // if in archive fragment the back button should show home
-        if (archiveFragment?.isVisible == true) {
-            showHome()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private var loggedOutDialog: AlertDialog? = null
@@ -178,5 +175,27 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             supportFragmentManager,
             "showSubscriptionElapsed"
         )
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+        val homeFragment =
+            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+
+        if (homeFragment?.onHome == true) {
+            if (doubleBackToExitPressedOnce) {
+                moveTaskToBack(true)
+                finish()
+            }
+
+            this.doubleBackToExitPressedOnce = true
+            toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                doubleBackToExitPressedOnce = false
+            }, 2000)
+        } else {
+            showHome()
+        }
     }
 }

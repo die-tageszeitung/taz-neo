@@ -12,6 +12,8 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -58,8 +60,20 @@ class IssueViewerActivity : AppCompatActivity() {
         if (fragment.onBackPressed()) {
             return
         }
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
         super.onBackPressed()
     }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Home)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
+    }
+
 }
 
 /**
@@ -137,4 +151,5 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
     }
+
 }

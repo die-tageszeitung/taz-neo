@@ -18,13 +18,17 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.*
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.*
-import de.taz.app.android.ui.main.*
+import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -245,6 +249,20 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Settings)
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
+        )
+    }
+
+    override fun onDestroy() {
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
+        super.onDestroy()
+    }
+
     private fun showLoginForm(
         @StringRes usernameErrorId: Int? = null,
         @StringRes passwordErrorId: Int? = null
@@ -328,7 +346,8 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             // if on non free flavor it is not allowed to buy stuff from the app,
             // so we show a fragment where we only allow the trial subscription:
             if (BuildConfig.IS_NON_FREE) {
-                showFragment(SubscriptionTrialOnlyFragment.createInstance(
+                showFragment(
+                    SubscriptionTrialOnlyFragment.createInstance(
                     elapsed = authHelper.isElapsed())
                 )
             }
@@ -447,6 +466,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
             } else {
+                setBottomNavigationBackActivity(null,  BottomNavigationItem.Settings)
                 super.onBackPressed()
             }
         }

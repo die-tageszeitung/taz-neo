@@ -22,6 +22,9 @@
         <item name="android:textColorSecondary">@color/textColorAccent</item>
         <item name="android:ambientShadowAlpha">0.1</item>
     </style>
+    <style name="noAnimationOnActivityChange" parent="AppTheme">
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
 
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="alertDialogStyle">@style/AppTheme.MaterialAlertDialog.MaterialComponents</item>
@@ -155,11 +158,7 @@
     </style>
 
     <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
-        <item name="colorControlHighlight">@color/black</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
-        <item name="android:backgroundTint">@color/navigation_bottom_background</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
@@ -269,7 +268,7 @@
         <item name="endIconMode">clear_text</item>
         <item name="hintEnabled">false</item>
         <item name="startIconContentDescription">@string/search</item>
-        <item name="startIconDrawable">@drawable/ic_search</item>
+        <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">

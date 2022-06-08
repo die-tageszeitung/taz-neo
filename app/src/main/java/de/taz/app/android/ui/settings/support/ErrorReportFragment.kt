@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Base64
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
@@ -175,12 +174,5 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         }
         requireActivity().finish()
 
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            log.debug("Show home clicked")
-            requireActivity().finish()
-        }
     }
 }
