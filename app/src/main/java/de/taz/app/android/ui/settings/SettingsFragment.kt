@@ -181,7 +181,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
-            fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, _ ->
+            fragmentSettingsNotificationsSwitch.setOnClickListener {
                 openAppNotificationSettings()
             }
 
