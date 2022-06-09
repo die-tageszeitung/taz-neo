@@ -199,13 +199,23 @@ class SubscriptionAccountFragment :
             }
 
             if (fragment_subscription_account_password_confirm_layout.isVisible) {
-                val passwordConfirmation =
-                    fragment_subscription_account_password_confirm.text?.toString()
-                if (password != passwordConfirmation) {
+                password?.let { pw ->
+                    val passwordConfirmation =
+                        fragment_subscription_account_password_confirm.text?.toString()
+                    if (pw != passwordConfirmation) {
+                        done = false
+                        fragment_subscription_account_password_confirm_layout.setError(
+                            R.string.login_password_confirmation_error_match
+                        )
+                    }
+                    if (!Pattern.compile(PASSWORD_PATTERN).matcher(pw).matches()) {
+                        done = false
+                        fragment_subscription_account_password_confirm_layout.setError(
+                            R.string.login_password_regex_error
+                        )
+                    }
+                } ?: run {
                     done = false
-                    fragment_subscription_account_password_confirm_layout.setError(
-                        R.string.login_password_confirmation_error_match
-                    )
                 }
             }
         }
