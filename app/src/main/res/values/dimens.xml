@@ -94,8 +94,7 @@
     <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_margin_bottom">62dp</dimen>
-    <dimen name="fragment_cover_flow_grid_margin_bottom">92dp</dimen>
-    <dimen name="fragment_cover_flow_grid_padding_top">30dp</dimen>
+    <dimen name="fragment_cover_flow_guideline_end">150dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
