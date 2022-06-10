@@ -29,6 +29,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -179,9 +180,22 @@ abstract class WebViewFragment<
                 cacheMode = WebSettings.LOAD_NO_CACHE
                 setAppCacheEnabled(false)
             }
+            onBorderTapListener = { border ->
+                val scrollByValue = view?.height?.minus(350)  ?: 0
+                when (border) {
+                    ViewBorder.LEFT -> scrollBy(- scrollByValue)
+                    ViewBorder.RIGHT -> scrollBy(scrollByValue)
+                    else -> log.debug("nothing")
+                }
+            }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
             setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
         }
+    }
+
+    private fun scrollBy(scrollHeight: Int) {
+        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        scrollView?.smoothScrollBy(0, scrollHeight)
     }
 
     abstract fun setHeader(displayable: DISPLAYABLE)
