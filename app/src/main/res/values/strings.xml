@@ -3,6 +3,7 @@
     <string name="accept_button">Akzeptieren</string>
     <string name="close_button">Schließen</string>
     <string name="cancel_button">Abbrechen</string>
+    <string name="close_okay">Alles klar</string>
 
     <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
 
@@ -10,6 +11,7 @@
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
+    <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
     <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
     <string name="popup_login_elapsed_text">
@@ -36,13 +38,18 @@
 
     <string name="help">Hilfe</string>
 
+    <string name="tab_bar_home">Home</string>
+    <string name="tab_bar_bookmarks">Leseliste</string>
+    <string name="tab_bar_search">Suche</string>
+    <string name="tab_bar_settings">Einstellungen</string>
+
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
     <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
     <string name="bottom_navigation_action_audio">Audio abspielen</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
-    <string name="bottom_navigation_action_pdf">PDF-Ansicht</string>
+    <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
     <string name="bottom_navigation_action_app">Web-Ansicht</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
@@ -70,7 +77,6 @@
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
-    <string name="fragment_bottom_sheet_issue_read_pdf">PDF lesen</string>
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
@@ -99,6 +105,7 @@
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Logout</u></string>
+    <string name="settings_account_delete"><u>Konto löschen</u></string>
     <string name="settings_account_elapsed"><u>abgelaufen</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
@@ -131,6 +138,12 @@
     <string name="settings_dialog_download_do_not_ask_again">Nicht mehr fragen</string>
     <string name="settings_dialog_download_load_pdf">ePaper laden</string>
     <string name="settings_dialog_download_too_much_data">Nein, zuviel Daten</string>
+
+
+    <string name="settings_dialog_cancellation_are_you_sure_title">Sie wollen Ihr Konto unwiderruflich löschen?</string>
+    <string name="settings_dialog_cancellation_go_to_online_link">Sie werden auf die taz Seite weitergeleitet wo Sie Ihr Konto löschen können.</string>
+    <string name="settings_dialog_cancellation_not_possible">Da sie einen taz Account haben, können Sie das Konto nicht löschen</string>
+    <string name="settings_dialog_cancellation_direct">Durch klicken auf Okay wird Ihr Konto gelöscht</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues"><u>Alle Ausgaben löschen</u></string>
@@ -201,12 +214,31 @@
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
     <string name="login_password_confirmation_error_match">Passwörter stimmen nicht überein</string>
+    <string name="login_password_regex_error">Passwort muss min. 8 Zeichen lang sein, mit einer Zahl und einem Sonderzeichen</string>
 
     <string name="fragment_subscription_price_title">Monatlicher Bezugspreis</string>
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
 
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
+    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_description">
+        Testen Sie uns für 6 Wochen!
+        \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
+        \nAber wir haben etwas für Sie: Testen sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.
+        \nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/abo
+        \neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!
+    </string>
+    <string name="fragment_subscription_trial_only_description_elapsed">
+        Ihr kostenloses Probeabo ist abgelaufen, sie können über taz.de ein kostenpflichtiges Abo abschließen.
+        \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
+    </string>
 
+    <string name="popup_login_elapsed_text_non_free">
+        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
+        \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
+        \nSie müssen Ihr Abo über www.taz.de/abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
+        \nBei Fragen wenden Sie sich an unseren Service unter:
+    </string>
     <string name="fragment_subscription_bank_title">Bankdaten</string>
     <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
 
@@ -300,7 +332,7 @@
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
-    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die PDF-Ansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
+    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
     <string name="search_activity">Suche</string>
     <string name="search_advanced">erweiterte suche</string>

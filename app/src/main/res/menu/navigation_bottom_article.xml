@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/bottom_navigation_action_share"
-        android:icon="@drawable/ic_share"
-        android:title="@string/bottom_navigation_action_share" />
+        android:id="@+id/bottom_navigation_action_home_article"
+        android:icon="@drawable/ic_home"
+        android:title="@string/bottom_navigation_action_home" />
     <item
         android:id="@+id/bottom_navigation_action_bookmark"
         android:icon="@drawable/ic_bookmark"
         android:title="@string/bottom_navigation_action_bookmark" />
     <item
-        android:id="@+id/bottom_navigation_action_size"
-        android:icon="@drawable/ic_text_size"
-        android:title="@string/bottom_navigation_action_size" />
+        android:id="@+id/bottom_navigation_action_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/bottom_navigation_action_share" />
     <item
         android:id="@+id/bottom_navigation_action_audio"
         android:icon="@drawable/ic_audio"
         android:title="@string/bottom_navigation_action_audio"
-        android:visible="false"
-        tools:visible="true" />
+        android:visible="false" />
     <item
-        android:id="@+id/bottom_navigation_action_home"
-        android:icon="@drawable/ic_home"
-        android:title="@string/bottom_navigation_action_home" />
+        android:id="@+id/bottom_navigation_action_size"
+        android:icon="@drawable/ic_text_size"
+        android:title="@string/bottom_navigation_action_size" />
 </menu>

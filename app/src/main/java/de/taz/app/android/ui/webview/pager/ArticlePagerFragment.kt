@@ -84,6 +84,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigation_bottom_webview_pager.visibility = View.GONE
         webview_pager_viewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -154,7 +155,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     }
                 }
                 // reset lastSectionKey as it might have changed the section by swiping
-                if (hasBeenSwiped) issueContentViewModel.lastSectionKey = null
+                if (hasBeenSwiped) {
+                    issueContentViewModel.lastSectionKey = null
+                    // in pdf mode update the corresponding page:
+                    if (tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
+                        val pdfPageWhereArticleBegins = nextStub.pageNameList.first()
+                        pdfPagerViewModel.goToPdfPage(pdfPageWhereArticleBegins)
+                    }
+                }
             }
             lastPage = position
 
@@ -199,7 +207,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
+            R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let {

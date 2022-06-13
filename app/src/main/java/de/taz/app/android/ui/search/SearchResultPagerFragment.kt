@@ -26,6 +26,8 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -118,6 +120,16 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     override fun onStop() {
         webViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
         super.onStop()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setBottomNavigationBackActivity(this.activity, BottomNavigationItem.Search)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onDestroy() {
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Search)
+        super.onDestroy()
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {

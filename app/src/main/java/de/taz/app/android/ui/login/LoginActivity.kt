@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
@@ -17,16 +18,17 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
-import de.taz.app.android.singletons.*
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAccountFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionAddressFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBankFragment
-import de.taz.app.android.ui.login.fragments.subscription.SubscriptionPriceFragment
-import de.taz.app.android.ui.main.*
+import de.taz.app.android.ui.login.fragments.subscription.*
+import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -101,7 +103,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                         viewModel.validCredentials = viewModel.isElapsed()
                     }
                     if (register) {
-                        showSubscriptionPrice()
+                        showSubscriptionPossibilities()
                     } else {
                         showLoginForm()
                     }
@@ -137,7 +139,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showSubscriptionMissing(invalidId = true)
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST -> {
-                    showSubscriptionPrice()
+                    showSubscriptionPossibilities()
                 }
                 LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL -> {
                     showSubscriptionAccount(mailInvalid = true)
@@ -207,7 +209,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showSubscriptionBank(
                     ibanNoSepa = true
                 )
-                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPrice(priceInvalid = true)
+                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPossibilities(priceInvalid = true)
                 null -> {
                     Sentry.captureMessage("login status is null")
                     viewModel.status.postValue(LoginViewModelState.INITIAL)
@@ -245,6 +247,20 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Settings)
+        setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
+        )
+    }
+
+    override fun onDestroy() {
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
+        super.onDestroy()
     }
 
     private fun showLoginForm(
@@ -323,18 +339,30 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun showSubscriptionPrice(priceInvalid: Boolean = false) {
+    private fun showSubscriptionPossibilities(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
         lifecycleScope.launch(Dispatchers.IO) {
-            getPriceList()?.let {
+            // if on non free flavor it is not allowed to buy stuff from the app,
+            // so we show a fragment where we only allow the trial subscription:
+            if (BuildConfig.IS_NON_FREE) {
                 showFragment(
-                    SubscriptionPriceFragment.createInstance(
-                        it,
-                        invalidPrice = priceInvalid
-                    )
+                    SubscriptionTrialOnlyFragment.createInstance(
+                    elapsed = authHelper.isElapsed())
                 )
-            } ?: hideLoadingScreen()
+            }
+            // otherwise - on free flavor - we can call getPriceList to receive
+            // current price list from api
+            else {
+                getPriceList()?.let {
+                    showFragment(
+                        SubscriptionPriceFragment.createInstance(
+                            it,
+                            invalidPrice = priceInvalid
+                        )
+                    )
+                } ?: hideLoadingScreen()
+            }
         }
     }
 
@@ -346,11 +374,11 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             ApiService.getInstance(applicationContext).getPriceList()
         } catch (nie: ConnectivityException.NoInternetException) {
             Snackbar.make(rootView, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
+                .setAction(R.string.retry) { showSubscriptionPossibilities(false) }.show()
             null
         } catch (ie: ConnectivityException.ImplementationException) {
             Snackbar.make(rootView, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) { showSubscriptionPrice(false) }.show()
+                .setAction(R.string.retry) { showSubscriptionPossibilities(false) }.show()
             null
         }
     }
@@ -438,6 +466,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
             } else {
+                setBottomNavigationBackActivity(null,  BottomNavigationItem.Settings)
                 super.onBackPressed()
             }
         }

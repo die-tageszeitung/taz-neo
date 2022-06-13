@@ -15,6 +15,7 @@ import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.android.parcel.Parcelize
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Mockable
@@ -135,6 +136,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         return issue
     }
 
+    /**
+     * Change the existing issueStub in the Database
+     * NOTE: Make sure to use update only after fetching the data from db and then doing the desired
+     * changes - as otherwise changes might be overwritten
+     */
     fun update(issueStub: IssueStub) {
         appDatabase.issueDao().update(issueStub)
     }
@@ -184,7 +190,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
-    fun getIssueStubByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): IssueStub? {
+    fun getIssueStubByFeedDateAndStatus(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): IssueStub? {
         return appDatabase.issueDao().getByFeedDateAndStatus(feedName, date, status)
     }
 
@@ -230,8 +240,8 @@ class IssueRepository private constructor(applicationContext: Context) :
             .maxByOrNull { it.status }
     }
 
-    fun getEarliestDownloadedIssueStub(): IssueStub? {
-        return appDatabase.issueDao().getEarliestDownloaded()
+    fun getIssueStubToDelete(): IssueStub? {
+        return appDatabase.issueDao().getIssueToDelete()
     }
 
     fun getImprint(issueKey: IssueKey): Article? {
@@ -292,6 +302,16 @@ class IssueRepository private constructor(applicationContext: Context) :
         return getDownloadDate(issueStub.issueKey)
     }
 
+    fun updateLastViewedDate(issueOperations: IssueOperations) {
+        updateLastViewedDate(issueOperations.issueKey)
+    }
+
+    fun updateLastViewedDate(issueKey: AbstractIssueKey) {
+        getStub(issueKey)?.let {
+            update(it.copy(lastViewedDate = Date()))
+        }
+    }
+
     fun setDownloadDate(issue: IssueOperations, dateDownload: Date?) {
         when (issue) {
             is IssueStub -> setDownloadDate(issue, dateDownload)
@@ -301,7 +321,9 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
-        update(issueStub.copy(dateDownload = dateDownload))
+        getStub(issueStub.issueKey)?.let {
+            update(it.copy(dateDownload = dateDownload))
+        }
     }
 
     fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
@@ -395,7 +417,8 @@ class IssueRepository private constructor(applicationContext: Context) :
             issueStub.dateDownload,
             issueStub.dateDownloadWithPages,
             issueStub.lastDisplayableName,
-            issueStub.lastPagePosition
+            issueStub.lastPagePosition,
+            issueStub.lastViewedDate,
         )
     }
 
@@ -424,8 +447,8 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getDownloadedIssuesCountLiveData(): LiveData<Int> {
-        return appDatabase.issueDao().getDownloadedIssuesCountLiveData()
+    fun getDownloadedIssuesCountFlow(): Flow<Int> {
+        return appDatabase.issueDao().getDownloadedIssuesCountFlow()
     }
 
     fun getAllIssueStubs(): List<IssueStub> {
@@ -447,7 +470,8 @@ class IssueRepository private constructor(applicationContext: Context) :
     fun getMostValuableIssueKeyForPublication(
         issuePublication: AbstractIssuePublication
     ): AbstractIssueKey? {
-        return appDatabase.issueDao().getByFeedAndDate(issuePublication.feedName, issuePublication.date)
+        return appDatabase.issueDao()
+            .getByFeedAndDate(issuePublication.feedName, issuePublication.date)
             .map { if (issuePublication is IssuePublicationWithPages) IssueKeyWithPages(it.issueKey) else it.issueKey }
             .maxByOrNull {
                 it.status
@@ -564,7 +588,7 @@ data class IssuePublication(
         issueKey.date
     )
 
-    constructor(coverPublication: AbstractCoverPublication): this(
+    constructor(coverPublication: AbstractCoverPublication) : this(
         coverPublication.feedName,
         coverPublication.date
     )
@@ -583,7 +607,7 @@ data class IssuePublicationWithPages(
     override val feedName: String,
     override val date: String
 ) : AbstractIssuePublication {
-    constructor(abstractIssuePublication: AbstractIssuePublication): this(
+    constructor(abstractIssuePublication: AbstractIssuePublication) : this(
         abstractIssuePublication.feedName,
         abstractIssuePublication.date
     )
@@ -627,7 +651,6 @@ data class IssueKeyWithPages(
     override val date: String,
     override val status: IssueStatus
 ) : Parcelable, AbstractIssueKey {
-
     constructor(issueKey: IssueKey) : this(
         issueKey.feedName,
         issueKey.date,

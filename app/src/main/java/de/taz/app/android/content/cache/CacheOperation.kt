@@ -211,12 +211,12 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
 
     /**
      * In some operations (i.e. in [WrappedDownload]) it could happen that during the process
-     * more items will need to be added to the opeeation than known at the start of the operation.
+     * more items will need to be added to the operation than known at the start of the operation.
      * For instance the files needed to be downloaded for an [de.taz.app.android.api.models.Issue]
      * is only known after a [MetadataDownload] for that [de.taz.app.android.api.models.Issue] is
      * done.
      *
-     * @param items The [CacheOperationItem] to be added to this operation
+     * @param item The [CacheOperationItem] to be added to this operation
      */
     fun addItem(item: ITEM) = addItems(listOf(item))
 

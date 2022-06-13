@@ -6,7 +6,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 object Migration22to23 : Migration(22, 23) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
-            execSQL("ALTER TABLE Article ADD COLUMN hasAudio INTEGER NOT NULL DEFAULT 0;")
+            execSQL("ALTER TABLE Issue ADD COLUMN lastViewedDate TEXT;")
         }
     }
 }

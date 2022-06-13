@@ -17,6 +17,7 @@ import com.artifex.mupdf.viewer.PageAdapter
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentPdfRenderBinding
 import de.taz.app.android.persistence.repository.*
@@ -135,6 +136,9 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                     pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(path))
                     mu_pdf_wrapper?.removeAllViews()
                     mu_pdf_wrapper?.addView(pdfReaderView!!)
+                    if (page?.type == PageType.panorama) {
+                        pdfReaderView!!.zoomPanoramaPage()
+                    }
                 } catch (npe: NullPointerException) {
                     Sentry.captureException(npe)
                     finishActivityWithErrorToast()

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -19,8 +18,11 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.CancellationInfo
+import de.taz.app.android.api.models.CancellationStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -35,7 +37,6 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
@@ -49,17 +50,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
 
-    private lateinit var toastHelper: ToastHelper
+    private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
+    private lateinit var toastHelper: ToastHelper
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        apiService = ApiService.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -139,6 +142,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsAccountLogout.setOnClickListener {
                 fragmentSettingsAccountElapsed.visibility = View.GONE
                 logout()
+            }
+
+            fragmentSettingsAccountDelete.setOnClickListener {
+                lifecycleScope.launch {
+                    val result = apiService.cancellation()
+                    showCancellationDialog(result)
+                }
             }
 
             val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
@@ -227,10 +237,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun setDoNotShowAgain(doNotShowAgain: Boolean) {
-        viewModel.setPdfDialogDoNotShowAgain(doNotShowAgain)
-    }
-
     private fun showKeepIssuesDialog() {
         context?.let {
             val dialog = MaterialAlertDialogBuilder(it)
@@ -239,7 +245,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     (dialog as AlertDialog).findViewById<EditText>(
                         R.id.dialog_settings_keep_number
                     )?.text.toString().toIntOrNull()?.let { number ->
-                        setStoredIssueNumber(number.coerceAtLeast(1))
+                        setStoredIssueNumber(number)
                         dialog.hide()
                     }
                 }
@@ -336,6 +342,38 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
+    private fun showCancellationDialog(status: CancellationStatus?) {
+        val view = when (status?.info) {
+            CancellationInfo.tazId -> R.layout.dialog_cancellation_taz_id
+            CancellationInfo.aboId -> R.layout.dialog_cancellation_abo_id
+            else -> R.layout.dialog_cancellation_special_access
+        }
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setView(view)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    when (status?.info) {
+                        CancellationInfo.aboId -> lifecycleScope.launch {
+                            apiService.cancellation(isForce = true)
+                        }
+                        CancellationInfo.specialAccess ->
+                            log.debug("special access - so cancellation not possible")
+                        else -> status?.cancellationLink?.let { link ->
+                            openCancellationExternalPage(
+                                link
+                            )
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+            dialog.show()
+        }
+    }
+
     private fun showStoredIssueNumber(number: Int) {
         storedIssueNumber = number
         val text = HtmlCompat.fromHtml(
@@ -392,19 +430,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showLogoutButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.VISIBLE
         fragmentSettingsAccountLogout.visibility = View.VISIBLE
+        fragmentSettingsAccountDelete.visibility = View.VISIBLE
         fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
     private fun showManageAccountButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.GONE
         fragmentSettingsAccountLogout.visibility = View.GONE
+        fragmentSettingsAccountDelete.visibility = View.GONE
         fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
-    }
-
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
-        if (menuItem.itemId == R.id.bottom_navigation_action_home) {
-            MainActivity.start(requireContext())
-        }
     }
 
     private fun setStoredIssueNumber(number: Int) {
@@ -478,6 +512,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+            toastHelper.showToast(R.string.toast_unknown_error)
+        }
+    }
+
+    private fun openCancellationExternalPage(link: String) {
+        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply { launchUrl(requireContext(), Uri.parse(link)) }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)

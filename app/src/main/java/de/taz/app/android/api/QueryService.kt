@@ -33,7 +33,8 @@ enum class QueryType {
     SubscriptionPoll,
     SubscriptionReset,
     TrialSubscription,
-    Search
+    Search,
+    Cancellation,
 }
 
 /**

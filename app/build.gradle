@@ -145,6 +145,7 @@ android {
         resConfig "de"
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
+        buildConfigField "Boolean", "IS_NON_FREE", "false"
         buildConfigField "Boolean", "IS_PDF_MODE_DEFAULT", "false"
 
         def ENV = System.getenv()
@@ -194,6 +195,7 @@ android {
 
         nonfree {
             dimension "source"
+            buildConfigField "Boolean", "IS_NON_FREE", "true"
         }
 
         staging {

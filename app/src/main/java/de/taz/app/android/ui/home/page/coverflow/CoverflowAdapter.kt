@@ -30,8 +30,8 @@ class CoverflowAdapter(
      * The size of the cover item is determined by both the constraints of the cover dimension
      * which is determined by the feed and the available screen width or height
      * We'd need to determine upper bounds by height _or_ width, depending on whats exceeded first.
-     * In Landscape thats typically height while in portrait its typically width.
-     * One might be tempted to let the CoverView determine it's width with a combination
+     * In Landscape that's typically height while in portrait it's typically width.
+     * One might be tempted to let the CoverView determine its width with a combination
      * of dimension constraints and max width/height constraints, and wrap its content by width - but
      * that's hella buggy in API Level < 24. The solution below is pragmatic and seems to work universally
      * Define a fraction of screen bound you wanna fill with the cover and calculate the item width from it.

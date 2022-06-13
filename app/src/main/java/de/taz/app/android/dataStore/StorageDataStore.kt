@@ -25,6 +25,7 @@ const val STORAGE_LOCATION = "general_storage_location"
 
 // region defaults
 private const val KEEP_ISSUES_DEFAULT = 20
+private const val KEEP_ISSUES_MINIMUM = 2
 private val STORAGE_LOCATION_DEFAULT = StorageLocation.INTERNAL
 // endregion
 
@@ -55,8 +56,8 @@ class StorageDataStore private constructor(applicationContext: Context) {
         dataStore,
         stringPreferencesKey(KEEP_ISSUES_NUMBER),
         KEEP_ISSUES_DEFAULT,
-        { it.toString() },
-        { it.toInt() }
+        { it.coerceAtLeast(KEEP_ISSUES_MINIMUM).toString() },
+        { it.toInt().coerceAtLeast(KEEP_ISSUES_MINIMUM) }
     )
 
     val storageLocation = MappingDataStoreEntry(

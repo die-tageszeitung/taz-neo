@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 22,
-    "identityHash": "52b3a0861c8b45311abb7221e3c7c514",
+    "version": 23,
+    "identityHash": "23f6bfa59c5407b50ec78e833b5531f3",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -184,7 +184,7 @@
       },
       {
         "tableName": "Article",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarked` INTEGER NOT NULL, `hasAudio` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarked` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
         "fields": [
           {
             "fieldPath": "articleFileName",
@@ -231,12 +231,6 @@
           {
             "fieldPath": "bookmarked",
             "columnName": "bookmarked",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "hasAudio",
-            "columnName": "hasAudio",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -498,7 +492,7 @@
       },
       {
         "tableName": "Issue",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `isWeekend` INTEGER NOT NULL DEFAULT 0, `moTime` TEXT NOT NULL, `dateDownload` TEXT, `dateDownloadWithPages` TEXT, `lastDisplayableName` TEXT, `lastPagePosition` INTEGER, PRIMARY KEY(`feedName`, `date`, `status`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`feedName` TEXT NOT NULL, `date` TEXT NOT NULL, `key` TEXT, `baseUrl` TEXT NOT NULL, `status` TEXT NOT NULL, `minResourceVersion` INTEGER NOT NULL, `isWeekend` INTEGER NOT NULL DEFAULT 0, `moTime` TEXT NOT NULL, `dateDownload` TEXT, `dateDownloadWithPages` TEXT, `lastDisplayableName` TEXT, `lastPagePosition` INTEGER, `lastViewedDate` TEXT, PRIMARY KEY(`feedName`, `date`, `status`))",
         "fields": [
           {
             "fieldPath": "feedName",
@@ -571,6 +565,12 @@
             "fieldPath": "lastPagePosition",
             "columnName": "lastPagePosition",
             "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastViewedDate",
+            "columnName": "lastViewedDate",
+            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -1544,7 +1544,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '52b3a0861c8b45311abb7221e3c7c514')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '23f6bfa59c5407b50ec78e833b5531f3')"
     ]
   }
 }

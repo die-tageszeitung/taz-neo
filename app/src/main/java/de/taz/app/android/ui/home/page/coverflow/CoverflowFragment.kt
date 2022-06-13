@@ -176,6 +176,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     fun skipToHome() {
+        getHomeFragment().setHomeIconFilled()
         viewModel.feed.value?.issueMaxDate?.let {
             skipToDate(simpleDateFormat.parse(it)!!)
         }

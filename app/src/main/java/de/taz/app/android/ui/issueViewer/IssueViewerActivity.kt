@@ -12,6 +12,8 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
@@ -41,13 +43,15 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportFragmentManager.beginTransaction().add(
-            android.R.id.content,
-            IssueViewerWrapperFragment.instance(
-                intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
-                intent.getStringExtra(KEY_DISPLAYABLE),
-            )
-        ).commit()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().add(
+                android.R.id.content,
+                IssueViewerWrapperFragment.instance(
+                    intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
+                    intent.getStringExtra(KEY_DISPLAYABLE),
+                )
+            ).commit()
+        }
     }
 
     override fun onBackPressed() {
@@ -56,8 +60,20 @@ class IssueViewerActivity : AppCompatActivity() {
         if (fragment.onBackPressed()) {
             return
         }
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
         super.onBackPressed()
     }
+
+    override fun onResume() {
+        super.onResume()
+        setBottomNavigationBackActivity(this, BottomNavigationItem.Home)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
+    }
+
 }
 
 /**
@@ -96,12 +112,10 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             )
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         contentService = ContentService.getInstance(requireContext().applicationContext)
-
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
                 suspend fun downloadMetadata(maxRetries: Int = -1) =
@@ -137,4 +151,5 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
     }
+
 }

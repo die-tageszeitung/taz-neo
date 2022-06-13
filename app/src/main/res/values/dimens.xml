@@ -4,11 +4,12 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="nav_bottom_height">52dp</dimen>
-    <dimen name="design_bottom_navigation_icon_size" tools:override="true">50dp</dimen>
+    <!-- overriding android dimens: -->
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
     <dimen name="view_moment_download_icon_size">25dp</dimen>
+
     <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
@@ -40,6 +41,8 @@
     <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
     <dimen name="fragment_login_text_link_padding_bottom">10dp</dimen>
 
+    <dimen name="fragment_subscription_trial_only_margin_top">30dp</dimen>
+
     <dimen name="login_button_margin_top">7dp</dimen>
 
     <dimen name="fragment_article_read_on_description_margin_bottom">30dp</dimen>
@@ -61,16 +64,15 @@
     <dimen name="fragment_header_default_height">74dp</dimen>
     <dimen name="fragment_header_default_margin_top">36dp</dimen>
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
-    <dimen name="fragment_header_default_title_y_translation">5dp</dimen>
+    <dimen name="fragment_header_default_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
     <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
     <dimen name="fragment_header_article_title_y_translation">3dp</dimen>
-    <dimen name="fragment_header_article_text_size">18sp</dimen>
+    <dimen name="fragment_header_article_text_size">16sp</dimen>
     <dimen name="fragment_header_section_text_size">25sp</dimen>
-    <dimen name="fragment_header_title_section_text_size">30sp</dimen>
-    <dimen name="fragment_header_section_title_height">40dp</dimen>
-    <dimen name="fragment_header_section_title_y_translation">4dp</dimen>
+    <dimen name="fragment_header_title_section_text_size">33sp</dimen>
+    <dimen name="fragment_header_section_title_y_translation">5dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
     <dimen name="fragment_header_issue_date_y_translation">-4dp</dimen>
     <dimen name="fragment_webview_header_padding_top">35dp</dimen>
@@ -107,14 +109,16 @@
     <dimen name="bottom_sheet_setting_padding_vertical">20dp</dimen>
 
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
+    <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
 
     <dimen name="fragment_bookmarks_thumbnail_size">65dp</dimen>
-    <dimen name="fragment_bookmarks_icons_vertical_margin">4dp</dimen>
+    <dimen name="fragment_bookmarks_icons_vertical_margin">16dp</dimen>
+    <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
     <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="fragment_bookmarks_icon_size">50dp</dimen>
+    <dimen name="fragment_bookmarks_icon_size">28dp</dimen>
 
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>

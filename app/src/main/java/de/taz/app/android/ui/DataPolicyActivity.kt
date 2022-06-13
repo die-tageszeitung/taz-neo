@@ -1,5 +1,6 @@
 package de.taz.app.android.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
+import de.taz.app.android.R
 import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
@@ -17,6 +19,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityDataPolicyBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
@@ -36,6 +39,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     private lateinit var dataService: DataService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var toastHelper: ToastHelper
 
     private var finishOnClose = false
 
@@ -51,6 +55,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
         dataService = DataService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewBinding.apply {
             dataPolicyAcceptButton.setOnClickListener {
@@ -78,7 +83,12 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
                 webViewClient = object : WebViewClient() {
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        startActivity(intent)
+                        try {
+                            startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            toastHelper.showToast(R.string.toast_no_email_client)
+                            log.warn("Could not open email activity: ${e.localizedMessage}")
+                        }
                         return true
                     }
                 }

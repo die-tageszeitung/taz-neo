@@ -176,6 +176,12 @@ class CredentialsMissingFragment :
             )
             done = false
         }
+        if (!Pattern.compile(PASSWORD_PATTERN).matcher(password).matches()
+            && fragment_login_missing_credentials_password_confirmation_layout.isVisible
+        ) {
+            fragment_login_missing_credentials_password_layout.setError(R.string.login_password_regex_error)
+            done = false
+        }
         if (firstName.isEmpty() && fragment_login_missing_credentials_first_name_layout.isVisible) {
             fragment_login_missing_credentials_first_name_layout.setError(
                 R.string.login_first_name_error_empty
@@ -201,13 +207,6 @@ class CredentialsMissingFragment :
                 )
                 done = false
             }
-        }
-
-        if (password.isEmpty()) {
-            fragment_login_missing_credentials_password_layout.setError(
-                R.string.login_password_error_empty
-            )
-            done = false
         }
 
         if (!fragment_login_missing_credentials_terms_and_conditions.isChecked) {
