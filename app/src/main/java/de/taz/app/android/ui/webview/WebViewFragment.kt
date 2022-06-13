@@ -32,6 +32,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.ViewBorder
+import de.taz.app.android.util.BottomNavigationBehavior
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -212,13 +213,15 @@ abstract class WebViewFragment<
 
     private fun scrollBy(scrollHeight: Int) {
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+        // if on bottom and tap on right side go to next article
         if (scrollView?.canScrollVertically(1) == false && scrollHeight > 0) {
-            log.debug("go Right")
             issueViewerViewModel.goNextArticle.postValue(true)
-        } else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
-            log.debug("go Left")
+        }
+        // if on bottom and tap on right side go to next article
+        else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
             issueViewerViewModel.goPreviousArticle.postValue(true)
         } else {
+            view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.onStartNestedScroll()
             scrollView?.smoothScrollBy(0, scrollHeight)
         }
     }
