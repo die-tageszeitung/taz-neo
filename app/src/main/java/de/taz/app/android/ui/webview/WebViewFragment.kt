@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
@@ -133,6 +135,14 @@ abstract class WebViewFragment<
         viewModel.fontSizeLiveData.observe(this@WebViewFragment){
             reloadAfterCssChange()
         }
+        viewModel.scrollBy.observe(this@WebViewFragment) {
+            // wait if javascript interface did some interactions (and set the lock)
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (viewModel.tapLock.value == false) {
+                    scrollBy(it)
+                }
+            }, 100)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -183,9 +193,9 @@ abstract class WebViewFragment<
             onBorderTapListener = { border ->
                 val scrollByValue = view?.height?.minus(350)  ?: 0
                 when (border) {
-                    ViewBorder.LEFT -> scrollBy(- scrollByValue)
-                    ViewBorder.RIGHT -> scrollBy(scrollByValue)
-                    else -> log.debug("nothing")
+                    ViewBorder.LEFT -> viewModel.scrollBy.value = - scrollByValue
+                    ViewBorder.RIGHT -> viewModel.scrollBy.value = scrollByValue
+                    else -> {}
                 }
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
@@ -223,6 +233,11 @@ abstract class WebViewFragment<
 
     override fun onPageFinishedLoading() {
         // do nothing instead use onPageRendered
+    }
+
+    override fun onResume() {
+        viewModel.tapLock.value = false
+        super.onResume()
     }
 
     open fun hideLoadingScreen() {
