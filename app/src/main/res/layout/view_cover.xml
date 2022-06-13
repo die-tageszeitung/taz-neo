@@ -18,13 +18,13 @@
         android:outlineProvider="bounds"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/view_cover_date_download_wrapper"
-        app:layout_constraintDimensionRatio="1:1.5">
+        app:layout_constraintDimensionRatio="0.670219:1">
 
         <FrameLayout
             android:id="@+id/cover_placeholder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
