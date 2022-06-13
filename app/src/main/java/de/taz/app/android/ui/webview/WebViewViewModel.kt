@@ -28,7 +28,7 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
             savedStateHandle.set(KEY_SCROLL_POSITION, value)
         }
 
-    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
+    val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
     val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
     val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
 

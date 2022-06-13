@@ -59,7 +59,6 @@ class AppWebView @JvmOverloads constructor(
                 return false
             }
         })
-        setOnClickListener { log.debug("CLICK!!!") }
         settings.allowFileAccess = true
     }
 
@@ -112,8 +111,9 @@ class AppWebView @JvmOverloads constructor(
     }
 
     private fun handleTap(x: Float) {
+        log.debug("tapped on x $x")
         if (x<width*0.25 && width >0) {
-            onBorderTapListener?.invoke(ViewBorder.LEFT) //log.debug("TODO: goLeft() !!!")
+            onBorderTapListener?.invoke(ViewBorder.LEFT)
         } else if (x>width*0.75 && width >0) {
             onBorderTapListener?.invoke(ViewBorder.RIGHT)
         } else {

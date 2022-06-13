@@ -136,12 +136,19 @@ abstract class WebViewFragment<
             reloadAfterCssChange()
         }
         viewModel.scrollBy.observe(this@WebViewFragment) {
-            // wait if javascript interface did some interactions (and set the lock)
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (viewModel.tapLock.value == false) {
-                    scrollBy(it)
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
+
+                // wait if javascript interface did some interactions (and set the lock)
+                if (tapToScroll) {
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (viewModel.tapLock.value == false) {
+                            scrollBy(it)
+                        }
+                    }, 100)
                 }
-            }, 100)
+            }
         }
     }
 
@@ -191,9 +198,9 @@ abstract class WebViewFragment<
                 setAppCacheEnabled(false)
             }
             onBorderTapListener = { border ->
-                val scrollByValue = view?.height?.minus(350)  ?: 0
+                val scrollByValue = view?.height?.minus(350) ?: 0
                 when (border) {
-                    ViewBorder.LEFT -> viewModel.scrollBy.value = - scrollByValue
+                    ViewBorder.LEFT -> viewModel.scrollBy.value = -scrollByValue
                     ViewBorder.RIGHT -> viewModel.scrollBy.value = scrollByValue
                     else -> {}
                 }
