@@ -103,7 +103,8 @@ class IssueViewerViewModel(
         }
     }
 
-
+    var goNextArticle = MutableLiveData(false)
+    var goPreviousArticle = MutableLiveData(false)
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
         get() = savedStateHandle.get(KEY_LAST_SECTION)

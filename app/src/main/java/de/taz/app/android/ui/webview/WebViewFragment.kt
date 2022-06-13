@@ -212,7 +212,15 @@ abstract class WebViewFragment<
 
     private fun scrollBy(scrollHeight: Int) {
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        scrollView?.smoothScrollBy(0, scrollHeight)
+        if (scrollView?.canScrollVertically(1) == false && scrollHeight > 0) {
+            log.debug("go Right")
+            issueViewerViewModel.goNextArticle.postValue(true)
+        } else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
+            log.debug("go Left")
+            issueViewerViewModel.goPreviousArticle.postValue(true)
+        } else {
+            scrollView?.smoothScrollBy(0, scrollHeight)
+        }
     }
 
     abstract fun setHeader(displayable: DISPLAYABLE)
