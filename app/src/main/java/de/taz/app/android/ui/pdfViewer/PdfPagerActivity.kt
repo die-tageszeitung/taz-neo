@@ -254,6 +254,11 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 .into(activityPdfDrawerFrontPage)
 
             activityPdfDrawerFrontPage.setOnClickListener {
+                val newPosition = 0
+                if (newPosition != pdfPagerViewModel.currentItem.value) {
+                    pdfPagerViewModel.updateCurrentItem(newPosition)
+                    drawerAdapter.activePosition = newPosition
+                }
                 popArticlePagerFragmentIfOpen()
                 activityPdfDrawerFrontPageTitle.setTextColor(
                     ContextCompat.getColor(
