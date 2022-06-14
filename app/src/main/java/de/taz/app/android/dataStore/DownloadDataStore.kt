@@ -38,9 +38,11 @@ class DownloadDataStore private constructor(applicationContext: Context) {
 
     val enabled = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ENABLED), true)
 
-    val pdfAdditionally = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), false)
+    val pdfAdditionally =
+        SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), false)
 
-    val pdfDialogDoNotShowAgain = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_DIALOG_DO_NOT_SHOW_AGAIN), false)
+    val pdfDialogDoNotShowAgain =
+        SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_DIALOG_DO_NOT_SHOW_AGAIN), false)
 
     val onlyWifi = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ONLY_WIFI), true)
 
