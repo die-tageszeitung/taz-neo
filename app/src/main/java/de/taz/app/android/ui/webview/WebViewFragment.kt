@@ -22,17 +22,16 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.ViewBorder
-import de.taz.app.android.util.BottomNavigationBehavior
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -53,10 +52,10 @@ abstract class WebViewFragment<
 
     private lateinit var apiService: ApiService
     private lateinit var storageService: StorageService
-    private lateinit var dataService: DataService
     private lateinit var contentService: ContentService
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var viewerStateRepository: ViewerStateRepository
 
     private var isRendered = false
 
@@ -105,10 +104,12 @@ abstract class WebViewFragment<
 
                 val offsetPosition = scrollPosition - bottomOffset
                 viewModel.scrollPosition = offsetPosition
-                dataService.saveViewerStateForDisplayable(
-                    it.key,
-                    offsetPosition
-                )
+                withContext(Dispatchers.IO) {
+                    viewerStateRepository.save(
+                        it.key,
+                        offsetPosition
+                    )
+                }
             }
         }
     }
@@ -117,10 +118,10 @@ abstract class WebViewFragment<
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
-        dataService = DataService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        viewerStateRepository = ViewerStateRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -221,7 +222,6 @@ abstract class WebViewFragment<
         else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
             issueViewerViewModel.goPreviousArticle.postValue(true)
         } else {
-            view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.onStartNestedScroll()
             scrollView?.smoothScrollBy(0, scrollHeight)
         }
     }
@@ -233,8 +233,9 @@ abstract class WebViewFragment<
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let {
-                val persistedScrollPosition =
-                    dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
+                val persistedScrollPosition = withContext(Dispatchers.IO) {
+                    viewerStateRepository.get(it.key)?.scrollPosition
+                }
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
             withContext(Dispatchers.Main) {
