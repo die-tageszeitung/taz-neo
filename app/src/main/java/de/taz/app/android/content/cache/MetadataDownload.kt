@@ -1,7 +1,7 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
+import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.DownloadableCollection
@@ -55,7 +55,7 @@ class MetadataDownload(
             download: ObservableDownload,
             tag: String,
             allowCache: Boolean = false,
-            retriesOnConnectionError: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+            retriesOnConnectionError: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
             minStatus: IssueStatus = IssueStatus.public
         ): MetadataDownload {
             return MetadataDownload(

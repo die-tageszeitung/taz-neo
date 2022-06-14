@@ -2,7 +2,7 @@ package de.taz.app.android.download
 
 import android.content.Context
 import de.taz.app.android.COPY_BUFFER_SIZE
-import de.taz.app.android.FILE_DOWNLOAD_DEFAULT_RETRIES
+import de.taz.app.android.FILE_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.MAX_SIMULTANEOUS_DOWNLOADS
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.AppInfo
@@ -90,7 +90,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
             ensureHelperInitialized()
             val response = downloadConnectionHelper.retryOnConnectivityFailure({
                 operations.map { it.notifyBadConnection() }
-            }, maxRetries = FILE_DOWNLOAD_DEFAULT_RETRIES) {
+            }, maxRetries = FILE_DOWNLOAD_RETRY_INDEFINITELY) {
                 transformToConnectivityException {
                     httpClient.get<HttpStatement>(
                         download.fileEntryOperation.origin!!

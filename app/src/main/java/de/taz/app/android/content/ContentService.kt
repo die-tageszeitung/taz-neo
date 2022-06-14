@@ -1,7 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
-import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
+import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -204,7 +204,7 @@ class ContentService(
      */
     suspend fun downloadMetadata(
         download: ObservableDownload,
-        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+        maxRetries: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
         forceExecution: Boolean = false,
         minStatus: IssueStatus? = null,
         allowCache: Boolean = true
