@@ -140,9 +140,8 @@ abstract class WebViewFragment<
             lifecycleScope.launch(Dispatchers.IO) {
                 val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
 
-                // wait if javascript interface did some interactions (and set the lock)
-                delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
                 if (tapToScroll) {
+                    // wait if javascript interface did some interactions (and set the lock)
                     delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
                     if (viewModel.tapLock.value == false) {
                         scrollBy(it)
