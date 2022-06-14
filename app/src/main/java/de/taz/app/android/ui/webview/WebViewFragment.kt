@@ -4,17 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -32,6 +32,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.ViewBorder
+import de.taz.app.android.util.BottomNavigationBehavior
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -138,17 +139,16 @@ abstract class WebViewFragment<
             reloadAfterCssChange()
         }
         viewModel.scrollBy.observe(this@WebViewFragment) {
-
             lifecycleScope.launch(Dispatchers.IO) {
                 val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
 
                 // wait if javascript interface did some interactions (and set the lock)
+                delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
                 if (tapToScroll) {
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        if (viewModel.tapLock.value == false) {
-                            scrollBy(it)
-                        }
-                    }, 100)
+                    delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
+                    if (viewModel.tapLock.value == false) {
+                        scrollBy(it)
+                    }
                 }
             }
         }
@@ -178,7 +178,6 @@ abstract class WebViewFragment<
         savedInstanceState?.apply {
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
-        view.findViewById<NestedScrollView>(nestedScrollViewId)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -212,6 +211,9 @@ abstract class WebViewFragment<
         }
     }
 
+    /**
+     * scroll article by [scrollHeight]. If at the top or the end - go to previous or next article
+     */
     private fun scrollBy(scrollHeight: Int) {
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         // if on bottom and tap on right side go to next article
@@ -222,6 +224,14 @@ abstract class WebViewFragment<
         else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
             issueViewerViewModel.goPreviousArticle.postValue(true)
         } else {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // hide app bar when scrolling down
+                if (scrollHeight > 0) {
+                    view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, true)
+                } else {
+                    view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, true)
+                }
+            }
             scrollView?.smoothScrollBy(0, scrollHeight)
         }
     }

@@ -77,15 +77,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 getCurrentPagerPosition()?.let { currentPosition ->
                     webview_pager_viewpager.currentItem = currentPosition + 1
                 }
-                issueContentViewModel.goNextArticle.postValue(false)
+                issueContentViewModel.goNextArticle.value = false
             }
         }
         issueContentViewModel.goPreviousArticle.observeDistinct(this) {
             if (it) {
                 getCurrentPagerPosition()?.let { currentPosition ->
-                    webview_pager_viewpager.currentItem = currentPosition + -1
+                    webview_pager_viewpager.currentItem = currentPosition -1
                 }
-                issueContentViewModel.goPreviousArticle.postValue(false)
+                issueContentViewModel.goPreviousArticle.value = false
             }
         }
     }
