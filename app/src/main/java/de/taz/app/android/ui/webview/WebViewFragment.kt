@@ -7,16 +7,15 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_TAP_TO_SCROLL_OFFSET
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
@@ -32,7 +31,6 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.ViewBorder
-import de.taz.app.android.util.BottomNavigationBehavior
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -199,7 +197,7 @@ abstract class WebViewFragment<
                 setAppCacheEnabled(false)
             }
             onBorderTapListener = { border ->
-                val scrollByValue = view?.height?.minus(350) ?: 0
+                val scrollByValue = view?.height?.minus(WEBVIEW_TAP_TO_SCROLL_OFFSET) ?: 0
                 when (border) {
                     ViewBorder.LEFT -> viewModel.scrollBy.value = -scrollByValue
                     ViewBorder.RIGHT -> viewModel.scrollBy.value = scrollByValue
@@ -215,24 +213,26 @@ abstract class WebViewFragment<
      * scroll article by [scrollHeight]. If at the top or the end - go to previous or next article
      */
     private fun scrollBy(scrollHeight: Int) {
-        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        // if on bottom and tap on right side go to next article
-        if (scrollView?.canScrollVertically(1) == false && scrollHeight > 0) {
-            issueViewerViewModel.goNextArticle.postValue(true)
-        }
-        // if on bottom and tap on right side go to next article
-        else if (scrollView?.canScrollVertically(-1) == false && scrollHeight < 0) {
-            issueViewerViewModel.goPreviousArticle.postValue(true)
-        } else {
-            lifecycleScope.launch(Dispatchers.Main) {
-                // hide app bar when scrolling down
-                if (scrollHeight > 0) {
-                    view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, true)
-                } else {
-                    view?.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, true)
-                }
+        view?.let{
+            val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
+            // if on bottom and tap on right side go to next article
+            if (!scrollView.canScrollVertically(1) && scrollHeight > 0) {
+                issueViewerViewModel.goNextArticle.postValue(true)
             }
-            scrollView?.smoothScrollBy(0, scrollHeight)
+            // if on bottom and tap on right side go to next article
+            else if (!scrollView.canScrollVertically(-1) && scrollHeight < 0) {
+                issueViewerViewModel.goPreviousArticle.postValue(true)
+            } else {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    // hide app bar bar when scrolling down
+                    if (scrollHeight > 0) {
+                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, true)
+                    } else {
+                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, true)
+                    }
+                }
+                scrollView.smoothScrollBy(0, scrollHeight)
+            }
         }
     }
 
