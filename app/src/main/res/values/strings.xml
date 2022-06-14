@@ -114,6 +114,13 @@
     <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
     <string name="settings_category_support">Support</string>
     <string name="settings_faq"><u>FAQ</u></string>
+    <string name="settings_reset_app"><u>App in Auslieferungszustand zurücksetzen</u></string>
+    <string name="settings_reset_app_dialog_title">Sind Sie sicher?</string>
+    <string name="settings_reset_app_dialog_message">Alle Daten werden zurückgesetzt.
+        \nDas heißt, Sie müssen sich auch neu anmelden.
+        \nWenn Sie auf zurücksetzen klicken wird die App geschlossen.
+    </string>
+    <string name="settings_reset_app_dialog_positive_button">Zurücksetzen</string>
     <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
     <string name="settings_terms"><u>AGB</u></string>
     <string name="settings_revocation"><u>Widerruf</u></string>

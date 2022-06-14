@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.settings
 
+import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -187,6 +189,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
+            }
+
+            fragmentSettingsResetApp.setOnClickListener {
+                showResetAppDialog()
             }
 
         }
@@ -382,6 +388,29 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 .create()
             dialog.show()
         }
+    }
+
+    private fun showResetAppDialog() {
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setTitle(getString(R.string.settings_reset_app_dialog_title))
+                .setMessage(getString(R.string.settings_reset_app_dialog_message))
+                .setPositiveButton(getString(R.string.settings_reset_app_dialog_positive_button)) { dialog, _ ->
+                    resetApp()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
+            dialog.show()
+        }
+    }
+
+    private fun resetApp() {
+        (requireContext().getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .clearApplicationUserData()
     }
 
     private fun showStoredIssueNumber(number: Int) {
