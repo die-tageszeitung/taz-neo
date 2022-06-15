@@ -2,7 +2,7 @@ package de.taz.app.android
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import de.taz.app.android.api.ApiService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseHelper
@@ -30,25 +30,23 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private lateinit var apiService: ApiService
+    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var issueRepository: IssueRepository
     private lateinit var notificationHelper: NotificationHelper
     private lateinit var downloadScheduler: DownloadScheduler
-    private lateinit var downloadDataStore: DownloadDataStore
 
     private val messageTimestamps: MutableList<Long> = mutableListOf()
 
     override fun onCreate() {
         super.onCreate()
-        apiService = ApiService.getInstance(applicationContext)
+        dataService = DataService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
         notificationHelper = NotificationHelper.getInstance(applicationContext)
         downloadScheduler = DownloadScheduler.getInstance(applicationContext)
-        downloadDataStore = DownloadDataStore.getInstance(applicationContext)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -96,7 +94,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (downloadDataStore.enabled.get()) {
+            if (DownloadDataStore.getInstance(applicationContext).enabled.get()) {
                 downloadScheduler.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
             }
         }
@@ -109,9 +107,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             firebaseHelper.token.set(token)
 
             firebaseHelper.tokenSent.set(
-                apiService.retryOnConnectionFailure {
-                    apiService.sendNotificationInfo(token, oldToken)
-                }
+                dataService.sendNotificationInfo(
+                    token,
+                    oldToken,
+                    retryOnFailure = true
+                )
             )
             log.debug("hasTokenBeenSent set to ${firebaseHelper.tokenSent.get()}")
         }
