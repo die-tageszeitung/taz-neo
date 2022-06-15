@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/superSuperLightGrey"
+            app:boxBackgroundColor="@color/search_field_background_color"
             app:endIconMode="clear_text"
             app:hintEnabled="false">
 
@@ -58,7 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/superSuperLightGrey"
+            app:boxBackgroundColor="@color/search_field_background_color"
             app:endIconMode="clear_text"
             app:hintEnabled="false">
 
