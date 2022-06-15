@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:gravity="bottom|end"
             android:text="@string/fragment_default_header_title"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <de.taz.app.android.ui.DottedLineView

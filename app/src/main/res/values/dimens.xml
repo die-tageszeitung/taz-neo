@@ -117,7 +117,7 @@
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="fragment_bookmarks_icon_size">28dp</dimen>
+    <dimen name="fragment_bookmarks_icon_size">25dp</dimen>
 
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>

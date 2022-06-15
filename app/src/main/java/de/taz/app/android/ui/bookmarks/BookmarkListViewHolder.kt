@@ -29,6 +29,7 @@ class BookmarkListViewHolder(
 
     private var bookmarkBox: ConstraintLayout? = null
     private var bookmarkTitle: TextView? = null
+    private var bookmarkAuthor: TextView? = null
     private var bookmarkDate: TextView? = null
     private var bookmarkImage: ImageView? = null
     private var bookmarkShare: ImageView
@@ -40,6 +41,7 @@ class BookmarkListViewHolder(
     init {
         bookmarkBox = itemView.findViewById(R.id.fragment_bookmark)
         bookmarkTitle = itemView.findViewById(R.id.fragment_bookmark_title)
+        bookmarkAuthor = itemView.findViewById(R.id.fragment_bookmark_author)
         bookmarkDate = itemView.findViewById(R.id.fragment_bookmark_date)
         bookmarkImage = itemView.findViewById(R.id.fragment_bookmark_image)
         bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share)
@@ -47,7 +49,6 @@ class BookmarkListViewHolder(
     }
 
     fun bind(article: Article) {
-        bookmarkImage?.visibility = View.GONE
         article.let {
             bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
 
@@ -60,15 +61,18 @@ class BookmarkListViewHolder(
                             (4 / itemView.resources.displayMetrics.density).toInt()
 
                         val myBitmap = BitmapFactory.decodeFile(it, bitmapOptions)
-                        bookmarkImage?.apply {
-                            setImageBitmap(myBitmap)
-                            visibility = View.VISIBLE
-                        }
+                        bookmarkImage?.setImageBitmap(myBitmap)
                     }
                 }
             }
 
             bookmarkTitle?.text = article.title
+            // get the author(s) from the article
+            val authorList = article.authorList.map { it.name }.distinct()
+            val authorString = authorList.toString()
+                .replace("[", "")
+                .replace("]", "")
+            bookmarkAuthor?.text = authorString
             bookmarkBox?.setOnClickListener {
                 Intent(parent.context, BookmarkViewerActivity::class.java).apply {
                     putExtra(BookmarkViewerActivity.KEY_SHOWN_ARTICLE, article.key)
