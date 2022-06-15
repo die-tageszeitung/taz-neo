@@ -11,7 +11,7 @@
     <color name="darkGrey">#1C1C1E</color>
     <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
-    <color name="tazRedWithOpacity">#33d50d2e</color>
+    <color name="yellow">#ff8</color>
 
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -45,7 +45,8 @@
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
     <color name="bottom_sheet_text_color">@color/textColor</color>
 
-    <color name="text_highlight_mark_color">@color/tazRedWithOpacity</color>
+    <color name="text_highlight_mark_color">@color/yellow</color>
+    <color name="text_highlight_text_color">@color/black</color>
 
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
