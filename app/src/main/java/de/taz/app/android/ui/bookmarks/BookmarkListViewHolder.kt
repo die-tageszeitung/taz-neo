@@ -68,7 +68,7 @@ class BookmarkListViewHolder(
 
             bookmarkTitle?.text = article.title
             // get the author(s) from the article
-            val authorList = article.authorList.map { it.name }
+            val authorList = article.authorList.map { it.name }.distinct()
             val authorString = authorList.toString()
                 .replace("[", "")
                 .replace("]", "")
