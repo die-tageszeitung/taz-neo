@@ -83,13 +83,22 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/fragment_bookmark_author"
+                    style="@style/TextAppearance.Bookmarks.Entry.Author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title" />
+
+                <TextView
                     android:id="@+id/fragment_bookmark_date"
                     style="@style/TextAppearance.Bookmarks.Entry.Date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|start"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_author" />
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_image"
@@ -132,7 +141,8 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/fragment_drawer_separator_line_height"
+            android:layout_marginHorizontal="@dimen/fragment_bookmarks_icons_horizontal_margin"
             android:background="@color/textColor"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
