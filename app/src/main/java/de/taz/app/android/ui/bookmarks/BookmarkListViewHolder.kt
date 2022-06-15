@@ -49,7 +49,6 @@ class BookmarkListViewHolder(
     }
 
     fun bind(article: Article) {
-        bookmarkImage?.visibility = View.GONE
         article.let {
             bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
 
@@ -62,10 +61,7 @@ class BookmarkListViewHolder(
                             (4 / itemView.resources.displayMetrics.density).toInt()
 
                         val myBitmap = BitmapFactory.decodeFile(it, bitmapOptions)
-                        bookmarkImage?.apply {
-                            setImageBitmap(myBitmap)
-                            visibility = View.VISIBLE
-                        }
+                        bookmarkImage?.setImageBitmap(myBitmap)
                     }
                 }
             }
