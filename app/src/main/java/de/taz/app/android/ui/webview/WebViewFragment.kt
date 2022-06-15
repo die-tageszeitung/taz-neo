@@ -15,20 +15,22 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_TAP_TO_SCROLL_OFFSET
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 
@@ -49,10 +51,10 @@ abstract class WebViewFragment<
 
     private lateinit var apiService: ApiService
     private lateinit var storageService: StorageService
-    private lateinit var dataService: DataService
     private lateinit var contentService: ContentService
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var viewerStateRepository: ViewerStateRepository
 
     private var isRendered = false
 
@@ -101,10 +103,12 @@ abstract class WebViewFragment<
 
                 val offsetPosition = scrollPosition - bottomOffset
                 viewModel.scrollPosition = offsetPosition
-                dataService.saveViewerStateForDisplayable(
-                    it.key,
-                    offsetPosition
-                )
+                withContext(Dispatchers.IO) {
+                    viewerStateRepository.save(
+                        it.key,
+                        offsetPosition
+                    )
+                }
             }
         }
     }
@@ -113,10 +117,10 @@ abstract class WebViewFragment<
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
-        dataService = DataService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        viewerStateRepository = ViewerStateRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,6 +135,19 @@ abstract class WebViewFragment<
         }
         viewModel.fontSizeLiveData.observe(this@WebViewFragment){
             reloadAfterCssChange()
+        }
+        viewModel.scrollBy.observe(this@WebViewFragment) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
+
+                if (tapToScroll) {
+                    // wait if javascript interface did some interactions (and set the lock)
+                    delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
+                    if (viewModel.tapLock.value == false) {
+                        scrollBy(it)
+                    }
+                }
+            }
         }
     }
 
@@ -158,7 +175,6 @@ abstract class WebViewFragment<
         savedInstanceState?.apply {
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
-        view.findViewById<NestedScrollView>(nestedScrollViewId)
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -179,8 +195,43 @@ abstract class WebViewFragment<
                 cacheMode = WebSettings.LOAD_NO_CACHE
                 setAppCacheEnabled(false)
             }
+            onBorderTapListener = { border ->
+                val scrollByValue = view?.height?.minus(WEBVIEW_TAP_TO_SCROLL_OFFSET) ?: 0
+                when (border) {
+                    ViewBorder.LEFT -> viewModel.scrollBy.value = -scrollByValue
+                    ViewBorder.RIGHT -> viewModel.scrollBy.value = scrollByValue
+                    else -> {}
+                }
+            }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
             setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
+        }
+    }
+
+    /**
+     * scroll article by [scrollHeight]. If at the top or the end - go to previous or next article
+     */
+    private fun scrollBy(scrollHeight: Int) {
+        view?.let{
+            val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
+            // if on bottom and tap on right side go to next article
+            if (!scrollView.canScrollVertically(1) && scrollHeight > 0) {
+                issueViewerViewModel.goNextArticle.postValue(true)
+            }
+            // if on bottom and tap on right side go to next article
+            else if (!scrollView.canScrollVertically(-1) && scrollHeight < 0) {
+                issueViewerViewModel.goPreviousArticle.postValue(true)
+            } else {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    // hide app bar bar when scrolling down
+                    if (scrollHeight > 0) {
+                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, true)
+                    } else {
+                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, true)
+                    }
+                }
+                scrollView.smoothScrollBy(0, scrollHeight)
+            }
         }
     }
 
@@ -191,8 +242,9 @@ abstract class WebViewFragment<
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         lifecycleScope.launch(Dispatchers.IO) {
             viewModel.displayable?.let {
-                val persistedScrollPosition =
-                    dataService.getViewerStateForDisplayable(it.key)?.scrollPosition
+                val persistedScrollPosition = withContext(Dispatchers.IO) {
+                    viewerStateRepository.get(it.key)?.scrollPosition
+                }
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
             withContext(Dispatchers.Main) {
@@ -209,6 +261,11 @@ abstract class WebViewFragment<
 
     override fun onPageFinishedLoading() {
         // do nothing instead use onPageRendered
+    }
+
+    override fun onResume() {
+        viewModel.tapLock.value = false
+        super.onResume()
     }
 
     open fun hideLoadingScreen() {

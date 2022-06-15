@@ -139,6 +139,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     disableNightMode()
                 }
             }
+            fragmentSettingsTapToScroll.setOnCheckedChangeListener { _, isChecked ->
+                setTapToScroll(isChecked)
+            }
 
             fragmentSettingsAccountElapsed.setOnClickListener {
                 activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
@@ -209,6 +212,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
+            }
+            tapToScrollLiveData.observeDistinct(viewLifecycleOwner) { enabled ->
+                showTapToScroll(enabled)
             }
             storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
@@ -441,6 +447,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
+    private fun showTapToScroll(enabled: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -501,6 +511,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun enableNightMode() {
         log.debug("enableNightMode")
         viewModel.setNightMode(true)
+    }
+
+    private fun setTapToScroll(enabled: Boolean) {
+        log.debug("setTapToScroll: $enabled")
+        viewModel.setTapToScroll(enabled)
     }
 
     private fun setTextJustification(justified: Boolean) {

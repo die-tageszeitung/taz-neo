@@ -43,7 +43,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
     override fun onResume() {
@@ -70,6 +70,22 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             // reset swiped flag on navigating away from article pager
             if (it != IssueContentDisplayMode.Article) {
                 hasBeenSwiped = false
+            }
+        }
+        issueContentViewModel.goNextArticle.observeDistinct(this) {
+            if (it) {
+                getCurrentPagerPosition()?.let { currentPosition ->
+                    webview_pager_viewpager.currentItem = currentPosition + 1
+                }
+                issueContentViewModel.goNextArticle.value = false
+            }
+        }
+        issueContentViewModel.goPreviousArticle.observeDistinct(this) {
+            if (it) {
+                getCurrentPagerPosition()?.let { currentPosition ->
+                    webview_pager_viewpager.currentItem = currentPosition -1
+                }
+                issueContentViewModel.goPreviousArticle.value = false
             }
         }
     }

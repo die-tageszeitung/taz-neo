@@ -91,6 +91,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
 
     @JavascriptInterface
     fun openUrl(url: String) {
+        webViewFragment.viewModel.tapLock.postValue(true)
         log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
@@ -106,6 +107,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     }
 
     private fun openExternally(url: String) {
+        webViewFragment.viewModel.tapLock.postValue(true)
         runIfNotNull(applicationContext, webViewFragment.activity) { applicationContext: Context, activity ->
             val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
             try {
@@ -126,6 +128,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
 
     @JavascriptInterface
     fun openImage(name: String) {
+        webViewFragment.viewModel.tapLock.postValue(true)
         log.verbose("openImage $name")
 
         val intent = Intent(applicationContext, ImagePagerActivity::class.java)
