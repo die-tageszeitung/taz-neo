@@ -5,6 +5,13 @@ newspaper [taz](https://taz.de/).
 The project regards the app as the primary outlet/user interface instead of
 displaying digital byproducts of producing a news*paper*.
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/de.taz.android.app.free/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=de.taz.android.app)
+
 ## Development
 
 This repository is currently maintained by [ctrl.alt.coop](https://ctrl.alt.coop).
