@@ -2,6 +2,7 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -67,6 +68,21 @@ class SearchActivity :
                         sorting = viewModel.sorting.value ?: Sorting.relevance
                     )
                     return@setOnEditorActionListener true
+                }
+                false
+            }
+            searchText.setOnKeyListener { _, _, keyEvent ->
+                // enter is clicked:
+                if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    advancedSearch(
+                        searchText = searchInput.editText?.text.toString(),
+                        title = searchTitle.editText?.text.toString(),
+                        author = searchAuthor.editText?.text.toString(),
+                        pubDateFrom = viewModel.pubDateFrom.value,
+                        pubDateUntil = viewModel.pubDateUntil.value,
+                        searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+                        sorting = viewModel.sorting.value ?: Sorting.relevance
+                    )
                 }
                 false
             }
