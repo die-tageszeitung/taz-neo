@@ -30,7 +30,8 @@
         <include
             android:id="@+id/pdf_drawer_loading_screen"
             layout="@layout/include_loading_screen"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:visibility="invisible" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -59,7 +60,7 @@
                     android:clickable="true"
                     android:contentDescription="@string/navigation_drawer_open"
                     android:focusable="true"
-                    />
+                    tools:srcCompat="@drawable/ic_logo" />
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -102,7 +103,9 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:scaleType="fitXY"
-                                tools:ignore="ContentDescription" />
+                                tools:ignore="ContentDescription"
+                                tools:layout_height="166dp"
+                                tools:layout_width="112dp" />
 
                         </androidx.cardview.widget.CardView>
 
@@ -117,7 +120,8 @@
                         android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
                         android:layout_weight="0.5"
                         android:textColor="@color/fragment_drawer_date_text_color"
-                        android:textSize="@dimen/fragment_drawer_date_text_size"/>
+                        android:textSize="@dimen/fragment_drawer_date_text_size"
+                        tools:text="weekday,\n DD.MM.JJJJ" />
 
                 </LinearLayout>
 
@@ -126,14 +130,19 @@
                     style="@style/TextAppearance.Drawer.PDF.Sections"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                    android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
-                    android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
+                    android:textSize="@dimen/fragment_drawer_thumbnail_text_size"
+                    tools:text="title of 1st page" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/navigation_recycler_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    tools:listitem="@layout/view_pdf_drawer_item"
+                    tools:spanCount="2" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
