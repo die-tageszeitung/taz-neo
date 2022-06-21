@@ -121,7 +121,6 @@ class SearchActivity :
                 }
             }
             viewModel.positionLiveData.observeDistinct(this@SearchActivity) { position ->
-                log.debug("scroll to $position !!!!")
                 if (position!= null && searchResultList.isNotEmpty()) {
                     searchResultList.smoothScrollToPosition(position)
                 }
