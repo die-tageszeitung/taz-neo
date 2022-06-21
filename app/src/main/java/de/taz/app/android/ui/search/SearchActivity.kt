@@ -101,6 +101,12 @@ class SearchActivity :
             advancedSearchSortBy.setOnClickListener {
                 showSortByDialog()
             }
+            searchAuthorInput.setOnKeyListener { _, _, keyEvent ->
+                if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    hideKeyboard()
+                }
+                false
+            }
             advancedSearchStartSearch.setOnClickListener {
                 advancedSearch(
                     searchText = searchInput.editText?.text.toString(),
