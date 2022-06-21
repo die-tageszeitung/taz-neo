@@ -134,7 +134,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> MainActivity.start(requireActivity())
+            R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentSearchHit()?.let { hit ->
