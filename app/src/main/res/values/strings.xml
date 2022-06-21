@@ -367,7 +367,7 @@
     <string name="search_advanced_radio_published_in_kontext">Kontext</string>
     <string name="search_advanced_radio_published_in_weekend">Wochenendausgabe</string>
     <string name="search_advanced_radio_sort_by_relevance">nach Relevanz</string>
-    <string name="search_advanced_radio_sort_by_appearance">äteste Artikel vorne</string>
+    <string name="search_advanced_radio_sort_by_appearance">älteste Artikel vorne</string>
     <string name="search_advanced_radio_sort_by_actuality">neueste Artikel vorne</string>
     <string name="search_advanced_apply_filter">Filter anwenden</string>
     <string name="search_advanced_start_search">Suche starten</string>
