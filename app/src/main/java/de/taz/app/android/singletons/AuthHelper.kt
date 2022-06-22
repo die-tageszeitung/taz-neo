@@ -111,12 +111,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         if (it == AuthStatus.valid) IssueStatus.regular else IssueStatus.public
     }
 
-    private var deletionJob: Job? = null
-
     init {
         CoroutineScope(Dispatchers.Main).launch {
-            deletionJob?.cancel()
-
             status.asLiveData().observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
