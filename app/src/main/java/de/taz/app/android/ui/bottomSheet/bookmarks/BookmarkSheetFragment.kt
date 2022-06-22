@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class BookmarkSheetFragment :
@@ -87,7 +88,13 @@ class BookmarkSheetFragment :
                 }
             } ?: viewModel.articleFileName?.let {
                 // no articleStub so probably article not downloaded, so download it:
-                datePublished?.let { date -> viewModel.downloadArticleAndSetBookmark(it, date, pagerFragment) }
+                datePublished?.let { date ->
+                    // We can assume that we want to bookmark it as we cannot debookmark a not downloaded article
+                    withContext(Dispatchers.Main) {
+                        pagerFragment?.setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+                    }
+                    viewModel.downloadArticleAndSetBookmark(it, date)
+                }
             }
         }
     }

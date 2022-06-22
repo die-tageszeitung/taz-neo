@@ -3,12 +3,10 @@ package de.taz.app.android.ui.bottomSheet.bookmarks
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.ui.search.SearchResultPagerFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -46,8 +44,7 @@ class BookmarkSheetViewModel(application: Application) : AndroidViewModel(applic
      * downloads the article and
      * finally bookmarks the article.
      */
-    suspend fun downloadArticleAndSetBookmark(articleFileName: String, datePublished: Date, pagerFragment: SearchResultPagerFragment?) {
-        pagerFragment?.setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+    suspend fun downloadArticleAndSetBookmark(articleFileName: String, datePublished: Date) {
         withContext(Dispatchers.IO) {
             val issueForMetadata = apiService.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
             contentService.downloadMetadata(issueForMetadata, maxRetries = 5)
