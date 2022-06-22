@@ -72,7 +72,6 @@ class SearchActivity :
                 false
             }
             searchText.setOnKeyListener { _, _, keyEvent ->
-                // enter is clicked:
                 if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
                     advancedSearch(
                         searchText = searchInput.editText?.text.toString(),
