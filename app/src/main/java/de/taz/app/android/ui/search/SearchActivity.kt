@@ -71,7 +71,6 @@ class SearchActivity :
                 }
                 false
             }
-            searchInput.clearFocus()
             searchText.setOnKeyListener { _, _, keyEvent ->
                 if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
                     advancedSearch(
