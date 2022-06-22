@@ -121,22 +121,18 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         toastHelper.showToast(R.string.toast_logout_elapsed)
                     }
                     AuthStatus.notValid -> {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            elapsedButWaiting.set(false)
-                            toastHelper.showToast(R.string.toast_logout_invalid)
-                        }
+                        elapsedButWaiting.set(false)
+                        toastHelper.showToast(R.string.toast_logout_invalid)
                     }
                     AuthStatus.valid -> {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            elapsedButWaiting.set(false)
-                            launch {
-                                firebaseHelper.token.get()?.let {
-                                    dataService.sendNotificationInfo(it, retryOnFailure = true)
-                                }
+                        elapsedButWaiting.set(false)
+                        launch {
+                            firebaseHelper.token.get()?.let {
+                                dataService.sendNotificationInfo(it, retryOnFailure = true)
                             }
-                            transformBookmarks()
-                            isPolling.set(false)
                         }
+                        transformBookmarks()
+                        isPolling.set(false)
                     }
                     else -> Unit
                 }
