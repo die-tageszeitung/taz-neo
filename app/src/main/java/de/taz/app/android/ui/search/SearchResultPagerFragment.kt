@@ -142,7 +142,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                         showBottomSheet(
                             BookmarkSheetFragment.create(
                                 article.articleHtml.name,
-                                DateHelper.stringToDate(hit.date)
+                                DateHelper.stringToDate(hit.date),
+                                this
                             )
                         )
                     }

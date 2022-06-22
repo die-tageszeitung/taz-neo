@@ -12,6 +12,7 @@ import de.taz.app.android.databinding.FragmentBottomSheetBookmarksBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
+import de.taz.app.android.ui.search.SearchResultPagerFragment
 import kotlinx.android.synthetic.main.fragment_bottom_sheet_bookmarks.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,12 +25,18 @@ class BookmarkSheetFragment :
     private var articleRepository: ArticleRepository? = null
     private var articleFileName: String? = null
     private var datePublished: Date? = null
+    private var pagerFragment: SearchResultPagerFragment? = null
 
     companion object {
-        fun create(articleFileName: String, datePublished: Date? = null): BookmarkSheetFragment {
+        fun create(
+            articleFileName: String,
+            datePublished: Date? = null,
+            pagerFragment: SearchResultPagerFragment? = null
+        ): BookmarkSheetFragment {
             val fragment = BookmarkSheetFragment()
             fragment.articleFileName = articleFileName
             fragment.datePublished = datePublished
+            fragment.pagerFragment = pagerFragment
             return fragment
         }
     }
@@ -69,6 +76,7 @@ class BookmarkSheetFragment :
     private fun setArticleFileName() {
         viewModel.articleFileName = this.articleFileName
     }
+
     private fun toggleBookmark() {
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.articleStub?.let { articleStub: ArticleStub ->
@@ -79,7 +87,7 @@ class BookmarkSheetFragment :
                 }
             } ?: viewModel.articleFileName?.let {
                 // no articleStub so probably article not downloaded, so download it:
-                datePublished?.let { date -> viewModel.downloadArticleAndSetBookmark(it, date) }
+                datePublished?.let { date -> viewModel.downloadArticleAndSetBookmark(it, date, pagerFragment) }
             }
         }
     }
