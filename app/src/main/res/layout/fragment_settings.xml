@@ -90,6 +90,7 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_account_delete"
+                android:textColor="@color/deleteRed"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_logout" />
 
@@ -141,6 +142,7 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_delete_all_issues"
+                android:textColor="@color/deleteRed"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_storage_location" />
 
             <TextView
@@ -217,6 +219,7 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_reset_app"
+                android:textColor="@color/deleteRed"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_support_report_bug" />
 
             <TextView
