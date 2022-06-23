@@ -47,6 +47,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
+    // region views
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var articleRepository: ArticleRepository? = null
     private var apiService: ApiService? = null
@@ -56,6 +57,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         get() = viewBinding.webviewPagerViewpager
     private val loadingScreen: ConstraintLayout
         get() = viewBinding.loadingScreen.root
+    // endregion
 
     private var initialPosition = 0
 
