@@ -125,6 +125,7 @@
     <string name="settings_reset_app_dialog_positive_button">Zurücksetzen</string>
     <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
     <string name="settings_terms"><u>AGB</u></string>
+    <string name="settings_data_policy"><u>Datenschutzerklärung</u></string>
     <string name="settings_revocation"><u>Widerruf</u></string>
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>

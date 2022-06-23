@@ -107,6 +107,7 @@
     <string name="settings_faq"><u>FAQ</u></string>
     <string name="settings_welcome_slides"><u>first steps</u></string>
     <string name="settings_terms"><u>terms of use</u></string>
+    <string name="settings_data_policy"><u>data policy</u></string>
     <string name="settings_revocation"><u>revocation</u></string>
     <string name="settings_support_report_bug">Report a bug</string>
     <string name="settings_auto_downloads_switch">Download next issue automatically</string>

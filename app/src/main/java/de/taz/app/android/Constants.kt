@@ -16,6 +16,7 @@ const val WEBVIEW_DRAG_SENSITIVITY_FACTOR = 2
 const val WEBVIEW_HTML_FILE = "htmlFile"
 const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
 const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
+const val WEBVIEW_HTML_FILE_DATA_POLICY = "welcomeSlidesDataPolicy.html"
 const val WEBVIEW_JQUERY_FILE = "jquery-3.min.js"
 const val WEBVIEW_TAP_TO_SCROLL_OFFSET = 350
 const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"

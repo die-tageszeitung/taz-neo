@@ -109,6 +109,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 activity?.startActivity(intent)
             }
 
+            fragmentSettingsDataPolicy.setOnClickListener {
+                val intent = Intent(activity, WebViewActivity::class.java)
+                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_DATA_POLICY)
+                activity?.startActivity(intent)
+            }
+
             fragmentSettingsTextSize.apply {
                 settingsTextDecreaseWrapper.setOnClickListener {
                     decreaseFontSize()
