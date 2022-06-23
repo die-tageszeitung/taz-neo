@@ -73,8 +73,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.apply {
             root.findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryGeneral.text =
-                getString(R.string.settings_category_general).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryIssueManagement.text =
+                getString(R.string.settings_category_issue_management).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryText.text =
                 getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryAccount.text =
