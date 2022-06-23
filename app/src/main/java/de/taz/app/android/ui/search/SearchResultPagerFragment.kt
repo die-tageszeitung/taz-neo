@@ -100,6 +100,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             if (adapter == null) {
+                setCurrentItem(initialPosition, false)
                 adapter = SearchResultPagerAdapter(
                     this@SearchResultPagerFragment,
                     viewModel.totalFound,
@@ -107,7 +108,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 )
 
                 log.verbose("setting currentItem to initialPosition $initialPosition")
-                setCurrentItem(initialPosition, false)
             }
         }
     }
