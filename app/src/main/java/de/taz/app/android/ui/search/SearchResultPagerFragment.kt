@@ -34,7 +34,6 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -259,11 +258,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun reloadAfterCssChange() {
-        CoroutineScope(Dispatchers.Main).launch {
-            web_view?.injectCss()
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                web_view?.reload()
-        }
+        // draw every view again
+        // TODO maybe only notify currently shown as changed?
+        webViewPager.adapter?.notifyDataSetChanged()
     }
 
     override fun onAttach(context: Context) {
