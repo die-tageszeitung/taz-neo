@@ -52,8 +52,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private var apiService: ApiService? = null
     private var contentService: ContentService? = null
 
-    private lateinit var webViewPager: ViewPager2
-    private lateinit var loadingScreen: ConstraintLayout
+    private val webViewPager: ViewPager2
+        get() = viewBinding.webviewPagerViewpager
+    private val loadingScreen: ConstraintLayout
+        get() = viewBinding.loadingScreen.root
+
     private var initialPosition = 0
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
@@ -64,8 +67,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
         // in onViewCreated - when done in xml the 1st click wont be recognized...
         navigation_bottom_layout.visibility = View.INVISIBLE
-        webViewPager = view.findViewById(R.id.webview_pager_viewpager)
-        loadingScreen = view.findViewById(R.id.loading_screen)
         webViewPager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -256,6 +257,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
+
     override fun onDestroyView() {
         webViewPager.adapter = null
         super.onDestroyView()
