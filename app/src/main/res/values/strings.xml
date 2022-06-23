@@ -96,16 +96,17 @@
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
     <string name="settings_header">Einstellungen</string>
-    <string name="settings_category_general">Allgemein</string>
+    <string name="settings_category_issue_management">Ausgabenverwaltung</string>
     <string name="settings_category_text">Darstellung</string>
     <string name="settings_category_account">Abo</string>
+    <string name="settings_category_legal">Rechtliches</string>
     <string name="settings_category_expiremental">experimente</string>
     <string name="settings_text_font_size">Textgröße</string>
     <string name="settings_text_justified">Blocksatz</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
-    <string name="settings_account_logout"><u>Logout</u></string>
+    <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
     <string name="settings_account_elapsed"><u>abgelaufen</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
@@ -113,7 +114,7 @@
     <string name="percentage">%d%%</string>
     <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
     <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
-    <string name="settings_category_support">Support</string>
+    <string name="settings_category_support">Hilfe</string>
     <string name="settings_faq"><u>FAQ</u></string>
     <string name="settings_reset_app"><u>App in Auslieferungszustand zurücksetzen</u></string>
     <string name="settings_reset_app_dialog_title">Sind Sie sicher?</string>

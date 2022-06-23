@@ -90,9 +90,10 @@
     <string name="fragment_archive_to_cover_flow">To carousel</string>
 
     <string name="settings_header">settings</string>
-    <string name="settings_category_general">general</string>
+    <string name="settings_category_issue_management">issue management</string>
     <string name="settings_category_text">display</string>
     <string name="settings_category_account">account</string>
+    <string name="settings_category_legal">Legal</string>
     <string name="settings_text_font_size">Font size</string>
     <string name="settings_text_justified">Text is justified</string>
     <string name="settings_text_night_mode">Night mode</string>
