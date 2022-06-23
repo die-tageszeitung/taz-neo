@@ -75,10 +75,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
         // in onViewCreated - when done in xml the 1st click wont be recognized...
         viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
-        webViewPager.apply {
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
-        }
 
         loadingScreen.visibility = View.GONE
 
@@ -100,10 +96,21 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun setupViewPager() {
         webViewPager.apply {
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            moveContentBeneathStatusBar()
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
+            if (adapter == null) {
+                adapter = SearchResultPagerAdapter(
+                    this@SearchResultPagerFragment,
+                    viewModel.totalFound,
+                    viewModel.searchResultsLiveData.value ?: emptyList()
+                )
+
+                log.verbose("setting currentItem to initialPosition $initialPosition")
+                setCurrentItem(initialPosition, false)
+            }
         }
-        pageChangeCallback.onPageSelected(initialPosition)
     }
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -133,15 +140,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     override fun onResume() {
         super.onResume()
         webViewPager.apply {
-            if (webViewPager.adapter == null) {
-                adapter = SearchResultPagerAdapter(
-                    this@SearchResultPagerFragment,
-                    viewModel.totalFound,
-                    viewModel.searchResultsLiveData.value ?: emptyList()
-                )
 
-                setCurrentItem(viewModel.positionLiveData.value ?: initialPosition, false)
-            }
             registerOnPageChangeCallback(pageChangeCallback)
         }
     }
@@ -168,7 +167,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentSearchHit()?.let { hit ->
                     hit.article?.let { article ->
-
                         toggleBookmark(article.articleHtml.name, DateHelper.stringToDate(hit.date))
                     }
                 }
