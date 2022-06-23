@@ -77,6 +77,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 getString(R.string.settings_category_issue_management).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryText.text =
                 getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryLegal.text =
+                getString(R.string.settings_category_legal).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryAccount.text =
                 getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
             fragmentSettingsCategorySupport.text =
