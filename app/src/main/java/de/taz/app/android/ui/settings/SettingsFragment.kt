@@ -73,10 +73,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.apply {
             root.findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryGeneral.text =
-                getString(R.string.settings_category_general).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryIssueManagement.text =
+                getString(R.string.settings_category_issue_management).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryText.text =
                 getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryLegal.text =
+                getString(R.string.settings_category_legal).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryAccount.text =
                 getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
             fragmentSettingsCategorySupport.text =
@@ -106,6 +108,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsRevocation.setOnClickListener {
                 val intent = Intent(activity, WebViewActivity::class.java)
                 intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
+                activity?.startActivity(intent)
+            }
+
+            fragmentSettingsDataPolicy.setOnClickListener {
+                val intent = Intent(activity, WebViewActivity::class.java)
+                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_DATA_POLICY)
                 activity?.startActivity(intent)
             }
 
