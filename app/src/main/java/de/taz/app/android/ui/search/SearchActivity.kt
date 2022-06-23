@@ -144,11 +144,6 @@ class SearchActivity :
                     }
                 }
             }
-            viewModel.positionLiveData.observeDistinct(this@SearchActivity) { position ->
-                if (position!= null && searchResultList.isNotEmpty()) {
-                    searchResultList.smoothScrollToPosition(position)
-                }
-            }
         }
     }
 

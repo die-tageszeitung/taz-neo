@@ -31,8 +31,6 @@ class SearchResultPagerViewModel(
     val searchText: MutableLiveData<String> = MutableLiveData(null)
     val searchTitle: MutableLiveData<String> = MutableLiveData(null)
     val searchAuthor: MutableLiveData<String> = MutableLiveData(null)
-    val positionLiveData: MutableLiveData<Int?> =
-        savedStateHandle.getLiveData(KEY_POSITION)
     val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)

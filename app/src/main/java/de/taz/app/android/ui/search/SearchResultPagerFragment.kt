@@ -74,7 +74,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             moveContentBeneathStatusBar()
         }
         initialPosition = requireArguments().getInt(INITIAL_POSITION, 0)
-        viewModel.positionLiveData.value = initialPosition
         loadingScreen.visibility = View.GONE
         setupViewPager()
 
@@ -108,7 +107,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         override fun onPageSelected(position: Int) {
             viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
             super.onPageSelected(position)
-            viewModel.positionLiveData.postValue(position)
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
