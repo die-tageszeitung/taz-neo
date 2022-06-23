@@ -96,7 +96,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             lifecycleScope.launchWhenResumed {
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
-                isBookmarkedLiveData?.observe(this@SearchResultPagerFragment, isBookmarkedObserver)
+                isBookmarkedLiveData?.observeDistinct(this@SearchResultPagerFragment, isBookmarkedObserver)
             }
         }
     }
@@ -142,7 +142,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                         showBottomSheet(
                             BookmarkSheetFragment.create(
                                 article.articleHtml.name,
-                                DateHelper.stringToDate(hit.date)
+                                DateHelper.stringToDate(hit.date),
+                                this
                             )
                         )
                     }
