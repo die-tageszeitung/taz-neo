@@ -2,7 +2,6 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -141,10 +140,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onResume() {
         super.onResume()
-        webViewPager.apply {
-
-            registerOnPageChangeCallback(pageChangeCallback)
-        }
+        webViewPager.registerOnPageChangeCallback(pageChangeCallback)
     }
 
     override fun onStop() {
