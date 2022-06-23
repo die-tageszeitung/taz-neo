@@ -132,7 +132,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             lifecycleScope.launchWhenResumed {
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
-                isBookmarkedLiveData?.observeDistinct(this@SearchResultPagerFragment, isBookmarkedObserver)
+                isBookmarkedLiveData?.observeDistinct(
+                    this@SearchResultPagerFragment,
+                    isBookmarkedObserver
+                )
             }
         }
     }
