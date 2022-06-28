@@ -30,6 +30,7 @@
             android:layout_marginBottom="@dimen/fab_margin_bottom"
             android:contentDescription="@string/bottom_navigation_action_pdf"
             android:scaleType="center"
+            android:elevation="0dp"
             android:src="@drawable/ic_pdf_view"
             app:backgroundTint="@color/fab_button_background"
             app:maxImageSize="@dimen/bottom_navigation_icon_size"
