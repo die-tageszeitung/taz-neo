@@ -31,7 +31,8 @@
             android:contentDescription="@string/bottom_navigation_action_pdf"
             android:scaleType="center"
             android:src="@drawable/ic_pdf_view"
-            app:backgroundTint="@color/navigation_bottom_background"
+            app:backgroundTint="@color/fab_button_background"
+            app:maxImageSize="@dimen/bottom_navigation_icon_size"
             app:tint="@color/lightGrey" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
