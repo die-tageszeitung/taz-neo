@@ -172,5 +172,7 @@
     
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">68dp</dimen>
+    <dimen name="bottom_navigation_icon_size">31dp</dimen>
+    <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 
 </resources>
