@@ -28,6 +28,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -94,6 +95,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 (activity as SearchActivity).loadMore()
             }
             lifecycleScope.launchWhenResumed {
+                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                    getCurrentSearchHit()?.article?.onlineLink != null
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
                 isBookmarkedLiveData?.observeDistinct(this@SearchResultPagerFragment, isBookmarkedObserver)
