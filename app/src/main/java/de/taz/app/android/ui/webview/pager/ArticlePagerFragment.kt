@@ -13,7 +13,9 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.*
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -164,9 +166,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             lastPage = position
 
             lifecycleScope.launchWhenResumed {
-                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    nextStub.onlineLink != null
-
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
@@ -222,7 +221,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
-                }
+                } ?: showSharingNotPossibleDialog()
             }
         }
     }

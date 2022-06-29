@@ -95,8 +95,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 (activity as SearchActivity).loadMore()
             }
             lifecycleScope.launchWhenResumed {
-                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    getCurrentSearchHit()?.article?.onlineLink != null
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
                 isBookmarkedLiveData?.observeDistinct(this@SearchResultPagerFragment, isBookmarkedObserver)
@@ -168,7 +166,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 val url: String? = hit.article?.onlineLink
                 url?.let {
                     shareArticle(url, hit.title)
-                }
+                } ?: showSharingNotPossibleDialog()
             }
         }
     }
