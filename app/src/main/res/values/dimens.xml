@@ -72,7 +72,7 @@
     <dimen name="fragment_header_article_text_size">16sp</dimen>
     <dimen name="fragment_header_section_text_size">25sp</dimen>
     <dimen name="fragment_header_title_section_text_size">33sp</dimen>
-    <dimen name="fragment_header_section_title_y_translation">5dp</dimen>
+    <dimen name="fragment_header_section_title_y_translation">4dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
     <dimen name="fragment_header_issue_date_y_translation">-4dp</dimen>
     <dimen name="fragment_webview_header_padding_top">35dp</dimen>
