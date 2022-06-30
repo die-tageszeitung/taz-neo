@@ -178,6 +178,14 @@
         </item>
     </style>
 
+    <style name="BottomNavigationToolBar" parent="Widget.Design.BottomNavigationView">
+        <item name="android:layout_gravity">bottom</item>
+        <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
+        <item name="backgroundTint">@color/navigation_bottom_background</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+    </style>
+
     <!-- blank styles for better code readability-->
     <style name="TextAppearance" parent="TextAppearance.AppCompat" />
 
