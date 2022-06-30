@@ -52,6 +52,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
+        // in onViewCreated - when done in xml the 1st click wont be recognized...
+        navigation_bottom_layout.visibility = View.INVISIBLE
         webViewPager = view.findViewById(R.id.webview_pager_viewpager)
         loadingScreen = view.findViewById(R.id.loading_screen)
         webViewPager.apply {
