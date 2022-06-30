@@ -16,8 +16,8 @@ import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
@@ -37,6 +37,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val log by Log
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private var articleRepository: ArticleRepository? = null
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
 
@@ -50,6 +51,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onResume() {
         super.onResume()
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
             if (
                 articleStubs.map { it.key } !=
@@ -205,7 +207,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it.key))
+                    issueContentViewModel.toggleBookmark(it)
                 }
             }
 

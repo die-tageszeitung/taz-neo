@@ -77,9 +77,6 @@
     <string name="fragment_bottom_sheet_text_night_mode">Night mode</string>
     <string name="fragment_bottom_sheet_text_size_settings">Settings</string>
 
-    <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">My bookmarks</string>
-    <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
-    <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
 
     <string name="fragment_bottom_sheet_issue_read">read this issue</string>
     <string name="fragment_bottom_sheet_issue_share">share cover</string>
