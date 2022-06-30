@@ -161,6 +161,37 @@
         <item name="backgroundTint">@color/navigation_bottom_background</item>
     </style>
 
+    <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
+        <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
+        <item name="backgroundTint">@color/navigation_bottom_background</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@color/bottom_nav_icon_color</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="menu">@menu/navigation_bottom_home</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.BottomNavigationView.Active
+        </item>
+        <item name="itemTextAppearanceInactive">
+            @style/TextAppearance.BottomNavigationView.Inactive
+        </item>
+    </style>
+
+    <!-- blank styles for better code readability-->
+    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
+
+    <style name="TextAppearance.BottomNavigationView" />
+
+    <!-- inactive tab icon style -->
+    <style name="TextAppearance.BottomNavigationView.Inactive">
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
+    </style>
+
+    <!-- active tab icon style -->
+    <style name="TextAppearance.BottomNavigationView.Active">
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
+    </style>
+
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/bottom_sheet_text_color</item>

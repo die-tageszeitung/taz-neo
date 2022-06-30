@@ -12,6 +12,7 @@
     <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
     <color name="yellow">#ff8</color>
+    <color name="darkGreyEightyPercentOpacity">#CC242424</color>
 
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -38,6 +39,7 @@
 
     <color name="navigation_bottom_background">@color/darkGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
+    <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
 
     <color name="fragment_archive_background">@color/superDarkGrey</color>
 
