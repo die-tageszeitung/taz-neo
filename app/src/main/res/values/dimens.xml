@@ -16,7 +16,7 @@
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">28dp</dimen>
-    <dimen name="drawer_section_list_width">240dp</dimen>
+    <dimen name="drawer_section_list_width">250dp</dimen>
     <dimen name="drawer_width">290dp</dimen>
 
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
