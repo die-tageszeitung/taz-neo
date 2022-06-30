@@ -94,6 +94,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         super.onViewCreated(view, savedInstanceState)
 
         navigation_bottom_webview_pager.visibility = View.GONE
+        navigation_bottom_layout.visibility = View.INVISIBLE
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()

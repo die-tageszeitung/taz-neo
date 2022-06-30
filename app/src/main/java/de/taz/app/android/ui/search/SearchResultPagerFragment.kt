@@ -52,6 +52,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        navigation_bottom_layout.visibility = View.INVISIBLE
         webViewPager = view.findViewById(R.id.webview_pager_viewpager)
         loadingScreen = view.findViewById(R.id.loading_screen)
         webViewPager.apply {
