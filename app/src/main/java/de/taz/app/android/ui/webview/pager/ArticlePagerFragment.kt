@@ -27,6 +27,7 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +41,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var articleRepository: ArticleRepository? = null
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
+    private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
@@ -133,7 +135,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
             }
         }
-        private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
             val nextStub =
@@ -207,7 +208,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let {
-                    issueContentViewModel.toggleBookmark(it)
+                    toggleBookmark(it)
                 }
             }
 
@@ -216,6 +217,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
+            }
+        }
+    }
+
+    private fun toggleBookmark(articleStub: ArticleStub) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (isBookmarkedLiveData?.value == true) {
+                articleRepository?.debookmarkArticle(articleStub)
+            } else {
+                articleRepository?.bookmarkArticle(articleStub)
             }
         }
     }

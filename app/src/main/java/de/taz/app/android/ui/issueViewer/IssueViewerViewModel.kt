@@ -103,16 +103,6 @@ class IssueViewerViewModel(
         }
     }
 
-    fun toggleBookmark(articleStub: ArticleStub) {
-        CoroutineScope(Dispatchers.IO).launch {
-            if (articleStub.bookmarked) {
-                articleRepository.debookmarkArticle(articleStub)
-            } else {
-                articleRepository.bookmarkArticle(articleStub)
-            }
-        }
-    }
-
     var goNextArticle = MutableLiveData(false)
     var goPreviousArticle = MutableLiveData(false)
     var lastSectionKey: String?
