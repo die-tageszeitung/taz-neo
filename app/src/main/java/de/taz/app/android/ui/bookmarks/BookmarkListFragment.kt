@@ -59,16 +59,18 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     fun shareArticle(articleFileName: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val article = articleRepository?.getStub(articleFileName)
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, article?.onlineLink)
-                putExtra(Intent.EXTRA_SUBJECT, article?.title)
-                type = "text/plain"
-            }
-            withContext(Dispatchers.Main) {
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                startActivity(shareIntent)
-            }
+            article?.onlineLink?.let { url ->
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT, url)
+                    putExtra(Intent.EXTRA_SUBJECT, article.title)
+                    type = "text/plain"
+                }
+                withContext(Dispatchers.Main) {
+                    val shareIntent = Intent.createChooser(sendIntent, null)
+                    startActivity(shareIntent)
+                }
+            } ?: showSharingNotPossibleDialog()
         }
     }
 }

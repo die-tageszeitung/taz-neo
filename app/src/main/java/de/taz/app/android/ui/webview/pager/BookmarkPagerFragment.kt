@@ -137,9 +137,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 drawerViewModel.navButton.postValue(it)
             }
         }
-        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-            articleToBindTo.onlineLink != null
-
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
         isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
@@ -188,7 +185,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
-                }
+                } ?: showSharingNotPossibleDialog()
             }
         }
     }

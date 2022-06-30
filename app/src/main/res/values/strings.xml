@@ -344,6 +344,9 @@
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
+    <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
+    <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach einfach unter taz.de/abo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>
+
     <string name="search_activity">Suche</string>
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>

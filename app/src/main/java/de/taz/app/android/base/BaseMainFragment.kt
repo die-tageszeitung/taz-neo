@@ -13,8 +13,11 @@ import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.lang.IndexOutOfBoundsException
 
 abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
@@ -135,6 +138,21 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
             deactivateItem(menuItem)
         } else {
             onBottomNavigationItemClicked(menuItem)
+        }
+    }
+
+    suspend fun showSharingNotPossibleDialog() {
+        withContext(Dispatchers.Main) {
+            context?.let {
+                val dialog = MaterialAlertDialogBuilder(it)
+                    .setTitle(getString(R.string.dialog_sharing_not_possible_title))
+                    .setMessage(getString(R.string.dialog_sharing_not_possible_message))
+                    .setPositiveButton(getString(R.string.close_okay)) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .create()
+                dialog.show()
+            }
         }
     }
 
