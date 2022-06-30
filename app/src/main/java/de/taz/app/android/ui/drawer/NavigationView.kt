@@ -11,12 +11,13 @@ class NavigationView @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null, defStyleAttr: Int = 0
 ) : NavigationView(context, attributeSet, defStyleAttr) {
 
+    val minWidth = resources.getDimension(R.dimen.drawer_width)
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
         val contentView = findViewById<FragmentContainerView>(R.id.drawer_menu_fragment_placeholder)
         contentView?.width?.let {
-            layoutParams?.width = it
+            layoutParams?.width = maxOf(it, minWidth.toInt())
         }
     }
 
