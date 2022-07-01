@@ -158,6 +158,8 @@
     <dimen name="search_input_field_corner_radius">30dp</dimen>
     <dimen name="search_icon_size">24dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
+    <dimen name="search_description_text_line_spacing_extra">5sp</dimen>
+    <dimen name="search_description_icon_size">48dp</dimen>
     <dimen name="search_result_title_text_size">18sp</dimen>
     <dimen name="search_result_author_text_size">17sp</dimen>
     <dimen name="search_result_title_margin_top">14dp</dimen>
