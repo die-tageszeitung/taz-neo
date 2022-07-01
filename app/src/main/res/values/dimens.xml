@@ -66,6 +66,7 @@
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
     <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
+    <dimen name="fragment_header_dotted_line_height">5dp</dimen>
     <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
     <dimen name="fragment_header_article_title_y_translation">2dp</dimen>
@@ -79,6 +80,7 @@
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
+    <dimen name="fragment_header_search_result_published_date_margin_top">5dp</dimen>
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
     <dimen name="fragment_archive_padding_top">22dp</dimen>
