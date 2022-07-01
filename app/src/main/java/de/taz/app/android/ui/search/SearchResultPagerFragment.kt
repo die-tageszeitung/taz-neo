@@ -13,17 +13,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -33,6 +36,8 @@ import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.*
 
 class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBinding>() {
     companion object {
@@ -43,6 +48,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+    private var articleRepository: ArticleRepository? = null
+    private var apiService: ApiService? = null
+    private var contentService: ContentService? = null
+
     private lateinit var webViewPager: ViewPager2
     private lateinit var loadingScreen: ConstraintLayout
     private var initialPosition = 0
@@ -66,6 +75,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         loadingScreen.visibility = View.GONE
         setupViewPager()
 
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        apiService = ApiService.getInstance(requireContext().applicationContext)
+        contentService = ContentService.getInstance(requireContext().applicationContext)
         val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
         fontSizeLiveData.observeDistinct(this) {
             reloadAfterCssChange()
@@ -143,13 +155,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentSearchHit()?.let { hit ->
                     hit.article?.let { article ->
-                        showBottomSheet(
-                            BookmarkSheetFragment.create(
-                                article.articleHtml.name,
-                                DateHelper.stringToDate(hit.date),
-                                this
-                            )
-                        )
+
+                        toggleBookmark(article.articleHtml.name, DateHelper.stringToDate(hit.date))
                     }
                 }
             }
@@ -159,6 +166,45 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
+            }
+        }
+    }
+
+    private fun toggleBookmark(articleFileName: String, date: Date?) {
+        CoroutineScope(Dispatchers.IO).launch {
+            articleRepository?.get(articleFileName)?.let { article ->
+                if (article.bookmarked) {
+                    articleRepository?.debookmarkArticle(article)
+                } else {
+                    articleRepository?.bookmarkArticle(article)
+                }
+            } ?: date?.let {
+                // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
+                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+                // no articleStub so probably article not downloaded, so download it:
+                downloadArticleAndSetBookmark(articleFileName, it)
+            }
+        }
+    }
+
+    /**
+     * This function is for bookmarking articles "outside" an issue. Eg in the search result list.
+     * then downloads the corresponding metadata
+     * downloads the article and
+     * finally bookmarks the article.
+     */
+    private suspend fun downloadArticleAndSetBookmark(
+        articleFileName: String,
+        datePublished: Date
+    ) {
+        withContext(Dispatchers.IO) {
+            val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+            issueMetadata?.let { issue ->
+                contentService?.downloadMetadata(issue, maxRetries = 5)
+                articleRepository?.get(articleFileName)?.let {
+                    contentService?.downloadToCache(it)
+                    articleRepository?.bookmarkArticle(it)
+                }
             }
         }
     }

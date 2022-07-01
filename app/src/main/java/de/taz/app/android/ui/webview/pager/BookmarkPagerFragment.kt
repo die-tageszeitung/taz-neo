@@ -17,7 +17,6 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -169,7 +168,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentlyDisplayedArticleStub()?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it.key))
+                    viewModel.toggleBookmark(it)
                 }
             }
 
