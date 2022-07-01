@@ -3,4 +3,6 @@
     <dimen name="fragment_drawer_date_margin_bottom">-3dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_vertical">5dp</dimen>
     <dimen name="search_advanced_title_margin_bottom">-15dp</dimen>
+    <dimen name="search_result_author_margin_top">-10dp</dimen>
+    <dimen name="search_result_snippet_line_spacing_extra">6sp</dimen>
 </resources>
