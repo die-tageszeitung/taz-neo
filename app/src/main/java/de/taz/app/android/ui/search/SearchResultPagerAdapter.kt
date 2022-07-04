@@ -1,12 +1,12 @@
 package de.taz.app.android.ui.search
 
 import android.annotation.SuppressLint
-import android.os.Build
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebSettings
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
@@ -14,13 +14,11 @@ import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.webview.*
-import kotlinx.android.synthetic.main.fragment_webview_article.view.*
-import kotlinx.android.synthetic.main.fragment_webview_header_article.view.*
 
 class SearchResultPagerAdapter(
     private val fragment: Fragment,
     private val total: Int,
-    var searchResultList: List<SearchHitDto>
+    private var searchResultList: List<SearchHitDto>
 ) : RecyclerView.Adapter<SearchResultPagerViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -74,21 +72,23 @@ class SearchResultPagerAdapter(
                 null
             )
         }
-
-        val headerTextWithHtml = fragment.requireActivity().getString(
-            R.string.fragment_header_search_result,
-            position + 1,
-            total,
-            searchResultItem.sectionTitle ?: "",
-            DateHelper.stringToMediumLocalizedString(searchResultItem.date)
-        )
-        val headerText  = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(headerTextWithHtml, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            Html.fromHtml(headerTextWithHtml)
+        holder.viewBinding.collapsingToolbarLayout.findViewById<ConstraintLayout>(R.id.header)?.let {
+            it.visibility = View.GONE
         }
 
-        holder.viewBinding.collapsingToolbarLayout.header.article_num.text = headerText
+        holder.viewBinding.collapsingToolbarLayout.findViewById<ConstraintLayout>(R.id.header_search_hit)?.apply {
+            visibility = View.VISIBLE
+            findViewById<TextView>(R.id.search_hit_index).text = fragment.requireActivity().getString(
+                R.string.fragment_header_search_result_index,
+                position + 1,
+                total
+            )
+            findViewById<TextView>(R.id.section_title).text = searchResultItem.sectionTitle ?: ""
+            findViewById<TextView>(R.id.published_date).text =  fragment.requireActivity().getString(
+                R.string.fragment_header_search_result_published_date,
+                DateHelper.stringToMediumLocalizedString(searchResultItem.date)
+            )
+        }
     }
 
     override fun getItemCount() = searchResultList.size
