@@ -4,16 +4,16 @@ import android.app.Activity
 import android.content.Intent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.viewbinding.ViewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
+import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.ui.login.LoginViewModel
 
 
-abstract class LoginBaseFragment(@LayoutRes layoutId: Int): Fragment(layoutId) {
+abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
     protected val viewModel
         get() = activityViewModels<LoginViewModel>().value
 
