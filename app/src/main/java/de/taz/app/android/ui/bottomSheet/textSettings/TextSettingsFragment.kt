@@ -6,7 +6,6 @@ import android.view.View
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentBottomSheetTextSizeBinding
 import de.taz.app.android.ui.settings.SettingsActivity
-import kotlinx.android.synthetic.main.fragment_bottom_sheet_text_size.*
 
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel, FragmentBottomSheetTextSizeBinding>() {
@@ -14,32 +13,31 @@ class TextSettingsFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        fragment_bottom_sheet_text_size_settings?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizeSettings.setOnClickListener {
             onSettingsSelected()
         }
 
-        fragment_bottom_sheet_text_size_text_size_decrease?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizeDecrease.setOnClickListener {
             decreaseFontSize()
         }
 
-        fragment_bottom_sheet_text_size_text_size_percentage_wrapper?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizePercentageWrapper.setOnClickListener {
             resetFontSize()
         }
 
-        fragment_bottom_sheet_text_size_text_size_increase?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizeIncrease.setOnClickListener {
             increaseFontSize()
         }
 
-        fragment_bottom_sheet_text_size_night_mode?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizeNightMode.setOnClickListener {
             onNightModeChanged(
-                !fragment_bottom_sheet_text_size_night_mode_switch.isChecked
+                !viewBinding.fragmentBottomSheetTextSizeNightModeSwitch.isChecked
             )
         }
 
-        fragment_bottom_sheet_text_size_night_mode_switch?.setOnClickListener {
+        viewBinding.fragmentBottomSheetTextSizeNightModeSwitch.setOnClickListener {
             onNightModeChanged(
-                fragment_bottom_sheet_text_size_night_mode_switch.isChecked
+                viewBinding.fragmentBottomSheetTextSizeNightModeSwitch.isChecked
             )
         }
 
@@ -53,11 +51,11 @@ class TextSettingsFragment :
     }
 
     private fun setNightMode(active: Boolean) {
-        fragment_bottom_sheet_text_size_night_mode_switch?.isChecked = active
+        viewBinding.fragmentBottomSheetTextSizeNightModeSwitch.isChecked = active
     }
 
     private fun setFontSizePercentage(percent: String) {
-        fragment_bottom_sheet_text_size_text_size_percentage?.text = "$percent%"
+        viewBinding.fragmentBottomSheetTextSizePercentage.text = "$percent%"
     }
 
     private fun onNightModeChanged(activated: Boolean) {
