@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.*
+import de.taz.app.android.databinding.FragmentLoginMissingCredentialsBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
@@ -21,11 +22,10 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
-import kotlinx.android.synthetic.main.fragment_login_missing_credentials.*
 import java.util.regex.Pattern
 
 class CredentialsMissingFragment :
-    SubscriptionBaseFragment(R.layout.fragment_login_missing_credentials) {
+    SubscriptionBaseFragment<FragmentLoginMissingCredentialsBinding>() {
 
     private var failed: Boolean = false
 
@@ -41,7 +41,7 @@ class CredentialsMissingFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fragment_login_missing_credentials_terms_and_conditions.apply {
+        viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
             spannableString.onClick(
@@ -62,22 +62,22 @@ class CredentialsMissingFragment :
             movementMethod = LinkMovementMethod.getInstance()
         }
 
-        fragment_login_missing_credentials_email.setText(viewModel.username)
-        fragment_login_missing_credentials_first_name.setText(viewModel.firstName)
-        fragment_login_missing_credentials_surname.setText(viewModel.surName)
+        viewBinding.fragmentLoginMissingCredentialsEmail.setText(viewModel.username)
+        viewBinding.fragmentLoginMissingCredentialsFirstName.setText(viewModel.firstName)
+        viewBinding.fragmentLoginMissingCredentialsSurname.setText(viewModel.surName)
 
-        fragment_login_missing_credentials_email_layout.markRequired()
-        fragment_login_missing_credentials_password_layout.markRequired()
-        fragment_login_missing_credentials_password_confirmation_layout.markRequired()
-        fragment_login_missing_credentials_first_name_layout.markRequired()
-        fragment_login_missing_credentials_surname_layout.markRequired()
-        fragment_login_missing_credentials_terms_and_conditions.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsEmailLayout.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsPasswordLayout.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsSurnameLayout.markRequired()
+        viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.markRequired()
 
-        fragment_login_missing_credentials_forgot_help.setOnClickListener {
+        viewBinding.fragmentLoginMissingCredentialsForgotHelp.setOnClickListener {
             showHelpDialog(R.string.fragment_login_missing_credentials_help)
         }
 
-        fragment_login_missing_credentials_switch.setOnClickListener {
+        viewBinding.fragmentLoginMissingCredentialsSwitch.setOnClickListener {
             viewModel.createNewAccount = !viewModel.createNewAccount
             viewModel.status.postValue(
                 if (viewModel.createNewAccount) {
@@ -90,53 +90,53 @@ class CredentialsMissingFragment :
 
         if (viewModel.createNewAccount) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                fragment_login_missing_credentials_password.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
+                viewBinding.fragmentLoginMissingCredentialsPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
             }
-            fragment_login_missing_credentials_forgot_password.visibility = View.GONE
+            viewBinding.fragmentLoginMissingCredentialsForgotPassword.visibility = View.GONE
         } else {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                fragment_login_missing_credentials_password.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
+                viewBinding.fragmentLoginMissingCredentialsPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_PASSWORD)
             }
-            fragment_login_missing_credentials_switch.text =
+            viewBinding.fragmentLoginMissingCredentialsSwitch.text =
                 getString(R.string.fragment_login_missing_credentials_switch_to_registration)
 
-            fragment_login_missing_credentials_header.text =
+            viewBinding.fragmentLoginMissingCredentialsHeader.text =
                 getString(R.string.fragment_login_missing_credentials_header_login)
-            fragment_login_missing_credentials_password_confirmation_layout.visibility = View.GONE
-            fragment_login_missing_credentials_first_name_layout.visibility = View.GONE
-            fragment_login_missing_credentials_surname_layout.visibility = View.GONE
-            fragment_login_missing_credentials_password.imeOptions = EditorInfo.IME_ACTION_DONE
+            viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.visibility = View.GONE
+            viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.visibility = View.GONE
+            viewBinding.fragmentLoginMissingCredentialsSurnameLayout.visibility = View.GONE
+            viewBinding.fragmentLoginMissingCredentialsPassword.imeOptions = EditorInfo.IME_ACTION_DONE
         }
 
         if (failed) {
-            fragment_login_missing_credentials_email_layout.setError(R.string.login_email_error_recheck)
+            viewBinding.fragmentLoginMissingCredentialsEmailLayout.setError(R.string.login_email_error_recheck)
         }
 
-        fragment_login_missing_credentials_login.setOnClickListener { ifDoneNext() }
+        viewBinding.fragmentLoginMissingCredentialsLogin.setOnClickListener { ifDoneNext() }
 
-        fragment_login_missing_credentials_forgot_password?.setOnClickListener {
+        viewBinding.fragmentLoginMissingCredentialsForgotPassword.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
-        fragment_login_missing_credentials_surname.setOnEditorActionListener(
+        viewBinding.fragmentLoginMissingCredentialsSurname.setOnEditorActionListener(
             OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
         )
 
-        fragment_login_missing_credentials_password.setOnEditorActionListener(
+        viewBinding.fragmentLoginMissingCredentialsPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
         )
 
-        fragment_login_missing_credentials_first_name.doAfterTextChanged { text ->
-            fragment_login_missing_credentials_surname_layout.counterMaxLength =
+        viewBinding.fragmentLoginMissingCredentialsFirstName.doAfterTextChanged { text ->
+            viewBinding.fragmentLoginMissingCredentialsSurnameLayout.counterMaxLength =
                 (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
         }
 
-        fragment_login_missing_credentials_surname.doAfterTextChanged { text ->
-            fragment_login_missing_credentials_first_name_layout.counterMaxLength =
+        viewBinding.fragmentLoginMissingCredentialsSurname.doAfterTextChanged { text ->
+            viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.counterMaxLength =
                 (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
         }
 
-        fragment_login_missing_credentials_terms_and_conditions.apply {
+        viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
             spannableString.onClick(
@@ -159,59 +159,59 @@ class CredentialsMissingFragment :
     }
 
     override fun done(): Boolean {
-        val email = fragment_login_missing_credentials_email.text.toString().trim()
-        val password = fragment_login_missing_credentials_password.text.toString()
+        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim()
+        val password = viewBinding.fragmentLoginMissingCredentialsPassword.text.toString()
 
         val passwordConfirm =
-            fragment_login_missing_credentials_password_confirmation.text.toString()
-        val firstName = fragment_login_missing_credentials_first_name.text.toString().trim()
-        val surname = fragment_login_missing_credentials_surname.text.toString().trim()
+            viewBinding.fragmentLoginMissingCredentialsPasswordConfirmation.text.toString()
+        val firstName = viewBinding.fragmentLoginMissingCredentialsFirstName.text.toString().trim()
+        val surname = viewBinding.fragmentLoginMissingCredentialsSurname.text.toString().trim()
 
         var done = true
 
-        if (password != passwordConfirm && fragment_login_missing_credentials_password_confirmation_layout.isVisible) {
-            fragment_login_missing_credentials_password_layout.setError(R.string.login_password_confirmation_error_match)
-            fragment_login_missing_credentials_password_confirmation_layout.setError(
+        if (password != passwordConfirm && viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.isVisible) {
+            viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setError(R.string.login_password_confirmation_error_match)
+            viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.setError(
                 R.string.login_password_confirmation_error_match
             )
             done = false
         }
         if (!Pattern.compile(PASSWORD_PATTERN).matcher(password).matches()
-            && fragment_login_missing_credentials_password_confirmation_layout.isVisible
+            && viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.isVisible
         ) {
-            fragment_login_missing_credentials_password_layout.setError(R.string.login_password_regex_error)
+            viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setError(R.string.login_password_regex_error)
             done = false
         }
-        if (firstName.isEmpty() && fragment_login_missing_credentials_first_name_layout.isVisible) {
-            fragment_login_missing_credentials_first_name_layout.setError(
+        if (firstName.isEmpty() && viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.isVisible) {
+            viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.setError(
                 R.string.login_first_name_error_empty
             )
             done = false
         }
-        if (surname.isEmpty() && fragment_login_missing_credentials_surname_layout.isVisible) {
-            fragment_login_missing_credentials_surname_layout.setError(
+        if (surname.isEmpty() && viewBinding.fragmentLoginMissingCredentialsSurnameLayout.isVisible) {
+            viewBinding.fragmentLoginMissingCredentialsSurnameLayout.setError(
                 R.string.login_surname_error_empty
             )
             done = false
         }
 
         if (email.isEmpty()) {
-            fragment_login_missing_credentials_email_layout.setError(
+            viewBinding.fragmentLoginMissingCredentialsEmailLayout.setError(
                 R.string.login_email_error_empty
             )
             done = false
         } else {
             if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches()) {
-                fragment_login_missing_credentials_email_layout.setError(
+                viewBinding.fragmentLoginMissingCredentialsEmailLayout.setError(
                     R.string.login_email_error_invalid
                 )
                 done = false
             }
         }
 
-        if (!fragment_login_missing_credentials_terms_and_conditions.isChecked) {
+        if (!viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.isChecked) {
             done = false
-            fragment_login_missing_credentials_terms_and_conditions.setTextColor(
+            viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.tazRed)
             )
         }
