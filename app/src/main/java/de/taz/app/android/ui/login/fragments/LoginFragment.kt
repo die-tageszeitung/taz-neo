@@ -4,10 +4,11 @@ import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
 import de.taz.app.android.R
+import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import kotlinx.android.synthetic.main.fragment_login.*
 
-class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
+class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     @StringRes
     private var usernameErrorId: Int? = null
@@ -30,10 +31,12 @@ class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_login_username.setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+        viewBinding.fragmentLoginUsername.setText(
+            viewModel.username ?: viewModel.subscriptionId?.toString()
+        )
 
         viewModel.password?.let {
-            fragment_login_password.setText(it)
+            viewBinding.fragmentLoginPassword.setText(it)
         }
 
         usernameErrorId?.let {
@@ -45,40 +48,39 @@ class LoginFragment : LoginBaseFragment(R.layout.fragment_login) {
             passwordErrorId = null
         }
 
-        fragment_login_login_button.setOnClickListener {
+        viewBinding.fragmentLoginLoginButton.setOnClickListener {
             login()
         }
 
-        fragment_login_register_button.setOnClickListener {
-            viewModel.requestSubscription(fragment_login_username.text.toString().trim())
+        viewBinding.fragmentLoginRegisterButton.setOnClickListener {
+            viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim())
         }
 
-        fragment_login_missing_subscription_forgot_password.setOnClickListener {
+        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
             viewModel.requestPasswordReset()
         }
 
-        fragment_login_forgot_help.setOnClickListener {
+        viewBinding.fragmentLoginForgotHelp.setOnClickListener {
             showHelpDialog(R.string.fragment_login_help)
         }
 
-        fragment_login_password.setOnEditorActionListener(
+        viewBinding.fragmentLoginPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(::login)
         )
-
     }
 
     private fun login() {
-        val username = fragment_login_username.text.toString().trim()
-        val password = fragment_login_password.text.toString()
+        val username = viewBinding.fragmentLoginUsername.text.toString().trim()
+        val password = viewBinding.fragmentLoginPassword.text.toString()
         viewModel.login(username, password)
         hideKeyBoard()
     }
 
     private fun showPasswordError(passwordErrorId: Int) {
-        fragment_login_password_layout.error = getString(passwordErrorId)
+        viewBinding.fragmentLoginPasswordLayout.error = getString(passwordErrorId)
     }
 
     private fun showUserNameError(@StringRes usernameErrorId: Int) {
-        fragment_login_username_layout.error = getString(usernameErrorId)
+        viewBinding.fragmentLoginUsernameLayout.error = getString(usernameErrorId)
     }
 }
