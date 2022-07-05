@@ -3,20 +3,19 @@ package de.taz.app.android.ui.bottomSheet.issue
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
+import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
@@ -27,14 +26,13 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_bottom_sheet_issue.*
 import kotlinx.coroutines.*
 import java.io.File
 
 
 private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
 
-class IssueBottomSheetFragment : BottomSheetDialogFragment() {
+class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetIssueBinding>() {
 
     private val log by Log
     private lateinit var issuePublication: IssuePublication
@@ -80,30 +78,22 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
         issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return layoutInflater.inflate(R.layout.fragment_bottom_sheet_issue, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         loadingScreen?.visibility = View.VISIBLE
         lifecycleScope.launch {
             if (getIsDownloaded()) {
-                fragment_bottom_sheet_issue_delete?.visibility = View.VISIBLE
-                fragment_bottom_sheet_issue_download?.visibility = View.GONE
+                viewBinding.fragmentBottomSheetIssueDelete.visibility = View.VISIBLE
+                viewBinding.fragmentBottomSheetIssueDownload.visibility = View.GONE
             } else {
-                fragment_bottom_sheet_issue_delete?.visibility = View.GONE
-                fragment_bottom_sheet_issue_download?.visibility = View.VISIBLE
+                viewBinding.fragmentBottomSheetIssueDelete.visibility = View.GONE
+                viewBinding.fragmentBottomSheetIssueDownload.visibility = View.VISIBLE
             }
             loadingScreen?.visibility = View.GONE
         }
 
-        fragment_bottom_sheet_issue_read?.setOnClickListener {
+        viewBinding.fragmentBottomSheetIssueRead.setOnClickListener {
             lifecycleScope.launch {
                 if (homeViewModel.getPdfMode()) {
                     Intent(requireActivity(), PdfPagerActivity::class.java).apply {
@@ -125,7 +115,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        fragment_bottom_sheet_issue_share?.setOnClickListener {
+        viewBinding.fragmentBottomSheetIssueShare.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 var issue = contentService.downloadMetadata(issuePublication) as Issue
                 var image = issue.moment.getMomentFileToShare()
@@ -160,11 +150,11 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
-        fragment_bottom_sheet_issue_delete?.setOnClickListener {
+        viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener {
             preventDismissal()
-            fragment_bottom_sheet_issue_read?.setOnClickListener(null)
-            fragment_bottom_sheet_issue_share?.setOnClickListener(null)
-            fragment_bottom_sheet_issue_delete?.setOnClickListener(null)
+            viewBinding.fragmentBottomSheetIssueRead.setOnClickListener(null)
+            viewBinding.fragmentBottomSheetIssueShare.setOnClickListener(null)
+            viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener(null)
 
             loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
@@ -178,7 +168,7 @@ class IssueBottomSheetFragment : BottomSheetDialogFragment() {
             }
         }
 
-        fragment_bottom_sheet_issue_download?.setOnClickListener {
+        viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     contentService.downloadIssuePublicationToCache(issuePublication)
