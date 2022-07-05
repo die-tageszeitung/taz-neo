@@ -5,8 +5,7 @@ plugins {
 }
 
 apply plugin: 'kotlin-android'
-// todo replace `kotlin-android-extensions` with 'kotlin-parcelize' once we only use ViewBindings
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 
