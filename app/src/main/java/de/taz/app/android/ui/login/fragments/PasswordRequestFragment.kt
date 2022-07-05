@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.W3C_EMAIL_PATTERN
+import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
-import kotlinx.android.synthetic.main.fragment_login_forgot_password.*
 import java.util.regex.Pattern
 
-class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login_forgot_password) {
+class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPasswordBinding>() {
 
     private var invalidId: Boolean = false
     private var invalidMail: Boolean = false
@@ -33,7 +33,7 @@ class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_login_forgot_password_username.setText(
+        viewBinding.fragmentLoginForgotPasswordUsername.setText(
             if (showSubscriptionId) {
                 viewModel.subscriptionId?.toString()
             } else {
@@ -42,24 +42,24 @@ class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login
         )
 
         if (invalidId) {
-            fragment_login_forgot_password_username.setText(viewModel.subscriptionId?.toString())
-            fragment_login_forgot_password_username_layout.setError(
+            viewBinding.fragmentLoginForgotPasswordUsername.setText(viewModel.subscriptionId?.toString())
+            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setError(
                 R.string.login_forgot_password_error_invalid_id
             )
         }
 
         if (invalidMail) {
-            fragment_login_forgot_password_username.setText(viewModel.username)
-            fragment_login_forgot_password_username_layout.setError(
+            viewBinding.fragmentLoginForgotPasswordUsername.setText(viewModel.username)
+            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setError(
                 R.string.login_email_error_invalid
             )
         }
 
-        fragment_login_forgot_password_button.setOnClickListener {
+        viewBinding.fragmentLoginForgotPasswordButton.setOnClickListener {
             ifDoneNext()
         }
 
-        fragment_login_forgot_password_username.setOnEditorActionListener(
+        viewBinding.fragmentLoginForgotPasswordUsername.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
@@ -67,16 +67,16 @@ class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login
 
     override fun done(): Boolean {
         var done = true
-        val username = fragment_login_forgot_password_username.text.toString().trim()
+        val username = viewBinding.fragmentLoginForgotPasswordUsername.text.toString().trim()
         if (username.isEmpty()) {
-            fragment_login_forgot_password_username_layout.error =
+            viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
                 getString(R.string.login_username_error_empty)
             done = false
         } else {
             if (username.toIntOrNull() == null) {
                 if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(username).matches()) {
                     done = false
-                    fragment_login_forgot_password_username_layout.error =
+                    viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
                         getString(R.string.login_email_error_invalid)
                 } else {
                     viewModel.username = username
@@ -89,7 +89,7 @@ class PasswordRequestFragment : SubscriptionBaseFragment(R.layout.fragment_login
     }
 
     override fun next() {
-        val username = fragment_login_forgot_password_username.text.toString().trim()
+        val username = viewBinding.fragmentLoginForgotPasswordUsername.text.toString().trim()
         if(username.toIntOrNull() != null) {
             viewModel.requestSubscriptionPassword(username.toInt())
         } else {
