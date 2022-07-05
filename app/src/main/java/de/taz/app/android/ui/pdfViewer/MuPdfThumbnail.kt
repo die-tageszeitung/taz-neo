@@ -4,9 +4,10 @@ import android.graphics.Bitmap
 import com.artifex.mupdf.fitz.Cookie
 import com.artifex.mupdf.fitz.Point
 import com.artifex.mupdf.viewer.MuPDFCore
+import java.io.File
 
 
-class MuPDFThumbnail(filename: String) : MuPDFCore(ByteArray(1312), filename) {
+class MuPDFThumbnail(filename: String) : MuPDFCore(File(filename).readBytes(), filename) {
 
     fun thumbnail(w: Int): Bitmap {
         val pageSize = getPageSize(0)
