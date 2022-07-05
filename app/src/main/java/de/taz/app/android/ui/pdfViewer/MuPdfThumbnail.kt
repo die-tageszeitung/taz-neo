@@ -6,7 +6,7 @@ import com.artifex.mupdf.fitz.Point
 import com.artifex.mupdf.viewer.MuPDFCore
 
 
-class MuPDFThumbnail(filename: String) : MuPDFCore(filename) {
+class MuPDFThumbnail(filename: String) : MuPDFCore(ByteArray(1312), filename) {
 
     fun thumbnail(w: Int): Bitmap {
         val pageSize = getPageSize(0)
