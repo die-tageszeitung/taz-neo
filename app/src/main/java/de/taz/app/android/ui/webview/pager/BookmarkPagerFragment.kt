@@ -24,7 +24,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,10 +91,10 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        navigation_bottom_webview_pager.visibility = View.GONE
+        viewBinding.navigationBottomWebviewPager.visibility = View.GONE
         // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
         // in onViewCreated - when done in xml the 1st click wont be recognized...
-        navigation_bottom_layout.visibility = View.INVISIBLE
+        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
