@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import kotlinx.android.synthetic.main.fragment_login.*
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
