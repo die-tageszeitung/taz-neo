@@ -142,7 +142,7 @@ android {
         }
 
         vectorDrawables.useSupportLibrary = true
-        resConfig "de"
+        resConfigs 'de'
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
@@ -167,9 +167,6 @@ android {
         freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
-    lintOptions {
-        lintConfig file("lint.xml")
-    }
 
     flavorDimensions "source", "owner", "graphql"
 
@@ -285,6 +282,9 @@ android {
         pickFirst 'win32-x86/attach_hotspot_windows.dll'
         pickFirst 'win32-x86-64/attach_hotspot_windows.dll'
         pickFirst 'META-INF/licenses/ASM'
+    }
+    lint {
+        lintConfig file('lint.xml')
     }
 }
 
