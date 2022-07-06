@@ -15,30 +15,22 @@ import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
 
 /**
  * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: HttpClient = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
-        }
-    },
+    private val httpClient: HttpClient = HttpClient(CIO),
     private val url: String,
     private val queryService: QueryService,
     private val authHelper: AuthHelper
@@ -76,8 +68,9 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val wrapper = try {
                 val response = maxSimultaneousRequestSemaphore.withPermit {
                     httpClient.post(Url(url)) {
-                        header("Accept", "application/json, */*")
-                        header("Content-Type", "application/json")
+                        accept(ContentType.Application.Json)
+                        accept(ContentType.Any)
+                        contentType(ContentType.Application.Json)
                         setBody(queryBody)
                         val token = authHelper.token.get()
                         if (token.isNotEmpty()
@@ -87,7 +80,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         }
                     }
                 }
-                response.body<WrapperDto>()
+                Json.decodeFromStream<WrapperDto>(response.body())
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)
