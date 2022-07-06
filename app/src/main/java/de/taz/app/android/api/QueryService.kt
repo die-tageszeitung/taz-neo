@@ -51,7 +51,7 @@ class QueryService private constructor(applicationContext: Context) {
     val queryCache = mutableMapOf<String, String>()
 
     @Throws(IOException::class)
-    suspend fun get(queryType: QueryType): Query {
+    fun get(queryType: QueryType): Query {
         val fileName = queryType.name
         return reportAndRethrowExceptions {
             Query(
