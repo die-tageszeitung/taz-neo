@@ -6,6 +6,7 @@ import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.Sorting
+import kotlinx.serialization.Required
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -19,15 +20,15 @@ data class SearchVariables(
     val rowCnt: Int? = null,
     val sorting: Sorting? = null,
     val searchTime: String? = null,
-    val filter: SearchFilter? = SearchFilter.all,
+    @Required val filter: SearchFilter? = SearchFilter.all,
     val pubDateFrom: String? = null,
     val pubDateUntil: String? = null,
-    val deviceName: String? = android.os.Build.MODEL,
-    val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
-    val appVersion: String = BuildConfig.VERSION_NAME,
+    @Required val deviceName: String? = android.os.Build.MODEL,
+    @Required val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
+    @Required val appVersion: String = BuildConfig.VERSION_NAME,
     val deviceFormat: DeviceFormat,
-    val deviceType: DeviceType = DeviceType.android,
-    val deviceOS: String? = System.getProperty("os.version")
+    @Required val deviceType: DeviceType = DeviceType.android,
+    @Required val deviceOS: String? = System.getProperty("os.version")
 ): Variables {
     override fun toJson(): String = Json.encodeToString(this)
 }

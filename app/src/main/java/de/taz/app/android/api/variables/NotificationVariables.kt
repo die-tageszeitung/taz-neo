@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
+import kotlinx.serialization.Required
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -13,12 +14,12 @@ data class NotificationVariables(
     val deviceFormat: DeviceFormat,
     val oldToken: String? = null,
     val deviceMessageSound: String? = null,
-    val textNotification: Boolean = true,
-    val deviceName: String? = android.os.Build.MODEL,
-    val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
-    val appVersion: String = BuildConfig.VERSION_NAME,
-    val deviceType: DeviceType = DeviceType.android,
-    val deviceOS: String? = System.getProperty("os.version"),
+    @Required val textNotification: Boolean = true,
+    @Required val deviceName: String? = android.os.Build.MODEL,
+    @Required val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
+    @Required val appVersion: String = BuildConfig.VERSION_NAME,
+    @Required val deviceType: DeviceType = DeviceType.android,
+    @Required val deviceOS: String? = System.getProperty("os.version"),
 ): Variables {
     override fun toJson(): String = Json.encodeToString(this)
 }
