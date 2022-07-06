@@ -2,9 +2,9 @@ package de.taz.app.android.api
 
 import android.system.ErrnoException
 import de.taz.app.android.util.reportAndRethrowExceptions
-import io.ktor.client.features.HttpRequestTimeoutException
+import io.ktor.client.network.sockets.*
+import io.ktor.client.plugins.*
 import io.ktor.client.statement.*
-import io.ktor.network.sockets.*
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
 import java.io.IOException
