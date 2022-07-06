@@ -2,7 +2,8 @@ package de.taz.app.android.api
 
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

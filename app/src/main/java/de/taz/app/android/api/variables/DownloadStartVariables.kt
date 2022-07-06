@@ -1,12 +1,13 @@
 package de.taz.app.android.api.variables
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class DownloadStartVariables(
     val feedName: String,
     val issueDate: String,
@@ -23,5 +24,5 @@ data class DownloadStartVariables(
     val deviceMessageSound: String? = null,
     val textNotification: Boolean = true
 ) : Variables {
-    override fun toJson() = JsonHelper.toJson(this)
+    override fun toJson() = Json.encodeToString(this)
 }

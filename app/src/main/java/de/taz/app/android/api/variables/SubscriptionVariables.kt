@@ -1,13 +1,14 @@
 package de.taz.app.android.api.variables
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class SubscriptionVariables(
     val installationId: String,
     val pushToken: String? = "",
@@ -32,5 +33,5 @@ data class SubscriptionVariables(
     val deviceType: DeviceType = DeviceType.android,
     val deviceOS: String? = System.getProperty("os.version"),
 ) : Variables {
-    override fun toJson() = JsonHelper.toJson(this)
+    override fun toJson() = Json.encodeToString(this)
 }

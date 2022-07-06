@@ -1,10 +1,9 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.singletons.Storable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class FileEntryDto(
     override val name: String,
     override val storageType: StorageType,
@@ -13,9 +12,8 @@ data class FileEntryDto(
     val size: Long
 ): Storable
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class StorageType {
-    @Json(name="issue")
     issue,
     global,
     resource

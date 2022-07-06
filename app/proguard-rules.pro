@@ -68,69 +68,47 @@
 #################################### SLF4J #####################################
 -dontwarn org.slf4j.**
 
-# Moshi
+# kotlinx serialization
 
-# JSR 305 annotations are for embedding nullability information.
--dontwarn javax.annotation.**
-
--keepclasseswithmembers class * {
-    @com.squareup.moshi.* <methods>;
-}
-
--keep @com.squareup.moshi.JsonQualifier interface *
-
-# Enum field names are used by the integrated EnumJsonAdapter.
-# values() is synthesized by the Kotlin compiler and is used by EnumJsonAdapter indirectly
-# Annotate enums with @JsonClass(generateAdapter = false) to use them with Moshi.
--keepclassmembers @com.squareup.moshi.JsonClass class * extends java.lang.Enum {
-    <fields>;
-    **[] values();
+# Keep `Companion` object fields of serializable classes.
+# This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
+-if @kotlinx.serialization.Serializable class **
+-keepclassmembers class <1> {
+    static <1>$Companion Companion;
 }
 
-# The name of @JsonClass types is used to look up the generated adapter.
--keepnames @com.squareup.moshi.JsonClass class *
-
-# Retain generated target class's synthetic defaults constructor and keep DefaultConstructorMarker's
-# name. We will look this up reflectively to invoke the type's constructor.
-#
-# We can't _just_ keep the defaults constructor because Proguard/R8's spec doesn't allow wildcard
-# matching preceding parameters.
--keepnames class kotlin.jvm.internal.DefaultConstructorMarker
--keepclassmembers @com.squareup.moshi.JsonClass @kotlin.Metadata class * {
-    synthetic <init>(...);
+# Keep `serializer()` on companion objects (both default and named) of serializable classes.
+-if @kotlinx.serialization.Serializable class ** {
+    static **$* *;
+}
+-keepclassmembers class <2>$<3> {
+    kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Retain generated JsonAdapters if annotated type is retained.
--if @com.squareup.moshi.JsonClass class *
--keep class <1>JsonAdapter {
-    <init>(...);
-    <fields>;
+# Keep `INSTANCE.serializer()` of serializable objects.
+-if @kotlinx.serialization.Serializable class ** {
+    public static ** INSTANCE;
 }
--if @com.squareup.moshi.JsonClass class **$*
--keep class <1>_<2>JsonAdapter {
-    <init>(...);
-    <fields>;
+-keepclassmembers class <1> {
+    public static <1> INSTANCE;
+    kotlinx.serialization.KSerializer serializer(...);
 }
--if @com.squareup.moshi.JsonClass class **$*$*
--keep class <1>_<2>_<3>JsonAdapter {
-    <init>(...);
-    <fields>;
-}
--if @com.squareup.moshi.JsonClass class **$*$*$*
--keep class <1>_<2>_<3>_<4>JsonAdapter {
-    <init>(...);
-    <fields>;
-}
--if @com.squareup.moshi.JsonClass class **$*$*$*$*
--keep class <1>_<2>_<3>_<4>_<5>JsonAdapter {
-    <init>(...);
-    <fields>;
-}
--if @com.squareup.moshi.JsonClass class **$*$*$*$*$*
--keep class <1>_<2>_<3>_<4>_<5>_<6>JsonAdapter {
-    <init>(...);
-    <fields>;
-}
+
+# @Serializable and @Polymorphic are used at runtime for polymorphic serialization.
+-keepattributes RuntimeVisibleAnnotations,AnnotationDefault
+
+# Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
+# If you have any, uncomment and replace classes with those containing named companion objects.
+#-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+#-if @kotlinx.serialization.Serializable class
+#com.example.myapplication.HasNamedCompanion, # <-- List serializable classes with named companions.
+#com.example.myapplication.HasNamedCompanion2
+#{
+#    static **$* *;
+#}
+#-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+#    static <1>$$serializer INSTANCE;
+#}
 
 # glide
 -keep public class * extends com.bumptech.glide.module.AppGlideModule

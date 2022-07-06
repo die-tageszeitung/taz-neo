@@ -1,9 +1,9 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.annotation.Mockable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 @Mockable
 data class WrapperDto (
     val data: DataDto? = null,

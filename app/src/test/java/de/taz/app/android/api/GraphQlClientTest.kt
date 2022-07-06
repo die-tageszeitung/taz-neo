@@ -33,8 +33,10 @@ class GraphQlClientTest {
 
     @Mock
     private lateinit var queryServiceMock: QueryService
+
     @Mock
     private lateinit var application: Application
+
     @Mock
     private lateinit var dataStore: DataStore<Preferences>
 
@@ -45,7 +47,10 @@ class GraphQlClientTest {
             addHandler { request ->
                 if (request.url.toString() == BuildConfig.GRAPHQL_ENDPOINT) {
                     val responseHeaders = headersOf("Content-Type" to listOf("application/json"))
-                    respond("{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}", headers = responseHeaders)
+                    respond(
+                        "{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}",
+                        headers = responseHeaders
+                    )
 
                 } else {
                     throw IllegalStateException("This mock client does not handle ${request.url}")
@@ -76,10 +81,10 @@ class GraphQlClientTest {
 
     @Test
     fun appInfoQuery() {
-        doReturn(Query("\"query\":\"query { product { appType appName }}\""))
-            .`when`(queryServiceMock).get(QueryType.AppInfo)
-
         runBlocking {
+            doReturn(Query("\"query\":\"query { product { appType appName }}\""))
+                .`when`(queryServiceMock).get(QueryType.AppInfo)
+
             val dataDto = graphQlClient.query(QueryType.AppInfo)
             assertTrue(dataDto.data?.authentificationToken == null)
             assertTrue(dataDto.data?.product!!.appName!! == AppName.taz)

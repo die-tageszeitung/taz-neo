@@ -1,7 +1,7 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.IssueKey
@@ -51,7 +51,7 @@ data class Page(
     }
 }
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class PageType {
     left,
     right,

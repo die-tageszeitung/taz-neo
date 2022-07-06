@@ -6,7 +6,8 @@ import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.io.BufferedReader
 import java.io.InputStreamReader

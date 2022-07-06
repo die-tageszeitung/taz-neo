@@ -14,7 +14,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.android.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.utils.io.*
 import io.sentry.Sentry
@@ -32,7 +32,7 @@ import java.util.concurrent.Executors
 class FileDownloader(private val applicationContext: Context): FiledownloaderInterface {
     companion object : SingletonHolder<FiledownloaderInterface, Context>(::FileDownloader)
 
-    private val downloaderThreadpool = Executors.newFixedThreadPool(MAX_SIMULTANEOUS_DOWNLOADS)
+    private val downloaderThreadPool = Executors.newFixedThreadPool(MAX_SIMULTANEOUS_DOWNLOADS)
     private val log by Log
 
     // reverse order from highest (priority) to lowest instead natural order (low to high)
@@ -54,7 +54,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
         ensureDownloaderRunning()
     }
 
-    private val httpClient = HttpClient(Android)
+    private val httpClient = HttpClient(CIO)
 
     private suspend fun ensureHelperInitialized() {
         val contentService = ContentService.getInstance(applicationContext)
@@ -70,7 +70,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
         if (downloaderJob == null || downloaderJob?.isActive == false) {
             downloaderJob = CoroutineScope(Dispatchers.Default).launch {
                 (0 until MAX_SIMULTANEOUS_DOWNLOADS).map { i ->
-                    launch(downloaderThreadpool.asCoroutineDispatcher()) { pollForDownload(i) }
+                    launch(downloaderThreadPool.asCoroutineDispatcher()) { pollForDownload(i) }
                 }.joinAll()
             }
         }
@@ -170,6 +170,6 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
         }
 
         val digest = hash.digest()
-        return digest.fold("", { str, it -> str + "%02x".format(it) })
+        return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
 }

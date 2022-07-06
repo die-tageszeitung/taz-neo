@@ -2,13 +2,14 @@ package de.taz.app.android.api.variables
 
 import android.os.Environment
 import android.os.StatFs
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class ErrorReportVariables(
     val installationId: String,
     val deviceFormat: DeviceFormat,
@@ -32,6 +33,6 @@ data class ErrorReportVariables(
     val screenshotName: String? = null,
     val screenshot: String? = null
 ): Variables {
-    override fun toJson(): String = JsonHelper.toJson(this)
+    override fun toJson(): String = Json.encodeToString(this)
 }
 
