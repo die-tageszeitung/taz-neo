@@ -80,7 +80,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         }
                     }
                 }
-                Json.decodeFromStream<WrapperDto>(response.body())
+                response.body<WrapperDto>()
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)
