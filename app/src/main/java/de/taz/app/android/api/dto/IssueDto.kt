@@ -13,7 +13,7 @@ class IssueDto(
     val baseUrl: String,
     val status: IssueStatus,
     val minResourceVersion: Int,
-    val imprint: ArticleDto?,
+    val imprint: ArticleDto? = null,
     val isWeekend: Boolean = false,
     val sectionList: List<SectionDto>? = null,
     val pageList: List<PageDto>? = null,
