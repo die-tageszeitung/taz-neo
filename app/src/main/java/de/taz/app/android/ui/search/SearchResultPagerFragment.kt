@@ -256,7 +256,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun reloadAfterCssChange() {
         // draw every view again
-        // TODO maybe only notify currently shown as changed?
         webViewPager.adapter?.notifyDataSetChanged()
     }
 
