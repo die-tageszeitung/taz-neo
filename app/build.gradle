@@ -374,8 +374,6 @@ dependencies {
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
     testImplementation "org.mockito:mockito-inline:$mockito_version"
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"
