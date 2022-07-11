@@ -6,18 +6,10 @@
     android:padding="?dialogPreferredPadding">
 
     <TextView
-        android:id="@+id/settings_dialog_cancellation_title"
+        android:id="@+id/settings_dialog_cancellation_taz_id_title"
         style="@style/TextAppearance.Settings.Entry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings_dialog_cancellation_are_you_sure_title"
+        android:text="@string/settings_dialog_cancellation_taz_id_title"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/settings_dialog_cancellation_description"
-        style="@style/TextAppearance.Settings.Entry"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_dialog_cancellation_go_to_online_link"
-        app:layout_constraintTop_toBottomOf="@id/settings_dialog_cancellation_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -701,7 +701,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     @Throws(ConnectivityException::class)
     suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
         val tag = "cancellation"
-        log.debug("graphql call: $tag")
+        log.debug("graphql call: $tag with isForce $isForce")
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Cancellation,
