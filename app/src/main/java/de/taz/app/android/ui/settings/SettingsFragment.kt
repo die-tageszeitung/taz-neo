@@ -21,6 +21,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.CancellationInfo
@@ -160,8 +161,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsAccountDelete.setOnClickListener {
                 lifecycleScope.launch {
-                    val result = apiService.cancellation()
-                    showCancellationDialog(result)
+                    try {
+                        val result = apiService.cancellation()
+                        showCancellationDialog(result)
+                    } catch (e: ConnectivityException) {
+                        toastHelper.showToast(
+                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                        )
+                    }
                 }
             }
 

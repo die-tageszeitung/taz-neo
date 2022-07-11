@@ -150,6 +150,7 @@
     <string name="settings_dialog_cancellation_go_to_online_link">Sie werden auf die taz Seite weitergeleitet wo Sie Ihr Konto löschen können.</string>
     <string name="settings_dialog_cancellation_not_possible">Da sie einen taz Account haben, können Sie das Konto nicht löschen</string>
     <string name="settings_dialog_cancellation_direct">Durch klicken auf Okay wird Ihr Konto gelöscht</string>
+    <string name="settings_dialog_cancellation_try_later_offline_toast">Etwas unerwartetes ist passiert. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es später erneut.</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues"><u>Alle Ausgaben löschen</u></string>
