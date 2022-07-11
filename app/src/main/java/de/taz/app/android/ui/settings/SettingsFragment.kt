@@ -44,6 +44,7 @@ import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.regex.Pattern
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -255,6 +256,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountEmail.text = email
+            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+            if (Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches() || email.toIntOrNull() != null) {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.VISIBLE
+            } else {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.GONE
+            }
         }
     }
 
@@ -478,7 +485,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showLogoutButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.VISIBLE
         fragmentSettingsAccountLogout.visibility = View.VISIBLE
-        fragmentSettingsAccountDelete.visibility = View.VISIBLE
         fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
