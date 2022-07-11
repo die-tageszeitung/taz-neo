@@ -2,7 +2,6 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -12,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
@@ -31,7 +31,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import de.taz.app.android.util.Log
 import kotlinx.android.synthetic.main.fragment_webview_section.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,22 +39,32 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
 
+private const val RESTORATION_POSITION = "RESTORATION_POSITION"
+private const val INITIAL_POSITION = "INITIAL_POSITION"
+
 class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBinding>() {
+
+    private val log by Log
+
     companion object {
-        private const val INITIAL_POSITION = "INITIAL_POSITION"
         fun instance(position: Int) = SearchResultPagerFragment().apply {
             arguments = bundleOf(INITIAL_POSITION to position)
         }
     }
 
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var articleRepository: ArticleRepository? = null
     private var apiService: ApiService? = null
     private var contentService: ContentService? = null
 
-    private lateinit var webViewPager: ViewPager2
-    private lateinit var loadingScreen: ConstraintLayout
-    private var initialPosition = 0
+    // region views
+    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+    private val webViewPager: ViewPager2
+        get() = viewBinding.webviewPagerViewpager
+    private val loadingScreen: ConstraintLayout
+        get() = viewBinding.loadingScreen.root
+    // endregion
+
+    private var initialPosition = RecyclerView.NO_POSITION
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
@@ -63,16 +73,15 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         super.onViewCreated(view, savedInstanceState)
         // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
         // in onViewCreated - when done in xml the 1st click wont be recognized...
-        navigation_bottom_layout.visibility = View.INVISIBLE
-        webViewPager = view.findViewById(R.id.webview_pager_viewpager)
-        loadingScreen = view.findViewById(R.id.loading_screen)
-        webViewPager.apply {
-            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
-        }
-        initialPosition = requireArguments().getInt(INITIAL_POSITION, 0)
-        viewModel.positionLiveData.value = initialPosition
+        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
+
         loadingScreen.visibility = View.GONE
+
+        // we either want to restore the last position or the one given on initialization
+        initialPosition = savedInstanceState?.getInt(RESTORATION_POSITION)
+                ?: requireArguments().getInt(INITIAL_POSITION, RecyclerView.NO_POSITION)
+        log.verbose("initialPosition is $initialPosition")
+
         setupViewPager()
 
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
@@ -86,10 +95,21 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun setupViewPager() {
         webViewPager.apply {
+            reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+            moveContentBeneathStatusBar()
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
+            if (adapter == null) {
+                setCurrentItem(initialPosition, false)
+                adapter = SearchResultPagerAdapter(
+                    this@SearchResultPagerFragment,
+                    viewModel.totalFound,
+                    viewModel.searchResultsLiveData.value ?: emptyList()
+                )
+
+                log.verbose("setting currentItem to initialPosition $initialPosition")
+            }
         }
-        pageChangeCallback.onPageSelected(initialPosition)
     }
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -105,32 +125,23 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         override fun onPageSelected(position: Int) {
             viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
             super.onPageSelected(position)
-            viewModel.positionLiveData.postValue(position)
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
             lifecycleScope.launchWhenResumed {
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
-                isBookmarkedLiveData?.observeDistinct(this@SearchResultPagerFragment, isBookmarkedObserver)
+                isBookmarkedLiveData?.observeDistinct(
+                    this@SearchResultPagerFragment,
+                    isBookmarkedObserver
+                )
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        webViewPager.apply {
-            if (webViewPager.adapter == null) {
-                adapter = SearchResultPagerAdapter(
-                    this@SearchResultPagerFragment,
-                    viewModel.totalFound,
-                    viewModel.searchResultsLiveData.value ?: emptyList()
-                )
-
-                setCurrentItem(viewModel.positionLiveData.value ?: initialPosition, false)
-            }
-            registerOnPageChangeCallback(pageChangeCallback)
-        }
+        webViewPager.registerOnPageChangeCallback(pageChangeCallback)
     }
 
     override fun onStop() {
@@ -155,7 +166,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentSearchHit()?.let { hit ->
                     hit.article?.let { article ->
-
                         toggleBookmark(article.articleHtml.name, DateHelper.stringToDate(hit.date))
                     }
                 }
@@ -245,19 +255,22 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun reloadAfterCssChange() {
-        CoroutineScope(Dispatchers.Main).launch {
-            web_view?.injectCss()
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                web_view?.reload()
-        }
+        // draw every view again
+        webViewPager.adapter?.notifyDataSetChanged()
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
+
     override fun onDestroyView() {
         webViewPager.adapter = null
         super.onDestroyView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(RESTORATION_POSITION, webViewPager.currentItem)
+        super.onSaveInstanceState(outState)
     }
 }

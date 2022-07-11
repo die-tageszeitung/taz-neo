@@ -31,6 +31,9 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
 
+
+private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
+
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
 
@@ -139,11 +142,6 @@ class SearchActivity :
                     if (viewModel.pubDateFrom.value != null) {
                         updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
                     }
-                }
-            }
-            viewModel.positionLiveData.observeDistinct(this@SearchActivity) { position ->
-                if (position!= null && searchResultList.isNotEmpty()) {
-                    searchResultList.smoothScrollToPosition(position)
                 }
             }
         }

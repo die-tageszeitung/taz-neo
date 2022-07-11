@@ -11,8 +11,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 
 private const val KEY_POSITION = "KEY_POSITION"
-const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
-const val RELOAD_BEFORE_LAST = 5
+private const val RELOAD_BEFORE_LAST = 5
 
 class SearchResultPagerViewModel(
     application: Application,
@@ -32,8 +31,6 @@ class SearchResultPagerViewModel(
     val searchText: MutableLiveData<String> = MutableLiveData(null)
     val searchTitle: MutableLiveData<String> = MutableLiveData(null)
     val searchAuthor: MutableLiveData<String> = MutableLiveData(null)
-    val positionLiveData: MutableLiveData<Int?> =
-        savedStateHandle.getLiveData(KEY_POSITION)
     val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
