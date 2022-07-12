@@ -2,19 +2,19 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
-import de.taz.app.android.util.Log
 
 
 class CoverflowAdapter(
     private val fragment: CoverflowFragment,
     @LayoutRes private val itemLayoutRes: Int,
-    feed: Feed,
+    val feed: Feed,
     glideRequestManager: RequestManager,
     onCoverViewActionListener: CoverViewActionListener
 ) : IssueFeedAdapter(
@@ -25,18 +25,40 @@ class CoverflowAdapter(
     onCoverViewActionListener,
     observeDownloads = false
 ) {
-    private val log by Log
-
     override val dateFormat: DateFormat = DateFormat.None
+
+    private val viewHolderWidth by lazy { calculateViewHolderWidth() }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewHolder = super.onCreateViewHolder(parent, viewType)
         return setViewHolderSize(viewHolder)
     }
 
-    override fun onViewRecycled(viewHolder: ViewHolder) {
-        super.onViewRecycled(setViewHolderSize(viewHolder))
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(setViewHolderSize(holder))
     }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        recyclerView.layoutParams.height = calculateHeight()
+    }
+
+    private fun calculateViewHolderWidth(): Int {
+        val isLandscape =
+            fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
+        val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
+
+        return if (isLandscape) {
+            // in landscape mode it's height bound
+            (fragment.resources.displayMetrics.heightPixels * factor).toInt()
+        } else {
+            // in portrait mode it's width bound
+            (fragment.resources.displayMetrics.widthPixels * factor).toInt()
+        }
+    }
+
+    private fun calculateHeight(): Int = (viewHolderWidth / feed.momentRatio).toInt()
+
 
     /**
      * The size of the cover item is determined by both the constraints of the cover dimension
@@ -49,23 +71,10 @@ class CoverflowAdapter(
      * Define a fraction of screen bound you wanna fill with the cover and calculate the item width from it.
      */
     private fun setViewHolderSize(viewHolder: ViewHolder): ViewHolder {
-        val isLandscape =
-            fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
-        val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
-
-        val newWidth = if (isLandscape) {
-            // in landscape mode it's height bound
-            (fragment.resources.displayMetrics.heightPixels * factor).toInt()
-        } else {
-            // in portrait mode it's width bound
-            (fragment.resources.displayMetrics.widthPixels * factor).toInt()
-        }
         viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
-            newWidth,
+            viewHolderWidth,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-
-        log.debug("new width is $newWidth")
         return viewHolder
     }
 
