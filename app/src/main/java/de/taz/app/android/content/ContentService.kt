@@ -246,13 +246,12 @@ class ContentService(
      * @param issuePublication The issueKey the content of which should be deleted
      */
     @Throws(NotFoundException::class)
-    suspend fun deleteIssue(issuePublication: AbstractIssuePublication) = withContext(Dispatchers.IO) {
-
-        val deletion = IssueDeletion.prepare(
-            applicationContext,
-            issuePublication,
-            determineParentTag(issuePublication)
-        )
-        deletion.execute()
+    suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
+        withContext(Dispatchers.IO) {
+            IssueDeletion.prepare(applicationContext, issuePublication)
+                .execute()
+            IssueDeletion.prepare(applicationContext, IssuePublicationWithPages(issuePublication))
+                .execute()
+        }
     }
 }
