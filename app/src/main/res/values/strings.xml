@@ -151,7 +151,8 @@
     <string name="settings_dialog_cancellation_not_possible">Sie verwenden kein selbst erstelltes Konto. Sie können dieses Konto nicht löschen.\n\nBei weiteren Fragen wenden Sie sich bitte an den Service unter app@taz.de.</string>
     <string name="settings_dialog_cancellation_direct">Diese Aktion kann nicht rückgängig gemacht werden. Sie können keine weiteren Ausgaben herunterladen.</string>
     <string name="settings_dialog_cancellation_try_later_offline_toast">Etwas unerwartetes ist passiert. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es später erneut.</string>"
-    <string name="settings_dialog_cancellation_already_canceled_description">Konto gelöscht\ņ\ņIhr Konto wurde bereits zur Löschung vorgemerkt. Die Bearbeitung erfolgt normalerweise innerhalb eines Arbeitstages.\n\nWenn Ihr Konto endgültig gelöscht ist, werden Sie automatisch abgemeldet. Heruntergeladene Ausgaben können Sie weiterhin lesen.</string>
+    <string name="settings_dialog_cancellation_already_canceled_title">Konto gelöscht</string>
+    <string name="settings_dialog_cancellation_already_canceled_description">Ihr Konto wurde bereits zur Löschung vorgemerkt. Die Bearbeitung erfolgt normalerweise innerhalb eines Arbeitstages.\n\nWenn Ihr Konto endgültig gelöscht ist, werden Sie automatisch abgemeldet. Heruntergeladene Ausgaben können Sie weiterhin lesen.</string>
     <string name="settings_dialog_cancellation_open_website">Webseite öffnen</string>
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter app@taz.de.</string>

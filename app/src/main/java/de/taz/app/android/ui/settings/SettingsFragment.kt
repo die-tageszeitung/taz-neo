@@ -386,9 +386,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     // region cancellation dialogs
     private fun showCancellationDialog(status: CancellationStatus) {
         if (status.canceled) {
-            showCancellationDialogWithMessage(
-                getString(R.string.settings_dialog_cancellation_already_canceled_description)
-            )
+            showAlreadyCancelled()
         } else {
             when (status.info) {
                 CancellationInfo.tazId -> showCancelWithTazIdDialog(status.cancellationLink)
@@ -402,6 +400,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         getString(R.string.settings_dialog_cancellation_something_wrong)
                     )
             }
+        }
+    }
+
+    private fun showAlreadyCancelled() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_already_canceled_title)
+                .setMessage(R.string.settings_dialog_cancellation_already_canceled_description)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
         }
     }
 
@@ -424,7 +435,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
         context?.let {
             MaterialAlertDialogBuilder(it)
-                .setView(R.layout.dialog_cancellation_taz_id)
+                .setTitle(R.string.settings_dialog_cancellation_taz_id_title)
                 .setPositiveButton(R.string.settings_dialog_cancellation_open_website) { dialog, _ ->
                     openCancellationExternalPage(link)
                     (dialog as AlertDialog).hide()
@@ -440,8 +451,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showCancelWithAboIdDialog() {
         context?.let {
             MaterialAlertDialogBuilder(it)
-                .setView(R.string.settings_dialog_cancellation_delete_account)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                .setTitle(R.string.settings_dialog_cancellation_are_you_sure_title)
+                .setMessage(R.string.settings_dialog_cancellation_direct)
+                .setPositiveButton(R.string.settings_dialog_cancellation_delete_account) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                     lifecycleScope.launch {
                         apiService.cancellation(isForce = true)
