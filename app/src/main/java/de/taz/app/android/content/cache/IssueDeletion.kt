@@ -5,23 +5,23 @@ import de.taz.app.android.api.models.AbstractIssue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 
 /**
  * A [CacheOperation] composed of a [ContentDeletion] and subsequent [MetadataDeletion]
  * of an [AbstractIssue].
  *
  * @param applicationContext An android application context object
- * @param issue The issue that should be deleted (both contents and metadata)
+ * @param issuePublication The issuePublication that should be deleted (both contents and metadata)
  * @param tag The tag on which this operation should be registered
  */
 class IssueDeletion(
     applicationContext: Context,
-    val items: List<SubOperationCacheItem>,
     val issuePublication: AbstractIssuePublication,
     tag: String
 ) : CacheOperation<SubOperationCacheItem, Unit>(
     applicationContext,
-    items,
+    emptyList(),
     CacheState.ABSENT,
     tag
 ) {
@@ -36,16 +36,11 @@ class IssueDeletion(
         fun prepare(
             applicationContext: Context,
             issuePublication: AbstractIssuePublication,
-            tag: String
-        ): IssueDeletion {
-
-            return IssueDeletion(
-                applicationContext,
-                emptyList(),
-                issuePublication,
-                tag
-            )
-        }
+        ) = IssueDeletion(
+            applicationContext,
+            issuePublication,
+            issuePublication.getDownloadTag()
+        )
     }
 
     override suspend fun doWork() {
@@ -116,7 +111,10 @@ class IssueDeletion(
                     notifySuccessfulItem()
                 } catch (e: Exception) {
                     notifyFailedItem(e)
-                    throw CacheOperationFailedException("Deleting the metadata for issue publication $issuePublication failed", e)
+                    throw CacheOperationFailedException(
+                        "Deleting the metadata for issue publication $issuePublication failed",
+                        e
+                    )
                 }
             }
 
