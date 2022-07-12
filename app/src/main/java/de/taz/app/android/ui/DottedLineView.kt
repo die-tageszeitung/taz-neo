@@ -16,12 +16,13 @@ class DottedLineView @JvmOverloads constructor(
     companion object {
         const val DOT_SIZE_PX = 4.07625f
         const val DOT_TO_SPACE_RELATION = 4.9f
+        const val MAX_DOT_CIRCLE_RADIUS = 1.7f
     }
 
 //    The dot radius needs to be depending on screen density, but for tablets ths radius should
 //    not be bigger than the specifed value
     private var dottedLineCircleRadiusDp =
-        (DOT_SIZE_PX / context.resources.displayMetrics.density).coerceAtMost(1.7f)
+        (DOT_SIZE_PX / context.resources.displayMetrics.density).coerceAtMost(MAX_DOT_CIRCLE_RADIUS)
 
     private val dottedLineSpacingDp = dottedLineCircleRadiusDp * DOT_TO_SPACE_RELATION
 
