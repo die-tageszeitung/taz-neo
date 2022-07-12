@@ -16,11 +16,13 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.CancellationInfo
@@ -44,6 +46,7 @@ import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.regex.Pattern
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -159,8 +162,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsAccountDelete.setOnClickListener {
                 lifecycleScope.launch {
-                    val result = apiService.cancellation()
-                    showCancellationDialog(result)
+                    try {
+                        val result = apiService.cancellation()
+                        if (result != null) {
+                            showCancellationDialog(result)
+                        }
+                    } catch (e: ConnectivityException) {
+                        toastHelper.showToast(
+                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                        )
+                    }
                 }
             }
 
@@ -255,6 +266,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountEmail.text = email
+            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+            // and only if the account email is visible (sometimes email is still stored but not shown)
+            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches() || email.toIntOrNull() != null)
+                && viewBinding.fragmentSettingsAccountEmail.isVisible
+            ) {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.VISIBLE
+            } else {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.GONE
+            }
         }
     }
 
@@ -363,37 +383,91 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
-    private fun showCancellationDialog(status: CancellationStatus?) {
-        val view = when (status?.info) {
-            CancellationInfo.tazId -> R.layout.dialog_cancellation_taz_id
-            CancellationInfo.aboId -> R.layout.dialog_cancellation_abo_id
-            else -> R.layout.dialog_cancellation_special_access
+    // region cancellation dialogs
+    private fun showCancellationDialog(status: CancellationStatus) {
+        if (status.canceled) {
+            showAlreadyCancelled()
+        } else {
+            when (status.info) {
+                CancellationInfo.tazId -> showCancelWithTazIdDialog(status.cancellationLink)
+                CancellationInfo.aboId -> showCancelWithAboIdDialog()
+                CancellationInfo.specialAccess ->
+                    showCancellationDialogWithMessage(
+                        getString(R.string.settings_dialog_cancellation_not_possible)
+                    )
+                else ->
+                    showCancellationDialogWithMessage(
+                        getString(R.string.settings_dialog_cancellation_something_wrong)
+                    )
+            }
         }
+    }
+
+    private fun showAlreadyCancelled() {
         context?.let {
-            val dialog = MaterialAlertDialogBuilder(it)
-                .setView(view)
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_already_canceled_title)
+                .setMessage(R.string.settings_dialog_cancellation_already_canceled_description)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     (dialog as AlertDialog).hide()
-                    when (status?.info) {
-                        CancellationInfo.aboId -> lifecycleScope.launch {
-                            apiService.cancellation(isForce = true)
-                        }
-                        CancellationInfo.specialAccess ->
-                            log.debug("special access - so cancellation not possible")
-                        else -> status?.cancellationLink?.let { link ->
-                            openCancellationExternalPage(
-                                link
-                            )
-                        }
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancellationDialogWithMessage(message: String) {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancelWithTazIdDialog(link: String?) {
+        if (link == null) {
+            toastHelper.showToast(getString(R.string.something_went_wrong_try_later))
+            return
+        }
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_taz_id_title)
+                .setPositiveButton(R.string.settings_dialog_cancellation_open_website) { dialog, _ ->
+                    openCancellationExternalPage(link)
+                    (dialog as AlertDialog).hide()
+                }
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancelWithAboIdDialog() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_are_you_sure_title)
+                .setMessage(R.string.settings_dialog_cancellation_direct)
+                .setPositiveButton(R.string.settings_dialog_cancellation_delete_account) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    lifecycleScope.launch {
+                        apiService.cancellation(isForce = true)
                     }
                 }
                 .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                 }
                 .create()
-            dialog.show()
+                .show()
         }
     }
+
+    // endregion
 
     private fun showResetAppDialog() {
         context?.let {
@@ -478,7 +552,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showLogoutButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.VISIBLE
         fragmentSettingsAccountLogout.visibility = View.VISIBLE
-        fragmentSettingsAccountDelete.visibility = View.VISIBLE
         fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
