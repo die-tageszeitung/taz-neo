@@ -167,10 +167,13 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * the first time the fragment is drawn (determined by [firstTimeFragmentIsShown]).
      */
     private fun skipToPositionIfNecessary(position: Int) {
+        log.debug("skipToPositionIfNecessary")
         // nextPosition could already be correct because of scrolling if not skip there
         if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
+            log.debug("skipping to position $position")
             firstTimeFragmentIsShown = false
             grid.stopScroll()
+            grid.smoothScrollToPosition(position)
             grid.layoutManager?.scrollToPosition(position)
             snapHelper.scrollToPosition(position)
         }
