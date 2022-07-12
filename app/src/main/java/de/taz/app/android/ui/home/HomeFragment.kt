@@ -3,7 +3,9 @@ package de.taz.app.android.ui.home
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.DISPLAYED_FEED
@@ -28,15 +30,22 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
+                    val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                    viewBinding.fabActionPdf.setImageResource(drawable)
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                fabActionPdf.setImageResource(drawable)
-            }
-
             feedArchivePager.apply {
                 adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
            

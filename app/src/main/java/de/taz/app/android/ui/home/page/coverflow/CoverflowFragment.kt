@@ -1,9 +1,14 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
@@ -45,12 +50,21 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val dateDownloadWrapper by lazy { viewBinding.fragmentCoverFlowDateDownloadWrapper }
 
     // region lifecycle functions
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+                    // redraw all visible views
+                    viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                }
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -81,9 +81,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     override fun onResume() {
         super.onResume()
-        issueFeedViewModel.pdfModeLiveData.observeDistinctIgnoreFirst(this) {
-            recreate()
-        }
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.Home

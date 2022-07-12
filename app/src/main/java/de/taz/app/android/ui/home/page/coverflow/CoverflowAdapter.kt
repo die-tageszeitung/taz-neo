@@ -26,6 +26,15 @@ class CoverflowAdapter(
 ) {
     override val dateFormat: DateFormat = DateFormat.None
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val viewHolder = super.onCreateViewHolder(parent, viewType)
+        return setViewHolderSize(viewHolder)
+    }
+
+    override fun onViewRecycled(viewHolder: ViewHolder) {
+        super.onViewRecycled(setViewHolderSize(viewHolder))
+    }
+
     /**
      * The size of the cover item is determined by both the constraints of the cover dimension
      * which is determined by the feed and the available screen width or height
@@ -36,8 +45,7 @@ class CoverflowAdapter(
      * that's hella buggy in API Level < 24. The solution below is pragmatic and seems to work universally
      * Define a fraction of screen bound you wanna fill with the cover and calculate the item width from it.
      */
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val viewHolder = super.onCreateViewHolder(parent, viewType)
+    private fun setViewHolderSize(viewHolder: ViewHolder): ViewHolder {
         val isLandscape = fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
         val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
         if (isLandscape) {
@@ -55,4 +63,5 @@ class CoverflowAdapter(
         }
         return viewHolder
     }
+
 }
