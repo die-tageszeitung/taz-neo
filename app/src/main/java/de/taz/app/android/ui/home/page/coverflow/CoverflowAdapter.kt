@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import de.taz.app.android.util.Log
 
 
 class CoverflowAdapter(
@@ -24,6 +25,8 @@ class CoverflowAdapter(
     onCoverViewActionListener,
     observeDownloads = false
 ) {
+    private val log by Log
+
     override val dateFormat: DateFormat = DateFormat.None
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -46,21 +49,23 @@ class CoverflowAdapter(
      * Define a fraction of screen bound you wanna fill with the cover and calculate the item width from it.
      */
     private fun setViewHolderSize(viewHolder: ViewHolder): ViewHolder {
-        val isLandscape = fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
+        val isLandscape =
+            fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
         val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)
-        if (isLandscape) {
+
+        val newWidth = if (isLandscape) {
             // in landscape mode it's height bound
-            viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
-                (fragment.resources.displayMetrics.heightPixels * factor).toInt(),
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            (fragment.resources.displayMetrics.heightPixels * factor).toInt()
         } else {
             // in portrait mode it's width bound
-            viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
-                (fragment.resources.displayMetrics.widthPixels * factor).toInt(),
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            (fragment.resources.displayMetrics.widthPixels * factor).toInt()
         }
+        viewHolder.itemView.layoutParams = ViewGroup.LayoutParams(
+            newWidth,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+
+        log.debug("new width is $newWidth")
         return viewHolder
     }
 
