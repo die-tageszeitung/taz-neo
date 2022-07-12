@@ -25,33 +25,19 @@ import kotlinx.coroutines.withContext
 
 class DownloadObserver(
     private val fragment: Fragment,
-    private val contentService: ContentService,
-    private val toastHelper: ToastHelper,
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
     private val checkmarkIconView: View,
     private val downloadProgressView: View
 ) {
-    constructor(
-        fragment: Fragment,
-        issuePublication: AbstractIssuePublication,
-        downloadIconView: View,
-        checkmarkIconView: View,
-        downloadProgressView:View
-    ) : this(
-        fragment,
-        ContentService.getInstance(fragment.requireContext().applicationContext),
-        ToastHelper.getInstance(fragment.requireContext().applicationContext),
-        issuePublication, downloadIconView, checkmarkIconView, downloadProgressView
-    )
+    private val contentService by lazy { ContentService.getInstance(fragment.requireContext().applicationContext) }
+    private val toastHelper by lazy { ToastHelper.getInstance(fragment.requireContext().applicationContext) }
+    private val downloadDataStore by lazy { DownloadDataStore.getInstance(fragment.requireContext().applicationContext) }
 
     private val issueCacheLiveData = IssuePublicationMonitor(
         fragment.requireContext().applicationContext,
         issuePublication
     ).issueCacheLiveData
-
-    private val downloadDataStore =
-        DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
 
     fun startObserving() {
         hideDownloadIcon()
@@ -154,7 +140,7 @@ class DownloadObserver(
                     .setView(dialogView)
                     .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
                         setDownloadDataStoreEntriesAndDownloadIssuePublication(
-                            doNotShowAgain= doNotShowAgainCheckboxView?.isChecked == true,
+                            doNotShowAgain = doNotShowAgainCheckboxView?.isChecked == true,
                             pdfAdditionally = false,
                             issuePublication = issuePublication
                         )
