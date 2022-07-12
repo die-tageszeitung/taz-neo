@@ -41,8 +41,7 @@ class DownloadObserver(
 
     fun startObserving() {
         hideDownloadIcon()
-        val observingIssueLiveData = issueCacheLiveData
-        observingIssueLiveData.observe(fragment) { update: CacheStateUpdate ->
+        issueCacheLiveData.observe(fragment) { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
                 if (!noConnectionShown) {
