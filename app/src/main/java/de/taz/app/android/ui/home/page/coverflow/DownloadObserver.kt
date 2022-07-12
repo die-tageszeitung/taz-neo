@@ -50,17 +50,12 @@ class DownloadObserver(
         issuePublication
     ).issueCacheLiveData
 
-    private val issueWithPagesCacheLiveData = IssuePublicationMonitor(
-        fragment.requireContext().applicationContext,
-        IssuePublicationWithPages(issuePublication)
-    ).issueCacheLiveData
-
     private val downloadDataStore =
         DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
 
-    fun startObserving(withPages: Boolean = false) {
+    fun startObserving() {
         hideDownloadIcon()
-        val observingIssueLiveData = if (withPages) issueWithPagesCacheLiveData else issueCacheLiveData
+        val observingIssueLiveData = issueCacheLiveData
         observingIssueLiveData.observe(fragment) { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
@@ -81,7 +76,6 @@ class DownloadObserver(
 
     fun stopObserving() {
         issueCacheLiveData.removeObservers(fragment)
-        issueWithPagesCacheLiveData.removeObservers(fragment)
     }
 
 
@@ -179,9 +173,7 @@ class DownloadObserver(
             }
         } else {
             withContext(Dispatchers.Main) {
-                startObserving(
-                    withPages = downloadDataStore.pdfAdditionally.get()
-                )
+                startObserving()
             }
             contentService.downloadIssuePublicationToCache(issuePublication)
         }
@@ -192,7 +184,7 @@ class DownloadObserver(
         pdfAdditionally: Boolean,
         issuePublication: AbstractIssuePublication
     ) {
-        startObserving(withPages = pdfAdditionally)
+        startObserving()
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
