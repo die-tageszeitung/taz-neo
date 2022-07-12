@@ -34,7 +34,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssuePublication? = null
     private var currentlyFocusedDate: Date? = null
-    private var pdfAdditionally: Boolean = false
     private var firstTimeFragmentIsShown: Boolean = true
 
     private val grid by lazy { viewBinding.fragmentCoverFlowGrid }
@@ -52,10 +51,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            pdfAdditionally =
-                DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,9 +139,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             momentDownloading
         ).apply {
             startObserving(
-                withPages = pdfAdditionally
+                withPages = runBlocking {
+                    DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
+                }
             )
         }
+
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
         // set date text

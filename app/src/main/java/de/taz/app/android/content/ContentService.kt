@@ -73,25 +73,29 @@ class ContentService(
      * @return A Flow object emitting [CacheStateUpdate]s
      */
     fun getCacheStatusFlow(downloads: List<ObservableDownload>): Flow<CacheStateUpdate> {
-        val parentTags = downloads.map { determineParentTag(it) }
+        // we need to listen for either parent tag or tag with /pdf because downloads with pages
+        // should also be shown as download of issue and deletion as well.
+        val downloadsToParentTags =
+            downloads.map { it to listOf(determineParentTag(it), it.getDownloadTag() + "/pdf") }
         val tags = downloads.map { it.getDownloadTag() }
         return cacheStatusFlow
-            .filter {
+            .filter { pair ->
                 // Receive updates to both the parent operation and any discrete operation
-                parentTags.contains(it.first) || tags.contains(it.first)
+                log.debug("${pair.first} - ${pair.second.cacheState}")
+                downloadsToParentTags.flatMap { it.second }
+                    .any { tag -> pair.first.startsWith(tag) } || tags.contains(pair.first)
             }
             .map { it.second }
             .also {
-                downloads.forEach { download ->
-                    val tag = determineParentTag(download)
-                    // Immediately after subscribing check if there is a ongoing operation and push state if available
-                    // if no operation is ongoing just determine the current state
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val activeOperation = activeCacheOperations[tag]
-                        if (activeOperation != null) {
-                            cacheStatusFlow.emit(tag to activeOperation.state)
-                        } else {
-                            cacheStatusFlow.emit(tag to getCacheState(download))
+                downloadsToParentTags.forEach { (download, parentTags) ->
+                    parentTags.forEach { tag ->
+                        // Immediately after subscribing check if there is a ongoing operation and push state if available
+                        // if no operation is ongoing just determine the current state
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val activeOperation = activeCacheOperations[tag]
+                            if (activeOperation != null) {
+                                cacheStatusFlow.emit(tag to activeOperation.state)
+                            }
                         }
                     }
                 }
@@ -249,8 +253,6 @@ class ContentService(
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
         withContext(Dispatchers.IO) {
             IssueDeletion.prepare(applicationContext, issuePublication)
-                .execute()
-            IssueDeletion.prepare(applicationContext, IssuePublicationWithPages(issuePublication))
                 .execute()
         }
     }

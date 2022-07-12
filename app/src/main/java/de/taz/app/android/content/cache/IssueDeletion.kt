@@ -36,11 +36,16 @@ class IssueDeletion(
         fun prepare(
             applicationContext: Context,
             issuePublication: AbstractIssuePublication,
-        ) = IssueDeletion(
-            applicationContext,
-            issuePublication,
-            issuePublication.getDownloadTag()
-        )
+        ): IssueDeletion {
+            // we always want to delete the whole issue including the pages
+            // additionally we want to use the tag ending in "/pdf"
+            val issuePublicationWithPages = IssuePublicationWithPages(issuePublication)
+            return IssueDeletion(
+                applicationContext,
+                issuePublicationWithPages,
+                issuePublicationWithPages.getDownloadTag()
+            )
+        }
     }
 
     override suspend fun doWork() {
