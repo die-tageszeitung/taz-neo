@@ -92,8 +92,8 @@ abstract class CoverViewBinding(
                     view.findViewById(R.id.view_moment_download),
                     view.findViewById(R.id.view_moment_download_finished),
                     view.findViewById(R.id.view_moment_downloading)
-                ).also {
-                    it.startObserving(
+                ).apply {
+                    startObserving(
                         withPages = downloadDataStore.pdfAdditionally.get()
                     )
                 }
