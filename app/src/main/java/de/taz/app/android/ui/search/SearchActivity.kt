@@ -358,6 +358,7 @@ class SearchActivity :
 
     private fun showAmountFound(index: Int, amount: Int) {
         viewBinding.apply {
+            searchResultAmount.visibility = View.VISIBLE
             hideLoadingScreen()
             if (amount == 0) {
                 searchResultAmount.text = getString(R.string.search_result_amount_none_found)
@@ -384,6 +385,7 @@ class SearchActivity :
             } else {
                 searchDescription.visibility = View.GONE
                 searchDescriptionIcon.visibility = View.GONE
+                searchResultAmount.visibility = View.GONE
                 expandableAdvancedSearch.visibility = View.VISIBLE
                 advancedSearchTitle.visibility = View.VISIBLE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
