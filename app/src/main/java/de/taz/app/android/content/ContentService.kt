@@ -30,7 +30,6 @@ import kotlinx.coroutines.withContext
 class ContentService(
     private val applicationContext: Context
 ) {
-
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
@@ -81,7 +80,6 @@ class ContentService(
         return cacheStatusFlow
             .filter { pair ->
                 // Receive updates to both the parent operation and any discrete operation
-                log.debug("${pair.first} - ${pair.second.cacheState}")
                 downloadsToParentTags.flatMap { it.second }
                     .any { tag -> pair.first.startsWith(tag) } || tags.contains(pair.first)
             }
