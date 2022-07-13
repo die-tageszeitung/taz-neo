@@ -3,7 +3,6 @@ package de.taz.app.android.ui.search
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.DatePicker
@@ -40,22 +39,27 @@ class DatePickerFragment(private val buttonView: View) : DialogFragment() {
             c.timeInMillis
         }
         dialog.datePicker.maxDate = maxDate
-        // hide dialog buttons as we which user selects date from date picker
-        dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, "",dialog)
-        dialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "",dialog)
         return dialog
     }
 
     private fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
-        val dateString = "$year-${month + 1}-$day"
+        // fill with 0 for the string if day is below 10
+        val dayString = if (day<10) "0$day" else "$day"
+        // month start by 0 somehow so we need to +1 and fill with 0 for the string
+        val monthString = if (month<10) "0${month+1}" else "${month+1}"
 
-        (buttonView as Button).text = DateHelper.stringToMediumLocalizedString(dateString)
+        val dateString = "$year-$monthString-$dayString"
+
+        // The minimal allowed date is viewModel.minPubDate:
+        val properDateString = dateString.coerceAtLeast(viewModel.minPubDate)
+
+        (buttonView as Button).text = DateHelper.stringToMediumLocalizedString(properDateString)
 
         if (buttonView.id == R.id.timeslot_pub_date_from) {
-            viewModel.pubDateFrom.postValue(dateString)
+            viewModel.pubDateFrom.postValue(properDateString)
         }
         if (buttonView.id == R.id.timeslot_pub_date_until) {
-            viewModel.pubDateUntil.postValue(dateString)
+            viewModel.pubDateUntil.postValue(properDateString)
         }
         dismiss()
     }
