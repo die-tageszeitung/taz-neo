@@ -10,12 +10,11 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 
-private const val KEY_POSITION = "KEY_POSITION"
 private const val RELOAD_BEFORE_LAST = 5
+private const val MIN_PUB_DATE = "1986-09-01" // first taz publication online available
 
 class SearchResultPagerViewModel(
     application: Application,
-    savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
     val chosenTimeSlot: MutableLiveData<String> =
@@ -36,7 +35,7 @@ class SearchResultPagerViewModel(
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
     var totalFound = 0
-
+    var minPubDate = MIN_PUB_DATE
 
     var articleFileName
         get() = articleFileNameLiveData.value

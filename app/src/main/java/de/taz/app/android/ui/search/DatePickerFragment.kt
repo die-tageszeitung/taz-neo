@@ -3,6 +3,7 @@ package de.taz.app.android.ui.search
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.DatePicker
@@ -28,6 +29,10 @@ class DatePickerFragment(private val buttonView: View) : DialogFragment() {
         if (isUntilDate && viewModel.pubDateFrom.value != null) {
             val minDate = DateHelper.stringToDate(viewModel.pubDateFrom.value!!)!!.time
             dialog.datePicker.minDate = minDate
+        } else {
+            // set minimum selectable date to the given min publication date
+            val minDate = DateHelper.stringToDate(viewModel.minPubDate)!!.time
+            dialog.datePicker.minDate = minDate
         }
         val maxDate = if (!isUntilDate && viewModel.pubDateUntil.value != null) {
             DateHelper.stringToDate(viewModel.pubDateUntil.value!!)!!.time
@@ -35,6 +40,9 @@ class DatePickerFragment(private val buttonView: View) : DialogFragment() {
             c.timeInMillis
         }
         dialog.datePicker.maxDate = maxDate
+        // hide dialog buttons as we which user selects date from date picker
+        dialog.setButton(DatePickerDialog.BUTTON_POSITIVE, "",dialog)
+        dialog.setButton(DatePickerDialog.BUTTON_NEGATIVE, "",dialog)
         return dialog
     }
 

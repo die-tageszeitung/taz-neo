@@ -235,6 +235,7 @@ class SearchActivity :
                 )
                 result?.let {
                     viewModel.totalFound = it.totalFound
+                    viewModel.minPubDate = it.minPubDate
                     it.searchHitList?.let { hits ->
                         searchResultItemsList.addAll(hits)
                         viewModel.searchResultsLiveData.postValue(searchResultItemsList)
