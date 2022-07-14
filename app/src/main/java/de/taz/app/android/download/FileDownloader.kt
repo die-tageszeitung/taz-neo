@@ -16,7 +16,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.utils.io.*
 import io.sentry.Sentry
 import io.sentry.SentryLevel
@@ -92,16 +91,16 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
                 operations.map { it.notifyBadConnection() }
             }, maxRetries = FILE_DOWNLOAD_RETRY_INDEFINITELY) {
                 transformToConnectivityException {
-                    httpClient.get<HttpStatement>(
+                    httpClient.get(
                         download.fileEntryOperation.origin!!
-                    ).execute()
+                    )
                 }
             }
             val fileName = download.fileEntryOperation.fileEntry.name
 
             when (response.status.value) {
                 in 200..299 -> {
-                    val channel = response.receive<ByteReadChannel>()
+                    val channel = response.body<ByteReadChannel>()
                     val hash = saveFile(download.fileEntryOperation, channel)
                     if (hash != download.fileEntryOperation.fileEntry.sha256) {
                         val hint = "Hash mismatch on ${download.fileEntryOperation.fileEntry.name}.\n" +
