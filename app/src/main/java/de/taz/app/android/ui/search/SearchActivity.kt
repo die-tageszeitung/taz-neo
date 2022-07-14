@@ -235,6 +235,7 @@ class SearchActivity :
                 )
                 result?.let {
                     viewModel.totalFound = it.totalFound
+                    viewModel.minPubDate = it.minPubDate
                     it.searchHitList?.let { hits ->
                         searchResultItemsList.addAll(hits)
                         viewModel.searchResultsLiveData.postValue(searchResultItemsList)
@@ -358,6 +359,7 @@ class SearchActivity :
 
     private fun showAmountFound(index: Int, amount: Int) {
         viewBinding.apply {
+            searchResultAmount.visibility = View.VISIBLE
             hideLoadingScreen()
             if (amount == 0) {
                 searchResultAmount.text = getString(R.string.search_result_amount_none_found)
@@ -378,12 +380,14 @@ class SearchActivity :
                     searchDescription.visibility = View.VISIBLE
                     searchDescriptionIcon.visibility = View.VISIBLE
                 }
+                searchResultAmount.visibility = View.VISIBLE
                 expandableAdvancedSearch.visibility = View.GONE
                 advancedSearchTitle.visibility = View.GONE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
             } else {
                 searchDescription.visibility = View.GONE
                 searchDescriptionIcon.visibility = View.GONE
+                searchResultAmount.visibility = View.GONE
                 expandableAdvancedSearch.visibility = View.VISIBLE
                 advancedSearchTitle.visibility = View.VISIBLE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)

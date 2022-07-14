@@ -25,102 +25,108 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
+    <ScrollView
         android:id="@+id/expandable_advanced_search"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
-        android:orientation="vertical"
+        android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expand_advanced_search_button">
+        app:layout_constraintHeight_max="wrap"
+        app:layout_constraintVertical_bias="0"
+        app:layout_constraintTop_toBottomOf="@id/expand_advanced_search_button"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bottom">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_title"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/search_field_background_color"
-            app:endIconMode="clear_text"
-            app:hintEnabled="false">
+            android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
+            android:orientation="vertical">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_title"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_advanced_title"
-                android:inputType="text"
-                android:maxLines="1" />
+                android:layout_marginTop="@dimen/search_results_small_margin"
+                app:boxBackgroundColor="@color/search_field_background_color"
+                app:endIconMode="clear_text"
+                app:hintEnabled="false">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/search_advanced_title"
+                    android:inputType="text"
+                    android:maxLines="1" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_author"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/search_results_small_margin"
-            app:boxBackgroundColor="@color/search_field_background_color"
-            app:endIconMode="clear_text"
-            app:hintEnabled="false">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_author_input"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_author"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/search_advanced_author"
-                android:inputType="text"
-                android:maxLines="1" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="@dimen/search_results_small_margin"
+                app:boxBackgroundColor="@color/search_field_background_color"
+                app:endIconMode="clear_text"
+                app:hintEnabled="false">
 
-        <TextView
-            style="@style/TextAppearance.Search.Category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_timeslot" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/search_author_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/search_advanced_author"
+                    android:inputType="text"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/advanced_search_timeslot"
-            style="@style/TextAppearance.Settings.Entry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_radio_timeslot_any" />
+            <TextView
+                style="@style/TextAppearance.Search.Category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_timeslot" />
 
-        <TextView
-            style="@style/TextAppearance.Search.Category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_published_in" />
+            <TextView
+                android:id="@+id/advanced_search_timeslot"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_radio_timeslot_any" />
 
-        <TextView
-            android:id="@+id/advanced_search_published_in"
-            style="@style/TextAppearance.Settings.Entry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_radio_published_in_any" />
+            <TextView
+                style="@style/TextAppearance.Search.Category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_published_in" />
 
-        <TextView
-            style="@style/TextAppearance.Search.Category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_sort_by" />
+            <TextView
+                android:id="@+id/advanced_search_published_in"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_radio_published_in_any" />
 
-        <TextView
-            android:id="@+id/advanced_search_sort_by"
-            style="@style/TextAppearance.Settings.Entry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/search_advanced_radio_sort_by_relevance" />
+            <TextView
+                style="@style/TextAppearance.Search.Category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_sort_by" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/advanced_search_start_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/search_advanced_start_search" />
+            <TextView
+                android:id="@+id/advanced_search_sort_by"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_radio_sort_by_relevance" />
 
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/advanced_search_start_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/search_advanced_start_search" />
 
+        </LinearLayout>
+    </ScrollView>
     <Button
         android:id="@+id/search_cancel_button"
         style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -165,8 +171,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/expandable_advanced_search" />
+        app:layout_constraintBottom_toBottomOf="@id/expand_advanced_search_button"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_separator_line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="expand_advanced_search_button, expandable_advanced_search" />
 
     <View
         android:id="@+id/search_separator_line"
@@ -177,7 +191,7 @@
         android:background="@color/textColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_result_amount" />
+        app:layout_constraintTop_toBottomOf="@id/barrier_separator_line" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/search_result_list"
@@ -204,11 +218,11 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/search_separator_line_margin"
         android:fontFamily="@font/appFontBold"
+        android:lineSpacingExtra="@dimen/search_description_text_line_spacing_extra"
         android:text="@string/search_description"
         android:textAlignment="center"
         android:textColor="@color/lightGrey"
         android:textSize="@dimen/search_description_text_size"
-        android:lineSpacingExtra="@dimen/search_description_text_line_spacing_extra"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
