@@ -28,10 +28,12 @@ import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.fragment_pdf_render.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.InputStream
+import java.io.InputStreamReader
 import java.lang.NullPointerException
 
 
@@ -133,9 +135,12 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         page?.pagePdf?.let { fileEntry ->
             storageService.getAbsolutePath(fileEntry)?.let { path ->
                 try {
-                    pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(path))
-                    mu_pdf_wrapper?.removeAllViews()
-                    mu_pdf_wrapper?.addView(pdfReaderView!!)
+                    // TODO think about buffer!
+                    pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(File(path).readBytes(), path))
+                    viewBinding.muPdfWrapper.apply {
+                        removeAllViews()
+                        addView(pdfReaderView!!)
+                    }
                     if (page?.type == PageType.panorama) {
                         pdfReaderView!!.zoomPanoramaPage()
                     }
@@ -148,7 +153,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     }
 
     override fun onDestroyView() {
-        mu_pdf_wrapper?.removeAllViews()
+        viewBinding.muPdfWrapper.removeAllViews()
         pdfReaderView = null
         super.onDestroyView()
     }

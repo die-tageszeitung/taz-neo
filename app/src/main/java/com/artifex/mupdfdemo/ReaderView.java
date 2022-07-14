@@ -780,7 +780,7 @@ public class ReaderView extends AdapterView<Adapter> implements GestureDetector.
 		if (com.artifex.mupdf.viewer.SearchTaskResult.get() != null && com.artifex.mupdf.viewer.SearchTaskResult.get().pageNumber == i) {
 			((com.artifex.mupdf.viewer.PageView)v).setSearchBoxes(com.artifex.mupdf.viewer.SearchTaskResult.get().searchBoxes);
 		} else {
-			((com.artifex.mupdf.viewer.PageView)v).setSearchBoxes((Quad[])null);
+			((com.artifex.mupdf.viewer.PageView)v).setSearchBoxes((Quad[][])null);
 		}
 
 		((com.artifex.mupdf.viewer.PageView)v).setLinkHighlighting(this.mLinksEnabled);

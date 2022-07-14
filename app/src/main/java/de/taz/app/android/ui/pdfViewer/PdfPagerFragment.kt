@@ -17,7 +17,6 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_pdf_pager.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -38,7 +37,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                pdf_viewpager.apply {
+                viewBinding.pdfViewpager.apply {
                     adapter = PdfPagerAdapter(this@PdfPagerFragment, it)
                     reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
                     offscreenPageLimit = 2
@@ -63,7 +62,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
 
         pdfPagerViewModel.userInputEnabled.observe(viewLifecycleOwner) { enabled ->
-            pdf_viewpager.isUserInputEnabled = enabled
+            viewBinding.pdfViewpager.isUserInputEnabled = enabled
         }
 
         pdfPagerViewModel.requestDisallowInterceptTouchEvent.observe(
@@ -75,15 +74,15 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 0L
             lifecycleScope.launch {
                 delay(delay)
-                pdf_viewpager.isUserInputEnabled = !disallow
-                pdf_viewpager.requestDisallowInterceptTouchEvent(disallow)
+                viewBinding.pdfViewpager.isUserInputEnabled = !disallow
+                viewBinding.pdfViewpager.requestDisallowInterceptTouchEvent(disallow)
             }
         }
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
-            if (pdf_viewpager.currentItem != position) {
-                pdf_viewpager.setCurrentItem(position, true)
+            if (viewBinding.pdfViewpager.currentItem != position) {
+                viewBinding.pdfViewpager.setCurrentItem(position, true)
             }
         }
 
@@ -111,18 +110,18 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     override fun onResume() {
         super.onResume()
         requireActivity().setupBottomNavigation(
-            navigation_bottom_pdf,
+            viewBinding.navigationBottomPdf,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
         )
     }
 
     private fun hideLoadingScreen() {
         requireActivity().runOnUiThread {
-            pdf_loading_screen?.animate()?.apply {
+            viewBinding.pdfLoadingScreen.root.animate().apply {
                 alpha(0f)
                 duration = LOADING_SCREEN_FADE_OUT_TIME
                 withEndAction {
-                    pdf_loading_screen?.visibility = View.GONE
+                    viewBinding.pdfLoadingScreen.root.visibility = View.GONE
                 }
             }
             pdfPagerViewModel.hideDrawerLogo.postValue(true)

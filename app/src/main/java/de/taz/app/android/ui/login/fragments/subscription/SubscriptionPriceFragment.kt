@@ -11,15 +11,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.radiobutton.MaterialRadioButton
 import de.taz.app.android.R
 import de.taz.app.android.api.models.PriceInfo
+import de.taz.app.android.databinding.FragmentSubscriptionPriceBinding
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginViewModelState
-import kotlinx.android.synthetic.main.fragment_subscription_price.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_price) {
+class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionPriceBinding>() {
     private val priceInfoAdapter = PriceInfoAdapter()
     private var priceList = emptyList<PriceInfo>()
 
@@ -53,12 +53,12 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment(R.layout.fragment_sub
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_subscription_price_list.apply {
+        viewBinding.fragmentSubscriptionPriceList.apply {
             adapter = priceInfoAdapter
             layoutManager = LinearLayoutManager(context)
         }
 
-        fragment_subscription_address_proceed.setOnClickListener { ifDoneNext() }
+        viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener { ifDoneNext() }
     }
 
     override fun done(): Boolean {

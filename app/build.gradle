@@ -1,12 +1,11 @@
 plugins {
     id "com.android.application"
-    id "com.github.triplet.play" version "3.6.0-agp4.2"
+    id "com.github.triplet.play" version "3.7.0"
     id "io.sentry.android.gradle" version "2.1.5"
 }
 
 apply plugin: 'kotlin-android'
-// todo replace `kotlin-android-extensions` with 'kotlin-parcelize' once we only use ViewBindings
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 
@@ -142,7 +141,7 @@ android {
         }
 
         vectorDrawables.useSupportLibrary = true
-        resConfig "de"
+        resConfigs 'de'
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
@@ -167,9 +166,6 @@ android {
         freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
-    lintOptions {
-        lintConfig file("lint.xml")
-    }
 
     flavorDimensions "source", "owner", "graphql"
 
@@ -285,6 +281,9 @@ android {
         pickFirst 'win32-x86/attach_hotspot_windows.dll'
         pickFirst 'win32-x86-64/attach_hotspot_windows.dll'
         pickFirst 'META-INF/licenses/ASM'
+    }
+    lint {
+        lintConfig file('lint.xml')
     }
 }
 
