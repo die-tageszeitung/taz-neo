@@ -2,15 +2,13 @@ package de.taz.app.android.api
 
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class QueryTest {
-
-    private val jsonAdapter = JsonHelper.adapter<QueryTestHelper>()
 
     @Test
     fun withVariables() {
@@ -20,9 +18,9 @@ class QueryTest {
         instance.variables = variables
         val jsonString = instance.toJson()
 
-        val queryJsonHelper = jsonAdapter.fromJson(jsonString)
-        assertEquals(queryJsonHelper?.query, queryString)
-        assertTrue(queryJsonHelper?.variables?.equalsAuth(variables) ?: false)
+        val queryJsonHelper = Json.decodeFromString<QueryTestHelper>(jsonString)
+        assertEquals(queryJsonHelper.query, queryString)
+        assertTrue(queryJsonHelper.variables.equalsAuth(variables) ?: false)
     }
 
     @Test
@@ -31,9 +29,9 @@ class QueryTest {
         val instance = Query(queryString)
         val jsonString = instance.toJson()
 
-        val queryJsonHelper = jsonAdapter.fromJson(jsonString)
-        assertEquals(queryJsonHelper?.query, queryString)
-        assertEquals(queryJsonHelper?.variables, TestAuthenticationVariables(null, null, null))
+        val queryJsonHelper: QueryTestHelper = Json.decodeFromString(jsonString)
+        assertEquals(queryJsonHelper.query, queryString)
+        assertEquals(queryJsonHelper.variables, TestAuthenticationVariables(null, null, null))
     }
 
     data class QueryTestHelper(
