@@ -380,6 +380,7 @@ class SearchActivity :
                     searchDescription.visibility = View.VISIBLE
                     searchDescriptionIcon.visibility = View.VISIBLE
                 }
+                searchResultAmount.visibility = View.VISIBLE
                 expandableAdvancedSearch.visibility = View.GONE
                 advancedSearchTitle.visibility = View.GONE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
