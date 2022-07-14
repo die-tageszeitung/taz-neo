@@ -86,16 +86,12 @@ abstract class CoverViewBinding(
             if(observeDownloads) {
                 downloadObserver = DownloadObserver(
                     fragment,
-                    contentService,
-                    toastHelper,
                     issuePublication,
                     view.findViewById(R.id.view_moment_download),
                     view.findViewById(R.id.view_moment_download_finished),
                     view.findViewById(R.id.view_moment_downloading)
                 ).apply {
-                    startObserving(
-                        withPages = downloadDataStore.pdfAdditionally.get()
-                    )
+                    startObserving()
                 }
             }
         }

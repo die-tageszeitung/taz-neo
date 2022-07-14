@@ -19,6 +19,8 @@ class IssuePublicationMonitor(
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
+    private val cacheStatusFlow = contentService.getCacheStatusFlow(publication)
+
     val issueCacheLiveData: MediatorLiveData<CacheStateUpdate> =
         MediatorLiveData<CacheStateUpdate>().apply {
             addSource(authHelper.minStatusLiveData) {
@@ -30,8 +32,7 @@ class IssuePublicationMonitor(
             }
 
             addSource(
-                contentService
-                    .getCacheStatusFlow(publication)
+                cacheStatusFlow
                     .asLiveData()
             ) { postValue(it) }
         }

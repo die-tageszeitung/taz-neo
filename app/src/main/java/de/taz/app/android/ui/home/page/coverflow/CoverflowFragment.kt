@@ -138,11 +138,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             momentDownloadFinished,
             momentDownloading
         ).apply {
-            startObserving(
-                withPages = runBlocking {
-                    DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
-                }
-            )
+            startObserving()
         }
 
         val nextPosition = adapter.getPosition(date)
