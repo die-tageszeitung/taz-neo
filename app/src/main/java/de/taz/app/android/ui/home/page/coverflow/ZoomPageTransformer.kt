@@ -12,8 +12,6 @@ import kotlin.math.pow
 
 object ZoomPageTransformer {
 
-    private val log by Log
-
     private fun translationXAtScale(view: View, position: Float): Float =
         view.run {
             val child = view.findViewById<View>(R.id.moment_container)
@@ -32,14 +30,12 @@ object ZoomPageTransformer {
         val minScale = resources.getFraction(R.fraction.cover_scale_factor, 1, 1)
         val scaleDiff = 1 - minScale
 
-        log.debug("position is $position")
         scaleX = minScale
         scaleY = minScale
         translationX = translationXAtScale(view, position)
 
         if (position in -1.0f..1.0f) {
             val scaleFactor = max(minScale, 1 - (scaleDiff * abs(position)))
-            log.debug("scaleFactor: $scaleFactor")
             scaleX = scaleFactor
             scaleY = scaleFactor
         }

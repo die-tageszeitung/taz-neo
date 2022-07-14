@@ -5,14 +5,11 @@ import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.factor.bouncy.BouncyRecyclerView
-import de.taz.app.android.util.Log
 
 class CoverFlowLinearLayoutManager(
     context: Context,
     private val bouncyRecyclerView: BouncyRecyclerView
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
-
-    private val log by Log
 
     override fun getPaddingLeft(): Int = getPadding()
 

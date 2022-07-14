@@ -12,7 +12,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
-import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
@@ -23,13 +22,10 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
 
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
-
-    val log by Log
 
     override lateinit var adapter: IssueFeedAdapter
 
@@ -167,10 +163,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * the first time the fragment is drawn (determined by [firstTimeFragmentIsShown]).
      */
     private fun skipToPositionIfNecessary(position: Int) {
-        log.debug("skipToPositionIfNecessary")
         // nextPosition could already be correct because of scrolling if not skip there
         if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
-            log.debug("skipping to position $position")
             firstTimeFragmentIsShown = false
             grid.stopScroll()
             grid.smoothScrollToPosition(position)
