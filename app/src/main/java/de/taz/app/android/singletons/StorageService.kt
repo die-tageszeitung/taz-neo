@@ -62,9 +62,8 @@ class StorageService private constructor(private val applicationContext: Context
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
-    fun getInternalFilesDir(): File {
-        return applicationContext.filesDir
-    }
+    private val filesDir by lazy { applicationContext.filesDir}
+    fun getInternalFilesDir(): File = filesDir
 
     fun getExternalFilesDir(): File? {
         return applicationContext.getExternalFilesDir(null)
