@@ -149,6 +149,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setTapToScroll(isChecked)
             }
 
+            fragmentSettingsKeepScreenOn.setOnCheckedChangeListener { _, isChecked ->
+                setKeepScreenOn(isChecked)
+            }
+
             fragmentSettingsAccountElapsed.setOnClickListener {
                 activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
                     putExtra(LOGIN_EXTRA_REGISTER, true)
@@ -225,6 +229,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             tapToScrollLiveData.observeDistinct(viewLifecycleOwner) { enabled ->
                 showTapToScroll(enabled)
+            }
+            keepScreenOnLiveData.observeDistinct(viewLifecycleOwner) { screenOn ->
+                showKeepScreenOn(screenOn)
             }
             storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
@@ -524,6 +531,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
     }
 
+    private fun showKeepScreenOn(screenOn: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -582,6 +593,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun setTapToScroll(enabled: Boolean) {
         log.debug("setTapToScroll: $enabled")
         viewModel.setTapToScroll(enabled)
+    }
+
+    private fun setKeepScreenOn(enabled: Boolean) {
+        viewModel.setKeepScreenOn(enabled)
     }
 
     private fun setTextJustification(justified: Boolean) {
