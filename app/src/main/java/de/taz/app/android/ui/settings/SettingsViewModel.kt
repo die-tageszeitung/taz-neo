@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import de.taz.app.android.*
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.StorageDataStore
@@ -30,6 +31,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
     private val downloadDataStore = DownloadDataStore.getInstance(application)
     private val storageDataStore = StorageDataStore.getInstance(application)
+    private val apiService = ApiService.getInstance(application)
 
     init {
         fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
@@ -74,6 +76,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setPdfDownloadsEnabled(enabled: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(enabled)
+        }
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            downloadDataStore.notificationsEnabled.set(enabled)
+            apiService.setNotificationsEnabled(enabled)
         }
     }
 
