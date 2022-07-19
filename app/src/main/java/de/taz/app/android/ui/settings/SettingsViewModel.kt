@@ -24,6 +24,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val downloadAutomaticallyLiveData: LiveData<Boolean>
     val downloadAdditionallyPdf: LiveData<Boolean>
     val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
+    val notificationsEnabledLivedata: LiveData<Boolean>
 
     var storageLocationLiveData: LiveData<StorageLocation>
     var storedIssueNumberLiveData: LiveData<Int>
@@ -47,6 +48,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
         downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asLiveData()
         downloadAdditionallyDialogDoNotShowAgain = downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
+        notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
     }
 
     fun setStorageLocation(storageLocation: StorageLocation?) {

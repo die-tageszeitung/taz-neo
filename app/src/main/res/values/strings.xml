@@ -158,6 +158,9 @@
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter app@taz.de.</string>
 
+    <string name="settings_dialog_notifications_must_be_enabled_title">Benachrictigungen müssen für die App erlaubt sein</string>
+    <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
+
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues"><u>Alle Ausgaben löschen</u></string>
     <string name="settings_delete_all_issues_for_sure">Sind Sie sicher?</string>
