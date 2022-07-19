@@ -38,11 +38,6 @@ class CoverflowAdapter(
         super.onViewRecycled(setViewHolderSize(holder))
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        super.onAttachedToRecyclerView(recyclerView)
-        recyclerView.layoutParams.height = calculateHeight()
-    }
-
     private fun calculateViewHolderWidth(): Int {
         val isLandscape =
             fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
@@ -56,9 +51,6 @@ class CoverflowAdapter(
             (fragment.resources.displayMetrics.widthPixels * factor).toInt()
         }
     }
-
-    private fun calculateHeight(): Int = (viewHolderWidth / feed.momentRatio).toInt()
-
 
     /**
      * The size of the cover item is determined by both the constraints of the cover dimension
