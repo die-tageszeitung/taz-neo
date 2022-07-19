@@ -157,6 +157,16 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
     }
 
     /**
+     * Determine the share icon visibility: Hence the article is public or the [onlineLink] is not null
+     * @param onlineLink String holding the link to be shared
+     * @param articleKey String holding the key of the article (or for search hit the filename)
+     * @return true if the share icon should be shown
+     */
+    fun determineShareIconVisibility(onlineLink: String?, articleKey: String): Boolean {
+        return articleKey.endsWith("public.html") || onlineLink != null
+    }
+
+    /**
      * show bottomSheet
      * @param fragment: The [Fragment] which will be shown in the BottomSheet
      */

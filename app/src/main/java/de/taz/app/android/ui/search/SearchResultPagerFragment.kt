@@ -129,6 +129,14 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 (activity as SearchActivity).loadMore()
             }
             lifecycleScope.launchWhenResumed {
+                // show the share icon always when in public article
+                // OR when an onLink link is provided
+                viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                    determineShareIconVisibility(
+                        getCurrentSearchHit()?.article?.onlineLink,
+                        getCurrentSearchHit()?.article?.articleHtml?.name.toString()
+                    )
+
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData = viewModel.isBookmarkedLiveData
                 isBookmarkedLiveData?.observeDistinct(

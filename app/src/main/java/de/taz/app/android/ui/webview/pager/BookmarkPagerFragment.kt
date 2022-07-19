@@ -138,6 +138,13 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 drawerViewModel.navButton.postValue(it)
             }
         }
+        // show the share icon always when in public issues (as it shows a popup that the user should log in)
+        // OR when an onLink link is provided
+        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+            determineShareIconVisibility(
+                articleToBindTo.onlineLink,
+                articleToBindTo.key
+            )
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
         isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
