@@ -32,7 +32,7 @@ class CoverFlowOnScrollListener(
 
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-        adjustViewSizes(recyclerView)
+        ZoomPageTransformer.adjustViewSizes(recyclerView)
 
         // set alpha of date
         fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
@@ -63,18 +63,6 @@ class CoverFlowOnScrollListener(
         val position = snapHelper.currentSnappedPosition
         (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
             fragment.skipToDate(date)
-        }
-    }
-
-    private fun adjustViewSizes(recyclerView: RecyclerView) {
-        recyclerView.apply {
-            children.forEach { child ->
-                val childPosition = (child.left + child.right) / 2f
-                val center = width / 2
-                if (childPosition != 0f) {
-                    ZoomPageTransformer.transformPage(child, (center - childPosition) / width)
-                }
-            }
         }
     }
 
