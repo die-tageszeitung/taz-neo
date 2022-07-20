@@ -42,6 +42,7 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         sha256
                         size
                     }
+                    duration
                 }
                 key
                 baseUrl

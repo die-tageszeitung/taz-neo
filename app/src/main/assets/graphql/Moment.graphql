@@ -38,6 +38,7 @@ query Moment($feedName: String, $issueDate: String!, $limit: Int!) {
                         sha256
                         size
                     }
+                    duration
                 }
                 key
                 baseUrl

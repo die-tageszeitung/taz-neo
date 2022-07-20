@@ -42,6 +42,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         sha256
                         size
                     }
+                    duration
                 }
                 key
                 baseUrl
