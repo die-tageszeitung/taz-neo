@@ -121,6 +121,12 @@ object DateHelper {
         }
     }
 
+    fun dateToMonthYearString(date: Date): String {
+        return SimpleDateFormat("MM/yyyy", Locale.GERMANY).format(
+            date
+        )
+    }
+
     fun sameDays(date: Date, other: Date): Boolean {
         val cal1 = Calendar.getInstance()
         val cal2 = Calendar.getInstance()
@@ -149,28 +155,28 @@ object DateHelper {
     fun yesterday(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-1)
+        cal.add(Calendar.DAY_OF_YEAR, -1)
         return cal.time
     }
 
     fun lastWeek(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-7)
+        cal.add(Calendar.DAY_OF_YEAR, -7)
         return cal.time
     }
 
     fun lastMonth(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-31)
+        cal.add(Calendar.DAY_OF_YEAR, -31)
         return cal.time
     }
 
     fun lastYear(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-365)
+        cal.add(Calendar.DAY_OF_YEAR, -365)
         return cal.time
     }
 }

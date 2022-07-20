@@ -126,6 +126,23 @@ class PdfPagerViewModel(
         }
     }
 
+    val currentPage = MediatorLiveData<Page>().apply {
+        addSource(pdfPageList) { pdfPageList ->
+            currentItem.value?.let {
+                postValue(
+                    pdfPageList.get(it)
+                )
+            }
+        }
+        addSource(currentItem) { currentItem ->
+            if (pdfPageList.value != null) {
+                postValue(
+                    pdfPageList.value?.get(currentItem)
+                )
+            }
+        }
+    }
+
     fun getAmountOfPdfPages(): Int {
         return pdfPageList.value?.size ?: DEFAULT_NUMBER_OF_PAGES
     }
