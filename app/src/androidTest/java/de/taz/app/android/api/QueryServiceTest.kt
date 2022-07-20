@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
@@ -21,7 +22,7 @@ class QueryServiceTest {
         val queryValues = QueryType.values()
         queryValues.forEach {
             println(it.name)
-            queryService.get(it)
+            runBlocking { queryService.get(it) }
         }
     }
 
