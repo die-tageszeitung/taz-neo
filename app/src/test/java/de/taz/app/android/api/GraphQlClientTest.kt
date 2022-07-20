@@ -8,10 +8,15 @@ import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
+import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.util.Json
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertTrue
@@ -43,6 +48,11 @@ class GraphQlClientTest {
     private lateinit var graphQlClient: GraphQlClient
 
     private val mockClient = HttpClient(MockEngine) {
+        install(ContentNegotiation) {
+            json(Json)
+            serialization(ContentType.Any, Json)
+        }
+
         engine {
             addHandler { request ->
                 if (request.url.toString() == BuildConfig.GRAPHQL_ENDPOINT) {
@@ -51,10 +61,8 @@ class GraphQlClientTest {
                         "{\"data\":{\"product\":{\"appType\":\"production\",\"appName\":\"taz\"}}}",
                         headers = responseHeaders
                     )
-
                 } else {
                     throw IllegalStateException("This mock client does not handle ${request.url}")
-
                 }
             }
         }
@@ -85,10 +93,10 @@ class GraphQlClientTest {
             doReturn(Query("\"query\":\"query { product { appType appName }}\""))
                 .`when`(queryServiceMock).get(QueryType.AppInfo)
 
-            val dataDto = graphQlClient.query(QueryType.AppInfo)
-            assertTrue(dataDto.data?.authentificationToken == null)
-            assertTrue(dataDto.data?.product!!.appName!! == AppName.taz)
-            assertTrue(dataDto.data?.product!!.appType!! == AppType.production)
+            val wrapperDto: WrapperDto = graphQlClient.query(QueryType.AppInfo)
+            assertTrue(wrapperDto.data?.authentificationToken == null)
+            assertTrue(wrapperDto.data?.product!!.appName!! == AppName.taz)
+            assertTrue(wrapperDto.data?.product!!.appType!! == AppType.production)
         }
     }
 }
