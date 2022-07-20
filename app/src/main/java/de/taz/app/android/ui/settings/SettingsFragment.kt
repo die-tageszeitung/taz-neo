@@ -36,6 +36,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
@@ -249,7 +250,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
-            notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
+            notificationsEnabledLivedata.observeDistinctIgnoreFirst(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
@@ -652,7 +653,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showNotificationsMustBeAllowedDialog()
             showNotificationsEnabledToggle(false)
         } else {
-            log.debug("!!! set enabled!")
             viewModel.setNotificationsEnabled(notificationsEnabled)
         }
     }
