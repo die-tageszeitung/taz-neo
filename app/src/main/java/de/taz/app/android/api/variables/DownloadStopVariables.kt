@@ -18,6 +18,4 @@ data class DownloadStopVariables(
     @Required val appVersion: String = BuildConfig.VERSION_NAME,
     @Required val deviceType: DeviceType = DeviceType.android,
     @Required val deviceOS: String? = System.getProperty("os.version"),
-): Variables {
-    override fun toJson() = Json.encodeToString(this)
-}
+): Variables

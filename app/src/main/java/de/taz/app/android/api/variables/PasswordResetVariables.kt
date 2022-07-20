@@ -17,6 +17,4 @@ data class PasswordResetVariables(
     @Required val appVersion: String = BuildConfig.VERSION_NAME,
     @Required val deviceType: DeviceType = DeviceType.android,
     @Required val deviceOS: String? = System.getProperty("os.version"),
-): Variables {
-    override fun toJson(): String = Json.encodeToString(this)
-}
+): Variables

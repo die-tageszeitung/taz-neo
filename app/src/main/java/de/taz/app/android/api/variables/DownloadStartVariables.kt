@@ -24,6 +24,4 @@ data class DownloadStartVariables(
     @Required val pushToken: String?,
     @Required val deviceMessageSound: String? = null,
     @Required val textNotification: Boolean = true
-) : Variables {
-    override fun toJson() = Json.encodeToString(this)
-}
+) : Variables

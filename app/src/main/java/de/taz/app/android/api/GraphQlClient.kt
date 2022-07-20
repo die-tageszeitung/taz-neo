@@ -26,6 +26,7 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import de.taz.app.android.util.Json
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.decodeFromStream
 
 /**
@@ -66,7 +67,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val query = queryService.get(queryType)
             variables?.let { query.variables = variables }
 
-            val queryBody = query.toJson()
+            val queryBody = Json.encodeToString(query)
 
             val wrapper = try {
                 val response = maxSimultaneousRequestSemaphore.withPermit {

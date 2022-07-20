@@ -7,6 +7,4 @@ import de.taz.app.android.util.Json
 @Serializable
 data class FeedVariables(
         val feedName: String? = null
-) : Variables {
-    override fun toJson(): String = Json.encodeToString(this)
-}
+) : Variables

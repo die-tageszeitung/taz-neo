@@ -33,7 +33,4 @@ data class ErrorReportVariables(
     @Required val deviceVersion: String? = "${android.os.Build.VERSION.SDK_INT} (Android ${android.os.Build.VERSION.RELEASE})",
     val screenshotName: String? = null,
     val screenshot: String? = null
-): Variables {
-    override fun toJson(): String = Json.encodeToString(this)
-}
-
+): Variables
