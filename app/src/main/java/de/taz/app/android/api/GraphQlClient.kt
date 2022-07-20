@@ -25,16 +25,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import de.taz.app.android.util.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.decodeFromStream
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.*
+import io.ktor.serialization.kotlinx.json.*
 
 /**
  * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: HttpClient = HttpClient(CIO),
+    private val httpClient: HttpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json)
+            serialization(ContentType.Any, Json)
+        }
+    },
     private val url: String,
     private val queryService: QueryService,
     private val authHelper: AuthHelper
@@ -67,24 +72,19 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val query = queryService.get(queryType)
             variables?.let { query.variables = variables }
 
-            val queryBody = Json.encodeToString(query)
-
-            val wrapper = try {
-                val response = maxSimultaneousRequestSemaphore.withPermit {
+            val wrapper: WrapperDto = try {
+                maxSimultaneousRequestSemaphore.withPermit {
                     httpClient.post(Url(url)) {
-                        accept(ContentType.Application.Json)
-                        accept(ContentType.Any)
                         contentType(ContentType.Application.Json)
-                        setBody(queryBody)
+                        setBody(query)
                         val token = authHelper.token.get()
                         if (token.isNotEmpty()
                             && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
                         ) {
                             header(TAZ_AUTH_HEADER, token)
                         }
-                    }
+                    }.body()
                 }
-                Json.decodeFromStream<WrapperDto>(response.bodyAsChannel().toInputStream())
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)
