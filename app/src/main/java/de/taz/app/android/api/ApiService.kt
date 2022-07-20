@@ -495,7 +495,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
     /**
      * function to inform server that text notifications are enabled or not
-     * @param [enabled] tBoolean indicating that text notifications are allowed
+     * @param [enabled] Boolean indicating that text notifications are allowed
      */
     suspend fun setNotificationsEnabled(enabled: Boolean): Boolean =
         withContext(Dispatchers.IO) {
