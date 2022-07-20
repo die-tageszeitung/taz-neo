@@ -7,7 +7,7 @@ import de.taz.app.android.util.Json
 
 @Serializable
 data class IssueVariables(
-    @Required val feedName: String? = null,
-    @Required val issueDate: String? = null,
-    @Required val limit: Int = 1
+    val feedName: String? = null,
+    val issueDate: String? = null,
+    val limit: Int = 1
 ): Variables

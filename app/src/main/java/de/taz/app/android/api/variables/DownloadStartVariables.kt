@@ -10,18 +10,18 @@ import de.taz.app.android.util.Json
 
 @Serializable
 data class DownloadStartVariables(
-    @Required val feedName: String,
-    @Required val issueDate: String,
-    @Required val isAutomatically: Boolean,
-    @Required val installationId: String,
-    @Required val isPush: Boolean,
-    @Required val deviceFormat: DeviceFormat,
-    @Required val deviceName: String = android.os.Build.MODEL,
-    @Required val deviceVersion: String = android.os.Build.VERSION.RELEASE,
-    @Required val appVersion: String = BuildConfig.VERSION_NAME,
-    @Required val deviceType: DeviceType = DeviceType.android,
-    @Required val deviceOS: String? = System.getProperty("os.version"),
-    @Required val pushToken: String?,
-    @Required val deviceMessageSound: String? = null,
-    @Required val textNotification: Boolean = true
+    val feedName: String,
+    val issueDate: String,
+    val isAutomatically: Boolean,
+    val installationId: String,
+    val isPush: Boolean,
+    val deviceFormat: DeviceFormat,
+    val deviceName: String = android.os.Build.MODEL,
+    val deviceVersion: String = android.os.Build.VERSION.RELEASE,
+    val appVersion: String = BuildConfig.VERSION_NAME,
+    val deviceType: DeviceType = DeviceType.android,
+    val deviceOS: String? = System.getProperty("os.version"),
+    val pushToken: String?,
+    val deviceMessageSound: String? = null,
+    val textNotification: Boolean = true
 ) : Variables

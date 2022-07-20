@@ -20,13 +20,13 @@ data class SearchVariables(
     val rowCnt: Int? = null,
     val sorting: Sorting? = null,
     val searchTime: String? = null,
-    @Required val filter: SearchFilter? = SearchFilter.all,
+    val filter: SearchFilter? = SearchFilter.all,
     val pubDateFrom: String? = null,
     val pubDateUntil: String? = null,
-    @Required val deviceName: String? = android.os.Build.MODEL,
-    @Required val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
-    @Required val appVersion: String = BuildConfig.VERSION_NAME,
+    val deviceName: String? = android.os.Build.MODEL,
+    val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
+    val appVersion: String = BuildConfig.VERSION_NAME,
     val deviceFormat: DeviceFormat,
-    @Required val deviceType: DeviceType = DeviceType.android,
-    @Required val deviceOS: String? = System.getProperty("os.version")
+    val deviceType: DeviceType = DeviceType.android,
+    val deviceOS: String? = System.getProperty("os.version")
 ): Variables

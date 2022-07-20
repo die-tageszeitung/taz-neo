@@ -7,5 +7,5 @@ import de.taz.app.android.util.Json
 
 @Serializable
 data class CancellationVariables(
-    @Required val isForce: Boolean? = false
+    val isForce: Boolean? = false
 ) : Variables

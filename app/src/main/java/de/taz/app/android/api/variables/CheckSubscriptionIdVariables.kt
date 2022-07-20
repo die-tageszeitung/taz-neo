@@ -10,12 +10,12 @@ import de.taz.app.android.util.Json
 
 @Serializable
 data class CheckSubscriptionIdVariables(
-    @Required val subscriptionId: Int,
-    @Required val password: String,
-    @Required val deviceFormat: DeviceFormat,
-    @Required val deviceName: String? = android.os.Build.MODEL,
-    @Required val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
-    @Required val appVersion: String = BuildConfig.VERSION_NAME,
-    @Required val deviceType: DeviceType = DeviceType.android,
-    @Required val deviceOS: String? = System.getProperty("os.version"),
+    val subscriptionId: Int,
+    val password: String,
+    val deviceFormat: DeviceFormat,
+    val deviceName: String? = android.os.Build.MODEL,
+    val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
+    val appVersion: String = BuildConfig.VERSION_NAME,
+    val deviceType: DeviceType = DeviceType.android,
+    val deviceOS: String? = System.getProperty("os.version"),
 ) : Variables
