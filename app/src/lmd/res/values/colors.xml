@@ -13,4 +13,7 @@
     <color name="navigation_drawer_background">@color/lightGrayishYellow</color>
     <color name="fragment_archive_background">@color/lightGrayishYellow</color>
     <color name="coverflow_background">@color/lightGrayishYellow</color>
+
+
+    <color name="pdf_section_font">@android:color/black</color>
 </resources>

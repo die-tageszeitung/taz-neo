@@ -365,4 +365,11 @@
     <string name="search_advanced_start_search">Suche starten</string>
     <string name="search_result_amount_found">%d von %d Treffer:</string>
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="issue_title">Ausgabe %s</string>
+    <string name="table_of_content">Inhaltsverzeichnis</string>
+    <plurals name="pages">
+        <item quantity="one">Seite %s</item>
+        <item quantity="other">Seiten %s</item>
+    </plurals>
 </resources>

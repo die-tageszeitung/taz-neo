@@ -37,6 +37,7 @@ const val LOGO_PEAK = 8
 const val HIDE_LOGO_DELAY_MS = 200L
 const val LOGO_ANIMATION_DURATION_MS = 300L
 
+// TODO(peter) Exclude drawer body specific stuff into extra component
 class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
     companion object {

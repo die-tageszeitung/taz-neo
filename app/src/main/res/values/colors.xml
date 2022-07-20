@@ -74,4 +74,5 @@
     <color name="web_view_background">@color/white</color>
     <color name="welcome_text_background_tint">@color/white</color>
 
+    <color name="pdf_section_font">@android:color/black</color>
 </resources>
