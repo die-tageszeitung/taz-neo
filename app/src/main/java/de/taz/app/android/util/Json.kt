@@ -6,6 +6,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
+// we need to define all subclasses of [Variable] here so kotlinx serialization can correctly
+// de- and encode the classes
 private val module = SerializersModule {
     polymorphic(Variables::class) {
         subclass(AuthenticationVariables::class)
@@ -27,14 +29,19 @@ private val module = SerializersModule {
     }
 }
 
+// our Json configuration
 val Json = Json {
+    // we do not want the app to crash if a property exists we request but ignore
     ignoreUnknownKeys = true
+    // encode values to and from Json even if they match the default value
     encodeDefaults = true
+
     isLenient = true
     allowSpecialFloatingPointValues = true
     allowStructuredMapKeys = true
     prettyPrint = false
     useArrayPolymorphism = false
 
+    // register our serializerModule
     serializersModule = module
 }
