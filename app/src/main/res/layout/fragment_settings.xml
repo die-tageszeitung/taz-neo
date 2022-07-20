@@ -135,6 +135,7 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_notifications"
+                android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_pdf_download_switch" />
 
             <include

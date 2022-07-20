@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
+import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -203,8 +204,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
-            fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-                setNotificationsEnabled(isChecked)
+            if (FLAVOR_source == "nonfree") {
+                fragmentSettingsNotificationsSwitch.visibility = View.VISIBLE
+                fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    setNotificationsEnabled(isChecked)
+                }
             }
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
