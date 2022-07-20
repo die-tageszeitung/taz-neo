@@ -4,7 +4,7 @@ import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.variables.AuthenticationVariables
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 import kotlinx.serialization.decodeFromString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

@@ -10,19 +10,22 @@ import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.util.Json
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 import kotlinx.serialization.json.decodeFromStream
 
 /**
@@ -80,7 +83,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                         }
                     }
                 }
-                response.body<WrapperDto>()
+                Json.decodeFromStream<WrapperDto>(response.bodyAsChannel().toInputStream())
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)

@@ -3,7 +3,7 @@ package de.taz.app.android.api.variables
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 
 @Serializable
 data class IssueVariables(

@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.typeconverters
 import androidx.room.TypeConverter
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 
 class StringListTypeConverter {
 

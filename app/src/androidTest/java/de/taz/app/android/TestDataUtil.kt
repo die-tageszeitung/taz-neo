@@ -7,7 +7,7 @@ import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.ResourceInfo
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 import kotlinx.serialization.json.decodeFromStream
 import java.io.*
 

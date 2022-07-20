@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import de.taz.app.android.api.models.Frame
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import de.taz.app.android.util.Json
 
 class FrameListTypeConverter {
 
