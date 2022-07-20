@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -39,6 +40,7 @@ class ContentService(
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
+    private val cacheOperationMutex = CacheOperation.cacheOperationMutex
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     /**
@@ -71,9 +73,10 @@ class ContentService(
             .map { it.second }
             .also {
                 CoroutineScope(Dispatchers.IO).launch {
-                    val stateUpdate =
+                    val stateUpdate: CacheStateUpdate = cacheOperationMutex.withLock {
                         activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
                             ?: getCacheState(download)
+                    }
                     // only emit if no status has been provided yet
                     cacheStatusFlow.onEmpty {
                         log.debug("emmiting on empty $stateUpdate")
