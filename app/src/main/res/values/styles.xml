@@ -22,7 +22,7 @@
         <item name="android:textColorSecondary">@color/textColorAccent</item>
         <item name="android:ambientShadowAlpha">0.1</item>
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
-        <item name="android:scrollbarSize">10dp</item>
+        <item name="android:scrollbarSize">5dp</item>
         <item name="android:scrollbarFadeDuration">10</item>
         <item name="android:fadeScrollbars">true</item>
     </style>
