@@ -23,6 +23,8 @@
         <item name="android:ambientShadowAlpha">0.1</item>
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
         <item name="android:scrollbarSize">10dp</item>
+        <item name="android:scrollbarFadeDuration">10</item>
+        <item name="android:fadeScrollbars">true</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
