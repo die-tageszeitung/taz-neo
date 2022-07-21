@@ -16,11 +16,12 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.*
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.ui.BackFragment
-import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
@@ -29,7 +30,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,28 +42,30 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private lateinit var storageService: StorageService
-    private lateinit var articleRepository: ArticleRepository
     private var mediaPlayer: MediaPlayer? = MediaPlayer()
+    private var articleRepository: ArticleRepository? = null
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
+    private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
     private val issueContentViewModel: IssueViewerViewModel by lazy {
         ViewModelProvider(
             requireActivity(), SavedStateViewModelFactory(
                 requireActivity().application, requireActivity()
             )
-        ).get(IssueViewerViewModel::class.java)
+        )[IssueViewerViewModel::class.java]
     }
 
     override fun onResume() {
         super.onResume()
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
             if (
                 articleStubs.map { it.key } !=
-                (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+                (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
             ) {
                 log.debug("New set of articles: ${articleStubs.map { it.key }}")
-                webview_pager_viewpager.adapter = ArticlePagerAdapter(articleStubs, this)
+                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubs, this)
                 issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
             }
         }
@@ -80,12 +83,27 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 hasBeenSwiped = false
             }
         }
+        issueContentViewModel.goNextArticle.observeDistinct(this) {
+            if (it) {
+                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
+                issueContentViewModel.goNextArticle.value = false
+            }
+        }
+        issueContentViewModel.goPreviousArticle.observeDistinct(this) {
+            if (it) {
+                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
+                issueContentViewModel.goPreviousArticle.value = false
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navigation_bottom_webview_pager.visibility = View.GONE
-        webview_pager_viewpager.apply {
+        viewBinding.navigationBottomWebviewPager.visibility = View.GONE
+        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
+        // in onViewCreated - when done in xml the 1st click wont be recognized...
+        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
+        viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
 
@@ -104,7 +122,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
 
     private fun setupViewPager() {
-        webview_pager_viewpager?.apply {
+        viewBinding.webviewPagerViewpager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
@@ -133,10 +151,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
         override fun onPageSelected(position: Int) {
             val nextStub =
-                (webview_pager_viewpager.adapter as ArticlePagerAdapter).articleStubs[position]
+                (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter).articleStubs[position]
             if (lastPage != null && lastPage != position) {
                 // if position has been changed by 1 (swipe to left or right)
-                if (abs(position - lastPage!!) ==1) {
+                if (abs(position - lastPage!!) == 1) {
                     hasBeenSwiped = true
                 }
                 runIfNotNull(
@@ -167,11 +185,17 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             lastPage = position
 
             lifecycleScope.launchWhenResumed {
-                navigation_bottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    nextStub.onlineLink != null
+                // show the share icon always when in public issues (as it shows a popup that the user should log in)
+                // OR when an onLink link is provided
+                viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                    determineShareIconVisibility(
+                        nextStub.onlineLink,
+                        nextStub.key
+                    )
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = nextStub.isBookmarkedLiveData(requireContext().applicationContext)
+                isBookmarkedLiveData =
+                    nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
                 // determine if articleStub has audio file
@@ -198,7 +222,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                 articleStub.getSectionStub(requireContext().applicationContext)
             ) { issueKey, sectionStub ->
-                issueContentViewModel.setDisplayable(IssueKeyWithDisplayableKey(issueKey, sectionStub.key))
+                issueContentViewModel.setDisplayable(
+                    IssueKeyWithDisplayableKey(
+                        issueKey,
+                        sectionStub.key
+                    )
+                )
                 true
             }
         }
@@ -211,7 +240,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it.key))
+                    toggleBookmark(it)
                 }
             }
 
@@ -232,13 +261,23 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
+    private fun toggleBookmark(articleStub: ArticleStub) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (isBookmarkedLiveData?.value == true) {
+                articleRepository?.debookmarkArticle(articleStub)
+            } else {
+                articleRepository?.bookmarkArticle(articleStub)
+            }
+        }
+    }
+
     fun share() {
         lifecycleScope.launch(Dispatchers.IO) {
             getCurrentArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
-                }
+                } ?: showSharingNotPossibleDialog()
             }
         }
     }
@@ -258,7 +297,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun tryScrollToArticle(articleKey: String) {
-        val articleStubs = (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs
+        val articleStubs =
+            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs
         if (
             articleKey.startsWith("art") &&
             articleStubs?.map { it.key }?.contains(articleKey) == true
@@ -267,7 +307,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 log.debug("I will now display $articleKey")
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
-                        webview_pager_viewpager.setCurrentItem(it, false)
+                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
                     }
                 }
             }
@@ -275,13 +315,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private fun getCurrentPagerPosition(): Int? {
-        return webview_pager_viewpager?.currentItem
+    private fun getCurrentPagerPosition(): Int {
+        return viewBinding.webviewPagerViewpager.currentItem
     }
 
     private fun getSupposedPagerPosition(): Int? {
         val position =
-            (webview_pager_viewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
+            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
                 it.key == issueContentViewModel.displayableKeyLiveData.value
             }
         return if (position != null && position >= 0) {
@@ -299,7 +339,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private fun getCurrentArticleAudioFile(): FileEntry? {
         return getCurrentArticleStub()?.articleFileName?.let { articleStub ->
-            articleRepository.get(articleStub)
+            articleRepository?.get(articleStub)
         }?.audioFile
     }
 
@@ -347,7 +387,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     override fun onDestroyView() {
-        webview_pager_viewpager.adapter = null
+        viewBinding.webviewPagerViewpager.adapter = null
         if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
             // On device orientation changes the Fragments Activity is already destroyed when we reach the onDestroyView method.
             // Thus we cant initialize a ViewModel instance from onDestroyView. 

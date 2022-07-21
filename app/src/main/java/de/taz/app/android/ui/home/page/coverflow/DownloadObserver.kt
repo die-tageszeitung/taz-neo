@@ -25,43 +25,23 @@ import kotlinx.coroutines.withContext
 
 class DownloadObserver(
     private val fragment: Fragment,
-    private val contentService: ContentService,
-    private val toastHelper: ToastHelper,
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
     private val checkmarkIconView: View,
     private val downloadProgressView: View
 ) {
-    constructor(
-        fragment: Fragment,
-        issuePublication: AbstractIssuePublication,
-        downloadIconView: View,
-        checkmarkIconView: View,
-        downloadProgressView:View
-    ) : this(
-        fragment,
-        ContentService.getInstance(fragment.requireContext().applicationContext),
-        ToastHelper.getInstance(fragment.requireContext().applicationContext),
-        issuePublication, downloadIconView, checkmarkIconView, downloadProgressView
-    )
+    private val contentService by lazy { ContentService.getInstance(fragment.requireContext().applicationContext) }
+    private val toastHelper by lazy { ToastHelper.getInstance(fragment.requireContext().applicationContext) }
+    private val downloadDataStore by lazy { DownloadDataStore.getInstance(fragment.requireContext().applicationContext) }
 
     private val issueCacheLiveData = IssuePublicationMonitor(
         fragment.requireContext().applicationContext,
         issuePublication
     ).issueCacheLiveData
 
-    private val issueWithPagesCacheLiveData = IssuePublicationMonitor(
-        fragment.requireContext().applicationContext,
-        IssuePublicationWithPages(issuePublication)
-    ).issueCacheLiveData
-
-    private val downloadDataStore =
-        DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
-
-    fun startObserving(withPages: Boolean = false) {
+    fun startObserving() {
         hideDownloadIcon()
-        val observingIssueLiveData = if (withPages) issueWithPagesCacheLiveData else issueCacheLiveData
-        observingIssueLiveData.observe(fragment) { update: CacheStateUpdate ->
+        issueCacheLiveData.observe(fragment) { update: CacheStateUpdate ->
             var noConnectionShown = false
             fun onConnectionFailure() {
                 if (!noConnectionShown) {
@@ -81,7 +61,6 @@ class DownloadObserver(
 
     fun stopObserving() {
         issueCacheLiveData.removeObservers(fragment)
-        issueWithPagesCacheLiveData.removeObservers(fragment)
     }
 
 
@@ -160,7 +139,7 @@ class DownloadObserver(
                     .setView(dialogView)
                     .setNegativeButton(R.string.settings_dialog_download_too_much_data) { dialog, _ ->
                         setDownloadDataStoreEntriesAndDownloadIssuePublication(
-                            doNotShowAgain= doNotShowAgainCheckboxView?.isChecked == true,
+                            doNotShowAgain = doNotShowAgainCheckboxView?.isChecked == true,
                             pdfAdditionally = false,
                             issuePublication = issuePublication
                         )
@@ -179,9 +158,7 @@ class DownloadObserver(
             }
         } else {
             withContext(Dispatchers.Main) {
-                startObserving(
-                    withPages = downloadDataStore.pdfAdditionally.get()
-                )
+                startObserving()
             }
             contentService.downloadIssuePublicationToCache(issuePublication)
         }
@@ -192,7 +169,7 @@ class DownloadObserver(
         pdfAdditionally: Boolean,
         issuePublication: AbstractIssuePublication
     ) {
-        startObserving(withPages = pdfAdditionally)
+        startObserving()
         CoroutineScope(Dispatchers.IO).launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)

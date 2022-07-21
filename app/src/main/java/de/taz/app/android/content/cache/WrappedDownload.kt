@@ -1,7 +1,7 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
+import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -101,7 +101,7 @@ class WrappedDownload(
             applicationContext,
             parent,
             parent.getDownloadTag(), // attention! don't use the tag of this wrapping operation otherwise there'll be a name conflict,
-            retriesOnConnectionError = METADATA_DOWNLOAD_DEFAULT_RETRIES
+            retriesOnConnectionError = METADATA_DOWNLOAD_RETRY_INDEFINITELY
         )
 
         addItem(

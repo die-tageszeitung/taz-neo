@@ -2,6 +2,7 @@ package de.taz.app.android.ui.drawer
 
 import android.content.Context
 import android.graphics.Rect
+import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -44,4 +45,19 @@ class DrawerLayout @JvmOverloads constructor(
         return super.onInterceptTouchEvent(ev)
     }
 
+    private val exclusionRectList = listOf(
+        Rect(
+            0, 0,
+            resources.displayMetrics.widthPixels / 4,
+            resources.displayMetrics.heightPixels / 2
+        )
+    )
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+        // exclude top left from swipe gestures to allow opening the drawer by swipe there:
+        if (Build.VERSION.SDK_INT >= 29) {
+            systemGestureExclusionRects = exclusionRectList
+        }
+    }
 }

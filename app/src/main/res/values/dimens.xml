@@ -16,7 +16,7 @@
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">28dp</dimen>
-    <dimen name="drawer_section_list_width">240dp</dimen>
+    <dimen name="drawer_section_list_width">250dp</dimen>
     <dimen name="drawer_width">290dp</dimen>
 
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
@@ -61,25 +61,26 @@
     <dimen name="fragment_settings_min_height">40dp</dimen>
     <dimen name="fragment_settings_version_margin">20dp</dimen>
 
-    <dimen name="fragment_header_default_height">74dp</dimen>
+    <dimen name="fragment_header_default_height">76dp</dimen>
     <dimen name="fragment_header_default_margin_top">36dp</dimen>
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
-    <dimen name="fragment_header_default_title_y_translation">2dp</dimen>
+    <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
+    <dimen name="fragment_header_dotted_line_height">5dp</dimen>
     <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
-    <dimen name="fragment_header_article_title_y_translation">3dp</dimen>
+    <dimen name="fragment_header_article_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_article_text_size">16sp</dimen>
     <dimen name="fragment_header_section_text_size">25sp</dimen>
-    <dimen name="fragment_header_title_section_text_size">33sp</dimen>
-    <dimen name="fragment_header_section_title_y_translation">5dp</dimen>
+    <dimen name="fragment_header_title_section_text_size">32sp</dimen>
+    <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
-    <dimen name="fragment_header_issue_date_y_translation">-4dp</dimen>
     <dimen name="fragment_webview_header_padding_top">35dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
+    <dimen name="fragment_header_search_result_published_date_margin_top">5dp</dimen>
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
     <dimen name="fragment_archive_padding_top">22dp</dimen>
@@ -94,8 +95,7 @@
     <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_margin_bottom">62dp</dimen>
-    <dimen name="fragment_cover_flow_grid_margin_bottom">92dp</dimen>
-    <dimen name="fragment_cover_flow_grid_padding_top">30dp</dimen>
+    <dimen name="fragment_cover_flow_guideline_end">150dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
@@ -118,7 +118,7 @@
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="fragment_bookmarks_icon_size">28dp</dimen>
+    <dimen name="fragment_bookmarks_icon_size">25dp</dimen>
 
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
@@ -160,18 +160,27 @@
     <dimen name="search_input_field_corner_radius">30dp</dimen>
     <dimen name="search_icon_size">24dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
-    <dimen name="search_result_title_text_size">18sp</dimen>
+    <dimen name="search_description_text_line_spacing_extra">5sp</dimen>
+    <dimen name="search_description_icon_size">48dp</dimen>
+    <dimen name="search_result_title_text_size">17.5sp</dimen>
+    <dimen name="search_result_title_line_spacing_extra">3.5sp</dimen>
+    <dimen name="search_result_author_margin_top">0dp</dimen>
     <dimen name="search_result_author_text_size">17sp</dimen>
+    <dimen name="search_result_author_line_spacing_extra">4sp</dimen>
     <dimen name="search_result_title_margin_top">14dp</dimen>
     <dimen name="search_result_snippet_text_size">15sp</dimen>
+    <dimen name="search_result_snippet_line_spacing_extra">0sp</dimen>
     <dimen name="search_result_small_text_size">14sp</dimen>
+    <dimen name="search_result_small_text_line_spacing_extra">7sp</dimen>
     <dimen name="search_results_small_margin">7dp</dimen>
     <dimen name="search_advanced_category_padding_top">13dp</dimen>
     <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
-    <dimen name="search_advanced_title_margin_bottom">-15dp</dimen>
+    <dimen name="search_advanced_title_margin_bottom">-2dp</dimen>
     <dimen name="search_advanced_text_size">18sp</dimen>
     
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">68dp</dimen>
+    <dimen name="bottom_navigation_icon_size">31dp</dimen>
+    <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 
 </resources>

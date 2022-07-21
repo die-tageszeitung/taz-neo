@@ -3,6 +3,7 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.IssueStatus
@@ -10,6 +11,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
+import de.taz.app.android.databinding.ActivtyStorageMigrationBinding
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -19,7 +21,6 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.activty_storage_migration.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -39,10 +40,12 @@ class StorageOrganizationActivity : StartupActivity() {
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
+    private lateinit var viewBinding: ActivtyStorageMigrationBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activty_storage_migration)
+        viewBinding = ActivtyStorageMigrationBinding.inflate(layoutInflater)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
@@ -82,9 +85,9 @@ class StorageOrganizationActivity : StartupActivity() {
         log.info("Will search for ${downloadedButNotStoredFiles.size} files and move it to the correct storage")
         if (downloadedButNotStoredFiles.isNotEmpty()) {
             withContext(Dispatchers.Main) {
-                description.text = getString(R.string.storage_upgrade_help_text)
-                migration_progress.progress = 0
-                migration_progress.max = downloadedButNotStoredFiles.size
+                viewBinding.description.text = getString(R.string.storage_upgrade_help_text)
+                viewBinding.migrationProgress.progress = 0
+                viewBinding.migrationProgress.max = downloadedButNotStoredFiles.size
             }
         }
         downloadedButNotStoredFiles.forEachIndexed { index, fileEntry ->
@@ -116,8 +119,8 @@ class StorageOrganizationActivity : StartupActivity() {
                 }
             }
             withContext(Dispatchers.Main) {
-                migration_progress.progress = index + 1
-                numeric_progress.text = "${index + 1} / ${migration_progress.max}"
+                viewBinding.migrationProgress.progress = index + 1
+                viewBinding.numericProgress.text = "${index + 1} / ${viewBinding.migrationProgress.max}"
             }
         }
     }
@@ -137,9 +140,9 @@ class StorageOrganizationActivity : StartupActivity() {
         log.info("Will move $fileCount to the correct storage")
 
         withContext(Dispatchers.Main) {
-            description.text = getString(R.string.storage_migration_help_text)
-            migration_progress.progress = 0
-            migration_progress.max = fileCount
+            viewBinding.description.text = getString(R.string.storage_migration_help_text)
+            viewBinding.migrationProgress.progress = 0
+            viewBinding.migrationProgress.max = fileCount
         }
 
         allFilesNotOnDesiredStorage.forEachIndexed { index, originalFileEntry ->
@@ -173,8 +176,8 @@ class StorageOrganizationActivity : StartupActivity() {
                 }
 
                 runBlocking(Dispatchers.Main) {
-                    migration_progress.progress = index + 1
-                    numeric_progress.text = "${index + 1} / $fileCount"
+                    viewBinding.migrationProgress.progress = index + 1
+                    viewBinding.numericProgress.text = "${index + 1} / $fileCount"
                 }
             }
         }
@@ -189,9 +192,9 @@ class StorageOrganizationActivity : StartupActivity() {
         log.info("Will delete $issueCount public issues")
 
         withContext(Dispatchers.Main) {
-            description.text = getString(R.string.storage_migration_help_text_delete_issues)
-            migration_progress.progress = 0
-            migration_progress.max = issueCount
+            viewBinding.description.text = getString(R.string.storage_migration_help_text_delete_issues)
+            viewBinding.migrationProgress.progress = 0
+            viewBinding.migrationProgress.max = issueCount
         }
         var count = 0
         var errors = 0
@@ -206,8 +209,8 @@ class StorageOrganizationActivity : StartupActivity() {
             }
             withContext(Dispatchers.Main) {
                 count++
-                migration_progress.progress = count
-                numeric_progress.text = "$count / $issueCount"
+                viewBinding.migrationProgress.progress = count
+                viewBinding.numericProgress.text = "$count / $issueCount"
             }
         }
         if (errors > 0) {

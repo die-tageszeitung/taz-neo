@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.R
+import de.taz.app.android.databinding.FragmentSubscriptionBankBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.LoginViewModelState
-import kotlinx.android.synthetic.main.fragment_subscription_bank.*
 import nl.garvelink.iban.IBAN
 
-class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subscription_bank) {
+class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBankBinding>() {
 
     var accountHolderInvalid: Boolean = false
     var ibanEmpty: Boolean = false
@@ -37,18 +37,18 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_subscription_bank_iban_layout.markRequired()
+        viewBinding.fragmentSubscriptionBankIbanLayout.markRequired()
 
-        fragment_subscription_bank_account_holder.setOnEditorActionListener(
+        viewBinding.fragmentSubscriptionBankAccountHolder.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
         viewModel.apply {
-            iban?.let { fragment_subscription_bank_iban.setText(it) }
-            accountHolder?.let { fragment_subscription_bank_account_holder.setText(it) }
+            iban?.let { viewBinding.fragmentSubscriptionBankIban.setText(it) }
+            accountHolder?.let { viewBinding.fragmentSubscriptionBankAccountHolder.setText(it) }
         }
 
-        fragment_subscription_bank_proceed.setOnClickListener { ifDoneNext() }
+        viewBinding.fragmentSubscriptionBankProceed.setOnClickListener { ifDoneNext() }
 
         if (accountHolderInvalid) {
             setAccountHolderError(R.string.subscription_field_invalid)
@@ -69,16 +69,16 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
 
     override fun done(): Boolean {
         var done = true
-        if (fragment_subscription_bank_iban.text.isNullOrBlank()) {
+        if (viewBinding.fragmentSubscriptionBankIban.text.isNullOrBlank()) {
             done = false
             setIbanError(R.string.iban_error_empty)
-            if (!fragment_subscription_bank_account_holder.text.isNullOrBlank()) {
+            if (!viewBinding.fragmentSubscriptionBankAccountHolder.text.isNullOrBlank()) {
                 viewModel.accountHolder =
-                    fragment_subscription_bank_account_holder.text.toString()
+                    viewBinding.fragmentSubscriptionBankAccountHolder.text.toString()
             }
         } else {
             try {
-                val iban = IBAN.parse(fragment_subscription_bank_iban.text)
+                val iban = IBAN.parse(viewBinding.fragmentSubscriptionBankIban.text)
                 if (!iban.isSEPA) {
                     setIbanError(R.string.iban_error_no_sepa)
                     done = false
@@ -88,8 +88,8 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
                 done = false
             }
         }
-        viewModel.iban = fragment_subscription_bank_iban.text.toString()
-        viewModel.accountHolder = fragment_subscription_bank_account_holder.text.toString()
+        viewModel.iban = viewBinding.fragmentSubscriptionBankIban.text.toString()
+        viewModel.accountHolder = viewBinding.fragmentSubscriptionBankAccountHolder.text.toString()
         return done
     }
 
@@ -97,11 +97,11 @@ class SubscriptionBankFragment : SubscriptionBaseFragment(R.layout.fragment_subs
         viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT)
     }
 
-    fun setIbanError(@StringRes stringRes: Int) {
-        fragment_subscription_bank_iban_layout.setError(stringRes)
+    private fun setIbanError(@StringRes stringRes: Int) {
+        viewBinding.fragmentSubscriptionBankIbanLayout.setError(stringRes)
     }
 
-    fun setAccountHolderError(@StringRes stringRes: Int) {
-        fragment_subscription_bank_iban_layout.setError(stringRes)
+    private fun setAccountHolderError(@StringRes stringRes: Int) {
+        viewBinding.fragmentSubscriptionBankIbanLayout.setError(stringRes)
     }
 }

@@ -5,6 +5,7 @@ import android.text.Html
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,23 +125,37 @@ class SearchResultListAdapter(
     // region helper functions
 
     /**
-     * Highlight a [textToHighlight] in a given [textView] with a given [color].
+     * Highlight a [textToHighlight] in a given [textView] with a given [markColor].
      *
      * @param textView        TextView or Edittext or Button (or derived from TextView)
      * @param textToHighlight String to highlight
-     * @param color           Integer representing a color (eg with [ResourcesCompat.getColor])
+     * @param markColor           Integer representing a color (eg with [ResourcesCompat.getColor])
      */
-    private fun setHighLightedText(textView: TextView, textToHighlight: String, color: Int) {
+    private fun setHighLightedText(textView: TextView, textToHighlight: String, markColor: Int) {
+        val textColor = ResourcesCompat.getColor(
+            textView.resources,
+            R.color.text_highlight_text_color,
+            null
+        )
         val textViewText = textView.text.toString()
         val wordToSpan = SpannableString(textView.text)
         var currentIndex = 0
         while (currentIndex < textViewText.length) {
             val index = textViewText.indexOf(textToHighlight, currentIndex)
             if (index == -1) break else {
-                // set color here
+                // set mark color here
                 wordToSpan.setSpan(
                     BackgroundColorSpan(
-                        color
+                        markColor
+                    ),
+                    index,
+                    index + textToHighlight.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                // set text color here
+                wordToSpan.setSpan(
+                    ForegroundColorSpan(
+                        textColor
                     ),
                     index,
                     index + textToHighlight.length,

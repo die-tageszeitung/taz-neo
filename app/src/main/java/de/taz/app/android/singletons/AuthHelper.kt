@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
@@ -21,11 +20,13 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
@@ -111,35 +112,27 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         if (it == AuthStatus.valid) IssueStatus.regular else IssueStatus.public
     }
 
-    private var deletionJob: Job? = null
-
     init {
-        CoroutineScope(Dispatchers.Main).launch {
-            deletionJob?.cancel()
-
-            status.asLiveData().observeDistinctIgnoreFirst(ProcessLifecycleOwner.get()) { authStatus ->
+        CoroutineScope(Dispatchers.IO).launch {
+            status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
                     AuthStatus.elapsed -> {
                         toastHelper.showToast(R.string.toast_logout_elapsed)
                     }
                     AuthStatus.notValid -> {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            elapsedButWaiting.set(false)
-                            toastHelper.showToast(R.string.toast_logout_invalid)
-                        }
+                        elapsedButWaiting.set(false)
+                        toastHelper.showToast(R.string.toast_logout_invalid)
                     }
                     AuthStatus.valid -> {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            elapsedButWaiting.set(false)
-                            launch {
-                                firebaseHelper.token.get()?.let {
-                                    dataService.sendNotificationInfo(it, retryOnFailure = true)
-                                }
+                        elapsedButWaiting.set(false)
+                        launch {
+                            firebaseHelper.token.get()?.let {
+                                dataService.sendNotificationInfo(it, retryOnFailure = true)
                             }
-                            transformBookmarks()
-                            isPolling.set(false)
                         }
+                        transformBookmarks()
+                        isPolling.set(false)
                     }
                     else -> Unit
                 }

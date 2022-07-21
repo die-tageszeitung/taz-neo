@@ -46,54 +46,111 @@
             android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
 
             <TextView
-                android:id="@+id/fragment_settings_category_general"
+                android:id="@+id/fragment_settings_category_account"
                 style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_category_general"
+                android:text="@string/settings_category_account"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_manage_account"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_account_manage_account"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_account" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_email"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_elapsed"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:text="@string/settings_account_elapsed"
+                android:textAlignment="textEnd"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+            <TextView
+                android:id="@+id/fragment_settings_account_logout"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_account_logout"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
+
+            <TextView
+                android:id="@+id/fragment_settings_account_delete"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_account_delete"
+                android:textColor="@color/deleteRed"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_logout" />
+
+            <TextView
+                android:id="@+id/fragment_settings_category_issue_management"
+                style="@style/TextAppearance.Settings.Category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_issue_management"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_delete" />
 
             <TextView
                 android:id="@+id/fragment_settings_general_keep_issues"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_general_keep_number_issues"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_general" />
-
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/fragment_settings_auto_download_switch"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:text="@string/settings_auto_downloads_switch"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_general_keep_issues" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_issue_management" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_download_wifi_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_auto_downloads_wifi_switch"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_switch" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_general_keep_issues" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_auto_download_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_auto_downloads_switch"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_wifi_switch" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/fragment_settings_auto_pdf_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_auto_pdf_downloads_switch"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_wifi_switch" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_download_switch" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_notifications_switch"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_notifications"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_pdf_download_switch" />
 
             <include
                 android:id="@+id/fragment_settings_storage_location"
                 layout="@layout/storage_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_auto_pdf_download_switch" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_notifications_switch" />
 
             <TextView
                 android:id="@+id/fragment_settings_delete_all_issues"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_delete_all_issues"
+                android:textColor="@color/deleteRed"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_storage_location" />
 
             <TextView
@@ -127,13 +184,20 @@
                 android:text="@string/settings_text_night_mode"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_text_justified" />
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_tap_to_scroll"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_text_tap_to_scroll"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_night_mode" />
+
             <TextView
                 android:id="@+id/fragment_settings_category_support"
                 style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_category_support"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_night_mode" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_tap_to_scroll" />
 
             <TextView
                 android:id="@+id/fragment_settings_welcome_slides"
@@ -157,69 +221,43 @@
                 android:text="@string/settings_support_report_bug"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_faq" />
 
+
             <TextView
-                android:id="@+id/fragment_settings_category_account"
-                style="@style/TextAppearance.Settings.Category"
+                android:id="@+id/fragment_settings_reset_app"
+                style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_account"
+                android:text="@string/settings_reset_app"
+                android:textColor="@color/deleteRed"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_support_report_bug" />
 
             <TextView
-                android:id="@+id/fragment_settings_account_manage_account"
-                style="@style/TextAppearance.Settings.Entry"
+                android:id="@+id/fragment_settings_category_legal"
+                style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
-                android:text="@string/settings_account_manage_account"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_account" />
-
-            <TextView
-                android:id="@+id/fragment_settings_account_email"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account" />
-
-            <TextView
-                android:id="@+id/fragment_settings_account_elapsed"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:visibility="gone"
-                android:text="@string/settings_account_elapsed"
-                android:textAlignment="textEnd"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/fragment_settings_account_logout"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="wrap_content"
-                android:text="@string/settings_account_logout"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
-
-            <TextView
-                android:id="@+id/fragment_settings_account_delete"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="wrap_content"
-                android:text="@string/settings_account_delete"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
+                android:layout_height="wrap_content"
+                android:text="@string/settings_category_legal"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_reset_app" />
 
             <TextView
                 android:id="@+id/fragment_settings_terms"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_terms"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_logout" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_category_legal" />
+
+            <TextView
+                android:id="@+id/fragment_settings_data_policy"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_data_policy"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_terms" />
 
             <TextView
                 android:id="@+id/fragment_settings_revocation"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:text="@string/settings_revocation"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_terms" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_data_policy" />
 
             <TextView
                 android:id="@+id/fragment_settings_version_number"

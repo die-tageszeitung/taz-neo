@@ -9,11 +9,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
 import de.taz.app.android.singletons.TazApiCssHelper
+import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
-
+import java.util.*
 
 const val MAILTO_PREFIX = "mailto:"
 
@@ -22,14 +23,17 @@ class AppWebView @JvmOverloads constructor(
     attributeSet: AttributeSet? = null,
     defStyle: Int = 0
 ) : WebView(context, attributeSet, defStyle) {
-
+    var onBorderTapListener: ((ViewBorder) -> Unit)? = null
     private val log by Log
+    private var currentBorder = ViewBorder.NONE
 
     init {
         // prevent horizontal scrolling
         isHorizontalScrollBarEnabled = false
         setOnTouchListener(object : OnTouchListener {
             var x = 0f
+            val MAX_DOWN_DURATION = 200L
+            var downTime = MAX_DOWN_DURATION
             override fun onTouch(v: View?, event: MotionEvent): Boolean {
                 if (event.pointerCount > 1) { //Multi touch detected
                     return true
@@ -38,8 +42,16 @@ class AppWebView @JvmOverloads constructor(
                     MotionEvent.ACTION_DOWN -> {
                         // save x
                         x = event.x
+                        downTime = Calendar.getInstance().timeInMillis
                     }
-                    MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                    MotionEvent.ACTION_UP -> {
+                        val duration =  Calendar.getInstance().timeInMillis - downTime
+                        if (duration < MAX_DOWN_DURATION) {
+                            handleTap(x)
+                        }
+                        event.setLocation(x, event.y)
+                    }
+                    MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL -> {
                         // set x so that it doesn't move
                         event.setLocation(x, event.y)
                     }
@@ -96,6 +108,17 @@ class AppWebView @JvmOverloads constructor(
             "loadDataWithBaseURL: baseUrl: $baseUrl, mimeType: $mimeType, encoding: $encoding, failUrl: $failUrl\n data: $data"
         )
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl)
+    }
+
+    private fun handleTap(x: Float) {
+        log.debug("tapped on x $x")
+        if (x<width*0.25 && width >0) {
+            onBorderTapListener?.invoke(ViewBorder.LEFT)
+        } else if (x>width*0.75 && width >0) {
+            onBorderTapListener?.invoke(ViewBorder.RIGHT)
+        } else {
+            onBorderTapListener?.invoke(ViewBorder.NONE)
+        }
     }
 
 }

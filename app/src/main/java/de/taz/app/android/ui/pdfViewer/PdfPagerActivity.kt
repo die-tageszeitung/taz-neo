@@ -119,8 +119,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                     // but in the drawer the front page is not part of the drawer list, that's why
                     // it needs to be incremented by 1:
                     val realPosition = drawerPosition + 1
-                    val isFrontPage = drawerPosition == 0
-                    if (realPosition != pdfPagerViewModel.currentItem.value || isFrontPage) {
+                    if (realPosition != pdfPagerViewModel.currentItem.value) {
                         pdfPagerViewModel.updateCurrentItem(realPosition)
                         drawerAdapter.activePosition = drawerPosition
                     }
@@ -164,11 +163,11 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
 
-        pdfPagerViewModel.pdfPageList.observe(this@PdfPagerActivity, {
+        pdfPagerViewModel.pdfPageList.observe(this@PdfPagerActivity) {
             initDrawerAdapter(it)
-        })
+        }
 
-        pdfPagerViewModel.hideDrawerLogo.observe(this@PdfPagerActivity, { toHide ->
+        pdfPagerViewModel.hideDrawerLogo.observe(this@PdfPagerActivity) { toHide ->
             val articlePagerFragment =
                 supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
             if (toHide && articlePagerFragment == null && !pdfDrawerLayout.isDrawerOpen(
@@ -179,7 +178,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             } else {
                 showDrawerLogo()
             }
-        })
+        }
 
         drawerLogoWrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             pdfDrawerLayout.updateDrawerLogoBoundingBox(
@@ -255,6 +254,11 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 .into(activityPdfDrawerFrontPage)
 
             activityPdfDrawerFrontPage.setOnClickListener {
+                val newPosition = 0
+                if (newPosition != pdfPagerViewModel.currentItem.value) {
+                    pdfPagerViewModel.updateCurrentItem(newPosition)
+                    drawerAdapter.activePosition = newPosition
+                }
                 popArticlePagerFragmentIfOpen()
                 activityPdfDrawerFrontPageTitle.setTextColor(
                     ContextCompat.getColor(
@@ -281,7 +285,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                     items.subList(1, items.size),
                     Glide.with(this@PdfPagerActivity)
                 )
-            pdfPagerViewModel.currentItem.observe(this@PdfPagerActivity, { position ->
+            pdfPagerViewModel.currentItem.observe(this@PdfPagerActivity) { position ->
                 drawerAdapter.activePosition = position - 1
                 if (position > 0) {
                     log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
@@ -292,7 +296,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                         )
                     )
                 }
-            })
+            }
             navigationRecyclerView.adapter = drawerAdapter
             hideLoadingScreen()
         }

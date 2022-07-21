@@ -16,6 +16,7 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 private const val FONT_SIZE = "text_font_size"
 private const val TEXT_JUSTIFICATION = "text_justification"
 private const val NIGHT_MODE = "text_night_mode"
+private const val TAP_TO_SCROLL = "tap_to_scroll"
 // endregion
 
 private val Context.tazApiCssDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -50,6 +51,10 @@ class TazApiCssDataStore private constructor(applicationContext: Context) {
 
     val nightMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(NIGHT_MODE), false
+    )
+    
+    val tapToScroll: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(TAP_TO_SCROLL), false
     )
 
 }

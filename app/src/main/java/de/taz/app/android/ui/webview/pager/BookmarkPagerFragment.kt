@@ -17,7 +17,6 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.ui.bottomSheet.bookmarks.BookmarkSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -92,6 +91,10 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewBinding.navigationBottomWebviewPager.visibility = View.GONE
+        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
+        // in onViewCreated - when done in xml the 1st click wont be recognized...
+        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
@@ -135,9 +138,13 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 drawerViewModel.navButton.postValue(it)
             }
         }
+        // show the share icon always when in public issues (as it shows a popup that the user should log in)
+        // OR when an onLink link is provided
         viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-            articleToBindTo.onlineLink != null
-
+            determineShareIconVisibility(
+                articleToBindTo.onlineLink,
+                articleToBindTo.key
+            )
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
         isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
@@ -163,11 +170,11 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home -> MainActivity.start(requireContext())
+            R.id.bottom_navigation_action_home_article -> MainActivity.start(requireContext())
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentlyDisplayedArticleStub()?.let {
-                    showBottomSheet(BookmarkSheetFragment.create(it.key))
+                    viewModel.toggleBookmark(it)
                 }
             }
 
@@ -186,7 +193,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 val url = articleStub.onlineLink
                 url?.let {
                     shareArticle(url, articleStub.title)
-                }
+                } ?: showSharingNotPossibleDialog()
             }
         }
     }

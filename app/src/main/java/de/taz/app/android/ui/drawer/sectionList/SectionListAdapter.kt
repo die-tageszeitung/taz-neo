@@ -9,7 +9,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
-import kotlinx.android.synthetic.main.fragment_drawer_sections_item.view.*
+import de.taz.app.android.util.NoPaddingTextView
 
 
 class SectionListAdapter(
@@ -40,7 +40,8 @@ class SectionListAdapter(
             }
         }
 
-    class SectionListAdapterViewHolder(val sectionTitleItem: View) : RecyclerView.ViewHolder(sectionTitleItem)
+    class SectionListAdapterViewHolder(val sectionTitleItem: View) :
+        RecyclerView.ViewHolder(sectionTitleItem)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -54,41 +55,43 @@ class SectionListAdapter(
         )
     }
 
+    private var titleView: NoPaddingTextView? = null
+
     override fun onBindViewHolder(holder: SectionListAdapterViewHolder, position: Int) {
-        if(position != RecyclerView.NO_POSITION){
+        if (position != RecyclerView.NO_POSITION) {
             val sectionStub = sectionList[position]
-            sectionStub.let {
-                holder.sectionTitleItem.fragment_drawer_section_title.apply {
-                    typeface = this@SectionListAdapter.typeface
-                    text = sectionStub.title
-                    setOnClickListener {
-                        onSectionClickerListener(sectionStub)
-                    }
-                    if (position == activePosition) {
-                        setTextColor(
-                            ResourcesCompat.getColor(
-                                resources,
-                                R.color.drawer_sections_item_highlighted,
-                                theme
+            titleView =
+                holder.sectionTitleItem.findViewById<NoPaddingTextView>(R.id.fragment_drawer_section_title)
+                    ?.apply {
+                        typeface = this@SectionListAdapter.typeface
+                        text = sectionStub.title
+                        setOnClickListener {
+                            onSectionClickerListener(sectionStub)
+                        }
+                        if (position == activePosition) {
+                            setTextColor(
+                                ResourcesCompat.getColor(
+                                    resources,
+                                    R.color.drawer_sections_item_highlighted,
+                                    theme
+                                )
                             )
-                        )
-                    } else {
-                        setTextColor(
-                            ResourcesCompat.getColor(
-                                resources,
-                                R.color.drawer_sections_item,
-                                theme
+                        } else {
+                            setTextColor(
+                                ResourcesCompat.getColor(
+                                    resources,
+                                    R.color.drawer_sections_item,
+                                    theme
+                                )
                             )
-                        )
+                        }
                     }
-                }
-            }
         }
 
     }
 
     override fun onViewRecycled(holder: SectionListAdapterViewHolder) {
-        holder.sectionTitleItem.fragment_drawer_section_title.typeface = typeface
+        titleView?.typeface = typeface
         super.onViewRecycled(holder)
     }
 

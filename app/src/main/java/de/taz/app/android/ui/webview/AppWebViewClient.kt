@@ -15,6 +15,8 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URLDecoder
 
@@ -174,9 +176,9 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
         }
     }
 
-    private fun checkIfWeHaveLocally(url: String): Boolean {
+    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking(Dispatchers.IO) {
         val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
-        return fileEntryRepository.get(fileName) != null
+        fileEntryRepository.get(fileName) != null
     }
 
     override fun onPageFinished(webview: WebView, url: String) {

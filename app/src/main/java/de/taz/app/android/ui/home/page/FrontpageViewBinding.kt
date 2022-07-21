@@ -2,7 +2,9 @@ package de.taz.app.android.ui.home.page
 
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.DEFAULT_MOMENT_FILE
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
@@ -40,8 +42,8 @@ class FrontpageViewBinding(
                     ?: DEFAULT_MOMENT_RATIO
             val frontPage = contentService.downloadMetadata(
                 coverPublication,
-                // Retry indefinitely
-                maxRetries = -1
+                // After 7 retries show the fallback
+                maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
             ) as Page
 
             // get pdf front page
@@ -70,9 +72,15 @@ class FrontpageViewBinding(
                 dimension
             )
         } catch (e: CacheOperationFailedException) {
-            val hint =
-                "Error downloading metadata or cover content while binding cover for $coverPublication"
-            throw CoverBindingException(hint, e)
+            // maxRetries reached - so show the fallback cover view:
+            val momentUri = fileEntryRepository.get(DEFAULT_MOMENT_FILE)?.let {
+                storageService.getFileUri(it)
+            }
+            CoverViewData(
+                CoverType.STATIC,
+                momentUri,
+                DEFAULT_MOMENT_RATIO
+            )
         }
     }
 }

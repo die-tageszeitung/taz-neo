@@ -21,7 +21,6 @@ import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.android.synthetic.main.fragment_webview_imprint.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,7 +92,7 @@ class ImprintWebViewFragment : WebViewFragment<
         drawerViewModel.setDefaultDrawerNavButton()
 
         requireActivity().setupBottomNavigation(
-            navigation_bottom_imprint,
+            viewBinding.navigationBottomImprint,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
         )
     }

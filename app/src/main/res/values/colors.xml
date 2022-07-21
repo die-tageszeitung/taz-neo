@@ -11,8 +11,9 @@
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
     <color name="tazRed">#d50d2e</color>
-    <color name="tazRedWithOpacity">#33d50d2e</color>
     <color name="white">#fff</color>
+    <color name="yellow">#ff8</color>
+    <color name="darkGreyEightyPercentOpacity">#CC242424</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
@@ -37,6 +38,7 @@
     <color name="pdf_drawer_sections_item">@color/lightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
+    <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
 
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
 
@@ -57,7 +59,8 @@
     <color name="splashBackground">@color/tazRed</color>
     <color name="textColorSection">@color/tazRed</color>
 
-    <color name="text_highlight_mark_color">@color/tazRedWithOpacity</color>
+    <color name="text_highlight_mark_color">@color/yellow</color>
+    <color name="text_highlight_text_color">@color/black</color>
 
     <color name="archive_navigation_end_list_item">@color/white</color>
     <color name="backgroundColor">@color/white</color>

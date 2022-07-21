@@ -15,13 +15,17 @@ import de.taz.app.android.singletons.JsonHelper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import kotlin.Throws
+import okio.Buffer
 
 /**
  * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
@@ -64,20 +68,21 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             val queryBody = query.toJson()
 
             val wrapper = try {
-                val jsonText = maxSimultaneousRequestSemaphore.withPermit {
-                    httpClient.post<String>(url) {
+                val response = maxSimultaneousRequestSemaphore.withPermit {
+                    httpClient.post(Url(url)) {
                         header("Accept", "application/json, */*")
                         header("Content-Type", "application/json")
-                        body = queryBody
+                        setBody(queryBody)
                         val token = authHelper.token.get()
-                        if (!token.isEmpty()
+                        if (token.isNotEmpty()
                             && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
                         ) {
                             header(TAZ_AUTH_HEADER, token)
                         }
                     }
                 }
-                JsonHelper.adapter<WrapperDto>().fromJson(jsonText)!!
+                val channel: ByteReadChannel = response.body()
+                    JsonHelper.adapter<WrapperDto>().fromJson(Buffer().readFrom(channel.toInputStream()))!!
             } catch (e: NullPointerException) {
                 reportAndRethrowExceptions {
                     throw MalformedServerResponseException(e)

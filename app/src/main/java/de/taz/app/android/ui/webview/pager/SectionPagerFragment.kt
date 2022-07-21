@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseMainFragment
@@ -23,7 +22,6 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.android.synthetic.main.fragment_webview_pager.*
 
 class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val log by Log
@@ -39,7 +37,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        webview_pager_viewpager.apply {
+        viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             moveContentBeneathStatusBar()
         }
@@ -48,10 +46,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
             if (
                 sectionStubs.map { it.key } !=
-                (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
+                (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
             ) {
                 log.debug("New set of sections: ${sectionStubs.map { it.key }}")
-                webview_pager_viewpager.adapter = SectionPagerAdapter(sectionStubs)
+                viewBinding.webviewPagerViewpager.adapter = SectionPagerAdapter(sectionStubs)
                 tryScrollToSection()
                 viewBinding.loadingScreen.root.visibility = View.GONE
             }
@@ -63,7 +61,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     }
 
     private fun setupViewPager() {
-        webview_pager_viewpager?.apply {
+        viewBinding.webviewPagerViewpager.apply {
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
         }
@@ -75,7 +73,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             if (lastPage != null && lastPage != position) {
                 runIfNotNull(
                     issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-                    (webview_pager_viewpager.adapter as SectionPagerAdapter).sectionStubs[position]
+                    (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs[position]
                 ) { issueKey, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
                         issueContentViewModel.setDisplayable(
@@ -92,24 +90,24 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     }
 
     override fun onDestroyView() {
-        webview_pager_viewpager.adapter = null
+        viewBinding.webviewPagerViewpager.adapter = null
         super.onDestroyView()
     }
 
     override fun onStart() {
-        webview_pager_viewpager?.registerOnPageChangeCallback(pageChangeListener)
+        viewBinding.webviewPagerViewpager.registerOnPageChangeCallback(pageChangeListener)
         super.onStart()
     }
 
     override fun onStop() {
-        webview_pager_viewpager?.unregisterOnPageChangeCallback(pageChangeListener)
+        viewBinding.webviewPagerViewpager.unregisterOnPageChangeCallback(pageChangeListener)
         super.onStop()
     }
 
     override fun onResume() {
         super.onResume()
         requireActivity().setupBottomNavigation(
-            navigation_bottom_webview_pager,
+            viewBinding.navigationBottomWebviewPager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
         )
     }
@@ -133,7 +131,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
             getSupposedPagerPosition()?.let {
                 if (it >= 0 && it != getCurrentPagerPosition()) {
-                    webview_pager_viewpager.setCurrentItem(it, false)
+                    viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
                 }
             }
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
@@ -141,13 +139,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         }
     }
 
-    private fun getCurrentPagerPosition(): Int? {
-        return webview_pager_viewpager?.currentItem
+    private fun getCurrentPagerPosition(): Int {
+        return viewBinding.webviewPagerViewpager.currentItem
     }
 
     private fun getSupposedPagerPosition(): Int? {
         val position =
-            (webview_pager_viewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
+            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
                 it.key == issueContentViewModel.displayableKeyLiveData.value
             }
         return if (position != null && position >= 0) {

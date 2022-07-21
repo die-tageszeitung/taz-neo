@@ -2,6 +2,7 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -29,6 +30,9 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.util.*
+
+
+private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
@@ -70,6 +74,20 @@ class SearchActivity :
                 }
                 false
             }
+            searchText.setOnKeyListener { _, _, keyEvent ->
+                if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    advancedSearch(
+                        searchText = searchInput.editText?.text.toString(),
+                        title = searchTitle.editText?.text.toString(),
+                        author = searchAuthor.editText?.text.toString(),
+                        pubDateFrom = viewModel.pubDateFrom.value,
+                        pubDateUntil = viewModel.pubDateUntil.value,
+                        searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+                        sorting = viewModel.sorting.value ?: Sorting.relevance
+                    )
+                }
+                false
+            }
             searchText.doOnTextChanged { _, _, _, _ ->
                 searchInput.error = null
             }
@@ -84,6 +102,12 @@ class SearchActivity :
             }
             advancedSearchSortBy.setOnClickListener {
                 showSortByDialog()
+            }
+            searchAuthorInput.setOnKeyListener { _, _, keyEvent ->
+                if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                    hideKeyboard()
+                }
+                false
             }
             advancedSearchStartSearch.setOnClickListener {
                 advancedSearch(
@@ -118,12 +142,6 @@ class SearchActivity :
                     if (viewModel.pubDateFrom.value != null) {
                         updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
                     }
-                }
-            }
-            viewModel.positionLiveData.observeDistinct(this@SearchActivity) { position ->
-                log.debug("scroll to $position !!!!")
-                if (position!= null && searchResultList.isNotEmpty()) {
-                    searchResultList.smoothScrollToPosition(position)
                 }
             }
         }
@@ -217,6 +235,7 @@ class SearchActivity :
                 )
                 result?.let {
                     viewModel.totalFound = it.totalFound
+                    viewModel.minPubDate = it.minPubDate
                     it.searchHitList?.let { hits ->
                         searchResultItemsList.addAll(hits)
                         viewModel.searchResultsLiveData.postValue(searchResultItemsList)
@@ -340,6 +359,7 @@ class SearchActivity :
 
     private fun showAmountFound(index: Int, amount: Int) {
         viewBinding.apply {
+            searchResultAmount.visibility = View.VISIBLE
             hideLoadingScreen()
             if (amount == 0) {
                 searchResultAmount.text = getString(R.string.search_result_amount_none_found)
@@ -360,12 +380,14 @@ class SearchActivity :
                     searchDescription.visibility = View.VISIBLE
                     searchDescriptionIcon.visibility = View.VISIBLE
                 }
+                searchResultAmount.visibility = View.VISIBLE
                 expandableAdvancedSearch.visibility = View.GONE
                 advancedSearchTitle.visibility = View.GONE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
             } else {
                 searchDescription.visibility = View.GONE
                 searchDescriptionIcon.visibility = View.GONE
+                searchResultAmount.visibility = View.GONE
                 expandableAdvancedSearch.visibility = View.VISIBLE
                 advancedSearchTitle.visibility = View.VISIBLE
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)

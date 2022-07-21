@@ -1,10 +1,14 @@
 package de.taz.app.android.ui.settings
 
+import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -12,13 +16,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
+import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.CancellationInfo
@@ -28,6 +36,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
@@ -42,6 +51,7 @@ import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.regex.Pattern
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -71,10 +81,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.apply {
             root.findViewById<TextView>(R.id.fragment_header_default_title).text =
                 getString(R.string.settings_header).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryGeneral.text =
-                getString(R.string.settings_category_general).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryIssueManagement.text =
+                getString(R.string.settings_category_issue_management).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryText.text =
                 getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
+            fragmentSettingsCategoryLegal.text =
+                getString(R.string.settings_category_legal).lowercase(Locale.GERMAN)
             fragmentSettingsCategoryAccount.text =
                 getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
             fragmentSettingsCategorySupport.text =
@@ -107,6 +119,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 activity?.startActivity(intent)
             }
 
+            fragmentSettingsDataPolicy.setOnClickListener {
+                val intent = Intent(activity, WebViewActivity::class.java)
+                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_DATA_POLICY)
+                activity?.startActivity(intent)
+            }
+
             fragmentSettingsTextSize.apply {
                 settingsTextDecreaseWrapper.setOnClickListener {
                     decreaseFontSize()
@@ -132,6 +150,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     disableNightMode()
                 }
             }
+            fragmentSettingsTapToScroll.setOnCheckedChangeListener { _, isChecked ->
+                setTapToScroll(isChecked)
+            }
 
             fragmentSettingsAccountElapsed.setOnClickListener {
                 activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
@@ -146,8 +167,16 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsAccountDelete.setOnClickListener {
                 lifecycleScope.launch {
-                    val result = apiService.cancellation()
-                    showCancellationDialog(result)
+                    try {
+                        val result = apiService.cancellation()
+                        if (result != null) {
+                            showCancellationDialog(result)
+                        }
+                    } catch (e: ConnectivityException) {
+                        toastHelper.showToast(
+                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                        )
+                    }
                 }
             }
 
@@ -176,9 +205,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
+            if (FLAVOR_source == "nonfree") {
+                fragmentSettingsNotificationsSwitch.visibility = View.VISIBLE
+                fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    setNotificationsEnabled(isChecked)
+                }
+            }
+
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
+
+            fragmentSettingsResetApp.setOnClickListener {
+                showResetAppDialog()
+            }
+
         }
 
 
@@ -194,6 +235,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
             }
+            tapToScrollLiveData.observeDistinct(viewLifecycleOwner) { enabled ->
+                showTapToScroll(enabled)
+            }
             storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
             }
@@ -205,6 +249,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
+            }
+            notificationsEnabledLivedata.observeDistinctIgnoreFirst(viewLifecycleOwner) { notificationsEnabled ->
+                showNotificationsEnabledToggle(notificationsEnabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -234,6 +281,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountEmail.text = email
+            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+            // and only if the account email is visible (sometimes email is still stored but not shown)
+            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches() || email.toIntOrNull() != null)
+                && viewBinding.fragmentSettingsAccountEmail.isVisible
+            ) {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.VISIBLE
+            } else {
+                viewBinding.fragmentSettingsAccountDelete.visibility = View.GONE
+            }
         }
     }
 
@@ -342,36 +398,113 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
-    private fun showCancellationDialog(status: CancellationStatus?) {
-        val view = when (status?.info) {
-            CancellationInfo.tazId -> R.layout.dialog_cancellation_taz_id
-            CancellationInfo.aboId -> R.layout.dialog_cancellation_abo_id
-            else -> R.layout.dialog_cancellation_special_access
+    // region cancellation dialogs
+    private fun showCancellationDialog(status: CancellationStatus) {
+        if (status.canceled) {
+            showAlreadyCancelled()
+        } else {
+            when (status.info) {
+                CancellationInfo.tazId -> showCancelWithTazIdDialog(status.cancellationLink)
+                CancellationInfo.aboId -> showCancelWithAboIdDialog()
+                CancellationInfo.specialAccess ->
+                    showCancellationDialogWithMessage(
+                        getString(R.string.settings_dialog_cancellation_not_possible)
+                    )
+                else ->
+                    showCancellationDialogWithMessage(
+                        getString(R.string.settings_dialog_cancellation_something_wrong)
+                    )
+            }
         }
+    }
+
+    private fun showAlreadyCancelled() {
         context?.let {
-            val dialog = MaterialAlertDialogBuilder(it)
-                .setView(view)
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_already_canceled_title)
+                .setMessage(R.string.settings_dialog_cancellation_already_canceled_description)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
                     (dialog as AlertDialog).hide()
-                    when (status?.info) {
-                        CancellationInfo.aboId -> lifecycleScope.launch {
-                            apiService.cancellation(isForce = true)
-                        }
-                        CancellationInfo.specialAccess ->
-                            log.debug("special access - so cancellation not possible")
-                        else -> status?.cancellationLink?.let { link ->
-                            openCancellationExternalPage(
-                                link
-                            )
-                        }
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancellationDialogWithMessage(message: String) {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancelWithTazIdDialog(link: String?) {
+        if (link == null) {
+            toastHelper.showToast(getString(R.string.something_went_wrong_try_later))
+            return
+        }
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_taz_id_title)
+                .setPositiveButton(R.string.settings_dialog_cancellation_open_website) { dialog, _ ->
+                    openCancellationExternalPage(link)
+                    (dialog as AlertDialog).hide()
+                }
+                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+    private fun showCancelWithAboIdDialog() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(R.string.settings_dialog_cancellation_are_you_sure_title)
+                .setMessage(R.string.settings_dialog_cancellation_direct)
+                .setPositiveButton(R.string.settings_dialog_cancellation_delete_account) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    lifecycleScope.launch {
+                        apiService.cancellation(isForce = true)
                     }
                 }
                 .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                     (dialog as AlertDialog).hide()
                 }
                 .create()
+                .show()
+        }
+    }
+
+    // endregion
+
+    private fun showResetAppDialog() {
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setTitle(getString(R.string.settings_reset_app_dialog_title))
+                .setMessage(getString(R.string.settings_reset_app_dialog_message))
+                .setPositiveButton(getString(R.string.settings_reset_app_dialog_positive_button)) { dialog, _ ->
+                    resetApp()
+                    dialog.dismiss()
+                }
+                .setNegativeButton(getString(R.string.cancel_button)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
             dialog.show()
         }
+    }
+
+    private fun resetApp() {
+        (requireContext().getSystemService(ACTIVITY_SERVICE) as ActivityManager)
+            .clearApplicationUserData()
     }
 
     private fun showStoredIssueNumber(number: Int) {
@@ -402,6 +535,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
+    private fun showTapToScroll(enabled: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -421,6 +558,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showNotificationsEnabledToggle(notificationsEnabled: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_notifications_switch)?.apply {
+            isChecked = notificationsEnabled
+        }
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -430,7 +573,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showLogoutButton() = viewBinding.apply {
         fragmentSettingsAccountEmail.visibility = View.VISIBLE
         fragmentSettingsAccountLogout.visibility = View.VISIBLE
-        fragmentSettingsAccountDelete.visibility = View.VISIBLE
         fragmentSettingsAccountManageAccount.visibility = View.GONE
     }
 
@@ -456,6 +598,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun enableNightMode() {
         log.debug("enableNightMode")
         viewModel.setNightMode(true)
+    }
+
+    private fun setTapToScroll(enabled: Boolean) {
+        log.debug("setTapToScroll: $enabled")
+        viewModel.setTapToScroll(enabled)
     }
 
     private fun setTextJustification(justified: Boolean) {
@@ -496,6 +643,52 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
+
+    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
+        val permissionNotSet =
+            !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+
+        // Check if android allow the app to display notifications:
+        if (notificationsEnabled && permissionNotSet) {
+            showNotificationsMustBeAllowedDialog()
+            showNotificationsEnabledToggle(false)
+        } else {
+            viewModel.setNotificationsEnabled(notificationsEnabled)
+        }
+    }
+
+    private fun showNotificationsMustBeAllowedDialog() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
+                .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    openAndroidNotificationSettings()
+                }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+
+    private fun openAndroidNotificationSettings() {
+        activity?.applicationContext?.let { context ->
+            val intent = Intent().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                } else {
+                    action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                    putExtra("app_package", context.packageName)
+                    putExtra("app_uid", context.applicationInfo.uid)
+                }
+            }
+            activity?.startActivity(intent)
+        }
+    }
+
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)

@@ -78,9 +78,6 @@
     <string name="fragment_bottom_sheet_text_night_mode">Night mode</string>
     <string name="fragment_bottom_sheet_text_size_settings">Settings</string>
 
-    <string name="fragment_bottom_sheet_bookmarks_my_bookmarks">My bookmarks</string>
-    <string name="fragment_bottom_sheet_bookmarks_add_bookmark">Add bookmark</string>
-    <string name="fragment_bottom_sheet_bookmarks_remove_bookmark">Remove bookmark</string>
 
     <string name="fragment_bottom_sheet_issue_read">read this issue</string>
     <string name="fragment_bottom_sheet_issue_share">share cover</string>
@@ -91,9 +88,10 @@
     <string name="fragment_archive_to_cover_flow">To carousel</string>
 
     <string name="settings_header">settings</string>
-    <string name="settings_category_general">general</string>
+    <string name="settings_category_issue_management">issue management</string>
     <string name="settings_category_text">display</string>
     <string name="settings_category_account">account</string>
+    <string name="settings_category_legal">Legal</string>
     <string name="settings_text_font_size">Font size</string>
     <string name="settings_text_justified">Text is justified</string>
     <string name="settings_text_night_mode">Night mode</string>
@@ -107,6 +105,7 @@
     <string name="settings_faq"><u>FAQ</u></string>
     <string name="settings_welcome_slides"><u>first steps</u></string>
     <string name="settings_terms"><u>terms of use</u></string>
+    <string name="settings_data_policy"><u>data policy</u></string>
     <string name="settings_revocation"><u>revocation</u></string>
     <string name="settings_support_report_bug">Report a bug</string>
     <string name="settings_auto_downloads_switch">Download next issue automatically</string>

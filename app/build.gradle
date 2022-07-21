@@ -1,12 +1,11 @@
 plugins {
     id "com.android.application"
-    id "com.github.triplet.play" version "3.6.0-agp4.2"
+    id "com.github.triplet.play" version "3.7.0"
     id "io.sentry.android.gradle" version "2.1.5"
 }
 
 apply plugin: 'kotlin-android'
-// todo replace `kotlin-android-extensions` with 'kotlin-parcelize' once we only use ViewBindings
-apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-parcelize'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 
@@ -142,7 +141,7 @@ android {
         }
 
         vectorDrawables.useSupportLibrary = true
-        resConfig "de"
+        resConfigs 'de'
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
@@ -168,9 +167,6 @@ android {
         freeCompilerArgs += "-Xopt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
-    lintOptions {
-        lintConfig file("lint.xml")
-    }
 
     flavorDimensions "source", "owner", "graphql"
 
@@ -290,16 +286,18 @@ android {
         pickFirst 'win32-x86-64/attach_hotspot_windows.dll'
         pickFirst 'META-INF/licenses/ASM'
     }
+    lint {
+        lintConfig file('lint.xml')
+    }
 }
 
 dependencies {
     def coroutines_version = '1.5.2'
     def glide_version = '4.12.0'
-    // updating ktor would require a gradle update which is prevented by mupdf
-    def ktor_version = '1.6.3'
+    def ktor_version = '2.0.3'
     def lifecycle_version = '2.4.0'
-    def mockito_version = '3.12.4'
-    def moshi_version = '1.12.0'
+    def mockito_version = '4.6.1'
+    def moshi_version = '1.13.0'
     def powermock_version = '2.0.9'
     def room_version = '2.3.0'
     def work_version = '2.7.0'
@@ -382,8 +380,8 @@ dependencies {
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
+    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.3'
     testImplementation "org.mockito:mockito-inline:$mockito_version"
     androidTestImplementation "org.mockito:mockito-android:$mockito_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"
@@ -401,7 +399,7 @@ dependencies {
     // AndroidJUnitRunner and JUnit Rules
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.0'
-    androidTestUtil 'androidx.test:orchestrator:1.4.0'
+    androidTestUtil 'androidx.test:orchestrator:1.4.1'
 
 
     // Assertions
@@ -447,13 +445,6 @@ allOpen {
     annotation('de.taz.app.android.annotation.Mockable')
 }
 
-
-// This is a dependency of mockito - 3.x does not support apiLevel < 26, so we fix the dependency for now: https://github.com/mockito/mockito/issues/2007
-allprojects {
-    configurations.all {
-        resolutionStrategy.force 'org.objenesis:objenesis:2.6'
-    }
-}
 
 task generateStaticVersionInBuildGradle {
     doLast {

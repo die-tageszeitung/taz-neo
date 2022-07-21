@@ -21,127 +21,112 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.9" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/fragment_cover_flow_grid_margin_bottom"
-        android:paddingTop="@dimen/fragment_cover_flow_grid_padding_top"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="@dimen/fragment_cover_flow_guideline_end" />
 
-        <com.factor.bouncy.BouncyRecyclerView
-            android:id="@+id/fragment_cover_flow_grid"
+    <com.factor.bouncy.BouncyRecyclerView
+        android:id="@+id/fragment_cover_flow_grid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="@id/guideline_date"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.6" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_cover_flow_date_download_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_date">
+
+        <TextView
+            android:id="@+id/fragment_cover_flow_date"
+            style="@style/TextAppearance.CoverFlow.Date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
+            android:gravity="center"
+            android:paddingTop="@dimen/fragment_archive_moment_date_padding_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_cover_flow_date_download_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="@dimen/cover_item_padding"
+            android:id="@+id/fragment_coverflow_moment_download"
+            android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1,1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid">
+            app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/fragment_cover_flow_date"
-                style="@style/TextAppearance.CoverFlow.Date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingTop="@dimen/fragment_archive_moment_date_padding_vertical"
+            <ImageView
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
+                android:contentDescription="@string/settings_download_issue"
+                android:src="@drawable/ic_file_download"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="donnerstag, 1.1.1970" />
+                app:tint="@color/icon_tint" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_coverflow_moment_download"
-                android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:visibility="gone"
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_coverflow_moment_download_finished"
+            android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1,1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
+                android:contentDescription="@string/settings_download_issue"
+                android:src="@drawable/ic_done"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1,1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible">
+                app:tint="@color/icon_tint" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ImageView
-                    android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                    android:layout_height="@dimen/text_appearance_archive_date_text_size"
-                    android:contentDescription="@string/settings_download_issue"
-                    android:src="@drawable/ic_file_download"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/icon_tint"
-                    tools:src="@drawable/ic_file_download" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_coverflow_moment_downloading"
+            android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1,1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
+            <ProgressBar
+                android:layout_width="@dimen/text_appearance_archive_date_text_size"
+                android:layout_height="@dimen/text_appearance_archive_date_text_size"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1,1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-                app:layout_constraintTop_toTopOf="parent">
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_coverflow_moment_download_finished"
-                android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1,1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                    android:layout_height="@dimen/text_appearance_archive_date_text_size"
-                    android:contentDescription="@string/settings_download_issue"
-                    android:src="@drawable/ic_done"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/icon_tint" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_coverflow_moment_downloading"
-                android:layout_width="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1,1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                    android:layout_height="@dimen/text_appearance_archive_date_text_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

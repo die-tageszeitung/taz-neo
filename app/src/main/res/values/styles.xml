@@ -114,6 +114,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:letterSpacing">0</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
         <item name="autoSizeTextType">uniform</item>
@@ -124,7 +125,7 @@
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
     </style>
@@ -133,6 +134,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">false</item>
+        <item name="android:letterSpacing">0</item>
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -159,6 +161,46 @@
 
     <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
         <item name="backgroundTint">@color/navigation_bottom_background</item>
+    </style>
+
+    <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
+        <item name="android:layout_gravity">bottom</item>
+        <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
+        <item name="backgroundTint">@color/navigation_bottom_background</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@color/bottom_nav_icon_color</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="menu">@menu/navigation_bottom_home</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.BottomNavigationView.Active
+        </item>
+        <item name="itemTextAppearanceInactive">
+            @style/TextAppearance.BottomNavigationView.Inactive
+        </item>
+    </style>
+
+    <style name="BottomNavigationToolBar" parent="Widget.Design.BottomNavigationView">
+        <item name="android:layout_gravity">bottom</item>
+        <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
+        <item name="backgroundTint">@color/navigation_bottom_background</item>
+        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="labelVisibilityMode">unlabeled</item>
+    </style>
+
+    <!-- blank styles for better code readability-->
+    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
+
+    <style name="TextAppearance.BottomNavigationView" />
+
+    <!-- inactive tab icon style -->
+    <style name="TextAppearance.BottomNavigationView.Inactive">
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
+    </style>
+
+    <!-- active tab icon style -->
+    <style name="TextAppearance.BottomNavigationView.Active">
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
     <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
@@ -275,16 +317,21 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
         <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:paddingBottom">3dp</item>
+        <item name="android:textSize">18sp</item>
         <item name="android:paddingTop">5dp</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">17sp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Date" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="TextAppearance.Dialog.Title" parent="TextAppearance.AppCompat">

@@ -1,13 +1,17 @@
 package de.taz.app.android.ui.home.page.coverflow
 
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
-import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
@@ -18,13 +22,10 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
 
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
-
-    val log by Log
 
     override lateinit var adapter: IssueFeedAdapter
 
@@ -34,7 +35,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssuePublication? = null
     private var currentlyFocusedDate: Date? = null
-    private var pdfAdditionally: Boolean = false
     private var firstTimeFragmentIsShown: Boolean = true
 
     private val grid by lazy { viewBinding.fragmentCoverFlowGrid }
@@ -46,15 +46,20 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val dateDownloadWrapper by lazy { viewBinding.fragmentCoverFlowDateDownloadWrapper }
 
     // region lifecycle functions
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            pdfAdditionally =
-                DownloadDataStore.getInstance(requireContext().applicationContext).pdfAdditionally.get()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+                    // redraw all visible views
+                    viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                }
+            }
         }
     }
 
@@ -143,10 +148,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             momentDownloadFinished,
             momentDownloading
         ).apply {
-            startObserving(
-                withPages = pdfAdditionally
-            )
+            startObserving()
         }
+
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
         // set date text
@@ -163,6 +167,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
             firstTimeFragmentIsShown = false
             grid.stopScroll()
+            grid.smoothScrollToPosition(position)
             grid.layoutManager?.scrollToPosition(position)
             snapHelper.scrollToPosition(position)
         }

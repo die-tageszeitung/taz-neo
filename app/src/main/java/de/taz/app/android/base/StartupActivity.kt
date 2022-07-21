@@ -8,9 +8,6 @@ import de.taz.app.android.ui.START_HOME_ACTIVITY
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.main.MainActivity
 
-@Deprecated(
-    message = "To make use of ViewBindings please use ViewBindingActivity or StartupActivity"
-)
 abstract class StartupActivity : AppCompatActivity() {
     private val generalDataStore by lazy {
         GeneralDataStore.getInstance(applicationContext)

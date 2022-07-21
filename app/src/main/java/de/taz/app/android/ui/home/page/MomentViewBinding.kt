@@ -2,12 +2,15 @@ package de.taz.app.android.ui.home.page
 
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.DEFAULT_MOMENT_FILE
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.*
 import kotlinx.coroutines.*
@@ -30,6 +33,7 @@ class MomentViewBinding(
     observeDownload
 ) {
     private val feedRepository = FeedRepository.getInstance(applicationContext)
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
@@ -38,8 +42,8 @@ class MomentViewBinding(
         try {
             val moment = contentService.downloadMetadata(
                 coverPublication,
-                // Retry indefinitely
-                maxRetries = -1
+                // After 7 retries show the fallback
+                maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
             ) as Moment
             val dimension = feedRepository.get(moment.issueFeedName)
                 ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
@@ -82,9 +86,15 @@ class MomentViewBinding(
                 dimension
             )
         } catch (e: CacheOperationFailedException) {
-            val hint =
-                "Error downloading metadata or cover content while binding cover for $coverPublication"
-            throw CoverBindingException(hint, e)
+            // maxRetries reached - so show the fallback cover view:
+            val momentUri = fileEntryRepository.get(DEFAULT_MOMENT_FILE)?.let {
+                storageService.getFileUri(it)
+            }
+            CoverViewData(
+                CoverType.STATIC,
+                momentUri,
+                DEFAULT_MOMENT_RATIO
+            )
         }
     }
 }

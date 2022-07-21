@@ -18,8 +18,6 @@ import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.android.synthetic.main.fragment_error_report.*
-import kotlinx.android.synthetic.main.fragment_header_default.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,29 +43,29 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.moveContentBeneathStatusBar()
+        viewBinding.coordinator.moveContentBeneathStatusBar()
 
         view.apply {
-            fragment_header_default_title.text =
+            viewBinding.settingsHeader.fragmentHeaderDefaultTitle.text =
                 getString(R.string.settings_header).lowercase(Locale.GERMAN)
 
             lifecycleScope.launch {
                 // read email from settings
-                fragment_error_report_email.setText(
+                viewBinding.fragmentErrorReportEmail.setText(
                     AuthHelper.getInstance(requireContext().applicationContext).email.get()
                 )
             }
 
-            fragment_error_report_upload.setOnClickListener {
+            viewBinding.fragmentErrorReportUpload.setOnClickListener {
                 getImageFromGallery.launch("image/*")
             }
 
-            fragment_error_report_send_button.setOnClickListener {
-                loading_screen.visibility = View.VISIBLE
-                val email = fragment_error_report_email.text.toString().trim()
-                val message = fragment_error_report_message.text.toString().trim()
-                val lastAction = fragment_error_report_last_action.text.toString().trim()
-                val conditions = fragment_error_report_conditions.text.toString().trim()
+            viewBinding.fragmentErrorReportSendButton.setOnClickListener {
+                viewBinding.loadingScreen.root.visibility = View.VISIBLE
+                val email = viewBinding.fragmentErrorReportEmail.text.toString().trim()
+                val message = viewBinding.fragmentErrorReportMessage.text.toString().trim()
+                val lastAction = viewBinding.fragmentErrorReportLastAction.text.toString().trim()
+                val conditions = viewBinding.fragmentErrorReportConditions.text.toString().trim()
 
                 if (email.isNotEmpty()) {
                     sendErrorReport(
@@ -79,8 +77,8 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
                         base64String
                     )
                 } else {
-                    fragment_error_report_email.error = requireContext().getString(R.string.login_email_error_empty)
-                    loading_screen.visibility = View.GONE
+                    viewBinding.fragmentErrorReportEmail.error = requireContext().getString(R.string.login_email_error_empty)
+                    viewBinding.loadingScreen.root.visibility = View.GONE
                 }
             }
         }
@@ -105,7 +103,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
                     // Check if string is not longer than 2^32-1 bytes:
                     if (base64StringTotal.encodeToByteArray().size < MAX_BYTES) {
-                        fragment_error_report_screenshot_thumbnail.setImageURI(uri)
+                        viewBinding.fragmentErrorReportScreenshotThumbnail.setImageURI(uri)
                         base64String = base64StringTotal
                     } else {
                         toastHelper.showToast(R.string.toast_error_report_upload_file_too_big)

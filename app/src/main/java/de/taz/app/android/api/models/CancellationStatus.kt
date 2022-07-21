@@ -5,7 +5,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class CancellationStatus(
     val tazIdMail: String? = null,
-    val cancellationLink: String,
+    val cancellationLink: String? = null,
+    val canceled: Boolean,
     val info: CancellationInfo,
 )
 

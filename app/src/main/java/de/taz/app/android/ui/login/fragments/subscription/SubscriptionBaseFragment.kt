@@ -1,16 +1,17 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
-import androidx.annotation.LayoutRes
+import androidx.viewbinding.ViewBinding
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import java.lang.RuntimeException
 
-abstract class SubscriptionBaseFragment(@LayoutRes layout: Int): LoginBaseFragment(layout) {
+abstract class SubscriptionBaseFragment<VIEW_BINDING : ViewBinding> :
+    LoginBaseFragment<VIEW_BINDING>() {
     abstract fun done(): Boolean
 
     abstract fun next()
 
-    protected fun ifDoneNext()  {
-        if(done()) next()
+    protected fun ifDoneNext() {
+        if (done()) next()
     }
 
     override fun onDestroyView() {

@@ -2,14 +2,13 @@ package de.taz.app.android.ui.bottomSheet.datePicker
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.base.ViewBindingBottomSheetFragment
+import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
@@ -17,11 +16,10 @@ import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
-import kotlinx.android.synthetic.main.fragment_bottom_sheet_date_picker.*
 import java.util.*
 
 
-class DatePickerFragment : BottomSheetDialogFragment() {
+class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDatePickerBinding>() {
 
     private val log by Log
 
@@ -42,14 +40,6 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return layoutInflater.inflate(R.layout.fragment_bottom_sheet_date_picker, container, false)
-    }
-
     override fun onStart() {
         super.onStart()
         //this forces the sheet to appear at max height even on landscape
@@ -62,14 +52,14 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //minDate and maxDate constraints
-        fragment_bottom_sheet_date_picker.maxDate = DateHelper.today(AppTimeZone.Default)
+        viewBinding.fragmentBottomSheetDatePicker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
 
         val minDate = feed.issueMinDate
         if (minDate.isNotBlank()) {
             log.debug("minDate is $minDate")
             DateHelper.stringToLong(minDate)?.let { long ->
-                fragment_bottom_sheet_date_picker.minDate = long
+                viewBinding.fragmentBottomSheetDatePicker.minDate = long
             }
         }
 
@@ -77,16 +67,16 @@ class DatePickerFragment : BottomSheetDialogFragment() {
         val calendar = Calendar.getInstance()
         calendar.time = currentDate
 
-        fragment_bottom_sheet_date_picker.updateDate(
+        viewBinding.fragmentBottomSheetDatePicker.updateDate(
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         )
 
-        fragment_bottom_sheet_date_picker_confirm_button?.setOnClickListener { confirmButton ->
-            val dayShort = fragment_bottom_sheet_date_picker.dayOfMonth
-            val year = fragment_bottom_sheet_date_picker.year
-            val monthShort = fragment_bottom_sheet_date_picker.month + 1
+        viewBinding.fragmentBottomSheetDatePickerConfirmButton.setOnClickListener { confirmButton ->
+            val dayShort = viewBinding.fragmentBottomSheetDatePicker.dayOfMonth
+            val year = viewBinding.fragmentBottomSheetDatePicker.year
+            val monthShort = viewBinding.fragmentBottomSheetDatePicker.month + 1
             val month = if (monthShort >= 10) monthShort.toString() else "0${monthShort}"
             val day = if (dayShort >= 10) dayShort.toString() else "0${dayShort}"
 

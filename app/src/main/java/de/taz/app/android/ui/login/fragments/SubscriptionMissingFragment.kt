@@ -3,13 +3,13 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
+import de.taz.app.android.databinding.FragmentLoginMissingSubscriptionBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
-import kotlinx.android.synthetic.main.fragment_login_missing_subscription.*
 
 class SubscriptionMissingFragment :
-    SubscriptionBaseFragment(R.layout.fragment_login_missing_subscription) {
+    SubscriptionBaseFragment<FragmentLoginMissingSubscriptionBinding>() {
 
     private var invalidId: Boolean = false
 
@@ -24,56 +24,56 @@ class SubscriptionMissingFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fragment_login_missing_subscription.setText(viewModel.subscriptionId?.toString() ?: "")
-        fragment_login_missing_subscription_password.setText(viewModel.subscriptionPassword ?: "")
+        viewBinding.fragmentLoginMissingSubscription.setText(viewModel.subscriptionId?.toString() ?: "")
+        viewBinding.fragmentLoginMissingSubscriptionPassword.setText(viewModel.subscriptionPassword ?: "")
 
         if (invalidId) {
-            fragment_login_missing_subscription_layout.error = getString(
+            viewBinding.fragmentLoginMissingSubscriptionLayout.error = getString(
                 R.string.login_subscription_error_invalid
             )
         }
 
-        fragment_login_missing_subscription_connect_account.setOnClickListener {
+        viewBinding.fragmentLoginMissingSubscriptionConnectAccount.setOnClickListener {
             ifDoneNext()
         }
 
-        fragment_login_missing_subscription_forgot_password.setOnClickListener {
+        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
             viewModel.requestPasswordReset(subscriptionId = true)
         }
 
-        fragment_login_missing_subscription_password.setOnEditorActionListener(
+        viewBinding.fragmentLoginMissingSubscriptionPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
-        fragment_login_missing_subscription_subscription_button.setOnClickListener {
+        viewBinding.fragmentLoginMissingSubscriptionSubscriptionButton.setOnClickListener {
             viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
         }
-        fragment_login_missing_subscription_help.setOnClickListener {
+        viewBinding.fragmentLoginMissingSubscriptionHelp.setOnClickListener {
             showHelpDialog(R.string.fragment_login_missing_subscription_help)
         }
 
     }
 
     override fun done(): Boolean {
-        val subscriptionId = fragment_login_missing_subscription.text.toString().trim()
-        val subscriptionPassword = fragment_login_missing_subscription_password.text.toString()
+        val subscriptionId = viewBinding.fragmentLoginMissingSubscription.text.toString().trim()
+        val subscriptionPassword = viewBinding.fragmentLoginMissingSubscriptionPassword.text.toString()
 
         var somethingWrong = false
 
         if (subscriptionId.isEmpty()) {
-            fragment_login_missing_subscription_layout.error = getString(
+            viewBinding.fragmentLoginMissingSubscriptionLayout.error = getString(
                 R.string.login_subscription_error_empty
             )
             somethingWrong = true
         } else if (subscriptionId.toIntOrNull() == null) {
-            fragment_login_missing_subscription_layout.error = getString(
+            viewBinding.fragmentLoginMissingSubscriptionLayout.error = getString(
                 R.string.login_subscription_error_invalid
             )
             somethingWrong = true
         }
 
         if (subscriptionPassword.isEmpty()) {
-            fragment_login_missing_subscription_password_layout.error = getString(
+            viewBinding.fragmentLoginMissingSubscriptionPasswordLayout.error = getString(
                 R.string.login_password_error_empty
             )
             somethingWrong = true

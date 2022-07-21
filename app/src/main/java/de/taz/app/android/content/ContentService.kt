@@ -1,7 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
-import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
+import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
@@ -30,7 +30,6 @@ import kotlinx.coroutines.withContext
 class ContentService(
     private val applicationContext: Context
 ) {
-
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
@@ -59,40 +58,26 @@ class ContentService(
      * @return A Flow object emitting [CacheStateUpdate]s
      */
     fun getCacheStatusFlow(download: ObservableDownload): Flow<CacheStateUpdate> {
-        return getCacheStatusFlow(listOf(download))
-    }
-
-    /**
-     * Get a [Flow] emitting updates concerning any [ObservableDownload] in [downloads]
-     * It will immediately emit an update with the current state to inform the new subscriber
-     * about the current cache state of the [ObservableDownload].
-     * If in that moment no operation for [downloads] is ongoing the [CacheStateUpdate] may have
-     * null for [CacheStateUpdate.operation]
-     *
-     * @param downloads The downloads to listen updates on
-     * @return A Flow object emitting [CacheStateUpdate]s
-     */
-    fun getCacheStatusFlow(downloads: List<ObservableDownload>): Flow<CacheStateUpdate> {
-        val parentTags = downloads.map { determineParentTag(it) }
-        val tags = downloads.map { it.getDownloadTag() }
+        // we need to listen for either parent tag or tag with /pdf because downloads with pages
+        // should also be shown as download of issue and deletion as well.
+        val parentTags: List<String> =
+            listOf(determineParentTag(download), download.getDownloadTag() + "/pdf")
+        val tag = download.getDownloadTag()
         return cacheStatusFlow
-            .filter {
+            .filter { pair ->
                 // Receive updates to both the parent operation and any discrete operation
-                parentTags.contains(it.first) || tags.contains(it.first)
+                parentTags.any { tag -> pair.first.startsWith(tag) } || tag == pair.first
             }
             .map { it.second }
             .also {
-                downloads.forEach { download ->
-                    val tag = determineParentTag(download)
-                    // Immediately after subscribing check if there is a ongoing operation and push state if available
-                    // if no operation is ongoing just determine the current state
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val activeOperation = activeCacheOperations[tag]
-                        if (activeOperation != null) {
-                            cacheStatusFlow.emit(tag to activeOperation.state)
-                        } else {
-                            cacheStatusFlow.emit(tag to getCacheState(download))
-                        }
+                CoroutineScope(Dispatchers.IO).launch {
+                    val stateUpdate =
+                        activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
+                            ?: getCacheState(download)
+                    // only emit if no status has been provided yet
+                    cacheStatusFlow.onEmpty {
+                        log.debug("emmiting on empty $stateUpdate")
+                        cacheStatusFlow.emit(tag to stateUpdate)
                     }
                 }
             }
@@ -204,7 +189,7 @@ class ContentService(
      */
     suspend fun downloadMetadata(
         download: ObservableDownload,
-        maxRetries: Int = METADATA_DOWNLOAD_DEFAULT_RETRIES,
+        maxRetries: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY,
         forceExecution: Boolean = false,
         minStatus: IssueStatus? = null,
         allowCache: Boolean = true
@@ -246,13 +231,10 @@ class ContentService(
      * @param issuePublication The issueKey the content of which should be deleted
      */
     @Throws(NotFoundException::class)
-    suspend fun deleteIssue(issuePublication: AbstractIssuePublication) = withContext(Dispatchers.IO) {
-
-        val deletion = IssueDeletion.prepare(
-            applicationContext,
-            issuePublication,
-            determineParentTag(issuePublication)
-        )
-        deletion.execute()
+    suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
+        withContext(Dispatchers.IO) {
+            IssueDeletion.prepare(applicationContext, issuePublication)
+                .execute()
+        }
     }
 }
