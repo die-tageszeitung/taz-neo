@@ -10,6 +10,7 @@ import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
@@ -30,7 +31,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val graphQlClient: GraphQlClient,
     private val authHelper: AuthHelper,
     private val firebaseHelper: FirebaseHelper,
-    private val deviceFormat: DeviceFormat
+    private val deviceFormat: DeviceFormat,
+    private val downloadDataStore: DownloadDataStore,
 ) {
 
     private constructor(applicationContext: Context) : this(
@@ -41,7 +43,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             DeviceFormat.tablet
         }  else {
             DeviceFormat.mobile
-        }
+        },
+        downloadDataStore = DownloadDataStore.getInstance(applicationContext)
     )
 
     companion object : SingletonHolder<ApiService, Context>(::ApiService)
@@ -440,7 +443,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     installationId = authHelper.installationId.get(),
                     isPush = firebaseHelper.isPush(),
                     pushToken = firebaseHelper.token.get(),
-                    deviceFormat = deviceFormat
+                    deviceFormat = deviceFormat,
+                    textNotification = downloadDataStore.notificationsEnabled.get()
                 )
             ).data?.downloadStart?.let { id ->
                 log.debug("Notified server that download started. ID: $id with pushToken: ${firebaseHelper.token.get()}")
@@ -485,6 +489,26 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         oldToken = oldToken,
                         deviceFormat = deviceFormat
                     )
+                ).data?.notification
+                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
+            }
+        }
+    /**
+     * function to inform server that text notifications are enabled or not
+     * @param [enabled] Boolean indicating that text notifications are allowed
+     */
+    suspend fun setNotificationsEnabled(enabled: Boolean): Boolean =
+        withContext(Dispatchers.IO) {
+            transformToConnectivityException {
+                graphQlClient.query(
+                    QueryType.Notification,
+                    firebaseHelper.token.get()?.let {
+                        NotificationVariables(
+                            pushToken = it,
+                            deviceFormat = deviceFormat,
+                            textNotification = enabled,
+                        )
+                    }
                 ).data?.notification
                     ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
             }

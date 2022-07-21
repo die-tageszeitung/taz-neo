@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.*
@@ -14,6 +16,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
@@ -21,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
+import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -32,6 +36,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
@@ -200,6 +205,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setPdfDownloadEnabled(isChecked)
             }
 
+            if (FLAVOR_source == "nonfree") {
+                fragmentSettingsNotificationsSwitch.visibility = View.VISIBLE
+                fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    setNotificationsEnabled(isChecked)
+                }
+            }
+
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
@@ -237,6 +249,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
+            }
+            notificationsEnabledLivedata.observeDistinctIgnoreFirst(viewLifecycleOwner) { notificationsEnabled ->
+                showNotificationsEnabledToggle(notificationsEnabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -543,6 +558,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showNotificationsEnabledToggle(notificationsEnabled: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_notifications_switch)?.apply {
+            isChecked = notificationsEnabled
+        }
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -622,6 +643,52 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun setPdfDownloadEnabled(downloadEnabled: Boolean) {
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
+
+    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
+        val permissionNotSet =
+            !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+
+        // Check if android allow the app to display notifications:
+        if (notificationsEnabled && permissionNotSet) {
+            showNotificationsMustBeAllowedDialog()
+            showNotificationsEnabledToggle(false)
+        } else {
+            viewModel.setNotificationsEnabled(notificationsEnabled)
+        }
+    }
+
+    private fun showNotificationsMustBeAllowedDialog() {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
+                .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                    openAndroidNotificationSettings()
+                }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                    (dialog as AlertDialog).hide()
+                }
+                .create()
+                .show()
+        }
+    }
+
+
+    private fun openAndroidNotificationSettings() {
+        activity?.applicationContext?.let { context ->
+            val intent = Intent().apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                    putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                } else {
+                    action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                    putExtra("app_package", context.packageName)
+                    putExtra("app_uid", context.applicationInfo.uid)
+                }
+            }
+            activity?.startActivity(intent)
+        }
+    }
+
 
     private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
