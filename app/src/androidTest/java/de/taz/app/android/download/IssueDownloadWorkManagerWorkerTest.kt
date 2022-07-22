@@ -17,7 +17,6 @@ import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
-import de.taz.app.android.util.any
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert
