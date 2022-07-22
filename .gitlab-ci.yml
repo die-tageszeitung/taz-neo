@@ -39,7 +39,7 @@ stages:
   cache:
     key:
       files:
-        .git/modules/mupdf-lib/HEAD
+        - .git/modules/mupdf-lib/HEAD
     paths:
       - mupdf-lib/
 
