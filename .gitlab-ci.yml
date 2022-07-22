@@ -32,12 +32,19 @@ stages:
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
 
-    # libmupdfs assets are generated outside of mupdf gradle build process.
-    # As long as we cant reliably cache them we have to re-generate them on every build step
+.generateMuPdf:
+  extends: .prepareEnv
+  script:
     - make -C mupdf-lib/jni/libmupdf generate
+  cache:
+    key:
+      files:
+        .git/modules/mupdf-lib/HEAD
+    paths:
+      - mupdf-lib/
 
 .assemble:
-  extends: .prepareEnv
+  extends: .generateMuPdf
   artifacts:
     paths:
       - app/build/outputs/
@@ -72,7 +79,7 @@ unitTests:
     - ./gradlew --no-daemon --console=plain :app:testNonfreeTazProductionDebugUnitTest
 
 integrationTests:
-  extends: .prepareEnv
+  extends: .generateMuPdf
   stage: test
   interruptible: true
   script:
