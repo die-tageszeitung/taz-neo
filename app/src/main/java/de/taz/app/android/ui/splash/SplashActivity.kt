@@ -59,7 +59,7 @@ class SplashActivity : StartupActivity() {
         super.onCreate(savedInstanceState)
 
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepVisibleCondition { showSplashScreen }
+        splashScreen.setKeepOnScreenCondition { showSplashScreen }
 
         dataService = DataService.getInstance(application)
         firebaseHelper = FirebaseHelper.getInstance(application)
