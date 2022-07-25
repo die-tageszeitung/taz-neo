@@ -10,12 +10,12 @@ import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.util.any
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doReturn
@@ -78,11 +78,11 @@ class ContentServiceTest {
         runBlocking {
             // stupid replication of the retry on connection failure method
             `when`(mockApiService.retryOnConnectionFailure(
-                any(),
-                any(),
-                any() as suspend () -> Any,
+                any(Function::class.java) as suspend () -> Unit,
+                any(Int::class.java),
+                any(Function::class.java) as suspend () -> Any,
             )).then {
-                runBlocking { (it.arguments[2] as? suspend () -> Any)?.invoke() }
+                runBlocking { (it.arguments[2] as suspend () -> Any).invoke() }
             }
 
             doReturn(testIssue)
