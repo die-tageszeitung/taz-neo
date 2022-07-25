@@ -25,13 +25,16 @@ interface AppWebViewClientCallBack {
     fun onPageFinishedLoading()
 }
 
-class AppWebViewClient(applicationContext: Context, private val callBack: AppWebViewClientCallBack) : WebViewClient() {
+class AppWebViewClient(
+    applicationContext: Context,
+    private val callBack: AppWebViewClientCallBack
+) : WebViewClient() {
 
     private val log by Log
     private val storageService = StorageService.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @SuppressWarnings("deprecation")
+    @Deprecated("Deprecated in Java - But needed for Android versions pre 7.0.0")
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(webView: WebView?, url: String?): Boolean {
         return shouldOverride(webView, url) || super.shouldOverrideUrlLoading(webView, url)
@@ -42,10 +45,8 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
         webView: WebView?,
         request: WebResourceRequest?
     ): Boolean {
-        return shouldOverride(webView, request?.url.toString()) || super.shouldOverrideUrlLoading(
-            webView,
-            request
-        )
+        return shouldOverride(webView, request?.url.toString())
+                || super.shouldOverrideUrlLoading(webView, request)
     }
 
     private fun shouldOverride(webView: WebView?, url: String?): Boolean {
