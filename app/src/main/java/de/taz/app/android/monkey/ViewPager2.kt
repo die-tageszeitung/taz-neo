@@ -29,11 +29,12 @@ fun ViewPager2.moveContentBeneathStatusBar() {
     val recyclerView = recyclerViewField.get(this) as RecyclerView
 
     setOnApplyWindowInsetsListener { v, insets ->
+        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
         (v.layoutParams as ViewGroup.MarginLayoutParams).apply {
             topMargin = 0
-            leftMargin = insets.systemWindowInsetLeft
-            rightMargin = insets.systemWindowInsetRight
-            bottomMargin = insets.systemWindowInsetBottom
+            leftMargin = systemWindowInsets.left
+            rightMargin = systemWindowInsets.right
+            bottomMargin = systemWindowInsets.bottom
         }
         // trigger for recyclerview as well
         for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
@@ -41,12 +42,13 @@ fun ViewPager2.moveContentBeneathStatusBar() {
     }
 
     recyclerView.setOnApplyWindowInsetsListener { v, insets ->
+        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
         val layoutParams = ViewGroup.MarginLayoutParams(v.layoutParams)
         layoutParams.apply {
             topMargin = 0
-            leftMargin = insets.systemWindowInsetLeft
-            rightMargin = insets.systemWindowInsetRight
-            bottomMargin = insets.systemWindowInsetBottom
+            leftMargin = systemWindowInsets.left
+            rightMargin = systemWindowInsets.right
+            bottomMargin = systemWindowInsets.bottom
         }
         // use post to prevent requestLayout while layouting
         v.post { v.layoutParams = layoutParams }
@@ -62,11 +64,12 @@ fun ViewPager2.moveContentBeneathStatusBar() {
  */
 fun ViewGroup.moveContentBeneathStatusBar() {
     setOnApplyWindowInsetsListener { v, insets ->
+        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
         (v.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
             topMargin = 0
-            leftMargin = insets.systemWindowInsetLeft
-            rightMargin = insets.systemWindowInsetRight
-            bottomMargin = insets.systemWindowInsetBottom
+            leftMargin = systemWindowInsets.left
+            rightMargin = systemWindowInsets.right
+            bottomMargin = systemWindowInsets.bottom
         }
         WindowInsets.CONSUMED
     }
