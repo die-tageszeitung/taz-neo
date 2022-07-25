@@ -30,20 +30,17 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
                     val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
                     viewBinding.fabActionPdf.setImageResource(drawable)
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
             feedArchivePager.apply {

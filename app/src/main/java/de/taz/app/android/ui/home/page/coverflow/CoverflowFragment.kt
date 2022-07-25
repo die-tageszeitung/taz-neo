@@ -52,19 +52,19 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         grid.layoutManager =
             CoverFlowLinearLayoutManager(requireContext(), grid)
