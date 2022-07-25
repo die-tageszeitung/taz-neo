@@ -12,9 +12,11 @@ import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -53,6 +55,8 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var keepScreenOnHelper: KeepScreenOnHelper
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -73,6 +77,8 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
+        keepScreenOnHelper = KeepScreenOnHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -101,6 +107,9 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     }
 
                 }
+            }
+            tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                keepScreenOnHelper.toggleScreenOn(it, activity)
             }
         }
     }

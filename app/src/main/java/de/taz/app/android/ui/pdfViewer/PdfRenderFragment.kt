@@ -19,8 +19,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfRenderBinding
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -32,8 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.lang.NullPointerException
 
 
@@ -58,6 +58,8 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private var pdfReaderView: MuPDFReaderView? = null
     private lateinit var issueKey: IssueKeyWithPages
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var keepScreenOnHelper: KeepScreenOnHelper
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -83,6 +85,8 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         super.onAttach(context)
 
         articleRepository = ArticleRepository.getInstance(context)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
+        keepScreenOnHelper = KeepScreenOnHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +110,12 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         super.onResume()
         pdfPagerViewModel.issueKey.observe(this) {
             issueKey = it
+        }
+
+        lifecycleScope.launchWhenResumed {
+            tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                keepScreenOnHelper.toggleScreenOn(it, activity)
+            }
         }
     }
 

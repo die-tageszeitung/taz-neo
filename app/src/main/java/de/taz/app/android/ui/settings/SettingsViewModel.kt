@@ -19,6 +19,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     var textJustificationLiveData: LiveData<Boolean>
     var nightModeLiveData: LiveData<Boolean>
     var tapToScrollLiveData: LiveData<Boolean>
+    var keepScreenOnLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
@@ -40,6 +41,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         textJustificationLiveData = tazApiCssDataStore.textJustification.asLiveData()
         nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
         tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
+        keepScreenOnLiveData = tazApiCssDataStore.keepScreenOn.asLiveData()
 
         storedIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
         storageLocationLiveData = storageDataStore.storageLocation.asLiveData()
@@ -139,6 +141,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setTapToScroll(value: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             tazApiCssDataStore.tapToScroll.set(value)
+        }
+    }
+
+    fun setKeepScreenOn(value: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            tazApiCssDataStore.keepScreenOn.set(value)
         }
     }
 
