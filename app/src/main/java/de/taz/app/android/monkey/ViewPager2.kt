@@ -1,6 +1,7 @@
 package de.taz.app.android.monkey
 
 import android.view.ViewGroup
+import android.view.WindowInsets
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
@@ -36,7 +37,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // trigger for recyclerview as well
         for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
-        insets.consumeSystemWindowInsets()
+        WindowInsets.CONSUMED
     }
 
     recyclerView.setOnApplyWindowInsetsListener { v, insets ->
@@ -49,7 +50,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // use post to prevent requestLayout while layouting
         v.post { v.layoutParams = layoutParams }
-        insets.consumeSystemWindowInsets()
+        WindowInsets.CONSUMED
     }
 
     requestApplyInsets()
@@ -67,7 +68,7 @@ fun ViewGroup.moveContentBeneathStatusBar() {
             rightMargin = insets.systemWindowInsetRight
             bottomMargin = insets.systemWindowInsetBottom
         }
-        insets.consumeSystemWindowInsets()
+        WindowInsets.CONSUMED
     }
 
     requestApplyInsets()
