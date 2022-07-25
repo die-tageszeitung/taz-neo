@@ -21,6 +21,7 @@ data class FileEntry(
     override val moTime: Long,
     override val sha256: String,
     override val size: Long,
+    @Deprecated("folder field deprecated, file path now stored in path")
     override val folder: String,
     override val dateDownload: Date?,
     @ColumnInfo(defaultValue = "")
