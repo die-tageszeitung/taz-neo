@@ -42,7 +42,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // trigger for recyclerview as well
         for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
-        WindowInsets.CONSUMED
+        WindowInsetsCompat.CONSUMED.toWindowInsets()
     }
 
     recyclerView.setOnApplyWindowInsetsListener { v, insets ->
@@ -56,7 +56,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // use post to prevent requestLayout while layouting
         v.post { v.layoutParams = layoutParams }
-        WindowInsets.CONSUMED
+        WindowInsetsCompat.CONSUMED.toWindowInsets()
     }
 
     requestApplyInsets()
@@ -75,7 +75,7 @@ fun ViewGroup.moveContentBeneathStatusBar() {
             rightMargin = systemWindowInsets.right
             bottomMargin = systemWindowInsets.bottom
         }
-        WindowInsets.CONSUMED
+        WindowInsetsCompat.CONSUMED.toWindowInsets()
     }
 
     requestApplyInsets()
