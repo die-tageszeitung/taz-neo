@@ -14,8 +14,8 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.flow.Flow
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 @Mockable
