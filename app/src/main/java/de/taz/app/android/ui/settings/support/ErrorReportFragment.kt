@@ -18,8 +18,6 @@ import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.*
@@ -150,7 +148,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         val totalRam = memoryInfo.totalMem
         val usedRam = memoryInfo.totalMem - memoryInfo.availMem
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             log.debug("Sending an error report")
             apiService.apply {
                 retryOnConnectionFailure {

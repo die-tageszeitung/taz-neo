@@ -84,7 +84,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             coverflowRefreshLayout.reduceDragSensitivity(10)
 
             fabActionPdf.setOnClickListener {
-                CoroutineScope(Dispatchers.Main).launch {
+                lifecycleScope.launch {
                     homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
                 }
             }

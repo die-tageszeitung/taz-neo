@@ -12,9 +12,11 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 const val DEFAULT_NUMBER_OF_PAGES = 29
 const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
@@ -27,7 +29,7 @@ enum class SwipeEvent {
 class PdfPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), CoroutineScope {
     private val dataService = DataService.getInstance(application)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
@@ -38,7 +40,7 @@ class PdfPagerViewModel(
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
         addSource(issuePublication) {
-            CoroutineScope(Dispatchers.IO).launch {
+            launch {
                 val issue = contentService.downloadMetadata(it) as IssueWithPages
                 postValue(issue.issueKey)
             }
@@ -59,7 +61,7 @@ class PdfPagerViewModel(
             _currentItem.postValue(position)
 
             // Save current position to database to restore later on
-            CoroutineScope(Dispatchers.IO).launch {
+            launch {
                 issueKey.value?.let {
                     dataService.saveLastPageOnIssue(
                         it.getIssueKey(),
@@ -93,7 +95,7 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
-                CoroutineScope(Dispatchers.IO).launch {
+                launch {
                     contentService.downloadToCache(issuePublicationWithPages)
                     postValue(issue)
                 }
@@ -145,4 +147,5 @@ class PdfPagerViewModel(
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

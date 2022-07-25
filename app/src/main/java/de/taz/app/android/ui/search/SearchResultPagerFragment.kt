@@ -189,7 +189,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun toggleBookmark(articleFileName: String, date: Date?) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             articleRepository?.get(articleFileName)?.let { article ->
                 if (article.bookmarked) {
                     articleRepository?.debookmarkArticle(article)

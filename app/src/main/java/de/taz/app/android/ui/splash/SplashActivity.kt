@@ -69,10 +69,8 @@ class SplashActivity : StartupActivity() {
         storageDataStore = StorageDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            launch { checkAppVersion() }
-        }
         lifecycleScope.launch {
+            launch { checkAppVersion() }
             generateNotificationChannels()
             verifyStorageLocation()
 

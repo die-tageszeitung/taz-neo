@@ -102,7 +102,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     }
 
     private fun acceptDataPolicy() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             generalDataStore.dataPolicyAccepted.set(true)
         }
     }

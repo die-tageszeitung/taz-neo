@@ -4,9 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 
 typealias MomentChangedListener = (Date) -> Unit
@@ -26,10 +23,8 @@ class IssueFeedViewModel(
 
     suspend fun getPdfMode() = generalDataStore.pdfMode.get()
 
-    fun setPdfMode(pdfMode: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
-            generalDataStore.pdfMode.set(pdfMode)
-        }
+    suspend fun setPdfMode(pdfMode: Boolean) {
+        generalDataStore.pdfMode.set(pdfMode)
     }
 
     fun setFeed(feed: Feed) {

@@ -93,7 +93,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     this@IssueViewerFragment
                 ) { issueWithDisplayable ->
                     if (issueWithDisplayable == null) return@observe
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch {
                         delay(1500)
                         withContext(Dispatchers.Main) {
                             sectionDrawerViewModel.drawerOpen.value = false

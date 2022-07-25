@@ -34,7 +34,7 @@ class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private val ensureCountLock = Mutex()
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             // if number of downloaded issues or the number of desired issues changes
             // we need to check if we are in the desired bounds
             combine(keepIssuesNumberFlow, downloadedIssueCountFlow) { max, downloaded ->

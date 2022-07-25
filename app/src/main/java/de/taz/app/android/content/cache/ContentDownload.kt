@@ -9,15 +9,10 @@ import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StoragePathService
 import de.taz.app.android.singletons.StorageService
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Cache operation downloading the files related to the collection [collection]

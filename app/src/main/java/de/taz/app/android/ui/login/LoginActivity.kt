@@ -31,7 +31,6 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -170,7 +169,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
-                    CoroutineScope(Dispatchers.Main).launch {
+                    lifecycleScope.launch {
                         authHelper.elapsedButWaiting.set(viewModel.isElapsed())
                         showConfirmEmail()
                     }

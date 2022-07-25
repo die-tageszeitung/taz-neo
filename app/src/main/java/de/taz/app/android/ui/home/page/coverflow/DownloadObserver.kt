@@ -170,7 +170,7 @@ class DownloadObserver(
         issuePublication: AbstractIssuePublication
     ) {
         startObserving()
-        CoroutineScope(Dispatchers.IO).launch {
+        fragment.lifecycleScope.launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
             contentService.downloadIssuePublicationToCache(issuePublication)

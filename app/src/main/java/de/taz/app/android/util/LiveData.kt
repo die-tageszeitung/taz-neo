@@ -10,12 +10,13 @@ import de.taz.app.android.singletons.AuthHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 
 class IssuePublicationMonitor(
     applicationContext: Context,
     publication: AbstractIssuePublication
-) {
+): CoroutineScope {
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
@@ -24,7 +25,7 @@ class IssuePublicationMonitor(
     val issueCacheLiveData: MediatorLiveData<CacheStateUpdate> =
         MediatorLiveData<CacheStateUpdate>().apply {
             addSource(authHelper.minStatusLiveData) {
-                CoroutineScope(Dispatchers.Default).launch {
+                launch {
                     postValue(
                         contentService.getCacheState(publication)
                     )
@@ -37,4 +38,5 @@ class IssuePublicationMonitor(
             ) { postValue(it) }
         }
 
+    override val coroutineContext: CoroutineContext = Dispatchers.Default
 }

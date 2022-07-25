@@ -34,7 +34,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
 
     private fun poll(timeoutMillis: Long = 100) {
         val timeMillis = timeoutMillis.coerceAtMost(3600000)
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             delay(timeMillis)
 
             try {
@@ -48,7 +48,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
                         authHelper.status.set(AuthStatus.valid)
-                        CoroutineScope(Dispatchers.Main).launch {
+                        launch {
                             authHelper.status.asLiveData().observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                 launch(Dispatchers.IO) {
                                     issueRepository.saveIfDoesNotExist(

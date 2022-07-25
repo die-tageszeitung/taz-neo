@@ -116,7 +116,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueShare.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch {
                 var issue = contentService.downloadMetadata(issuePublication) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
@@ -159,7 +159,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
 
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch {
                 contentService.deleteIssue(issuePublication)
                 viewModel.notifyMomentChanged(simpleDateFormat.parse(issuePublication.date)!!)
                 withContext(Dispatchers.Main) {
@@ -169,7 +169,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch {
                 try {
                     contentService.downloadIssuePublicationToCache(issuePublication)
                 } catch (e: CacheOperationFailedException) {

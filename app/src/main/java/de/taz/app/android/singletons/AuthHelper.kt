@@ -110,7 +110,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {

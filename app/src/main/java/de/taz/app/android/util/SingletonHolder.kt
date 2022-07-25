@@ -1,11 +1,15 @@
 package de.taz.app.android.util
 
 import androidx.annotation.VisibleForTesting
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Singleton base class
  */
-open class SingletonHolder<T, in A>(creator: (A) -> T) {
+open class SingletonHolder<T, in A>(creator: (A) -> T) : CoroutineScope {
     private var creator: ((A) -> T)? = creator
     @Volatile private var instance: T? = null
 
@@ -40,4 +44,7 @@ open class SingletonHolder<T, in A>(creator: (A) -> T) {
     fun inject(injectedInstance: T) {
         this.instance = injectedInstance
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Default
+
 }

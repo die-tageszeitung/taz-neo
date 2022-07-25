@@ -4,13 +4,13 @@ import android.graphics.Canvas
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -29,14 +29,14 @@ class BookmarkListAdapter(
 
     private fun restoreBookmark(article: Article, position: Int) {
         bookmarks.add(position, article)
-        CoroutineScope(Dispatchers.IO).launch {
+        bookmarksFragment.lifecycleScope.launch {
             ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).bookmarkArticle(article)
         }
         notifyItemInserted(position)
     }
 
     private fun removeBookmark(article: Article, position: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
+        bookmarksFragment.lifecycleScope.launch {
             ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).debookmarkArticle(article)
         }
         notifyItemRemoved(position)

@@ -34,7 +34,6 @@ import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -120,7 +119,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             tryPdfDialog = MaterialAlertDialogBuilder(this)
                 .setView(R.layout.dialog_try_pdf)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    CoroutineScope(Dispatchers.Main).launch {
+                    lifecycleScope.launch(Dispatchers.Main) {
                         generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
                         dialog.dismiss()
                     }
@@ -129,7 +128,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
             tryPdfDialog?.show()
             tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
-                CoroutineScope(Dispatchers.Main).launch {
+                lifecycleScope.launch(Dispatchers.Main) {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
                     tryPdfDialog?.dismiss()
                 }

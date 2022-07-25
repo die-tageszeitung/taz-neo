@@ -10,11 +10,9 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
@@ -33,7 +31,7 @@ data class IssueKeyWithDisplayableKey(
 class IssueViewerViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), CoroutineScope {
     private val log by Log
     private val dataService = DataService.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
@@ -60,7 +58,7 @@ class IssueViewerViewModel(
         }
         issueDisplayable?.let {
             // persist the last displayable in db
-            CoroutineScope(Dispatchers.IO).launch {
+            launch {
                 dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
             }
         }
@@ -84,7 +82,7 @@ class IssueViewerViewModel(
                         IssueKeyWithDisplayableKey(issueKey, displayable)
                     )
                     // Start downloading the whole issue in background
-                    CoroutineScope(Dispatchers.IO).launch {
+                    launch {
                         try {
                             contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                             issueRepository.updateLastViewedDate(issueKey)
@@ -162,4 +160,6 @@ class IssueViewerViewModel(
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

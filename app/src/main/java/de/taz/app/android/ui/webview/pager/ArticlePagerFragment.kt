@@ -225,7 +225,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun toggleBookmark(articleStub: ArticleStub) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             if (isBookmarkedLiveData?.value == true) {
                 articleRepository?.debookmarkArticle(articleStub)
             } else {

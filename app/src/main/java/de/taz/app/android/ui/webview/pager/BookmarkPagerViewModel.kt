@@ -8,14 +8,16 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 private const val KEY_ARTICLE_FILE_NAME = "KEY_ARTICLE_FILE_NAME"
 
 class BookmarkPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), CoroutineScope {
 
     val issueRepository = IssueRepository.getInstance(application)
     val articleRepository = ArticleRepository.getInstance(application)
@@ -41,7 +43,7 @@ class BookmarkPagerViewModel(
         get() = currentIssueAndArticleLiveData.value?.first
 
     fun toggleBookmark(articleStub: ArticleStub) {
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             if (articleStub.bookmarkedTime != null) {
                 articleRepository.debookmarkArticle(articleStub)
             } else {
@@ -49,4 +51,7 @@ class BookmarkPagerViewModel(
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+
 }

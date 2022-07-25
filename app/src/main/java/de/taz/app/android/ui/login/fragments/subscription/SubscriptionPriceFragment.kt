@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.radiobutton.MaterialRadioButton
@@ -132,7 +133,7 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
     }
 
     private fun setPriceList(it: List<PriceInfo>) {
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val priceList = if (viewModel.isElapsed()) {
                 mutableListOf()
             } else {

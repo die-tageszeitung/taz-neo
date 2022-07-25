@@ -7,10 +7,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.*
 
 const val BACK_OFF_FACTOR = 1.75f
 
@@ -22,7 +19,7 @@ data class WaitingCall(
 const val INFINITE = -1
 
 @Mockable
-abstract class ConnectionHelper {
+abstract class ConnectionHelper: CoroutineScope {
     val log by Log
 
     private val waitingCalls = ConcurrentLinkedQueue<WaitingCall>()
@@ -62,9 +59,9 @@ abstract class ConnectionHelper {
         }
     }
 
-    private suspend fun ensureConnectivityCheckRunning() {
+    private fun ensureConnectivityCheckRunning() {
         if (connectivityCheckJob?.isActive != true) {
-            connectivityCheckJob = CoroutineScope(Dispatchers.IO).launch {
+            connectivityCheckJob = launch {
                 tryForConnectivity()
             }
         }
@@ -115,4 +112,6 @@ abstract class ConnectionHelper {
     private fun resetBackOffTime() {
         backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

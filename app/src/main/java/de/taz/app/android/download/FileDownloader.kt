@@ -68,7 +68,7 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
 
     private fun ensureDownloaderRunning() {
         if (downloaderJob == null || downloaderJob?.isActive == false) {
-            downloaderJob = CoroutineScope(Dispatchers.Default).launch {
+            downloaderJob = launch {
                 (0 until MAX_SIMULTANEOUS_DOWNLOADS).map { i ->
                     launch(downloaderThreadPool.asCoroutineDispatcher()) { pollForDownload(i) }
                 }.joinAll()
