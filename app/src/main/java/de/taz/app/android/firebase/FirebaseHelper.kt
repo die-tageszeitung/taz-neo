@@ -44,7 +44,7 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     /**
      * function which will try to send the firebase token to the backend if it was not sent yet
      */
-    fun ensureTokenSent() = coroutineScope.launch { ensureTokenSentSus() }
+    final fun ensureTokenSent() = CoroutineScope(Dispatchers.IO).launch { ensureTokenSentSus() }
     private suspend fun ensureTokenSentSus() {
         try {
             if (!store.tokenSent.get() && !store.token.get().isNullOrEmpty()) {
@@ -55,6 +55,8 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
                 if (sent) {
                     store.oldToken.set(null)
                 }
+            } else {
+                log.info("token already set")
             }
         } catch (e: ConnectivityException.NoInternetException) {
             log.warn("Sending notification token failed because no internet available")
@@ -65,15 +67,9 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
      * function to call when a new Firebase token exists
      * @param newToken - the new token
      */
-    fun updateToken(newToken: String) = coroutineScope.launch {
+    fun updateToken(newToken: String) = CoroutineScope(Dispatchers.IO).launch {
         store.oldToken.set(store.token.get())
         store.token.set(newToken)
         ensureTokenSentSus()
     }
-
-    // region CoroutineScope
-    private val job = SupervisorJob()
-    private val coroutineContext: CoroutineContext = job + Dispatchers.IO
-    private val coroutineScope = CoroutineScope(coroutineContext)
-    // endregion
 }
