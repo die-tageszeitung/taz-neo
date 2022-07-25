@@ -17,7 +17,6 @@ import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
-import de.taz.app.android.util.any
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert
@@ -28,7 +27,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import java.util.*
+import org.mockito.kotlin.anyOrNull
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -95,7 +94,7 @@ class IssueDownloadWorkManagerWorkerTest {
     fun scheduleDownloadWithoutPoll() = runBlocking {
         `when`(
             mockDataService.getFeedByName(
-                any(String::class.java),
+                anyOrNull(),
                 eq(true),
                 eq(false)
             )
@@ -105,7 +104,7 @@ class IssueDownloadWorkManagerWorkerTest {
 
         `when`(
             mockDataService.getFeedByName(
-                any(String::class.java),
+                anyOrNull(),
                 eq(false),
                 eq(false)
             )
@@ -114,17 +113,15 @@ class IssueDownloadWorkManagerWorkerTest {
         )
 
         `when`(
-            mockApiService.getIssueByPublication(
-                any(IssuePublication::class.java)
-            )
+            mockApiService.getIssueByPublication(anyOrNull())
         ).thenReturn(
             TestDataUtil.getIssue()
         )
 
         `when`(
             mockApiService.getMomentByFeedAndDate(
-                any(String::class.java),
-                any(Date::class.java)
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
@@ -140,22 +137,22 @@ class IssueDownloadWorkManagerWorkerTest {
         }
 
         verify(mockDownloadScheduler, times(0)).scheduleNewestIssueDownload(
-            any(String::class.java),
-            any(Boolean::class.java),
-            any(Long::class.java)
+            anyOrNull(),
+            anyOrNull(),
+            anyOrNull()
         )
         MatcherAssert.assertThat(result, `is`(ListenableWorker.Result.success()))
     }
 
     @Test
     fun pollNewIssue() = runBlocking {
-        `when`(mockDataService.refreshFeedAndGetIssueKeyIfNew(any(String::class.java))).thenReturn(
+        `when`(mockDataService.refreshFeedAndGetIssueKeyIfNew(anyOrNull())).thenReturn(
             TestDataUtil.getIssue().issueKey
         )
         `when`(
             mockApiService.getMomentByFeedAndDate(
-                any(String::class.java),
-                any(Date::class.java)
+                anyOrNull(),
+                anyOrNull()
             )
         ).thenReturn(
             Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
@@ -174,9 +171,9 @@ class IssueDownloadWorkManagerWorkerTest {
 
         assert(nextPollDelay > 0)
         verify(mockDownloadScheduler).scheduleNewestIssueDownload(
-            any(String::class.java),
+            anyOrNull(),
             eq(true),
-            any(Long::class.java)
+            anyOrNull()
         )
         MatcherAssert.assertThat(result, `is`(ListenableWorker.Result.success()))
     }

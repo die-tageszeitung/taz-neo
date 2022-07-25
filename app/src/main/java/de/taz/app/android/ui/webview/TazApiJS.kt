@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.JavascriptInterface
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -16,7 +17,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -108,20 +108,21 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
 
     private fun openExternally(url: String) {
         webViewFragment.viewModel.tapLock.postValue(true)
-        runIfNotNull(applicationContext, webViewFragment.activity) { applicationContext: Context, activity ->
-            val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
-            try {
-                CustomTabsIntent.Builder().setToolbarColor(color).build().apply {
-                    launchUrl(activity, Uri.parse(url))
-                }
-            } catch (e: ActivityNotFoundException) {
-                val toastHelper =
-                    ToastHelper.getInstance(applicationContext)
-                if (url.startsWith("mailto:")) {
-                    toastHelper.showToast(R.string.toast_no_email_client)
-                } else {
-                    toastHelper.showToast(R.string.toast_unknown_error)
-                }
+        val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .launchUrl(webViewFragment.requireActivity(), Uri.parse(url))
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper =
+                ToastHelper.getInstance(applicationContext)
+            if (url.startsWith("mailto:")) {
+                toastHelper.showToast(R.string.toast_no_email_client)
+            } else {
+                toastHelper.showToast(R.string.toast_unknown_error)
             }
         }
     }
