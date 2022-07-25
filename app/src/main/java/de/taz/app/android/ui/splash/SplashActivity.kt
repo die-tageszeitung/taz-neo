@@ -23,7 +23,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -44,7 +43,6 @@ class SplashActivity : StartupActivity() {
     private val log by Log
 
     private lateinit var dataService: DataService
-    private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -62,7 +60,6 @@ class SplashActivity : StartupActivity() {
         splashScreen.setKeepOnScreenCondition { showSplashScreen }
 
         dataService = DataService.getInstance(application)
-        firebaseHelper = FirebaseHelper.getInstance(application)
         authHelper = AuthHelper.getInstance(application)
         toastHelper = ToastHelper.getInstance(application)
         fileEntryRepository = FileEntryRepository.getInstance(application)
@@ -73,7 +70,6 @@ class SplashActivity : StartupActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             launch { checkAppVersion() }
-            launch { sendPushToken() }
         }
         lifecycleScope.launch {
             generateNotificationChannels()
@@ -335,10 +331,6 @@ class SplashActivity : StartupActivity() {
             log.warn(hint)
             Sentry.captureException(e, hint)
         }
-    }
-
-    private fun sendPushToken() {
-        firebaseHelper.ensureTokenSent()
     }
 
     private fun generateNotificationChannels() {
