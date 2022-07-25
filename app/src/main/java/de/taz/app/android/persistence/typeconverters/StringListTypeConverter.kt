@@ -1,21 +1,19 @@
 package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
-import com.squareup.moshi.Types
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import de.taz.app.android.util.Json
 
 class StringListTypeConverter {
 
-    private val stringListType = Types.newParameterizedType(List::class.java, String::class.java)
-    private val adapter = JsonHelper.moshi.adapter<List<String>>(stringListType)
-
     @TypeConverter
     fun toString(stringList: List<String>): String {
-        return adapter.toJson(stringList)
+        return Json.encodeToString(stringList)
     }
 
     @TypeConverter
     fun toStringList(value: String): List<String> {
-        return adapter.fromJson(value) ?: listOf()
+        return Json.decodeFromString(value)
     }
 }

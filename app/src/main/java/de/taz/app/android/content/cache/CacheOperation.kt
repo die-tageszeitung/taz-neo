@@ -45,7 +45,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      */
     companion object {
         private val log by Log
-        private val cacheOperationMutex = Mutex()
+        internal val cacheOperationMutex = Mutex()
         internal val activeCacheOperations = HashMap<String, AnyCacheOperation>()
         internal val cacheStatusFlow = MutableSharedFlow<Pair<String, CacheStateUpdate>>()
             .also { flow ->

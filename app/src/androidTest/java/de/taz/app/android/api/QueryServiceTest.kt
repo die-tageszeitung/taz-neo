@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
 
@@ -21,14 +22,14 @@ class QueryServiceTest {
         val queryValues = QueryType.values()
         queryValues.forEach {
             println(it.name)
-            queryService.get(it)
+            runBlocking { queryService.get(it) }
         }
     }
 
 
     @Test
     fun usesCache() {
-        queryService.get(QueryType.AppInfo)
+        runBlocking { queryService.get(QueryType.AppInfo) }
         Assert.assertFalse(queryService.queryCache[QueryType.AppInfo.name].isNullOrEmpty())
     }
 

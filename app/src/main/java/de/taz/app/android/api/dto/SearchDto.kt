@@ -1,9 +1,9 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.api.models.AuthInfo
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class SearchDto(
     val authInfo: AuthInfo,
     val sessionId: String?,

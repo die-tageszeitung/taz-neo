@@ -145,7 +145,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         page?.pagePdf?.let { fileEntry ->
             storageService.getAbsolutePath(fileEntry)?.let { path ->
                 try {
-                    // TODO think about buffer!
                     pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(File(path).readBytes(), path))
                     viewBinding.muPdfWrapper.apply {
                         removeAllViews()

@@ -1,8 +1,8 @@
 package de.taz.app.android.api.models
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class CancellationStatus(
     val tazIdMail: String? = null,
     val cancellationLink: String? = null,
@@ -10,7 +10,7 @@ data class CancellationStatus(
     val info: CancellationInfo,
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class CancellationInfo {
     aboId,
     tazId,

@@ -1,14 +1,11 @@
 package de.taz.app.android.api
 
+import androidx.annotation.VisibleForTesting
 import de.taz.app.android.api.variables.Variables
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Query(
-    private val query: String,
+    @get:VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) val query: String,
     var variables: Variables? = null
-) {
-
-    fun toJson(): String {
-        return "{\"query\":\"$query\", \"variables\":${variables?.toJson() ?: "{}"}}"
-    }
-
-}
+)
