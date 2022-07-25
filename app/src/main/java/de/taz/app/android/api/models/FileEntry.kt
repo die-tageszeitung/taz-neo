@@ -7,9 +7,7 @@ import de.taz.app.android.api.dto.FileEntryDto
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.persistence.serializers.DateSerializer
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
 import java.io.File
 import java.util.*
 
@@ -17,7 +15,6 @@ const val GLOBAL_FOLDER = "global"
 
 @ExperimentalSerializationApi
 @Entity(tableName = "FileEntry")
-@Serializable(with=DateSerializer::class)
 data class FileEntry(
     @PrimaryKey override val name: String,
     override val storageType: StorageType,
