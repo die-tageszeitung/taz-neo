@@ -1,7 +1,10 @@
 package de.taz.app.android.monkey
 
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import androidx.core.graphics.Insets
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
@@ -28,8 +31,9 @@ fun ViewPager2.moveContentBeneathStatusBar() {
     recyclerViewField.isAccessible = true
     val recyclerView = recyclerViewField.get(this) as RecyclerView
 
+
     setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
+        val systemWindowInsets = getSystemWindowInsets(v, insets)
         (v.layoutParams as ViewGroup.MarginLayoutParams).apply {
             topMargin = 0
             leftMargin = systemWindowInsets.left
@@ -42,7 +46,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
     }
 
     recyclerView.setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
+        val systemWindowInsets = getSystemWindowInsets(v, insets)
         val layoutParams = ViewGroup.MarginLayoutParams(v.layoutParams)
         layoutParams.apply {
             topMargin = 0
@@ -64,7 +68,7 @@ fun ViewPager2.moveContentBeneathStatusBar() {
  */
 fun ViewGroup.moveContentBeneathStatusBar() {
     setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = insets.getInsets(WindowInsets.Type.systemBars())
+        val systemWindowInsets = getSystemWindowInsets(v, insets)
         (v.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
             topMargin = 0
             leftMargin = systemWindowInsets.left
@@ -75,4 +79,9 @@ fun ViewGroup.moveContentBeneathStatusBar() {
     }
 
     requestApplyInsets()
+}
+
+private fun getSystemWindowInsets(view: View, insets: WindowInsets): Insets {
+    val insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets, view)
+    return insetsCompat.getInsets(WindowInsetsCompat.Type.systemBars())
 }
