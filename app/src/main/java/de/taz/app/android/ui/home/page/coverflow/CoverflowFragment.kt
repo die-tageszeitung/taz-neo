@@ -81,14 +81,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewModel.feed.observeDistinct(this) { feed ->
             val fresh = !::adapter.isInitialized
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
-                R.layout.fragment_cover_flow_frontpage_item
-            } else {
-                R.layout.fragment_cover_flow_moment_item
-            }
             adapter = CoverflowAdapter(
                 this,
-                itemLayout,
+                R.layout.fragment_cover_flow_item,
                 feed,
                 requestManager,
                 CoverflowCoverViewActionListener(this@CoverflowFragment)

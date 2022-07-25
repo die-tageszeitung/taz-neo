@@ -46,15 +46,10 @@ class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
 
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
-                R.layout.fragment_archive_frontpage_item
-            } else {
-                R.layout.fragment_archive_moment_item
-            }
             grid.setHasFixedSize(true)
             adapter = ArchiveAdapter(
                 this,
-                itemLayout,
+                R.layout.fragment_archive_item,
                 feed,
                 requestManager
             )
