@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlin.collections.HashMap
 import kotlin.coroutines.resume
@@ -45,8 +46,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      */
     companion object {
         private val log by Log
-        internal val cacheOperationMutex = Mutex()
-        internal val activeCacheOperations = HashMap<String, AnyCacheOperation>()
+        private val cacheOperationMutex = Mutex()
+        internal val activeCacheOperations = ConcurrentHashMap<String, AnyCacheOperation>()
         internal val cacheStatusFlow = MutableSharedFlow<Pair<String, CacheStateUpdate>>()
             .also { flow ->
                 CoroutineScope(Dispatchers.Default).launch {
