@@ -42,6 +42,7 @@ class DatePickerFragment(private val buttonView: View) : DialogFragment() {
         return dialog
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
         // fill with 0 for the string if day is below 10
         val dayString = if (day<10) "0$day" else "$day"
