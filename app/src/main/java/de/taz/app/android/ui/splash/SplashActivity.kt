@@ -337,17 +337,8 @@ class SplashActivity : StartupActivity() {
         }
     }
 
-    private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
-        try {
-            val token = firebaseHelper.token.get()
-            if (!firebaseHelper.tokenSent.get() && !token.isNullOrEmpty()) {
-                firebaseHelper.tokenSent.set(
-                    dataService.sendNotificationInfo(token)
-                )
-            }
-        } catch (e: ConnectivityException.NoInternetException) {
-            log.warn("Sending notification token failed because no internet available")
-        }
+    private fun sendPushToken() {
+        firebaseHelper.ensureTokenSent()
     }
 
     private fun generateNotificationChannels() {

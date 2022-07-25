@@ -2,7 +2,6 @@ package de.taz.app.android
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import de.taz.app.android.data.DataService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseHelper
@@ -30,7 +29,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
-    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var issueRepository: IssueRepository
@@ -41,7 +39,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onCreate() {
         super.onCreate()
-        dataService = DataService.getInstance(applicationContext)
         authHelper = AuthHelper.getInstance(applicationContext)
         firebaseHelper = FirebaseHelper.getInstance(applicationContext)
         issueRepository = IssueRepository.getInstance(applicationContext)
@@ -102,19 +99,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         log.debug("new firebase messaging token: $token")
-        CoroutineScope(Dispatchers.IO).launch {
-            val oldToken = firebaseHelper.token.get()
-            firebaseHelper.token.set(token)
-
-            firebaseHelper.tokenSent.set(
-                dataService.sendNotificationInfo(
-                    token,
-                    oldToken,
-                    retryOnFailure = true
-                )
-            )
-            log.debug("hasTokenBeenSent set to ${firebaseHelper.tokenSent.get()}")
-        }
+        firebaseHelper.updateToken(token)
     }
 
     private fun showNotification(notification: RemoteMessage.Notification) {
