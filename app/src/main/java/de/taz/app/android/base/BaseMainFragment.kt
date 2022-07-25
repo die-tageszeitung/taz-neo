@@ -48,7 +48,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
      */
     private fun configBottomNavigation() {
         // only show bottomNavigation if visible items exist
-
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
 
             bottomNavigationMenuRes?.let {
@@ -57,31 +56,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
             }
 
             itemIconTintList = null
-
-            deactivateAllItems(menu)
-
-            // hack to not auto select first item
-            try {
-                menu.getItem(0).isCheckable = false
-            } catch (ioobe: IndexOutOfBoundsException) {
-                // do nothing no items exist
-            }
-
-            // hack to make items de- and selectable
-            setOnNavigationItemSelectedListener { menuItem ->
-                run {
-                    deactivateAllItems(menu, except = menuItem)
-                    toggleMenuItem(menuItem)
-                    false
-                }
-            }
-
-            setOnNavigationItemReselectedListener { menuItem ->
-                run {
-                    deactivateAllItems(menu, except = menuItem)
-                    toggleMenuItem(menuItem)
-                }
-            }
         }
     }
 
