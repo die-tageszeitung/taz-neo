@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import com.facebook.stetho.Stetho
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
@@ -49,6 +50,7 @@ abstract class AbstractTazApplication : Application() {
             )
         }
 
+        FirebaseHelper.getInstance(this)
         NightModeHelper.getInstance(this)
         IssueCountHelper.getInstance(this)
     }
@@ -64,13 +66,11 @@ abstract class AbstractTazApplication : Application() {
         }
     }
 
-    private fun setUpSentry() {
-        CoroutineScope(Dispatchers.IO).launch {
-            SentryProvider.initSentry(this@AbstractTazApplication)
+    private suspend fun setUpSentry() {
+        SentryProvider.initSentry(this@AbstractTazApplication)
 
-            val user = User()
-            user.id = authHelper.installationId.get()
-            Sentry.setUser(user)
-        }
+        val user = User()
+        user.id = authHelper.installationId.get()
+        Sentry.setUser(user)
     }
 }
