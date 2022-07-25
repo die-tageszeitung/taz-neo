@@ -119,9 +119,9 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
             init {
                 itemView.setOnClickListener { radio.performClick() }
                 radio.setOnClickListener {
-                    selectedItem = adapterPosition
-                    notifyItemRangeChanged(0, adapterPosition)
-                    notifyItemRangeChanged(adapterPosition + 1, itemCount - (adapterPosition + 1))
+                    selectedItem = bindingAdapterPosition
+                    notifyItemRangeChanged(0, bindingAdapterPosition)
+                    notifyItemRangeChanged(bindingAdapterPosition + 1, itemCount - (bindingAdapterPosition + 1))
                 }
             }
         }
