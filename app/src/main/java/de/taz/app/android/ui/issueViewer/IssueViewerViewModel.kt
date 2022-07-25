@@ -107,7 +107,7 @@ class IssueViewerViewModel(
     var goPreviousArticle = MutableLiveData(false)
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
-        get() = savedStateHandle.get(KEY_LAST_SECTION)
+        get() = savedStateHandle[KEY_LAST_SECTION]
 
     val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
