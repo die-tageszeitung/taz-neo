@@ -85,7 +85,11 @@ class BookmarkListViewHolder(
             }
 
             bookmarkDelete.setOnClickListener {
-                bookmarksAdapter.removeBookmarkWithUndo(this, adapterPosition, bookmarks)
+                bookmarksAdapter.removeBookmarkWithUndo(
+                    this,
+                    bindingAdapterPosition,
+                    bookmarks
+                )
             }
         }
     }
