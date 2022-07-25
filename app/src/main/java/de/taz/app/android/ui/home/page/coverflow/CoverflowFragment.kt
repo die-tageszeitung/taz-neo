@@ -54,7 +54,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
