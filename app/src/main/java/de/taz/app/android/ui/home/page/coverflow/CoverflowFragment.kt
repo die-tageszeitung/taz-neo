@@ -14,6 +14,7 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
@@ -59,7 +60,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+                viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
                 }
