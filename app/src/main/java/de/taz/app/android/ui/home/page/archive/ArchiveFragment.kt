@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.launch
@@ -40,7 +41,7 @@ class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+                viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
                 }
