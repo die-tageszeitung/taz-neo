@@ -106,7 +106,7 @@ class BookmarkListAdapter(
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.bindingAdapterPosition
             removeBookmarkWithUndo(viewHolder, position, null)
         }
 

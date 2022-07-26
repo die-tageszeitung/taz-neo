@@ -48,7 +48,7 @@ object DateHelper {
         return dateHelper.parse(string)
     }
 
-    fun stringToDateWithDelta(string: String, days: Int): Date? {
+    private fun stringToDateWithDelta(string: String, days: Int): Date? {
         return stringToDate(string)?.let { date ->
             cal.time = date
             cal.add(Calendar.DAY_OF_YEAR, days)
@@ -69,7 +69,7 @@ object DateHelper {
     fun dateToLongLocalizedString(date: Date): String {
         return SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
             date
-        ).toLowerCase(Locale.getDefault())
+        ).lowercase(Locale.getDefault())
     }
 
     fun stringToLongLocalizedString(dateString: String): String? {
@@ -81,11 +81,12 @@ object DateHelper {
     fun dateToMediumLocalizedString(date: Date): String {
         return SimpleDateFormat("d.M.yyyy", deviceLocale).format(
             date
-        ).toLowerCase(Locale.getDefault())
+        ).lowercase(Locale.getDefault())
     }
 
     fun dateToWeekendNotation(date: Date): String {
-        return SimpleDateFormat("d. MMMM yyyy", Locale.GERMANY).format(date).toLowerCase(Locale.GERMANY)
+        return SimpleDateFormat("d. MMMM yyyy", Locale.GERMANY).format(date)
+            .toLowerCase(Locale.GERMANY)
     }
 
     /**
@@ -99,7 +100,7 @@ object DateHelper {
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             SimpleDateFormat("EEEE,\n d.M.yyyy", deviceLocale).format(
                 issueDate
-            ).toLowerCase(Locale.getDefault())
+            ).lowercase(Locale.getDefault())
         }
     }
 
@@ -112,7 +113,7 @@ object DateHelper {
     fun dateToLowerCaseString(date: Date): String {
         return SimpleDateFormat("EEEE, d. MMMM yyyy", Locale.GERMANY).format(
             date
-        ).toLowerCase(Locale.getDefault())
+        ).lowercase(Locale.getDefault())
     }
 
     fun dateToLowerCaseString(date: String): String? {
@@ -149,28 +150,28 @@ object DateHelper {
     fun yesterday(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-1)
+        cal.add(Calendar.DAY_OF_YEAR, -1)
         return cal.time
     }
 
     fun lastWeek(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-7)
+        cal.add(Calendar.DAY_OF_YEAR, -7)
         return cal.time
     }
 
     fun lastMonth(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-31)
+        cal.add(Calendar.DAY_OF_YEAR, -31)
         return cal.time
     }
 
     fun lastYear(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()
-        cal.add(Calendar.DAY_OF_YEAR,-365)
+        cal.add(Calendar.DAY_OF_YEAR, -365)
         return cal.time
     }
 }

@@ -301,9 +301,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun getCurrentArticleStub(): ArticleStub? {
-        return getCurrentPagerPosition()?.let {
-            issueContentViewModel.articleListLiveData.value?.get(it)
-        }
+        return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())
     }
 
     override fun onDestroyView() {

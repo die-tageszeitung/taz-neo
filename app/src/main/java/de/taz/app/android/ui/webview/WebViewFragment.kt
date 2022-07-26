@@ -193,7 +193,6 @@ abstract class WebViewFragment<
                 domStorageEnabled = true
                 javaScriptEnabled = true
                 cacheMode = WebSettings.LOAD_NO_CACHE
-                setAppCacheEnabled(false)
             }
             onBorderTapListener = { border ->
                 val scrollByValue = view?.height?.minus(WEBVIEW_TAP_TO_SCROLL_OFFSET) ?: 0

@@ -273,8 +273,8 @@ class StorageService private constructor(private val applicationContext: Context
         }
 
     suspend fun ensureFileExists(fileEntry: FileEntry): Boolean = withContext(Dispatchers.IO) {
-        val file = File(getAbsolutePath(fileEntry))
-        return@withContext file.exists()
+        val file = getAbsolutePath(fileEntry)?.let { File(it) }
+        return@withContext file?.exists() ?: false
     }
 
     suspend fun getNonExistentFilesFromList(files: List<FileEntry>): List<FileEntry> =

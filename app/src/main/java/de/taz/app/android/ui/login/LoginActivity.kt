@@ -78,7 +78,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             // hack to not auto select first item
             menu.getItem(0).isCheckable = false
 
-            setOnNavigationItemSelectedListener {
+            setOnItemSelectedListener {
                 this@LoginActivity.apply {
                     val data = Intent()
                     setResult(Activity.RESULT_CANCELED, data)
