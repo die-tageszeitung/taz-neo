@@ -19,6 +19,8 @@ data class WaitingCall(
     val maxRetries: Int
 )
 
+const val INFINITE = -1
+
 @Mockable
 abstract class ConnectionHelper {
     val log by Log
@@ -35,7 +37,7 @@ abstract class ConnectionHelper {
 
     suspend fun <T> retryOnConnectivityFailure(
         onConnectionFailure: suspend () -> Unit = {},
-        maxRetries: Int = -1,
+        maxRetries: Int = INFINITE,
         block: suspend () -> T
     ): T {
         while (true) {

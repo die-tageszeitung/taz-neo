@@ -10,6 +10,7 @@ import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
+import de.taz.app.android.data.INFINITE
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
@@ -57,7 +58,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun <T> retryOnConnectionFailure(
         onConnectionFailure: suspend () -> Unit = {},
-        maxRetries: Int = -1,
+        maxRetries: Int = INFINITE,
         block: suspend () -> T
     ): T {
         return connectionHelper.retryOnConnectivityFailure({
