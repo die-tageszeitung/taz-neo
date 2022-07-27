@@ -93,7 +93,8 @@ abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
         Room.databaseBuilder(
             applicationContext,
-            AppDatabase::class.java, DATABASE_NAME
+            AppDatabase::class.java,
+            DATABASE_NAME
         )
             .addMigrations(*allMigrations)
             .fallbackToDestructiveMigration()

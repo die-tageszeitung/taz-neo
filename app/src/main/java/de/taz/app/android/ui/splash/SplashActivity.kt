@@ -211,7 +211,7 @@ class SplashActivity : StartupActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private suspend fun initResources() {
+    private suspend fun initResources() = withContext(Dispatchers.IO) {
         log.info("initializing resources")
 
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")

@@ -56,7 +56,7 @@ abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
         return method.invoke(this, layoutInflater, container, false) as VIEW_BINDING
     }
 
-    protected val applicationScope by lazy {
+    val applicationScope by lazy {
         (requireActivity().application as TazApplication).applicationScope
     }
 

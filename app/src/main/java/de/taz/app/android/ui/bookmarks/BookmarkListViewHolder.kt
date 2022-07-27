@@ -36,7 +36,7 @@ class BookmarkListViewHolder(
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
-    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment, (parent.context.applicationContext as TazApplication).applicationScope)
+    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment, bookmarksFragment.applicationScope)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {
