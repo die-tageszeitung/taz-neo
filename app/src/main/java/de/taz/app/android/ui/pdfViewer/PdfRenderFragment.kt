@@ -73,13 +73,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         ToastHelper.getInstance(requireContext().applicationContext)
     }
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        ).get(IssueViewerViewModel::class.java)
-    }
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

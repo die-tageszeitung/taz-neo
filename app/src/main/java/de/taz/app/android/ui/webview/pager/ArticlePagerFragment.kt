@@ -42,13 +42,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        )[IssueViewerViewModel::class.java]
-    }
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     override fun onResume() {
         super.onResume()

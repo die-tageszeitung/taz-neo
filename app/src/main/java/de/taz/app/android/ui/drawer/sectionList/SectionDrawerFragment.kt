@@ -48,22 +48,9 @@ const val ACTIVE_POSITION = "active position"
  * Fragment used to display the list of sections in the navigation Drawer
  */
 class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>() {
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        )[IssueViewerViewModel::class.java]
-    }
-
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val viewModel: SectionDrawerViewModel by activityViewModels()
-
-    private val bookmarkPagerViewModel: BookmarkPagerViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        )[BookmarkPagerViewModel::class.java]
-    }
+    private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
 
     private val log by Log
 
