@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview.pager
 
 import android.app.Application
 import androidx.lifecycle.*
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -17,7 +18,7 @@ private const val KEY_ARTICLE_FILE_NAME = "KEY_ARTICLE_FILE_NAME"
 class BookmarkPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application), CoroutineScope {
+) : AndroidViewModel(application) {
 
     val issueRepository = IssueRepository.getInstance(application)
     val articleRepository = ArticleRepository.getInstance(application)
@@ -43,7 +44,7 @@ class BookmarkPagerViewModel(
         get() = currentIssueAndArticleLiveData.value?.first
 
     fun toggleBookmark(articleStub: ArticleStub) {
-        launch {
+        applicationScope.launch {
             if (articleStub.bookmarkedTime != null) {
                 articleRepository.debookmarkArticle(articleStub)
             } else {
@@ -52,6 +53,8 @@ class BookmarkPagerViewModel(
         }
     }
 
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 
 }

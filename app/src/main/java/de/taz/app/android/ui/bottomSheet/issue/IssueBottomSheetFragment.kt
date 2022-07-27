@@ -168,7 +168,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
-            lifecycleScope.launch {
+            applicationScope.launch {
                 try {
                     contentService.downloadIssuePublicationToCache(issuePublication)
                 } catch (e: CacheOperationFailedException) {

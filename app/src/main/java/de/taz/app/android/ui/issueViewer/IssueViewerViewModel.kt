@@ -3,6 +3,7 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -82,7 +83,7 @@ class IssueViewerViewModel(
                         IssueKeyWithDisplayableKey(issueKey, displayable)
                     )
                     // Start downloading the whole issue in background
-                    launch {
+                    applicationScope.launch {
                         try {
                             contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                             issueRepository.updateLastViewedDate(issueKey)
@@ -162,4 +163,7 @@ class IssueViewerViewModel(
     }
 
     override val coroutineContext: CoroutineContext = SupervisorJob()
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 }

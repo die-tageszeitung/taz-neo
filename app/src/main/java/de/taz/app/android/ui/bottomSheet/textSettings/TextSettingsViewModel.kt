@@ -63,6 +63,5 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
 
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext = job + Dispatchers.IO
+    override val coroutineContext: CoroutineContext =  SupervisorJob()
 }

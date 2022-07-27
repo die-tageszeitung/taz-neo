@@ -116,6 +116,6 @@ class FirebaseMessagingService : FirebaseMessagingService(), CoroutineScope {
         }
     }
 
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 
 }

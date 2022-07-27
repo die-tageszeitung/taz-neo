@@ -148,8 +148,8 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         val totalRam = memoryInfo.totalMem
         val usedRam = memoryInfo.totalMem - memoryInfo.availMem
 
-        lifecycleScope.launch {
-            log.debug("Sending an error report")
+        log.debug("Sending an error report")
+        applicationScope.launch {
             apiService.apply {
                 retryOnConnectionFailure {
                     sendErrorReport(
@@ -166,8 +166,9 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
                     )
                 }
             }
-            toastHelper.showToast(R.string.toast_error_report_sent)
         }
+        toastHelper.showToast(R.string.toast_error_report_sent)
+
         requireActivity().finish()
 
     }

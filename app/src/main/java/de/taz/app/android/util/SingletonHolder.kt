@@ -45,6 +45,6 @@ open class SingletonHolder<T, in A>(creator: (A) -> T) : CoroutineScope {
         this.instance = injectedInstance
     }
 
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Default
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 
 }

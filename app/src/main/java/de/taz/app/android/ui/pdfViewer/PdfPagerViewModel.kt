@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
@@ -95,9 +96,8 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
-                launch {
+                applicationScope.launch {
                     contentService.downloadToCache(issuePublicationWithPages)
-                    postValue(issue)
                 }
             }
         }
@@ -148,4 +148,7 @@ class PdfPagerViewModel(
     }
 
     override val coroutineContext: CoroutineContext = SupervisorJob()
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 }

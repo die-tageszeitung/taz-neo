@@ -340,7 +340,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             it.isEnabled = false
             dialog.setCancelable(false)
             if (deletionJob == null) {
-                deletionJob = lifecycleScope.launch {
+                // TODO run delete job on applicationScope but update dialogView only on lifecycle
+                deletionJob = applicationScope.launch {
                     deleteAllIssuesWithProgressBar(dialogView)
                     dialog.dismiss()
                 }

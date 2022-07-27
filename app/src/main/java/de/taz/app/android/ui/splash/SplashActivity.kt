@@ -70,18 +70,18 @@ class SplashActivity : StartupActivity() {
         issueRepository = IssueRepository.getInstance(application)
 
         lifecycleScope.launch {
-            launch { checkAppVersion() }
-            generateNotificationChannels()
-            verifyStorageLocation()
+            coroutineScope {
+                checkAppVersion()
+                generateNotificationChannels()
+                verifyStorageLocation()
+            }
 
             try {
-                withContext(Dispatchers.IO) {
-                    ensureAppInfo()
-                    initResources()
-                    initFeed()
-                    launch {
-                        checkForNewestIssue()
-                    }
+                ensureAppInfo()
+                initResources()
+                initFeed()
+                applicationScope.launch {
+                    checkForNewestIssue()
                 }
             } catch (e: InitializationException) {
                 log.error("Error while initializing")
