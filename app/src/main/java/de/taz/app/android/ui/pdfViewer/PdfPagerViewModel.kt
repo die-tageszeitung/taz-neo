@@ -81,7 +81,7 @@ class PdfPagerViewModel(
             ) as IssueWithPages
 
             viewModelScope.launch(Dispatchers.IO) {
-                val issue = try {
+                var issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadMetaData(maxRetries = 3)
                 } catch (e: CacheOperationFailedException) {
@@ -98,7 +98,8 @@ class PdfPagerViewModel(
                 postValue(issue)
                 applicationScope.launch {
                     contentService.downloadToCache(issuePublicationWithPages)
-                }
+                }.join()
+                postValue(issue)
             }
         }
     }
