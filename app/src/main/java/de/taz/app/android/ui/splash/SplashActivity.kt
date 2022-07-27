@@ -38,6 +38,7 @@ import kotlin.Exception
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
+private const val MAX_RETRIES_ON_STARTUP = 3
 
 class SplashActivity : StartupActivity() {
 
@@ -112,7 +113,7 @@ class SplashActivity : StartupActivity() {
 
             val publicIssuesNeedDeletion =
                 withContext(Dispatchers.IO) {
-                    (issueRepository.getAllPublicAndDemoIssueStubs().count() > 0
+                    (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
                             && authHelper.getMinStatus() == IssueStatus.regular)
                 }
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
@@ -143,7 +144,7 @@ class SplashActivity : StartupActivity() {
                 dataService.getFeedByName(
                     DISPLAYABLE_NAME,
                     allowCache = false,
-                    retryOnFailure = true
+                    retryOnFailure = false
                 )
             }
         } catch (e: ConnectivityException) {
@@ -167,7 +168,11 @@ class SplashActivity : StartupActivity() {
             // This call might be duplicated by the AppVersion check which is not allowing cache.
             // To make this call not fail due to a connectivity exception if there indeed is a
             // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
-            contentService.downloadMetadata(AppInfoKey(), forceExecution = true, maxRetries = 3)
+            contentService.downloadMetadata(
+                AppInfoKey(),
+                forceExecution = true,
+                maxRetries = MAX_RETRIES_ON_STARTUP
+            )
         } catch (exception: CacheOperationFailedException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
@@ -181,7 +186,7 @@ class SplashActivity : StartupActivity() {
             val appInfo = contentService.downloadMetadata(
                 AppInfoKey(),
                 allowCache = false,
-                maxRetries = 3
+                maxRetries = MAX_RETRIES_ON_STARTUP
             ) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(

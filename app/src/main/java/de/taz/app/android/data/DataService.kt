@@ -14,8 +14,10 @@ import kotlinx.coroutines.*
  * A central service providing data intransparent if from cache or remotely fetched
  */
 @Mockable
-@Deprecated("This class should not be used anymore - either use the respective repositories" +
-        "or the CacheOperations")
+@Deprecated(
+    "This class should not be used anymore - either use the respective repositories" +
+            "or the CacheOperations"
+)
 class DataService(applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
@@ -100,19 +102,23 @@ class DataService(applicationContext: Context) {
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
      * @param feedName to refresh
      */
-    suspend fun refreshFeedAndGetIssueKeyIfNew(feedName: String): IssueKey? =
+    suspend fun refreshFeedAndGetIssueKeyIfNew(
+        feedName: String
+    ): IssueKey? =
         withContext(Dispatchers.IO) {
             val cachedFeed = getFeedByName(feedName)
             val refreshedFeed = getFeedByName(feedName, allowCache = false)
-            val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
-            newsestIssueDate?.let {
-                if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
-                    (contentService.downloadMetadata(
-                        IssuePublication(feedName, simpleDateFormat.format(it)),
-                    ) as Issue).issueKey
-                } else {
-                    null
-                }
+
+            val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
+            val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)
+
+            if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
+                (contentService.downloadMetadata(
+                    download = IssuePublication(feedName, simpleDateFormat.format(newestIssueDate)),
+                    maxRetries = 1
+                ) as Issue).issueKey
+            } else {
+                null
             }
         }
 
