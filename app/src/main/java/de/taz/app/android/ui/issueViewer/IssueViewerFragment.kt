@@ -95,9 +95,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     if (issueWithDisplayable == null) return@observe
                     lifecycleScope.launch {
                         delay(1500)
-                        withContext(Dispatchers.Main) {
-                            sectionDrawerViewModel.drawerOpen.value = false
-                        }
+                        sectionDrawerViewModel.drawerOpen.value = false
                         generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
                     }
 

@@ -83,7 +83,7 @@ class DownloadObserver(
     private fun showDownloadIcon() {
         downloadIconView.setOnClickListener {
             stopObserving()
-            CoroutineScope(Dispatchers.IO).launch {
+            fragment.lifecycleScope.launch {
                 try {
                     maybeShowAutomaticDownloadDialog()
                 } catch (e: CacheOperationFailedException) {

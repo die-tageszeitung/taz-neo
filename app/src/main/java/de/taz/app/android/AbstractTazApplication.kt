@@ -11,9 +11,7 @@ import de.taz.app.android.singletons.NightModeHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import io.sentry.protocol.User
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 abstract class AbstractTazApplication : Application() {
@@ -21,10 +19,14 @@ abstract class AbstractTazApplication : Application() {
 
     private lateinit var authHelper: AuthHelper
 
+    // use this scope if you want to run code which should not terminate if the lifecycle of
+    // a fragment or activity is finished
+    val applicationScope = CoroutineScope(SupervisorJob())
+
     override fun onCreate() {
         super.onCreate()
         authHelper = AuthHelper.getInstance(this)
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             generateInstallationId()
             setUpSentry()
         }
@@ -66,7 +68,7 @@ abstract class AbstractTazApplication : Application() {
         }
     }
 
-    private suspend fun setUpSentry() {
+    private suspend fun setUpSentry() = withContext(Dispatchers.IO) {
         SentryProvider.initSentry(this@AbstractTazApplication)
 
         val user = User()

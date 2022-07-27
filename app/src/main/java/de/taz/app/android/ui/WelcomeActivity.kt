@@ -77,7 +77,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     }
 
     private fun setFirstTimeStart() {
-        lifecycleScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
+        applicationScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
     }
 
     override fun onBackPressed() {

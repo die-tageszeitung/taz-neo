@@ -11,12 +11,14 @@ import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 class BookmarkListAdapter(
-    private val bookmarksFragment: BookmarkListFragment
+    private val bookmarksFragment: BookmarkListFragment,
+    private val applicationScope: CoroutineScope
 ) :
     RecyclerView.Adapter<BookmarkListViewHolder>() {
 
@@ -29,14 +31,14 @@ class BookmarkListAdapter(
 
     private fun restoreBookmark(article: Article, position: Int) {
         bookmarks.add(position, article)
-        bookmarksFragment.lifecycleScope.launch {
+        applicationScope.launch {
             ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).bookmarkArticle(article)
         }
         notifyItemInserted(position)
     }
 
     private fun removeBookmark(article: Article, position: Int) {
-        bookmarksFragment.lifecycleScope.launch {
+        applicationScope.launch {
             ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).debookmarkArticle(article)
         }
         notifyItemRemoved(position)

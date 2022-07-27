@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

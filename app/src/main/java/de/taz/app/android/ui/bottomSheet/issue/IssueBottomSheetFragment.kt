@@ -104,7 +104,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                         startActivity(this)
                     }
                 } else {
-
                     Intent(requireActivity(), IssueViewerActivity::class.java).apply {
                         putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
                         startActivityForResult(this, 0)
@@ -159,7 +158,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
 
-            lifecycleScope.launch {
+            applicationScope.launch {
                 contentService.deleteIssue(issuePublication)
                 viewModel.notifyMomentChanged(simpleDateFormat.parse(issuePublication.date)!!)
                 withContext(Dispatchers.Main) {
