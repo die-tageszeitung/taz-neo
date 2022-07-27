@@ -119,7 +119,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             tryPdfDialog = MaterialAlertDialogBuilder(this)
                 .setView(R.layout.dialog_try_pdf)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    lifecycleScope.launch(Dispatchers.Main) {
+                    applicationScope.launch(Dispatchers.Main) {
                         generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
                         dialog.dismiss()
                     }
@@ -128,7 +128,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
             tryPdfDialog?.show()
             tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
-                lifecycleScope.launch(Dispatchers.Main) {
+                applicationScope.launch(Dispatchers.Main) {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
                     tryPdfDialog?.dismiss()
                 }
