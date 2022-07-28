@@ -11,6 +11,7 @@ import de.taz.app.android.singletons.StoragePathService
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -137,26 +138,14 @@ class ContentDownload(
     }
 
     override suspend fun doWork() = withContext(Dispatchers.IO) {
-        // Suspend the function until all files are downloaded, so whoever invokes
-        // it can be sure the operation is done after the function is done
-        suspendCoroutine<Unit> { continuation ->
-            launch {
-                addListener(object : CacheStateListener<Unit> {
-                    override fun onFailuire(e: Exception) {
-                        continuation.resumeWithException(e)
-                    }
+        log.error("enquiing download")
+        // Enqueue all downloads asynchronously
+        launch { fileDownloader.enqueueDownload(this@ContentDownload) }
 
-                    override fun onSuccess(result: Unit) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // Set a download date to collection after completion (if available)
-                            collection?.setDownloadDate(Date(), applicationContext)
-                            continuation.resume(Unit)
-                        }
-                    }
-                })
-            }
-            // Enqueue all downloads asynchronously
-            launch { fileDownloader.enqueueDownload(this@ContentDownload) }
-        }
+        waitOnCompletion()
+        // download is done
+        collection?.setDownloadDate(Date(), applicationContext)
+
+        Unit
     }
 }
