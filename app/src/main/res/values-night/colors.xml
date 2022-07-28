@@ -44,4 +44,5 @@
 
     <color name="search_field_background_color">@color/darkGrey</color>
 
+    <color name="scrollbar_color">@color/mediumLightGrey</color>
 </resources>

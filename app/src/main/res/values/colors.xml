@@ -52,4 +52,6 @@
 
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
+    <color name="scrollbar_color">@color/lightGrey</color>
+
 </resources>
