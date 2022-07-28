@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
