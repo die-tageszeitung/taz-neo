@@ -201,7 +201,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     /**
      * This function needs to implemented by the discrete implementations
      * Here the volatile operations can be made. In the course of the
-     * operation at least [notifyStart] and [notifySuccess] or [notifyFailiure] needs
+     * operation at least [notifyStart] and [notifySuccess] or [notifyFailure] needs
      * to be called to indicate progress.
      * The implementation should suspend until the [CacheOperation] is completed, so that
      * any caller to [execute] can be sure the [CacheOperation] is done after invoking the function.
@@ -338,7 +338,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Mark the operation as failed, will emit failiure updates to its listeners
      * @param e An exception indicating the cause of the failiure
      */
-    fun notifyFailiure(e: Exception) {
+    fun notifyFailure(e: Exception) {
         emitFailure(e)
     }
 

@@ -95,7 +95,7 @@ class ContentDeletion(
                 storageService.deleteFile(item.item.fileEntryOperation.fileEntry)
             }
         } catch (e: Exception) {
-            notifyFailiure(e)
+            notifyFailure(e)
         }
         notifySuccess(Unit)
     }

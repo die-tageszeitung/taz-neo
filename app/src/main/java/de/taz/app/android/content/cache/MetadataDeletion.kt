@@ -64,7 +64,7 @@ class MetadataDeletion(
             }
         } catch (e: Exception) {
             notifyFailedItem(e)
-            notifyFailiure(e)
+            notifyFailure(e)
             throw CacheOperationFailedException("Metadata deletion of ${download.getDownloadTag()} failed", e)
         }
     }

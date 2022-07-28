@@ -111,7 +111,7 @@ class WrappedDownload(
             metadataDownload.execute()
         } catch (originalException: Exception) {
             val exception = CacheOperationFailedException("Retrieving metadata failed", originalException)
-            notifyFailiure(
+            notifyFailure(
                 exception
             )
             throw exception
@@ -125,7 +125,7 @@ class WrappedDownload(
                 originalException
             )
             notifyFailedItem(exception)
-            notifyFailiure(exception)
+            notifyFailure(exception)
             throw exception
         }
 
@@ -183,7 +183,7 @@ class WrappedDownload(
             val exception = CacheOperationFailedException(
                 "One or more sub operations failed"
             )
-            notifyFailiure(
+            notifyFailure(
                 exception
             )
             throw exception
