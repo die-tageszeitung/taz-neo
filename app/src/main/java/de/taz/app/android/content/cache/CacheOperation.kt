@@ -111,7 +111,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         get() = completedItemCount == totalItemCount
 
     /**
-     * Latest state of this operation.
+     * StateFlow of the state of the CacheOperation
+     * This is can be used to wait until the [CacheStateUpdate.Type] ha
      */
     private val stateFlow = MutableStateFlow(
         CacheStateUpdate(
@@ -122,6 +123,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             this
         )
     )
+
+    /**
+     * Latest state of this operation.
+     */
     val state
         get() = stateFlow.value
 
