@@ -403,9 +403,11 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param update the update to emit
      */
     private fun emitUpdate(update: CacheStateUpdate) {
-        if (this.state.hasCompleted) {
-            throw IllegalStateException("It is illegal to modify the state of a completed operation")
+        if (!this.state.hasCompleted) {
+            // It is illegal to modify the state of a completed operation
+            this.stateFlow.value = update
+        } else {
+            log.warn("tried to update completed CacheOperation $tag with update: $update")
         }
-        this.stateFlow.value = update
     }
 }
