@@ -311,12 +311,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         }
         if (!state.hasCompleted && itemsComplete) {
             if (failedCount == 0) {
-                emitSuccess(result)
+                notifySuccess(result)
             } else {
-                emitFailure(
-                    CacheOperationFailedException(
-                        "Some items were not success fully processed"
-                    )
+                notifyFailure(
+                    CacheOperationFailedException("Some items were not success fully processed")
                 )
             }
         }
@@ -339,7 +337,16 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param e An exception indicating the cause of the failiure
      */
     fun notifyFailure(e: Exception) {
-        emitFailure(e)
+        emitUpdate(
+            CacheStateUpdate(
+                CacheStateUpdate.Type.FAILED,
+                CacheState.ABSENT,
+                completedItemCount,
+                totalItemCount,
+                this,
+                e
+            )
+        )
     }
 
     /**
@@ -347,7 +354,16 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param result The result of the operation, if the operation doesn't produce a result use [Unit]
      */
     fun notifySuccess(result: RESULT) {
-        emitSuccess(result)
+        this.result = result
+        emitUpdate(
+            CacheStateUpdate(
+                CacheStateUpdate.Type.SUCCEEDED,
+                targetState,
+                completedItemCount,
+                totalItemCount,
+                this
+            )
+        )
     }
 
     /**
@@ -375,40 +391,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         } else {
             return result ?: throw IllegalStateException("Result is null despite complete state")
         }
-    }
-
-    /**
-     * Emits failiure update and failiure to listeners
-     * @param e An exception indicating the cause of the failiure
-     */
-    private fun emitFailure(e: Exception) {
-        emitUpdate(
-            CacheStateUpdate(
-                CacheStateUpdate.Type.FAILED,
-                CacheState.ABSENT,
-                completedItemCount,
-                totalItemCount,
-                this,
-                e
-            )
-        )
-    }
-
-    /**
-     * Emits success update and success to listeners
-     * @param result To emit success a result must be provided. If the operation doesn't produce anything use [Unit]
-     */
-    private fun emitSuccess(result: RESULT) {
-        this.result = result
-        emitUpdate(
-            CacheStateUpdate(
-                CacheStateUpdate.Type.SUCCEEDED,
-                targetState,
-                completedItemCount,
-                totalItemCount,
-                this
-            )
-        )
     }
 
     /**
