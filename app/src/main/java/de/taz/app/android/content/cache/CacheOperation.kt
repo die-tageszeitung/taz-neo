@@ -175,7 +175,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param items The [CacheOperationItem]s to be added to this operation
      */
     fun addItems(items: List<ITEM>) {
-        if (state.complete) {
+        if (state.hasCompleted) {
             throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
         }
         _cacheItems.addAll(items.map {
@@ -232,7 +232,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             stateFlow.collect { update ->
                 cacheStatusFlow.emit(tag to update)
 
-                if (update.complete) {
+                if (update.hasCompleted) {
                     // remove from activeCacheOperations
                     activeCacheOperations.remove(tag)
                     // stop collecting
@@ -306,10 +306,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      *
      */
     fun checkIfItemsCompleteAndNotifyResult(result: RESULT) {
-        if (state.complete) {
+        if (state.hasCompleted) {
             return
         }
-        if (!state.complete && itemsComplete) {
+        if (!state.hasCompleted && itemsComplete) {
             if (failedCount == 0) {
                 emitSuccess(result)
             } else {
@@ -355,10 +355,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * [CacheStateUpdate.Type.SUCCEEDED]
      */
     protected suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
-        if (state.complete) return@withContext result!!
+        if (state.hasCompleted) return@withContext result!!
 
         // wait until failed or completed
-        stateFlow.first { it.complete }
+        stateFlow.first { it.hasCompleted }
 
         // rethrow the exception if failed
         if (state.hasFailed)
@@ -370,7 +370,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     }
 
     private fun getResult(): RESULT {
-        if (!state.complete) {
+        if (!state.hasCompleted) {
             throw IllegalStateException("Cannot get operation result if operation not complete")
         } else {
             return result ?: throw IllegalStateException("Result is null despite complete state")
@@ -416,7 +416,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param update the update to emit
      */
     private fun emitUpdate(update: CacheStateUpdate) {
-        if (this.state.complete) {
+        if (this.state.hasCompleted) {
             throw IllegalStateException("It is illegal to modify the state of a completed operation")
         }
         this.stateFlow.value = update
