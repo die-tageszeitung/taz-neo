@@ -44,21 +44,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
-    override val viewModel: BookmarkPagerViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        )[BookmarkPagerViewModel::class.java]
-    }
-
-    private val issueViewerViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        )[IssueViewerViewModel::class.java]
-    }
-
-
+    override val viewModel: BookmarkPagerViewModel by activityViewModels()
+    private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onResume() {

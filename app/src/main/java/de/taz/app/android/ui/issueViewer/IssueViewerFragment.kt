@@ -40,12 +40,7 @@ import kotlinx.coroutines.*
  */
 class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
 
-    override val viewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, requireActivity())
-        )[IssueViewerViewModel::class.java]
-    }
+    override val viewModel: IssueViewerViewModel by activityViewModels()
 
     private val log by Log
 

@@ -41,14 +41,7 @@ class ImprintWebViewFragment : WebViewFragment<
         )[ArticleWebViewViewModel::class.java]
     }
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity().viewModelStore, SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        )[IssueViewerViewModel::class.java]
-    }
-
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository

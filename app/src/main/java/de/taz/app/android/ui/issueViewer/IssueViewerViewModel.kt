@@ -9,7 +9,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.Log
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
+private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
@@ -112,7 +113,7 @@ class IssueViewerViewModel(
     val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
-        MutableLiveData(IssueContentDisplayMode.Loading)
+        savedStateHandle.getLiveData(KEY_DISPLAY_MODE, IssueContentDisplayMode.Loading)
 
     private val issueKeyLiveData: LiveData<IssueKey?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }
