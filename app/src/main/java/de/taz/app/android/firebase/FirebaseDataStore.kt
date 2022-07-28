@@ -45,6 +45,7 @@ class FirebaseDataStore @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE
 
     private val dataStore = applicationContext.fcmDataStore
 
+    // token and oldToken need to be null if they are empty
     // otherwise the graphql endpoint has a problem
     val token = MappingDataStoreEntry<String?, String>(
         dataStore,
