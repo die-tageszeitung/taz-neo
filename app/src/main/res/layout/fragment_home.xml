@@ -21,6 +21,34 @@
             android:nestedScrollingEnabled="true"
             android:orientation="vertical" />
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/home_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_home_login_button_margin_top"
+            android:layout_marginEnd="@dimen/fragment_home_login_button_margin_end"
+            >
+            <TextView
+                android:id="@+id/home_login_button_text"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_home_login"
+                android:textColor="@color/white"
+                />
+            <ImageView
+                android:id="@+id/home_login_button_arrow_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/home_login_button_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:src="@drawable/ic_right_arrow_svgrepo_com"
+                app:tint="@color/tazRed"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_action_pdf"
             android:layout_width="wrap_content"
