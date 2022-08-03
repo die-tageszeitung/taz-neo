@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -18,6 +19,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
@@ -87,6 +89,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 CoroutineScope(Dispatchers.Main).launch {
                     homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
                 }
+            }
+
+            homeLoginButton.setOnClickListener {
+                activity?.startActivity(
+                    Intent(activity, LoginActivity::class.java)
+                )
             }
         }
     }
