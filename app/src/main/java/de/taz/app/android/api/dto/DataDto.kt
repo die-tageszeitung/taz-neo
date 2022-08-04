@@ -22,5 +22,6 @@ data class DataDto (
     val subscriptionId2tazId: SubscriptionInfo? = null,
     val subscriptionPoll: SubscriptionInfo? = null,
     val subscriptionReset: SubscriptionResetInfo? = null,
-    val trialSubscription: SubscriptionInfo? = null
+    val trialSubscription: SubscriptionInfo? = null,
+    val subscriptionFormDataTyp: SubscriptionFormData? = null,
 )

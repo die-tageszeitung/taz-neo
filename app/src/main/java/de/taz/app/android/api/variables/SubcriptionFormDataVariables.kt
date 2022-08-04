@@ -1,0 +1,19 @@
+package de.taz.app.android.api.variables
+
+import de.taz.app.android.api.dto.SubscriptionFormDataTyp
+import kotlinx.serialization.Serializable
+
+
+@Serializable
+data class SubscriptionFormDataVariables(
+    val typ: SubscriptionFormDataTyp,
+    val mail: String?,
+    val surname: String?,
+    val firstname: String?,
+    val street: String?,
+    val city: String?,
+    val postcode: String?,
+    val country: String?,
+    val message: String?,
+    val requestCurrentSubscriptionOpportunities: Boolean?
+) : Variables

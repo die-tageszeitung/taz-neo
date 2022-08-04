@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.SearchDto
-import de.taz.app.android.api.dto.SearchFilter
-import de.taz.app.android.api.dto.Sorting
+import de.taz.app.android.api.dto.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.data.INFINITE
@@ -734,6 +731,43 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     isForce
                 )
             ).data?.cancellation
+        }
+    }
+
+    /**
+     * function to trigger mutation on subscription form data
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun subscriptionFormData(
+        typ: SubscriptionFormDataTyp,
+        mail: String?,
+        surname: String?,
+        firstname: String?,
+        street: String?,
+        city: String?,
+        postcode: String?,
+        country: String?,
+        message: String?,
+        requestCurrentSubscriptionOpportunities: Boolean?,
+    ): SubscriptionInfo? {
+        val tag = "subscriptionFormData"
+        log.debug("call graphql  $tag")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.SubscriptionFormData,
+                SubscriptionFormDataVariables(
+                    typ,
+                    mail,
+                    surname,
+                    firstname,
+                    street,
+                    city,
+                    postcode,
+                    country,
+                    message,
+                    requestCurrentSubscriptionOpportunities,
+                )
+            ).data?.trialSubscription
         }
     }
 }
