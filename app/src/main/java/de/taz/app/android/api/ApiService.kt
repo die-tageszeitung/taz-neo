@@ -739,7 +739,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun subscriptionFormData(
-        typ: SubscriptionFormDataTyp,
+        typ: SubscriptionFormDataType,
         mail: String?,
         surname: String?,
         firstname: String?,

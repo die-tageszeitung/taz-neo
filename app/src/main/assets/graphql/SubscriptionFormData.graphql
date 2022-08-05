@@ -1,5 +1,5 @@
 mutation SubscriptionFormData(
-    $typ: SubscriptionFormDataTyp!,
+    $typ: SubscriptionFormDataType!,
     $mail: String,
     $surname: String,
     $firstname: String,
