@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fragment_cover_flow_guideline_top">200dp</dimen>
+</resources>
