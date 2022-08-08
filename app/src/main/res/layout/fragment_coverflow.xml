@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="200dp"
+        app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top"
         />
 
     <androidx.constraintlayout.widget.Guideline
