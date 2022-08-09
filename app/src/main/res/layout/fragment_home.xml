@@ -43,8 +43,9 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toBottomOf="@id/home_login_button_text"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/ic_right_arrow"
+                android:src="@drawable/ic_arrow_right"
                 app:tint="@color/tazRed"
+                android:layout_marginTop="@dimen/fragment_home_login_button_icon_margin_top"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
