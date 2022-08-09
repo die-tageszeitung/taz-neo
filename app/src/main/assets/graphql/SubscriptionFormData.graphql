@@ -1,5 +1,5 @@
 mutation SubscriptionFormData(
-    $typ: SubscriptionFormDataType!,
+    $type: SubscriptionFormDataType!,
     $mail: String,
     $surname: String,
     $firstname: String,
@@ -11,7 +11,7 @@ mutation SubscriptionFormData(
     $requestCurrentSubscriptionOpportunities: Boolean
 ) {
     subscriptionFormData(
-        typ: $typ,
+        type: $type,
         mail: $mail,
         surname: $surname,
         firstName: $firstname,

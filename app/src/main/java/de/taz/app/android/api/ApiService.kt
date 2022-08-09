@@ -739,7 +739,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun subscriptionFormData(
-        typ: SubscriptionFormDataType,
+        type: SubscriptionFormDataType,
         mail: String?,
         surname: String?,
         firstname: String?,
@@ -756,7 +756,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.SubscriptionFormData,
                 SubscriptionFormDataVariables(
-                    typ,
+                    type,
                     mail,
                     surname,
                     firstname,
