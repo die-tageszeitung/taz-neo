@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
-import androidx.room.Query
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
@@ -71,16 +70,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStub(articleFileName)?.let {articleStubToArticle(it) }
     }
 
-    fun getList(articleFileNames: List<String>): List<Article> {
-        return getStubList(articleFileNames).map(this::articleStubToArticle)
-    }
-
     fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
-    }
-
-    fun getStubList(articleFileNames: List<String>): List<ArticleStub> {
-        return appDatabase.articleDao().get(articleFileNames)
     }
 
     fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
@@ -231,10 +222,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
-    fun isBookmarked(articleStub: ArticleStub): Boolean {
-        return articleStub.bookmarked
-    }
-
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
         return getStubLiveData(articleName).map { it.bookmarked }
     }
@@ -322,29 +309,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getArticleStubListForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): List<ArticleStub> {
-        return appDatabase.articleDao()
-            .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
-    }
-
-    fun getArticleStubListForIssue(
         issueKey: IssueKey
     ): List<ArticleStub> {
         return appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
-
-    fun getBookmarkedArticleStubsForIssue(issueKey: AbstractIssueKey): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(
-            issueKey.feedName,
-            issueKey.date,
-            issueKey.status
-        )
-    }
-
 
     fun setDownloadDate(
         articleStub: ArticleStub,
