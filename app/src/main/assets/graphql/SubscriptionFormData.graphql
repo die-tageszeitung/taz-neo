@@ -1,0 +1,28 @@
+mutation SubscriptionFormData(
+    $type: SubscriptionFormDataType!,
+    $mail: String,
+    $surname: String,
+    $firstname: String,
+    $street: String,
+    $city: String,
+    $postcode: String,
+    $country: String,
+    $message: String,
+    $requestCurrentSubscriptionOpportunities: Boolean
+) {
+    subscriptionFormData(
+        type: $type,
+        mail: $mail,
+        surname: $surname,
+        firstName: $firstname,
+        street: $street,
+        city: $city,
+        postcode: $postcode,
+        country: $country,
+        message: $message,
+        requestCurrentSubscriptionOpportunities: $requestCurrentSubscriptionOpportunities
+    ) {
+        error
+        errorMessage
+    }
+}

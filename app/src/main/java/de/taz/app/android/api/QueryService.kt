@@ -35,6 +35,7 @@ enum class QueryType {
     TrialSubscription,
     Search,
     Cancellation,
+    SubscriptionFormData,
 }
 
 /**
