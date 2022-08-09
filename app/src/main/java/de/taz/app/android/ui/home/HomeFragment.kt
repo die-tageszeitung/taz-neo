@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -17,10 +16,8 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.*
@@ -32,12 +29,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private var refreshJob: Job? = null
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
-    private lateinit var authHelper: AuthHelper
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,26 +86,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             fabActionPdf.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        viewBinding.apply {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (authHelper.isLoggedIn()) {
-                    homeLoginButton.visibility = View.GONE
-                }
-                else {
-                    homeLoginButton.visibility = View.VISIBLE
-                    homeLoginButton.setOnClickListener {
-                        activity?.startActivity(
-                            Intent(activity, LoginActivity::class.java)
-                        )
-                    }
                 }
             }
         }
