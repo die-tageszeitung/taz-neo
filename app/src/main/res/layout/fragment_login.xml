@@ -96,4 +96,48 @@
         android:text="@string/help"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
 
+    <View
+        android:id="@+id/fragment_login_separator_line"
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_forgot_help"
+        android:layout_marginVertical="@dimen/fragment_login_separator_line_margin_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/lightGrey"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_login_test_subscription_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/fragment_login_box_margin_vertical"
+        android:background="@drawable/rectangle_rounded_corners"
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_separator_line"
+        >
+        <TextView
+            android:id="@+id/fragment_login_test_subscription_field_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_trial_subscription_title"
+            android:textSize="@dimen/fragment_login_box_title_text_size"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <TextView
+            android:id="@+id/fragment_login_test_subscription_field_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_trial_subscription_body"
+            android:textAlignment="center"
+            android:layout_marginVertical="@dimen/fragment_login_box_content_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_test_subscription_field_title"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fragment_login_test_subscription_field_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_trial_subscription_button_text"
+            android:layout_marginVertical="@dimen/fragment_login_box_button_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_test_subscription_field_text"
+        />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
