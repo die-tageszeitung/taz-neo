@@ -5,5 +5,5 @@
     <dimen name="fragment_cover_flow_guideline_end">120dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">48dp</dimen>
     <dimen name="fragment_cover_flow_login_button_margin_top">15dp</dimen>
-    <dimen name="fragment_cover_flow_login_button_margin_end">15dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_margin_end">20dp</dimen>
 </resources>
