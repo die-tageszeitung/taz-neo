@@ -2,6 +2,7 @@
 <resources>
     <dimen name="fragment_webview_header_padding_top">48dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
+    <dimen name="fragment_cover_flow_guideline_top">120dp</dimen>
 
     <dimen name="fragment_header_section_text_size">32sp</dimen>
     <dimen name="fragment_header_article_text_size">22sp</dimen>

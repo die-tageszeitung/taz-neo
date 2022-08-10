@@ -35,6 +35,10 @@
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 
+    <dimen name="fragment_cover_flow_login_button_margin_top">25dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_margin_end">30dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_icon_margin_top">5dp</dimen>
+
     <dimen name="fragment_login_title_margin_top">45dp</dimen>
     <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
     <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
@@ -96,6 +100,7 @@
     <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_margin_bottom">62dp</dimen>
     <dimen name="fragment_cover_flow_guideline_end">150dp</dimen>
+    <dimen name="fragment_cover_flow_guideline_top">100dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
