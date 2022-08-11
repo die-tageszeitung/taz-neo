@@ -18,10 +18,10 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     abstract fun get(articleFileNames: List<String>): List<ArticleStub>
 
-    @Query("SELECT * FROM Article WHERE Article.bookmarked != 0 ORDER BY Article.bookmarkedTime")
+    @Query("SELECT * FROM Article WHERE Article.bookmarked != 0 ORDER BY Article.bookmarkedTime DESC")
     abstract fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
 
-    @Query("SELECT * FROM Article WHERE Article.bookmarked != 0 ORDER BY Article.bookmarkedTime")
+    @Query("SELECT * FROM Article WHERE Article.bookmarked != 0 ORDER BY Article.bookmarkedTime DESC")
     abstract fun getBookmarkedArticles(): List<ArticleStub>
 
     @Query(

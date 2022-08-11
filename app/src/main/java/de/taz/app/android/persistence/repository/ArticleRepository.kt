@@ -188,7 +188,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun bookmarkArticle(articleName: String) {
-        getStub(articleName)?.copy(bookmarked = true)?.let {
+        val currentDate = Date()
+        getStub(articleName)?.copy(bookmarked = true, bookmarkedTime = currentDate)?.let {
             appDatabase.articleDao().update(it)
         }
     }
@@ -203,7 +204,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun debookmarkArticle(articleName: String) {
         log.debug("removed bookmark from article $articleName")
-        getStub(articleName)?.copy(bookmarked = false)?.let {
+        getStub(articleName)?.copy(bookmarked = false, bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
         }
     }
