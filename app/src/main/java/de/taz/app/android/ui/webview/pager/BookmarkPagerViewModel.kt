@@ -42,7 +42,7 @@ class BookmarkPagerViewModel(
 
     fun toggleBookmark(articleStub: ArticleStub) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (articleStub.bookmarked) {
+            if (articleStub.bookmarkedTime != null) {
                 articleRepository.debookmarkArticle(articleStub)
             } else {
                 articleRepository.bookmarkArticle(articleStub)
