@@ -22,6 +22,7 @@ data class Article(
     val authorList: List<Author>,
     override val articleType: ArticleType,
     val bookmarked: Boolean,
+    val bookmarkedTime: Date?,
     val position: Int,
     val percentage: Int,
     override val dateDownload: Date?
@@ -47,6 +48,7 @@ data class Article(
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
         articleType,
         false,
+        bookmarkedTime = null,
         0,
         0,
         null

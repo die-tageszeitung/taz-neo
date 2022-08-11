@@ -171,6 +171,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             authors,
             articleStub.articleType,
             articleStub.bookmarked,
+            articleStub.bookmarkedTime,
             articleStub.position,
             articleStub.percentage,
             articleStub.dateDownload
