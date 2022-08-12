@@ -49,6 +49,8 @@
     <dimen name="fragment_login_box_title_text_size">20sp</dimen>
     <dimen name="fragment_login_box_content_margin_vertical">5dp</dimen>
     <dimen name="fragment_login_box_button_margin_vertical">10dp</dimen>
+    <!-- navbar_height=52dp + 10dp-->
+    <dimen name="fragment_login_padding_to_navbar">62dp</dimen>
 
     <dimen name="fragment_subscription_trial_only_margin_top">30dp</dimen>
 
