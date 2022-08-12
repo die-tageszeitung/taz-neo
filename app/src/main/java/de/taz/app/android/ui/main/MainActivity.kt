@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
@@ -24,12 +25,13 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
+import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Dispatchers
@@ -136,9 +138,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private suspend fun checkIfSubscriptionElapsed() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+        val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.message.get())
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-            showSubscriptionElapsedPopup()
+            if (BuildConfig.IS_NON_FREE) showSubscriptionElapsedDialogNonFree(elapsedOn)
+            else showSubscriptionElapsedDialog(elapsedOn)
             (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
@@ -160,12 +164,34 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    fun showSubscriptionElapsedPopup() {
-        val popUpFragment = SubscriptionElapsedDialogFragment()
-        popUpFragment.show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
+    private fun showSubscriptionElapsedDialogNonFree(elapsedOn: String?) {
+        val dialog = MaterialAlertDialogBuilder(this@MainActivity)
+            .setTitle(getString(R.string.popup_login_elapsed_header, elapsedOn))
+            .setMessage(R.string.popup_login_elapsed_text)
+            .setPositiveButton(R.string.close_okay) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        dialog.show()
+    }
+
+    private fun showSubscriptionElapsedDialog(elapsedOn: String?) {
+        val dialog = MaterialAlertDialogBuilder(this@MainActivity)
+            .setTitle(getString(R.string.popup_login_elapsed_header, elapsedOn))
+            .setMessage(R.string.popup_login_elapsed_text)
+            .setPositiveButton(R.string.order_button) { dialog, _ ->
+                startActivityForResult(Intent(this@MainActivity, LoginActivity::class.java).apply {
+                    putExtra(LOGIN_EXTRA_REGISTER, true)
+                }, ACTIVITY_LOGIN_REQUEST_CODE)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+
+        dialog.show()
     }
 
     private var doubleBackToExitPressedOnce = false

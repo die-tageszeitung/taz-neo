@@ -14,12 +14,11 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
-    <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
+    <string name="popup_login_elapsed_header">Ihr Probeabo ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_text">
-        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
-        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
-        Bei Fragen wenden Sie sich an unseren Service unter:
+        Wir haben Ihnen zum Ablauf Ihres kostenlosen Probeabos Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\n
+        Falls Sie diese E-Mail nicht finden können, oder weitere Fragen an unsere Aboabteilung haben, wenden Sie sich bitte an unseren Service unter:\n
+        <a href="mailto:fragen@taz.de">fragen@taz.de</a>
     </string>
     <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
