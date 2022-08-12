@@ -146,13 +146,15 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
         articleRepository.appDatabase.runInTransaction<Unit> {
             articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
-                articleRepository.debookmarkArticle(articleStub)
-                articleRepository.bookmarkArticle(
-                    articleStub.articleFileName.replace(
-                        "public.",
-                        ""
+                articleStub.bookmarkedTime?.let { date ->
+                    articleRepository.setBookmarkedTime(
+                        articleStub.articleFileName.replace(
+                            "public.",
+                            ""
+                        ), date
                     )
-                )
+                }
+                articleRepository.debookmarkArticle(articleStub)
             }
         }
     }

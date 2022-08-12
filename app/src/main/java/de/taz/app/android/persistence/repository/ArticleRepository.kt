@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
-import androidx.room.Query
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
@@ -31,7 +30,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun save(article: Article) {
         var articleToSave = article
         getStub(articleToSave.key)?.let {
-            articleToSave = articleToSave.copy(bookmarked = it.bookmarked)
+            articleToSave = articleToSave.copy(bookmarkedTime = it.bookmarkedTime)
         }
 
         val articleFileName = articleToSave.articleHtml.name
@@ -71,16 +70,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStub(articleFileName)?.let {articleStubToArticle(it) }
     }
 
-    fun getList(articleFileNames: List<String>): List<Article> {
-        return getStubList(articleFileNames).map(this::articleStubToArticle)
-    }
-
     fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
-    }
-
-    fun getStubList(articleFileNames: List<String>): List<ArticleStub> {
-        return appDatabase.articleDao().get(articleFileNames)
     }
 
     fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
@@ -97,7 +88,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
-        if (articleStub?.bookmarked == true) {
+        if (articleStub?.bookmarkedTime != null) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
             appDatabase.articleDao().update(
                 articleStub.copy(percentage = percentage, position = position)
@@ -179,7 +170,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleImages,
             authors,
             articleStub.articleType,
-            articleStub.bookmarked,
+            articleStub.bookmarkedTime,
             articleStub.position,
             articleStub.percentage,
             articleStub.dateDownload
@@ -196,7 +187,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun bookmarkArticle(articleName: String) {
-        getStub(articleName)?.copy(bookmarked = true)?.let {
+        val currentDate = Date()
+        getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
+            appDatabase.articleDao().update(it)
+        }
+    }
+
+    fun setBookmarkedTime(articleName: String, date: Date) {
+        getStub(articleName)?.copy(bookmarkedTime = date)?.let {
             appDatabase.articleDao().update(it)
         }
     }
@@ -211,7 +209,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun debookmarkArticle(articleName: String) {
         log.debug("removed bookmark from article $articleName")
-        getStub(articleName)?.copy(bookmarked = false)?.let {
+        getStub(articleName)?.copy(bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
         }
     }
@@ -231,12 +229,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
-    fun isBookmarked(articleStub: ArticleStub): Boolean {
-        return articleStub.bookmarked
-    }
-
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it.bookmarked }
+        return getStubLiveData(articleName).map { it.bookmarkedTime != null }
     }
 
     fun getIndexInSection(articleName: String): Int {
@@ -246,7 +240,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     fun deleteArticle(article: Article) {
         appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
-            if (!it.bookmarked) {
+            if (it.bookmarkedTime == null) {
                 val articleFileName = article.articleHtml.name
 
                 // delete authors
@@ -322,29 +316,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun getArticleStubListForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): List<ArticleStub> {
-        return appDatabase.articleDao()
-            .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
-    }
-
-    fun getArticleStubListForIssue(
         issueKey: IssueKey
     ): List<ArticleStub> {
         return appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
-
-    fun getBookmarkedArticleStubsForIssue(issueKey: AbstractIssueKey): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(
-            issueKey.feedName,
-            issueKey.date,
-            issueKey.status
-        )
-    }
-
 
     fun setDownloadDate(
         articleStub: ArticleStub,

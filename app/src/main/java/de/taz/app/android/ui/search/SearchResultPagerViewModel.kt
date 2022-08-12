@@ -50,7 +50,7 @@ class SearchResultPagerViewModel(
     }
 
     val isBookmarkedLiveData: LiveData<Boolean> =
-        articleLiveData.map { article -> article?.bookmarked ?: false }
+        articleLiveData.map { article -> isBookmarked(article) }
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
         val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: totalFound
@@ -58,5 +58,10 @@ class SearchResultPagerViewModel(
         return rangeInWhereToLoadMore in 1..lastVisible
                 && currentlyLoadingMore.value == false
                 && searchResultListSize < totalFound
+    }
+
+    private fun isBookmarked(articleStub: ArticleStub?): Boolean {
+        return if (articleStub == null) false
+        else articleStub.bookmarkedTime != null
     }
 }

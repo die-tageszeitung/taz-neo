@@ -21,7 +21,7 @@ data class Article(
     val imageList: List<Image>,
     val authorList: List<Author>,
     override val articleType: ArticleType,
-    val bookmarked: Boolean,
+    val bookmarkedTime: Date?,
     val position: Int,
     val percentage: Int,
     override val dateDownload: Date?
@@ -46,11 +46,12 @@ data class Article(
         articleDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
         articleType,
-        false,
+        bookmarkedTime = null,
         0,
         0,
         null
     )
+    val bookmarked = bookmarkedTime != null
 
     override val key: String
         get() = articleHtml.name
