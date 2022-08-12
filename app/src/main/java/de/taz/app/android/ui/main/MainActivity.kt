@@ -172,7 +172,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 dialog.dismiss()
             }
             .create()
-
+        //TODO(eike): make the mailto-link in the message clickable
         dialog.show()
     }
 
@@ -190,7 +190,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 dialog.dismiss()
             }
             .create()
-
+        //TODO(eike): make the mailto-link in the message clickable
         dialog.show()
     }
 

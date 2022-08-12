@@ -21,6 +21,7 @@
         android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
         android:text="@string/fragment_login_description"
         android:textAlignment="center"
+        android:autoLink="all"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -190,7 +191,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="read_on_elapsed_description, read_on_elapsed_email, read_on_elapsed_order, read_on_elapsed_title" />
+        app:constraint_referenced_ids="read_on_elapsed_description, read_on_elapsed_order, read_on_elapsed_title" />
 
     <TextView
         android:id="@+id/read_on_elapsed_title"
@@ -209,16 +210,6 @@
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
 
-    <TextView
-        android:id="@+id/read_on_elapsed_email"
-        style="@style/TextAppearance.Login.Text.Link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/popup_login_elapsed_taz_mail_underlined"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description" />
-
     <Button
         android:id="@+id/read_on_elapsed_order"
         style="@style/AppTheme.ButtonStyle.Outlined"
@@ -229,5 +220,5 @@
         app:layout_constraintWidth="@dimen/button_max_width"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_email" />
+        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description" />
 </androidx.constraintlayout.widget.ConstraintLayout>

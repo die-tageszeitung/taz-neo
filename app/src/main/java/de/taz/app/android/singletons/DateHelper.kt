@@ -73,6 +73,7 @@ object DateHelper {
     }
 
     fun stringToLongLocalizedString(dateString: String): String? {
+        if (dateString == "") return null
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             dateToLongLocalizedString(issueDate)
         }

@@ -3,16 +3,19 @@ package de.taz.app.android.ui.login.fragments
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
@@ -59,14 +62,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                             putExtra(LOGIN_EXTRA_REGISTER, true)
                         }, ACTIVITY_LOGIN_REQUEST_CODE)
                     }
-                    readOnElapsedEmail.setOnClickListener {
-                        val email = Intent(Intent.ACTION_SEND)
-                        email.putExtra(Intent.EXTRA_EMAIL, arrayOf(SUBSCRIPTION_EMAIL_ADDRESS))
-                        email.putExtra(Intent.EXTRA_SUBJECT, "")
-                        email.putExtra(Intent.EXTRA_TEXT, "")
-                        email.type = "message/rfc822"
-                        startActivity(Intent.createChooser(email, null))
-                    }
+                    val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.message.get())
+                    readOnElapsedTitle.text = getString(R.string.popup_login_elapsed_header, elapsedOn)
+                    //TODO(eike): make the mailto-link in the textView readOnDescription clickable
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
