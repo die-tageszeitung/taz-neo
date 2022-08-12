@@ -61,32 +61,12 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout" />
 
     <TextView
-        android:id="@+id/fragment_login_missing_subscription_subscription"
-        style="@style/TextAppearance.Login.Text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/trial_subscription_title"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/fragment_login_register_button"
-        style="@style/AppTheme.ButtonStyle.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/register_button"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription" />
-
-    <TextView
         android:id="@+id/fragment_login_missing_subscription_forgot_password"
         style="@style/TextAppearance.Login.Text.Link"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/login_forgot_password"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_register_button" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
     <TextView
         android:id="@+id/fragment_login_forgot_help"
