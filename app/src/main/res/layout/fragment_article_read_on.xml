@@ -11,7 +11,7 @@
         android:id="@+id/read_on_login_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="read_on_description, read_on_username_layout, read_on_password_layout, read_on_login_button, read_on_register_button, read_on_trial_subscription_text" />
+        app:constraint_referenced_ids="read_on_description, read_on_username_layout, read_on_password_layout, read_on_login_button" />
 
     <TextView
         android:id="@+id/read_on_description"
@@ -69,32 +69,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_on_password_layout" />
 
-    <TextView
-        android:id="@+id/read_on_trial_subscription_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
-        android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
-        android:text="@string/trial_subscription_title"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
-
-    <Button
-        android:id="@+id/read_on_register_button"
-        style="@style/AppTheme.ButtonStyle.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
-        android:text="@string/register_button"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_text" />
-
     <View
         android:id="@+id/read_on_separator_line"
-        app:layout_constraintTop_toBottomOf="@id/read_on_register_button"
+        app:layout_constraintTop_toBottomOf="@id/read_on_login_button"
         android:layout_marginVertical="@dimen/fragment_login_separator_line_margin_vertical"
         android:layout_width="match_parent"
         android:layout_height="1dp"
