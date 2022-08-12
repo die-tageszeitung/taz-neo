@@ -38,6 +38,7 @@ private const val PREFERENCES_AUTH_POLL = "poll"
 private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
+private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
 // endregion
 
 
@@ -88,6 +89,10 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     val installationId = SimpleDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
+    )
+
+    val message = SimpleDataStoreEntry(
+        dataStore, stringPreferencesKey(PREFERENCES_AUTH_INFO_MESSAGE), ""
     )
 
     final val status = MappingDataStoreEntry(

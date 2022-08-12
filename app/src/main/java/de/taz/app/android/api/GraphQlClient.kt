@@ -103,11 +103,13 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             }
         }
 
-        // if response carries authinfo we save it
-        wrapper.data?.product?.authInfo?.let {
-            // only update if it changes
-            if (authHelper.status.get() != it.status) {
-                authHelper.status.set(it.status)
+            // if response carries authinfo we save it
+            wrapper.data?.product?.authInfo?.let {
+                // only update if it changes
+                if (authHelper.status.get() != it.status) {
+                    authHelper.status.set(it.status)
+                    authHelper.message.set(it.message ?: "")
+                }
             }
         }
         return wrapper
