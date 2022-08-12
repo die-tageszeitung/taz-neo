@@ -193,6 +193,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    fun setBookmarkedTime(articleName: String, date: Date) {
+        getStub(articleName)?.copy(bookmarkedTime = date)?.let {
+            appDatabase.articleDao().update(it)
+        }
+    }
+
     fun debookmarkArticle(article: Article) {
         debookmarkArticle(article.key)
     }
