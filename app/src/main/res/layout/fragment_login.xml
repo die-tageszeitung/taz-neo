@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/fragment_login_padding_to_navbar"
     tools:context="de.taz.app.android.ui.login.LoginActivity">
 
     <TextView
@@ -163,7 +164,6 @@
         android:layout_marginVertical="@dimen/login_box_margin_vertical"
         android:background="@drawable/rectangle_rounded_corners"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box"
-        android:paddingBottom="@dimen/fragment_login_padding_to_navbar"
         >
         <TextView
             android:id="@+id/fragment_login_extend_print_with_digi_box_title"
