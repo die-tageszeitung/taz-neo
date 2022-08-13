@@ -11,7 +11,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.databinding.ActivtyStorageMigrationBinding
+import de.taz.app.android.databinding.ActivityStorageMigrationBinding
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -40,12 +40,12 @@ class StorageOrganizationActivity : StartupActivity() {
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
-    private lateinit var viewBinding: ActivtyStorageMigrationBinding
+    private lateinit var viewBinding: ActivityStorageMigrationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewBinding = ActivtyStorageMigrationBinding.inflate(layoutInflater)
+        viewBinding = ActivityStorageMigrationBinding.inflate(layoutInflater)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
