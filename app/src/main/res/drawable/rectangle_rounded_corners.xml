@@ -5,7 +5,7 @@ android:shape="rectangle">
 // The width and color of the border
 <solid
     android:width="1dp"
-    android:color="@color/superLightGrey" />
+    android:color="@color/login_box_background" />
 
 // The corner radius, reduce it to make it more square
 <corners

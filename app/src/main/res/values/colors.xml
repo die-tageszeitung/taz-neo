@@ -53,5 +53,6 @@
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
     <color name="scrollbar_color">@color/lightGrey</color>
+    <color name="login_box_background">@color/superLightGrey</color>
 
 </resources>
