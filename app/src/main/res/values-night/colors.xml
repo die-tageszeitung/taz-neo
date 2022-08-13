@@ -46,5 +46,7 @@
     <color name="search_field_background_color">@color/darkGrey</color>
 
     <color name="scrollbar_color">@color/mediumLightGrey</color>
+
     <color name="login_box_background">@color/mediumLightGrey</color>
+    <color name="login_box_separator_line_color">@color/lightGrey</color>
 </resources>
