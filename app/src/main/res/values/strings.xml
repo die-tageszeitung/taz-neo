@@ -397,4 +397,16 @@
     <string name="search_advanced_start_search">Suche starten</string>
     <string name="search_result_amount_found">%d von %d Treffer:</string>
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
+
+    <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
+    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\n Wir kontaktieren Sie so schnell wie möglich mit den Vertragsänderungen.</string>
+    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_switch_name_title">Name und Vorname</string>
+    <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
+    <string name="fragment_switch_address_zipcode_title">PLZ</string>
+    <string name="fragment_switch_address_city_title">Ort</string>
+    <string name="fragment_switch_address_country_title">Land</string>
+    <string name="fragment_switch_message_title">Ihre Nachricht</string>
+    <string name="fragment_switch_send_button">Absenden</string>
+    <string name="fragment_switch_cancel_button">Abbrechen</string>
 </resources>
