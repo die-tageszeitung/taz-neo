@@ -20,11 +20,8 @@ import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class LoginViewModel(
+class LoginViewModel @JvmOverloads constructor(
     application: Application,
-    initialUsername: String? = null,
-    initialPassword: String? = null,
-    register: Boolean = false,
     private val apiService: ApiService = ApiService.getInstance(application),
     private val authHelper: AuthHelper = AuthHelper.getInstance(application),
     private val toastHelper: ToastHelper = ToastHelper.getInstance(application),
@@ -62,12 +59,6 @@ class LoginViewModel(
 
     var createNewAccount: Boolean = true
     var validCredentials: Boolean = false
-
-    init {
-        if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
-            login(initialUsername, initialPassword)
-        }
-    }
 
     fun setDone() {
         status.postValue(LoginViewModelState.DONE)
@@ -206,7 +197,7 @@ class LoginViewModel(
         register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
         register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
