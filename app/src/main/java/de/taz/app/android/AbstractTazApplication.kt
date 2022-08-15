@@ -19,11 +19,11 @@ import java.util.*
 abstract class AbstractTazApplication : Application() {
     private val log by Log
 
-    private val authHelper
-        get() = AuthHelper.getInstance(this)
+    private lateinit var authHelper: AuthHelper
 
     override fun onCreate() {
         super.onCreate()
+        authHelper = AuthHelper.getInstance(this)
         CoroutineScope(Dispatchers.IO).launch {
             generateInstallationId()
             setUpSentry()
