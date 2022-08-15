@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.data.INFINITE
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.firebase.FirebaseDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
@@ -28,7 +29,7 @@ import java.util.*
 class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val graphQlClient: GraphQlClient,
     private val authHelper: AuthHelper,
-    private val firebaseHelper: FirebaseHelper,
+    private val fireBaseDataStore: FirebaseDataStore,
     private val deviceFormat: DeviceFormat,
     private val downloadDataStore: DownloadDataStore,
 ) {
@@ -36,7 +37,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private constructor(applicationContext: Context) : this(
         graphQlClient = GraphQlClient.getInstance(applicationContext),
         authHelper = AuthHelper.getInstance(applicationContext),
-        firebaseHelper = FirebaseHelper.getInstance(applicationContext),
+        fireBaseDataStore = FirebaseDataStore.getInstance(applicationContext),
         deviceFormat = if (applicationContext.resources.getBoolean(R.bool.isTablet)) {
             DeviceFormat.tablet
         }  else {
@@ -96,7 +97,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.SubscriptionId2TazId,
                 SubscriptionId2TazIdVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.token.get(),
+                    pushToken = fireBaseDataStore.token.get(),
                     tazId = tazId,
                     idPassword = idPassword,
                     subscriptionId = subscriptionId,
@@ -439,13 +440,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     issueDate = issueDate,
                     isAutomatically = isAutomatically,
                     installationId = authHelper.installationId.get(),
-                    isPush = firebaseHelper.isPush(),
-                    pushToken = firebaseHelper.token.get(),
+                    isPush = fireBaseDataStore.isPush(),
+                    pushToken = fireBaseDataStore.token.get(),
                     deviceFormat = deviceFormat,
                     textNotification = downloadDataStore.notificationsEnabled.get()
                 )
             ).data?.downloadStart?.let { id ->
-                log.debug("Notified server that download started. ID: $id with pushToken: ${firebaseHelper.token.get()}")
+                log.debug("Notified server that download started. ID: $id with pushToken: ${fireBaseDataStore.token.get()}")
                 id
             }
         }
@@ -500,7 +501,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             transformToConnectivityException {
                 graphQlClient.query(
                     QueryType.Notification,
-                    firebaseHelper.token.get()?.let {
+                    fireBaseDataStore.token.get()?.let {
                         NotificationVariables(
                             pushToken = it,
                             deviceFormat = deviceFormat,
@@ -543,7 +544,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.Subscription,
                 SubscriptionVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.token.get(),
+                    pushToken = fireBaseDataStore.token.get(),
                     tazId = tazId,
                     idPassword = idPassword,
                     surname = surname,
@@ -591,7 +592,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     firstName = firstName,
                     nameAffix = nameAffix,
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.token.get(),
+                    pushToken = fireBaseDataStore.token.get(),
                     deviceFormat = deviceFormat
                 )
             ).data?.trialSubscription
@@ -628,7 +629,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.ErrorReport,
                 ErrorReportVariables(
                     installationId = authHelper.installationId.get(),
-                    pushToken = firebaseHelper.token.get(),
+                    pushToken = fireBaseDataStore.token.get(),
                     eMail = email,
                     message = message,
                     lastAction = lastAction,

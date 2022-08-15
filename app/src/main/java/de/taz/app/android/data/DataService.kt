@@ -55,22 +55,6 @@ class DataService(applicationContext: Context) {
             )
         }
 
-    suspend fun sendNotificationInfo(
-        token: String,
-        oldToken: String? = null,
-        retryOnFailure: Boolean = false
-    ): Boolean =
-        withContext(Dispatchers.IO) {
-            log.info("Sending notification info")
-            if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.sendNotificationInfo(token, oldToken)
-                }
-            } else {
-                apiService.sendNotificationInfo(token, oldToken)
-            }
-        }
-
 
     suspend fun getFeedByName(
         name: String,
