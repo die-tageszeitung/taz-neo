@@ -17,7 +17,7 @@ import kotlin.coroutines.CoroutineContext
  * Singleton to create Toasts
  */
 @Mockable
-class ToastHelper private constructor(private val applicationContext: Context): CoroutineScope {
+class ToastHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)
 
@@ -26,7 +26,7 @@ class ToastHelper private constructor(private val applicationContext: Context): 
     }
 
     fun showToast(message: String, long: Boolean = false) {
-        launch(Dispatchers.Main) {
+        CoroutineScope(Dispatchers.Main).launch {
             val toastDuration = if (long) Toast.LENGTH_LONG else Toast.LENGTH_SHORT
             try {
                 Toast.makeText(applicationContext, message, toastDuration).show()
@@ -58,6 +58,4 @@ class ToastHelper private constructor(private val applicationContext: Context): 
             showToast(R.string.something_went_wrong_try_later)
         }
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

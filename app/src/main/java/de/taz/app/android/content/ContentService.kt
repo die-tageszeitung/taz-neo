@@ -15,7 +15,6 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlin.coroutines.CoroutineContext
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for
@@ -27,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 @Mockable
 class ContentService(
     private val applicationContext: Context
-): CoroutineScope {
+) {
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
@@ -68,7 +67,7 @@ class ContentService(
             }
             .map { it.second }
             .also {
-                launch {
+                CoroutineScope(Dispatchers.Default).launch {
                     val stateUpdate: CacheStateUpdate =
                         activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
                             ?: getCacheState(download)
@@ -236,6 +235,4 @@ class ContentService(
                 .execute()
         }
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

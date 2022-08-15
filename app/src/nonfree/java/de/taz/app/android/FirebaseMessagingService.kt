@@ -11,9 +11,8 @@ import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
 private const val REMOTE_MESSAGE_PERFORM_KEY = "perform"
@@ -26,7 +25,7 @@ private const val REMOTE_MESSAGE_REFRESH_VALUE_ABO_POLL = "aboPoll"
 private const val DOWNLOAD_DELAY_MAX_MS = 3600000L // 1 hour
 
 
-class FirebaseMessagingService : FirebaseMessagingService(), CoroutineScope {
+class FirebaseMessagingService : FirebaseMessagingService() {
 
     private val log by Log
 
@@ -62,7 +61,7 @@ class FirebaseMessagingService : FirebaseMessagingService(), CoroutineScope {
                     when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
                         REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
-                            launch {
+                            CoroutineScope(Dispatchers.Default).launch {
                                 authHelper.isPolling.set(true)
                             }
                         }
@@ -91,7 +90,7 @@ class FirebaseMessagingService : FirebaseMessagingService(), CoroutineScope {
     }
 
     private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
-        launch {
+        CoroutineScope(Dispatchers.Default).launch {
             if (DownloadDataStore.getInstance(applicationContext).enabled.get()) {
                 downloadScheduler.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
             }
@@ -114,7 +113,4 @@ class FirebaseMessagingService : FirebaseMessagingService(), CoroutineScope {
             }
         }
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
-
 }

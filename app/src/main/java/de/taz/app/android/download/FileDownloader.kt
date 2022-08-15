@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext
  */
 class FileDownloader(
     private val applicationContext: Context
-) : FiledownloaderInterface, CoroutineScope {
+) : FiledownloaderInterface {
     companion object : SingletonHolder<FiledownloaderInterface, Context>(::FileDownloader)
 
     private val downloaderThreadPool = Executors.newFixedThreadPool(MAX_SIMULTANEOUS_DOWNLOADS)
@@ -70,7 +70,7 @@ class FileDownloader(
 
     private fun ensureDownloaderRunning() {
         if (downloaderJob == null || downloaderJob?.isActive == false) {
-            downloaderJob = launch {
+            downloaderJob = CoroutineScope(Dispatchers.Default).launch {
                 (0 until MAX_SIMULTANEOUS_DOWNLOADS).map { i ->
                     launch(downloaderThreadPool.asCoroutineDispatcher()) { pollForDownload(i) }
                 }.joinAll()
@@ -174,6 +174,4 @@ class FileDownloader(
         val digest = hash.digest()
         return digest.fold("") { str, it -> str + "%02x".format(it) }
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

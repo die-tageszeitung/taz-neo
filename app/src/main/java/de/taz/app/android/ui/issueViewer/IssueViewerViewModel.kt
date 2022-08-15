@@ -13,7 +13,6 @@ import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlin.coroutines.CoroutineContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
@@ -32,7 +31,7 @@ data class IssueKeyWithDisplayableKey(
 class IssueViewerViewModel(
     application: Application,
     private val savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application), CoroutineScope {
+) : AndroidViewModel(application) {
     private val log by Log
     private val dataService = DataService.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
@@ -59,7 +58,7 @@ class IssueViewerViewModel(
         }
         issueDisplayable?.let {
             // persist the last displayable in db
-            launch {
+            viewModelScope.launch {
                 dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
             }
         }
@@ -162,7 +161,6 @@ class IssueViewerViewModel(
         }
     }
 
-    override val coroutineContext: CoroutineContext = SupervisorJob()
     private val applicationScope by lazy {
         (application as TazApplication).applicationScope
     }

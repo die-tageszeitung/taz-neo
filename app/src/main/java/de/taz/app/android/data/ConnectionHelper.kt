@@ -19,7 +19,7 @@ data class WaitingCall(
 const val INFINITE = -1
 
 @Mockable
-abstract class ConnectionHelper: CoroutineScope {
+abstract class ConnectionHelper {
     val log by Log
 
     private val waitingCalls = ConcurrentLinkedQueue<WaitingCall>()
@@ -61,7 +61,7 @@ abstract class ConnectionHelper: CoroutineScope {
 
     private fun ensureConnectivityCheckRunning() {
         if (connectivityCheckJob?.isActive != true) {
-            connectivityCheckJob = launch {
+            connectivityCheckJob = CoroutineScope(Dispatchers.Default).launch {
                 tryForConnectivity()
             }
         }
@@ -112,6 +112,4 @@ abstract class ConnectionHelper: CoroutineScope {
     private fun resetBackOffTime() {
         backOffTimeMs = CONNECTION_FAILURE_BACKOFF_TIME_MS
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

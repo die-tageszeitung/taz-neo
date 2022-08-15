@@ -60,7 +60,7 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
 class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
     dataStore: DataStore<Preferences>
-): CoroutineScope {
+) {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
@@ -111,7 +111,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     init {
-        launch {
+        CoroutineScope(Dispatchers.Default).launch {
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
@@ -161,6 +161,4 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             )
         ) as Issue
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

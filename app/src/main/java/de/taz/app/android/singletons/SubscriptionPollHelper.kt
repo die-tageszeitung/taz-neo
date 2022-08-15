@@ -16,7 +16,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class SubscriptionPollHelper private constructor(applicationContext: Context) : CoroutineScope {
+class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<SubscriptionPollHelper, Context>(::SubscriptionPollHelper)
 
@@ -36,7 +36,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
 
     private fun poll(timeoutMillis: Long = 100) {
         val timeMillis = timeoutMillis.coerceAtMost(3600000)
-        launch {
+        CoroutineScope(Dispatchers.Default).launch {
             delay(timeMillis)
 
             try {
@@ -104,6 +104,4 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
             }
         }
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

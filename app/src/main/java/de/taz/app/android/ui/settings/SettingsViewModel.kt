@@ -3,6 +3,7 @@ package de.taz.app.android.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -15,7 +16,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     var fontSizeLiveData: LiveData<String>
     var textJustificationLiveData: LiveData<Boolean>
@@ -60,44 +61,44 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun setOnlyWifi(onlyWifi: Boolean) {
-        launch {
+        viewModelScope.launch {
             downloadDataStore.onlyWifi.set(onlyWifi)
         }
     }
 
     fun setDownloadsEnabled(enabled: Boolean) {
-        launch {
+        viewModelScope.launch {
             downloadDataStore.enabled.set(enabled)
         }
     }
 
     fun setPdfDownloadsEnabled(enabled: Boolean) {
-        launch {
+        viewModelScope.launch {
             downloadDataStore.pdfAdditionally.set(enabled)
         }
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
-        launch {
+        viewModelScope.launch {
             downloadDataStore.notificationsEnabled.set(enabled)
             apiService.setNotificationsEnabled(enabled)
         }
     }
 
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
-        launch {
+        viewModelScope.launch {
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
         }
     }
 
     fun resetFontSize() {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.fontSize.reset()
         }
     }
 
     fun decreaseFontSize() {
-        launch {
+        viewModelScope.launch {
             val newSize = getFontSize() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 setFontSize(newSize.toString())
@@ -106,7 +107,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun increaseFontSize() {
-        launch {
+        viewModelScope.launch {
             val newSize = getFontSize() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 setFontSize(newSize.toString())
@@ -115,36 +116,34 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun setFontSize(value: String) {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.fontSize.set(value)
         }
     }
 
     fun setTextJustification(justified: Boolean) {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.textJustification.set(justified)
         }
     }
 
     fun setNightMode(value: Boolean) {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.nightMode.set(value)
         }
     }
 
     fun setTapToScroll(value: Boolean) {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.tapToScroll.set(value)
         }
     }
 
     fun setKeepScreenOn(value: Boolean) {
-        launch {
+        viewModelScope.launch {
             tazApiCssDataStore.keepScreenOn.set(value)
         }
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }
