@@ -6,11 +6,10 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class NightModeHelper private constructor(private val applicationContext: Context) {
+class NightModeHelper private constructor(private val applicationContext: Context): CoroutineScope {
     companion object : SingletonHolder<NightModeHelper, Context>(::NightModeHelper)
 
     private val log by Log
@@ -48,4 +47,6 @@ class NightModeHelper private constructor(private val applicationContext: Contex
             log.debug("setTheme to DAY")
         }
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }
