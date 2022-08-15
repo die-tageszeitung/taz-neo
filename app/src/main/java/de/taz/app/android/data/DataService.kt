@@ -7,7 +7,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.splash.MAX_RETRIES_ON_STARTUP
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
 
