@@ -112,7 +112,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
 
     /**
      * StateFlow of the state of the CacheOperation
-     * This is can be used to wait until the [CacheStateUpdate.Type] ha
+     * This is can be used to wait until the [CacheStateUpdate.Type] has a certain value by using
+     * [Flow.first] - e.g. `stateFlow.first { it.hasCompleted }`
      */
     private val stateFlow = MutableStateFlow(
         CacheStateUpdate(
