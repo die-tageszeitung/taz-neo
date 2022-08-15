@@ -11,7 +11,7 @@
         android:id="@+id/read_on_login_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="read_on_description, read_on_username_layout, read_on_password_layout, read_on_login_button, read_on_register_button, read_on_trial_subscription_text" />
+        app:constraint_referenced_ids="read_on_description, read_on_username_layout, read_on_password_layout, read_on_login_button" />
 
     <TextView
         android:id="@+id/read_on_description"
@@ -69,29 +69,121 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/read_on_password_layout" />
 
-    <TextView
-        android:id="@+id/read_on_trial_subscription_text"
+    <View
+        android:id="@+id/read_on_separator_line"
+        app:layout_constraintTop_toBottomOf="@id/read_on_login_button"
+        android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/login_box_separator_line_height"
+        android:background="@color/login_box_separator_line_color"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/read_on_trial_subscription_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
-        android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
-        android:text="@string/trial_subscription_title"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
+        android:layout_marginVertical="@dimen/login_box_margin_vertical"
+        android:background="@drawable/rectangle_rounded_corners"
+        app:layout_constraintTop_toBottomOf="@id/read_on_separator_line"
+        >
+        <TextView
+            android:id="@+id/read_on_trial_subscription_box_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_trial_subscription_title"
+            android:textSize="@dimen/login_box_title_text_size"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <TextView
+            android:id="@+id/read_on_trial_subscription_box_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_trial_subscription_body"
+            android:textAlignment="center"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_on_trial_subscription_box_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_trial_subscription_button_text"
+            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <Button
-        android:id="@+id/read_on_register_button"
-        style="@style/AppTheme.ButtonStyle.Outlined"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/read_on_switch_print2digi_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
-        android:text="@string/register_button"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_text" />
+        android:layout_marginVertical="@dimen/login_box_margin_vertical"
+        android:background="@drawable/rectangle_rounded_corners"
+        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box"
+        >
+        <TextView
+            android:id="@+id/read_on_switch_print2digi_box_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_switch_print2digi_title"
+            android:textSize="@dimen/login_box_title_text_size"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <TextView
+            android:id="@+id/read_on_switch_print2digi_box_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_switch_print2digi_body"
+            android:textAlignment="center"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_on_switch_print2digi_box_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_switch_print2digi_button_text"
+            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/read_on_extend_print_with_digi_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/login_box_margin_vertical"
+        android:background="@drawable/rectangle_rounded_corners"
+        app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box"
+        >
+        <TextView
+            android:id="@+id/read_on_extend_print_with_digi_box_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_extend_print_with_digi_title"
+            android:textSize="@dimen/login_box_title_text_size"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+        <TextView
+            android:id="@+id/read_on_extend_print_with_digi_box_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_extend_print_with_digi_body"
+            android:textAlignment="center"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/read_on_extend_print_with_digi_box_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_extend_print_with_digi_button_text"
+            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/read_on_elapsed_group"

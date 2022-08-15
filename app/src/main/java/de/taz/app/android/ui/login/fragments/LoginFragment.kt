@@ -51,7 +51,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             login()
         }
 
-        viewBinding.fragmentLoginRegisterButton.setOnClickListener {
+        viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
             viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim())
         }
 

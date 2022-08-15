@@ -7,6 +7,7 @@
     <color name="superLightGrey">#E3E3E3</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="darkGrey">#1C1C1E</color>
+    <color name="mediumLightGrey">#707070</color>
     <color name="superDarkGrey">#121212</color>
     <color name="black">#000</color>
 
@@ -45,4 +46,7 @@
     <color name="search_field_background_color">@color/darkGrey</color>
 
     <color name="scrollbar_color">@color/mediumLightGrey</color>
+
+    <color name="login_box_background">@color/mediumLightGrey</color>
+    <color name="login_box_separator_line_color">@color/lightGrey</color>
 </resources>

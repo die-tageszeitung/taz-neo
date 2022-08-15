@@ -77,7 +77,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                         OnEditorActionDoneListener(::login)
                     )
 
-                    readOnRegisterButton.setOnClickListener {
+                    readOnTrialSubscriptionBoxButton.setOnClickListener {
                         register()
                     }
                 }
