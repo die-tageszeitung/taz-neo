@@ -59,7 +59,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private lateinit var issueKey: IssueKeyWithPages
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-    private lateinit var keepScreenOnHelper: KeepScreenOnHelper
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -80,7 +79,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
         articleRepository = ArticleRepository.getInstance(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
-        keepScreenOnHelper = KeepScreenOnHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +106,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
         lifecycleScope.launchWhenResumed {
             tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                keepScreenOnHelper.toggleScreenOn(it, activity)
+                KeepScreenOnHelper.toggleScreenOn(it, activity)
             }
         }
     }
