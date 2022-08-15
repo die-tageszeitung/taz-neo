@@ -94,23 +94,20 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueRead.setOnClickListener {
-            lifecycleScope.launch {
-                if (homeViewModel.getPdfMode()) {
-                    Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                        putExtra(
-                            PdfPagerActivity.KEY_ISSUE_PUBLICATION,
-                            IssuePublicationWithPages(issuePublication)
-                        )
-                        startActivity(this)
-                    }
-                } else {
-                    Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                        putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
-                        startActivityForResult(this, 0)
-                    }
+            if (homeViewModel.getPdfMode()) {
+                Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                    putExtra(
+                        PdfPagerActivity.KEY_ISSUE_PUBLICATION,
+                        IssuePublicationWithPages(issuePublication)
+                    )
+                    startActivity(this)
+                }
+            } else {
+                Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+                    putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
+                    startActivityForResult(this, 0)
                 }
             }
-
             dismiss()
         }
 
