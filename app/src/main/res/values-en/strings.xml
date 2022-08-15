@@ -197,11 +197,7 @@
 
     <string name="fragment_login_missing_subscription_header">Currently no subscription is connected with your account.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Connect existing subscription</string>
-    <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string><![CDATA[
-
-    >
-
-    ]]>
+    <string name="fragment_login_missing_subscription_test_subscription">Create test subscription</string>
     <string name="fragment_login_confirm_email_header">Thanks for your registration! We sent you an email. Please open it and confirm your address. As soon as it has been confirmed you will be able to use the new taz app.</string>
     <string name="fragment_login_confirm_email_elapsed_header">Thank you for your registration! As soon as you have been activated by our subscription administration, you will receive an email and can then access the current issues again at the latest by 7 pm.</string>
     <string name="fragment_login_registration_successful_header">Thank you for your registration. Enjoy the new digital taz!</string>
