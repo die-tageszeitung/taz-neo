@@ -55,6 +55,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim())
         }
 
+        viewBinding.fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
+            viewModel.requestSwitchPrint2Digi()
+        }
+
         viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
             viewModel.requestPasswordReset()
         }

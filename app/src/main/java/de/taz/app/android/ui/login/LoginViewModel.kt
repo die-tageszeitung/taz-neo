@@ -193,6 +193,10 @@ class LoginViewModel @JvmOverloads constructor(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
+    fun requestSwitchPrint2Digi() {
+        status.postValue(LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST)
+    }
+
     fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
         register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
@@ -769,5 +773,6 @@ enum class LoginViewModelState {
     SUBSCRIPTION_TAKEN,
     USERNAME_MISSING,
     NAME_MISSING,
+    SWITCH_PRINT_2_DIGI_REQUEST,
     DONE
 }

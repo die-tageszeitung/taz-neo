@@ -239,6 +239,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED -> {
                     showSubscriptionAlreadyLinked()
                 }
+                LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST -> {
+                    showSwitchPrint2DigiForm()
+                }
             }
         }
 
@@ -364,6 +367,16 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     )
                 } ?: hideLoadingScreen()
             }
+        }
+    }
+
+    private fun showSwitchPrint2DigiForm() {
+        log.debug("showPrint2DigiForm")
+        viewModel.status.postValue(LoginViewModelState.LOADING)
+        lifecycleScope.launch(Dispatchers.IO) {
+            showFragment(
+                SubscriptionSwitchPrint2DigiFragment()
+            )
         }
     }
 
