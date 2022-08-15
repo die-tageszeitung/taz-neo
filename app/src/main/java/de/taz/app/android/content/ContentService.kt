@@ -161,7 +161,7 @@ class ContentService(
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false,
         allowCache: Boolean = true
-    ) = withContext(Dispatchers.IO) {
+    ) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,

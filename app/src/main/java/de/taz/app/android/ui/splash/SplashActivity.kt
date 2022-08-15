@@ -106,10 +106,8 @@ class SplashActivity : StartupActivity() {
 
 
             val publicIssuesNeedDeletion =
-                withContext(Dispatchers.IO) {
-                    (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
-                            && authHelper.getMinStatus() == IssueStatus.regular)
-                }
+                (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
+                        && authHelper.getMinStatus() == IssueStatus.regular)
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
             if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
                 Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {

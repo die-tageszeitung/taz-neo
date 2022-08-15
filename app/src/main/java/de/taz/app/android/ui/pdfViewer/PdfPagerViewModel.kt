@@ -77,7 +77,7 @@ class PdfPagerViewModel(
                 maxRetries = maxRetries
             ) as IssueWithPages
 
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 val issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadMetaData(maxRetries = 3)

@@ -84,7 +84,7 @@ class ContentDeletion(
         }
     }
 
-    override suspend fun doWork() = withContext(Dispatchers.IO) {
+    override suspend fun doWork() {
         notifyStart()
         // Reset the collection download date immediately. Even if the deletion has issues it's
         // better to assume the content deleted

@@ -40,7 +40,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         fireBaseDataStore = FirebaseDataStore.getInstance(applicationContext),
         deviceFormat = if (applicationContext.resources.getBoolean(R.bool.isTablet)) {
             DeviceFormat.tablet
-        }  else {
+        } else {
             DeviceFormat.mobile
         },
         downloadDataStore = DownloadDataStore.getInstance(applicationContext)
@@ -175,7 +175,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get the app info
      * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
-    suspend fun getAppInfo(): AppInfo = withContext(Dispatchers.IO) {
+    suspend fun getAppInfo(): AppInfo {
         transformToConnectivityException {
             val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
             if (productDto != null) {
@@ -397,7 +397,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
                 issue.pageList?.firstOrNull()?.let { page ->
-                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl) to issue.status
+                    Page(
+                        IssueKey(feedName, dateString, issue.status),
+                        page,
+                        issue.baseUrl
+                    ) to issue.status
                 }
             }
         }
@@ -407,7 +411,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get information about the current resources
      * @return [ResourceInfo] with the current [ResourceInfo.resourceVersion] and the information needed to download it
      */
-    suspend fun getResourceInfo(): ResourceInfo = withContext(Dispatchers.IO) {
+    suspend fun getResourceInfo(): ResourceInfo {
         val productDto = transformToConnectivityException {
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
@@ -461,7 +465,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun notifyServerOfDownloadStop(
         id: String,
         time: Float
-    ) = withContext(Dispatchers.IO) {
+    ) {
         transformToConnectivityException {
             graphQlClient.query(
                 QueryType.DownloadStop,
@@ -479,38 +483,35 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @param oldToken the old token of the string if any - will be removed on the server
      */
     suspend fun sendNotificationInfo(token: String, oldToken: String? = null): Boolean =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                graphQlClient.query(
-                    QueryType.Notification,
-                    NotificationVariables(
-                        pushToken = token,
-                        oldToken = oldToken,
-                        deviceFormat = deviceFormat
-                    )
-                ).data?.notification
-                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
-            }
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Notification,
+                NotificationVariables(
+                    pushToken = token,
+                    oldToken = oldToken,
+                    deviceFormat = deviceFormat
+                )
+            ).data?.notification
+                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
         }
+
     /**
      * function to inform server that text notifications are enabled or not
      * @param [enabled] Boolean indicating that text notifications are allowed
      */
     suspend fun setNotificationsEnabled(enabled: Boolean): Boolean =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                graphQlClient.query(
-                    QueryType.Notification,
-                    fireBaseDataStore.token.get()?.let {
-                        NotificationVariables(
-                            pushToken = it,
-                            deviceFormat = deviceFormat,
-                            textNotification = enabled,
-                        )
-                    }
-                ).data?.notification
-                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
-            }
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Notification,
+                fireBaseDataStore.token.get()?.let {
+                    NotificationVariables(
+                        pushToken = it,
+                        deviceFormat = deviceFormat,
+                        textNotification = enabled,
+                    )
+                }
+            ).data?.notification
+                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
         }
 
     /**
@@ -700,75 +701,74 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     suspend fun getIssueByPublication(issuePublication: AbstractIssuePublication): Issue =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                val issues = graphQlClient.query(
-                    QueryType.IssueByFeedAndDate,
-                    IssueVariables(
-                        issueDate = issuePublication.date,
-                        feedName = issuePublication.feedName,
-                        limit = 1
-                    )
+        transformToConnectivityException {
+            val issues = graphQlClient.query(
+                QueryType.IssueByFeedAndDate,
+                IssueVariables(
+                    issueDate = issuePublication.date,
+                    feedName = issuePublication.feedName,
+                    limit = 1
                 )
+            )
 
-                issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                    Issue(issuePublication.feedName, it)
-                }
-            } ?: throw NotFoundException()
-        }
+            issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
+                Issue(issuePublication.feedName, it)
+            }
+        } ?: throw NotFoundException()
+}
 
 
-    /**
-     * function to start a cancellation. The id is taken from the JWT
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
-        val tag = "cancellation"
-        log.debug("graphql call: $tag with isForce $isForce")
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.Cancellation,
-                CancellationVariables(
-                    isForce
-                )
-            ).data?.cancellation
-        }
+/**
+ * function to start a cancellation. The id is taken from the JWT
+ */
+@Throws(ConnectivityException::class)
+suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
+    val tag = "cancellation"
+    log.debug("graphql call: $tag with isForce $isForce")
+    return transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.Cancellation,
+            CancellationVariables(
+                isForce
+            )
+        ).data?.cancellation
     }
+}
 
-    /**
-     * function to trigger mutation on subscription form data
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun subscriptionFormData(
-        type: SubscriptionFormDataType,
-        mail: String?,
-        surname: String?,
-        firstname: String?,
-        street: String?,
-        city: String?,
-        postcode: String?,
-        country: String?,
-        message: String?,
-        requestCurrentSubscriptionOpportunities: Boolean?,
-    ): SubscriptionInfo? {
-        val tag = "subscriptionFormData"
-        log.debug("call graphql  $tag")
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.SubscriptionFormData,
-                SubscriptionFormDataVariables(
-                    type,
-                    mail,
-                    surname,
-                    firstname,
-                    street,
-                    city,
-                    postcode,
-                    country,
-                    message,
-                    requestCurrentSubscriptionOpportunities,
-                )
-            ).data?.trialSubscription
-        }
+/**
+ * function to trigger mutation on subscription form data
+ */
+@Throws(ConnectivityException::class)
+suspend fun subscriptionFormData(
+    type: SubscriptionFormDataType,
+    mail: String?,
+    surname: String?,
+    firstname: String?,
+    street: String?,
+    city: String?,
+    postcode: String?,
+    country: String?,
+    message: String?,
+    requestCurrentSubscriptionOpportunities: Boolean?,
+): SubscriptionInfo? {
+    val tag = "subscriptionFormData"
+    log.debug("call graphql  $tag")
+    return transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.SubscriptionFormData,
+            SubscriptionFormDataVariables(
+                type,
+                mail,
+                surname,
+                firstname,
+                street,
+                city,
+                postcode,
+                country,
+                message,
+                requestCurrentSubscriptionOpportunities,
+            )
+        ).data?.trialSubscription
     }
+}
 }

@@ -16,7 +16,7 @@ import kotlin.coroutines.CoroutineContext
 @Mockable
 class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context
-) {
+): CoroutineScope {
     companion object : SingletonHolder<FirebaseHelper, Context>(::FirebaseHelper)
 
     private val apiService = ApiService.getInstance(applicationContext)
@@ -44,7 +44,7 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     /**
      * function which will try to send the firebase token to the backend if it was not sent yet
      */
-    final fun ensureTokenSent() = CoroutineScope(Dispatchers.IO).launch { ensureTokenSentSus() }
+    final fun ensureTokenSent() = launch { ensureTokenSentSus() }
     private suspend fun ensureTokenSentSus() {
         try {
             if (!store.tokenSent.get() && !store.token.get().isNullOrEmpty()) {
@@ -72,4 +72,6 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
         store.token.set(newToken)
         ensureTokenSentSus()
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }
