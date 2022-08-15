@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.webkit.WebView
 import android.widget.ImageButton
-import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
@@ -27,7 +26,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
@@ -57,7 +55,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
-    val issueFeedViewModel: IssueFeedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +89,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var loggedOutDialog: AlertDialog? = null
     private suspend fun maybeShowLoggedOutDialog() {
-        if (issueFeedViewModel.getPdfMode() && !authHelper.isValid()) {
+        if (generalDataStore.pdfMode.get() && !authHelper.isValid()) {
             loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
                 .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
