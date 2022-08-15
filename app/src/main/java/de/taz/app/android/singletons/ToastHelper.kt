@@ -5,16 +5,19 @@ import android.widget.Toast
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.lang.RuntimeException
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Singleton to create Toasts
  */
 @Mockable
-class ToastHelper private constructor(private val applicationContext: Context) {
+class ToastHelper private constructor(private val applicationContext: Context): CoroutineScope {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)
 
@@ -56,5 +59,5 @@ class ToastHelper private constructor(private val applicationContext: Context) {
         }
     }
 
-
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

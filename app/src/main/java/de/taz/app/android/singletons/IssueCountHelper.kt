@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Singleton ensuring we only have the defined maximal number of issues downloaded
@@ -20,7 +21,7 @@ import kotlinx.coroutines.sync.withLock
 @Mockable
 class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
-) {
+): CoroutineScope {
 
     companion object : SingletonHolder<IssueCountHelper, Context>(::IssueCountHelper)
 
@@ -54,4 +55,6 @@ class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

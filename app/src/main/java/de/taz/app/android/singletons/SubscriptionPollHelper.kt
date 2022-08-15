@@ -14,8 +14,9 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
+class SubscriptionPollHelper private constructor(applicationContext: Context) : CoroutineScope {
 
     companion object : SingletonHolder<SubscriptionPollHelper, Context>(::SubscriptionPollHelper)
 
@@ -25,11 +26,12 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     init {
-        authHelper.isPolling.asLiveData().observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
-            if (isPolling) {
-                poll()
+        authHelper.isPolling.asLiveData()
+            .observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
+                if (isPolling) {
+                    poll()
+                }
             }
-        }
     }
 
     private fun poll(timeoutMillis: Long = 100) {
@@ -49,13 +51,14 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                         })
                         authHelper.status.set(AuthStatus.valid)
                         launch {
-                            authHelper.status.asLiveData().observeDistinctOnce(ProcessLifecycleOwner.get()) {
-                                launch(Dispatchers.IO) {
-                                    issueRepository.saveIfDoesNotExist(
-                                        apiService.getLastIssues()
-                                    )
+                            authHelper.status.asLiveData()
+                                .observeDistinctOnce(ProcessLifecycleOwner.get()) {
+                                    launch(Dispatchers.IO) {
+                                        issueRepository.saveIfDoesNotExist(
+                                            apiService.getLastIssues()
+                                        )
+                                    }
                                 }
-                            }
                         }
                         toastHelper.showToast(R.string.toast_login_successful)
                     }
@@ -101,4 +104,6 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
             }
         }
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

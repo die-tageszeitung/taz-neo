@@ -25,6 +25,7 @@ import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlin.coroutines.CoroutineContext
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
@@ -59,7 +60,7 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
 class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
     dataStore: DataStore<Preferences>
-) {
+): CoroutineScope {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
@@ -160,4 +161,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             )
         ) as Issue
     }
+
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }
