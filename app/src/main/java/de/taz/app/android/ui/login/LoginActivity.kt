@@ -373,11 +373,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSwitchPrint2DigiForm() {
         log.debug("showPrint2DigiForm")
         viewModel.status.postValue(LoginViewModelState.LOADING)
-        lifecycleScope.launch(Dispatchers.IO) {
-            showFragment(
-                SubscriptionSwitchPrint2DigiFragment()
-            )
-        }
+        showFragment(
+            SubscriptionSwitchPrint2DigiFragment()
+        )
     }
 
     /**
