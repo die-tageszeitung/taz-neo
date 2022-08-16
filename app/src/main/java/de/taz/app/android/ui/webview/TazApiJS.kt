@@ -17,8 +17,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -63,8 +61,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         webViewFragment.viewModel.displayable?.let {
             if (it is Article) {
                 applicationContext?.let { context ->
-                    // TODO replace
-                    CoroutineScope(Dispatchers.Default).launch {
+                    webViewFragment.applicationScope.launch {
                         ArticleRepository.getInstance(context)
                             .saveScrollingPosition(it.key, percentage, position)
                     }
