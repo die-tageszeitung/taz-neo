@@ -31,9 +31,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
-import de.taz.app.android.ui.webview.AppWebView
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -189,7 +187,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun toggleBookmark(articleFileName: String, date: Date?) {
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             articleRepository?.get(articleFileName)?.let { article ->
                 if (article.bookmarked) {
                     articleRepository?.debookmarkArticle(article)

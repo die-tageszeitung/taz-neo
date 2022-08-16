@@ -13,11 +13,8 @@ import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for
@@ -70,7 +67,7 @@ class ContentService(
             }
             .map { it.second }
             .also {
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.Default).launch {
                     val stateUpdate: CacheStateUpdate =
                         activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
                             ?: getCacheState(download)

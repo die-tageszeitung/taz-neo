@@ -25,11 +25,14 @@ import java.lang.Exception
 import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.coroutines.CoroutineContext
 
 /**
  * [FileDownloader] is used by [ContentDownload] to download individual files
  */
-class FileDownloader(private val applicationContext: Context): FiledownloaderInterface {
+class FileDownloader(
+    private val applicationContext: Context
+) : FiledownloaderInterface {
     companion object : SingletonHolder<FiledownloaderInterface, Context>(::FileDownloader)
 
     private val downloaderThreadPool = Executors.newFixedThreadPool(MAX_SIMULTANEOUS_DOWNLOADS)
@@ -38,7 +41,6 @@ class FileDownloader(private val applicationContext: Context): FiledownloaderInt
     // reverse order from highest (priority) to lowest instead natural order (low to high)
     private val queue = CacheItemQueue
     private lateinit var downloadConnectionHelper: DownloadConnectionHelper
-
 
 
     private var downloaderJob: Job? = null

@@ -7,9 +7,11 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.lang.RuntimeException
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Singleton to create Toasts
@@ -56,6 +58,4 @@ class ToastHelper private constructor(private val applicationContext: Context) {
             showToast(R.string.something_went_wrong_try_later)
         }
     }
-
-
 }

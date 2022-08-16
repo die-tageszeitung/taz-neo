@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
+import de.taz.app.android.TazApplication
 import de.taz.app.android.util.Log
 import java.lang.reflect.ParameterizedType
 
@@ -38,5 +39,7 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
         )
         return method.invoke(this, layoutInflater) as ViewBindingClass
     }
+
+    val applicationScope by lazy { (application as TazApplication).applicationScope }
 
 }

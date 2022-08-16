@@ -61,7 +61,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     when (remoteMessage.data[REMOTE_MESSAGE_PERFORM_KEY]) {
                         REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
-                            CoroutineScope(Dispatchers.IO).launch {
+                            CoroutineScope(Dispatchers.Default).launch {
                                 authHelper.isPolling.set(true)
                             }
                         }
@@ -90,7 +90,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     }
 
     private fun downloadNewestIssue(sentTime: Long, delay: Long = 0) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             if (DownloadDataStore.getInstance(applicationContext).enabled.get()) {
                 downloadScheduler.scheduleNewestIssueDownload(sentTime.toString(), delay = delay)
             }
@@ -113,5 +113,4 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             }
         }
     }
-
 }

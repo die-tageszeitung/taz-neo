@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
@@ -51,7 +49,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     private lateinit var articleRepository: ArticleRepository
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-    private lateinit var keepScreenOnHelper: KeepScreenOnHelper
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -73,7 +70,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
-        keepScreenOnHelper = KeepScreenOnHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -93,18 +89,16 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     this@IssueViewerFragment
                 ) { issueWithDisplayable ->
                     if (issueWithDisplayable == null) return@observe
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch {
                         delay(1500)
-                        withContext(Dispatchers.Main) {
-                            sectionDrawerViewModel.drawerOpen.value = false
-                        }
+                        sectionDrawerViewModel.drawerOpen.value = false
                         generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
                     }
 
                 }
             }
             tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                keepScreenOnHelper.toggleScreenOn(it, activity)
+                KeepScreenOnHelper.toggleScreenOn(it, activity)
             }
         }
     }

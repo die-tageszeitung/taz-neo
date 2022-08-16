@@ -6,11 +6,7 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class NightModeHelper private constructor(private val applicationContext: Context) {
     companion object : SingletonHolder<NightModeHelper, Context>(::NightModeHelper)
@@ -20,7 +16,7 @@ class NightModeHelper private constructor(private val applicationContext: Contex
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             tazApiCssDataStore.nightMode.asFlow().collect {
                 generateCssOverride()
                 setNightMode(it)

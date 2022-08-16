@@ -340,7 +340,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             it.isEnabled = false
             dialog.setCancelable(false)
             if (deletionJob == null) {
-                deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                // TODO run delete job on applicationScope but update dialogView only on lifecycle
+                deletionJob = applicationScope.launch {
                     deleteAllIssuesWithProgressBar(dialogView)
                     dialog.dismiss()
                 }
@@ -595,7 +596,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun setStoredIssueNumber(number: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             log.debug("setKeepNumber: $number")
             viewModel.setKeepIssueNumber(number)
         }
@@ -635,7 +636,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun resetFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             log.debug("resetFontSize")
             viewModel.resetFontSize()
         }

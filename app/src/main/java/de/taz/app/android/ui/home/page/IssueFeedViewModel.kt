@@ -4,8 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -24,12 +23,12 @@ class IssueFeedViewModel(
 
     val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()
 
-    suspend fun getPdfMode() = generalDataStore.pdfMode.get()
+    fun togglePdfMode() = viewModelScope.launch {
+        generalDataStore.pdfMode.set(!getPdfMode())
+    }
 
-    fun setPdfMode(pdfMode: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
-            generalDataStore.pdfMode.set(pdfMode)
-        }
+    fun getPdfMode() = requireNotNull(pdfModeLiveData.value) {
+        "PdfMode is always set - no null possible"
     }
 
     fun setFeed(feed: Feed) {

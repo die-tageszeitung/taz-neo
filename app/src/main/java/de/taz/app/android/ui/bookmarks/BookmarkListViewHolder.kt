@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
@@ -35,7 +36,7 @@ class BookmarkListViewHolder(
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
-    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment)
+    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment, bookmarksFragment.applicationScope)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {

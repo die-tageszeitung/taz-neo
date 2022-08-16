@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
@@ -10,7 +11,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,7 @@ class PdfPagerViewModel(
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
         addSource(issuePublication) {
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 val issue = contentService.downloadMetadata(it) as IssueWithPages
                 postValue(issue.issueKey)
             }
@@ -59,7 +59,7 @@ class PdfPagerViewModel(
             _currentItem.postValue(position)
 
             // Save current position to database to restore later on
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 issueKey.value?.let {
                     dataService.saveLastPageOnIssue(
                         it.getIssueKey(),
@@ -93,10 +93,10 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
-                CoroutineScope(Dispatchers.IO).launch {
+                applicationScope.launch {
                     contentService.downloadToCache(issuePublicationWithPages)
-                    postValue(issue)
-                }
+                }.join()
+                postValue(issue)
             }
         }
     }
@@ -145,4 +145,7 @@ class PdfPagerViewModel(
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 }

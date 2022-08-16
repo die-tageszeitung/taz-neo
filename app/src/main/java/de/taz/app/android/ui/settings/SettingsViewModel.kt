@@ -3,6 +3,7 @@ package de.taz.app.android.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -11,7 +12,9 @@ import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -24,7 +27,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
     val downloadAdditionallyPdf: LiveData<Boolean>
-    val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
+    private val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
     val notificationsEnabledLivedata: LiveData<Boolean>
 
     var storageLocationLiveData: LiveData<StorageLocation>
@@ -53,57 +56,49 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
     }
 
-    fun setStorageLocation(storageLocation: StorageLocation?) {
-        if (storageLocation != null) {
-            CoroutineScope(Dispatchers.IO).launch {
-                storageDataStore.storageLocation.set(storageLocation)
-            }
-        }
-    }
-
     suspend fun setKeepIssueNumber(number: Int) {
         storageDataStore.keepIssuesNumber.set(number)
     }
 
     fun setOnlyWifi(onlyWifi: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             downloadDataStore.onlyWifi.set(onlyWifi)
         }
     }
 
     fun setDownloadsEnabled(enabled: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             downloadDataStore.enabled.set(enabled)
         }
     }
 
     fun setPdfDownloadsEnabled(enabled: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             downloadDataStore.pdfAdditionally.set(enabled)
         }
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             downloadDataStore.notificationsEnabled.set(enabled)
             apiService.setNotificationsEnabled(enabled)
         }
     }
 
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
         }
     }
 
     fun resetFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.fontSize.reset()
         }
     }
 
     fun decreaseFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             val newSize = getFontSize() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 setFontSize(newSize.toString())
@@ -112,7 +107,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun increaseFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             val newSize = getFontSize() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 setFontSize(newSize.toString())
@@ -121,31 +116,31 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun setFontSize(value: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.fontSize.set(value)
         }
     }
 
     fun setTextJustification(justified: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.textJustification.set(justified)
         }
     }
 
     fun setNightMode(value: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.nightMode.set(value)
         }
     }
 
     fun setTapToScroll(value: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.tapToScroll.set(value)
         }
     }
 
     fun setKeepScreenOn(value: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             tazApiCssDataStore.keepScreenOn.set(value)
         }
     }

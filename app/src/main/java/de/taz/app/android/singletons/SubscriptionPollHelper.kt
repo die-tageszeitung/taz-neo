@@ -14,8 +14,9 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class SubscriptionPollHelper private constructor(applicationContext: Context) : ViewModel() {
+class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<SubscriptionPollHelper, Context>(::SubscriptionPollHelper)
 
@@ -25,16 +26,17 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
     init {
-        authHelper.isPolling.asLiveData().observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
-            if (isPolling) {
-                poll()
+        authHelper.isPolling.asLiveData()
+            .observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
+                if (isPolling) {
+                    poll()
+                }
             }
-        }
     }
 
     private fun poll(timeoutMillis: Long = 100) {
         val timeMillis = timeoutMillis.coerceAtMost(3600000)
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             delay(timeMillis)
 
             try {
@@ -48,14 +50,15 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) : 
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
                         authHelper.status.set(AuthStatus.valid)
-                        CoroutineScope(Dispatchers.Main).launch {
-                            authHelper.status.asLiveData().observeDistinctOnce(ProcessLifecycleOwner.get()) {
-                                launch(Dispatchers.IO) {
-                                    issueRepository.saveIfDoesNotExist(
-                                        apiService.getLastIssues()
-                                    )
+                        launch {
+                            authHelper.status.asLiveData()
+                                .observeDistinctOnce(ProcessLifecycleOwner.get()) {
+                                    launch(Dispatchers.IO) {
+                                        issueRepository.saveIfDoesNotExist(
+                                            apiService.getLastIssues()
+                                        )
+                                    }
                                 }
-                            }
                         }
                         toastHelper.showToast(R.string.toast_login_successful)
                     }

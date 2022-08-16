@@ -2,6 +2,7 @@ package de.taz.app.android.base
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
+import de.taz.app.android.TazApplication
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.START_HOME_ACTIVITY
@@ -34,4 +35,8 @@ abstract class StartupActivity : AppCompatActivity() {
         generalDataStore.dataPolicyAccepted.get()
 
     private suspend fun hasSeenWelcomeScreen(): Boolean = !generalDataStore.hasSeenWelcomeScreen.get()
+
+    protected val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 }

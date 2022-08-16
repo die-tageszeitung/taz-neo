@@ -69,21 +69,19 @@ class SplashActivity : StartupActivity() {
         storageDataStore = StorageDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            launch { checkAppVersion() }
-        }
         lifecycleScope.launch {
-            generateNotificationChannels()
-            verifyStorageLocation()
+            coroutineScope {
+                checkAppVersion()
+                generateNotificationChannels()
+                verifyStorageLocation()
+            }
 
             try {
-                withContext(Dispatchers.IO) {
-                    ensureAppInfo()
-                    initResources()
-                    initFeed()
-                    launch {
-                        checkForNewestIssue()
-                    }
+                ensureAppInfo()
+                initResources()
+                initFeed()
+                applicationScope.launch {
+                    checkForNewestIssue()
                 }
             } catch (e: InitializationException) {
                 log.error("Error while initializing")
@@ -213,7 +211,7 @@ class SplashActivity : StartupActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private suspend fun initResources() {
+    private suspend fun initResources() = withContext(Dispatchers.IO) {
         log.info("initializing resources")
 
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")

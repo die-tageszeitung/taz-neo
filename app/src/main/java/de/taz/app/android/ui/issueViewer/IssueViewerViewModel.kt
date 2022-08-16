@@ -3,6 +3,7 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -10,11 +11,8 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
@@ -60,7 +58,7 @@ class IssueViewerViewModel(
         }
         issueDisplayable?.let {
             // persist the last displayable in db
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
             }
         }
@@ -84,7 +82,7 @@ class IssueViewerViewModel(
                         IssueKeyWithDisplayableKey(issueKey, displayable)
                     )
                     // Start downloading the whole issue in background
-                    CoroutineScope(Dispatchers.IO).launch {
+                    applicationScope.launch {
                         try {
                             contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                             issueRepository.updateLastViewedDate(issueKey)
@@ -161,5 +159,9 @@ class IssueViewerViewModel(
                 }
             }
         }
+    }
+
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
     }
 }
