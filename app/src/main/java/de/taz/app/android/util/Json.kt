@@ -21,6 +21,7 @@ private val module = SerializersModule {
         subclass(NotificationVariables::class)
         subclass(PasswordResetVariables::class)
         subclass(SearchVariables::class)
+        subclass(SubscriptionFormDataVariables::class)
         subclass(SubscriptionId2TazIdVariables::class)
         subclass(SubscriptionPollVariables::class)
         subclass(SubscriptionResetVariables::class)
