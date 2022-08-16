@@ -21,7 +21,7 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     private val store = FirebaseDataStore.getInstance(applicationContext)
 
     init {
-        ensureTokenSent()
+        CoroutineScope(Dispatchers.Default).launch { ensureTokenSent() }
     }
 
     private suspend fun sendNotificationInfo(
@@ -42,8 +42,7 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     /**
      * function which will try to send the firebase token to the backend if it was not sent yet
      */
-    final fun ensureTokenSent() = CoroutineScope(Dispatchers.Default).launch { ensureTokenSentSus() }
-    private suspend fun ensureTokenSentSus() {
+    suspend fun ensureTokenSent() {
         try {
             if (!store.tokenSent.get() && !store.token.get().isNullOrEmpty()) {
                 val sent = sendNotificationInfo()
@@ -68,6 +67,6 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     fun updateToken(newToken: String) = CoroutineScope(Dispatchers.Default).launch {
         store.oldToken.set(store.token.get())
         store.token.set(newToken)
-        ensureTokenSentSus()
+        ensureTokenSent()
     }
 }
