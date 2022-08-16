@@ -8,6 +8,8 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -16,6 +18,7 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class FileEntryRepositoryTest {
     private lateinit var db: AppDatabase
 
@@ -38,7 +41,7 @@ class FileEntryRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         fileEntryRepository.save(fileEntryTest)
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fromDB, fileEntryTest)
@@ -46,7 +49,7 @@ class FileEntryRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMulitple() {
+    fun writeAndReadMulitple() = runTest {
         fileEntryRepository.save(fileEntryTest)
         fileEntryRepository.save(fileEntryTest2)
         val fromDB = fileEntryRepository.get(fileEntryTest.name)
@@ -56,7 +59,7 @@ class FileEntryRepositoryTest {
     }
 
     @Throws(Exception::class)
-    fun noMoTimeDowngrade() {
+    fun noMoTimeDowngrade() = runTest {
         assertEquals(fileEntryTest.name, fileEntryTestWithLowerMoTime.name)
         fileEntryRepository.save(fileEntryTest)
         fileEntryRepository.save(fileEntryTestWithLowerMoTime)
@@ -67,7 +70,7 @@ class FileEntryRepositoryTest {
     }
 
     @Throws(Exception::class)
-    fun moTimeUpgrade() {
+    fun moTimeUpgrade() = runTest {
         assertEquals(fileEntryTest.name, fileEntryTestWithHigherMoTime.name)
 
         fileEntryRepository.save(fileEntryTest)
@@ -80,7 +83,7 @@ class FileEntryRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun delete() {
+    fun delete() = runTest {
         fileEntryRepository.save(fileEntryTest)
         val fromDBBefore = fileEntryRepository.get(fileEntryTest.name)
         assertEquals(fileEntryTest, fromDBBefore)

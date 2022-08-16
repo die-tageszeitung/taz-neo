@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.data.DownloadScheduler
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
 import kotlinx.coroutines.runBlocking

@@ -9,6 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
 import org.junit.Before
@@ -16,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
@@ -49,7 +52,7 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         articleRepository.save(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
 
@@ -58,7 +61,7 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun readBase() {
+    fun readBase() = runTest {
         articleRepository.save(article)
         val fromDB = articleRepository.getStub(article.articleHtml.name)
 
@@ -67,7 +70,7 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMultiple() {
+    fun writeAndReadMultiple() = runTest {
         articleRepository.save(article)
         articleRepository.save(article2)
         val fromDB = articleRepository.get(article.articleHtml.name)
@@ -79,7 +82,7 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun delete() {
+    fun delete() = runTest {
         articleRepository.save(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
@@ -91,7 +94,7 @@ class ArticleRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteBookmarkedFails() {
+    fun deleteBookmarkedFails() = runTest {
         articleRepository.save(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)

@@ -7,6 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
 import org.junit.Assert.*
@@ -15,6 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class IssueRepositoryTest {
 
     private lateinit var context: Context
@@ -56,7 +59,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         issueRepository.save(issue)
         val fromDB = issueRepository.getIssueByFeedDateAndStatus(
             issue.feedName, issue.date, issue.status
@@ -66,7 +69,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun readBase() {
+    fun readBase() = runTest {
         issueRepository.save(issue)
         val fromDB = issueRepository.getIssueStubByFeedDateAndStatus(
             issue.feedName, issue.date, issue.status
@@ -76,7 +79,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMultiple() {
+    fun writeAndReadMultiple() = runTest {
         issueRepository.save(issue)
         issueRepository.save(issue2)
 
@@ -93,7 +96,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getLatest() {
+    fun getLatest() = runTest {
         writeAndReadMultiple()
         assertEquals(IssueStub(issue), issueRepository.getLatestIssueStub())
     }
@@ -101,7 +104,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getNextSection() {
+    fun getNextSection() = runTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == issue.sectionList.size - 1) {
@@ -115,7 +118,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getPreviousSection() {
+    fun getPreviousSection() = runTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { index, section ->
             if (index == 0) {
@@ -128,7 +131,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getNextArticle() {
+    fun getNextArticle() = runTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->
@@ -153,7 +156,7 @@ class IssueRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getPreviousArticle() {
+    fun getPreviousArticle() = runTest {
         issueRepository.save(issue)
         issue.sectionList.forEachIndexed { sectionIndex, section ->
             section.articleList.forEachIndexed { articleIndex, article ->

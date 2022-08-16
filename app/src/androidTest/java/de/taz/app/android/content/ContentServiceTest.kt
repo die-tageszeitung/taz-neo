@@ -10,16 +10,12 @@ import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.whenever
 import java.io.IOException
 import kotlin.test.assertFailsWith
 
