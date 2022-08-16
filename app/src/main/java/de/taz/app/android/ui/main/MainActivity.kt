@@ -18,11 +18,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
@@ -35,7 +35,6 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
@@ -146,10 +145,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.message.get())
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-    //        val customerInfo = ApiService.getInstance(applicationContext).customerInfo
-
-            if (BuildConfig.IS_NON_FREE) showSubscriptionElapsedDialogNonFree(elapsedOn)
-            else showSubscriptionElapsedDialog(elapsedOn)
+            val customerType = ApiService.getInstance(applicationContext).getCustomerType()
+            showSubscriptionElapsedDialog(elapsedOn, customerType)
             (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
@@ -171,7 +168,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    private fun showSubscriptionElapsedDialogNonFree(elapsedOn: String?) {
+    private fun showSubscriptionElapsedDialog(elapsedOn: String?, customerType: CustomerType?) {
         val dialogView = layoutInflater.inflate(R.layout.fragment_subscription_elapsed_dialog, null)
         val dialog = MaterialAlertDialogBuilder(this@MainActivity)
             .setView(dialogView)
@@ -186,7 +183,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 Log.d("111", "message: $message   isChecked? $isChecked")
                 applicationScope.launch {
                     ApiService.getInstance(applicationContext).subscriptionFormData(
-                        type = SubscriptionFormDataType.trialSubscription,
+                        type = mapCustomer2SubscriptionFormDataType(customerType),
                         message = message,
                         requestCurrentSubscriptionOpportunities = isChecked
                     )
@@ -200,22 +197,13 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         dialog.show()
     }
 
-    private fun showSubscriptionElapsedDialog(elapsedOn: String?) {
-        val dialog = MaterialAlertDialogBuilder(this@MainActivity)
-            .setTitle(getString(R.string.popup_login_elapsed_header, elapsedOn))
-            .setMessage(R.string.popup_login_elapsed_text)
-            .setPositiveButton(R.string.order_button) { dialog, _ ->
-                startActivityForResult(Intent(this@MainActivity, LoginActivity::class.java).apply {
-                    putExtra(LOGIN_EXTRA_REGISTER, true)
-                }, ACTIVITY_LOGIN_REQUEST_CODE)
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        //TODO(eike): make the mailto-link in the message clickable
-        dialog.show()
+    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType {
+        return when (customerType) {
+            CustomerType.digital -> SubscriptionFormDataType.expiredDigiSubscription
+            CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
+            CustomerType.sample -> SubscriptionFormDataType.trialSubscription
+            else -> SubscriptionFormDataType.unknown
+        }
     }
 
     private var doubleBackToExitPressedOnce = false
