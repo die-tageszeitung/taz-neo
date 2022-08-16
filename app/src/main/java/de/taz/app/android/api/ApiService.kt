@@ -672,18 +672,30 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     @Throws(ConnectivityException::class)
     suspend fun subscriptionFormData(
         type: SubscriptionFormDataType,
-        mail: String?,
-        surname: String?,
-        firstname: String?,
-        street: String?,
-        city: String?,
-        postcode: String?,
-        country: String?,
-        message: String?,
-        requestCurrentSubscriptionOpportunities: Boolean?,
+        mail: String? = null,
+        surname: String? = null,
+        firstname: String? = null,
+        street: String? = null,
+        city: String? = null,
+        postcode: String? = null,
+        country: String? = null,
+        message: String? = null,
+        requestCurrentSubscriptionOpportunities: Boolean? = null,
     ): SubscriptionInfo? {
         val tag = "subscriptionFormData"
-        log.debug("call graphql  $tag")
+        val variables = SubscriptionFormDataVariables(
+            type,
+            mail,
+            surname,
+            firstname,
+            street,
+            city,
+            postcode,
+            country,
+            message,
+            requestCurrentSubscriptionOpportunities,
+        )
+        log.debug("call graphql  $tag with variables: $variables")
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.SubscriptionFormData,
@@ -699,7 +711,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     message,
                     requestCurrentSubscriptionOpportunities,
                 )
-            ).data?.trialSubscription
+            ).data?.subscription
         }
     }
 }

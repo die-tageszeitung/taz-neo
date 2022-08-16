@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SubscriptionFormDataVariables(
-    val type: SubscriptionFormDataType,
+    val subscriptionFormDataType: SubscriptionFormDataType,
     val mail: String?,
     val surname: String?,
     val firstname: String?,
