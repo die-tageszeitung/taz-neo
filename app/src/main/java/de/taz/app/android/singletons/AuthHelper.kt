@@ -26,7 +26,6 @@ import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlin.coroutines.CoroutineContext
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
