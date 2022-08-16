@@ -703,4 +703,17 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ).data?.subscription
         }
     }
+    /**
+     * function to get the customer type
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getCustomerType(
+    ): CustomerType? {
+        val tag = "customerInfo"
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.CustomerInfo
+            ).data?.customerInfo?.customerType
+        }
+    }
 }

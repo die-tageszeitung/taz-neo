@@ -111,7 +111,6 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     authHelper.message.set(it.message ?: "")
                 }
             }
-        }
         return wrapper
     }
 
