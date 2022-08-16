@@ -7,8 +7,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,10 +14,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.Moment
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.*
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -152,27 +147,26 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     }
 
     private suspend fun maybeSetActiveSection(issueKey: IssueKey, displayableKey: String) {
-        val imprint = lazy { issueRepository.getImprint(issueKey) }
-        val section =
-            lazy { sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName }
-        withContext(Dispatchers.IO) {
-            when {
-                displayableKey == imprint.value?.key -> {
-                    sectionListAdapter.activePosition = RecyclerView.NO_POSITION
-                    setImprintActive()
-                }
-                displayableKey.startsWith("art") -> {
-                    setImprintInactive()
-                    section.value?.let { setActiveSection(it) }
-                }
-                displayableKey.startsWith("sec") -> {
-                    setImprintInactive()
-                    setActiveSection(displayableKey)
-                }
-                else -> {
-                    setImprintInactive()
-                    setActiveSection(null)
-                }
+        val imprint = lifecycleScope.async { issueRepository.getImprint(issueKey) }
+        val section = lifecycleScope.async {
+            sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName
+        }
+        when {
+            displayableKey == imprint.await()?.key -> {
+                sectionListAdapter.activePosition = RecyclerView.NO_POSITION
+                setImprintActive()
+            }
+            displayableKey.startsWith("art") -> {
+                setImprintInactive()
+                section.await()?.let { setActiveSection(it) }
+            }
+            displayableKey.startsWith("sec") -> {
+                setImprintInactive()
+                setActiveSection(displayableKey)
+            }
+            else -> {
+                setImprintInactive()
+                setActiveSection(null)
             }
         }
     }
@@ -207,9 +201,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
 
-            val sections = withContext(Dispatchers.IO) {
-                sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
-            }
+            val sections = sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
+
             log.debug("SectionDrawer sets new sections: $sections")
             sectionListAdapter.sectionList = sections
 
@@ -222,9 +215,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
                 typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-                val isImprint = withContext(Dispatchers.IO) {
-                    issueRepository.getImprint(issueStub.issueKey) != null
-                }
+                val isImprint = issueRepository.getImprint(issueStub.issueKey) != null
                 if (isImprint) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE

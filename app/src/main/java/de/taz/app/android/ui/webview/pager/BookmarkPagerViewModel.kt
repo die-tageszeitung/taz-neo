@@ -27,7 +27,7 @@ class BookmarkPagerViewModel(
 
     val currentIssueAndArticleLiveData: LiveData<Pair<IssueStub, String>> = MediatorLiveData<Pair<IssueStub, String>>().apply {
         addSource(articleFileNameLiveData) { articleFileName ->
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 articleFileName?.let { articleFileName ->
                     issueRepository.getIssueStubForArticle(articleFileName)?.let { issueStub ->
                         postValue(issueStub to articleFileName)

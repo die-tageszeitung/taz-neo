@@ -5,8 +5,6 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 interface SectionOperations {
 
@@ -18,12 +16,12 @@ interface SectionOperations {
         return extendedTitle ?: title
     }
 
-    fun getIssueStub(applicationContext: Context): IssueStub? {
+    suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return IssueRepository.getInstance(applicationContext).getIssueStubForSection(key)
     }
 
-    suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
-        return@withContext SectionRepository.getInstance(applicationContext)
+    suspend fun getNavButton(applicationContext: Context): Image? {
+        return SectionRepository.getInstance(applicationContext)
             .getNavButtonForSection(this@SectionOperations.key)
     }
 }

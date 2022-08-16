@@ -7,6 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 
@@ -16,6 +18,7 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class PageRepositoryTest {
 
     private lateinit var db: AppDatabase
@@ -51,7 +54,7 @@ class PageRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         pageRepository.save(page, issue.issueKey)
         val fromDB = pageRepository.get(page.pagePdf.name)
         assertEquals(fromDB, page)
@@ -59,7 +62,7 @@ class PageRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun getWithoutFile() {
+    fun getWithoutFile() = runTest {
         pageRepository.save(page, issue.issueKey)
         val fromDB = pageRepository.getWithoutFile(page.pagePdf.name)
         assertEquals(fromDB, PageStub(page))
@@ -67,7 +70,7 @@ class PageRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMultiple() {
+    fun writeAndReadMultiple() = runTest {
         for (page in pages) {
             assertTrue(pages.filter { it == page }.size == 1)
 

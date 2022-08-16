@@ -6,8 +6,6 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.StorageService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Cache operation deleting the files related to the collection [collection]
@@ -41,7 +39,7 @@ class ContentDeletion(
             applicationContext: Context,
             collection: DownloadableCollection,
             tag: String
-        ): ContentDeletion = withContext(Dispatchers.IO) {
+        ): ContentDeletion {
             val articleRepository = ArticleRepository.getInstance(applicationContext)
 
             val filesToDelete = if (collection is Article) {
@@ -75,7 +73,7 @@ class ContentDeletion(
                 )
             }
 
-            return@withContext ContentDeletion(
+            return ContentDeletion(
                 applicationContext,
                 fileCacheItems,
                 collection,
@@ -84,7 +82,7 @@ class ContentDeletion(
         }
     }
 
-    override suspend fun doWork() = withContext(Dispatchers.IO) {
+    override suspend fun doWork() {
         notifyStart()
         // Reset the collection download date immediately. Even if the deletion has issues it's
         // better to assume the content deleted

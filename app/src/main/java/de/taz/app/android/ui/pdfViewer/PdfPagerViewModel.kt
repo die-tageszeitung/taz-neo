@@ -77,7 +77,7 @@ class PdfPagerViewModel(
                 maxRetries = maxRetries
             ) as IssueWithPages
 
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 val issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadMetaData(maxRetries = 3)
@@ -102,14 +102,14 @@ class PdfPagerViewModel(
     }
 
     val navButton = MediatorLiveData<Image>().apply {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
         }
     } as LiveData<Image>
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issue) { issue ->
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB

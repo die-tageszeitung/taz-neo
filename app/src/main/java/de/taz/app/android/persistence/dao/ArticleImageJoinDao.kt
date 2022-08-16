@@ -7,7 +7,7 @@ import de.taz.app.android.persistence.join.ArticleImageJoin
 
 
 @Dao
-abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
+interface ArticleImageJoinDao : BaseDao<ArticleImageJoin> {
 
     @Query(
         """
@@ -19,6 +19,6 @@ abstract class ArticleImageJoinDao : BaseDao<ArticleImageJoin>() {
         ORDER BY ArticleImageJoin.`index` ASC
     """
     )
-    abstract fun getImagesForArticle(articleFileName: String): List<Image>
+    suspend fun getImagesForArticle(articleFileName: String): List<Image>
 
 }

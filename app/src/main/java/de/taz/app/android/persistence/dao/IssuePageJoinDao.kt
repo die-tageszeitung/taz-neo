@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 
 
 @Dao
-abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
+interface IssuePageJoinDao : BaseDao<IssuePageJoin> {
 
     @Query(
         """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 
@@ -21,7 +21,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         ORDER BY IssuePageJoin.`index` ASC
         """
     )
-    abstract fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub?
+    suspend fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub?
 
     @Query(
         """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 
@@ -31,7 +31,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         ORDER BY IssuePageJoin.`index` ASC
         """
     )
-    abstract fun getPagesForIssue(feedName: String, date: String, status: IssueStatus): List<PageStub>
+    suspend fun getPagesForIssue(feedName: String, date: String, status: IssueStatus): List<PageStub>
 
     @Query(
         """SELECT Page.pdfFileName FROM Page INNER JOIN IssuePageJoin 
@@ -41,7 +41,7 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         ORDER BY IssuePageJoin.`index` ASC
         """
     )
-    abstract fun getPageNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
+    suspend fun getPageNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
 
     @Query(
         """SELECT Issue.* FROM Issue INNER JOIN IssuePageJoin
@@ -49,5 +49,5 @@ abstract class IssuePageJoinDao : BaseDao<IssuePageJoin>() {
         WHERE IssuePageJoin.pageKey == :pageKey
     """
     )
-    abstract fun getIssueStubsForPage(pageKey: String): List<IssueStub>
+    suspend fun getIssueStubsForPage(pageKey: String): List<IssueStub>
 }

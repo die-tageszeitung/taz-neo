@@ -31,11 +31,11 @@ interface IssueOperations: DownloadableStub {
         return tag
     }
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return IssueRepository.getInstance(applicationContext).getDownloadDate(this@IssueOperations)
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         return IssueRepository.getInstance(applicationContext).setDownloadDate(this@IssueOperations, date)
     }
 }

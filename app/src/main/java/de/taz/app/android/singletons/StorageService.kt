@@ -38,7 +38,7 @@ interface Storable {
     val storageType: StorageType
 }
 
-class ExternalStorageNotAvailableException(message: String): Exception(message)
+class ExternalStorageNotAvailableException(message: String) : Exception(message)
 
 @Mockable
 class StorageService private constructor(private val applicationContext: Context) {
@@ -62,7 +62,7 @@ class StorageService private constructor(private val applicationContext: Context
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
 
-    private val filesDir by lazy { applicationContext.filesDir}
+    private val filesDir by lazy { applicationContext.filesDir }
     fun getInternalFilesDir(): File = filesDir
 
     fun getExternalFilesDir(): File? {
@@ -132,7 +132,10 @@ class StorageService private constructor(private val applicationContext: Context
         return getAbsolutePath(fileEntry)?.let { "file://$it" }
     }
 
-    fun createOrUpdateFileEntry(fileEntryDto: FileEntryDto, issueKey: IssueKey?): FileEntry {
+    suspend fun createOrUpdateFileEntry(
+        fileEntryDto: FileEntryDto,
+        issueKey: IssueKey?
+    ): FileEntry {
         val existing = fileEntryRepository.get(fileEntryDto.name)
         val fileEntry = existing?.copy(path = determineFilePath(fileEntryDto, issueKey))
             ?: FileEntry(fileEntryDto, determineFilePath(fileEntryDto, issueKey))
@@ -174,7 +177,7 @@ class StorageService private constructor(private val applicationContext: Context
         return digest.fold("", { str, it -> str + "%02x".format(it) })
     }
 
-    fun deleteFile(fileEntry: FileEntry) {
+    suspend fun deleteFile(fileEntry: FileEntry) {
         fileEntryRepository.resetDownloadDate(fileEntry)
         getAbsolutePath(fileEntry)?.let {
             File(it).delete()
@@ -278,14 +281,10 @@ class StorageService private constructor(private val applicationContext: Context
     }
 
     suspend fun getNonExistentFilesFromList(files: List<FileEntry>): List<FileEntry> =
-        withContext(Dispatchers.IO) {
-            return@withContext files.filter { !ensureFileExists(it) }
-        }
+        files.filter { !ensureFileExists(it) }
 
     suspend fun getCorruptedFilesFromList(files: List<FileEntry>): List<FileEntry> =
-        withContext(Dispatchers.IO) {
-            return@withContext files.filter { !ensureFileIntegrity(it, it.sha256) }
-        }
+        files.filter { !ensureFileIntegrity(it, it.sha256) }
 
     suspend fun ensureFileListExists(files: List<FileEntry>): Boolean {
         return getNonExistentFilesFromList(files).isEmpty()
@@ -300,11 +299,8 @@ class StorageService private constructor(private val applicationContext: Context
      * @param feedName - [String] representing a feed (ie "taz")
      */
     suspend fun deleteAllUnusedIssueFolders(feedName: String) {
-        val holdIssues = withContext(Dispatchers.IO) {
-            issueRepository.getAllIssueStubs()
-        }
+        val holdIssues = issueRepository.getAllIssueStubs()
         val allDirs = getAllIssueDirectories(feedName)
-
         val abandonedDirectoriesTobeDeleted = filterOutHoldIssues(holdIssues, allDirs)
 
         abandonedDirectoriesTobeDeleted.forEach {

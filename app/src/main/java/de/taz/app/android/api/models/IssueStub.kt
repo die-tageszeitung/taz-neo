@@ -48,9 +48,6 @@ data class IssueStub(
     override val issueKey: IssueKey
         get() = IssueKey(feedName, date, status)
 
-    suspend fun getIssue(applicationContext: Context): Issue {
-        return withContext(Dispatchers.IO) {
-            IssueRepository.getInstance(applicationContext).getIssue(this@IssueStub)
-        }
-    }
+    suspend fun getIssue(applicationContext: Context): Issue =
+        IssueRepository.getInstance(applicationContext).getIssue(this@IssueStub)
 }

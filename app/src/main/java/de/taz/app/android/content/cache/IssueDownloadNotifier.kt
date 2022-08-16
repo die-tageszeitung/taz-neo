@@ -6,8 +6,6 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -58,7 +56,7 @@ class IssueDownloadNotifier(
     /**
      * This function get a [downloadId] and saves the current time
      */
-    private suspend fun notifyIssueDownloadStart() = withContext(Dispatchers.IO) {
+    private suspend fun notifyIssueDownloadStart() {
         try {
             started = Date()
             downloadId = apiService.notifyServerOfDownloadStart(
@@ -67,14 +65,14 @@ class IssueDownloadNotifier(
                 isAutomaticDownload
             ) ?: throw ConnectivityException.ImplementationException("No download id in response")
         } catch (nie: ConnectivityException) {
-            null
+            // do nothing
         }
     }
 
     /**
      * Calculates the passed time and notifies the API of download completion
      */
-    private suspend fun notifyIssueDownloadStop() = withContext(Dispatchers.IO) {
+    private suspend fun notifyIssueDownloadStop() {
         val secondsTaken = (Date().time - started.time).toFloat() / 1000
 
         downloadId?.let {

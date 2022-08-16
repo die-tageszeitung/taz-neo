@@ -85,7 +85,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         if (page == null) {
             arguments?.getString(PAGE_NAME)?.let {
                 try {
-                    lifecycleScope.launch(Dispatchers.IO) {
+                    lifecycleScope.launch {
                         page = pageRepository.get(it)
                         withContext(Dispatchers.Main) { initializeThePageAdapter() }
                     }
@@ -169,9 +169,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
-                            val article = withContext(Dispatchers.IO) {
-                                articleRepository.get(link)
-                            }
+                            val article = articleRepository.get(link)
                             val fragment =
                                 if (article?.isImprint() == true) ImprintWebViewFragment()
                                 else ArticlePagerFragment()

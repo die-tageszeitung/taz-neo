@@ -23,7 +23,7 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
-    fun save(section: Section) {
+    suspend fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
         fileEntryRepository.save(section.sectionHtml)
         section.articleList.forEach { articleRepository.save(it) }
@@ -53,11 +53,11 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     }
 
-    fun update(sectionStub: SectionStub) {
+    suspend fun update(sectionStub: SectionStub) {
         appDatabase.sectionDao().update(sectionStub)
     }
 
-    fun getStub(sectionFileName: String): SectionStub? {
+    suspend fun getStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
@@ -65,29 +65,21 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().getLiveData(sectionFileName)
     }
 
-    fun getLiveData(sectionFileName: String): LiveData<Section?> {
-        return Transformations.map(getStubLiveData(sectionFileName)) {
-            it?.let {
-                sectionStubToSection(it)
-            }
-        }
-    }
-
-    fun get(sectionFileName: String): Section? {
+    suspend fun get(sectionFileName: String): Section? {
         return getStub(sectionFileName)?.let {
             sectionStubToSection(it)
         }
     }
 
-    fun getSectionStubForArticle(articleFileName: String): SectionStub? {
+    suspend fun getSectionStubForArticle(articleFileName: String): SectionStub? {
         return appDatabase.sectionArticleJoinDao().getSectionStubForArticleFileName(articleFileName)
     }
 
-    fun getNextSectionStub(sectionFileName: String): SectionStub? {
+    suspend fun getNextSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getNext(sectionFileName)
     }
 
-    fun getSectionStubsForIssue(
+    suspend fun getSectionStubsForIssue(
         issueKey: IssueKey
     ): List<SectionStub> {
         return appDatabase.sectionDao().getSectionsForIssue(
@@ -95,22 +87,22 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
+    suspend fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
     }
 
-    fun imagesForSectionStub(sectionFileName: String): List<Image> {
+    suspend fun imagesForSectionStub(sectionFileName: String): List<Image> {
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
     }
 
     @Throws(NotFoundException::class)
-    fun sectionStubToSection(sectionStub: SectionStub): Section? {
+    suspend fun sectionStubToSection(sectionStub: SectionStub): Section? {
         val sectionFileName = sectionStub.sectionFileName
         val sectionFile = fileEntryRepository.get(sectionFileName) ?: return null
 
         val articles =
             appDatabase.sectionArticleJoinDao().getArticlesForSection(sectionFileName)
-                ?.map(articleRepository::articleStubToArticle)
+                ?.map { articleRepository.articleStubToArticle(it) }
                 ?: emptyList()
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
@@ -138,7 +130,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
     }
 
-    fun delete(section: Section) {
+    suspend fun delete(section: Section) {
         appDatabase.sectionArticleJoinDao().delete(
             section.articleList.mapIndexed { index, article ->
                 SectionArticleJoin(
@@ -194,26 +186,26 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getNavButtonForSection(sectionFileName: String): Image? {
+    suspend fun getNavButtonForSection(sectionFileName: String): Image? {
         return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
     }
 
-    fun getNavButtonForArticle(articleName: String): Image? {
+    suspend fun getNavButtonForArticle(articleName: String): Image? {
         return getSectionStubForArticle(articleName)?.let {
             getNavButtonForSection(it.sectionFileName)
         }
     }
 
 
-    fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
+    suspend fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
         return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)
     }
 
-    fun setDownloadDate(sectionStub: SectionStub, date: Date?) {
+    suspend fun setDownloadDate(sectionStub: SectionStub, date: Date?) {
         update(sectionStub.copy(dateDownload = date))
     }
 
-    fun getDownloadDate(sectionStub: SectionStub): Date? {
+    suspend fun getDownloadDate(sectionStub: SectionStub): Date? {
         return appDatabase.sectionDao().getDownloadDate(sectionStub.sectionFileName)
     }
 

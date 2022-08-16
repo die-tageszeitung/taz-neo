@@ -57,7 +57,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     }
 
     fun shareArticle(articleFileName: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val article = articleRepository?.getStub(articleFileName)
             article?.onlineLink?.let { url ->
                 val sendIntent: Intent = Intent().apply {

@@ -5,7 +5,6 @@ import de.taz.app.android.download.FiledownloaderInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 abstract class TestFileDownloader : FiledownloaderInterface {
 

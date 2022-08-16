@@ -95,21 +95,17 @@ class SplashActivity : StartupActivity() {
 
             val currentStorageLocation = storageDataStore.storageLocation.get()
 
-            val unmigratedFiles = withContext(Dispatchers.IO) {
+            val unmigratedFiles =
                 fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
-            }
-            val filesWithBadStorage = withContext(Dispatchers.IO) {
+            val filesWithBadStorage =
                 fileEntryRepository.getExceptStorageLocation(
                     listOf(StorageLocation.NOT_STORED, currentStorageLocation)
                 )
-            }
 
 
             val publicIssuesNeedDeletion =
-                withContext(Dispatchers.IO) {
-                    (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
-                            && authHelper.getMinStatus() == IssueStatus.regular)
-                }
+                (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
+                        && authHelper.getMinStatus() == IssueStatus.regular)
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
             if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
                 Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
@@ -211,7 +207,7 @@ class SplashActivity : StartupActivity() {
     /**
      * download resources, save to db and download necessary files
      */
-    private suspend fun initResources() = withContext(Dispatchers.IO) {
+    private suspend fun initResources() {
         log.info("initializing resources")
 
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")

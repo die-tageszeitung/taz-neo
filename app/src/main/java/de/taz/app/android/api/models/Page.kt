@@ -30,19 +30,19 @@ data class Page(
         baseUrl
     )
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return PageRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         PageRepository.getInstance(applicationContext).setDownloadDate(this, date)
     }
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         return listOf(pagePdf)
     }
 
-    override fun getAllFileNames(): List<String> {
+    override suspend fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }.distinct()
     }
 

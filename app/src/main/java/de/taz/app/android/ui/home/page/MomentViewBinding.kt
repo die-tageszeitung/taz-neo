@@ -13,7 +13,6 @@ import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.*
-import kotlinx.coroutines.*
 import kotlin.IllegalStateException
 
 
@@ -38,8 +37,8 @@ class MomentViewBinding(
     private val contentService = ContentService.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
 
-    override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
-        try {
+    override suspend fun prepareData(): CoverViewData {
+        return try {
             val moment = contentService.downloadMetadata(
                 coverPublication,
                 // After 7 retries show the fallback

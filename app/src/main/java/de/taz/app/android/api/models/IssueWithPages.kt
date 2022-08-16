@@ -50,11 +50,11 @@ data class IssueWithPages(
     override val issueKey: IssueKeyWithPages
         get() = IssueKeyWithPages(feedName, date, status)
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return IssueRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         IssueRepository.getInstance(applicationContext).apply {
             setDownloadDate(this@IssueWithPages, date)
             get(issueKey)?.let {

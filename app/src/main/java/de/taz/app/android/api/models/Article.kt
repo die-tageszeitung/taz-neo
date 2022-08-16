@@ -56,7 +56,7 @@ data class Article(
     override val key: String
         get() = articleHtml.name
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
@@ -64,7 +64,7 @@ data class Article(
         return list.distinct()
     }
 
-    override fun getAllFileNames(): List<String> {
+    override suspend fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }.distinct()
     }
 
@@ -73,7 +73,7 @@ data class Article(
     }
 
 
-    fun nextArticle(applicationContext: Context): Article? {
+    suspend fun nextArticle(applicationContext: Context): Article? {
         val articleRepository = ArticleRepository.getInstance(applicationContext)
         return articleRepository.nextArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
@@ -81,30 +81,30 @@ data class Article(
     }
 
 
-    fun previousArticle(applicationContext: Context): Article? {
+    suspend fun previousArticle(applicationContext: Context): Article? {
         val articleRepository = ArticleRepository.getInstance(applicationContext)
         return articleRepository.previousArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
         }
     }
 
-    override fun previous(applicationContext: Context): Article? {
+    override suspend fun previous(applicationContext: Context): Article? {
         return previousArticle(applicationContext)
     }
 
-    override fun next(applicationContext: Context): Article? {
+    override suspend fun next(applicationContext: Context): Article? {
         return nextArticle(applicationContext)
     }
 
-    override fun getIssueStub(applicationContext: Context): IssueStub? {
+    override suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return super.getIssueStub(applicationContext)
     }
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return ArticleRepository.getInstance(applicationContext).getDownloadDate(ArticleStub(this@Article))
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         return ArticleRepository.getInstance(applicationContext).setDownloadDate(ArticleStub(this@Article), date)
     }
 

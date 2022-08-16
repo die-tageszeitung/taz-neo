@@ -65,54 +65,53 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
         GraphQlImplementationException::class,
         GraphQlRecoverableServerException::class
     )
-    suspend fun query(queryType: QueryType, variables: Variables? = null): WrapperDto =
-        withContext(Dispatchers.IO) {
-            val query = queryService.get(queryType)
-            variables?.let { query.variables = variables }
+    suspend fun query(queryType: QueryType, variables: Variables? = null): WrapperDto {
+        val query = queryService.get(queryType)
+        variables?.let { query.variables = variables }
 
-            val wrapper: WrapperDto = try {
-                maxSimultaneousRequestSemaphore.withPermit {
-                    httpClient.post(Url(url)) {
-                        contentType(ContentType.Application.Json)
-                        setBody(query)
-                        val token = authHelper.token.get()
-                        if (token.isNotEmpty()
-                            && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
-                        ) {
-                            header(TAZ_AUTH_HEADER, token)
-                        }
-                    }.body()
-                }
-            } catch (e: NullPointerException) {
-                reportAndRethrowExceptions {
-                    throw MalformedServerResponseException(e)
-                }
-            } catch (e: JsonConvertException) {
-                reportAndRethrowExceptions {
-                    throw MalformedServerResponseException(e)
-                }
+        val wrapper: WrapperDto = try {
+            maxSimultaneousRequestSemaphore.withPermit {
+                httpClient.post(Url(url)) {
+                    contentType(ContentType.Application.Json)
+                    setBody(query)
+                    val token = authHelper.token.get()
+                    if (token.isNotEmpty()
+                        && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
+                    ) {
+                        header(TAZ_AUTH_HEADER, token)
+                    }
+                }.body()
             }
-
-            if (wrapper.errors.isNotEmpty()) {
-                if (wrapper.errors.findLast { item ->
-                        unrecoverableGraphQlErrorCategories.contains(item.extensions?.category)
-                    } != null) {
-                    log.error("A faulty response from graphQL received ${wrapper.errors}")
-                    throw GraphQlImplementationException(wrapper)
-                } else {
-                    throw GraphQlRecoverableServerException(wrapper)
-                }
+        } catch (e: NullPointerException) {
+            reportAndRethrowExceptions {
+                throw MalformedServerResponseException(e)
             }
-
-            // if response carries authinfo we save it
-            wrapper.data?.product?.authInfo?.let {
-                // only update if it changes
-                if (authHelper.status.get() != it.status) {
-                    authHelper.status.set(it.status)
-                }
+        } catch (e: JsonConvertException) {
+            reportAndRethrowExceptions {
+                throw MalformedServerResponseException(e)
             }
-            wrapper
         }
+
+        if (wrapper.errors.isNotEmpty()) {
+            if (wrapper.errors.findLast { item ->
+                    unrecoverableGraphQlErrorCategories.contains(item.extensions?.category)
+                } != null) {
+                log.error("A faulty response from graphQL received ${wrapper.errors}")
+                throw GraphQlImplementationException(wrapper)
+            } else {
+                throw GraphQlRecoverableServerException(wrapper)
+            }
+        }
+
+        // if response carries authinfo we save it
+        wrapper.data?.product?.authInfo?.let {
+            // only update if it changes
+            if (authHelper.status.get() != it.status) {
+                authHelper.status.set(it.status)
+            }
+        }
+        return wrapper
+    }
 
     class MalformedServerResponseException(cause: Throwable? = null) :
         Exception("GraphQL server returned unexpected response", cause)

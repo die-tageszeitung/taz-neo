@@ -91,7 +91,7 @@ class ImprintWebViewFragment : WebViewFragment<
     }
 
     override fun setHeader(displayable: Article) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val title = getString(R.string.imprint)
             activity?.runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {

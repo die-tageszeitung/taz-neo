@@ -17,7 +17,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
@@ -62,8 +61,10 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         webViewFragment.viewModel.displayable?.let {
             if (it is Article) {
                 applicationContext?.let { context ->
-                    ArticleRepository.getInstance(context)
-                        .saveScrollingPosition(it.key, percentage, position)
+                    webViewFragment.applicationScope.launch {
+                        ArticleRepository.getInstance(context)
+                            .saveScrollingPosition(it.key, percentage, position)
+                    }
                 }
             }
         }
@@ -72,7 +73,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     @JavascriptInterface
     fun nextArticle(position: Int = 0) {
         log.verbose("nextArticle $position")
-        webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
+        webViewFragment.lifecycleScope.launch {
             displayable?.next(applicationContext)?.let { next ->
                 webViewFragment.setDisplayable(next.key)
             }
@@ -82,7 +83,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     @JavascriptInterface
     fun previousArticle(position: Int = 0) {
         log.verbose("previousArticle $position")
-        webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
+        webViewFragment.lifecycleScope.launch {
             displayable?.previous(applicationContext)?.let { previous ->
                 webViewFragment.setDisplayable(previous.key)
             }
@@ -96,7 +97,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         // relevant for links in the title for instance
 
         webViewFragment.apply {
-            webViewFragment.lifecycleScope.launch(Dispatchers.IO) {
+            webViewFragment.lifecycleScope.launch {
                 if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
                     webViewFragment.setDisplayable(url)
                 } else {

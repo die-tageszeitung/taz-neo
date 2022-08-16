@@ -16,11 +16,11 @@ class PageRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    fun update(pageStub: PageStub) {
+    suspend fun update(pageStub: PageStub) {
         appDatabase.pageDao().update(pageStub)
     }
 
-    fun save(page: Page, issueKey: IssueKey): Page {
+    suspend fun save(page: Page, issueKey: IssueKey): Page {
         appDatabase.pageDao().insertOrReplace(
             PageStub(
                 page.pagePdf.name,
@@ -45,28 +45,28 @@ class PageRepository private constructor(applicationContext: Context) :
         return get(page.pagePdf.name)!!
     }
 
-    fun save(pages: List<Page>, issueKey: IssueKey) {
+    suspend fun save(pages: List<Page>, issueKey: IssueKey) {
         pages.forEach { page ->
             save(page, issueKey)
         }
     }
 
-    fun getWithoutFile(fileName: String): PageStub? {
+    suspend fun getWithoutFile(fileName: String): PageStub? {
         return appDatabase.pageDao().get(fileName)
     }
 
-    fun getStub(fileName: String): PageStub? {
+    suspend fun getStub(fileName: String): PageStub? {
         return appDatabase.pageDao().get(fileName)
     }
 
     @Throws(NotFoundException::class)
-    fun getOrThrow(fileName: String): Page {
+    suspend fun getOrThrow(fileName: String): Page {
         appDatabase.pageDao().get(fileName)?.let {
             return pageStubToPage(it)
         } ?: throw NotFoundException()
     }
 
-    fun get(fileName: String): Page? {
+    suspend fun get(fileName: String): Page? {
         return try {
             getOrThrow(fileName)
         } catch (e: NotFoundException) {
@@ -74,21 +74,14 @@ class PageRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getFrontPage(issueKey: IssueKey): Page? {
+    suspend fun getFrontPage(issueKey: IssueKey): Page? {
         return appDatabase.issuePageJoinDao()
             .getFrontPageForIssue(issueKey.feedName, issueKey.date, issueKey.status)?.let {
                 pageStubToPage(it)
             }
     }
 
-
-    fun getLiveData(fileName: String): LiveData<Page?> {
-        return Transformations.map(
-            appDatabase.pageDao().getLiveData(fileName)
-        ) { it?.let { pageStubToPage(it) } }
-    }
-
-    private fun pageStubToPage(pageStub: PageStub): Page {
+    private suspend fun pageStubToPage(pageStub: PageStub): Page {
         val file = fileEntryRepository.getOrThrow(pageStub.pdfFileName)
 
         return Page(
@@ -102,14 +95,14 @@ class PageRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun delete(page: Page) {
+    suspend fun delete(page: Page) {
         getStub(page.pagePdf.name)?.let {
             appDatabase.pageDao().delete(it)
         }
         fileEntryRepository.delete(page.pagePdf.name)
     }
 
-    fun delete(pages: List<Page>) {
+    suspend fun delete(pages: List<Page>) {
         appDatabase.pageDao().delete(
             pages.mapNotNull { getStub(it.pagePdf.name) }
         )
@@ -117,22 +110,22 @@ class PageRepository private constructor(applicationContext: Context) :
         fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
     }
 
-    fun deleteIfNoIssueRelated(pages: List<Page>) {
+    suspend fun deleteIfNoIssueRelated(pages: List<Page>) {
         appDatabase.pageDao().deletePageFileEntriesIfNoIssueRelated(pages.map { it.pagePdf.name })
         appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pagePdf.name })
     }
 
-    fun getDownloadDate(page: Page): Date? {
+    suspend fun getDownloadDate(page: Page): Date? {
         return appDatabase.pageDao().getDownloadDate(page.pagePdf.name)
     }
 
-    fun setDownloadDate(page: Page, date: Date?) {
+    suspend fun setDownloadDate(page: Page, date: Date?) {
         update(PageStub(page).copy(dateDownload = date))
     }
 
-    fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)
+    suspend fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)
 
-    fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
+    suspend fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
         return appDatabase.pageDao().isDownloadedLiveData(fileName)
     }
 }

@@ -9,7 +9,7 @@ import de.taz.app.android.api.models.MomentStub
 import java.util.*
 
 @Dao
-abstract class MomentDao: BaseDao<MomentStub>() {
+interface MomentDao: BaseDao<MomentStub> {
 
     @Query(
         """
@@ -19,7 +19,7 @@ abstract class MomentDao: BaseDao<MomentStub>() {
             AND Moment.issueDate == :issueDate
         """
     )
-    abstract fun getDownloadDate(
+    suspend fun getDownloadDate(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
@@ -33,7 +33,7 @@ abstract class MomentDao: BaseDao<MomentStub>() {
             AND Moment.issueDate == :issueDate
                     """
     )
-    abstract fun getLiveData(
+    fun getLiveData(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
@@ -50,12 +50,12 @@ abstract class MomentDao: BaseDao<MomentStub>() {
             AND Moment.issueDate == :issueDate
                     """
     )
-    abstract fun get(
+    suspend fun get(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
     ): MomentStub?
 
-    fun get(issueOperations: IssueOperations) =
+    suspend fun get(issueOperations: IssueOperations) =
         get(issueOperations.feedName, issueOperations.date, issueOperations.status)
 }

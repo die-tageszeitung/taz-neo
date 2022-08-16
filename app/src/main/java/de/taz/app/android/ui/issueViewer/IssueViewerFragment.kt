@@ -106,7 +106,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 val navButton = when {
                     it == null -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
                     it.startsWith("art") -> sectionRepository.getNavButtonForArticle(it)
@@ -156,7 +156,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     val lastSectionKey = viewModel.lastSectionKey
                         ?: viewModel.currentDisplayable?.let { displayableKey ->
                             if (displayableKey.startsWith("art")) {
-                                runBlocking(Dispatchers.IO) {
+                                runBlocking {
                                     sectionRepository.getSectionStubForArticle(
                                         displayableKey
                                     )?.key

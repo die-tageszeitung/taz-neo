@@ -6,8 +6,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 interface ArticleOperations {
@@ -15,15 +13,15 @@ interface ArticleOperations {
     val articleType: ArticleType
     val dateDownload: Date?
 
-    fun getSectionStub(applicationContext: Context): SectionStub? {
+    suspend fun getSectionStub(applicationContext: Context): SectionStub? {
         return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)
     }
 
-    fun getIndexInSection(applicationContext: Context): Int? {
+    suspend fun getIndexInSection(applicationContext: Context): Int? {
         return ArticleRepository.getInstance(applicationContext).getIndexInSection(this.key)
     }
 
-    fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
+    suspend fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
         return ArticleRepository.getInstance(applicationContext).isBookmarkedLiveData(this.key)
     }
 
@@ -32,7 +30,7 @@ interface ArticleOperations {
         return articleType == ArticleType.IMPRINT
     }
 
-    fun getIssueStub(applicationContext: Context): IssueStub? {
+    suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return if (isImprint()) {
             IssueRepository.getInstance(applicationContext).getIssueStubByImprintFileName(this.key)
         } else {
@@ -40,7 +38,7 @@ interface ArticleOperations {
         }
     }
 
-    suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
-        return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
+    suspend fun getNavButton(applicationContext: Context): Image? {
+        return this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
     }
 }

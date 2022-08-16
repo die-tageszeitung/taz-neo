@@ -8,7 +8,7 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 
 
 @Dao
-abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
+interface IssueImprintJoinDao : BaseDao<IssueImprintJoin> {
 
     @Query(
         """SELECT Article.articleFileName FROM Article INNER JOIN IssueImprintJoin
@@ -17,7 +17,7 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
             AND IssueImprintJoin.issueStatus == :status
         """
     )
-    abstract fun getArticleImprintNameForIssue(
+    suspend fun getArticleImprintNameForIssue(
         feedName: String,
         date: String,
         status: IssueStatus
@@ -31,7 +31,7 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
             AND issueStatus == :status
         """
     )
-    abstract fun getLeftOverImprintNameForIssue(
+    suspend fun getLeftOverImprintNameForIssue(
         feedName: String,
         date: String,
         status: IssueStatus
@@ -45,6 +45,6 @@ abstract class IssueImprintJoinDao : BaseDao<IssueImprintJoin>() {
         WHERE IssueImprintJoin.articleFileName == :imprintFileName
         """
     )
-    abstract fun getIssueForImprintFileName(imprintFileName: String): IssueStub?
+    suspend fun getIssueForImprintFileName(imprintFileName: String): IssueStub?
 
 }

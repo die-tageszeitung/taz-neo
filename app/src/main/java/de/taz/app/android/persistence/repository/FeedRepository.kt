@@ -11,19 +11,19 @@ class FeedRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<FeedRepository, Context>(::FeedRepository)
 
-    fun save(feeds: List<Feed>) {
+    suspend fun save(feeds: List<Feed>) {
         appDatabase.feedDao().insertOrReplace(feeds)
     }
 
-    fun save(feed: Feed) {
+    suspend fun save(feed: Feed) {
         appDatabase.feedDao().insertOrReplace(feed)
     }
 
-    fun get(feedName: String): Feed? {
+    suspend fun get(feedName: String): Feed? {
         return appDatabase.feedDao().get(feedName)
     }
 
-    fun getAll(): List<Feed> {
+    suspend fun getAll(): List<Feed> {
         return appDatabase.feedDao().getAll()
     }
 }

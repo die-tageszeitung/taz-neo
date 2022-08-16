@@ -8,21 +8,21 @@ import de.taz.app.android.api.models.IssueStatus
 import java.util.*
 
 @Dao
-abstract class ArticleDao : BaseDao<ArticleStub>() {
+interface ArticleDao : BaseDao<ArticleStub> {
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    abstract fun get(articleFileName: String): ArticleStub?
+    suspend fun get(articleFileName: String): ArticleStub?
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    abstract fun getLiveData(articleFileName: String): LiveData<ArticleStub>
+    fun getLiveData(articleFileName: String): LiveData<ArticleStub>
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
-    abstract fun get(articleFileNames: List<String>): List<ArticleStub>
+    suspend fun get(articleFileNames: List<String>): List<ArticleStub>
 
     @Query("SELECT * FROM Article WHERE Article.bookmarkedTime IS NOT NULL ORDER BY Article.bookmarkedTime DESC")
-    abstract fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
+    fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
 
     @Query("SELECT * FROM Article WHERE Article.bookmarkedTime IS NOT NULL ORDER BY Article.bookmarkedTime DESC")
-    abstract fun getBookmarkedArticles(): List<ArticleStub>
+    suspend fun getBookmarkedArticles(): List<ArticleStub>
 
     @Query(
         """SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
@@ -32,7 +32,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
             ORDER BY SAJ.`index` ASC
     """
     )
-    abstract fun getSectionArticleListByArticle(articleFileName: String): List<ArticleStub>
+    suspend fun getSectionArticleListByArticle(articleFileName: String): List<ArticleStub>
 
     @Query(
         """SELECT Article.* FROM Article
@@ -50,13 +50,13 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
             ORDER BY IssueSectionJoin.`index` ASC , SAJ.`index` ASC
     """
     )
-    abstract fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
+    suspend fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
 
     @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND dateDownload IS NOT NULL)")
-    abstract fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
+    fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
 
     @Query("SELECT dateDownload FROM Article WHERE articleFileName == :articleFileName")
-    abstract fun getDownloadStatus(articleFileName: String): Date?
+    suspend fun getDownloadStatus(articleFileName: String): Date?
 
     @Query(
         """SELECT Article.* FROM Article
@@ -70,7 +70,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
         ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
     """
     )
-    abstract fun getArticleStubListForIssue(
+    suspend fun getArticleStubListForIssue(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
@@ -89,7 +89,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
         ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
     """
     )
-    abstract fun getBookmarkedArticleStubsForIssue(
+    suspend fun getBookmarkedArticleStubsForIssue(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
@@ -104,7 +104,7 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
                 Article.dateDownload IS NOT NULL
     """
     )
-    abstract fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int
+    suspend fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int
 
     @Query(
         """SELECT COUNT(DISTINCT ArticleImageJoin.articleFileName) FROM ArticleImageJoin 
@@ -115,5 +115,5 @@ abstract class ArticleDao : BaseDao<ArticleStub>() {
                 Article.dateDownload IS NOT NULL
     """
     )
-    abstract fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int
+    suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int
 }

@@ -15,39 +15,39 @@ class ImageRepository private constructor(
 
     companion object : SingletonHolder<ImageRepository, Context>(::ImageRepository)
 
-    fun save(image: Image) {
+    suspend fun save(image: Image) {
         appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
         FileEntryRepository.getInstance(applicationContext).save(FileEntry(image))
     }
 
-    fun save(images: List<Image>) {
+    suspend fun save(images: List<Image>) {
         images.forEach { save(it) }
     }
 
-    fun get(imageName: String): Image? {
+    suspend fun get(imageName: String): Image? {
         return appDatabase.imageDao().getByName(imageName)
     }
 
-    fun getLiveData(imageName: String): LiveData<Image?> {
+    suspend fun getLiveData(imageName: String): LiveData<Image?> {
         return appDatabase.imageDao().getLiveDataByName(imageName)
     }
 
-    fun getStub(imageName: String): ImageStub? {
+    suspend fun getStub(imageName: String): ImageStub? {
         return appDatabase.imageStubDao().getByName(imageName)
     }
 
-    fun get(imageNames: List<String>): List<Image> {
+    suspend fun get(imageNames: List<String>): List<Image> {
         return appDatabase.imageDao().getByNames(imageNames)
     }
 
-    fun delete(image: Image) {
+    suspend fun delete(image: Image) {
         FileEntryRepository.getInstance(applicationContext).apply {
             get(image.name)?.let { delete(it) }
         }
         appDatabase.imageStubDao().delete(ImageStub(image))
     }
 
-    fun delete(fileEntries: List<Image>) {
+    suspend fun delete(fileEntries: List<Image>) {
         fileEntries.map { delete(it) }
     }
 

@@ -8,7 +8,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.*
 
 /**
  * A central service providing data intransparent if from cache or remotely fetched
@@ -24,63 +23,41 @@ class DataService(applicationContext: Context) {
     private val apiService = ApiService.getInstance(applicationContext)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
     suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? =
-        withContext(Dispatchers.IO) {
-            issueRepository.getLastDisplayable(issueKey)
-        }
+        issueRepository.getLastDisplayable(issueKey)
 
     suspend fun saveLastDisplayableOnIssue(issueKey: IssueKey, displayableName: String) =
-        withContext(Dispatchers.IO) {
-            issueRepository.saveLastDisplayable(issueKey, displayableName)
-        }
+        issueRepository.saveLastDisplayable(issueKey, displayableName)
 
     suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) =
-        withContext(Dispatchers.IO) {
-            issueRepository.saveLastPagePosition(issueKey, pageName)
-        }
-
-    suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? =
-        withContext(Dispatchers.IO) {
-            viewerStateRepository.get(displayableName)
-        }
-
-    suspend fun saveViewerStateForDisplayable(displayableName: String, scrollPosition: Int) =
-        withContext(Dispatchers.IO) {
-            viewerStateRepository.save(
-                displayableName,
-                scrollPosition
-            )
-        }
-
+        issueRepository.saveLastPagePosition(issueKey, pageName)
 
     suspend fun getFeedByName(
         name: String,
         allowCache: Boolean = true,
         retryOnFailure: Boolean = false
-    ): Feed? =
-        withContext(Dispatchers.IO) {
-            if (allowCache) {
-                feedRepository.get(name)?.let {
-                    return@withContext it
-                }
+    ): Feed? {
+        if (allowCache) {
+            feedRepository.get(name)?.let {
+                return it
             }
-            val feed = if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.getFeedByName(name)
-                }
-            } else {
+        }
+        val feed = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
                 apiService.getFeedByName(name)
             }
-            feed?.let {
-                feedRepository.save(feed)
-            }
-            feed
+        } else {
+            apiService.getFeedByName(name)
         }
+        feed?.let {
+            feedRepository.save(feed)
+        }
+        return feed
+    }
 
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
@@ -88,15 +65,14 @@ class DataService(applicationContext: Context) {
      */
     suspend fun refreshFeedAndGetIssueKeyIfNew(
         feedName: String
-    ): IssueKey? =
-        withContext(Dispatchers.IO) {
+    ): IssueKey? {
             val cachedFeed = getFeedByName(feedName)
             val refreshedFeed = getFeedByName(feedName, allowCache = false)
 
             val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
             val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)
 
-            if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
+            return if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
                 (contentService.downloadMetadata(
                     download = IssuePublication(feedName, simpleDateFormat.format(newestIssueDate)),
                     maxRetries = 3

@@ -133,7 +133,7 @@ class AppWebViewClient(
         view?.let {
             url?.let {
                 val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
-                val fileEntry = fileEntryRepository.get(fileName)
+                val fileEntry = runBlocking {  fileEntryRepository.get(fileName) }
                 fileEntry?.let { return storageService.getFileUri(it) }
             }
 
@@ -177,7 +177,7 @@ class AppWebViewClient(
         }
     }
 
-    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking(Dispatchers.IO) {
+    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking {
         val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
         fileEntryRepository.get(fileName) != null
     }

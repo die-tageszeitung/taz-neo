@@ -10,15 +10,12 @@ import de.taz.app.android.api.variables.*
 import de.taz.app.android.data.INFINITE
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseDataStore
-import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -40,7 +37,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         fireBaseDataStore = FirebaseDataStore.getInstance(applicationContext),
         deviceFormat = if (applicationContext.resources.getBoolean(R.bool.isTablet)) {
             DeviceFormat.tablet
-        }  else {
+        } else {
             DeviceFormat.mobile
         },
         downloadDataStore = DownloadDataStore.getInstance(applicationContext)
@@ -157,17 +154,15 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun checkSubscriptionId(
         subscriptionId: Int,
         password: String
-    ): AuthInfo? {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.CheckSubscriptionId,
-                CheckSubscriptionIdVariables(
-                    subscriptionId = subscriptionId,
-                    password = password,
-                    deviceFormat = deviceFormat
-                ),
-            ).data?.checkSubscriptionId
-        }
+    ): AuthInfo? = transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.CheckSubscriptionId,
+            CheckSubscriptionIdVariables(
+                subscriptionId = subscriptionId,
+                password = password,
+                deviceFormat = deviceFormat
+            ),
+        ).data?.checkSubscriptionId
     }
 
 
@@ -175,16 +170,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get the app info
      * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
-    suspend fun getAppInfo(): AppInfo = withContext(Dispatchers.IO) {
-        transformToConnectivityException {
-            val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
-            if (productDto != null) {
-                AppInfo(productDto)
-            } else {
-                throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
-            }
+    suspend fun getAppInfo(): AppInfo = transformToConnectivityException {
+        val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
+        if (productDto != null) {
+            AppInfo(productDto)
+        } else {
+            throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
-
     }
 
     /**
@@ -192,28 +184,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return List of [Feed]s
      */
     @Throws(ConnectivityException::class)
-    suspend fun getFeeds(): List<Feed> {
-        return transformToConnectivityException {
-            graphQlClient.query(QueryType.Feed).data?.product?.feedList?.map {
-                Feed(it)
-            }
-        } ?: emptyList()
-    }
-
-    /**
-     * function to get available feeds
-     * @return List of [Feed]s
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun getFeedByName(name: String): Feed? {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.Feed,
-                FeedVariables(feedName = name)
-            ).data?.product?.feedList?.map {
-                Feed(it)
-            }?.firstOrNull()
-        }
+    suspend fun getFeedByName(name: String): Feed? = transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.Feed,
+            FeedVariables(feedName = name)
+        ).data?.product?.feedList?.map {
+            Feed(it)
+        }?.firstOrNull()
     }
 
     /**
@@ -255,51 +232,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
         return issues
     }
-
-    /**
-     * function to get the last [Issue]s by feed
-     * @param limit - number of issues to get
-     * @return [List]<[Issue]>
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun getLastIssuesByFeeds(feedNames: List<String>, limit: Int = 10): List<Issue> {
-        val issues = mutableListOf<Issue>()
-        transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.LastIssues,
-                IssueVariables(limit = limit)
-            ).data?.product?.feedList?.filter { feedNames.contains(it.name) }?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
-            }
-        }
-        return issues
-    }
-
-
-    /**
-     * function to get [Issue]s by date
-     * @param issueDate - the date of the issue last issue
-     * @param limit - how many issues will be returned
-     * @return [List] of [Issue] of the feed at given date
-     */
-    suspend fun getIssuesByDate(
-        issueDate: String = simpleDateFormat.format(Date()),
-        limit: Int = 10
-    ): List<Issue> {
-        val tag = "getIssuesByDate"
-        log.debug("$tag issueDate: $issueDate limit: $limit")
-        return transformToConnectivityException {
-            val issues = mutableListOf<Issue>()
-            graphQlClient.query(
-                QueryType.IssueByFeedAndDate,
-                IssueVariables(issueDate = issueDate, limit = limit)
-            ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
-            }
-            issues.toList()
-        }
-    }
-
 
     /**
      * Assembles a search query
@@ -397,7 +329,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
             ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
                 issue.pageList?.firstOrNull()?.let { page ->
-                    Page(IssueKey(feedName, dateString, issue.status), page, issue.baseUrl) to issue.status
+                    Page(
+                        IssueKey(feedName, dateString, issue.status),
+                        page,
+                        issue.baseUrl
+                    ) to issue.status
                 }
             }
         }
@@ -407,12 +343,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get information about the current resources
      * @return [ResourceInfo] with the current [ResourceInfo.resourceVersion] and the information needed to download it
      */
-    suspend fun getResourceInfo(): ResourceInfo = withContext(Dispatchers.IO) {
+    suspend fun getResourceInfo(): ResourceInfo {
         val productDto = transformToConnectivityException {
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
         if (productDto != null) {
-            ResourceInfo(productDto)
+            return ResourceInfo(productDto)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
@@ -461,7 +397,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun notifyServerOfDownloadStop(
         id: String,
         time: Float
-    ) = withContext(Dispatchers.IO) {
+    ) {
         transformToConnectivityException {
             graphQlClient.query(
                 QueryType.DownloadStop,
@@ -479,38 +415,35 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @param oldToken the old token of the string if any - will be removed on the server
      */
     suspend fun sendNotificationInfo(token: String, oldToken: String? = null): Boolean =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                graphQlClient.query(
-                    QueryType.Notification,
-                    NotificationVariables(
-                        pushToken = token,
-                        oldToken = oldToken,
-                        deviceFormat = deviceFormat
-                    )
-                ).data?.notification
-                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
-            }
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Notification,
+                NotificationVariables(
+                    pushToken = token,
+                    oldToken = oldToken,
+                    deviceFormat = deviceFormat
+                )
+            ).data?.notification
+                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
         }
+
     /**
      * function to inform server that text notifications are enabled or not
      * @param [enabled] Boolean indicating that text notifications are allowed
      */
     suspend fun setNotificationsEnabled(enabled: Boolean): Boolean =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                graphQlClient.query(
-                    QueryType.Notification,
-                    fireBaseDataStore.token.get()?.let {
-                        NotificationVariables(
-                            pushToken = it,
-                            deviceFormat = deviceFormat,
-                            textNotification = enabled,
-                        )
-                    }
-                ).data?.notification
-                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
-            }
+        transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Notification,
+                fireBaseDataStore.token.get()?.let {
+                    NotificationVariables(
+                        pushToken = it,
+                        deviceFormat = deviceFormat,
+                        textNotification = enabled,
+                    )
+                }
+            ).data?.notification
+                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
         }
 
     /**
@@ -700,22 +633,20 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     suspend fun getIssueByPublication(issuePublication: AbstractIssuePublication): Issue =
-        withContext(Dispatchers.IO) {
-            transformToConnectivityException {
-                val issues = graphQlClient.query(
-                    QueryType.IssueByFeedAndDate,
-                    IssueVariables(
-                        issueDate = issuePublication.date,
-                        feedName = issuePublication.feedName,
-                        limit = 1
-                    )
+        transformToConnectivityException {
+            val issues = graphQlClient.query(
+                QueryType.IssueByFeedAndDate,
+                IssueVariables(
+                    issueDate = issuePublication.date,
+                    feedName = issuePublication.feedName,
+                    limit = 1
                 )
+            )
 
-                issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                    Issue(issuePublication.feedName, it)
-                }
-            } ?: throw NotFoundException()
-        }
+            issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
+                Issue(issuePublication.feedName, it)
+            }
+        } ?: throw NotFoundException()
 
 
     /**

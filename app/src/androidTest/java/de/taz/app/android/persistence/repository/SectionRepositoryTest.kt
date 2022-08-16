@@ -8,6 +8,8 @@ import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 
@@ -17,6 +19,7 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SectionRepositoryTest {
 
     private val log by Log
@@ -57,7 +60,7 @@ class SectionRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         sectionRepository.save(section)
         val fromDB = sectionRepository.get(section.sectionHtml.name)
         assertEquals(fromDB, section)
@@ -65,7 +68,7 @@ class SectionRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun readBase() {
+    fun readBase()  = runTest {
         sectionRepository.save(section)
         val fromDB = sectionRepository.getStub(section.sectionHtml.name)
         assertEquals(fromDB, SectionStub(section))
@@ -73,7 +76,7 @@ class SectionRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMultiple() {
+    fun writeAndReadMultiple() = runTest {
         for (section in sections) {
             log.debug("checking section ${section.sectionHtml.name}")
             sectionRepository.save(section)
