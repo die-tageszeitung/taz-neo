@@ -7,18 +7,18 @@ import de.taz.app.android.api.models.PageStub
 import java.util.*
 
 @Dao
-abstract class PageDao : BaseDao<PageStub>() {
+interface PageDao : BaseDao<PageStub> {
     @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
-    abstract fun get(fileName: String): PageStub?
+    suspend fun get(fileName: String): PageStub?
 
     @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
-    abstract fun getLiveData(fileName: String): LiveData<PageStub?>
+    fun getLiveData(fileName: String): LiveData<PageStub?>
 
     @Query("SELECT dateDownload FROM Page WHERE pdfFileName == :fileName")
-    abstract fun getDownloadDate(fileName: String): Date?
+    suspend fun getDownloadDate(fileName: String): Date?
 
     @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND dateDownload IS NOT NULL)")
-    abstract fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
+    fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
 
     @Query("""
         DELETE FROM FileEntry
@@ -26,7 +26,7 @@ abstract class PageDao : BaseDao<PageStub>() {
             name in (:pageNames) AND
             (name NOT IN (SELECT pageKey FROM IssuePageJoin))
     """)
-    abstract fun deletePageFileEntriesIfNoIssueRelated(pageNames: List<String>)
+    suspend fun deletePageFileEntriesIfNoIssueRelated(pageNames: List<String>)
 
     @Query("""
         DELETE FROM Page
@@ -34,5 +34,5 @@ abstract class PageDao : BaseDao<PageStub>() {
             pdfFileName in (:pageNames) AND
             (pdfFileName NOT IN (SELECT pageKey FROM IssuePageJoin))
     """)
-    abstract fun deleteIfNoIssueRelated(pageNames: List<String>)
+    suspend fun deleteIfNoIssueRelated(pageNames: List<String>)
 }

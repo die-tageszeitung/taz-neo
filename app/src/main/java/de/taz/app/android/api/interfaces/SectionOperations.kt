@@ -18,7 +18,7 @@ interface SectionOperations {
         return extendedTitle ?: title
     }
 
-    fun getIssueStub(applicationContext: Context): IssueStub? {
+    suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return IssueRepository.getInstance(applicationContext).getIssueStubForSection(key)
     }
 

@@ -23,11 +23,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
-    fun update(articleStub: ArticleStub) {
+    suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
     }
 
-    fun save(article: Article) {
+    suspend fun save(article: Article) {
         var articleToSave = article
         getStub(articleToSave.key)?.let {
             articleToSave = articleToSave.copy(bookmarkedTime = it.bookmarkedTime)
@@ -66,11 +66,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(articleFileName: String): Article? {
+    suspend fun get(articleFileName: String): Article? {
         return getStub(articleFileName)?.let {articleStubToArticle(it) }
     }
 
-    fun getStub(articleFileName: String): ArticleStub? {
+    suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
     }
 
@@ -86,7 +86,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
+    suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
         if (articleStub?.bookmarkedTime != null) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
@@ -96,7 +96,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+    suspend fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
         var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
         // if it is the imprint we want to return a list of it
         if (articleStubList.isEmpty()) {
@@ -107,24 +107,24 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStubList
     }
 
-    fun nextArticleStub(articleName: String): ArticleStub? {
+    suspend fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
 
-    fun previousArticleStub(articleName: String): ArticleStub? {
+    suspend fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getPreviousArticleStubInPreviousSection(
                 articleName
             )
     }
 
-    fun getImagesForArticle(articleFileName: String): List<Image> {
+    suspend fun getImagesForArticle(articleFileName: String): List<Image> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
-    fun articleStubToArticle(articleStub: ArticleStub): Article {
+    suspend fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
@@ -178,36 +178,36 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
 
-    fun bookmarkArticle(article: Article) {
+    suspend fun bookmarkArticle(article: Article) {
         bookmarkArticle(article.key)
     }
 
-    fun bookmarkArticle(articleStub: ArticleStub) {
+    suspend fun bookmarkArticle(articleStub: ArticleStub) {
         bookmarkArticle(articleStub.articleFileName)
     }
 
-    fun bookmarkArticle(articleName: String) {
+    suspend fun bookmarkArticle(articleName: String) {
         val currentDate = Date()
         getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
             appDatabase.articleDao().update(it)
         }
     }
 
-    fun setBookmarkedTime(articleName: String, date: Date) {
+    suspend fun setBookmarkedTime(articleName: String, date: Date) {
         getStub(articleName)?.copy(bookmarkedTime = date)?.let {
             appDatabase.articleDao().update(it)
         }
     }
 
-    fun debookmarkArticle(article: Article) {
+    suspend fun debookmarkArticle(article: Article) {
         debookmarkArticle(article.key)
     }
 
-    fun debookmarkArticle(articleStub: ArticleStub) {
+    suspend fun debookmarkArticle(articleStub: ArticleStub) {
         debookmarkArticle(articleStub.articleFileName)
     }
 
-    fun debookmarkArticle(articleName: String) {
+    suspend fun debookmarkArticle(articleName: String) {
         log.debug("removed bookmark from article $articleName")
         getStub(articleName)?.copy(bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
@@ -221,7 +221,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             }
         }
 
-    fun getBookmarkedArticleStubs(): List<ArticleStub> {
+    suspend fun getBookmarkedArticleStubs(): List<ArticleStub> {
         return appDatabase.articleDao().getBookmarkedArticles()
     }
 
@@ -233,11 +233,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStubLiveData(articleName).map { it.bookmarkedTime != null }
     }
 
-    fun getIndexInSection(articleName: String): Int {
+    suspend fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
 
-    fun deleteArticle(article: Article) {
+    suspend fun deleteArticle(article: Article) {
         appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
             if (it.bookmarkedTime == null) {
@@ -308,28 +308,28 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun isDownloadedLiveData(articleOperations: ArticleOperations) =
+    suspend fun isDownloadedLiveData(articleOperations: ArticleOperations) =
         isDownloadedLiveData(articleOperations.key)
 
-    fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
+    suspend fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
         return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
-    fun getArticleStubListForIssue(
+    suspend fun getArticleStubListForIssue(
         issueKey: IssueKey
     ): List<ArticleStub> {
         return appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    fun setDownloadDate(
+    suspend fun setDownloadDate(
         articleStub: ArticleStub,
         date: Date?
     ) {
         update(articleStub.copy(dateDownload = date))
     }
 
-    fun getDownloadDate(
+    suspend fun getDownloadDate(
         articleStub: ArticleStub
     ): Date? {
         return appDatabase.articleDao().getDownloadStatus(articleStub.articleFileName)
@@ -342,7 +342,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param authorFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleAuthorImageJoin] by Articles that have a [Article.dateDownload]
      */
-    fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int {
+    suspend fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int {
         return appDatabase.articleDao().getDownloadedArticleAuthorReferenceCount(authorFileName)
     }
 
@@ -352,7 +352,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param articleImageFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleImageJoin] by Articles that have a [Article.dateDownload]
      */
-     fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
+     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
          return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
 }

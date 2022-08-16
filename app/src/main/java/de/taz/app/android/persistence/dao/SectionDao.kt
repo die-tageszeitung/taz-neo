@@ -8,13 +8,13 @@ import de.taz.app.android.api.models.SectionStub
 import java.util.*
 
 @Dao
-abstract class SectionDao : BaseDao<SectionStub>() {
+interface SectionDao : BaseDao<SectionStub> {
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    abstract fun get(sectionFileName: String): SectionStub
+    suspend fun get(sectionFileName: String): SectionStub
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    abstract fun getLiveData(sectionFileName: String): LiveData<SectionStub?>
+    fun getLiveData(sectionFileName: String): LiveData<SectionStub?>
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
@@ -24,37 +24,11 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         ORDER BY IssueSectionJoin.`index` ASC
     """
     )
-    abstract fun getSectionsForIssue(
+    suspend fun getSectionsForIssue(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
     ): List<SectionStub>
-
-    @Query(
-        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
-        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.issueDate == IssueSectionJoin.issueDate
-        WHERE IssueSectionJoin.issueDate == :issueDate AND IssueSectionJoin.issueFeedName == :issueFeedName
-            AND IssueSectionJoin.issueStatus == :issueStatus
-        ORDER BY IssueSectionJoin.`index` ASC
-    """
-    )
-    abstract fun getSectionsLiveDataForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): LiveData<List<SectionStub>>
-
-    @Query(
-        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin INNER JOIN IssueSectionJoin as ISJ2
-        ON Section.sectionFileName == IssueSectionJoin.sectionFileName AND Section.issueDate == IssueSectionJoin.issueDate
-        WHERE ISJ2.sectionFileName == :sectionName
-            AND IssueSectionJoin.issueDate == ISJ2.issueDate
-            AND IssueSectionJoin.issueFeedName == ISJ2.issueFeedName
-            AND IssueSectionJoin.issueStatus == ISJ2.issueStatus
-        ORDER BY IssueSectionJoin.`index` ASC
-    """
-    )
-    abstract fun getAllSectionStubsForSectionName(sectionName: String): List<SectionStub>
 
     @Query(
         """ SELECT Section.* FROM Section 
@@ -68,7 +42,7 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         AND Section.sectionFileName == ISJ2.sectionFileName
     """
     )
-    abstract fun getPrevious(sectionFileName: String): SectionStub?
+    suspend fun getPrevious(sectionFileName: String): SectionStub?
 
 
     @Query(
@@ -83,11 +57,11 @@ abstract class SectionDao : BaseDao<SectionStub>() {
         AND Section.sectionFileName == ISJ2.sectionFileName
     """
     )
-    abstract fun getNext(sectionFileName: String): SectionStub?
+    suspend fun getNext(sectionFileName: String): SectionStub?
 
     @Query("SELECT EXISTS(SELECT * FROM Section WHERE sectionFileName == :sectionFileName AND dateDownload IS NOT NULL)")
-    abstract fun isDownloadedLiveData(sectionFileName: String): LiveData<Boolean>
+    fun isDownloadedLiveData(sectionFileName: String): LiveData<Boolean>
 
     @Query("SELECT dateDownload FROM Section WHERE sectionFileName == :sectionFileName")
-    abstract fun getDownloadDate(sectionFileName: String): Date?
+    suspend fun getDownloadDate(sectionFileName: String): Date?
 }

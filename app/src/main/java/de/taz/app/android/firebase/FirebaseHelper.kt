@@ -8,15 +8,13 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 
 @Mockable
 class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context
-): CoroutineScope {
+) {
     companion object : SingletonHolder<FirebaseHelper, Context>(::FirebaseHelper)
 
     private val apiService = ApiService.getInstance(applicationContext)
@@ -44,7 +42,7 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
     /**
      * function which will try to send the firebase token to the backend if it was not sent yet
      */
-    final fun ensureTokenSent() = launch { ensureTokenSentSus() }
+    final fun ensureTokenSent() = CoroutineScope(Dispatchers.Default).launch { ensureTokenSentSus() }
     private suspend fun ensureTokenSentSus() {
         try {
             if (!store.tokenSent.get() && !store.token.get().isNullOrEmpty()) {
@@ -67,11 +65,9 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
      * function to call when a new Firebase token exists
      * @param newToken - the new token
      */
-    fun updateToken(newToken: String) = CoroutineScope(Dispatchers.IO).launch {
+    fun updateToken(newToken: String) = CoroutineScope(Dispatchers.Default).launch {
         store.oldToken.set(store.token.get())
         store.token.set(newToken)
         ensureTokenSentSus()
     }
-
-    override val coroutineContext: CoroutineContext = SupervisorJob()
 }

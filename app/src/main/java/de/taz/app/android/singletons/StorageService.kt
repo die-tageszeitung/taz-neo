@@ -132,7 +132,7 @@ class StorageService private constructor(private val applicationContext: Context
         return getAbsolutePath(fileEntry)?.let { "file://$it" }
     }
 
-    fun createOrUpdateFileEntry(fileEntryDto: FileEntryDto, issueKey: IssueKey?): FileEntry {
+    suspend fun createOrUpdateFileEntry(fileEntryDto: FileEntryDto, issueKey: IssueKey?): FileEntry {
         val existing = fileEntryRepository.get(fileEntryDto.name)
         val fileEntry = existing?.copy(path = determineFilePath(fileEntryDto, issueKey))
             ?: FileEntry(fileEntryDto, determineFilePath(fileEntryDto, issueKey))
@@ -174,7 +174,7 @@ class StorageService private constructor(private val applicationContext: Context
         return digest.fold("", { str, it -> str + "%02x".format(it) })
     }
 
-    fun deleteFile(fileEntry: FileEntry) {
+    suspend fun deleteFile(fileEntry: FileEntry) {
         fileEntryRepository.resetDownloadDate(fileEntry)
         getAbsolutePath(fileEntry)?.let {
             File(it).delete()

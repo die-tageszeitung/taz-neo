@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
+import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
@@ -138,7 +139,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
             getArticleIssue(articleStub)
         }
-        articleRepository.appDatabase.runInTransaction<Unit> {
+        articleRepository.appDatabase.withTransaction {
             articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
                 articleStub.bookmarkedTime?.let { date ->
                     articleRepository.setBookmarkedTime(

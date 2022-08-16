@@ -2,8 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.*
@@ -18,11 +16,11 @@ class MomentRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    fun update(momentStub: MomentStub) {
+    suspend fun update(momentStub: MomentStub) {
         appDatabase.momentDao().insertOrReplace(momentStub)
     }
 
-    fun save(moment: Moment): Moment {
+    suspend fun save(moment: Moment): Moment {
         imageRepository.save(moment.imageList)
         imageRepository.save(moment.creditList)
         fileEntryRepository.save(moment.momentList)
@@ -45,7 +43,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         return get(moment.momentKey)!!
     }
 
-    fun momentStubToMoment(momentStub: MomentStub): Moment {
+    suspend fun momentStubToMoment(momentStub: MomentStub): Moment {
         return Moment(
             momentStub.issueFeedName,
             momentStub.issueDate,
@@ -71,7 +69,7 @@ class MomentRepository private constructor(applicationContext: Context) :
     }
 
     @Throws(NotFoundException::class)
-    fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
+    suspend fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
         val stub = appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
         return stub?.let {
             Moment(
@@ -99,16 +97,16 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getDownloadDate(moment: Moment): Date? {
+    suspend fun getDownloadDate(moment: Moment): Date? {
         return appDatabase.momentDao()
             .getDownloadDate(moment.issueFeedName, moment.issueDate, moment.issueStatus)
     }
 
-    fun setDownloadDate(moment: Moment, date: Date?) {
+    suspend fun setDownloadDate(moment: Moment, date: Date?) {
         return update(MomentStub(moment).copy(dateDownload = date))
     }
 
-    fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): MomentStub? {
+    suspend fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): MomentStub? {
         return try {
             appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
         } catch (e: NotFoundException) {
@@ -116,31 +114,23 @@ class MomentRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun isDownloaded(momentKey: MomentKey): Boolean {
+    suspend fun isDownloaded(momentKey: MomentKey): Boolean {
         return getStub(momentKey.feedName, momentKey.date, momentKey.status)?.dateDownload != null
     }
 
-    fun get(issueOperations: IssueOperations): Moment? {
+    suspend fun get(issueOperations: IssueOperations): Moment? {
         return get(issueOperations.feedName, issueOperations.date, issueOperations.status)
     }
 
-    fun get(momentKey: MomentKey): Moment? {
+    suspend fun get(momentKey: MomentKey): Moment? {
         return get(momentKey.feedName, momentKey.date, momentKey.status)
     }
 
-    fun exists(momentKey: MomentKey): Boolean {
+    suspend fun exists(momentKey: MomentKey): Boolean {
         return get(momentKey) != null
     }
 
-    fun getLiveData(issueOperations: IssueOperations): LiveData<Moment?> {
-        return Transformations.map(
-            appDatabase.momentDao().getLiveData(issueOperations)
-        ) { momentStub ->
-            momentStub?.let { momentStubToMoment(momentStub) }
-        }
-    }
-
-    fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
+    suspend fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         val moment = get(issueFeedName, issueDate, issueStatus)
         moment?.let {
             appDatabase.momentImageJoinJoinDao().delete(

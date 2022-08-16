@@ -16,11 +16,11 @@ class FileEntryRepository private constructor(
 
     companion object : SingletonHolder<FileEntryRepository, Context>(::FileEntryRepository)
 
-    fun update(fileEntry: FileEntry) {
+    suspend fun update(fileEntry: FileEntry) {
         appDatabase.fileEntryDao().update(fileEntry)
     }
 
-    fun save(fileEntry: FileEntry) {
+    suspend fun save(fileEntry: FileEntry) {
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
         fromDB?.let {
             if (fromDB.moTime < fileEntry.moTime) {
@@ -31,73 +31,73 @@ class FileEntryRepository private constructor(
         } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
     }
 
-    fun saveOrReplace(fileEntry: FileEntry): FileEntry {
+    suspend fun saveOrReplace(fileEntry: FileEntry): FileEntry {
         appDatabase.fileEntryDao().insertOrReplace(fileEntry)
         return fileEntry
     }
 
-    fun save(fileEntries: List<FileEntry>) {
+    suspend fun save(fileEntries: List<FileEntry>) {
         fileEntries.forEach { save(it) }
     }
 
-    fun get(fileEntryName: String): FileEntry? {
+    suspend fun get(fileEntryName: String): FileEntry? {
         return appDatabase.fileEntryDao().getByName(fileEntryName)
     }
 
-    fun getDownloaded(): List<FileEntry> {
+    suspend fun getDownloaded(): List<FileEntry> {
         return appDatabase.fileEntryDao().getDownloaded()
     }
 
-    fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
+    suspend fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
         return appDatabase.fileEntryDao().getDownloadedByStorageLocation(storageLocation)
     }
 
-    fun getExceptStorageLocation(storageLocation: List<StorageLocation>): List<FileEntry> {
+    suspend fun getExceptStorageLocation(storageLocation: List<StorageLocation>): List<FileEntry> {
         return appDatabase.fileEntryDao().getExceptStorageLocation(storageLocation)
     }
 
-    fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
+    suspend fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
         return appDatabase.fileEntryDao().getDownloadedExceptStorageLocation(storageLocation)
     }
 
-    fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
+    suspend fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
         return appDatabase.fileEntryDao().getLiveDataByName(fileEntryName)
     }
 
-    fun getList(fileEntryNames: List<String>): List<FileEntry> {
+    suspend fun getList(fileEntryNames: List<String>): List<FileEntry> {
         return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }
 
-    fun getOrThrow(fileEntryName: String): FileEntry {
+    suspend fun getOrThrow(fileEntryName: String): FileEntry {
         return get(fileEntryName) ?: throw NotFoundException()
     }
 
-    fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
+    suspend fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
         return fileEntryNames.map { getOrThrow(it) }
     }
 
-    fun delete(fileEntryName: String) {
+    suspend fun delete(fileEntryName: String) {
         get(fileEntryName)?.let { delete(it) }
     }
 
-    fun delete(fileEntry: FileEntry) {
+    suspend fun delete(fileEntry: FileEntry) {
         appDatabase.fileEntryDao().delete(fileEntry)
     }
 
 
-    fun deleteList(fileEntryNames: List<String>) {
+    suspend fun deleteList(fileEntryNames: List<String>) {
         appDatabase.fileEntryDao().deleteList(fileEntryNames)
     }
 
-    fun resetDownloadDate(fileEntry: FileEntry) {
+    suspend fun resetDownloadDate(fileEntry: FileEntry) {
         update(fileEntry.copy(dateDownload = null, storageLocation = StorageLocation.NOT_STORED))
     }
 
-    fun setDownloadDate(fileEntry: FileEntry, date: Date?) {
+    suspend fun setDownloadDate(fileEntry: FileEntry, date: Date?) {
         update(fileEntry.copy(dateDownload = date))
     }
 
-    fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
+    suspend fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
         return appDatabase.fileEntryDao().getDownloadDate(fileEntry.name)
     }
 }

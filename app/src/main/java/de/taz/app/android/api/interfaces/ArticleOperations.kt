@@ -15,15 +15,15 @@ interface ArticleOperations {
     val articleType: ArticleType
     val dateDownload: Date?
 
-    fun getSectionStub(applicationContext: Context): SectionStub? {
+    suspend fun getSectionStub(applicationContext: Context): SectionStub? {
         return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)
     }
 
-    fun getIndexInSection(applicationContext: Context): Int? {
+    suspend fun getIndexInSection(applicationContext: Context): Int? {
         return ArticleRepository.getInstance(applicationContext).getIndexInSection(this.key)
     }
 
-    fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
+    suspend fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
         return ArticleRepository.getInstance(applicationContext).isBookmarkedLiveData(this.key)
     }
 
@@ -32,7 +32,7 @@ interface ArticleOperations {
         return articleType == ArticleType.IMPRINT
     }
 
-    fun getIssueStub(applicationContext: Context): IssueStub? {
+    suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return if (isImprint()) {
             IssueRepository.getInstance(applicationContext).getIssueStubByImprintFileName(this.key)
         } else {

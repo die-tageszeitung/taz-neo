@@ -10,15 +10,12 @@ import de.taz.app.android.api.variables.*
 import de.taz.app.android.data.INFINITE
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.firebase.FirebaseDataStore
-import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -157,17 +154,15 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun checkSubscriptionId(
         subscriptionId: Int,
         password: String
-    ): AuthInfo? {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.CheckSubscriptionId,
-                CheckSubscriptionIdVariables(
-                    subscriptionId = subscriptionId,
-                    password = password,
-                    deviceFormat = deviceFormat
-                ),
-            ).data?.checkSubscriptionId
-        }
+    ): AuthInfo? = transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.CheckSubscriptionId,
+            CheckSubscriptionIdVariables(
+                subscriptionId = subscriptionId,
+                password = password,
+                deviceFormat = deviceFormat
+            ),
+        ).data?.checkSubscriptionId
     }
 
 
@@ -175,16 +170,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get the app info
      * @return [AppInfo] with [AppInfo.appName] and [AppInfo.appType]
      */
-    suspend fun getAppInfo(): AppInfo {
-        transformToConnectivityException {
-            val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
-            if (productDto != null) {
-                AppInfo(productDto)
-            } else {
-                throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
-            }
+    suspend fun getAppInfo(): AppInfo = transformToConnectivityException {
+        val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
+        if (productDto != null) {
+            AppInfo(productDto)
+        } else {
+            throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
-
     }
 
     /**
@@ -192,28 +184,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return List of [Feed]s
      */
     @Throws(ConnectivityException::class)
-    suspend fun getFeeds(): List<Feed> {
-        return transformToConnectivityException {
-            graphQlClient.query(QueryType.Feed).data?.product?.feedList?.map {
-                Feed(it)
-            }
-        } ?: emptyList()
-    }
-
-    /**
-     * function to get available feeds
-     * @return List of [Feed]s
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun getFeedByName(name: String): Feed? {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.Feed,
-                FeedVariables(feedName = name)
-            ).data?.product?.feedList?.map {
-                Feed(it)
-            }?.firstOrNull()
-        }
+    suspend fun getFeedByName(name: String): Feed? = transformToConnectivityException {
+        graphQlClient.query(
+            QueryType.Feed,
+            FeedVariables(feedName = name)
+        ).data?.product?.feedList?.map {
+            Feed(it)
+        }?.firstOrNull()
     }
 
     /**
@@ -255,51 +232,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
         return issues
     }
-
-    /**
-     * function to get the last [Issue]s by feed
-     * @param limit - number of issues to get
-     * @return [List]<[Issue]>
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun getLastIssuesByFeeds(feedNames: List<String>, limit: Int = 10): List<Issue> {
-        val issues = mutableListOf<Issue>()
-        transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.LastIssues,
-                IssueVariables(limit = limit)
-            ).data?.product?.feedList?.filter { feedNames.contains(it.name) }?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
-            }
-        }
-        return issues
-    }
-
-
-    /**
-     * function to get [Issue]s by date
-     * @param issueDate - the date of the issue last issue
-     * @param limit - how many issues will be returned
-     * @return [List] of [Issue] of the feed at given date
-     */
-    suspend fun getIssuesByDate(
-        issueDate: String = simpleDateFormat.format(Date()),
-        limit: Int = 10
-    ): List<Issue> {
-        val tag = "getIssuesByDate"
-        log.debug("$tag issueDate: $issueDate limit: $limit")
-        return transformToConnectivityException {
-            val issues = mutableListOf<Issue>()
-            graphQlClient.query(
-                QueryType.IssueByFeedAndDate,
-                IssueVariables(issueDate = issueDate, limit = limit)
-            ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll(feed.issueList!!.map { Issue(feed.name!!, it) })
-            }
-            issues.toList()
-        }
-    }
-
 
     /**
      * Assembles a search query
@@ -416,7 +348,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
         if (productDto != null) {
-            ResourceInfo(productDto)
+            return ResourceInfo(productDto)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
@@ -715,60 +647,59 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 Issue(issuePublication.feedName, it)
             }
         } ?: throw NotFoundException()
-}
 
 
-/**
- * function to start a cancellation. The id is taken from the JWT
- */
-@Throws(ConnectivityException::class)
-suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
-    val tag = "cancellation"
-    log.debug("graphql call: $tag with isForce $isForce")
-    return transformToConnectivityException {
-        graphQlClient.query(
-            QueryType.Cancellation,
-            CancellationVariables(
-                isForce
-            )
-        ).data?.cancellation
+    /**
+     * function to start a cancellation. The id is taken from the JWT
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun cancellation(isForce: Boolean = false): CancellationStatus? {
+        val tag = "cancellation"
+        log.debug("graphql call: $tag with isForce $isForce")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.Cancellation,
+                CancellationVariables(
+                    isForce
+                )
+            ).data?.cancellation
+        }
     }
-}
 
-/**
- * function to trigger mutation on subscription form data
- */
-@Throws(ConnectivityException::class)
-suspend fun subscriptionFormData(
-    type: SubscriptionFormDataType,
-    mail: String?,
-    surname: String?,
-    firstname: String?,
-    street: String?,
-    city: String?,
-    postcode: String?,
-    country: String?,
-    message: String?,
-    requestCurrentSubscriptionOpportunities: Boolean?,
-): SubscriptionInfo? {
-    val tag = "subscriptionFormData"
-    log.debug("call graphql  $tag")
-    return transformToConnectivityException {
-        graphQlClient.query(
-            QueryType.SubscriptionFormData,
-            SubscriptionFormDataVariables(
-                type,
-                mail,
-                surname,
-                firstname,
-                street,
-                city,
-                postcode,
-                country,
-                message,
-                requestCurrentSubscriptionOpportunities,
-            )
-        ).data?.trialSubscription
+    /**
+     * function to trigger mutation on subscription form data
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun subscriptionFormData(
+        type: SubscriptionFormDataType,
+        mail: String?,
+        surname: String?,
+        firstname: String?,
+        street: String?,
+        city: String?,
+        postcode: String?,
+        country: String?,
+        message: String?,
+        requestCurrentSubscriptionOpportunities: Boolean?,
+    ): SubscriptionInfo? {
+        val tag = "subscriptionFormData"
+        log.debug("call graphql  $tag")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.SubscriptionFormData,
+                SubscriptionFormDataVariables(
+                    type,
+                    mail,
+                    surname,
+                    firstname,
+                    street,
+                    city,
+                    postcode,
+                    country,
+                    message,
+                    requestCurrentSubscriptionOpportunities,
+                )
+            ).data?.trialSubscription
+        }
     }
-}
 }

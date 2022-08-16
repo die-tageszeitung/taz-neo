@@ -11,8 +11,8 @@ interface DownloadableStub: ObservableDownload {
         return getDownloadDate(applicationContext) != null
     }
 
-    fun getDownloadDate(applicationContext: Context): Date?
-    fun setDownloadDate(date: Date?, applicationContext: Context)
+    suspend fun getDownloadDate(applicationContext: Context): Date?
+    suspend fun setDownloadDate(date: Date?, applicationContext: Context)
 
 }
 

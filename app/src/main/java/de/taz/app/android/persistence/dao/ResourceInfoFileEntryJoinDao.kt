@@ -7,12 +7,12 @@ import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 
 
 @Dao
-abstract class ResourceInfoFileEntryJoinDao: BaseDao<ResourceInfoFileEntryJoin>() {
+interface ResourceInfoFileEntryJoinDao: BaseDao<ResourceInfoFileEntryJoin> {
 
     @Query("""SELECT FileEntry.* FROM FileEntry INNER JOIN ResourceInfoFileEntryJoin 
         ON FileEntry.name=ResourceInfoFileEntryJoin.fileEntryName 
         WHERE ResourceInfoFileEntryJoin.resourceInfoVersion=:resourceInfoVersion 
         ORDER BY ResourceInfoFileEntryJoin.`index` ASC """
     )
-    abstract fun getFileEntriesForResourceInfo(resourceInfoVersion: Int): List<FileEntry>
+    suspend fun getFileEntriesForResourceInfo(resourceInfoVersion: Int): List<FileEntry>
 }

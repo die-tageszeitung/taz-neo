@@ -59,7 +59,7 @@ data class Image(
         storageLocation = fileEntry.storageLocation
     )
 
-    fun getIssueStub(applicationContext: Context): IssueStub =
+    suspend fun getIssueStub(applicationContext: Context): IssueStub =
         IssueRepository.getInstance(applicationContext).getIssueStubForImage(this@Image)
 }
 

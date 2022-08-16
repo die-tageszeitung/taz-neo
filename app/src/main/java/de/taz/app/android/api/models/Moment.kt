@@ -64,13 +64,13 @@ data class Moment(
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
     }
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         val animatedList  = getFilesForAnimatedDownload().toMutableList()
         val bitmapList = getImagesToDownload().map { img -> FileEntry(img)}
         return animatedList + bitmapList
     }
 
-    override fun getAllFileNames(): List<String> {
+    override suspend fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
     }
 
@@ -82,11 +82,11 @@ data class Moment(
         return "moment/$issueFeedName/$issueDate"
     }
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return MomentRepository.getInstance(applicationContext).getDownloadDate(this@Moment)
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         MomentRepository.getInstance(applicationContext).setDownloadDate(this@Moment, date)
     }
 

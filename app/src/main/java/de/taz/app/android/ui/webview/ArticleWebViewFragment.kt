@@ -114,14 +114,12 @@ class ArticleWebViewFragment : WebViewFragment<
                 R.string.fragment_header_article, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    goBackToSection(sectionStub)
-                }
+                goBackToSection(sectionStub)
             }
         }
     }
 
-    private fun goBackToSection(sectionStub: SectionStub?) {
+    private fun goBackToSection(sectionStub: SectionStub?) = lifecycleScope.launch {
         sectionStub?.let {
             issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
                 lifecycleScope.launch {
