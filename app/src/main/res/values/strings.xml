@@ -401,7 +401,8 @@
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
     <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\n Wir kontaktieren Sie so schnell wie möglich mit den Vertragsänderungen.</string>
     <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
-    <string name="fragment_switch_name_title">Name und Vorname</string>
+    <string name="fragment_switch_surname_title">Nachname</string>
+    <string name="fragment_switch_first_name_title">Vorname</string>
     <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
     <string name="fragment_switch_address_zipcode_title">PLZ</string>
     <string name="fragment_switch_address_city_title">Ort</string>

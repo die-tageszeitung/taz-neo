@@ -17,6 +17,7 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:isScrollContainer="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -63,26 +64,44 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
                     android:inputType="text"
-                    android:nextFocusForward="@id/fragment_switch_name"
+                    android:nextFocusForward="@id/fragment_switch_surname"
                     app:layout_constraintTop_toBottomOf="@id/fragment_switch_email_aboID_title" />
 
                 <TextView
-                    android:id="@+id/fragment_switch_name_title"
+                    android:id="@+id/fragment_switch_surname_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@id/fragment_switch_name"
-                    android:text="@string/fragment_switch_name_title"
+                    android:labelFor="@id/fragment_switch_surname"
+                    android:text="@string/fragment_switch_surname_title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_switch_email_aboID" />
 
                 <EditText
-                    android:id="@+id/fragment_switch_name"
+                    android:id="@+id/fragment_switch_surname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:nextFocusForward="@id/fragment_switch_first_name"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_surname_title" />
+
+                <TextView
+                    android:id="@+id/fragment_switch_first_name_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_switch_first_name"
+                    android:text="@string/fragment_switch_first_name_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_surname" />
+
+                <EditText
+                    android:id="@+id/fragment_switch_first_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
                     android:inputType="text"
                     android:nextFocusForward="@id/fragment_switch_address_street"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_name_title" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_first_name_title" />
 
                 <TextView
                     android:id="@+id/fragment_switch_address_street_title"
@@ -91,7 +110,7 @@
                     android:labelFor="@id/fragment_switch_address_street"
                     android:text="@string/fragment_switch_address_street_title"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_name" />
+                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_first_name" />
 
                 <EditText
                     android:id="@+id/fragment_switch_address_street"
