@@ -11,7 +11,7 @@ open class HomeMomentViewActionListener(
     private val issueFeedFragment: IssueFeedFragment<*>
 ) : CoverViewActionListener {
     override fun onImageClicked(coverPublication: AbstractCoverPublication) {
-        val issuePublication = when(coverPublication) {
+        val issuePublication = when (coverPublication) {
             is MomentPublication -> IssuePublication(
                 coverPublication.feedName,
                 coverPublication.date
@@ -26,14 +26,12 @@ open class HomeMomentViewActionListener(
     }
 
     override fun onLongClicked(coverPublication: AbstractCoverPublication) {
-        issueFeedFragment.lifecycleScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                issueFeedFragment.showBottomSheet(
-                    IssueBottomSheetFragment.create(
-                        IssuePublication(coverPublication)
-                    )
+        issueFeedFragment.lifecycleScope.launch(Dispatchers.Main) {
+            issueFeedFragment.showBottomSheet(
+                IssueBottomSheetFragment.create(
+                    IssuePublication(coverPublication)
                 )
-            }
+            )
         }
     }
 

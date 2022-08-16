@@ -17,7 +17,7 @@ class SectionDrawerViewModel(
     val drawerOpen = MutableLiveData(false)
 
     fun setDefaultDrawerNavButton() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             navButton.postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
         }
     }

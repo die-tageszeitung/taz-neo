@@ -177,7 +177,7 @@ class AppWebViewClient(
         }
     }
 
-    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking(Dispatchers.IO) {
+    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking {
         val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
         fileEntryRepository.get(fileName) != null
     }

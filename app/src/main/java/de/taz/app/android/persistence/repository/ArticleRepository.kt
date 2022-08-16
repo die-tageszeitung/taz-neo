@@ -80,7 +80,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(articleName: String): LiveData<Article> {
         return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
-            liveData(Dispatchers.IO) {
+            liveData {
                 emit(articleStubToArticle(articleStub))
             }
         }
@@ -216,7 +216,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun getBookmarkedArticlesLiveData(): LiveData<List<Article>> =
         appDatabase.articleDao().getBookmarkedArticlesLiveData().switchMap { input ->
-            liveData(Dispatchers.IO) {
+            liveData {
                 emit(input.map { articleStub -> articleStubToArticle(articleStub) })
             }
         }

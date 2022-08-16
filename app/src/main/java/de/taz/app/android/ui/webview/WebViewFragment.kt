@@ -39,8 +39,8 @@ const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 abstract class WebViewFragment<
         DISPLAYABLE : WebViewDisplayable,
         VIEW_MODEL : WebViewViewModel<DISPLAYABLE>,
-        VIEW_BINDING: ViewBinding
-> : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(), AppWebViewCallback,
+        VIEW_BINDING : ViewBinding
+        > : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(), AppWebViewCallback,
     AppWebViewClientCallBack {
 
     abstract override val viewModel: VIEW_MODEL
@@ -80,7 +80,7 @@ abstract class WebViewFragment<
     private fun saveScrollPositionDebounced(scrollPosition: Int) {
         viewModel.displayable?.let {
             val oldJob = saveScrollPositionJob
-            saveScrollPositionJob = lifecycleScope.launch(Dispatchers.IO) {
+            saveScrollPositionJob = lifecycleScope.launch {
                 oldJob?.cancelAndJoin()
                 delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
                 val bottomNavigationViewLayout = try {
@@ -103,12 +103,10 @@ abstract class WebViewFragment<
 
                 val offsetPosition = scrollPosition - bottomOffset
                 viewModel.scrollPosition = offsetPosition
-                withContext(Dispatchers.IO) {
-                    viewerStateRepository.save(
-                        it.key,
-                        offsetPosition
-                    )
-                }
+                viewerStateRepository.save(
+                    it.key,
+                    offsetPosition
+                )
             }
         }
     }
@@ -120,7 +118,8 @@ abstract class WebViewFragment<
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
-        viewerStateRepository = ViewerStateRepository.getInstance(requireContext().applicationContext)
+        viewerStateRepository =
+            ViewerStateRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,11 +132,11 @@ abstract class WebViewFragment<
         viewModel.nightModeLiveData.observe(this@WebViewFragment) {
             reloadAfterCssChange()
         }
-        viewModel.fontSizeLiveData.observe(this@WebViewFragment){
+        viewModel.fontSizeLiveData.observe(this@WebViewFragment) {
             reloadAfterCssChange()
         }
         viewModel.scrollBy.observe(this@WebViewFragment) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
 
                 if (tapToScroll) {
@@ -157,10 +156,8 @@ abstract class WebViewFragment<
         viewModel.displayableLiveData.observeDistinct(this.viewLifecycleOwner) {
             if (it == null) return@observeDistinct
             log.debug("Received a new displayable ${it.key}")
-            lifecycleScope.launch(Dispatchers.Main) {
-                withContext(Dispatchers.IO) {
-                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
-                }
+            lifecycleScope.launch {
+                currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
                 configureWebView()
                 ensureDownloadedAndShow()
             }
@@ -178,7 +175,7 @@ abstract class WebViewFragment<
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
-    private fun configureWebView() {
+    private suspend fun configureWebView() = withContext(Dispatchers.Main) {
 
         webView.apply {
             webViewClient = AppWebViewClient(
@@ -211,7 +208,7 @@ abstract class WebViewFragment<
      * scroll article by [scrollHeight]. If at the top or the end - go to previous or next article
      */
     private fun scrollBy(scrollHeight: Int) {
-        view?.let{
+        view?.let {
             val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
             // if on bottom and tap on right side go to next article
             if (!scrollView.canScrollVertically(1) && scrollHeight > 0) {
@@ -239,11 +236,9 @@ abstract class WebViewFragment<
     open fun onPageRendered() {
         isRendered = true
         val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             viewModel.displayable?.let {
-                val persistedScrollPosition = withContext(Dispatchers.IO) {
-                    viewerStateRepository.get(it.key)?.scrollPosition
-                }
+                val persistedScrollPosition = viewerStateRepository.get(it.key)?.scrollPosition
                 viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
             }
             withContext(Dispatchers.Main) {
@@ -269,14 +264,13 @@ abstract class WebViewFragment<
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            view?.findViewById<View>(R.id.loading_screen)?.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            view?.findViewById<View>(R.id.loading_screen)?.animate()?.alpha(0f)?.duration =
+                LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 
-    private fun loadUrl(url: String) {
-        activity?.runOnUiThread {
-            webView.loadUrl(url)
-        }
+    private suspend fun loadUrl(url: String) = withContext(Dispatchers.Main) {
+        webView.loadUrl(url)
     }
 
     override fun onDestroyView() {
@@ -284,14 +278,12 @@ abstract class WebViewFragment<
         super.onDestroyView()
     }
 
-    private suspend fun ensureDownloadedAndShow() = withContext(Dispatchers.Main) {
+    private suspend fun ensureDownloadedAndShow() {
         viewModel.displayable?.let { displayable ->
             log.info("Displayable is $displayable")
             try {
                 contentService.downloadToCache(displayable, priority = DownloadPriority.High)
-                val displayableFile = withContext(Dispatchers.IO) {
-                    fileEntryRepository.get(displayable.key)
-                }
+                val displayableFile = fileEntryRepository.get(displayable.key)
                 val path = displayableFile?.let {
                     storageService.getFileUri(it)
                 }

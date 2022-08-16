@@ -213,20 +213,18 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleFileName: String,
         datePublished: Date
     ) {
-        withContext(Dispatchers.IO) {
-            val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
-            issueMetadata?.let { issue ->
-                contentService?.downloadMetadata(issue, maxRetries = 5)
-                articleRepository?.get(articleFileName)?.let {
-                    contentService?.downloadToCache(it)
-                    articleRepository?.bookmarkArticle(it)
-                }
+        val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+        issueMetadata?.let { issue ->
+            contentService?.downloadMetadata(issue, maxRetries = 5)
+            articleRepository?.get(articleFileName)?.let {
+                contentService?.downloadToCache(it)
+                articleRepository?.bookmarkArticle(it)
             }
         }
-    }
+}
 
     fun share() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getCurrentSearchHit()?.let { hit ->
                 val url: String? = hit.article?.onlineLink
                 url?.let {

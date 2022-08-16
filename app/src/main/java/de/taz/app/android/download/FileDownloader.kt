@@ -45,7 +45,7 @@ class FileDownloader(
 
     private var downloaderJob: Job? = null
 
-    override suspend fun enqueueDownload(operation: ContentDownload) = withContext(Dispatchers.IO) {
+    override suspend fun enqueueDownload(operation: ContentDownload) {
         operation.notifyStart()
         for (download in operation.cacheItems) {
             log.debug("Offering ${download.item.fileEntryOperation.fileEntry.name} with priority ${download.item.priority()}")

@@ -57,7 +57,7 @@ class StorageOrganizationActivity : StartupActivity() {
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             migrateToSelectableStorage()
             migrateFilesToDesiredStorage()
 

@@ -343,7 +343,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionPossibilities(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             // if on non free flavor it is not allowed to buy stuff from the app,
             // so we show a fragment where we only allow the trial subscription:
             if (BuildConfig.IS_NON_FREE) {

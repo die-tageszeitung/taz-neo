@@ -3,8 +3,7 @@ package de.taz.app.android.ui.webview
 import android.content.Context
 import android.os.Bundle
 import android.widget.TextView
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
@@ -18,15 +17,9 @@ import kotlinx.coroutines.*
 
 class ArticleWebViewFragment : WebViewFragment<
         Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
->() {
+        >() {
 
-    override val viewModel by lazy {
-        ViewModelProvider(
-            this, SavedStateViewModelFactory(
-                this.requireActivity().application, this
-            )
-        )[ArticleWebViewViewModel::class.java]
-    }
+    override val viewModel by viewModels<ArticleWebViewViewModel>()
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
@@ -61,8 +54,7 @@ class ArticleWebViewFragment : WebViewFragment<
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         log.debug("Creating an ArticleWebView for $articleFileName")
-        lifecycleScope.launch(Dispatchers.IO) {
-            // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
+        lifecycleScope.launch {
             withContext(Dispatchers.Main) { viewModel }
             articleRepository.get(articleFileName)?.let {
                 viewModel.displayableLiveData.postValue(
@@ -73,7 +65,7 @@ class ArticleWebViewFragment : WebViewFragment<
     }
 
     override fun setHeader(displayable: Article) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
             val count = ArticleRepository.getInstance(
                 requireContext().applicationContext
@@ -136,9 +128,8 @@ class ArticleWebViewFragment : WebViewFragment<
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.displayable?.let { article ->
                 try {
-                    val issueStub = withContext(Dispatchers.IO) {
+                    val issueStub =
                         article.getIssueStub(requireContext().applicationContext)
-                    }
                     if (issueStub?.issueKey?.status == IssueStatus.public) {
 
                         childFragmentManager.beginTransaction().replace(

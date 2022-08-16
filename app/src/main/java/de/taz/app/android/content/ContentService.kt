@@ -90,40 +90,39 @@ class ContentService(
      */
     suspend fun getCacheState(
         observableDownload: ObservableDownload,
-    ): CacheStateUpdate =
-        withContext(Dispatchers.IO) {
-            val isDownloaded = when (observableDownload) {
-                is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
-                is AppInfoKey -> appInfoRepository.get() != null
-                is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
-                is MomentKey -> momentRepository.isDownloaded(observableDownload)
-                is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
-                is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
-                    observableDownload
-                )?.let {
-                    if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
-                    else false
-                } ?: false
-                else -> false
-            }
-            if (isDownloaded) {
-                CacheStateUpdate(
-                    CacheStateUpdate.Type.INITIAL,
-                    CacheState.PRESENT,
-                    0,
-                    0,
-                    null
-                )
-            } else {
-                CacheStateUpdate(
-                    CacheStateUpdate.Type.INITIAL,
-                    CacheState.ABSENT,
-                    0,
-                    0,
-                    null
-                )
-            }
+    ): CacheStateUpdate {
+        val isDownloaded = when (observableDownload) {
+            is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
+            is AppInfoKey -> appInfoRepository.get() != null
+            is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
+            is MomentKey -> momentRepository.isDownloaded(observableDownload)
+            is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
+            is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
+                observableDownload
+            )?.let {
+                if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
+                else false
+            } ?: false
+            else -> false
         }
+        return if (isDownloaded) {
+            CacheStateUpdate(
+                CacheStateUpdate.Type.INITIAL,
+                CacheState.PRESENT,
+                0,
+                0,
+                null
+            )
+        } else {
+            CacheStateUpdate(
+                CacheStateUpdate.Type.INITIAL,
+                CacheState.ABSENT,
+                0,
+                0,
+                null
+            )
+        }
+    }
 
     /**
      * This function wraps downloadToCache calls of issuePublication.
@@ -230,9 +229,7 @@ class ContentService(
      */
     @Throws(NotFoundException::class)
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
-        withContext(Dispatchers.IO) {
-            IssueDeletion.prepare(applicationContext, issuePublication)
-                .execute()
-        }
+        IssueDeletion.prepare(applicationContext, issuePublication)
+            .execute()
     }
 }

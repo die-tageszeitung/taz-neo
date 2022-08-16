@@ -70,14 +70,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         super.onCreate(savedInstanceState)
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
-        } catch(e: ClassCastException) {
-            val hint = "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it"
+        } catch (e: ClassCastException) {
+            val hint =
+                "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it"
             Sentry.captureException(e, hint)
             IssuePublicationWithPages(
                 intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
             )
-        }
-        catch (e: NullPointerException) {
+        } catch (e: NullPointerException) {
             throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         }
 

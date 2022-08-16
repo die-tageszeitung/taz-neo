@@ -6,8 +6,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 interface ArticleOperations {
@@ -40,7 +38,7 @@ interface ArticleOperations {
         }
     }
 
-    suspend fun getNavButton(applicationContext: Context): Image? = withContext(Dispatchers.IO) {
-        return@withContext this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
+    suspend fun getNavButton(applicationContext: Context): Image? {
+        return this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
     }
 }

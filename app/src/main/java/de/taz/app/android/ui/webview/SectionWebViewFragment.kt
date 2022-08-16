@@ -14,6 +14,7 @@ import androidx.annotation.IdRes
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
@@ -49,13 +50,7 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
 
-    override val viewModel by lazy {
-        ViewModelProvider(
-            this, SavedStateViewModelFactory(
-                this.requireActivity().application, this
-            )
-        )[SectionWebViewViewModel::class.java]
-    }
+    override val viewModel by viewModels<SectionWebViewViewModel>()
 
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
@@ -79,17 +74,16 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        lifecycleScope.launch(Dispatchers.IO) {
-            // Because of lazy initialization the first call to viewModel needs to be on Main thread - TODO: Fix this
-            withContext(Dispatchers.Main) { viewModel }
+        lifecycleScope.launch {
             viewModel.displayableLiveData.postValue(
                 sectionRepository.get(sectionFileName)
             )
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
@@ -99,8 +93,7 @@ class SectionWebViewFragment : WebViewFragment<
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub =
-                    withContext(Dispatchers.IO) { displayable.getIssueStub(requireContext().applicationContext) }
+                val issueStub =displayable.getIssueStub(requireContext().applicationContext)
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)

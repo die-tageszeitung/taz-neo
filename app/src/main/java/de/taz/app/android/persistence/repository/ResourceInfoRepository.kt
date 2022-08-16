@@ -69,7 +69,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
 
     suspend fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 it?.let { resourceInfoStubToResourceInfo(it) }
             }
         }

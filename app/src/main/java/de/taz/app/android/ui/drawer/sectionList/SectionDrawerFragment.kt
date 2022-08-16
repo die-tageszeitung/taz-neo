@@ -151,24 +151,22 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         val section = lifecycleScope.async {
             sectionRepository.getSectionStubForArticle(displayableKey)?.sectionFileName
         }
-        withContext(Dispatchers.IO) {
-            when {
-                displayableKey == imprint.await()?.key -> {
-                    sectionListAdapter.activePosition = RecyclerView.NO_POSITION
-                    setImprintActive()
-                }
-                displayableKey.startsWith("art") -> {
-                    setImprintInactive()
-                    section.await()?.let { setActiveSection(it) }
-                }
-                displayableKey.startsWith("sec") -> {
-                    setImprintInactive()
-                    setActiveSection(displayableKey)
-                }
-                else -> {
-                    setImprintInactive()
-                    setActiveSection(null)
-                }
+        when {
+            displayableKey == imprint.await()?.key -> {
+                sectionListAdapter.activePosition = RecyclerView.NO_POSITION
+                setImprintActive()
+            }
+            displayableKey.startsWith("art") -> {
+                setImprintInactive()
+                section.await()?.let { setActiveSection(it) }
+            }
+            displayableKey.startsWith("sec") -> {
+                setImprintInactive()
+                setActiveSection(displayableKey)
+            }
+            else -> {
+                setImprintInactive()
+                setActiveSection(null)
             }
         }
     }
@@ -203,9 +201,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
 
-            val sections = withContext(Dispatchers.IO) {
-                sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
-            }
+            val sections = sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
+
             log.debug("SectionDrawer sets new sections: $sections")
             sectionListAdapter.sectionList = sections
 
@@ -218,9 +215,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
                 typeface = if (issueStub.isWeekend) weekendTypeface else defaultTypeface
-                val isImprint = withContext(Dispatchers.IO) {
-                    issueRepository.getImprint(issueStub.issueKey) != null
-                }
+                val isImprint = issueRepository.getImprint(issueStub.issueKey) != null
                 if (isImprint) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE

@@ -10,7 +10,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
@@ -34,8 +33,8 @@ class FrontpageViewBinding(
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
 
-    override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
-        try {
+    override suspend fun prepareData(): CoverViewData {
+        return try {
             val dimension =
                 feedRepository.get(coverPublication.feedName)?.momentRatioAsDimensionRatioString()
                     ?: DEFAULT_MOMENT_RATIO

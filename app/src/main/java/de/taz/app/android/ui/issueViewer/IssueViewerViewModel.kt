@@ -72,27 +72,25 @@ class IssueViewerViewModel(
     ) {
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
-            withContext(Dispatchers.IO) {
-                try {
-                    // either displayable is specified, persisted or defaulted to first section
-                    val displayable = displayableKey
-                        ?: dataService.getLastDisplayableOnIssue(issueKey)
-                        ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
-                    setDisplayable(
-                        IssueKeyWithDisplayableKey(issueKey, displayable)
-                    )
-                    // Start downloading the whole issue in background
-                    applicationScope.launch {
-                        try {
-                            contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
-                            issueRepository.updateLastViewedDate(issueKey)
-                        } catch (e: CacheOperationFailedException) {
-                            issueLoadingFailedErrorFlow.emit(true)
-                        }
+            try {
+                // either displayable is specified, persisted or defaulted to first section
+                val displayable = displayableKey
+                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
+                setDisplayable(
+                    IssueKeyWithDisplayableKey(issueKey, displayable)
+                )
+                // Start downloading the whole issue in background
+                applicationScope.launch {
+                    try {
+                        contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
+                        issueRepository.updateLastViewedDate(issueKey)
+                    } catch (e: CacheOperationFailedException) {
+                        issueLoadingFailedErrorFlow.emit(true)
                     }
-                } catch (e: CacheOperationFailedException) {
-                    issueLoadingFailedErrorFlow.emit(true)
                 }
+            } catch (e: CacheOperationFailedException) {
+                issueLoadingFailedErrorFlow.emit(true)
             }
         } else {
             setDisplayable(
@@ -126,7 +124,7 @@ class IssueViewerViewModel(
                 it?.let {
                     if (it != lastIssueKey) {
                         lastIssueKey = it
-                        viewModelScope.launch(Dispatchers.IO) {
+                        viewModelScope.launch {
                             postValue(
                                 articleRepository.getArticleStubListForIssue(it)
                             )
@@ -142,7 +140,7 @@ class IssueViewerViewModel(
         MediatorLiveData<List<SectionStub>>().apply {
             addSource(issueKeyLiveData) {
                 it?.let {
-                    viewModelScope.launch(Dispatchers.IO) {
+                    viewModelScope.launch {
                         postValue(sectionRepository.getSectionStubsForIssue(it))
                     }
                 } ?: run {
@@ -154,7 +152,7 @@ class IssueViewerViewModel(
     val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
         addSource(issueKeyLiveData) {
             it?.let {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
                     postValue(issueRepository.getImprint(it))
                 }
             }

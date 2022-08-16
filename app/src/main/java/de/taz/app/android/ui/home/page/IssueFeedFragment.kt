@@ -54,7 +54,7 @@ abstract class IssueFeedFragment<VIEW_BINDING: ViewBinding> : BaseViewModelFragm
         super.onCreate(savedInstanceState)
 
         // get feed and propagate it to the viewModel
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             try {
                 val feed = dataService.getFeedByName(
                     DISPLAYED_FEED,

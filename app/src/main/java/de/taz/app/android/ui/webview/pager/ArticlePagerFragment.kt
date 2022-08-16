@@ -26,10 +26,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
@@ -187,8 +184,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
-        getCurrentArticleStub()?.let { articleStub ->
+    private suspend fun showSectionOrGoBack(): Boolean {
+        return getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                 articleStub.getSectionStub(requireContext().applicationContext)
@@ -200,9 +197,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     )
                 )
                 true
-            }
-        }
-        false
+            } ?: false
+        } ?: false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
@@ -235,7 +231,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     fun share() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getCurrentArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {

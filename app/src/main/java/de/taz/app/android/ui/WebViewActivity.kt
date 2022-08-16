@@ -77,7 +77,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
     }
 
     private fun showHtmlFile(htmlFileKey: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             fileEntryRepository.get(htmlFileKey)?.let {
                 storageService.getFileUri(it)
             }?.let {

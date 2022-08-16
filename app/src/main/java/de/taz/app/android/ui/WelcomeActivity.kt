@@ -100,7 +100,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     }
 
 
-    private suspend fun showWelcomeSlides() = withContext(Dispatchers.IO) {
+    private suspend fun showWelcomeSlides() {
         fileEntryRepository.get(welcomeSlidesHtmlFile)?.let {
             storageService.getFileUri(it)
         }?.let {

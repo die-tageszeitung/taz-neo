@@ -45,7 +45,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         viewBinding.apply {
             feedArchivePager.apply {
                 adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
-           
+
                 // reduce viewpager2 sensitivity to make the view less finicky
                 reduceDragSensitivity(6)
                 registerOnPageChangeCallback(object :
@@ -90,23 +90,21 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     private suspend fun onRefresh() {
-        withContext(Dispatchers.IO) {
-            try {
-                DataService.getInstance(requireContext().applicationContext)
-                    .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
-                        withContext(Dispatchers.Main) {
-                            homePageViewModel.setFeed(
-                                it
-                            )
-                        }
+        try {
+            DataService.getInstance(requireContext().applicationContext)
+                .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
+                    withContext(Dispatchers.Main) {
+                        homePageViewModel.setFeed(
+                            it
+                        )
                     }
-            } catch (e: ConnectivityException.NoInternetException) {
-                ToastHelper.getInstance(requireContext().applicationContext)
-                    .showNoConnectionToast()
-            } catch (e: ConnectivityException.ImplementationException) {
-                ToastHelper.getInstance(requireContext().applicationContext)
-                    .showSomethingWentWrongToast()
-            }
+                }
+        } catch (e: ConnectivityException.NoInternetException) {
+            ToastHelper.getInstance(requireContext().applicationContext)
+                .showNoConnectionToast()
+        } catch (e: ConnectivityException.ImplementationException) {
+            ToastHelper.getInstance(requireContext().applicationContext)
+                .showSomethingWentWrongToast()
         }
     }
 

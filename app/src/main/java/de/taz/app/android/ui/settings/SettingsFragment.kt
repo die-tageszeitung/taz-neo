@@ -366,9 +366,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
         val deletionProgressText =
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-        val downloadedIssueStubList = withContext(Dispatchers.IO) {
+        val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
-        }
 
         val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
 
@@ -706,7 +705,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
 
-    private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
+    private fun logout() = requireActivity().lifecycleScope.launch {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
         authHelper.status.set(AuthStatus.notValid)

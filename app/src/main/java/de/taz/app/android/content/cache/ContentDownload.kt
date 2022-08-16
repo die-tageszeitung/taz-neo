@@ -130,7 +130,7 @@ class ContentDownload(
         }
     }
 
-    override suspend fun doWork() = withContext(Dispatchers.IO) {
+    override suspend fun doWork() = withContext(Dispatchers.Default) {
         // Enqueue all downloads asynchronously
         launch { fileDownloader.enqueueDownload(this@ContentDownload) }
 
