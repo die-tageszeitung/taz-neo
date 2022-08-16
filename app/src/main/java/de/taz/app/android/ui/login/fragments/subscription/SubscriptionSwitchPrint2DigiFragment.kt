@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class SubscriptionSwitchPrint2DigiFragment: BaseMainFragment<FragmentSwitchFormBinding>() {
+class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchFormBinding>() {
     private val log by Log
 
     private lateinit var apiService: ApiService
@@ -68,22 +68,18 @@ class SubscriptionSwitchPrint2DigiFragment: BaseMainFragment<FragmentSwitchFormB
         message: String?
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            apiService.apply {
-                retryOnConnectionFailure {
-                    subscriptionFormData(
-                        SubscriptionFormDataType.print2Digi,
-                        emailOrAboID,
-                        surname,
-                        firstName,
-                        addressStreetNr,
-                        addressCity,
-                        addressZipCode,
-                        addressCountry,
-                        message,
-                        false
-                    )
-                }
-            }
+            apiService.subscriptionFormData(
+                SubscriptionFormDataType.print2Digi,
+                emailOrAboID,
+                surname,
+                firstName,
+                addressStreetNr,
+                addressCity,
+                addressZipCode,
+                addressCountry,
+                message,
+                false
+            )
             toastHelper.showToast("Switch form gesendet")
         }
         requireActivity().finish()
