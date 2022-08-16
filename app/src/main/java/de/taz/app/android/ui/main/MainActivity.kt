@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.webkit.WebView
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,6 +22,8 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -141,6 +146,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.message.get())
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
+    //        val customerInfo = ApiService.getInstance(applicationContext).customerInfo
+
             if (BuildConfig.IS_NON_FREE) showSubscriptionElapsedDialogNonFree(elapsedOn)
             else showSubscriptionElapsedDialog(elapsedOn)
             (application as TazApplication).elapsedPopupAlreadyShown = true
@@ -165,10 +172,27 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedDialogNonFree(elapsedOn: String?) {
+        val dialogView = layoutInflater.inflate(R.layout.fragment_subscription_elapsed_dialog, null)
         val dialog = MaterialAlertDialogBuilder(this@MainActivity)
+            .setView(dialogView)
             .setTitle(getString(R.string.popup_login_elapsed_header, elapsedOn))
             .setMessage(R.string.popup_login_elapsed_text)
-            .setPositiveButton(R.string.close_okay) { dialog, _ ->
+            .setPositiveButton(R.string.popup_login_elapsed_positive_button) { dialog, _ ->
+                dialog.dismiss()
+                val message =
+                    dialogView.findViewById<EditText>(R.id.message_to_subscription_service)?.text.toString()
+                val isChecked =
+                    dialogView.findViewById<CheckBox>(R.id.let_the_subscription_service_contact_you_checkbox)?.isChecked
+                Log.d("111", "message: $message   isChecked? $isChecked")
+                applicationScope.launch {
+                    ApiService.getInstance(applicationContext).subscriptionFormData(
+                        type = SubscriptionFormDataType.trialSubscription,
+                        message = message,
+                        requestCurrentSubscriptionOpportunities = isChecked
+                    )
+                }
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
                 dialog.dismiss()
             }
             .create()

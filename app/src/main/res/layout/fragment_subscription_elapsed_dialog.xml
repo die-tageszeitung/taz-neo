@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/message_to_subscription_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="22dp"
+        android:hint="@string/popup_login_elapsed_message_to_abo"
+        android:inputType="textMultiLine"
+        android:autofillHints="@string/popup_login_elapsed_message_to_abo" />
+
+    <CheckBox
+        android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="22dp"
+        android:text="@string/popup_login_elapsed_checkbox_message"/>
+</LinearLayout>
