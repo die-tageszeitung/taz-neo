@@ -40,16 +40,31 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             val addressCountry = viewBinding.fragmentSwitchAddressCountry.text.toString().trim()
             val message = viewBinding.fragmentSwitchMessage.text.toString().trim()
 
-            sendSwitchPrint2DigiForm(
-                emailOrAboID,
-                surname,
-                firstname,
-                addressStreetNr,
-                addressCity,
-                addressZipCode,
-                addressCountry,
-                message
-            )
+            val necessaryCredentialsPresent =
+                surname.isNotEmpty() && firstname.isNotEmpty() && addressStreetNr.isNotEmpty()
+                        && addressZipCode.isNotEmpty() && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
+
+            if (necessaryCredentialsPresent) {
+                sendSwitchPrint2DigiForm(
+                    emailOrAboID,
+                    surname,
+                    firstname,
+                    addressStreetNr,
+                    addressCity,
+                    addressZipCode,
+                    addressCountry,
+                    message
+                )
+            }
+            else {
+                viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
+                viewBinding.fragmentSwitchFirstName.error = requireContext().getString(R.string.login_first_name_error_empty)
+                viewBinding.fragmentSwitchAddressStreet.error = requireContext().getString(R.string.street_error_empty)
+                viewBinding.fragmentSwitchAddressZipcode.error = requireContext().getString(R.string.postcode_error_empty)
+                viewBinding.fragmentSwitchAddressCity.error = requireContext().getString(R.string.city_error_empty)
+                viewBinding.fragmentSwitchAddressCountry.error = requireContext().getString(R.string.country_error_empty)
+                viewBinding.loadingScreen.root.visibility = View.GONE
+            }
         }
 
     }
