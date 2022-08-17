@@ -200,15 +200,6 @@
                     android:text="@string/fragment_switch_send_button"
                     app:layout_constraintTop_toBottomOf="@id/fragment_switch_message" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/fragment_switch_cancel_button"
-                    style="@style/AppTheme.ButtonStyle.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/login_button_margin_top"
-                    android:text="@string/fragment_switch_cancel_button"
-                    app:layout_constraintTop_toBottomOf="@id/fragment_switch_send_button" />
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>

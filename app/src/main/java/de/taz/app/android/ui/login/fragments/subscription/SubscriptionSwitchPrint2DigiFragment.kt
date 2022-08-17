@@ -51,9 +51,6 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             )
         }
 
-        viewBinding.fragmentSwitchCancelButton.setOnClickListener {
-            log.debug("CANCEL BUTTON CLICKED: I don't want to switch")
-        }
     }
 
 
