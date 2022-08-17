@@ -3,6 +3,7 @@ package de.taz.app.android.ui.login.fragments.subscription
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.base.BaseMainFragment
@@ -77,7 +78,7 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 message,
                 false
             )
-            toastHelper.showToast("Switch form gesendet")
+            toastHelper.showToast(R.string.fragment_switch_send_success_toast)
         }
         requireActivity().finish()
     }

@@ -409,4 +409,5 @@
     <string name="fragment_switch_address_country_title">Land</string>
     <string name="fragment_switch_message_title">Ihre Nachricht</string>
     <string name="fragment_switch_send_button">Absenden</string>
+    <string name="fragment_switch_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 </resources>
