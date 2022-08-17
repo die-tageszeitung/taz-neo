@@ -9,13 +9,11 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentSwitchFormBinding
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchFormBinding>() {
-    private val log by Log
 
     private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
