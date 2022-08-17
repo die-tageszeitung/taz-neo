@@ -141,6 +141,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      *                          Instead of waiting on the result of the running this operation is enqueued and
      *                          executed afterwards
      * The function will suspend until the [CacheOperation] is completed
+     *
+     * TODO: we currently do not consider the maxRetries when waiting -
+     *       this means that a CacheOperation with infinite retries might wait for one with 3 and
+     *       fail if the 3 attempts do not succeed
      */
     suspend fun execute(forceExecution: Boolean = false): RESULT = withContext(NonCancellable) {
         try {
@@ -239,8 +243,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 cacheStatusFlow.emit(tag to update)
 
                 if (update.hasCompleted) {
-                    // remove from activeCacheOperations
-                    activeCacheOperations.remove(tag)
                     // stop collecting
                     cancel()
                 }
@@ -343,6 +345,9 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param e An exception indicating the cause of the failiure
      */
     fun notifyFailure(e: Exception) {
+        // remove from activeCacheOperations
+        activeCacheOperations.remove(tag)
+
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.FAILED,
@@ -361,6 +366,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      */
     fun notifySuccess(result: RESULT) {
         this.result = result
+
+        // remove from activeCacheOperations
+        activeCacheOperations.remove(tag)
+
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.SUCCEEDED,
