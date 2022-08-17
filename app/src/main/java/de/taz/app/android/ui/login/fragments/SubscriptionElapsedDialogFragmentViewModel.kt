@@ -1,8 +1,8 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
-import de.taz.app.android.TazApplication
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.dto.SubscriptionFormDataType
@@ -11,9 +11,12 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.launch
 
-class SubscriptionElapsedDialogFragmentViewModel(application: TazApplication): AndroidViewModel(application) {
-    private val apiService = ApiService.getInstance(application)
-    private val authHelper = AuthHelper.getInstance(application)
+class SubscriptionElapsedDialogFragmentViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
+
+    private val apiService: ApiService = ApiService.getInstance(application)
+    private val authHelper: AuthHelper = AuthHelper.getInstance(application)
 
     private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
     val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
