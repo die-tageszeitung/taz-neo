@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import androidx.fragment.app.DialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
@@ -15,8 +15,7 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import kotlinx.coroutines.launch
 
-class SubscriptionElapsedDialogFragment : DialogFragment() {
-
+class SubscriptionElapsedDialogFragment : BottomSheetDialogFragment() {
     private lateinit var apiService: ApiService
 
     override fun onCreateView(
@@ -24,7 +23,7 @@ class SubscriptionElapsedDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View =
-        inflater.inflate(R.layout.fragment_subscription_elapsed_dialog, container)
+        inflater.inflate(R.layout.fragment_subscription_elapsed_dialog, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
