@@ -28,14 +28,14 @@
         android:inputType="textMultiLine"
         android:autofillHints="@string/popup_login_elapsed_message_to_abo" />
 
-    <CheckBox
+    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/let_the_subscription_service_contact_you_checkbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="22dp"
         android:text="@string/popup_login_elapsed_checkbox_message"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/send_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
