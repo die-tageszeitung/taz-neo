@@ -91,7 +91,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
     )
 
-    val message = SimpleDataStoreEntry(
+    val elapsedDateMessage = SimpleDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INFO_MESSAGE), ""
     )
 

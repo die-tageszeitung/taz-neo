@@ -5,10 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.webkit.WebView
-import android.widget.CheckBox
-import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -21,21 +18,18 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.CustomerType
-import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Dispatchers
@@ -142,11 +136,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private suspend fun checkIfSubscriptionElapsed() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.message.get())
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+        // TODO REMOVE
+        showSubscriptionElapsedPopup()
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-            val customerType = ApiService.getInstance(applicationContext).getCustomerType()
-            showSubscriptionElapsedDialog(elapsedOn, customerType)
+            showSubscriptionElapsedPopup()
             (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
@@ -168,42 +162,12 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    private fun showSubscriptionElapsedDialog(elapsedOn: String?, customerType: CustomerType?) {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_subscription_elapsed_dialog, null)
-        val dialog = MaterialAlertDialogBuilder(this@MainActivity)
-            .setView(dialogView)
-            .setTitle(getString(R.string.popup_login_elapsed_header, elapsedOn))
-            .setMessage(R.string.popup_login_elapsed_text)
-            .setPositiveButton(R.string.popup_login_elapsed_positive_button) { dialog, _ ->
-                dialog.dismiss()
-                val message =
-                    dialogView.findViewById<EditText>(R.id.message_to_subscription_service)?.text.toString()
-                val isChecked =
-                    dialogView.findViewById<CheckBox>(R.id.let_the_subscription_service_contact_you_checkbox)?.isChecked
-                Log.d("111", "message: $message   isChecked? $isChecked")
-                applicationScope.launch {
-                    ApiService.getInstance(applicationContext).subscriptionFormData(
-                        type = mapCustomer2SubscriptionFormDataType(customerType),
-                        message = message,
-                        requestCurrentSubscriptionOpportunities = isChecked
-                    )
-                }
-            }
-            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        //TODO(eike): make the mailto-link in the message clickable
-        dialog.show()
-    }
-
-    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType {
-        return when (customerType) {
-            CustomerType.digital -> SubscriptionFormDataType.expiredDigiSubscription
-            CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
-            CustomerType.sample -> SubscriptionFormDataType.trialSubscription
-            else -> SubscriptionFormDataType.unknown
-        }
+    private fun showSubscriptionElapsedPopup() {
+        val popUpFragment = SubscriptionElapsedDialogFragment()
+        popUpFragment.show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
     }
 
     private var doubleBackToExitPressedOnce = false

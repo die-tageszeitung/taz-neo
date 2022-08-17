@@ -1,46 +1,61 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
+import android.widget.CheckBox
+import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
-import de.taz.app.android.ui.login.*
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.CustomerType
+import de.taz.app.android.api.dto.SubscriptionFormDataType
+import de.taz.app.android.monkey.getApplicationScope
+import kotlinx.coroutines.launch
 
 class SubscriptionElapsedDialogFragment : DialogFragment() {
+
+    private lateinit var apiService: ApiService
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.subscription_elapsed_popup, container)
+    ): View =
+        inflater.inflate(R.layout.fragment_subscription_elapsed_dialog, container)
 
-        val emailText = view.findViewById<TextView>(R.id.subscription_elapsed_popup_email)
-        emailText.setOnClickListener {
-            val email = Intent(Intent.ACTION_SEND)
-            email.putExtra(Intent.EXTRA_EMAIL, arrayOf(SUBSCRIPTION_EMAIL_ADDRESS))
-            email.putExtra(Intent.EXTRA_SUBJECT, "")
-            email.putExtra(Intent.EXTRA_TEXT, "")
-            email.type = "message/rfc822"
-            startActivity(Intent.createChooser(email, null))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        apiService = ApiService.getInstance(requireContext().applicationContext)
+
+        view.findViewById<Button>(R.id.send_button).setOnClickListener {
+            sendMessage()
         }
-        val cancelButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_cancel_button)
-        cancelButton.setOnClickListener {
-            dismiss()
+    }
+
+    private fun sendMessage() {
+        getApplicationScope().launch {
+            val message =
+                requireView().findViewById<EditText>(R.id.message_to_subscription_service)?.text.toString()
+            val isChecked =
+                requireView().findViewById<CheckBox>(R.id.let_the_subscription_service_contact_you_checkbox)?.isChecked
+            val customerType = apiService.getCustomerType()
+            apiService.subscriptionFormData(
+                type = mapCustomer2SubscriptionFormDataType(customerType),
+                message = message,
+                requestCurrentSubscriptionOpportunities = isChecked
+            )
         }
-        val orderButton = view.findViewById<Button>(R.id.subscription_elapsed_popup_order_button)
-        orderButton.setOnClickListener {
-            dismiss()
-            activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
-                putExtra(LOGIN_EXTRA_REGISTER, true)
-            }, ACTIVITY_LOGIN_REQUEST_CODE)
+    }
+
+    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType {
+        return when (customerType) {
+            CustomerType.digital -> SubscriptionFormDataType.expiredDigiSubscription
+            CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
+            CustomerType.sample -> SubscriptionFormDataType.trialSubscription
+            else -> SubscriptionFormDataType.unknown
         }
-        return view
     }
 }
