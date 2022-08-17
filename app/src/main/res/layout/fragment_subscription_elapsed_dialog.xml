@@ -16,7 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:text="@string/popup_login_elapsed_text"/>
+        android:text="@string/popup_login_elapsed_text"
+        android:autoLink="email"/>
 
     <EditText
         android:id="@+id/message_to_subscription_service"
