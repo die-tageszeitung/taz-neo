@@ -7,44 +7,37 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import android.widget.TextView
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.map
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.dto.SubscriptionFormDataType
+import de.taz.app.android.base.ViewBindingBottomSheetFragment
+import de.taz.app.android.databinding.FragmentSubscriptionElapsedDialogBinding
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.launch
 
-class SubscriptionElapsedDialogFragment : BottomSheetDialogFragment() {
-    private lateinit var apiService: ApiService
+private class SubscriptionElapsedDialogFragmentViewModel(application: TazApplication): AndroidViewModel(application) {
+    private val apiService = ApiService.getInstance(application)
+    private val authHelper = AuthHelper.getInstance(application)
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_subscription_elapsed_dialog, container, false)
+    private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
+    val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        apiService = ApiService.getInstance(requireContext().applicationContext)
-
-        view.findViewById<Button>(R.id.send_button).setOnClickListener {
-            sendMessage()
-        }
-    }
-
-    private fun sendMessage() {
+    fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
-            val message =
-                requireView().findViewById<EditText>(R.id.message_to_subscription_service)?.text.toString()
-            val isChecked =
-                requireView().findViewById<CheckBox>(R.id.let_the_subscription_service_contact_you_checkbox)?.isChecked
             val customerType = apiService.getCustomerType()
             apiService.subscriptionFormData(
                 type = mapCustomer2SubscriptionFormDataType(customerType),
                 message = message,
-                requestCurrentSubscriptionOpportunities = isChecked
+                requestCurrentSubscriptionOpportunities = contactMe
             )
         }
     }
@@ -55,6 +48,33 @@ class SubscriptionElapsedDialogFragment : BottomSheetDialogFragment() {
             CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
             CustomerType.sample -> SubscriptionFormDataType.trialSubscription
             else -> SubscriptionFormDataType.unknown
+        }
+    }
+}
+
+class SubscriptionElapsedDialogFragment : ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedDialogBinding>() {
+
+    private val viewModel by viewModels<SubscriptionElapsedDialogFragmentViewModel>()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.elapsedString.observe(this) {
+            viewBinding.title.text =
+                getString(R.string.popup_login_elapsed_header, it)
+        }
+
+        viewBinding.sendButton.setOnClickListener {
+            viewModel.sendMessage(
+                viewBinding.messageToSubscriptionService.text.toString(),
+                viewBinding.letTheSubscriptionServiceContactYouCheckbox.isChecked
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (dialog as BottomSheetDialog).behavior.apply {
+            isFitToContents = false
         }
     }
 }
