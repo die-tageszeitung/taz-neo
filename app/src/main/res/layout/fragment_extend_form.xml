@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    app:statusBarBackground="@android:color/transparent">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundColor"
+        android:paddingBottom="@dimen/fragment_login_padding_to_navbar"
+        tools:context="de.taz.app.android.ui.main.MainActivity">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:isScrollContainer="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/web_view_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/fragment_settings_padding_horizontal"
+                android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <TextView
+                    android:id="@+id/fragment_extend_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
+                    android:text="@string/fragment_extend_title"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/TextAppearance.Settings.Category"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
+                    android:text="@string/fragment_extend_description"
+                    android:textAlignment="center"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_email_aboID_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
+                    android:labelFor="@id/fragment_extend_email_aboID"
+                    android:text="@string/fragment_extend_email_aboID_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_description" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_email_aboID"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:nextFocusForward="@id/fragment_extend_surname"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_aboID_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_surname_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_surname"
+                    android:text="@string/fragment_extend_surname_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_aboID" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_surname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:nextFocusForward="@id/fragment_extend_first_name"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_surname_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_first_name_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_first_name"
+                    android:text="@string/fragment_extend_first_name_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_surname" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_first_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:nextFocusForward="@id/fragment_extend_address_street"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_first_name_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_address_street_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_address_street"
+                    android:text="@string/fragment_extend_address_street_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_first_name" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_address_street"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:nextFocusForward="@id/fragment_extend_address_city"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_street_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_address_city_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_address_city"
+                    android:text="@string/fragment_extend_address_city_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_street" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_address_city"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@id/fragment_extend_address_zipcode"
+                    android:inputType="text"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_city_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_address_zipcode_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_address_zipcode"
+                    android:text="@string/fragment_extend_address_zipcode_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_city" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_address_zipcode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@id/fragment_extend_address_country"
+                    android:inputType="text"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_zipcode_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_address_country_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_address_country"
+                    android:text="@string/fragment_extend_address_country_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_zipcode" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_address_country"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@id/fragment_extend_message"
+                    android:inputType="text"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country_title" />
+
+                <TextView
+                    android:id="@+id/fragment_extend_message_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/fragment_extend_message"
+                    android:text="@string/fragment_extend_message_title"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country" />
+
+                <EditText
+                    android:id="@+id/fragment_extend_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="textMultiLine"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_message_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragment_extend_send_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/login_button_margin_top"
+                    android:text="@string/fragment_extend_send_button"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_extend_message" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <include
+            android:id="@+id/loading_screen"
+            layout="@layout/include_loading_screen"
+            android:visibility="gone" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</RelativeLayout>

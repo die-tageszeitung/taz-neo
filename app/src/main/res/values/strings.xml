@@ -410,4 +410,17 @@
     <string name="fragment_switch_message_title">Ihre Nachricht</string>
     <string name="fragment_switch_send_button">Absenden</string>
     <string name="fragment_switch_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
+
+    <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
+    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können. \n Wir werden sie dann kontaktieren.</string>
+    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_extend_surname_title">Nachname</string>
+    <string name="fragment_extend_first_name_title">Vorname</string>
+    <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>
+    <string name="fragment_extend_address_zipcode_title">PLZ</string>
+    <string name="fragment_extend_address_city_title">Ort</string>
+    <string name="fragment_extend_address_country_title">Land</string>
+    <string name="fragment_extend_message_title">Ihre Nachricht</string>
+    <string name="fragment_extend_send_button">Absenden</string>
+    <string name="fragment_extend_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 </resources>

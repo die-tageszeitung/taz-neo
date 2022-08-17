@@ -242,6 +242,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST -> {
                     showSwitchPrint2DigiForm()
                 }
+                LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST -> {
+                    showExtendPrintWithDigiForm()
+                }
             }
         }
 
@@ -372,9 +375,15 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun showSwitchPrint2DigiForm() {
         log.debug("showPrint2DigiForm")
-        viewModel.status.postValue(LoginViewModelState.LOADING)
         showFragment(
             SubscriptionSwitchPrint2DigiFragment()
+        )
+    }
+
+    private fun showExtendPrintWithDigiForm() {
+        log.debug("showPrintPlusDigiForm")
+        showFragment(
+            SubscriptionExtendPrintPlusDigiFragment()
         )
     }
 
