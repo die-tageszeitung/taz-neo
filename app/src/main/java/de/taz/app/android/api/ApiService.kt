@@ -707,9 +707,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to get the customer type
      */
     @Throws(ConnectivityException::class)
-    suspend fun getCustomerType(
-    ): CustomerType? {
+    suspend fun getCustomerType(): CustomerType? {
         val tag = "customerInfo"
+        log.debug("call graphql  $tag")
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.CustomerInfo

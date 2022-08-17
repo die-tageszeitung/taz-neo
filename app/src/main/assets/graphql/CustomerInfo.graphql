@@ -2,7 +2,8 @@ query customerInfo {
     customerInfo {
         authInfo {
             status,
-            message},
+            message
+        },
         customerType,
         subscriptionType,
         cancellation,
