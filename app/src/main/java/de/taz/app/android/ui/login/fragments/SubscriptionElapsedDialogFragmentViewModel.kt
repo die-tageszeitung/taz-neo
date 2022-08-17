@@ -1,0 +1,40 @@
+package de.taz.app.android.ui.login.fragments
+
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.map
+import de.taz.app.android.TazApplication
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.dto.CustomerType
+import de.taz.app.android.api.dto.SubscriptionFormDataType
+import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
+import kotlinx.coroutines.launch
+
+class SubscriptionElapsedDialogFragmentViewModel(application: TazApplication): AndroidViewModel(application) {
+    private val apiService = ApiService.getInstance(application)
+    private val authHelper = AuthHelper.getInstance(application)
+
+    private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
+    val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
+
+    fun sendMessage(message: String, contactMe: Boolean) {
+        getApplicationScope().launch {
+            val customerType = apiService.getCustomerType()
+            apiService.subscriptionFormData(
+                type = mapCustomer2SubscriptionFormDataType(customerType),
+                message = message,
+                requestCurrentSubscriptionOpportunities = contactMe
+            )
+        }
+    }
+
+    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType {
+        return when (customerType) {
+            CustomerType.digital -> SubscriptionFormDataType.expiredDigiSubscription
+            CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
+            CustomerType.sample -> SubscriptionFormDataType.trialSubscription
+            else -> SubscriptionFormDataType.unknown
+        }
+    }
+}
