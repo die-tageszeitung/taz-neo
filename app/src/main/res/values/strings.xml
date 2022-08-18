@@ -263,6 +263,7 @@
         \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
     </string>
 
+    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
     <string name="popup_login_elapsed_text_non_free">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
         \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
