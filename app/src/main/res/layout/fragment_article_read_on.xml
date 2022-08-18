@@ -96,17 +96,29 @@
             android:autoLink="email"
             app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
 
-        <Button
-            android:id="@+id/read_on_elapsed_order"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+
+        <EditText
+            android:id="@+id/message_to_subscription_service"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_button_margin_top"
-            android:text="@string/order_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            android:autofillHints="@string/popup_login_elapsed_message_to_abo"
+            android:hint="@string/popup_login_elapsed_message_to_abo"
+            android:inputType="textMultiLine"
+            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description"/>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_checkbox_message"
+            app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/send_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_positive_button"
+            app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.Barrier
