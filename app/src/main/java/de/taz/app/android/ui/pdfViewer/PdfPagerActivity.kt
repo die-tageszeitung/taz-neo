@@ -16,15 +16,14 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.Page
-import de.taz.app.android.api.models.PageType
+import de.taz.app.android.api.models.*
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
@@ -32,6 +31,7 @@ import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 const val LOGO_PEAK = 8
 const val HIDE_LOGO_DELAY_MS = 200L
@@ -186,6 +186,23 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             )
         }
 
+        // show bottom sheet  if  user's subscription is elapsed and the issue status is public
+        lifecycleScope.launch {
+            val subscriptionElapsed =
+                pdfPagerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
+            pdfPagerViewModel.issueKey.observe(this@PdfPagerActivity) {
+                it?.status?.let { status ->
+                    if (status == IssueStatus.public && subscriptionElapsed) {
+                        SubscriptionElapsedDialogFragment().show(
+                            supportFragmentManager,
+                            "showSubscriptionElapsed"
+                        )
+                    }
+                    // cancel after first value
+                    cancel()
+                }
+            }
+        }
     }
 
     private fun hideDrawerLogoWithDelay() {

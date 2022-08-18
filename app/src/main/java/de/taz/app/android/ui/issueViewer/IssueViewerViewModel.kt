@@ -3,12 +3,13 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
-import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.*
@@ -33,6 +34,7 @@ class IssueViewerViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val log by Log
+    private val authHelper = AuthHelper.getInstance(application)
     private val dataService = DataService.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
@@ -81,7 +83,7 @@ class IssueViewerViewModel(
                     IssueKeyWithDisplayableKey(issueKey, displayable)
                 )
                 // Start downloading the whole issue in background
-                applicationScope.launch {
+                getApplicationScope().launch {
                     try {
                         contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
                         issueRepository.updateLastViewedDate(issueKey)
@@ -159,7 +161,5 @@ class IssueViewerViewModel(
         }
     }
 
-    private val applicationScope by lazy {
-        (application as TazApplication).applicationScope
-    }
+    val elapsedSubscription = authHelper.status.asFlow()
 }

@@ -10,7 +10,9 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.AuthHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +30,7 @@ class PdfPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
+    private val authHelper = AuthHelper.getInstance(application)
     private val dataService = DataService.getInstance(application)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
@@ -93,7 +96,7 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
-                applicationScope.launch {
+                getApplicationScope().launch {
                     contentService.downloadToCache(issuePublicationWithPages)
                 }.join()
                 postValue(issue)
@@ -145,7 +148,5 @@ class PdfPagerViewModel(
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
-    private val applicationScope by lazy {
-        (application as TazApplication).applicationScope
-    }
+    val elapsedSubscription = authHelper.status.asFlow()
 }
