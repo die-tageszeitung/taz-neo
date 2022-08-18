@@ -32,9 +32,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 
 private const val RESTORATION_POSITION = "RESTORATION_POSITION"
@@ -98,14 +96,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             if (adapter == null) {
-                setCurrentItem(initialPosition, false)
                 adapter = SearchResultPagerAdapter(
                     this@SearchResultPagerFragment,
                     viewModel.totalFound,
                     viewModel.searchResultsLiveData.value ?: emptyList()
                 )
-
                 log.verbose("setting currentItem to initialPosition $initialPosition")
+                setCurrentItem(initialPosition, false)
             }
         }
     }
