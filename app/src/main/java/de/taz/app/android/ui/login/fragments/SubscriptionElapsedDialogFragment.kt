@@ -32,8 +32,6 @@ class SubscriptionElapsedDialogFragment :
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
-        (dialog as BottomSheetDialog).behavior.apply {
-            disableShapeAnimations()
-        }
+        (dialog as BottomSheetDialog).behavior.disableShapeAnimations()
     }
 }
