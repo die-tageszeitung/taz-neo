@@ -3,7 +3,6 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
