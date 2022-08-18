@@ -1,8 +1,13 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import com.google.android.material.shape.CornerFamily
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedDialogBinding
@@ -25,5 +30,7 @@ class SubscriptionElapsedDialogFragment :
                 viewBinding.letTheSubscriptionServiceContactYouCheckbox.isChecked
             )
         }
+
+        viewBinding.buttonClose.setOnClickListener { dismiss() }
     }
 }

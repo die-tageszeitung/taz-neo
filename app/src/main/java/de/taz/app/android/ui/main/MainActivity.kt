@@ -163,8 +163,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedPopup() {
-        val popUpFragment = SubscriptionElapsedDialogFragment()
-        popUpFragment.show(
+        SubscriptionElapsedDialogFragment().show(
             supportFragmentManager,
             "showSubscriptionElapsed"
         )
