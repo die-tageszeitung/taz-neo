@@ -73,9 +73,7 @@
                 android:layout_width="match_parent"
                 android:visibility="gone"
                 android:text="@string/settings_account_elapsed"
-                android:textAlignment="textEnd"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_manage_account"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email"/>
 
             <TextView
                 android:id="@+id/fragment_settings_account_logout"
@@ -83,7 +81,7 @@
                 android:layout_width="match_parent"
                 android:text="@string/settings_account_logout"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_email" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_account_elapsed" />
 
             <TextView
                 android:id="@+id/fragment_settings_account_delete"

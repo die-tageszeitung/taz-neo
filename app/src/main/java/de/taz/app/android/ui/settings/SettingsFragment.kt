@@ -44,8 +44,8 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
@@ -529,16 +529,17 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showElapsedIndication(elapsed: Boolean) {
         if (elapsed) {
             viewModel.elapsedString.observe(viewLifecycleOwner) { elapsedOn ->
-                elapsedOn?.let {
-                    view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.text =
+                val elapsedOnText = HtmlCompat.fromHtml(
+                    elapsedOn?.let {
                         getString(R.string.settings_account_elapsed_on, it)
-                } ?: getString(R.string.settings_account_elapsed)
+                    } ?: getString(R.string.settings_account_elapsed),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY
+                )
+                viewBinding.fragmentSettingsAccountElapsed.text = elapsedOnText
             }
-            view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.visibility =
-                View.VISIBLE
+            viewBinding.fragmentSettingsAccountElapsed.visibility = View.VISIBLE
         } else {
-            view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.visibility =
-                View.GONE
+            viewBinding.fragmentSettingsAccountElapsed.visibility = View.GONE
         }
     }
 
