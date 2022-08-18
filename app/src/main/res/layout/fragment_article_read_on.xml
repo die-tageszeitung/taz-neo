@@ -93,6 +93,7 @@
             android:layout_height="wrap_content"
             android:text="@string/popup_login_elapsed_text"
             android:textAlignment="center"
+            android:autoLink="email"
             app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
 
         <Button
