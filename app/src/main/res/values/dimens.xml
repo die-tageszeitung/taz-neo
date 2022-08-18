@@ -196,4 +196,9 @@
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 
+    <dimen name="bottom_sheet_round_padding_top">18dp</dimen>
+    <dimen name="bottom_sheet_round_padding_horizontal">18dp</dimen>
+    <dimen name="bottom_sheet_round_padding_bottom">24dp</dimen>
+    <dimen name="bottom_sheet_round_corner_radius">16dp</dimen>
+
 </resources>

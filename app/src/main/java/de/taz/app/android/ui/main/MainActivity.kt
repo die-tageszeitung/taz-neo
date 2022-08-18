@@ -137,8 +137,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-        // TODO REMOVE
-        showSubscriptionElapsedPopup()
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
             showSubscriptionElapsedPopup()
             (application as TazApplication).elapsedPopupAlreadyShown = true
