@@ -21,7 +21,8 @@ class SubscriptionElapsedDialogFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.elapsedString.observe(this) {
-            viewBinding.title.text = getString(R.string.popup_login_elapsed_header, it)
+            viewBinding.title.text = it?.let { getString(R.string.popup_login_elapsed_header, it) }
+                ?: getString(R.string.popup_login_elapsed_header_no_date)
         }
 
         viewBinding.sendButton.setOnClickListener {

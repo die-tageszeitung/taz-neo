@@ -60,9 +60,11 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                             putExtra(LOGIN_EXTRA_REGISTER, true)
                         }, ACTIVITY_LOGIN_REQUEST_CODE)
                     }
-                    val elapsedOn = DateHelper.stringToLongLocalizedString (authHelper.elapsedDateMessage.get())
-                    readOnElapsedTitle.text = getString(R.string.popup_login_elapsed_header, elapsedOn)
-                    //TODO(eike): make the mailto-link in the textView readOnDescription clickable
+                    val elapsedOn =
+                        DateHelper.stringToLongLocalizedString(authHelper.elapsedDateMessage.get())
+                    readOnElapsedTitle.text =
+                        elapsedOn?.let { getString(R.string.popup_login_elapsed_header, elapsedOn) }
+                            ?: getString(R.string.popup_login_elapsed_header_no_date)
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
