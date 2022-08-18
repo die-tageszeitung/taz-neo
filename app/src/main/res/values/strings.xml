@@ -110,6 +110,7 @@
     <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
     <string name="settings_account_elapsed"><u>abgelaufen</u></string>
+    <string name="settings_account_elapsed_on"><u>seit %s abgelaufen</u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>

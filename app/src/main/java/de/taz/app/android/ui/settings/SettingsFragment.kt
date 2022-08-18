@@ -525,6 +525,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showElapsedIndication(elapsed: Boolean) {
         if (elapsed) {
+            viewModel.elapsedString.observe(viewLifecycleOwner) { elapsedOn ->
+                elapsedOn?.let {
+                    view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.text =
+                        getString(R.string.settings_account_elapsed_on, it)
+                } ?: getString(R.string.settings_account_elapsed)
+            }
             view?.findViewById<TextView>(R.id.fragment_settings_account_elapsed)?.visibility =
                 View.VISIBLE
         } else {

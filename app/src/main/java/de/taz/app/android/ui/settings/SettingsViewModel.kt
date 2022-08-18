@@ -3,6 +3,7 @@ package de.taz.app.android.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.*
 import de.taz.app.android.api.ApiService
@@ -10,6 +11,8 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,6 +40,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val downloadDataStore = DownloadDataStore.getInstance(application)
     private val storageDataStore = StorageDataStore.getInstance(application)
     private val apiService = ApiService.getInstance(application)
+    private val authHelper: AuthHelper = AuthHelper.getInstance(application)
+
+    private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
+    val elapsedString = elapsedOnString.map { DateHelper.stringToMediumLocalizedString(it) }
 
     init {
         fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
