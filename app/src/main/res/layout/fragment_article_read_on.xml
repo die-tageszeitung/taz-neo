@@ -7,76 +7,122 @@
     android:paddingEnd="@dimen/fragment_padding_horizontal"
     android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
 
-    <androidx.constraintlayout.widget.Group
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/read_on_login_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/read_on_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
+            android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
+            android:autoLink="all"
+            android:text="@string/fragment_login_description"
+            android:textAlignment="center"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/read_on_username_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/read_on_description">
+
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/read_on_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="username|emailAddress"
+                android:hint="@string/login_username_hint"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:nextFocusForward="@id/read_on_password_layout" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/read_on_password_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
+            app:passwordToggleEnabled="true">
+
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/read_on_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="password"
+                android:hint="@string/login_password_hint"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/read_on_login_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:text="@string/login_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/read_on_password_layout"
+            app:layout_constraintWidth="@dimen/button_max_width" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/read_on_elapsed_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/read_on_elapsed_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_header"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/read_on_elapsed_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_text"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
+
+        <Button
+            android:id="@+id/read_on_elapsed_order"
+            style="@style/AppTheme.ButtonStyle.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:text="@string/order_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description"
+            app:layout_constraintWidth="@dimen/button_max_width" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="read_on_description, read_on_username_layout, read_on_password_layout, read_on_login_button" />
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="read_on_elapsed_group,read_on_login_group" />
 
-    <TextView
-        android:id="@+id/read_on_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
-        android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
-        android:text="@string/fragment_login_description"
-        android:textAlignment="center"
-        android:autoLink="all"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/read_on_username_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/read_on_description">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/read_on_username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="username|emailAddress"
-            android:hint="@string/login_username_hint"
-            android:imeOptions="actionNext"
-            android:inputType="textEmailAddress"
-            android:nextFocusForward="@id/read_on_password_layout" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/read_on_password_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
-        app:passwordToggleEnabled="true">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/read_on_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autofillHints="password"
-            android:hint="@string/login_password_hint"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <Button
-        android:id="@+id/read_on_login_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
-        android:text="@string/login_button"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_password_layout" />
 
     <View
         android:id="@+id/read_on_separator_line"
-        app:layout_constraintTop_toBottomOf="@id/read_on_login_button"
-        android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
         android:layout_width="match_parent"
         android:layout_height="@dimen/login_box_separator_line_height"
-        android:background="@color/login_box_separator_line_color"/>
+        android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
+        android:background="@color/login_box_separator_line_color"
+        app:layout_constraintTop_toBottomOf="@id/barrier" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/read_on_trial_subscription_box"
@@ -84,34 +130,33 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/login_box_margin_vertical"
         android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_separator_line"
-        >
+        app:layout_constraintTop_toBottomOf="@id/read_on_separator_line">
+
         <TextView
             android:id="@+id/read_on_trial_subscription_box_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_trial_subscription_title"
-            android:textSize="@dimen/login_box_title_text_size"
             android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            android:textSize="@dimen/login_box_title_text_size"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/read_on_trial_subscription_box_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_trial_subscription_body"
             android:textAlignment="center"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title"
-            />
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_trial_subscription_box_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login_trial_subscription_button_text"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text"
-            />
+            android:text="@string/login_trial_subscription_button_text"
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -120,34 +165,33 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/login_box_margin_vertical"
         android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box"
-        >
+        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box">
+
         <TextView
             android:id="@+id/read_on_switch_print2digi_box_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_switch_print2digi_title"
-            android:textSize="@dimen/login_box_title_text_size"
             android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            android:textSize="@dimen/login_box_title_text_size"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/read_on_switch_print2digi_box_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_switch_print2digi_body"
             android:textAlignment="center"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title"
-            />
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_switch_print2digi_box_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login_switch_print2digi_button_text"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text"
-            />
+            android:text="@string/login_switch_print2digi_button_text"
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -156,69 +200,33 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/login_box_margin_vertical"
         android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box"
-        >
+        app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box">
+
         <TextView
             android:id="@+id/read_on_extend_print_with_digi_box_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_extend_print_with_digi_title"
-            android:textSize="@dimen/login_box_title_text_size"
             android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            />
+            android:textSize="@dimen/login_box_title_text_size"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/read_on_extend_print_with_digi_box_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_extend_print_with_digi_body"
             android:textAlignment="center"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title"
-            />
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_extend_print_with_digi_box_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login_extend_print_with_digi_button_text"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
-            />
+            android:text="@string/login_extend_print_with_digi_button_text"
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/read_on_elapsed_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="read_on_elapsed_description, read_on_elapsed_order, read_on_elapsed_title" />
-
-    <TextView
-        android:id="@+id/read_on_elapsed_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/popup_login_elapsed_header"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/read_on_elapsed_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/popup_login_elapsed_text"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
-
-    <Button
-        android:id="@+id/read_on_elapsed_order"
-        style="@style/AppTheme.ButtonStyle.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/login_button_margin_top"
-        android:text="@string/order_button"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description" />
 </androidx.constraintlayout.widget.ConstraintLayout>
