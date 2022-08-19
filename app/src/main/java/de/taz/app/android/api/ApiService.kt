@@ -699,18 +699,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.SubscriptionFormData,
-                SubscriptionFormDataVariables(
-                    type,
-                    mail,
-                    surname,
-                    firstname,
-                    street,
-                    city,
-                    postcode,
-                    country,
-                    message,
-                    requestCurrentSubscriptionOpportunities,
-                )
+                variables
             ).data?.subscription
         }
     }
