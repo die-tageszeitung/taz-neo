@@ -29,7 +29,7 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Dispatchers
@@ -161,7 +161,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedPopup() {
-        SubscriptionElapsedDialogFragment().show(
+        SubscriptionElapsedBottomSheetFragment().show(
             supportFragmentManager,
             "showSubscriptionElapsed"
         )

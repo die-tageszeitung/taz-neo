@@ -23,7 +23,7 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
@@ -193,7 +193,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             pdfPagerViewModel.issueKey.observe(this@PdfPagerActivity) {
                 it?.status?.let { status ->
                     if (status == IssueStatus.public && subscriptionElapsed) {
-                        SubscriptionElapsedDialogFragment().show(
+                        SubscriptionElapsedBottomSheetFragment().show(
                             supportFragmentManager,
                             "showSubscriptionElapsed"
                         )

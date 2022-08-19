@@ -14,7 +14,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
@@ -155,7 +155,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                 issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observe(this@IssueViewerWrapperFragment) {
                     it?.issueKey?.let { issueKey ->
                         if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
-                            SubscriptionElapsedDialogFragment().show(
+                            SubscriptionElapsedBottomSheetFragment().show(
                                 childFragmentManager,
                                 "showSubscriptionElapsed"
                             )

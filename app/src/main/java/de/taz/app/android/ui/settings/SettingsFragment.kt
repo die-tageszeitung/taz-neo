@@ -45,7 +45,7 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedDialogFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
@@ -159,7 +159,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsAccountElapsed.setOnClickListener {
-                SubscriptionElapsedDialogFragment().show(
+                SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
                     "showSubscriptionElapsed"
                 )

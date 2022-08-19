@@ -10,7 +10,7 @@ import de.taz.app.android.databinding.FragmentSubscriptionElapsedDialogBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 
 
-class SubscriptionElapsedDialogFragment :
+class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedDialogBinding>() {
 
     override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
