@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.api.models.AuthStatus
@@ -19,9 +20,9 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -152,17 +153,13 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             lifecycleScope.launch {
                 val subscriptionElapsed =
                     issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
-                issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observe(this@IssueViewerWrapperFragment) {
-                    it?.issueKey?.let { issueKey ->
-                        if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
-                            SubscriptionElapsedBottomSheetFragment().show(
-                                childFragmentManager,
-                                "showSubscriptionElapsed"
-                            )
-                        }
-                        // cancel after first value
-                        cancel()
-                    }
+                val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                    .mapNotNull { it }.first().issueKey
+                if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+                    SubscriptionElapsedBottomSheetFragment().show(
+                        childFragmentManager,
+                        "showSubscriptionElapsed"
+                    )
                 }
             }
         }
