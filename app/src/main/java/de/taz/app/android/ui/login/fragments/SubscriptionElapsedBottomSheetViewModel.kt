@@ -11,7 +11,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.launch
 
-class SubscriptionElapsedDialogFragmentViewModel(
+class SubscriptionElapsedBottomSheetViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
 
