@@ -134,8 +134,11 @@ class LoginViewModel @JvmOverloads constructor(
                 AuthStatus.tazIdNotLinked -> {
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
-                AuthStatus.elapsed ->
+                AuthStatus.elapsed -> {
+                    username?.let { authHelper.email.set(it) }
+                    authHelper.status.set(AuthStatus.elapsed)
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
                 AuthStatus.notValidMail,
                 AuthStatus.notValid -> {
                     resetSubscriptionPassword()

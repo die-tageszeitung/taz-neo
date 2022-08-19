@@ -311,7 +311,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
         showFragment(SubscriptionInactiveFragment())
-        setAuthStatusElapsed()
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
@@ -453,13 +452,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
             setResult(Activity.RESULT_OK, data)
             finish()
-        }
-    }
-
-    fun setAuthStatusElapsed() {
-        log.debug("set auth status elapsed")
-        lifecycleScope.launch(Dispatchers.Main) {
-            authHelper.status.set(AuthStatus.elapsed)
         }
     }
 
