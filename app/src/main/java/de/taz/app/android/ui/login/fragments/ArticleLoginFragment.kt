@@ -110,11 +110,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
 
     private fun hideKeyBoard() {
-        activity?.apply {
-            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-                val view = activity?.currentFocus ?: View(activity)
-                hideSoftInputFromWindow(view.windowToken, 0)
-            }
+        (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
+            val view = activity?.currentFocus ?: View(activity)
+            hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
 
@@ -136,7 +134,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             issueViewerWrapperFragment.parentFragmentManager.apply {
                 beginTransaction().replace(
                     android.R.id.content,
-                    IssueViewerWrapperFragment.instance(issueViewerWrapperFragment.issuePublication, result.articleFileName)
+                    IssueViewerWrapperFragment.instance(
+                        issueViewerWrapperFragment.issuePublication,
+                        result.articleFileName
+                    )
                 ).commit()
             }
         }
