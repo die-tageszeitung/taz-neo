@@ -180,6 +180,7 @@ class LoginViewModel @JvmOverloads constructor(
                 AuthStatus.elapsed -> {
                     authHelper.email.set(username)
                     token?.let { authHelper.token.set(it) }
+                    authHelper.status.set(AuthStatus.elapsed)
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 null -> {
