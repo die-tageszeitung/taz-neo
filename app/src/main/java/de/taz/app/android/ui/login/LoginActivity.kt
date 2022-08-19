@@ -15,7 +15,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
@@ -98,6 +97,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         viewModel.backToArticle = article != null
 
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
+            if(loginViewModelState != LoginViewModelState.LOADING)
+                hideLoadingScreen()
+
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     lifecycleScope.launch {
@@ -310,8 +312,10 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionInactiveFragment())
-        setAuthStatusElapsed()
+        SubscriptionElapsedBottomSheetFragment().show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
@@ -453,13 +457,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
             setResult(Activity.RESULT_OK, data)
             finish()
-        }
-    }
-
-    fun setAuthStatusElapsed() {
-        log.debug("set auth status elapsed")
-        lifecycleScope.launch(Dispatchers.Main) {
-            authHelper.status.set(AuthStatus.elapsed)
         }
     }
 
