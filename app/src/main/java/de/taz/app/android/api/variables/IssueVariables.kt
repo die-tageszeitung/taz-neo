@@ -1,13 +1,13 @@
 package de.taz.app.android.api.variables
 
-import com.squareup.moshi.JsonClass
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.Required
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import de.taz.app.android.util.Json
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class IssueVariables(
     val feedName: String? = null,
     val issueDate: String? = null,
     val limit: Int = 1
-): Variables {
-    override fun toJson(): String = JsonHelper.toJson(this)
-}
+): Variables

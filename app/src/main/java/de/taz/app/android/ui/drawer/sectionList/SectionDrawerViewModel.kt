@@ -18,7 +18,7 @@ class SectionDrawerViewModel(
 
     fun setDefaultDrawerNavButton() {
         val defaultDrawerFileName = getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             navButton.postValue(imageRepository.get(defaultDrawerFileName))
         }
     }

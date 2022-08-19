@@ -7,7 +7,7 @@ import de.taz.app.android.persistence.join.SectionNavButtonJoin
 
 
 @Dao
-abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
+interface SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin> {
 
     @Query(
         """SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation
@@ -17,7 +17,7 @@ abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
         WHERE SectionNavButtonJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getNavButtonForSection(sectionFileName: String): Image?
+    suspend fun getNavButtonForSection(sectionFileName: String): Image?
 
     @Query(
         """SELECT Image.fileEntryName FROM Image INNER JOIN SectionNavButtonJoin
@@ -26,6 +26,6 @@ abstract class SectionNavButtonJoinDao : BaseDao<SectionNavButtonJoin>() {
         WHERE SectionNavButtonJoin.sectionFileName == :sectionFileName
     """
     )
-    abstract fun getNavButtonNameForSection(sectionFileName: String): String?
+    suspend fun getNavButtonNameForSection(sectionFileName: String): String?
 
 }

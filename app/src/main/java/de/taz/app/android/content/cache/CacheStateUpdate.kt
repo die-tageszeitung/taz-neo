@@ -32,6 +32,9 @@ data class CacheStateUpdate(
     /**
      * Cache state is either [Type.FAILED] or [Type.SUCCEEDED]
      */
-    val complete get() = listOf(Type.SUCCEEDED, Type.FAILED)
-        .contains(type)
+    val hasCompleted
+        get() = listOf(Type.SUCCEEDED, Type.FAILED).contains(type)
+
+    val hasFailed: Boolean
+        get() = type == Type.FAILED
 }

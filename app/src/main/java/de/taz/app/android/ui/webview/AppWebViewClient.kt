@@ -25,13 +25,16 @@ interface AppWebViewClientCallBack {
     fun onPageFinishedLoading()
 }
 
-class AppWebViewClient(applicationContext: Context, private val callBack: AppWebViewClientCallBack) : WebViewClient() {
+class AppWebViewClient(
+    applicationContext: Context,
+    private val callBack: AppWebViewClientCallBack
+) : WebViewClient() {
 
     private val log by Log
     private val storageService = StorageService.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
 
-    @SuppressWarnings("deprecation")
+    @Deprecated("Deprecated in Java - But needed for Android versions pre 7.0.0")
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(webView: WebView?, url: String?): Boolean {
         return shouldOverride(webView, url) || super.shouldOverrideUrlLoading(webView, url)
@@ -42,10 +45,8 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
         webView: WebView?,
         request: WebResourceRequest?
     ): Boolean {
-        return shouldOverride(webView, request?.url.toString()) || super.shouldOverrideUrlLoading(
-            webView,
-            request
-        )
+        return shouldOverride(webView, request?.url.toString())
+                || super.shouldOverrideUrlLoading(webView, request)
     }
 
     private fun shouldOverride(webView: WebView?, url: String?): Boolean {
@@ -132,7 +133,7 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
         view?.let {
             url?.let {
                 val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
-                val fileEntry = fileEntryRepository.get(fileName)
+                val fileEntry = runBlocking {  fileEntryRepository.get(fileName) }
                 fileEntry?.let { return storageService.getFileUri(it) }
             }
 
@@ -176,7 +177,7 @@ class AppWebViewClient(applicationContext: Context, private val callBack: AppWeb
         }
     }
 
-    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking(Dispatchers.IO) {
+    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking {
         val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
         fileEntryRepository.get(fileName) != null
     }

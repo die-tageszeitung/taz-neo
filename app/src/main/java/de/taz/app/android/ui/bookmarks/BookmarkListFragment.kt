@@ -33,7 +33,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recycleAdapter = recycleAdapter ?: BookmarkListAdapter(this)
+        recycleAdapter = recycleAdapter ?: BookmarkListAdapter(this, applicationScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,7 +57,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     }
 
     fun shareArticle(articleFileName: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val article = articleRepository?.getStub(articleFileName)
             article?.onlineLink?.let { url ->
                 val sendIntent: Intent = Intent().apply {

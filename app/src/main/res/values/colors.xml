@@ -78,4 +78,8 @@
     <color name="welcome_text_background_tint">@color/white</color>
 
     <color name="pdf_section_font">@android:color/black</color>
+    <color name="scrollbar_color">@color/lightGrey</color>
+
+    <color name="login_box_background">@color/superLightGrey</color>
+    <color name="login_box_separator_line_color">@color/lightGrey</color>
 </resources>

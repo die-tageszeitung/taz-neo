@@ -9,9 +9,11 @@ import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class TextSettingsViewModel(application: Application) : AndroidViewModel(application) {
+class TextSettingsViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
 
@@ -30,19 +32,15 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun setNightMode(activated: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
-            tazApiCssDataStore.nightMode.set(activated)
-        }
+        launch { tazApiCssDataStore.nightMode.set(activated) }
     }
 
     fun resetFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
-            tazApiCssDataStore.fontSize.reset()
-        }
+        launch { tazApiCssDataStore.fontSize.reset() }
     }
 
     fun decreaseFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             val newSize = getFontSize() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 setFontSize(newSize.toString())
@@ -51,7 +49,7 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun increaseFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        launch {
             val newSize = getFontSize() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 setFontSize(newSize.toString())
@@ -60,10 +58,10 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun setFontSize(value: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            tazApiCssDataStore.fontSize.set(value)
-        }
+        launch { tazApiCssDataStore.fontSize.set(value) }
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
+
+    override val coroutineContext: CoroutineContext =  SupervisorJob()
 }

@@ -18,21 +18,19 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class LoginViewModel(
+class LoginViewModel @JvmOverloads constructor(
     application: Application,
-    initialUsername: String? = null,
-    initialPassword: String? = null,
-    register: Boolean = false,
     private val apiService: ApiService = ApiService.getInstance(application),
     private val authHelper: AuthHelper = AuthHelper.getInstance(application),
     private val toastHelper: ToastHelper = ToastHelper.getInstance(application),
     // even if IDE says it is unused - it will be initialized with the view model starting observing:
     private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(application)
-) : AndroidViewModel(application) {
+) : AndroidViewModel(application), CoroutineScope {
 
     private val log by Log
-    private val ioScope = CoroutineScope(Dispatchers.IO)
+
     private var statusBeforePasswordRequest: LoginViewModelState? = null
     var statusBeforeEmailAlreadyLinked: LoginViewModelState? = null
 
@@ -62,12 +60,6 @@ class LoginViewModel(
     var createNewAccount: Boolean = true
     var validCredentials: Boolean = false
 
-    init {
-        if (!register && !initialUsername.isNullOrBlank() && !initialPassword.isNullOrBlank()) {
-            login(initialUsername, initialPassword)
-        }
-    }
-
     fun setDone() {
         status.postValue(LoginViewModelState.DONE)
     }
@@ -94,7 +86,7 @@ class LoginViewModel(
 
             status.postValue(LoginViewModelState.LOADING)
             if (!initialPassword.isNullOrBlank()) {
-                ioScope.launch {
+                launch {
                     handleSubscriptionIdLogin(initialSubscriptionId, initialPassword)
                 }
             } else {
@@ -118,7 +110,7 @@ class LoginViewModel(
                 status.postValue(LoginViewModelState.PASSWORD_MISSING)
                 null
             } else {
-                ioScope.launch { handleCredentialsLogin(tmpUsername, tmpPassword) }
+                launch { handleCredentialsLogin(tmpUsername, tmpPassword) }
             }
         }
     }
@@ -201,11 +193,19 @@ class LoginViewModel(
         status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
     }
 
+    fun requestSwitchPrint2Digi() {
+        status.postValue(LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST)
+    }
+
+    fun requestExtendPrintWithDigi() {
+        status.postValue(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
+    }
+
     fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
         register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
         register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
@@ -216,7 +216,7 @@ class LoginViewModel(
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
             status.postValue(LoginViewModelState.LOADING)
-            ioScope.launch {
+            launch {
                 handleRegistration(
                     username1,
                     password1,
@@ -297,7 +297,7 @@ class LoginViewModel(
     fun connect(): Job {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
-        return ioScope.launch {
+        return launch {
             if (!createNewAccount) {
                 val checkCredentials = checkCredentials()
                 if (checkCredentials == false) {
@@ -397,7 +397,7 @@ class LoginViewModel(
     ): Job {
         status.postValue(LoginViewModelState.LOADING)
 
-        return ioScope.launch {
+        return launch {
             delay(timeoutMillis)
             handlePoll(previousState, timeoutMillis * 2, runBlocking)
         }
@@ -497,7 +497,7 @@ class LoginViewModel(
     fun requestSubscriptionPassword(subscriptionId: Int): Job {
         log.debug("forgotCredentialsPassword $subscriptionId")
         status.postValue(LoginViewModelState.LOADING)
-        return ioScope.launch { handleSubscriptionPassword(subscriptionId) }
+        return launch { handleSubscriptionPassword(subscriptionId) }
     }
 
     private suspend fun handleSubscriptionPassword(subscriptionId: Int) {
@@ -534,7 +534,7 @@ class LoginViewModel(
             null
         } else {
             status.postValue(LoginViewModelState.LOADING)
-            ioScope.launch { handlePasswordReset(email) }
+            launch { handlePasswordReset(email) }
         }
     }
 
@@ -586,7 +586,7 @@ class LoginViewModel(
 
     private fun getSubscription(previousState: LoginViewModelState?) {
         status.postValue(LoginViewModelState.LOADING)
-        ioScope.launch {
+        launch {
             try {
                 ApiService.getInstance(getApplication()).subscription(
                     tazId = username ?: "",
@@ -698,7 +698,7 @@ class LoginViewModel(
         }
     }
 
-    fun requestSubscription() = ioScope.launch {
+    fun requestSubscription() = launch {
         val previousState = status.value
         status.postValue(LoginViewModelState.LOADING)
         if (!createNewAccount) {
@@ -727,6 +727,7 @@ class LoginViewModel(
         return authHelper.isElapsed()
     }
 
+    override val coroutineContext: CoroutineContext  = SupervisorJob() + Dispatchers.IO
 }
 
 enum class LoginViewModelState {
@@ -776,5 +777,7 @@ enum class LoginViewModelState {
     SUBSCRIPTION_TAKEN,
     USERNAME_MISSING,
     NAME_MISSING,
+    SWITCH_PRINT_2_DIGI_REQUEST,
+    EXTEND_PRINT_WITH_DIGI_REQUEST,
     DONE
 }

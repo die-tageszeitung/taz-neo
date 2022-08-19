@@ -22,6 +22,44 @@
         app:layout_constraintGuide_percent="0.9" />
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top"
+        />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_top"
+        android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
+        >
+        <TextView
+            android:id="@+id/home_login_button_text"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_home_login"
+            android:textColor="@color/white"
+            />
+        <ImageView
+            android:id="@+id/home_login_button_arrow_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/home_login_button_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_arrow_right"
+            app:tint="@color/tazRed"
+            android:layout_marginTop="@dimen/fragment_cover_flow_login_button_icon_margin_top"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,13 +69,13 @@
     <com.factor.bouncy.BouncyRecyclerView
         android:id="@+id/fragment_cover_flow_grid"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toBottomOf="@id/guideline_date"
+        app:layout_constraintBottom_toTopOf="@id/guideline_date"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
         app:layout_constraintVertical_bias="0.6" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

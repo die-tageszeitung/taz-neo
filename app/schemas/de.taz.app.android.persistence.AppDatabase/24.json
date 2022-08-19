@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 24,
-    "identityHash": "60d80d3ce127ad3494472b09610b5903",
+    "identityHash": "4eca9e0d4151673722348b0e75337219",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -73,6 +73,7 @@
             "columnNames": [
               "articleFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAudioFileJoin_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
           },
           {
@@ -81,6 +82,7 @@
             "columnNames": [
               "audioFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAudioFileJoin_audioFileName` ON `${TABLE_NAME}` (`audioFileName`)"
           }
         ],
@@ -157,6 +159,7 @@
             "columnNames": [
               "authorFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAuthor_authorFileName` ON `${TABLE_NAME}` (`authorFileName`)"
           },
           {
@@ -165,6 +168,7 @@
             "columnNames": [
               "articleFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleAuthor_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
           }
         ],
@@ -184,7 +188,7 @@
       },
       {
         "tableName": "Article",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarked` INTEGER NOT NULL, `hasAudio` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarkedTime` TEXT, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
         "fields": [
           {
             "fieldPath": "articleFileName",
@@ -229,16 +233,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "bookmarked",
-            "columnName": "bookmarked",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "hasAudio",
-            "columnName": "hasAudio",
-            "affinity": "INTEGER",
-            "notNull": true
+            "fieldPath": "bookmarkedTime",
+            "columnName": "bookmarkedTime",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "articleType",
@@ -311,6 +309,7 @@
             "columnNames": [
               "imageFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ArticleImageJoin_imageFileName` ON `${TABLE_NAME}` (`imageFileName`)"
           }
         ],
@@ -662,6 +661,7 @@
             "columnNames": [
               "articleFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueImprintJoin_articleFileName` ON `${TABLE_NAME}` (`articleFileName`)"
           }
         ],
@@ -745,6 +745,7 @@
             "columnNames": [
               "momentFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_MomentCreditJoin_momentFileName` ON `${TABLE_NAME}` (`momentFileName`)"
           }
         ],
@@ -828,6 +829,7 @@
             "columnNames": [
               "momentFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_MomentFilesJoin_momentFileName` ON `${TABLE_NAME}` (`momentFileName`)"
           }
         ],
@@ -911,6 +913,7 @@
             "columnNames": [
               "momentFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_MomentImageJoin_momentFileName` ON `${TABLE_NAME}` (`momentFileName`)"
           }
         ],
@@ -994,6 +997,7 @@
             "columnNames": [
               "pageKey"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_IssuePageJoin_pageKey` ON `${TABLE_NAME}` (`pageKey`)"
           }
         ],
@@ -1062,6 +1066,7 @@
             "columnNames": [
               "sectionFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_IssueSectionJoin_sectionFileName` ON `${TABLE_NAME}` (`sectionFileName`)"
           }
         ],
@@ -1271,6 +1276,7 @@
             "columnNames": [
               "fileEntryName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_ResourceInfoFileEntryJoin_fileEntryName` ON `${TABLE_NAME}` (`fileEntryName`)"
           }
         ],
@@ -1386,6 +1392,7 @@
             "columnNames": [
               "sectionFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionArticleJoin_sectionFileName` ON `${TABLE_NAME}` (`sectionFileName`)"
           }
         ],
@@ -1451,6 +1458,7 @@
             "columnNames": [
               "imageFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionImageJoin_imageFileName` ON `${TABLE_NAME}` (`imageFileName`)"
           }
         ],
@@ -1510,6 +1518,7 @@
             "columnNames": [
               "sectionFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON `${TABLE_NAME}` (`sectionFileName`)"
           },
           {
@@ -1518,6 +1527,7 @@
             "columnNames": [
               "navButtonFileName"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_navButtonFileName` ON `${TABLE_NAME}` (`navButtonFileName`)"
           }
         ],
@@ -1550,7 +1560,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '60d80d3ce127ad3494472b09610b5903')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4eca9e0d4151673722348b0e75337219')"
     ]
   }
 }

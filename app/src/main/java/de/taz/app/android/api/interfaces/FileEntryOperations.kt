@@ -20,11 +20,11 @@ interface FileEntryOperations: Storable {
     val path: String
     val storageLocation: StorageLocation
 
-    fun getDownloadDate(applicationContext: Context): Date? {
+    suspend fun getDownloadDate(applicationContext: Context): Date? {
         return FileEntryRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
-    fun setDownloadDate(date: Date?, applicationContext: Context) {
+    suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         val file = when (this) {
             is Image -> FileEntry(this)
             is FileEntry -> this

@@ -7,10 +7,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlin.coroutines.*
 
 const val BACK_OFF_FACTOR = 1.75f
 
@@ -18,6 +15,8 @@ data class WaitingCall(
     val continuation: Continuation<Unit>,
     val maxRetries: Int
 )
+
+const val INFINITE = -1
 
 @Mockable
 abstract class ConnectionHelper {
@@ -35,7 +34,7 @@ abstract class ConnectionHelper {
 
     suspend fun <T> retryOnConnectivityFailure(
         onConnectionFailure: suspend () -> Unit = {},
-        maxRetries: Int = -1,
+        maxRetries: Int = INFINITE,
         block: suspend () -> T
     ): T {
         while (true) {
@@ -60,9 +59,9 @@ abstract class ConnectionHelper {
         }
     }
 
-    private suspend fun ensureConnectivityCheckRunning() {
+    private fun ensureConnectivityCheckRunning() {
         if (connectivityCheckJob?.isActive != true) {
-            connectivityCheckJob = CoroutineScope(Dispatchers.IO).launch {
+            connectivityCheckJob = CoroutineScope(Dispatchers.Default).launch {
                 tryForConnectivity()
             }
         }

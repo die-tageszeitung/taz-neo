@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import de.taz.app.android.TazApplication
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -14,7 +15,8 @@ import java.lang.reflect.ParameterizedType
  * Make sure that the ViewBinding is always the last generic!
  * Otherwise [createBinding] will fail
  */
-abstract class ViewBindingBottomSheetFragment<VIEW_BINDING : ViewBinding> : BottomSheetDialogFragment() {
+abstract class ViewBindingBottomSheetFragment<VIEW_BINDING : ViewBinding> :
+    BottomSheetDialogFragment() {
 
     private var _binding: VIEW_BINDING? = null
 
@@ -54,6 +56,10 @@ abstract class ViewBindingBottomSheetFragment<VIEW_BINDING : ViewBinding> : Bott
             Boolean::class.java
         )
         return method.invoke(this, layoutInflater, container, false) as VIEW_BINDING
+    }
+
+    protected val applicationScope by lazy {
+        (requireActivity().application as TazApplication).applicationScope
     }
 
 }

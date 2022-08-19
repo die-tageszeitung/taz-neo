@@ -1,9 +1,9 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class ErrorLocationDto(
     val line: Int? = null,
     val column: Int? = null

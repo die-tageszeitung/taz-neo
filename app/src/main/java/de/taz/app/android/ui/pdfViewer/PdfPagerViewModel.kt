@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.R
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
@@ -10,7 +11,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,7 @@ class PdfPagerViewModel(
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
         addSource(issuePublication) {
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 val issue = contentService.downloadMetadata(it) as IssueWithPages
                 postValue(issue.issueKey)
             }
@@ -59,7 +59,7 @@ class PdfPagerViewModel(
             _currentItem.postValue(position)
 
             // Save current position to database to restore later on
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 issueKey.value?.let {
                     dataService.saveLastPageOnIssue(
                         it.getIssueKey(),
@@ -77,7 +77,7 @@ class PdfPagerViewModel(
                 maxRetries = maxRetries
             ) as IssueWithPages
 
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 val issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadMetaData(maxRetries = 3)
@@ -93,24 +93,24 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
-                CoroutineScope(Dispatchers.IO).launch {
+                applicationScope.launch {
                     contentService.downloadToCache(issuePublicationWithPages)
-                    postValue(issue)
-                }
+                }.join()
+                postValue(issue)
             }
         }
     }
 
     val navButton = MediatorLiveData<Image>().apply {
         val defaultDrawerFileName = getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             postValue(imageRepository.get(defaultDrawerFileName))
         }
     } as LiveData<Image>
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
         addSource(issue) { issue ->
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
                     // as we do not know before downloading where we stored the fileEntry
                     // and the fileEntry storageLocation is in the model - get it freshly from DB
@@ -163,4 +163,7 @@ class PdfPagerViewModel(
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
+    }
 }

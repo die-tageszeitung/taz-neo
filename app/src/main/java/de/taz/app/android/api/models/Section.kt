@@ -42,13 +42,13 @@ data class Section(
     override val path: String
         get() = sectionHtml.path
 
-    override fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { FileEntry(it) })
         return list.distinct()
     }
 
-    override fun getAllFileNames(): List<String> {
+    override suspend fun getAllFileNames(): List<String> {
         return getAllFiles().map { it.name }
     }
 
@@ -56,37 +56,37 @@ data class Section(
         return sectionHtml.name
     }
 
-    fun nextSection(applicationContext: Context): Section? {
+    suspend fun nextSection(applicationContext: Context): Section? {
         val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getNextSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
     }
 
-    fun previousSection(applicationContext: Context): Section? {
+    suspend fun previousSection(applicationContext: Context): Section? {
         val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getPreviousSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
     }
 
-    override fun previous(applicationContext: Context): Section? {
+    override suspend fun previous(applicationContext: Context): Section? {
         return previousSection(applicationContext)
     }
 
-    override fun next(applicationContext: Context): Section? {
+    override suspend fun next(applicationContext: Context): Section? {
         return nextSection(applicationContext)
     }
 
-    override fun getIssueStub(applicationContext: Context): IssueStub? {
+    override suspend fun getIssueStub(applicationContext: Context): IssueStub? {
         return super.getIssueStub(applicationContext)
     }
 
-    override fun getDownloadDate(applicationContext: Context): Date? {
+    override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return SectionRepository.getInstance(applicationContext).getDownloadDate(SectionStub(this))
     }
 
-    override fun setDownloadDate(date: Date?, applicationContext: Context) {
+    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
         SectionRepository.getInstance(applicationContext).setDownloadDate(SectionStub(this), date)
     }
 }

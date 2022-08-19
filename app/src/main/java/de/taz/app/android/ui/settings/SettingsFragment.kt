@@ -154,6 +154,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setTapToScroll(isChecked)
             }
 
+            fragmentSettingsKeepScreenOn.setOnCheckedChangeListener { _, isChecked ->
+                setKeepScreenOn(isChecked)
+            }
+
             fragmentSettingsAccountElapsed.setOnClickListener {
                 activity?.startActivity(Intent(activity, LoginActivity::class.java).apply {
                     putExtra(LOGIN_EXTRA_REGISTER, true)
@@ -237,6 +241,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             tapToScrollLiveData.observeDistinct(viewLifecycleOwner) { enabled ->
                 showTapToScroll(enabled)
+            }
+            keepScreenOnLiveData.observeDistinct(viewLifecycleOwner) { screenOn ->
+                showKeepScreenOn(screenOn)
             }
             storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
@@ -333,7 +340,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             it.isEnabled = false
             dialog.setCancelable(false)
             if (deletionJob == null) {
-                deletionJob = CoroutineScope(Dispatchers.IO).launch {
+                // TODO run delete job on applicationScope but update dialogView only on lifecycle
+                deletionJob = applicationScope.launch {
                     deleteAllIssuesWithProgressBar(dialogView)
                     dialog.dismiss()
                 }
@@ -358,9 +366,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             dialogView.findViewById<ProgressBar>(R.id.fragment_settings_delete_progress)
         val deletionProgressText =
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
-        val downloadedIssueStubList = withContext(Dispatchers.IO) {
+        val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
-        }
 
         val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
 
@@ -539,6 +546,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
     }
 
+    private fun showKeepScreenOn(screenOn: Boolean) {
+        view?.findViewById<SwitchCompat>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -584,7 +595,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun setStoredIssueNumber(number: Int) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             log.debug("setKeepNumber: $number")
             viewModel.setKeepIssueNumber(number)
         }
@@ -605,6 +616,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setTapToScroll(enabled)
     }
 
+    private fun setKeepScreenOn(enabled: Boolean) {
+        viewModel.setKeepScreenOn(enabled)
+    }
+
     private fun setTextJustification(justified: Boolean) {
         log.debug("setTextJustification to $justified")
         viewModel.setTextJustification(justified)
@@ -620,7 +635,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun resetFontSize() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             log.debug("resetFontSize")
             viewModel.resetFontSize()
         }
@@ -690,7 +705,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
 
-    private fun logout() = requireActivity().lifecycleScope.launch(Dispatchers.IO) {
+    private fun logout() = requireActivity().lifecycleScope.launch {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
         authHelper.status.set(AuthStatus.notValid)

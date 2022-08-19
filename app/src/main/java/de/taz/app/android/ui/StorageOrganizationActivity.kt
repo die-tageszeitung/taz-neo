@@ -3,6 +3,7 @@ package de.taz.app.android.ui
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import androidx.room.withTransaction
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -11,7 +12,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.databinding.ActivtyStorageMigrationBinding
+import de.taz.app.android.databinding.ActivityStorageMigrationBinding
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -40,12 +41,12 @@ class StorageOrganizationActivity : StartupActivity() {
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
-    private lateinit var viewBinding: ActivtyStorageMigrationBinding
+    private lateinit var viewBinding: ActivityStorageMigrationBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewBinding = ActivtyStorageMigrationBinding.inflate(layoutInflater)
+        viewBinding = ActivityStorageMigrationBinding.inflate(layoutInflater)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
@@ -56,7 +57,7 @@ class StorageOrganizationActivity : StartupActivity() {
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             migrateToSelectableStorage()
             migrateFilesToDesiredStorage()
 
@@ -146,7 +147,7 @@ class StorageOrganizationActivity : StartupActivity() {
         }
 
         allFilesNotOnDesiredStorage.forEachIndexed { index, originalFileEntry ->
-            database.runInTransaction<Unit> {
+            database.withTransaction {
                 val movedFileEntry =
                     fileEntryRepository.saveOrReplace(originalFileEntry.copy(storageLocation = currentStorageLocation))
                 // If target storage has changed move files accordingly
@@ -154,7 +155,7 @@ class StorageOrganizationActivity : StartupActivity() {
                     storageService.getFile(originalFileEntry)
                 } catch (e: ExternalStorageNotAvailableException) {
                     fileEntryRepository.resetDownloadDate(movedFileEntry)
-                    return@runInTransaction
+                    return@withTransaction
                 }
                 val newFile = storageService.getFile(movedFileEntry)
                 try {
@@ -162,12 +163,12 @@ class StorageOrganizationActivity : StartupActivity() {
                         oldFile.copyTo(newFile, overwrite = true)
                     } else {
                         fileEntryRepository.resetDownloadDate(movedFileEntry)
-                        return@runInTransaction
+                        return@withTransaction
                     }
                 } catch (e: Exception) {
                     log.error("Failure trying to move ${oldFile?.absolutePath} to ${newFile?.absolutePath}")
                     fileEntryRepository.resetDownloadDate(movedFileEntry)
-                    return@runInTransaction
+                    return@withTransaction
                 }
                 try {
                     oldFile.delete()

@@ -30,10 +30,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
@@ -48,13 +45,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        )[IssueViewerViewModel::class.java]
-    }
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     override fun onResume() {
         super.onResume()
@@ -216,8 +207,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private suspend fun showSectionOrGoBack(): Boolean = withContext(Dispatchers.IO) {
-        getCurrentArticleStub()?.let { articleStub ->
+    private suspend fun showSectionOrGoBack(): Boolean {
+        return getCurrentArticleStub()?.let { articleStub ->
             runIfNotNull(
                 issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
                 articleStub.getSectionStub(requireContext().applicationContext)
@@ -229,9 +220,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     )
                 )
                 true
-            }
-        }
-        false
+            } ?: false
+        } ?: false
     }
 
     override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
@@ -262,7 +252,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun toggleBookmark(articleStub: ArticleStub) {
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             if (isBookmarkedLiveData?.value == true) {
                 articleRepository?.debookmarkArticle(articleStub)
             } else {
@@ -272,7 +262,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     fun share() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getCurrentArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {
@@ -332,12 +322,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun getCurrentArticleStub(): ArticleStub? {
-        return getCurrentPagerPosition()?.let {
-            issueContentViewModel.articleListLiveData.value?.get(it)
-        }
+        return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())
     }
 
-    private fun getCurrentArticleAudioFile(): FileEntry? {
+    private suspend fun getCurrentArticleAudioFile(): FileEntry? {
         return getCurrentArticleStub()?.articleFileName?.let { articleStub ->
             articleRepository?.get(articleStub)
         }?.audioFile
@@ -345,7 +333,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private fun playAudioOfArticle() {
         if (getCurrentArticleStub()?.hasAudio == true) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 getCurrentArticleAudioFile()?.let { audioFile ->
                     val baseUrl =
                         getCurrentArticleStub()?.getIssueStub(requireContext().applicationContext)?.baseUrl

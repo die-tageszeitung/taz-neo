@@ -9,7 +9,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -34,7 +33,7 @@ class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     private val ensureCountLock = Mutex()
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             // if number of downloaded issues or the number of desired issues changes
             // we need to check if we are in the desired bounds
             combine(keepIssuesNumberFlow, downloadedIssueCountFlow) { max, downloaded ->

@@ -13,11 +13,8 @@ import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for
@@ -70,10 +67,11 @@ class ContentService(
             }
             .map { it.second }
             .also {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val stateUpdate =
+                CoroutineScope(Dispatchers.Default).launch {
+                    val stateUpdate: CacheStateUpdate =
                         activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
                             ?: getCacheState(download)
+
                     // only emit if no status has been provided yet
                     cacheStatusFlow.onEmpty {
                         log.debug("emmiting on empty $stateUpdate")
@@ -92,40 +90,39 @@ class ContentService(
      */
     suspend fun getCacheState(
         observableDownload: ObservableDownload,
-    ): CacheStateUpdate =
-        withContext(Dispatchers.IO) {
-            val isDownloaded = when (observableDownload) {
-                is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
-                is AppInfoKey -> appInfoRepository.get() != null
-                is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
-                is MomentKey -> momentRepository.isDownloaded(observableDownload)
-                is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
-                is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
-                    observableDownload
-                )?.let {
-                    if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
-                    else false
-                } ?: false
-                else -> false
-            }
-            if (isDownloaded) {
-                CacheStateUpdate(
-                    CacheStateUpdate.Type.INITIAL,
-                    CacheState.PRESENT,
-                    0,
-                    0,
-                    null
-                )
-            } else {
-                CacheStateUpdate(
-                    CacheStateUpdate.Type.INITIAL,
-                    CacheState.ABSENT,
-                    0,
-                    0,
-                    null
-                )
-            }
+    ): CacheStateUpdate {
+        val isDownloaded = when (observableDownload) {
+            is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
+            is AppInfoKey -> appInfoRepository.get() != null
+            is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
+            is MomentKey -> momentRepository.isDownloaded(observableDownload)
+            is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
+            is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
+                observableDownload
+            )?.let {
+                if (it.status >= authHelper.getMinStatus()) issueRepository.isDownloaded(it)
+                else false
+            } ?: false
+            else -> false
         }
+        return if (isDownloaded) {
+            CacheStateUpdate(
+                CacheStateUpdate.Type.INITIAL,
+                CacheState.PRESENT,
+                0,
+                0,
+                null
+            )
+        } else {
+            CacheStateUpdate(
+                CacheStateUpdate.Type.INITIAL,
+                CacheState.ABSENT,
+                0,
+                0,
+                null
+            )
+        }
+    }
 
     /**
      * This function wraps downloadToCache calls of issuePublication.
@@ -163,7 +160,7 @@ class ContentService(
         priority: DownloadPriority = DownloadPriority.Normal,
         isAutomaticDownload: Boolean = false,
         allowCache: Boolean = true
-    ) = withContext(Dispatchers.IO) {
+    ) {
         val tag = determineParentTag(download)
         val wrappedDownload = WrappedDownload.prepare(
             applicationContext,
@@ -232,9 +229,7 @@ class ContentService(
      */
     @Throws(NotFoundException::class)
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
-        withContext(Dispatchers.IO) {
-            IssueDeletion.prepare(applicationContext, issuePublication)
-                .execute()
-        }
+        IssueDeletion.prepare(applicationContext, issuePublication)
+            .execute()
     }
 }

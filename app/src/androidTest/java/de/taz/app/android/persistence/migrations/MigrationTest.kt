@@ -19,11 +19,15 @@ import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.allMigrations
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("BlockingMethodInNonBlockingContext")
 class MigrationTest {
     private val testDb = "migration-test"
 
@@ -53,7 +57,7 @@ class MigrationTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrate1To2() {
+    fun migrate1To2() = runTest {
         val appName = AppName.taz
         val globalBaseUrl = "https://example.com"
         val appType = AppType.test
@@ -70,7 +74,7 @@ class MigrationTest {
 
         helper.runMigrationsAndValidate(testDb, 2, true, Migration1to2)
 
-        val fromDB = getMigratedRoomDatabase()!!.appInfoDao().get()
+        val fromDB = getMigratedRoomDatabase().appInfoDao().get()
         Assert.assertNotNull(fromDB)
 
         fromDB?.let {
@@ -83,7 +87,7 @@ class MigrationTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrate2To3() {
+    fun migrate2To3() = runTest {
         val sectionFileName = "sectionFileName"
         val issueDate = "1886-05-01"
         val title = "section title"
@@ -98,7 +102,7 @@ class MigrationTest {
 
         helper.runMigrationsAndValidate(testDb, 3, true, Migration2to3)
 
-        val fromDB = getMigratedRoomDatabase()!!.sectionDao().get(sectionFileName)
+        val fromDB = getMigratedRoomDatabase().sectionDao().get(sectionFileName)
         Assert.assertNotNull(fromDB)
 
         fromDB.let {
@@ -112,15 +116,15 @@ class MigrationTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrate3To4() {
+    fun migrate3To4() = runTest {
         val feedName = "rss"
         val date = "1869-06-27"
-        val key: String? = "key"
+        val key = "key"
         val baseUrl = "https://example.com"
         val status: IssueStatus = IssueStatus.demo
         val minResourceVersion = 23
-        val zipName: String? = "zipName"
-        val zipPdfName: String? = "zipPdf"
+        val zipName = "zipName"
+        val zipPdfName = "zipPdf"
         val fileList: List<String> = emptyList()
         val fileListPdf: List<String> = emptyList()
         val dateDownload: Date? = null
@@ -139,7 +143,7 @@ class MigrationTest {
         helper.runMigrationsAndValidate(testDb, 4, true, Migration3to4)
 
         val fromDB: IssueStub? =
-            getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
+            getMigratedRoomDatabase().issueDao().getByFeedDateAndStatus(feedName, date, status)
         Assert.assertNotNull(fromDB)
 
         fromDB?.let {
@@ -155,10 +159,10 @@ class MigrationTest {
 
     @Test
     @Throws(IOException::class)
-    fun migrate4To5() {
+    fun migrate4To5() = runTest {
         val feedName = "rss"
         val date = "1869-06-27"
-        val key: String? = "key"
+        val key = "key"
         val baseUrl = "https://example.com"
         val status: IssueStatus = IssueStatus.demo
         val minResourceVersion = 23
@@ -176,7 +180,7 @@ class MigrationTest {
         helper.runMigrationsAndValidate(testDb, 5, true, Migration4to5)
 
         val fromDB: IssueStub? =
-            getMigratedRoomDatabase()!!.issueDao().getByFeedDateAndStatus(feedName, date, status)
+            getMigratedRoomDatabase().issueDao().getByFeedDateAndStatus(feedName, date, status)
         Assert.assertNotNull(fromDB)
 
         fromDB?.let {

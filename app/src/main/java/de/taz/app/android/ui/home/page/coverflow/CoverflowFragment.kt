@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page.coverflow
 
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -14,13 +15,16 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.*
 import java.util.*
@@ -29,6 +33,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override lateinit var adapter: IssueFeedAdapter
 
+    private lateinit var authHelper: AuthHelper
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
 
@@ -52,19 +57,20 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.pdfModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         grid.layoutManager =
             CoverFlowLinearLayoutManager(requireContext(), grid)
@@ -81,14 +87,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewModel.feed.observeDistinct(this) { feed ->
             val fresh = !::adapter.isInitialized
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
-                R.layout.fragment_cover_flow_frontpage_item
-            } else {
-                R.layout.fragment_cover_flow_moment_item
-            }
             adapter = CoverflowAdapter(
                 this,
-                itemLayout,
+                R.layout.fragment_cover_flow_item,
                 feed,
                 requestManager,
                 CoverflowCoverViewActionListener(this@CoverflowFragment)
@@ -107,6 +108,21 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         super.onResume()
         viewModel.currentDate.observe(this) { updateUIForCurrentDate() }
         viewModel.feed.observe(this) { updateUIForCurrentDate() }
+        viewBinding.apply {
+            lifecycleScope.launch(Dispatchers.Main) {
+                if (authHelper.isLoggedIn()) {
+                    homeLoginButton.visibility = View.GONE
+                }
+                else {
+                    homeLoginButton.visibility = View.VISIBLE
+                    homeLoginButton.setOnClickListener {
+                        activity?.startActivity(
+                            Intent(activity, LoginActivity::class.java)
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

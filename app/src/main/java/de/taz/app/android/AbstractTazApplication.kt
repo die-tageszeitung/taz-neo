@@ -4,26 +4,29 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import com.facebook.stetho.Stetho
+import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import io.sentry.protocol.User
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 abstract class AbstractTazApplication : Application() {
     private val log by Log
 
-    private val authHelper
-        get() = AuthHelper.getInstance(this)
+    private lateinit var authHelper: AuthHelper
+
+    // use this scope if you want to run code which should not terminate if the lifecycle of
+    // a fragment or activity is finished
+    val applicationScope = CoroutineScope(SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
-        CoroutineScope(Dispatchers.IO).launch {
+        authHelper = AuthHelper.getInstance(this)
+        applicationScope.launch {
             generateInstallationId()
             setUpSentry()
         }
@@ -49,6 +52,7 @@ abstract class AbstractTazApplication : Application() {
             )
         }
 
+        FirebaseHelper.getInstance(this)
         NightModeHelper.getInstance(this)
         IssueCountHelper.getInstance(this)
     }
@@ -64,13 +68,11 @@ abstract class AbstractTazApplication : Application() {
         }
     }
 
-    private fun setUpSentry() {
-        CoroutineScope(Dispatchers.IO).launch {
-            SentryProvider.initSentry(this@AbstractTazApplication)
+    private suspend fun setUpSentry() = withContext(Dispatchers.IO) {
+        SentryProvider.initSentry(this@AbstractTazApplication)
 
-            val user = User()
-            user.id = authHelper.installationId.get()
-            Sentry.setUser(user)
-        }
+        val user = User()
+        user.id = authHelper.installationId.get()
+        Sentry.setUser(user)
     }
 }

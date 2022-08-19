@@ -30,25 +30,22 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
                     val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
                     viewBinding.fabActionPdf.setImageResource(drawable)
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
             feedArchivePager.apply {
                 adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
-           
+
                 // reduce viewpager2 sensitivity to make the view less finicky
                 reduceDragSensitivity(6)
                 registerOnPageChangeCallback(object :
@@ -87,31 +84,27 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             coverflowRefreshLayout.reduceDragSensitivity(10)
 
             fabActionPdf.setOnClickListener {
-                CoroutineScope(Dispatchers.Main).launch {
-                    homePageViewModel.setPdfMode(!homePageViewModel.getPdfMode())
-                }
+                homePageViewModel.togglePdfMode()
             }
         }
     }
 
     private suspend fun onRefresh() {
-        withContext(Dispatchers.IO) {
-            try {
-                DataService.getInstance(requireContext().applicationContext)
-                    .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
-                        withContext(Dispatchers.Main) {
-                            homePageViewModel.setFeed(
-                                it
-                            )
-                        }
+        try {
+            DataService.getInstance(requireContext().applicationContext)
+                .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
+                    withContext(Dispatchers.Main) {
+                        homePageViewModel.setFeed(
+                            it
+                        )
                     }
-            } catch (e: ConnectivityException.NoInternetException) {
-                ToastHelper.getInstance(requireContext().applicationContext)
-                    .showNoConnectionToast()
-            } catch (e: ConnectivityException.ImplementationException) {
-                ToastHelper.getInstance(requireContext().applicationContext)
-                    .showSomethingWentWrongToast()
-            }
+                }
+        } catch (e: ConnectivityException.NoInternetException) {
+            ToastHelper.getInstance(requireContext().applicationContext)
+                .showNoConnectionToast()
+        } catch (e: ConnectivityException.ImplementationException) {
+            ToastHelper.getInstance(requireContext().applicationContext)
+                .showSomethingWentWrongToast()
         }
     }
 

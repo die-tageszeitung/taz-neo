@@ -4,6 +4,7 @@
     <!--    no extra colors so far defined-->
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
+    <color name="mediumLightGrey">#707070</color>
 
     <color name="bottom_sheet_background">@color/darkGrey</color>
     <color name="navigation_drawer_background">@color/darkGrey</color>
@@ -21,4 +22,8 @@
 
     <color name="drawer_sections_item_highlighted">@color/white</color>
 
+    <color name="scrollbar_color">@color/mediumLightGrey</color>
+
+    <color name="login_box_background">@color/mediumLightGrey</color>
+    <color name="login_box_separator_line_color">@color/lightGrey</color>
 </resources>

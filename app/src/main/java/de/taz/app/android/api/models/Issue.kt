@@ -1,6 +1,6 @@
 package de.taz.app.android.api.models
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.persistence.repository.IssueKey
 
@@ -76,7 +76,7 @@ data class Issue(
  * The issue status should be in a ascending ordinal for they "value"
  * So the regular issue is more favorable than the public.
  */
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class IssueStatus {
     public,
     demo,

@@ -44,21 +44,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
-    override val viewModel: BookmarkPagerViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        )[BookmarkPagerViewModel::class.java]
-    }
-
-    private val issueViewerViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            this.requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, this.requireActivity())
-        )[IssueViewerViewModel::class.java]
-    }
-
-
+    override val viewModel: BookmarkPagerViewModel by activityViewModels()
+    private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onResume() {
@@ -133,10 +120,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
-        withContext(Dispatchers.IO) {
-            articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
-                drawerViewModel.navButton.postValue(it)
-            }
+        articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
+            drawerViewModel.navButton.postValue(it)
         }
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
@@ -188,7 +173,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     fun share() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getCurrentlyDisplayedArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
                 url?.let {

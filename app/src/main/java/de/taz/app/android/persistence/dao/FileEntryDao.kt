@@ -8,41 +8,32 @@ import de.taz.app.android.api.models.FileEntry
 import java.util.*
 
 @Dao
-abstract class FileEntryDao : BaseDao<FileEntry>() {
+interface FileEntryDao : BaseDao<FileEntry> {
 
     @Query("SELECT * FROM FileEntry WHERE name == :name")
-    abstract fun getByName(name: String): FileEntry?
+    suspend fun getByName(name: String): FileEntry?
 
     @Query("SELECT * FROM FileEntry WHERE name == :name")
-    abstract fun getLiveDataByName(name: String): LiveData<FileEntry?>
+    fun getLiveDataByName(name: String): LiveData<FileEntry?>
 
     @Query("SELECT dateDownload FROM FileEntry WHERE name == :name")
-    abstract fun getDownloadDate(name: String): Date?
+    suspend fun getDownloadDate(name: String): Date?
 
     @Query("SELECT * FROM FileEntry WHERE dateDownload IS NOT NULL")
-    abstract fun getDownloaded(): List<FileEntry>
-
-    @Query("SELECT * FROM FileEntry WHERE storageLocation = :storageLocation")
-    abstract fun getByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
+    suspend fun getDownloaded(): List<FileEntry>
 
     @Query("SELECT * FROM FileEntry WHERE storageLocation = :storageLocation AND dateDownload IS NOT NULL")
-    abstract fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
+    suspend fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry>
 
     @Query("SELECT * FROM FileEntry WHERE storageLocation NOT IN (:storageLocations)")
-    abstract fun getExceptStorageLocation(storageLocations: List<StorageLocation>): List<FileEntry>
+    suspend fun getExceptStorageLocation(storageLocations: List<StorageLocation>): List<FileEntry>
 
     @Query("SELECT * FROM FileEntry WHERE storageLocation != :storageLocation AND dateDownload IS NOT NULL")
-    abstract fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry>
+    suspend fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry>
 
     @Query("SELECT * FROM FileEntry WHERE name IN (:names)")
-    abstract fun getByNames(names: List<String>): List<FileEntry>
-
-    @Query("SELECT * FROM FileEntry WHERE name LIKE :filterString")
-    abstract fun filterByName(filterString: String): List<FileEntry>
-
-    @Query("SELECT FileEntry.name FROM FileEntry WHERE name LIKE :filterString")
-    abstract fun getNamesContaining(filterString: String): List<String>
+    suspend fun getByNames(names: List<String>): List<FileEntry>
 
     @Query("DELETE FROM FileEntry WHERE name in (:fileNames)")
-    abstract fun deleteList(fileNames: List<String>)
+    suspend fun deleteList(fileNames: List<String>)
 }

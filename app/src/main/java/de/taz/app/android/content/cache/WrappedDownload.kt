@@ -58,24 +58,22 @@ class WrappedDownload(
          * @param priority The download priority of this operation
          * @param tag The tag to be used for this operation
          */
-        suspend fun prepare(
+        fun prepare(
             applicationContext: Context,
             parent: ObservableDownload,
             isAutomaticDownload: Boolean,
             allowCache: Boolean,
             priority: DownloadPriority,
             tag: String
-        ): WrappedDownload = withContext(Dispatchers.IO) {
-            WrappedDownload(
-                applicationContext,
-                parent,
-                emptyList(),
-                isAutomaticDownload,
-                allowCache,
-                priority,
-                tag
-            )
-        }
+        ): WrappedDownload = WrappedDownload(
+            applicationContext,
+            parent,
+            emptyList(),
+            isAutomaticDownload,
+            allowCache,
+            priority,
+            tag
+        )
     }
 
     /**
@@ -84,7 +82,7 @@ class WrappedDownload(
      * It will then proceed to start [ContentDownload]s for both the contents of the [parent] and
      * the resolved dependencies
      */
-    override suspend fun doWork() = withContext(Dispatchers.IO) {
+    override suspend fun doWork() {
         notifyStart()
         val contentService = ContentService.getInstance(applicationContext)
 
@@ -92,7 +90,7 @@ class WrappedDownload(
         // complete, so we use the getCacheState function
         if (allowCache && contentService.getCacheState(parent).cacheState == CacheState.PRESENT) {
             notifySuccess(Unit)
-            return@withContext
+            return
         }
 
         // Before downloading content we _always_ download the corresponding metadata.
@@ -110,8 +108,9 @@ class WrappedDownload(
         val parentCollection = try {
             metadataDownload.execute()
         } catch (originalException: Exception) {
-            val exception = CacheOperationFailedException("Retrieving metadata failed", originalException)
-            notifyFailiure(
+            val exception =
+                CacheOperationFailedException("Retrieving metadata failed", originalException)
+            notifyFailure(
                 exception
             )
             throw exception
@@ -125,7 +124,7 @@ class WrappedDownload(
                 originalException
             )
             notifyFailedItem(exception)
-            notifyFailiure(exception)
+            notifyFailure(exception)
             throw exception
         }
 
@@ -160,19 +159,23 @@ class WrappedDownload(
 
         var errorCount = 0
         // Launch each collection download in parallel and notify each item
-        subOperationCacheItems.map {
-            launch(Dispatchers.IO) {
-                try {
-                    it.subOperation.execute()
-                    notifySuccessfulItem()
-                } catch (e: Exception) {
-                    errorCount++
-                    notifyFailedItem(e)
-                    Sentry.captureException(e, "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}")
+        coroutineScope {
+            subOperationCacheItems.map {
+                launch {
+                    try {
+                        it.subOperation.execute()
+                        notifySuccessfulItem()
+                    } catch (e: Exception) {
+                        errorCount++
+                        notifyFailedItem(e)
+                        Sentry.captureException(
+                            e,
+                            "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}"
+                        )
+                    }
                 }
-            }
-        }.joinAll()
-
+            }.joinAll()
+        }
         issueDownloadNotifier?.stop()
         if (errorCount == 0) {
             if (parentCollection is DownloadableStub) {
@@ -183,7 +186,7 @@ class WrappedDownload(
             val exception = CacheOperationFailedException(
                 "One or more sub operations failed"
             )
-            notifyFailiure(
+            notifyFailure(
                 exception
             )
             throw exception

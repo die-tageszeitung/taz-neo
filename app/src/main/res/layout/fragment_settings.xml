@@ -191,13 +191,20 @@
                 android:text="@string/settings_text_tap_to_scroll"
                 app:layout_constraintTop_toBottomOf="@id/fragment_settings_night_mode" />
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/fragment_settings_keep_screen_on"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:text="@string/settings_text_keep_screen_on"
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_tap_to_scroll" />
+
             <TextView
                 android:id="@+id/fragment_settings_category_support"
                 style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_category_support"
-                app:layout_constraintTop_toBottomOf="@id/fragment_settings_tap_to_scroll" />
+                app:layout_constraintTop_toBottomOf="@id/fragment_settings_keep_screen_on" />
 
             <TextView
                 android:id="@+id/fragment_settings_welcome_slides"

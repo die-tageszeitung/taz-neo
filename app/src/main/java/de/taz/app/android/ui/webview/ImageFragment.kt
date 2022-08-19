@@ -85,7 +85,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                 showImageInWebView(it, webView)
             }
             toDownloadImage?.let {
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch {
                     contentService.downloadSingleFileIfNotDownloaded(
                         FileEntry(it),
                         issueRepository.getIssueStubForImage(it).baseUrl
@@ -119,7 +119,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun showImageInWebView(toShowImage: Image, webView: WebView) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val jqueryFileEntry = fileEntryRepository.get(WEBVIEW_JQUERY_FILE)
             withContext(Dispatchers.Main) {
                 runIfNotNull(toShowImage, image?.storageLocation?.let(storageService::getDirForLocation), webView) { image, basePath, web ->
@@ -136,7 +136,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     }
 
     private fun fadeInImageInWebView(toShowImage: Image, webView: WebView) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val file = fileEntryRepository.get(toShowImage.name)
             withContext(Dispatchers.Main) {
                 runIfNotNull(file, webView) { file, web ->

@@ -1,13 +1,13 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class NotificationDto(
     val perform: PerformDto? = null
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class PerformDto {
     subscriptionPoll
 }

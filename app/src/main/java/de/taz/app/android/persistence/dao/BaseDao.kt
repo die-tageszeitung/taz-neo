@@ -5,36 +5,36 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
 
-abstract class BaseDao<T> {
+interface BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertOrReplace(item: T)
+    suspend fun insertOrReplace(item: T)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertOrReplace(items: List<T>)
+    suspend fun insertOrReplace(items: List<T>)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract fun insertOrAbort(item: T)
+    suspend fun insertOrAbort(item: T)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    abstract fun insertOrAbort(items: List<T>)
+    suspend fun insertOrAbort(items: List<T>)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertOrIgnore(item: T)
+    suspend fun insertOrIgnore(item: T)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insertOrIgnore(items: List<T>)
+    suspend fun insertOrIgnore(items: List<T>)
 
     @Update
-    abstract fun update(item: T)
+    suspend fun update(item: T)
 
     @Update
-    abstract fun update(items: List<T>)
+    suspend fun update(items: List<T>)
 
     @Delete
-    abstract fun delete(item: T)
+    suspend fun delete(item: T)
 
     @Delete
-    abstract fun delete(items: List<T>)
+    suspend fun delete(items: List<T>)
 
 }

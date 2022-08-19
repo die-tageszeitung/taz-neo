@@ -23,7 +23,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
@@ -38,13 +37,13 @@ import kotlin.Exception
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
+private const val MAX_RETRIES_ON_STARTUP = 3
 
 class SplashActivity : StartupActivity() {
 
     private val log by Log
 
     private lateinit var dataService: DataService
-    private lateinit var firebaseHelper: FirebaseHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -59,10 +58,9 @@ class SplashActivity : StartupActivity() {
         super.onCreate(savedInstanceState)
 
         val splashScreen = installSplashScreen()
-        splashScreen.setKeepVisibleCondition { showSplashScreen }
+        splashScreen.setKeepOnScreenCondition { showSplashScreen }
 
         dataService = DataService.getInstance(application)
-        firebaseHelper = FirebaseHelper.getInstance(application)
         authHelper = AuthHelper.getInstance(application)
         toastHelper = ToastHelper.getInstance(application)
         fileEntryRepository = FileEntryRepository.getInstance(application)
@@ -71,22 +69,19 @@ class SplashActivity : StartupActivity() {
         storageDataStore = StorageDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
 
-        CoroutineScope(Dispatchers.IO).launch {
-            launch { checkAppVersion() }
-            launch { sendPushToken() }
-        }
         lifecycleScope.launch {
-            generateNotificationChannels()
-            verifyStorageLocation()
+            coroutineScope {
+                checkAppVersion()
+                generateNotificationChannels()
+                verifyStorageLocation()
+            }
 
             try {
-                withContext(Dispatchers.IO) {
-                    ensureAppInfo()
-                    initResources()
-                    initFeed()
-                    launch {
-                        checkForNewestIssue()
-                    }
+                ensureAppInfo()
+                initResources()
+                initFeed()
+                applicationScope.launch {
+                    checkForNewestIssue()
                 }
             } catch (e: InitializationException) {
                 log.error("Error while initializing")
@@ -100,21 +95,17 @@ class SplashActivity : StartupActivity() {
 
             val currentStorageLocation = storageDataStore.storageLocation.get()
 
-            val unmigratedFiles = withContext(Dispatchers.IO) {
+            val unmigratedFiles =
                 fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
-            }
-            val filesWithBadStorage = withContext(Dispatchers.IO) {
+            val filesWithBadStorage =
                 fileEntryRepository.getExceptStorageLocation(
                     listOf(StorageLocation.NOT_STORED, currentStorageLocation)
                 )
-            }
 
 
             val publicIssuesNeedDeletion =
-                withContext(Dispatchers.IO) {
-                    (issueRepository.getAllPublicAndDemoIssueStubs().count() > 0
-                            && authHelper.getMinStatus() == IssueStatus.regular)
-                }
+                (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
+                        && authHelper.getMinStatus() == IssueStatus.regular)
             // Explicitly selectable storage migration, if there is any file to migrate start migration activity
             if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
                 Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
@@ -143,7 +134,7 @@ class SplashActivity : StartupActivity() {
                 dataService.getFeedByName(
                     DISPLAYABLE_NAME,
                     allowCache = false,
-                    retryOnFailure = true
+                    retryOnFailure = false
                 )
             }
         } catch (e: ConnectivityException) {
@@ -167,7 +158,11 @@ class SplashActivity : StartupActivity() {
             // This call might be duplicated by the AppVersion check which is not allowing cache.
             // To make this call not fail due to a connectivity exception if there indeed is a
             // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
-            contentService.downloadMetadata(AppInfoKey(), forceExecution = true, maxRetries = 3)
+            contentService.downloadMetadata(
+                AppInfoKey(),
+                forceExecution = true,
+                maxRetries = MAX_RETRIES_ON_STARTUP
+            )
         } catch (exception: CacheOperationFailedException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
@@ -181,7 +176,7 @@ class SplashActivity : StartupActivity() {
             val appInfo = contentService.downloadMetadata(
                 AppInfoKey(),
                 allowCache = false,
-                maxRetries = 3
+                maxRetries = MAX_RETRIES_ON_STARTUP
             ) as AppInfo
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
@@ -334,19 +329,6 @@ class SplashActivity : StartupActivity() {
             val hint = "Error while trying to download resource info on startup"
             log.warn(hint)
             Sentry.captureException(e, hint)
-        }
-    }
-
-    private suspend fun sendPushToken() = withContext(Dispatchers.IO) {
-        try {
-            val token = firebaseHelper.token.get()
-            if (!firebaseHelper.tokenSent.get() && !token.isNullOrEmpty()) {
-                firebaseHelper.tokenSent.set(
-                    dataService.sendNotificationInfo(token)
-                )
-            }
-        } catch (e: ConnectivityException.NoInternetException) {
-            log.warn("Sending notification token failed because no internet available")
         }
     }
 

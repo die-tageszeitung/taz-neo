@@ -3,20 +3,19 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
+import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.util.Log
-import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.parcelize.Parcelize
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
+private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
@@ -59,7 +58,7 @@ class IssueViewerViewModel(
         }
         issueDisplayable?.let {
             // persist the last displayable in db
-            CoroutineScope(Dispatchers.IO).launch {
+            viewModelScope.launch {
                 dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
             }
         }
@@ -73,27 +72,25 @@ class IssueViewerViewModel(
     ) {
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
-            withContext(Dispatchers.IO) {
-                try {
-                    // either displayable is specified, persisted or defaulted to first section
-                    val displayable = displayableKey
-                        ?: dataService.getLastDisplayableOnIssue(issueKey)
-                        ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
-                    setDisplayable(
-                        IssueKeyWithDisplayableKey(issueKey, displayable)
-                    )
-                    // Start downloading the whole issue in background
-                    CoroutineScope(Dispatchers.IO).launch {
-                        try {
-                            contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
-                            issueRepository.updateLastViewedDate(issueKey)
-                        } catch (e: CacheOperationFailedException) {
-                            issueLoadingFailedErrorFlow.emit(true)
-                        }
+            try {
+                // either displayable is specified, persisted or defaulted to first section
+                val displayable = displayableKey
+                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
+                setDisplayable(
+                    IssueKeyWithDisplayableKey(issueKey, displayable)
+                )
+                // Start downloading the whole issue in background
+                applicationScope.launch {
+                    try {
+                        contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
+                        issueRepository.updateLastViewedDate(issueKey)
+                    } catch (e: CacheOperationFailedException) {
+                        issueLoadingFailedErrorFlow.emit(true)
                     }
-                } catch (e: CacheOperationFailedException) {
-                    issueLoadingFailedErrorFlow.emit(true)
                 }
+            } catch (e: CacheOperationFailedException) {
+                issueLoadingFailedErrorFlow.emit(true)
             }
         } else {
             setDisplayable(
@@ -107,12 +104,12 @@ class IssueViewerViewModel(
     var goPreviousArticle = MutableLiveData(false)
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
-        get() = savedStateHandle.get(KEY_LAST_SECTION)
+        get() = savedStateHandle[KEY_LAST_SECTION]
 
     val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
         savedStateHandle.getLiveData(KEY_DISPLAYABLE)
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
-        MutableLiveData(IssueContentDisplayMode.Loading)
+        savedStateHandle.getLiveData(KEY_DISPLAY_MODE, IssueContentDisplayMode.Loading)
 
     private val issueKeyLiveData: LiveData<IssueKey?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }
@@ -127,7 +124,7 @@ class IssueViewerViewModel(
                 it?.let {
                     if (it != lastIssueKey) {
                         lastIssueKey = it
-                        viewModelScope.launch(Dispatchers.IO) {
+                        viewModelScope.launch {
                             postValue(
                                 articleRepository.getArticleStubListForIssue(it)
                             )
@@ -143,7 +140,7 @@ class IssueViewerViewModel(
         MediatorLiveData<List<SectionStub>>().apply {
             addSource(issueKeyLiveData) {
                 it?.let {
-                    viewModelScope.launch(Dispatchers.IO) {
+                    viewModelScope.launch {
                         postValue(sectionRepository.getSectionStubsForIssue(it))
                     }
                 } ?: run {
@@ -155,10 +152,14 @@ class IssueViewerViewModel(
     val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
         addSource(issueKeyLiveData) {
             it?.let {
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch {
                     postValue(issueRepository.getImprint(it))
                 }
             }
         }
+    }
+
+    private val applicationScope by lazy {
+        (application as TazApplication).applicationScope
     }
 }

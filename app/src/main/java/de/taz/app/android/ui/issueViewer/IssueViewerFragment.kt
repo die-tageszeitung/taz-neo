@@ -5,16 +5,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
 import de.taz.app.android.monkey.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -38,12 +38,7 @@ import kotlinx.coroutines.*
  */
 class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
 
-    override val viewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            SavedStateViewModelFactory(this.requireActivity().application, requireActivity())
-        )[IssueViewerViewModel::class.java]
-    }
+    override val viewModel: IssueViewerViewModel by activityViewModels()
 
     private val log by Log
 
@@ -53,6 +48,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
@@ -73,6 +69,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
     }
 
     override fun onResume() {
@@ -92,15 +89,16 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     this@IssueViewerFragment
                 ) { issueWithDisplayable ->
                     if (issueWithDisplayable == null) return@observe
-                    CoroutineScope(Dispatchers.IO).launch {
+                    lifecycleScope.launch {
                         delay(1500)
-                        withContext(Dispatchers.Main) {
-                            sectionDrawerViewModel.drawerOpen.value = false
-                        }
+                        sectionDrawerViewModel.drawerOpen.value = false
                         generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
                     }
 
                 }
+            }
+            tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                KeepScreenOnHelper.toggleScreenOn(it, activity)
             }
         }
     }
@@ -108,7 +106,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 val defaultDrawerFileName = resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
                 val navButton = when {
                     it == null -> imageRepository.get(defaultDrawerFileName)
@@ -159,7 +157,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     val lastSectionKey = viewModel.lastSectionKey
                         ?: viewModel.currentDisplayable?.let { displayableKey ->
                             if (displayableKey.startsWith("art")) {
-                                runBlocking(Dispatchers.IO) {
+                                runBlocking {
                                     sectionRepository.getSectionStubForArticle(
                                         displayableKey
                                     )?.key

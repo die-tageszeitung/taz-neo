@@ -9,8 +9,6 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
@@ -19,8 +17,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfRenderBinding
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -32,8 +32,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.lang.NullPointerException
 
 
@@ -58,6 +56,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private var pdfReaderView: MuPDFReaderView? = null
     private lateinit var issueKey: IssueKeyWithPages
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -71,18 +70,13 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         ToastHelper.getInstance(requireContext().applicationContext)
     }
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(), SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        ).get(IssueViewerViewModel::class.java)
-    }
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         articleRepository = ArticleRepository.getInstance(context)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +85,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         if (page == null) {
             arguments?.getString(PAGE_NAME)?.let {
                 try {
-                    lifecycleScope.launch(Dispatchers.IO) {
+                    lifecycleScope.launch {
                         page = pageRepository.get(it)
                         withContext(Dispatchers.Main) { initializeThePageAdapter() }
                     }
@@ -106,6 +100,12 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         super.onResume()
         pdfPagerViewModel.issueKey.observe(this) {
             issueKey = it
+        }
+
+        lifecycleScope.launchWhenResumed {
+            tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                KeepScreenOnHelper.toggleScreenOn(it, activity)
+            }
         }
     }
 
@@ -135,7 +135,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         page?.pagePdf?.let { fileEntry ->
             storageService.getAbsolutePath(fileEntry)?.let { path ->
                 try {
-                    // TODO think about buffer!
                     pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(File(path).readBytes(), path))
                     viewBinding.muPdfWrapper.apply {
                         removeAllViews()
@@ -170,9 +169,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
-                            val article = withContext(Dispatchers.IO) {
-                                articleRepository.get(link)
-                            }
+                            val article = articleRepository.get(link)
                             val fragment =
                                 if (article?.isImprint() == true) ImprintWebViewFragment()
                                 else ArticlePagerFragment()

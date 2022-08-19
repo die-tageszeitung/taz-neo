@@ -41,14 +41,7 @@ class ImprintWebViewFragment : WebViewFragment<
         )[ArticleWebViewViewModel::class.java]
     }
 
-    private val issueContentViewModel: IssueViewerViewModel by lazy {
-        ViewModelProvider(
-            requireActivity().viewModelStore, SavedStateViewModelFactory(
-                requireActivity().application, requireActivity()
-            )
-        )[IssueViewerViewModel::class.java]
-    }
-
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
@@ -98,7 +91,7 @@ class ImprintWebViewFragment : WebViewFragment<
     }
 
     override fun setHeader(displayable: Article) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             val title = getString(R.string.imprint)
             activity?.runOnUiThread {
                 view?.findViewById<TextView>(R.id.section)?.apply {

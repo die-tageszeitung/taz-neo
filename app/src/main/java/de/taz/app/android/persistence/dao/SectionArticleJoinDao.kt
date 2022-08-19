@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.join.SectionArticleJoin
 
 
 @Dao
-abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
+interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
 
     @Query(
         """ SELECT Article.* FROM Article INNER JOIN SectionArticleJoin
@@ -17,16 +17,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             WHERE SectionArticleJoin.sectionFileName == :sectionFileName ORDER BY SectionArticleJoin.`index` ASC
         """
     )
-    abstract fun getArticlesForSection(sectionFileName: String): List<ArticleStub>?
-
-
-    @Query(
-        """ SELECT articleFileName FROM SectionArticleJoin
-            WHERE SectionArticleJoin.sectionFileName == :sectionFileName
-            ORDER BY SectionArticleJoin.`index` ASC
-        """
-    )
-    abstract fun getArticleFileNamesForSection(sectionFileName: String): List<String>?
+    suspend fun getArticlesForSection(sectionFileName: String): List<ArticleStub>?
 
 
     @Query(
@@ -36,9 +27,9 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             
         """
     )
-    abstract fun getSectionStubForArticleFileName(articleFileName: String): SectionStub?
+    suspend fun getSectionStubForArticleFileName(articleFileName: String): SectionStub?
 
-    fun getSectionStubForArticle(article: Article): SectionStub?
+    suspend fun getSectionStubForArticle(article: Article): SectionStub?
             = getSectionStubForArticleFileName(article.articleHtml.name)
 
     @Query(
@@ -48,9 +39,9 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             
         """
     )
-    abstract fun getSectionFileNameForArticleFileName(articleFileName: String): String?
+    suspend fun getSectionFileNameForArticleFileName(articleFileName: String): String?
 
-    fun getSectionFileNameForArticle(article: Article): String?
+    suspend fun getSectionFileNameForArticle(article: Article): String?
             = getSectionFileNameForArticleFileName(article.articleHtml.name)
 
 
@@ -62,7 +53,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    abstract fun getNextArticleStubInSection(articleFileName: String): ArticleStub?
+    suspend fun getNextArticleStubInSection(articleFileName: String): ArticleStub?
 
     @Query(
         """ SELECT Article.* FROM Article
@@ -80,7 +71,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND Article.articleFileName == SAJ2.articleFileName
     """
     )
-    abstract fun getNextArticleStubInNextSection(articleFileName: String): ArticleStub?
+    suspend fun getNextArticleStubInNextSection(articleFileName: String): ArticleStub?
 
 
 
@@ -93,7 +84,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           AND SAJ1.sectionFileName == SAJ2.sectionFileName
           AND Article.articleFileName == SAJ2.articleFileName
     """)
-    abstract fun getPreviousArticleStubInSection(articleFileName: String): ArticleStub?
+    suspend fun getPreviousArticleStubInSection(articleFileName: String): ArticleStub?
 
     @Query(
         """ SELECT Article.* FROM Article
@@ -112,7 +103,7 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
           LIMIT 1
       """
     )
-    abstract fun getPreviousArticleStubInPreviousSection(articleFileName: String): ArticleStub?
+    suspend fun getPreviousArticleStubInPreviousSection(articleFileName: String): ArticleStub?
 
 
     @Query(
@@ -120,6 +111,6 @@ abstract class SectionArticleJoinDao : BaseDao<SectionArticleJoin>() {
             WHERE SectionArticleJoin.articleFileName == :articleFileName
         """
     )
-    abstract fun getIndexOfArticleInSection(articleFileName: String): Int
+    suspend fun getIndexOfArticleInSection(articleFileName: String): Int
 
 }

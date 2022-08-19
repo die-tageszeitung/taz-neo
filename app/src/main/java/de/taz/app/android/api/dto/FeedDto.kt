@@ -1,8 +1,8 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class FeedDto (
     val name: String? = null,
     val cycle: Cycle? = null,
@@ -14,7 +14,7 @@ data class FeedDto (
     val issueList: List<IssueDto>? = null
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class Cycle {
     daily,
     weekly,

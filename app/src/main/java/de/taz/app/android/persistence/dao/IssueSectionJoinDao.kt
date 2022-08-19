@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.join.IssueSectionJoin
 
 
 @Dao
-abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
+interface IssueSectionJoinDao : BaseDao<IssueSectionJoin> {
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
@@ -19,7 +19,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         ORDER BY IssueSectionJoin.`index` ASC
         """
     )
-    abstract fun getSectionsForIssue(feedName: String, date: String, status: IssueStatus): List<SectionStub>
+    suspend fun getSectionsForIssue(feedName: String, date: String, status: IssueStatus): List<SectionStub>
 
     @Query(
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
@@ -29,9 +29,9 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         ORDER BY IssueSectionJoin.`index` ASC
         """
     )
-    abstract fun getSectionNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
+    suspend fun getSectionNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
 
-    fun getSectionNamesForIssue(issueStub: IssueStub) =
+    suspend fun getSectionNamesForIssue(issueStub: IssueStub) =
         getSectionNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
 
     @Query(
@@ -42,7 +42,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
-    abstract fun getIssueStubsForSection(sectionName: String): List<IssueStub>
+    suspend fun getIssueStubsForSection(sectionName: String): List<IssueStub>
 
     @Query(
         """ SELECT Issue.* FROM Issue INNER JOIN IssueSectionJoin INNER JOIN SectionArticleJoin
@@ -53,7 +53,7 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
             AND Issue.status == IssueSectionJoin.issueStatus
         """
     )
-    abstract fun getIssueStubsForArticle(articleFileName: String): List<IssueStub>
+    suspend fun getIssueStubsForArticle(articleFileName: String): List<IssueStub>
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
@@ -63,6 +63,6 @@ abstract class IssueSectionJoinDao : BaseDao<IssueSectionJoin>() {
         ORDER BY IssueSectionJoin.`index` ASC LIMIT 1
         """
     )
-    abstract fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub
+    suspend fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub
 
 }

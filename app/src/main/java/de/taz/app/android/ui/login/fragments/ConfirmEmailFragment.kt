@@ -5,7 +5,6 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginConfirmEmailBinding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -16,7 +15,7 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
 
         hideKeyBoard()
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             viewModel.setPolling(startPolling = !viewModel.isElapsed())
         }
 

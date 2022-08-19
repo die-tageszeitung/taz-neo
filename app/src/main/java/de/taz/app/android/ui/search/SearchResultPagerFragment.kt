@@ -31,12 +31,8 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
-import de.taz.app.android.ui.webview.AppWebView
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 
 private const val RESTORATION_POSITION = "RESTORATION_POSITION"
@@ -100,14 +96,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             if (adapter == null) {
-                setCurrentItem(initialPosition, false)
                 adapter = SearchResultPagerAdapter(
                     this@SearchResultPagerFragment,
                     viewModel.totalFound,
                     viewModel.searchResultsLiveData.value ?: emptyList()
                 )
-
                 log.verbose("setting currentItem to initialPosition $initialPosition")
+                setCurrentItem(initialPosition, false)
             }
         }
     }
@@ -189,7 +184,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun toggleBookmark(articleFileName: String, date: Date?) {
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             articleRepository?.get(articleFileName)?.let { article ->
                 if (article.bookmarked) {
                     articleRepository?.debookmarkArticle(article)
@@ -215,20 +210,18 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleFileName: String,
         datePublished: Date
     ) {
-        withContext(Dispatchers.IO) {
-            val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
-            issueMetadata?.let { issue ->
-                contentService?.downloadMetadata(issue, maxRetries = 5)
-                articleRepository?.get(articleFileName)?.let {
-                    contentService?.downloadToCache(it)
-                    articleRepository?.bookmarkArticle(it)
-                }
+        val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+        issueMetadata?.let { issue ->
+            contentService?.downloadMetadata(issue, maxRetries = 5)
+            articleRepository?.get(articleFileName)?.let {
+                contentService?.downloadToCache(it)
+                articleRepository?.bookmarkArticle(it)
             }
         }
-    }
+}
 
     fun share() {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             getCurrentSearchHit()?.let { hit ->
                 val url: String? = hit.article?.onlineLink
                 url?.let {

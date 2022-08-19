@@ -1,14 +1,16 @@
 package de.taz.app.android.api.variables
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.dto.DeviceType
 import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.Sorting
-import de.taz.app.android.singletons.JsonHelper
+import kotlinx.serialization.Required
+import kotlinx.serialization.encodeToString
+import de.taz.app.android.util.Json
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class SearchVariables(
     val text: String? = null,
     val title: String? = null,
@@ -27,6 +29,4 @@ data class SearchVariables(
     val deviceFormat: DeviceFormat,
     val deviceType: DeviceType = DeviceType.android,
     val deviceOS: String? = System.getProperty("os.version")
-): Variables {
-    override fun toJson(): String = JsonHelper.toJson(this)
-}
+): Variables

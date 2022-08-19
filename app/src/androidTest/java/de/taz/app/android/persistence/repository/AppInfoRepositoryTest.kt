@@ -8,6 +8,8 @@ import de.taz.app.android.api.dto.AppName
 import de.taz.app.android.api.dto.AppType
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
 import org.junit.Assert.*
@@ -16,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class AppInfoRepositoryTest {
 
     private lateinit var appInfoRepository: AppInfoRepository
@@ -36,7 +39,7 @@ class AppInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAppInfoAndRead() {
+    fun writeAppInfoAndRead() = runTest {
         appInfoRepository.save(appInfoTazTest)
         val fromDB = appInfoRepository.get()
         assertEquals(fromDB, appInfoTazTest)
@@ -44,7 +47,7 @@ class AppInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeMultipleGetLatest() {
+    fun writeMultipleGetLatest() = runTest {
         appInfoRepository.save(appInfoTazTest)
         appInfoRepository.save(appInfoTazProduction)
 
@@ -53,7 +56,7 @@ class AppInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun ensureOnlyOneEntryInDB() {
+    fun ensureOnlyOneEntryInDB() = runTest {
         appInfoRepository.save(appInfoTazTest)
         appInfoRepository.save(appInfoTazProduction)
 

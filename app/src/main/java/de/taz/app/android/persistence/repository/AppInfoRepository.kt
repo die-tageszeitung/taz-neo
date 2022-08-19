@@ -10,12 +10,12 @@ class AppInfoRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<AppInfoRepository, Context>(::AppInfoRepository)
 
-    fun save(appInfo: AppInfo): AppInfo {
+    suspend fun save(appInfo: AppInfo): AppInfo {
         appDatabase.appInfoDao().insertOrReplace(appInfo)
         return get()!!
     }
 
-    fun get(): AppInfo? {
+    suspend fun get(): AppInfo? {
         val appInfoEntity = appDatabase.appInfoDao().get()
         return appInfoEntity?.let {
             AppInfo(
@@ -27,7 +27,7 @@ class AppInfoRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getCount(): Int {
+    suspend fun getCount(): Int {
         return appDatabase.appInfoDao().count()
     }
 

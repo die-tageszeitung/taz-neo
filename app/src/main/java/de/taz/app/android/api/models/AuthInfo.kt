@@ -1,14 +1,14 @@
 package de.taz.app.android.api.models
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class AuthInfo (
     val status: AuthStatus,
     val message: String? = null
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class AuthStatus {
     valid,
     tazIdNotLinked,

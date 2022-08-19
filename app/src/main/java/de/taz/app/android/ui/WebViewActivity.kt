@@ -56,14 +56,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
             }
 
             webViewFullscreenContent.apply {
-                webViewClient = object : WebViewClient() {
-                    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-                        view.loadUrl(url)
-                        return true
-                    }
-                }
                 webChromeClient = AppWebChromeClient(::hideLoadingScreen)
-
                 settings.javaScriptEnabled = true
             }
         }
@@ -84,7 +77,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
     }
 
     private fun showHtmlFile(htmlFileKey: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             fileEntryRepository.get(htmlFileKey)?.let {
                 storageService.getFileUri(it)
             }?.let {

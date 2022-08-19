@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import de.taz.app.android.TazApplication
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -53,6 +54,10 @@ abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
             Boolean::class.java
         )
         return method.invoke(this, layoutInflater, container, false) as VIEW_BINDING
+    }
+
+    val applicationScope by lazy {
+        (requireActivity().application as TazApplication).applicationScope
     }
 
 }

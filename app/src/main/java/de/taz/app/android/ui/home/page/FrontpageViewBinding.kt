@@ -5,13 +5,11 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_FILE
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
-import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
-import kotlinx.coroutines.*
 
 
 class FrontpageViewBinding(
@@ -35,8 +33,8 @@ class FrontpageViewBinding(
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val feedRepository = FeedRepository.getInstance(applicationContext)
 
-    override suspend fun prepareData(): CoverViewData = withContext(Dispatchers.IO) {
-        try {
+    override suspend fun prepareData(): CoverViewData {
+        return try {
             val dimension =
                 feedRepository.get(coverPublication.feedName)?.momentRatioAsDimensionRatioString()
                     ?: DEFAULT_MOMENT_RATIO
@@ -55,15 +53,6 @@ class FrontpageViewBinding(
 
             val fileEntry = fileEntryRepository.get(downloadedFrontPage.pagePdf.name)
             val pdfMomentFilePath = fileEntry?.let { storageService.getFile(it)?.path }
-
-            // Still need to determine the issueKey, it's not part of a [Page]
-            // Therefore we need the [Moment]:
-            val moment = contentService.downloadMetadata(
-                MomentPublication(
-                    coverPublication.feedName,
-                    coverPublication.date
-                )
-            ) as Moment
 
             val momentType = CoverType.FRONT_PAGE
             CoverViewData(

@@ -1,8 +1,8 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class SearchHitDto(
     val article: ArticleDto?,
     val baseUrl: String,

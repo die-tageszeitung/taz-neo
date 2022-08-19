@@ -21,6 +21,8 @@
         <item name="android:textColorPrimary">@color/textColor</item>
         <item name="android:textColorSecondary">@color/textColorAccent</item>
         <item name="android:ambientShadowAlpha">0.1</item>
+        <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
+        <item name="android:scrollbarSize">5dp</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
@@ -346,7 +348,6 @@
         <item name="android:textSize">17sp</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
-
 
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>

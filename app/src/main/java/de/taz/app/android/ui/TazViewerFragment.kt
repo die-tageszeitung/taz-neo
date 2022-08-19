@@ -40,7 +40,7 @@ const val DRAWER_OVERLAP_OFFSET = -5F
  * creates an instance of [fragmentClass] which is then shown
  *
  */
-abstract class TazViewerFragment: ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
+abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
 
     abstract val fragmentClass: KClass<out Fragment>
 
@@ -134,7 +134,7 @@ abstract class TazViewerFragment: ViewBindingFragment<ActivityTazViewerBinding>(
         super.onResume()
 
         sectionDrawerViewModel.navButton.observeDistinct(this) {
-            lifecycleScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch {
                 val resourceInfo = contentService.downloadMetadata(
                     ResourceInfoKey(-1),
                     maxRetries = -1 // Retry indefinitely

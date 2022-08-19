@@ -1,24 +1,16 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import de.taz.app.android.data.DataService
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
-import kotlin.collections.HashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.launch
 
 
 /**
@@ -45,8 +37,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      */
     companion object {
         private val log by Log
-        private val cacheOperationMutex = Mutex()
-        internal val activeCacheOperations = HashMap<String, AnyCacheOperation>()
+        internal val activeCacheOperations = ConcurrentHashMap<String, AnyCacheOperation>()
         internal val cacheStatusFlow = MutableSharedFlow<Pair<String, CacheStateUpdate>>()
             .also { flow ->
                 CoroutineScope(Dispatchers.Default).launch {
@@ -69,11 +60,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * The loading state is different for each discrete implementaion of [CacheOperation]
      */
     protected abstract val loadingState: CacheState
-
-    /**
-     * Currently registered listeners
-     */
-    private val listeners = LinkedList<CacheStateListener<RESULT>>()
 
     /**
      * The result of this operation. Should never be null after [notifySuccess]
@@ -125,27 +111,25 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         get() = completedItemCount == totalItemCount
 
     /**
-     * Latest state of this operation.
+     * StateFlow of the state of the CacheOperation
+     * This is can be used to wait until the [CacheStateUpdate.Type] has a certain value by using
+     * [Flow.first] - e.g. `stateFlow.first { it.hasCompleted }`
      */
-    private var _state: CacheStateUpdate = CacheStateUpdate(
-        CacheStateUpdate.Type.INITIAL,
-        CacheState.ABSENT,
-        completedItemCount,
-        totalItemCount,
-        this
+    private val stateFlow = MutableStateFlow(
+        CacheStateUpdate(
+            CacheStateUpdate.Type.INITIAL,
+            CacheState.ABSENT,
+            completedItemCount,
+            totalItemCount,
+            this
+        )
     )
-    val state: CacheStateUpdate
-        get() = _state
-
-
-    private val _stateLiveData = MutableLiveData<CacheStateUpdate>()
-    val stateLiveData: LiveData<CacheStateUpdate> = _stateLiveData
-
 
     /**
-     * A Mutex to avoid concurrent (notifications) modifications of the operation state
+     * Latest state of this operation.
      */
-    private val notifyLock = Mutex()
+    val state
+        get() = stateFlow.value
 
     /**
      * Execute this operation
@@ -157,6 +141,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      *                          Instead of waiting on the result of the running this operation is enqueued and
      *                          executed afterwards
      * The function will suspend until the [CacheOperation] is completed
+     *
+     * TODO: we currently do not consider the maxRetries when waiting -
+     *       this means that a CacheOperation with infinite retries might wait for one with 3 and
+     *       fail if the 3 attempts do not succeed
      */
     suspend fun execute(forceExecution: Boolean = false): RESULT = withContext(NonCancellable) {
         try {
@@ -197,7 +185,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param items The [CacheOperationItem]s to be added to this operation
      */
     fun addItems(items: List<ITEM>) {
-        if (state.complete) {
+        if (state.hasCompleted) {
             throw IllegalStateException("Cannot add new items if the operation is already marked as complete")
         }
         _cacheItems.addAll(items.map {
@@ -223,7 +211,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     /**
      * This function needs to implemented by the discrete implementations
      * Here the volatile operations can be made. In the course of the
-     * operation at least [notifyStart] and [notifySuccess] or [notifyFailiure] needs
+     * operation at least [notifyStart] and [notifySuccess] or [notifyFailure] needs
      * to be called to indicate progress.
      * The implementation should suspend until the [CacheOperation] is completed, so that
      * any caller to [execute] can be sure the [CacheOperation] is done after invoking the function.
@@ -235,72 +223,38 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * to the central cacheStatusFlow and removes it from the activeCacheOperations once finished
      */
     private suspend fun registerOperation() {
-        cacheOperationMutex.withLock {
-            val operation = activeCacheOperations[tag]
-            if (operation != null) {
-                if (this::class == operation::class) {
-                    throw SameOperationActiveException(
-                        "For tag $tag there is the same operation already active",
-                        operation
-                    )
-                } else {
-                    throw DifferentOperationActiveException(
-                        "For tag $tag there is a different operation already active",
-                        operation
-                    )
-                }
+        val operation = activeCacheOperations.getOrPut(tag) { this }
+        if (operation != this) {
+            if (this::class == operation::class) {
+                throw SameOperationActiveException(
+                    "For tag $tag there is the same operation already active",
+                    operation
+                )
             } else {
-                activeCacheOperations[tag] = this
+                throw DifferentOperationActiveException(
+                    "For tag $tag there is a different operation already active",
+                    operation
+                )
             }
         }
 
-        addListener(object : CacheStateListener<RESULT> {
-            override fun onUpdate(update: CacheStateUpdate) {
-                if (update.complete) {
-                    activeCacheOperations.remove(tag)
-                }
-                // We need to emit this blockingly to ensure sequentially correct updates
-                runBlocking {
-                    cacheStatusFlow.emit(tag to update)
-                }
-            }
-        })
-    }
+        CoroutineScope(Dispatchers.Default).launch {
+            stateFlow.collect { update ->
+                cacheStatusFlow.emit(tag to update)
 
-    /**
-     * Adds a Listener to this operation
-     * @param listener The [CacheStateUpdate] to add to this operation
-     * @return The just added listener
-     */
-    suspend fun addListener(listener: CacheStateListener<RESULT>): CacheStateListener<RESULT> =
-        notifyLock.withLock {
-            if (state.complete) {
-                if (state.type == CacheStateUpdate.Type.FAILED) {
-                    listener.onFailuire(
-                        state.exception ?: Exception("Unknown CacheOperation error")
-                    )
-                } else if (state.type == CacheStateUpdate.Type.SUCCEEDED) {
-                    listener.onSuccess(getResult())
+                if (update.hasCompleted) {
+                    // stop collecting
+                    cancel()
                 }
-            } else {
-                listeners.add(listener)
             }
-            return listener
         }
-
-    /**
-     * Remove a Listener from this operation, it will no longer recieve updates
-     * @param listener The [CacheStateUpdate] to remove from this operation
-     */
-    fun removeListener(listener: CacheStateListener<RESULT>) {
-        listeners.remove(listener)
     }
 
     /**
      * Emits an update indicating recoverable connection troubles while executing
      * this operation
      */
-    suspend fun notifyBadConnection() = notifyLock.withLock {
+    fun notifyBadConnection() {
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.BAD_CONNECTION,
@@ -316,7 +270,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     /**
      * Counts a successful item and emits an update indicating that
      */
-    suspend fun notifySuccessfulItem() = notifyLock.withLock {
+    fun notifySuccessfulItem() {
         successfulCount++
         log.verbose(
             "Notifying a successful file in $tag.\n" +
@@ -337,7 +291,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Counts a failed item and emits an update indicating that
      * @param exception The exception that is the cause of this failed item
      */
-    suspend fun notifyFailedItem(exception: Exception) = notifyLock.withLock {
+    fun notifyFailedItem(exception: Exception) {
         failedCount++
         log.verbose(
             "Notifying a failed file in $tag. with reason $exception \n" +
@@ -359,24 +313,22 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     /**
      *
      */
-    suspend fun checkIfItemsCompleteAndNotifyResult(result: RESULT) = notifyLock.withLock {
-        if (state.complete) {
+    fun checkIfItemsCompleteAndNotifyResult(result: RESULT) {
+        if (state.hasCompleted) {
             return
         }
-        if (!state.complete && itemsComplete) {
+        if (!state.hasCompleted && itemsComplete) {
             if (failedCount == 0) {
-                emitSuccess(result)
+                notifySuccess(result)
             } else {
-                emitFailure(
-                    CacheOperationFailedException(
-                        "Some items were not success fully processed"
-                    )
+                notifyFailure(
+                    CacheOperationFailedException("Some items were not success fully processed")
                 )
             }
         }
     }
 
-    suspend fun notifyStart() = notifyLock.withLock {
+    fun notifyStart() {
         emitUpdate(
             CacheStateUpdate(
                 this.state.type,
@@ -392,56 +344,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Mark the operation as failed, will emit failiure updates to its listeners
      * @param e An exception indicating the cause of the failiure
      */
-    suspend fun notifyFailiure(e: Exception) = notifyLock.withLock {
-        emitFailure(e)
-    }
+    fun notifyFailure(e: Exception) {
+        // remove from activeCacheOperations
+        activeCacheOperations.remove(tag)
 
-    /**
-     * Mark the operation as succeeded, will emit success updates to its listeners
-     * @param result The result of the operation, if the operation doesn't produce a result use [Unit]
-     */
-    suspend fun notifySuccess(result: RESULT) = notifyLock.withLock {
-        emitSuccess(result)
-    }
-
-    /**
-     * Suspend until the operation is either [CacheStateUpdate.Type.FAILED] or
-     * [CacheStateUpdate.Type.SUCCEEDED]
-     */
-    private suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
-        if (state.complete) return@withContext result!!
-        // With locking the addListener function we ensure the order of the resumed
-        // coroutines, the first invoker of waitOnCompletion will be the first to be resumed
-        waiterLock.withLock {
-            suspendCoroutine<RESULT> { continuation ->
-                launch {
-                    addListener(object : CacheStateListener<RESULT> {
-                        override fun onFailuire(e: Exception) {
-                            continuation.resumeWithException(e)
-                        }
-
-                        override fun onSuccess(result: RESULT) {
-                            continuation.resume(result)
-                        }
-                    })
-                }
-            }
-        }
-    }
-
-    private fun getResult(): RESULT {
-        if (!state.complete) {
-            throw IllegalStateException("Cannot get operation result if operation not complete")
-        } else {
-            return result ?: throw IllegalStateException("Result is null despite complete state")
-        }
-    }
-
-    /**
-     * Emits failiure update and failiure to listeners
-     * @param e An exception indicating the cause of the failiure
-     */
-    private fun emitFailure(e: Exception) {
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.FAILED,
@@ -452,15 +358,18 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 e
             )
         )
-        listeners.map { it.onFailuire(e) }
     }
 
     /**
-     * Emits success update and success to listeners
-     * @param result To emit success a result must be provided. If the operation doesn't produce anything use [Unit]
+     * Mark the operation as succeeded, will emit success updates to its listeners
+     * @param result The result of the operation, if the operation doesn't produce a result use [Unit]
      */
-    private fun emitSuccess(result: RESULT) {
+    fun notifySuccess(result: RESULT) {
         this.result = result
+
+        // remove from activeCacheOperations
+        activeCacheOperations.remove(tag)
+
         emitUpdate(
             CacheStateUpdate(
                 CacheStateUpdate.Type.SUCCEEDED,
@@ -470,7 +379,33 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 this
             )
         )
-        listeners.map { it.onSuccess(result) }
+    }
+
+    /**
+     * Suspend until the operation is either [CacheStateUpdate.Type.FAILED] or
+     * [CacheStateUpdate.Type.SUCCEEDED]
+     */
+    protected suspend fun waitOnCompletion(): RESULT = withContext(Dispatchers.Default) {
+        if (state.hasCompleted) return@withContext result!!
+
+        // wait until failed or completed
+        stateFlow.first { it.hasCompleted }
+
+        // rethrow the exception if failed
+        if (state.hasFailed)
+            throw state.exception ?: Exception("Unknown CacheOperation error")
+        // otherwise return result
+        requireNotNull(getResult()) {
+            "CacheOperation is completed, there is no exception so should have a result"
+        }
+    }
+
+    private fun getResult(): RESULT {
+        if (!state.hasCompleted) {
+            throw IllegalStateException("Cannot get operation result if operation not complete")
+        } else {
+            return result ?: throw IllegalStateException("Result is null despite complete state")
+        }
     }
 
     /**
@@ -478,11 +413,11 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param update the update to emit
      */
     private fun emitUpdate(update: CacheStateUpdate) {
-        if (this.state.complete) {
-            throw IllegalStateException("It is illegal to modify the state of a completed operation")
+        if (!this.state.hasCompleted) {
+            // It is illegal to modify the state of a completed operation
+            this.stateFlow.value = update
+        } else {
+            log.warn("tried to update completed CacheOperation $tag with update: $update")
         }
-        this._state = update
-        _stateLiveData.postValue(update)
-        listeners.map { it.onUpdate(update) }
     }
 }

@@ -3,6 +3,10 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
@@ -10,8 +14,10 @@ import de.taz.app.android.R
 import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import kotlinx.coroutines.launch
 import kotlin.math.floor
 
 /**
@@ -33,6 +39,15 @@ class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
+                    // redraw all visible views
+                    viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
+                }
+            }
+        }
+
         context?.let { context ->
             grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns())
@@ -46,15 +61,10 @@ class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
 
         viewModel.feed.observeDistinct(this) { feed ->
             val requestManager = Glide.with(this)
-            val itemLayout = if (viewModel.pdfModeLiveData.value == true) {
-                R.layout.fragment_archive_frontpage_item
-            } else {
-                R.layout.fragment_archive_moment_item
-            }
             grid.setHasFixedSize(true)
             adapter = ArchiveAdapter(
                 this,
-                itemLayout,
+                R.layout.fragment_archive_item,
                 feed,
                 requestManager
             )

@@ -94,29 +94,25 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueRead.setOnClickListener {
-            lifecycleScope.launch {
-                if (homeViewModel.getPdfMode()) {
-                    Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                        putExtra(
-                            PdfPagerActivity.KEY_ISSUE_PUBLICATION,
-                            IssuePublicationWithPages(issuePublication)
-                        )
-                        startActivity(this)
-                    }
-                } else {
-
-                    Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                        putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
-                        startActivityForResult(this, 0)
-                    }
+            if (homeViewModel.getPdfMode()) {
+                Intent(requireActivity(), PdfPagerActivity::class.java).apply {
+                    putExtra(
+                        PdfPagerActivity.KEY_ISSUE_PUBLICATION,
+                        IssuePublicationWithPages(issuePublication)
+                    )
+                    startActivity(this)
+                }
+            } else {
+                Intent(requireActivity(), IssueViewerActivity::class.java).apply {
+                    putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
+                    startActivityForResult(this, 0)
                 }
             }
-
             dismiss()
         }
 
         viewBinding.fragmentBottomSheetIssueShare.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch {
                 var issue = contentService.downloadMetadata(issuePublication) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
@@ -159,7 +155,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
 
-            CoroutineScope(Dispatchers.IO).launch {
+            applicationScope.launch {
                 contentService.deleteIssue(issuePublication)
                 viewModel.notifyMomentChanged(simpleDateFormat.parse(issuePublication.date)!!)
                 withContext(Dispatchers.Main) {
@@ -169,7 +165,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            applicationScope.launch {
                 try {
                     contentService.downloadIssuePublicationToCache(issuePublication)
                 } catch (e: CacheOperationFailedException) {

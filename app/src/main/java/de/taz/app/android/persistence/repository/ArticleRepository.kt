@@ -23,14 +23,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
 
-    fun update(articleStub: ArticleStub) {
+    suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
     }
 
-    fun save(article: Article) {
+    suspend fun save(article: Article) {
         var articleToSave = article
         getStub(articleToSave.key)?.let {
-            articleToSave = articleToSave.copy(bookmarked = it.bookmarked)
+            articleToSave = articleToSave.copy(bookmarkedTime = it.bookmarkedTime)
         }
 
         val articleFileName = articleToSave.articleHtml.name
@@ -66,20 +66,12 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun get(articleFileName: String): Article? {
+    suspend fun get(articleFileName: String): Article? {
         return getStub(articleFileName)?.let {articleStubToArticle(it) }
     }
 
-    fun getList(articleFileNames: List<String>): List<Article> {
-        return getStubList(articleFileNames).map(this::articleStubToArticle)
-    }
-
-    fun getStub(articleFileName: String): ArticleStub? {
+    suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
-    }
-
-    fun getStubList(articleFileNames: List<String>): List<ArticleStub> {
-        return appDatabase.articleDao().get(articleFileNames)
     }
 
     fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
@@ -88,15 +80,15 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     fun getLiveData(articleName: String): LiveData<Article> {
         return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
-            liveData(Dispatchers.IO) {
+            liveData {
                 emit(articleStubToArticle(articleStub))
             }
         }
     }
 
-    fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
+    suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
-        if (articleStub?.bookmarked == true) {
+        if (articleStub?.bookmarkedTime != null) {
             log.debug("save scrolling position for article ${articleStub.articleFileName}")
             appDatabase.articleDao().update(
                 articleStub.copy(percentage = percentage, position = position)
@@ -104,7 +96,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
+    suspend fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
         var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)
         // if it is the imprint we want to return a list of it
         if (articleStubList.isEmpty()) {
@@ -115,24 +107,24 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return articleStubList
     }
 
-    fun nextArticleStub(articleName: String): ArticleStub? {
+    suspend fun nextArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getNextArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getNextArticleStubInNextSection(articleName)
     }
 
 
-    fun previousArticleStub(articleName: String): ArticleStub? {
+    suspend fun previousArticleStub(articleName: String): ArticleStub? {
         return appDatabase.sectionArticleJoinDao().getPreviousArticleStubInSection(articleName)
             ?: appDatabase.sectionArticleJoinDao().getPreviousArticleStubInPreviousSection(
                 articleName
             )
     }
 
-    fun getImagesForArticle(articleFileName: String): List<Image> {
+    suspend fun getImagesForArticle(articleFileName: String): List<Image> {
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
-    fun articleStubToArticle(articleStub: ArticleStub): Article {
+    suspend fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
@@ -178,7 +170,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleImages,
             authors,
             articleStub.articleType,
-            articleStub.bookmarked,
+            articleStub.bookmarkedTime,
             articleStub.position,
             articleStub.percentage,
             articleStub.dateDownload
@@ -186,43 +178,50 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
 
-    fun bookmarkArticle(article: Article) {
+    suspend fun bookmarkArticle(article: Article) {
         bookmarkArticle(article.key)
     }
 
-    fun bookmarkArticle(articleStub: ArticleStub) {
+    suspend fun bookmarkArticle(articleStub: ArticleStub) {
         bookmarkArticle(articleStub.articleFileName)
     }
 
-    fun bookmarkArticle(articleName: String) {
-        getStub(articleName)?.copy(bookmarked = true)?.let {
+    suspend fun bookmarkArticle(articleName: String) {
+        val currentDate = Date()
+        getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
             appDatabase.articleDao().update(it)
         }
     }
 
-    fun debookmarkArticle(article: Article) {
+    suspend fun setBookmarkedTime(articleName: String, date: Date) {
+        getStub(articleName)?.copy(bookmarkedTime = date)?.let {
+            appDatabase.articleDao().update(it)
+        }
+    }
+
+    suspend fun debookmarkArticle(article: Article) {
         debookmarkArticle(article.key)
     }
 
-    fun debookmarkArticle(articleStub: ArticleStub) {
+    suspend fun debookmarkArticle(articleStub: ArticleStub) {
         debookmarkArticle(articleStub.articleFileName)
     }
 
-    fun debookmarkArticle(articleName: String) {
+    suspend fun debookmarkArticle(articleName: String) {
         log.debug("removed bookmark from article $articleName")
-        getStub(articleName)?.copy(bookmarked = false)?.let {
+        getStub(articleName)?.copy(bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
         }
     }
 
     fun getBookmarkedArticlesLiveData(): LiveData<List<Article>> =
         appDatabase.articleDao().getBookmarkedArticlesLiveData().switchMap { input ->
-            liveData(Dispatchers.IO) {
+            liveData {
                 emit(input.map { articleStub -> articleStubToArticle(articleStub) })
             }
         }
 
-    fun getBookmarkedArticleStubs(): List<ArticleStub> {
+    suspend fun getBookmarkedArticleStubs(): List<ArticleStub> {
         return appDatabase.articleDao().getBookmarkedArticles()
     }
 
@@ -230,22 +229,18 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getBookmarkedArticlesLiveData()
     }
 
-    fun isBookmarked(articleStub: ArticleStub): Boolean {
-        return articleStub.bookmarked
-    }
-
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it.bookmarked }
+        return getStubLiveData(articleName).map { it.bookmarkedTime != null }
     }
 
-    fun getIndexInSection(articleName: String): Int {
+    suspend fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
 
-    fun deleteArticle(article: Article) {
+    suspend fun deleteArticle(article: Article) {
         appDatabase.articleDao().get(article.key)?.let {
             val articleStub = ArticleStub(article)
-            if (!it.bookmarked) {
+            if (it.bookmarkedTime == null) {
                 val articleFileName = article.articleHtml.name
 
                 // delete authors
@@ -313,46 +308,28 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun isDownloadedLiveData(articleOperations: ArticleOperations) =
+    suspend fun isDownloadedLiveData(articleOperations: ArticleOperations) =
         isDownloadedLiveData(articleOperations.key)
 
-    fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
+    suspend fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
         return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
-    fun getArticleStubListForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): List<ArticleStub> {
-        return appDatabase.articleDao()
-            .getArticleStubListForIssue(issueFeedName, issueDate, issueStatus)
-    }
-
-    fun getArticleStubListForIssue(
+    suspend fun getArticleStubListForIssue(
         issueKey: IssueKey
     ): List<ArticleStub> {
         return appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    fun getBookmarkedArticleStubsForIssue(issueKey: AbstractIssueKey): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(
-            issueKey.feedName,
-            issueKey.date,
-            issueKey.status
-        )
-    }
-
-
-    fun setDownloadDate(
+    suspend fun setDownloadDate(
         articleStub: ArticleStub,
         date: Date?
     ) {
         update(articleStub.copy(dateDownload = date))
     }
 
-    fun getDownloadDate(
+    suspend fun getDownloadDate(
         articleStub: ArticleStub
     ): Date? {
         return appDatabase.articleDao().getDownloadStatus(articleStub.articleFileName)
@@ -365,7 +342,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param authorFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleAuthorImageJoin] by Articles that have a [Article.dateDownload]
      */
-    fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int {
+    suspend fun getDownloadedArticleAuthorReferenceCount(authorFileName: String): Int {
         return appDatabase.articleDao().getDownloadedArticleAuthorReferenceCount(authorFileName)
     }
 
@@ -375,7 +352,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param articleImageFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleImageJoin] by Articles that have a [Article.dateDownload]
      */
-     fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
+     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
          return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
 

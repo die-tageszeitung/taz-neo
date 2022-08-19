@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import de.taz.app.android.R
+import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
@@ -23,12 +24,12 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
     private val defaultNavButtonDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
-    fun update(resourceInfoStub: ResourceInfoStub) {
+    suspend fun update(resourceInfoStub: ResourceInfoStub) {
         appDatabase.resourceInfoDao().update(resourceInfoStub)
     }
 
-    fun save(resourceInfo: ResourceInfo): ResourceInfo {
-        appDatabase.runInTransaction<Unit> {
+    suspend fun save(resourceInfo: ResourceInfo): ResourceInfo {
+        appDatabase.withTransaction {
             val currentResourceInfo = getNewest()
             // If the latest resource info is marked as downloaded and the new version
             // is not different copy over the download date
@@ -70,27 +71,27 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return getNewest()!!
     }
 
-    fun getWithoutFiles(): ResourceInfoStub? {
+    suspend fun getWithoutFiles(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().getNewest()
     }
 
-    fun getStub(): ResourceInfoStub? {
+    suspend fun getStub(): ResourceInfoStub? {
         return appDatabase.resourceInfoDao().getNewest()
     }
 
-    fun getNewest(): ResourceInfo? {
+    suspend fun getNewest(): ResourceInfo? {
         return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
     }
 
-    fun getLiveData(): LiveData<ResourceInfo?> {
+    suspend fun getLiveData(): LiveData<ResourceInfo?> {
         return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 it?.let { resourceInfoStubToResourceInfo(it) }
             }
         }
     }
 
-    fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
+    suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )
@@ -103,7 +104,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         )
     }
 
-    fun delete(resourceInfo: ResourceInfo) {
+    suspend fun delete(resourceInfo: ResourceInfo) {
         appDatabase.resourceInfoFileEntryJoinDao().delete(
             resourceInfo.resourceList.mapIndexed { index, fileEntry ->
                 ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
@@ -118,17 +119,17 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))
     }
 
-    fun getDownloadStatus(resourceInfo: ResourceInfo): Date? {
+    suspend fun getDownloadStatus(resourceInfo: ResourceInfo): Date? {
         return appDatabase.resourceInfoDao().getDownloadStatus(resourceInfo.resourceVersion)
     }
 
 
-    fun setDownloadStatus(resourceInfo: ResourceInfo, date: Date?) {
+    suspend fun setDownloadStatus(resourceInfo: ResourceInfo, date: Date?) {
         return update(ResourceInfoStub(resourceInfo).copy(dateDownload = date))
     }
 
 
-    fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean> {
+    suspend fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean> {
         return appDatabase.resourceInfoDao().isDownloadedLiveData(resourceVersion)
     }
 }

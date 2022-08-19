@@ -1,9 +1,9 @@
 package de.taz.app.android.api.models
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class SubscriptionStatus {
     alreadyLinked,
     elapsed,

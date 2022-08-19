@@ -2,14 +2,13 @@ package de.taz.app.android.api
 
 import de.taz.app.android.api.dto.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
-import de.taz.app.android.singletons.JsonHelper
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import de.taz.app.android.util.Json
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import org.junit.Assert.*
 import org.junit.Test
 
 class QueryTest {
-
-    private val jsonAdapter = JsonHelper.adapter<QueryTestHelper>()
 
     @Test
     fun withVariables() {
@@ -17,34 +16,21 @@ class QueryTest {
         val instance = Query(queryString)
         val variables = AuthenticationVariables("user", "pass", DeviceFormat.mobile)
         instance.variables = variables
-        val jsonString = instance.toJson()
+        val jsonString = Json.encodeToString(instance)
 
-        val queryJsonHelper = jsonAdapter.fromJson(jsonString)
-        assertEquals(queryJsonHelper?.query, queryString)
-        assertTrue(queryJsonHelper?.variables?.equalsAuth(variables) ?: false)
+        val query = Json.decodeFromString<Query>(jsonString)
+        assertEquals(query.query, queryString)
+        assertEquals(query.variables, variables)
     }
 
     @Test
     fun withoutVariables() {
         val queryString = "query AppInfoQuery { product { appName appType }}"
         val instance = Query(queryString)
-        val jsonString = instance.toJson()
+        val jsonString = Json.encodeToString(instance)
 
-        val queryJsonHelper = jsonAdapter.fromJson(jsonString)
-        assertEquals(queryJsonHelper?.query, queryString)
-        assertEquals(queryJsonHelper?.variables, TestAuthenticationVariables(null, null, null))
+        val query: Query = Json.decodeFromString(jsonString)
+        assertEquals(query.query, queryString)
+        assertNull(query.variables)
     }
-
-    data class QueryTestHelper(
-        val query: String,
-        val variables: TestAuthenticationVariables
-    )
-
-    data class TestAuthenticationVariables(val user: String?, val password: String?, val deviceFormat: DeviceFormat?) {
-        fun equalsAuth(authenticationVariables: AuthenticationVariables): Boolean {
-            return this.user == authenticationVariables.user &&
-                    this.password == authenticationVariables.password
-        }
-    }
-
 }

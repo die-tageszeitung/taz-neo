@@ -6,7 +6,7 @@ import androidx.room.Query
 import de.taz.app.android.api.models.Image
 
 @Dao
-abstract class ImageDao {
+interface ImageDao {
 
     @Query(
         """
@@ -14,7 +14,7 @@ abstract class ImageDao {
          WHERE fileEntryName == :name
         """
     )
-    abstract fun getByName(name: String): Image?
+    suspend fun getByName(name: String): Image?
 
     @Query(
         """
@@ -22,7 +22,7 @@ abstract class ImageDao {
          WHERE fileEntryName == :name
         """
     )
-    abstract fun getLiveDataByName(name: String): LiveData<Image?>
+    fun getLiveDataByName(name: String): LiveData<Image?>
 
     @Query(
         """
@@ -30,7 +30,7 @@ abstract class ImageDao {
          WHERE fileEntryName IN (:names)
         """
     )
-    abstract fun getByNames(names: List<String>): List<Image>
+    suspend fun getByNames(names: List<String>): List<Image>
 
     @Query(
         """
@@ -38,6 +38,6 @@ abstract class ImageDao {
          WHERE fileEntryName IN (:names)
         """
     )
-    abstract fun getNames(names: List<String>): List<String>
+    suspend fun getNames(names: List<String>): List<String>
 
 }

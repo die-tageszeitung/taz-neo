@@ -23,7 +23,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import de.taz.app.android.util.showFatalErrorDialog
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -78,9 +77,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     }
 
     private fun setFirstTimeStart() {
-        CoroutineScope(Dispatchers.IO).launch {
-            generalDataStore.hasSeenWelcomeScreen.set(true)
-        }
+        applicationScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
     }
 
     override fun onBackPressed() {
@@ -103,7 +100,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     }
 
 
-    private suspend fun showWelcomeSlides() = withContext(Dispatchers.IO) {
+    private suspend fun showWelcomeSlides() {
         fileEntryRepository.get(welcomeSlidesHtmlFile)?.let {
             storageService.getFileUri(it)
         }?.let {

@@ -7,6 +7,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 
@@ -17,6 +19,7 @@ import java.io.IOException
 
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ResourceInfoRepositoryTest {
 
     private lateinit var db: AppDatabase
@@ -44,7 +47,7 @@ class ResourceInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndRead() {
+    fun writeAndRead() = runTest {
         resourceInfoRepository.save(resourceInfo)
         val fromDB = resourceInfoRepository.getNewest()
         assertEquals(fromDB, resourceInfo)
@@ -52,7 +55,7 @@ class ResourceInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun readWithoutFiles() {
+    fun readWithoutFiles() = runTest {
         resourceInfoRepository.save(resourceInfo)
         val fromDB = resourceInfoRepository.getWithoutFiles()
         assertEquals(fromDB, ResourceInfoStub(resourceInfo))
@@ -60,7 +63,7 @@ class ResourceInfoRepositoryTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadMultiple() {
+    fun writeAndReadMultiple() = runTest {
         resourceInfoRepository.save(resourceInfo)
         resourceInfoRepository.save(resourceInfo2)
 

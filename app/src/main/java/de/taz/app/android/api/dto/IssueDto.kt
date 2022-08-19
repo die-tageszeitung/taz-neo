@@ -1,10 +1,10 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 
-@JsonClass(generateAdapter = true)
+@Serializable
 @Mockable
 class IssueDto(
     val date: String,
@@ -13,7 +13,7 @@ class IssueDto(
     val baseUrl: String,
     val status: IssueStatus,
     val minResourceVersion: Int,
-    val imprint: ArticleDto?,
+    val imprint: ArticleDto? = null,
     val isWeekend: Boolean = false,
     val sectionList: List<SectionDto>? = null,
     val pageList: List<PageDto>? = null,

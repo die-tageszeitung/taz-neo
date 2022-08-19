@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 24
+const val DATABASE_VERSION = 25
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -39,6 +39,7 @@ val allMigrations = arrayOf(
     Migration21to22,
     Migration22to23,
     Migration23to24,
+    Migration24to25
 )
 
 @Database(
@@ -93,7 +94,8 @@ abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
         Room.databaseBuilder(
             applicationContext,
-            AppDatabase::class.java, DATABASE_NAME
+            AppDatabase::class.java,
+            DATABASE_NAME
         )
             .addMigrations(*allMigrations)
             .fallbackToDestructiveMigration()

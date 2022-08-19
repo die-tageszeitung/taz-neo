@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -18,7 +19,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.getViewModel
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
@@ -31,7 +31,6 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -53,7 +52,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private val log by Log
 
-    private lateinit var viewModel: LoginViewModel
+    private val viewModel by viewModels<LoginViewModel>()
 
     private var article: String? = null
 
@@ -78,7 +77,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             // hack to not auto select first item
             menu.getItem(0).isCheckable = false
 
-            setOnNavigationItemSelectedListener {
+            setOnItemSelectedListener {
                 this@LoginActivity.apply {
                     val data = Intent()
                     setResult(Activity.RESULT_CANCELED, data)
@@ -92,7 +91,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
         val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
 
-        viewModel = getViewModel { LoginViewModel(application, username, password, register) }
+        if(!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
+            viewModel.login(username, password)
+        }
 
         viewModel.backToArticle = article != null
 
@@ -170,7 +171,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showLoginForm()
                 }
                 LoginViewModelState.REGISTRATION_EMAIL -> {
-                    CoroutineScope(Dispatchers.Main).launch {
+                    lifecycleScope.launch {
                         authHelper.elapsedButWaiting.set(viewModel.isElapsed())
                         showConfirmEmail()
                     }
@@ -237,6 +238,12 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 }
                 LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED -> {
                     showSubscriptionAlreadyLinked()
+                }
+                LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST -> {
+                    showSwitchPrint2DigiForm()
+                }
+                LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST -> {
+                    showExtendPrintWithDigiForm()
                 }
             }
         }
@@ -342,7 +349,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionPossibilities(priceInvalid: Boolean = false) {
         log.debug("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             // if on non free flavor it is not allowed to buy stuff from the app,
             // so we show a fragment where we only allow the trial subscription:
             if (BuildConfig.IS_NON_FREE) {
@@ -364,6 +371,20 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 } ?: hideLoadingScreen()
             }
         }
+    }
+
+    private fun showSwitchPrint2DigiForm() {
+        log.debug("showPrint2DigiForm")
+        showFragment(
+            SubscriptionSwitchPrint2DigiFragment()
+        )
+    }
+
+    private fun showExtendPrintWithDigiForm() {
+        log.debug("showPrintPlusDigiForm")
+        showFragment(
+            SubscriptionExtendPrintPlusDigiFragment()
+        )
     }
 
     /**

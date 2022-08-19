@@ -1,10 +1,10 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 
-@JsonClass(generateAdapter = true)
+@Serializable
 @Mockable
 data class DataDto (
     val authentificationToken: AuthTokenInfo? = null,
@@ -22,5 +22,6 @@ data class DataDto (
     val subscriptionId2tazId: SubscriptionInfo? = null,
     val subscriptionPoll: SubscriptionInfo? = null,
     val subscriptionReset: SubscriptionResetInfo? = null,
-    val trialSubscription: SubscriptionInfo? = null
+    val trialSubscription: SubscriptionInfo? = null,
+    val subscriptionFormDataType: SubscriptionFormData? = null,
 )

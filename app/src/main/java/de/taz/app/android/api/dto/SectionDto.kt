@@ -1,8 +1,8 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class SectionDto (
     val sectionHtml: FileEntryDto,
     val title: String,
@@ -13,7 +13,7 @@ data class SectionDto (
     val navButton: ImageDto
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class SectionType {
     articles
 }

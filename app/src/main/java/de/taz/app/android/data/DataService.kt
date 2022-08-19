@@ -8,111 +8,77 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.*
 
 /**
  * A central service providing data intransparent if from cache or remotely fetched
  */
 @Mockable
-@Deprecated("This class should not be used anymore - either use the respective repositories" +
-        "or the CacheOperations")
+@Deprecated(
+    "This class should not be used anymore - either use the respective repositories" +
+            "or the CacheOperations"
+)
 class DataService(applicationContext: Context) {
     companion object : SingletonHolder<DataService, Context>(::DataService)
 
     private val apiService = ApiService.getInstance(applicationContext)
 
     private val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
     private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
     suspend fun getLastDisplayableOnIssue(issueKey: IssueKey): String? =
-        withContext(Dispatchers.IO) {
-            issueRepository.getLastDisplayable(issueKey)
-        }
+        issueRepository.getLastDisplayable(issueKey)
 
     suspend fun saveLastDisplayableOnIssue(issueKey: IssueKey, displayableName: String) =
-        withContext(Dispatchers.IO) {
-            issueRepository.saveLastDisplayable(issueKey, displayableName)
-        }
+        issueRepository.saveLastDisplayable(issueKey, displayableName)
 
     suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) =
-        withContext(Dispatchers.IO) {
-            issueRepository.saveLastPagePosition(issueKey, pageName)
-        }
-
-    suspend fun getViewerStateForDisplayable(displayableName: String): ViewerState? =
-        withContext(Dispatchers.IO) {
-            viewerStateRepository.get(displayableName)
-        }
-
-    suspend fun saveViewerStateForDisplayable(displayableName: String, scrollPosition: Int) =
-        withContext(Dispatchers.IO) {
-            viewerStateRepository.save(
-                displayableName,
-                scrollPosition
-            )
-        }
-
-    suspend fun sendNotificationInfo(
-        token: String,
-        oldToken: String? = null,
-        retryOnFailure: Boolean = false
-    ): Boolean =
-        withContext(Dispatchers.IO) {
-            log.info("Sending notification info")
-            if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.sendNotificationInfo(token, oldToken)
-                }
-            } else {
-                apiService.sendNotificationInfo(token, oldToken)
-            }
-        }
-
+        issueRepository.saveLastPagePosition(issueKey, pageName)
 
     suspend fun getFeedByName(
         name: String,
         allowCache: Boolean = true,
         retryOnFailure: Boolean = false
-    ): Feed? =
-        withContext(Dispatchers.IO) {
-            if (allowCache) {
-                feedRepository.get(name)?.let {
-                    return@withContext it
-                }
+    ): Feed? {
+        if (allowCache) {
+            feedRepository.get(name)?.let {
+                return it
             }
-            val feed = if (retryOnFailure) {
-                apiService.retryOnConnectionFailure {
-                    apiService.getFeedByName(name)
-                }
-            } else {
+        }
+        val feed = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
                 apiService.getFeedByName(name)
             }
-            feed?.let {
-                feedRepository.save(feed)
-            }
-            feed
+        } else {
+            apiService.getFeedByName(name)
         }
+        feed?.let {
+            feedRepository.save(feed)
+        }
+        return feed
+    }
 
     /**
      * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
      * @param feedName to refresh
      */
-    suspend fun refreshFeedAndGetIssueKeyIfNew(feedName: String): IssueKey? =
-        withContext(Dispatchers.IO) {
+    suspend fun refreshFeedAndGetIssueKeyIfNew(
+        feedName: String
+    ): IssueKey? {
             val cachedFeed = getFeedByName(feedName)
             val refreshedFeed = getFeedByName(feedName, allowCache = false)
-            val newsestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
-            newsestIssueDate?.let {
-                if (newsestIssueDate != cachedFeed?.publicationDates?.getOrNull(0)) {
-                    (contentService.downloadMetadata(
-                        IssuePublication(feedName, simpleDateFormat.format(it)),
-                    ) as Issue).issueKey
-                } else {
-                    null
-                }
+
+            val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
+            val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)
+
+            return if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
+                (contentService.downloadMetadata(
+                    download = IssuePublication(feedName, simpleDateFormat.format(newestIssueDate)),
+                    maxRetries = 3
+                ) as Issue).issueKey
+            } else {
+                null
             }
         }
 

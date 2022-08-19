@@ -94,7 +94,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
                 }
                 webChromeClient = AppWebChromeClient(::hideLoadingScreen)
 
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch {
                     ensureResourceInfoIsDownloadedAndShowDataPolicy()
                 }
             }
@@ -102,7 +102,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     }
 
     private fun acceptDataPolicy() {
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             generalDataStore.dataPolicyAccepted.set(true)
         }
     }
@@ -127,7 +127,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
             }
         }
 
-    private suspend fun showDataPolicy() = withContext(Dispatchers.IO) {
+    private suspend fun showDataPolicy() {
         fileEntryRepository.get(dataPolicyPageName)?.let {
             storageService.getFileUri(it)
         }?.let {

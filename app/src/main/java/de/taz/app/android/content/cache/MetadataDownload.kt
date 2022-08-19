@@ -11,8 +11,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * An operation downloading the Metadata of a given object
@@ -69,11 +67,11 @@ class MetadataDownload(
         }
     }
 
-    override suspend fun doWork(): ObservableDownload = withContext(Dispatchers.IO) {
+    override suspend fun doWork(): ObservableDownload {
         notifyStart()
         // If we were supplied with an issue key or an issue we want to fetch the newest version of it before
         // downloading, as stale data is bad. In any other collection we cant and will use whatever is in DB
-        try {
+        return try {
             when (download) {
                 is IssuePublication -> getIssue(download)
                 is IssuePublicationWithPages -> IssueWithPages(getIssue(download))
@@ -101,13 +99,13 @@ class MetadataDownload(
                 notifySuccess(it)
             }
         } catch (e: ConnectivityException.Recoverable) {
-            notifyFailiure(e)
+            notifyFailure(e)
             throw CacheOperationFailedException(
                 "Could not retrieve Metadata because of a connectivity issue",
                 e
             )
         } catch (e: Exception) {
-            notifyFailiure(e)
+            notifyFailure(e)
             throw e
         }
     }

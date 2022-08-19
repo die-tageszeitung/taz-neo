@@ -66,7 +66,8 @@ class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
         tabLayout = findViewById(R.id.activity_image_pager_tab_layout)
 
 
-        runBlocking(Dispatchers.IO) {
+        // TODO should not need to be blocking -> move to ViewModel
+        runBlocking {
             availableImageList = if (displayableName.startsWith("section.")) {
                 // for sections just load the clicked image
                 SectionRepository.getInstance(applicationContext).imagesForSectionStub(displayableName).filter {

@@ -5,12 +5,12 @@ import androidx.room.Query
 import de.taz.app.android.api.models.AppInfo
 
 @Dao
-abstract class AppInfoDao : BaseDao<AppInfo>() {
+interface AppInfoDao : BaseDao<AppInfo> {
     @Query("SELECT * FROM AppInfo LIMIT 1")
-    abstract fun get(): AppInfo?
+    suspend fun get(): AppInfo?
 
 
     @Query("SELECT COUNT(*) FROM AppInfo")
-    abstract fun count(): Int
+    suspend fun count(): Int
 
 }

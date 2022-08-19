@@ -1,9 +1,9 @@
 package de.taz.app.android.api.dto
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.taz.app.android.api.models.AuthInfo
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class ProductDto (
     val resourceVersion: Int? = null,
     val resourceBaseUrl: String? = null,
@@ -17,8 +17,8 @@ data class ProductDto (
     val androidVersion: Int? = null
 )
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class AppName { taz, LMd }
 
-@JsonClass(generateAdapter = false)
+@Serializable
 enum class AppType { production, test, local }

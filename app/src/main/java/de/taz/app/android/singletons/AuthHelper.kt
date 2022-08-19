@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
+import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
@@ -16,7 +17,6 @@ import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
@@ -24,7 +24,6 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 
@@ -71,7 +70,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     )
 
     private val contentService by lazy { ContentService.getInstance(applicationContext) }
-    private val dataService by lazy { DataService.getInstance(applicationContext) }
     private val articleRepository by lazy { ArticleRepository.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     private val firebaseHelper by lazy { FirebaseHelper.getInstance(applicationContext) }
@@ -113,7 +111,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Default).launch {
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
@@ -126,11 +124,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     }
                     AuthStatus.valid -> {
                         elapsedButWaiting.set(false)
-                        launch {
-                            firebaseHelper.token.get()?.let {
-                                dataService.sendNotificationInfo(it, retryOnFailure = true)
-                            }
-                        }
+                        firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
                     }
@@ -144,15 +138,17 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
             getArticleIssue(articleStub)
         }
-        articleRepository.appDatabase.runInTransaction<Unit> {
+        articleRepository.appDatabase.withTransaction {
             articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
-                articleRepository.debookmarkArticle(articleStub)
-                articleRepository.bookmarkArticle(
-                    articleStub.articleFileName.replace(
-                        "public.",
-                        ""
+                articleStub.bookmarkedTime?.let { date ->
+                    articleRepository.setBookmarkedTime(
+                        articleStub.articleFileName.replace(
+                            "public.",
+                            ""
+                        ), date
                     )
-                )
+                }
+                articleRepository.debookmarkArticle(articleStub)
             }
         }
     }
