@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,6 +32,7 @@ import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 
 const val LOGO_PEAK = 8
@@ -190,17 +192,13 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         lifecycleScope.launch {
             val subscriptionElapsed =
                 pdfPagerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
-            pdfPagerViewModel.issueKey.observe(this@PdfPagerActivity) {
-                it?.status?.let { status ->
-                    if (status == IssueStatus.public && subscriptionElapsed) {
-                        SubscriptionElapsedBottomSheetFragment().show(
-                            supportFragmentManager,
-                            "showSubscriptionElapsed"
-                        )
-                    }
-                    // cancel after first value
-                    cancel()
-                }
+            val issueKey = pdfPagerViewModel.issueKey.asFlow()
+                .filterNotNull().first()
+            if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+                SubscriptionElapsedBottomSheetFragment().show(
+                    supportFragmentManager,
+                    "showSubscriptionElapsed"
+                )
             }
         }
     }
