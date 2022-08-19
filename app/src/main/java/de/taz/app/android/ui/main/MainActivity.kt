@@ -138,7 +138,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-            showSubscriptionElapsedPopup()
+            showSubscriptionElapsedBottomSheet()
             (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
@@ -160,7 +160,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    private fun showSubscriptionElapsedPopup() {
+    private fun showSubscriptionElapsedBottomSheet() {
         SubscriptionElapsedBottomSheetFragment().show(
             supportFragmentManager,
             "showSubscriptionElapsed"
