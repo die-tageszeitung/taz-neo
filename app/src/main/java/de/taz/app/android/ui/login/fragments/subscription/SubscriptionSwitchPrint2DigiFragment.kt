@@ -55,12 +55,24 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 )
             }
             else {
-                viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
-                viewBinding.fragmentSwitchFirstName.error = requireContext().getString(R.string.login_first_name_error_empty)
-                viewBinding.fragmentSwitchAddressStreet.error = requireContext().getString(R.string.street_error_empty)
-                viewBinding.fragmentSwitchAddressZipcode.error = requireContext().getString(R.string.postcode_error_empty)
-                viewBinding.fragmentSwitchAddressCity.error = requireContext().getString(R.string.city_error_empty)
-                viewBinding.fragmentSwitchAddressCountry.error = requireContext().getString(R.string.country_error_empty)
+                if (surname.isEmpty()) {
+                    viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
+                }
+                if (firstname.isEmpty()) {
+                    viewBinding.fragmentSwitchFirstName.error = requireContext().getString(R.string.login_first_name_error_empty)
+                }
+                if (addressStreetNr.isEmpty()) {
+                    viewBinding.fragmentSwitchAddressStreet.error = requireContext().getString(R.string.street_error_empty)
+                }
+                if (addressZipCode.isEmpty()) {
+                    viewBinding.fragmentSwitchAddressZipcode.error = requireContext().getString(R.string.postcode_error_empty)
+                }
+                if (addressCity.isEmpty()) {
+                    viewBinding.fragmentSwitchAddressCity.error = requireContext().getString(R.string.city_error_empty)
+                }
+                if (addressCountry.isEmpty()) {
+                    viewBinding.fragmentSwitchAddressCountry.error = requireContext().getString(R.string.country_error_empty)
+                }
                 viewBinding.loadingScreen.root.visibility = View.GONE
             }
         }
