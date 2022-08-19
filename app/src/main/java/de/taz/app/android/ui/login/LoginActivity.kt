@@ -310,7 +310,10 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun showSubscriptionElapsed() {
         log.debug("showSubscriptionElapsed")
-        showFragment(SubscriptionInactiveFragment())
+        SubscriptionElapsedDialogFragment().show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
