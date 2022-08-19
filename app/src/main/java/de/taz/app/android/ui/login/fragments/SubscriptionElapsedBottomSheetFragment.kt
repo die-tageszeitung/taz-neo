@@ -6,12 +6,13 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
+import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedDialogBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 
 
 class SubscriptionElapsedBottomSheetFragment :
-    ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedDialogBinding>() {
+    ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
 
     override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
 
