@@ -159,12 +159,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsAccountElapsed.setOnClickListener {
-                activity?.let {
-                    SubscriptionElapsedDialogFragment().show(
-                        it.supportFragmentManager,
-                        "showSubscriptionElapsed"
-                    )
-                }
+                SubscriptionElapsedDialogFragment().show(
+                    childFragmentManager,
+                    "showSubscriptionElapsed"
+                )
             }
 
             fragmentSettingsAccountLogout.setOnClickListener {
