@@ -160,7 +160,10 @@ class LoginViewModel @JvmOverloads constructor(
 
             when (authTokenInfo?.authInfo?.status) {
                 AuthStatus.valid -> {
-                    saveToken(authTokenInfo.token!!)
+                    val token = requireNotNull(authTokenInfo.token) {"valid login needs token"}
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username)
                     status.postValue(LoginViewModelState.DONE)
                 }
                 AuthStatus.notValid -> {
@@ -269,7 +272,12 @@ class LoginViewModel @JvmOverloads constructor(
                     status.postValue(LoginViewModelState.POLLING_FAILED)
                 }
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username)
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.waitForMail -> {
@@ -328,7 +336,12 @@ class LoginViewModel @JvmOverloads constructor(
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username ?: "")
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.subscriptionIdNotValid -> {
@@ -414,7 +427,12 @@ class LoginViewModel @JvmOverloads constructor(
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username ?: "")
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.elapsed -> {
@@ -576,12 +594,6 @@ class LoginViewModel @JvmOverloads constructor(
 
     private fun resetSubscriptionId() {
         subscriptionId = null
-    }
-
-    private suspend fun saveToken(token: String) {
-        authHelper.status.set(AuthStatus.valid)
-        authHelper.token.set(token)
-        authHelper.email.set(username ?: "")
     }
 
     private fun getSubscription(previousState: LoginViewModelState?) {
