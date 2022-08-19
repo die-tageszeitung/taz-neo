@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -13,13 +12,9 @@ import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
-import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.LoginContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +25,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private lateinit var authHelper: AuthHelper
 
     private var articleFileName: String? = null
-    private val elapsedViewModel by viewModels<SubscriptionElapsedDialogFragmentViewModel>()
+    private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var activityResultLauncher: ActivityResultLauncher<LoginContract.Input>
 
     companion object {

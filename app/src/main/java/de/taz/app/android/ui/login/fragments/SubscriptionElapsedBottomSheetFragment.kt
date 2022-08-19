@@ -7,7 +7,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
-import de.taz.app.android.databinding.FragmentSubscriptionElapsedDialogBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 
 
@@ -16,7 +15,7 @@ class SubscriptionElapsedBottomSheetFragment :
 
     override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
 
-    private val viewModel by viewModels<SubscriptionElapsedDialogFragmentViewModel>()
+    private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
