@@ -15,7 +15,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
@@ -98,6 +97,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         viewModel.backToArticle = article != null
 
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
+            if(loginViewModelState != LoginViewModelState.LOADING)
+                hideLoadingScreen()
+
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
                     lifecycleScope.launch {
