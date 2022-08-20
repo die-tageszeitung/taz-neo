@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
@@ -28,6 +29,8 @@ class ArticleAdapter(
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
         private val articleAuthors: TextView = itemView.findViewById(R.id.article_authors)
+        private val articleIsBookmarked: ImageView =
+            itemView.findViewById(R.id.article_is_bookmarked)
 
 
         /**
@@ -53,6 +56,11 @@ class ArticleAdapter(
 
             itemView.setOnClickListener {
                 onArticleClick(this.article)
+            }
+            if (this.article.bookmarked) {
+                articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
+            } else {
+                articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
             }
         }
 
