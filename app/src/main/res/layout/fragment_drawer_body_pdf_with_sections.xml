@@ -1,97 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:background="@color/navigation_drawer_pdf_background"
     tools:context=".ui.pdfViewer.DrawerBodyPdfWithSectionsFragment">
 
-    <LinearLayout
+    <include
+        android:id="@+id/pdf_drawer_loading_screen"
+        layout="@layout/include_loading_screen"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="invisible" />
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/drawer_margin_horizontal"
-        android:paddingTop="@dimen/drawer_margin_vertical"
-        android:paddingEnd="@dimen/drawer_margin_horizontal"
-        android:paddingBottom="@dimen/drawer_margin_vertical">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingStart="@dimen/drawer_margin_horizontal"
+            android:paddingTop="@dimen/drawer_margin_vertical"
+            android:paddingEnd="@dimen/drawer_margin_horizontal"
+            android:paddingBottom="@dimen/drawer_margin_vertical">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
-                    app:cardBackgroundColor="@color/pdf_drawer_card_background"
-                    app:cardElevation="@dimen/moment_elevation">
+                    android:layout_weight="0.5"
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:scaleType="fitXY"
-                        tools:ignore="ContentDescription"
-                        tools:layout_height="166dp"
-                        tools:layout_width="112dp" />
+                        android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
+                        app:cardBackgroundColor="@color/pdf_drawer_card_background"
+                        app:cardElevation="@dimen/moment_elevation">
 
-                </androidx.cardview.widget.CardView>
+                        <ImageView
+                            android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:scaleType="fitXY"
+                            tools:ignore="ContentDescription"
+                            tools:layout_height="166dp"
+                            tools:layout_width="112dp"
+                            tools:src="@tools:sample/avatars" />
+
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                    android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/pdf_section_font"
+                    android:textSize="@dimen/fragment_drawer_date_text_size"
+                    android:textStyle="bold"
+                    tools:text="Seite 5" />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
-                android:layout_width="0dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
-                android:layout_weight="0.5"
-                android:textColor="@color/pdf_section_font"
-                android:textSize="@dimen/fragment_drawer_date_text_size"
-                android:textStyle="bold"
-                tools:text="Seite 5" />
+                android:layout_marginTop="15dp">
 
+                <TextView
+                    android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/table_of_content"
+                    android:textColor="@color/pdf_section_font"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/pdf_section_font"
+                    android:textStyle="italic"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Ausgabe 07/2021" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:background="@color/pdf_section_font" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/navigation_page_article_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/list_item_pdf_page_with_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+    </androidx.core.widget.NestedScrollView>
 
-            <TextView
-                android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/table_of_content"
-                android:textColor="@color/pdf_section_font"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/pdf_section_font"
-                android:textStyle="italic"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Ausgabe 07/2021" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/pdf_section_font"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

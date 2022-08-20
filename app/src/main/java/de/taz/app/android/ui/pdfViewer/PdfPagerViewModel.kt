@@ -4,9 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
-import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.IssueWithPages
-import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
@@ -24,6 +22,11 @@ enum class SwipeEvent {
     LEFT, RIGHT
 }
 
+data class PageWithArticles(
+    val pagePdf: FileEntry,
+    val articles: List<Article>? = null
+)
+
 class PdfPagerViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
@@ -34,6 +37,7 @@ class PdfPagerViewModel(
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
+    private val articleRepository = ArticleRepository.getInstance(application)
 
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
     val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
@@ -70,7 +74,7 @@ class PdfPagerViewModel(
         }
     }
 
-    private val issue = MediatorLiveData<IssueWithPages>().apply {
+    val issue = MediatorLiveData<IssueWithPages>().apply {
         addSource(issuePublication) { issuePublicationWithPages ->
             suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
                 issuePublicationWithPages,
@@ -121,6 +125,40 @@ class PdfPagerViewModel(
                             ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
                         }
                     )
+                }
+            }
+        }
+    }
+
+
+    val pdfPageToC = MediatorLiveData<List<PageWithArticles>>().apply {
+        addSource(issue) { issue ->
+            viewModelScope.launch(Dispatchers.IO) {
+                if (issue.isDownloaded(application)) {
+                    val pages = mutableListOf<PageWithArticles>()
+                    issue.pageList.forEach { page ->
+                        val articles = mutableListOf<Article>()
+                        page.frameList?.forEach { frame ->
+                            frame.link?.let { link ->
+                                if (link.startsWith("art") && link.endsWith(".html")) {
+                                    val article = articleRepository.get(link)
+                                    if (article != null) {
+                                        articles.add(article)
+                                    }
+                                }
+                            }
+                        }
+                        pages.add(
+                            PageWithArticles(
+                                pagePdf = requireNotNull(
+                                    fileEntryRepository.get(page.pagePdf.name)
+                                ) {
+                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                                }, articles
+                            )
+                        )
+                    }
+                    postValue(pages)
                 }
             }
         }
