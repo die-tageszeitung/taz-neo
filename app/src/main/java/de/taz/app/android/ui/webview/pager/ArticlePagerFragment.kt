@@ -137,7 +137,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 hideItem(R.id.bottom_navigation_action_audio)
             }
         }
-        private var isBookmarkedLiveData: LiveData<Boolean>? = null
         private var hasAudioLiveData: LiveData<Boolean>? = null
 
         override fun onPageSelected(position: Int) {
