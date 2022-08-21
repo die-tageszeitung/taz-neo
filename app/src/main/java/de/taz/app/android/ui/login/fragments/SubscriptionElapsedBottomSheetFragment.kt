@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -21,6 +22,12 @@ class SubscriptionElapsedBottomSheetFragment :
     override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
 
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
+    private lateinit var toastHelper: ToastHelper
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -35,6 +42,8 @@ class SubscriptionElapsedBottomSheetFragment :
                 viewBinding.messageToSubscriptionService.text.toString(),
                 viewBinding.letTheSubscriptionServiceContactYouCheckbox.isChecked
             )
+            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+            dismiss()
         }
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
