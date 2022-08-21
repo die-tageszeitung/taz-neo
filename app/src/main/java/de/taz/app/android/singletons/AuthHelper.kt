@@ -120,9 +120,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
-                    AuthStatus.elapsed -> {
-                        toastHelper.showToast(R.string.toast_logout_elapsed)
-                    }
                     AuthStatus.notValid -> {
                         elapsedButWaiting.set(false)
                         toastHelper.showToast(R.string.toast_logout_invalid)
