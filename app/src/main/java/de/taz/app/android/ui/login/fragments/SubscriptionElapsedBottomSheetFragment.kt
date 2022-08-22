@@ -42,8 +42,6 @@ class SubscriptionElapsedBottomSheetFragment :
                 viewBinding.messageToSubscriptionService.text.toString(),
                 viewBinding.letTheSubscriptionServiceContactYouCheckbox.isChecked
             )
-            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
-            dismiss()
         }
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
@@ -54,11 +52,12 @@ class SubscriptionElapsedBottomSheetFragment :
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.hideLiveData.observe(this@SubscriptionElapsedBottomSheetFragment) {
                     if(it) {
-                        ToastHelper.getInstance(requireContext().applicationContext).showToast(
-                            R.string.something_went_wrong_try_later
-                        )
-                        dismiss()
+                        toastHelper.showToast(R.string.something_went_wrong_try_later)
                     }
+                    else {
+                        toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+                    }
+                    dismiss()
                 }
             }
         }
