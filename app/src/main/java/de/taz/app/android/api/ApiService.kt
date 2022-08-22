@@ -128,11 +128,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
-    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
+    // TODO only return authTokenInfo again once elapsed trialSubscription login returns token
+    suspend fun authenticate(user: String, password: String): Pair<AuthTokenInfo?,CustomerType?> {
         val tag = "authenticate"
         log.debug("$tag username: $user")
 
-        return transformToConnectivityException {
+        val data = transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(
@@ -140,8 +141,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     password = password,
                     deviceFormat = deviceFormat
                 )
-            ).data?.authentificationToken
+            ).data
         }
+
+        return data?.authentificationToken to data?.customerInfo?.customerType
     }
 
     /**

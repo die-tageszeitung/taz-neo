@@ -161,7 +161,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
-            val authTokenInfo = apiService.authenticate(username, password)
+            val (authTokenInfo, customerType) = apiService.authenticate(username, password)
             val token = authTokenInfo?.token
 
             when (authTokenInfo?.authInfo?.status) {
@@ -181,6 +181,7 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.email.set(username)
                     token?.let { authHelper.token.set(it) }
                     authHelper.status.set(AuthStatus.elapsed)
+                    authHelper.customerType.set(customerType)
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 null -> {
@@ -712,7 +713,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     private suspend fun checkCredentials(): Boolean? {
         return try {
-            val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
+            val (authTokenInfo, customerInfo) = apiService.authenticate(username ?: "", password ?: "")
             authTokenInfo?.authInfo?.status != AuthStatus.notValid
         } catch (e: ConnectivityException) {
             status.postValue(LoginViewModelState.INITIAL)

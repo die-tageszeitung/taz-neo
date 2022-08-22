@@ -12,10 +12,8 @@ import androidx.lifecycle.map
 import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.dto.CustomerType
+import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
@@ -39,6 +37,7 @@ private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
 private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
+private const val PREFERENCES_AUTH_CUSTOMER_TYPE = "customer_type"
 // endregion
 
 
@@ -104,6 +103,15 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_TOKEN), ""
     )
 
+    // TODO remove once tokens for elapsed trialSubscription login implemented
+    val customerType = MappingDataStoreEntry<CustomerType?, String>(
+        dataStore,
+        stringPreferencesKey(PREFERENCES_AUTH_CUSTOMER_TYPE),
+        null,
+        { it?.toString() ?: "" },
+        { string -> if (string.isEmpty()) null else CustomerType.valueOf(string) }
+    )
+
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid || status.get() == AuthStatus.elapsed
@@ -129,6 +137,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
+                        // clear info once valid again
+                        customerType.set(null)
                     }
                     else -> Unit
                 }

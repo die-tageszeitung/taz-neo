@@ -23,5 +23,6 @@ query AuthenticationQuery(
             status
             message
         }
+        customerType
     }
 }
