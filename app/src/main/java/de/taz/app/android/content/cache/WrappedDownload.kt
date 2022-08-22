@@ -14,7 +14,6 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * The download of a collection can trigger the download of other collections
