@@ -13,8 +13,9 @@ import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
 
 class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
@@ -50,14 +51,20 @@ class SubscriptionElapsedBottomSheetFragment :
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.hideLiveData.observe(this@SubscriptionElapsedBottomSheetFragment) {
-                    if(it) {
-                        toastHelper.showToast(R.string.something_went_wrong_try_later)
+                viewModel.uiState.collectLatest {
+                    when (it) {
+                        UIState.ERROR -> {
+                            toastHelper.showToast(R.string.something_went_wrong_try_later)
+                            dismiss()
+                        }
+                        UIState.SENT -> {
+                            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+                            dismiss()
+                        }
+                        else -> {
+                            // do nothing
+                        }
                     }
-                    else {
-                        toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
-                    }
-                    dismiss()
                 }
             }
         }
