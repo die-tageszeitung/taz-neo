@@ -10,5 +10,4 @@ enum class SubscriptionFormDataType {
     print2Digi,
     printPlusDigi,
     weekendPlusDigi,
-    unknown
 }

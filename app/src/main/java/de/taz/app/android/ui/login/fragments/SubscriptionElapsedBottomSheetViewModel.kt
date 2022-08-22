@@ -2,6 +2,8 @@ package de.taz.app.android.ui.login.fragments
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
@@ -21,23 +23,32 @@ class SubscriptionElapsedBottomSheetViewModel(
     private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
     val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
+    private val _hideLiveData = MutableLiveData(false)
+    val hideLiveData = _hideLiveData as LiveData<Boolean>
+
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
             val customerType = apiService.getCustomerType()
-            apiService.subscriptionFormData(
-                type = mapCustomer2SubscriptionFormDataType(customerType),
-                message = message,
-                requestCurrentSubscriptionOpportunities = contactMe
-            )
+            val type = mapCustomer2SubscriptionFormDataType(customerType)
+
+            if (type != null) {
+                apiService.subscriptionFormData(
+                    type = type,
+                    message = message,
+                    requestCurrentSubscriptionOpportunities = contactMe
+                )
+            } else {
+                _hideLiveData.postValue(true)
+            }
         }
     }
 
-    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType {
+    private fun mapCustomer2SubscriptionFormDataType(customerType: CustomerType?): SubscriptionFormDataType? {
         return when (customerType) {
             CustomerType.digital -> SubscriptionFormDataType.expiredDigiSubscription
             CustomerType.combo -> SubscriptionFormDataType.expiredDigiPrint
             CustomerType.sample -> SubscriptionFormDataType.trialSubscription
-            else -> SubscriptionFormDataType.unknown
+            else -> null
         }
     }
 }
