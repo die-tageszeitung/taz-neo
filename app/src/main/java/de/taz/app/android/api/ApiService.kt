@@ -129,7 +129,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
     // TODO only return authTokenInfo again once elapsed trialSubscription login returns token
-    suspend fun authenticate(user: String, password: String): Pair<AuthTokenInfo?,CustomerType?> {
+    suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
 
@@ -144,7 +144,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             ).data
         }
 
-        return data?.authentificationToken to data?.customerInfo?.customerType
+        return data?.authentificationToken
     }
 
     /**
