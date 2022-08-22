@@ -2,8 +2,6 @@ package de.taz.app.android.ui.login.fragments
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
