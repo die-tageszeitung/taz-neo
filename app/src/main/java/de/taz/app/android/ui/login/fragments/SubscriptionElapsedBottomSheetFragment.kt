@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -12,8 +13,9 @@ import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
 
 class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
@@ -21,6 +23,12 @@ class SubscriptionElapsedBottomSheetFragment :
     override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
 
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
+    private lateinit var toastHelper: ToastHelper
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,12 +51,19 @@ class SubscriptionElapsedBottomSheetFragment :
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.hideLiveData.observe(this@SubscriptionElapsedBottomSheetFragment) {
-                    if(it) {
-                        ToastHelper.getInstance(requireContext().applicationContext).showToast(
-                            R.string.something_went_wrong_try_later
-                        )
-                        dismiss()
+                viewModel.uiState.collectLatest {
+                    when (it) {
+                        UIState.ERROR -> {
+                            toastHelper.showToast(R.string.something_went_wrong_try_later)
+                            dismiss()
+                        }
+                        UIState.SENT -> {
+                            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+                            dismiss()
+                        }
+                        else -> {
+                            // do nothing
+                        }
                     }
                 }
             }

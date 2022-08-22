@@ -11,6 +11,8 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SubscriptionElapsedBottomSheetViewModel(
@@ -23,8 +25,8 @@ class SubscriptionElapsedBottomSheetViewModel(
     private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
     val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
-    private val _hideLiveData = MutableLiveData(false)
-    val hideLiveData = _hideLiveData as LiveData<Boolean>
+    private val _uiStateFlow = MutableStateFlow(UIState.INIT)
+    val uiState = _uiStateFlow as StateFlow<UIState>
 
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
@@ -37,8 +39,9 @@ class SubscriptionElapsedBottomSheetViewModel(
                     message = message,
                     requestCurrentSubscriptionOpportunities = contactMe
                 )
+                _uiStateFlow.emit(UIState.SENT)
             } else {
-                _hideLiveData.postValue(true)
+                _uiStateFlow.emit(UIState.ERROR)
             }
         }
     }
@@ -51,4 +54,11 @@ class SubscriptionElapsedBottomSheetViewModel(
             else -> null
         }
     }
+
+    enum class UIState {
+        INIT,
+        ERROR,
+        SENT
+    }
+
 }
