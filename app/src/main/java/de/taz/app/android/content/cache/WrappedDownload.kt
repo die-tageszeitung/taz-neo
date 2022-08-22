@@ -141,18 +141,7 @@ class WrappedDownload(
 
         val subOperationCacheItems = dependentCollections
             .filter { !it.isDownloaded(applicationContext) }
-            .map {
-                val contentDownload = ContentDownload.prepare(
-                    applicationContext,
-                    it,
-                    priority
-                )
-                SubOperationCacheItem(
-                    it.getDownloadTag(),
-                    { priority },
-                    contentDownload
-                )
-            }
+            .map { createSubOperationCacheItem(it) }
 
         // Add all content downloads to the items
         addItems(subOperationCacheItems)
@@ -191,6 +180,19 @@ class WrappedDownload(
             )
             throw exception
         }
+    }
+
+    private suspend fun createSubOperationCacheItem(collection: DownloadableCollection): SubOperationCacheItem {
+        val contentDownload = ContentDownload.prepare(
+            applicationContext,
+            collection,
+            priority
+        )
+        return SubOperationCacheItem(
+            collection.getDownloadTag(),
+            { priority },
+            contentDownload
+        )
     }
 
     /**
