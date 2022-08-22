@@ -1,22 +1,20 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.SUBSCRIPTION_EMAIL_ADDRESS
+import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LOGIN_EXTRA_REGISTER
-import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.LoginContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +25,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private lateinit var authHelper: AuthHelper
 
     private var articleFileName: String? = null
-
+    private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var activityResultLauncher: ActivityResultLauncher<LoginContract.Input>
 
     companion object {
@@ -52,21 +50,23 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             lifecycleScope.launch(Dispatchers.Main) {
                 if (authHelper.isElapsed()) {
                     readOnLoginGroup.visibility = View.GONE
+                    readOnSeparatorLine.visibility = View.GONE
+                    readOnTrialSubscriptionBox.visibility = View.GONE
+                    readOnSwitchPrint2digiBox.visibility = View.GONE
+                    readOnExtendPrintWithDigiBox.visibility = View.GONE
                     readOnElapsedGroup.visibility = View.VISIBLE
 
-                    readOnElapsedOrder.setOnClickListener {
-                        activity?.startActivityForResult(Intent(activity, LoginActivity::class.java).apply {
-                            putExtra(LOGIN_EXTRA_REGISTER, true)
-                        }, ACTIVITY_LOGIN_REQUEST_CODE)
+                    sendButton.setOnClickListener {
+                        elapsedViewModel.sendMessage(
+                            messageToSubscriptionService.text.toString(),
+                            letTheSubscriptionServiceContactYouCheckbox.isChecked
+                        )
                     }
-                    readOnElapsedEmail.setOnClickListener {
-                        val email = Intent(Intent.ACTION_SEND)
-                        email.putExtra(Intent.EXTRA_EMAIL, arrayOf(SUBSCRIPTION_EMAIL_ADDRESS))
-                        email.putExtra(Intent.EXTRA_SUBJECT, "")
-                        email.putExtra(Intent.EXTRA_TEXT, "")
-                        email.type = "message/rfc822"
-                        startActivity(Intent.createChooser(email, null))
-                    }
+                    val elapsedOn =
+                        DateHelper.stringToLongLocalizedString(authHelper.elapsedDateMessage.get())
+                    readOnElapsedTitle.text =
+                        elapsedOn?.let { getString(R.string.popup_login_elapsed_header, elapsedOn) }
+                            ?: getString(R.string.popup_login_elapsed_header_no_date)
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
@@ -105,11 +105,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
 
     private fun hideKeyBoard() {
-        activity?.apply {
-            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-                val view = activity?.currentFocus ?: View(activity)
-                hideSoftInputFromWindow(view.windowToken, 0)
-            }
+        (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
+            val view = activity?.currentFocus ?: View(activity)
+            hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
 
@@ -131,7 +129,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             issueViewerWrapperFragment.parentFragmentManager.apply {
                 beginTransaction().replace(
                     android.R.id.content,
-                    IssueViewerWrapperFragment.instance(issueViewerWrapperFragment.issuePublication, result.articleFileName)
+                    IssueViewerWrapperFragment.instance(
+                        issueViewerWrapperFragment.issuePublication,
+                        result.articleFileName
+                    )
                 ).commit()
             }
         }

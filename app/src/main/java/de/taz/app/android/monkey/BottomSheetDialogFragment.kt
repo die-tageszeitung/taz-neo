@@ -19,3 +19,10 @@ fun BottomSheetDialogFragment.preventDismissal() {
     }
 
 }
+
+fun <V : View> BottomSheetBehavior<V>.doNotFlattenCorners() {
+    val method = BottomSheetBehavior::class.java.getMethod(
+        "disableShapeAnimations"
+    )
+    method.invoke(this)
+}

@@ -19,10 +19,8 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.withContext
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -108,6 +106,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             // only update if it changes
             if (authHelper.status.get() != it.status) {
                 authHelper.status.set(it.status)
+                authHelper.elapsedDateMessage.set(it.message ?: "")
             }
         }
         return wrapper

@@ -24,4 +24,5 @@ data class DataDto (
     val subscriptionReset: SubscriptionResetInfo? = null,
     val trialSubscription: SubscriptionInfo? = null,
     val subscriptionFormDataType: SubscriptionFormData? = null,
+    val customerInfo: CustomerInfo? = null
 )

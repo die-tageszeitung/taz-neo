@@ -38,6 +38,7 @@ private const val PREFERENCES_AUTH_POLL = "poll"
 private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
+private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
 // endregion
 
 
@@ -90,6 +91,10 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
     )
 
+    val elapsedDateMessage = SimpleDataStoreEntry(
+        dataStore, stringPreferencesKey(PREFERENCES_AUTH_INFO_MESSAGE), ""
+    )
+
     final val status = MappingDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_STATUS), AuthStatus.notValid,
         { authStatus -> authStatus.name }, { string -> AuthStatus.valueOf(string) }
@@ -115,9 +120,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
-                    AuthStatus.elapsed -> {
-                        toastHelper.showToast(R.string.toast_logout_elapsed)
-                    }
                     AuthStatus.notValid -> {
                         elapsedButWaiting.set(false)
                         toastHelper.showToast(R.string.toast_logout_invalid)

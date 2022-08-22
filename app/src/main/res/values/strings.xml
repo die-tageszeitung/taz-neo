@@ -14,14 +14,16 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
-    <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
+    <string name="popup_login_elapsed_header">Ihr Probeabo ist am %s abgelaufen.</string>
+    <string name="popup_login_elapsed_header_no_date">Ihr Probeabo ist abgelaufen.</string>
     <string name="popup_login_elapsed_text">
-        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
-        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
-        Bei Fragen wenden Sie sich an unseren Service unter:
+        Wir haben Ihnen zum Ablauf Ihres kostenlosen Probeabos Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\n
+        Falls Sie diese E-Mail nicht finden können, oder weitere Fragen an unsere Aboabteilung haben, können Sie jetzt einfach der Aboabteilung eine Nachricht zusenden.\n\n
+        Für weitere Fragen wenden Sie sich bitte an unseren Service unter: <a href="mailto:fragen@taz.de">fragen@taz.de</a>
     </string>
-    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
+    <string name="popup_login_elapsed_message_to_abo">Ihre Nachricht</string>
+    <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo Möglichkeiten</string>
+    <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer Email-Adresse ein.</string>
@@ -107,7 +109,8 @@
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
-    <string name="settings_account_elapsed"><u>abgelaufen</u></string>
+    <string name="settings_account_elapsed">abgelaufen</string>
+    <string name="settings_account_elapsed_on">&lt;u>seit %s abgelaufen&lt;/u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
@@ -262,6 +265,7 @@
         \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
     </string>
 
+    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
     <string name="popup_login_elapsed_text_non_free">
         Es tut uns leid aber Ihr Abo ist leider abgelaufen.
         \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
@@ -409,7 +413,7 @@
     <string name="fragment_switch_address_country_title">Land</string>
     <string name="fragment_switch_message_title">Ihre Nachricht</string>
     <string name="fragment_switch_send_button">Absenden</string>
-    <string name="fragment_switch_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
+    <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
     <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\n Wir werden sie dann kontaktieren.</string>

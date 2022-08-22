@@ -1,6 +1,7 @@
 package de.taz.app.android.singletons
 
 import de.taz.app.android.annotation.Mockable
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -73,6 +74,7 @@ object DateHelper {
     }
 
     fun stringToLongLocalizedString(dateString: String): String? {
+        if (dateString == "") return null
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             dateToLongLocalizedString(issueDate)
         }
@@ -105,8 +107,12 @@ object DateHelper {
     }
 
     fun stringToMediumLocalizedString(dateString: String): String? {
-        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
-            dateToMediumLocalizedString(issueDate)
+        return try {
+            SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+                dateToMediumLocalizedString(issueDate)
+            }
+        } catch (e: ParseException) {
+            null
         }
     }
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rounded_corner_wrapper"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxHeight="@dimen/match_parent"
+    android:theme="@style/AppTheme"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/bottom_sheet_round_padding_top"
+        android:paddingHorizontal="@dimen/bottom_sheet_round_padding_horizontal"
+        android:paddingBottom="@dimen/bottom_sheet_round_padding_bottom">
+
+        <TextView
+            android:id="@+id/button_close"
+            android:layout_width="@dimen/ic_close_button_size"
+            android:layout_height="@dimen/ic_close_button_size"
+            android:layout_gravity="top|end"
+            android:layout_marginBottom="@dimen/ic_close_button_size"
+            android:background="@drawable/ic_circle"
+            android:backgroundTint="@color/backgroundColor"
+            android:elevation="@dimen/ic_close_button_elevation"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/button_close_text"
+            android:textColor="@color/lightGrey"
+            android:textSize="@dimen/activity_welcome_button_text_size" />
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.Dialog.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_header"
+            android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="email"
+            android:text="@string/popup_login_elapsed_text"
+            android:textAlignment="center" />
+
+        <EditText
+            android:id="@+id/message_to_subscription_service"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints="@string/popup_login_elapsed_message_to_abo"
+            android:hint="@string/popup_login_elapsed_message_to_abo"
+            android:inputType="textMultiLine" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_checkbox_message" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/send_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/popup_login_elapsed_positive_button" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -26,7 +26,9 @@ class LoginViewModel @JvmOverloads constructor(
     private val authHelper: AuthHelper = AuthHelper.getInstance(application),
     private val toastHelper: ToastHelper = ToastHelper.getInstance(application),
     // even if IDE says it is unused - it will be initialized with the view model starting observing:
-    private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(application)
+    private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(
+        application
+    )
 ) : AndroidViewModel(application), CoroutineScope {
 
     private val log by Log
@@ -134,8 +136,11 @@ class LoginViewModel @JvmOverloads constructor(
                 AuthStatus.tazIdNotLinked -> {
                     status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
                 }
-                AuthStatus.elapsed ->
+                AuthStatus.elapsed -> {
+                    username?.let { authHelper.email.set(it) }
+                    authHelper.status.set(AuthStatus.elapsed)
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
                 AuthStatus.notValidMail,
                 AuthStatus.notValid -> {
                     resetSubscriptionPassword()
@@ -157,10 +162,13 @@ class LoginViewModel @JvmOverloads constructor(
     private suspend fun handleCredentialsLogin(username: String, password: String) {
         try {
             val authTokenInfo = apiService.authenticate(username, password)
+            val token = authTokenInfo?.token
 
             when (authTokenInfo?.authInfo?.status) {
                 AuthStatus.valid -> {
-                    saveToken(authTokenInfo.token!!)
+                    authHelper.token.set(requireNotNull(token) { "valid login has token" })
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.email.set(username)
                     status.postValue(LoginViewModelState.DONE)
                 }
                 AuthStatus.notValid -> {
@@ -169,8 +177,12 @@ class LoginViewModel @JvmOverloads constructor(
                 }
                 AuthStatus.tazIdNotLinked ->
                     status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
-                AuthStatus.elapsed ->
+                AuthStatus.elapsed -> {
+                    authHelper.email.set(username)
+                    token?.let { authHelper.token.set(it) }
+                    authHelper.status.set(AuthStatus.elapsed)
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                }
                 null -> {
                     status.postValue(LoginViewModelState.INITIAL)
                     noInternet.postValue(true)
@@ -258,6 +270,8 @@ class LoginViewModel @JvmOverloads constructor(
                     status.postValue(invalidMailState)
                 }
                 SubscriptionStatus.elapsed -> {
+                    authHelper.email.set(username)
+                    subscriptionInfo.token?.let { authHelper.token.set(it) }
                     status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
                 }
                 SubscriptionStatus.invalidConnection -> {
@@ -269,7 +283,12 @@ class LoginViewModel @JvmOverloads constructor(
                     status.postValue(LoginViewModelState.POLLING_FAILED)
                 }
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username)
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.waitForMail -> {
@@ -328,7 +347,12 @@ class LoginViewModel @JvmOverloads constructor(
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username ?: "")
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.subscriptionIdNotValid -> {
@@ -414,7 +438,12 @@ class LoginViewModel @JvmOverloads constructor(
 
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.valid -> {
-                    saveToken(subscriptionInfo.token!!)
+                    val token = requireNotNull(subscriptionInfo.token) {
+                        "valid subscription needs a token"
+                    }
+                    authHelper.status.set(AuthStatus.valid)
+                    authHelper.token.set(token)
+                    authHelper.email.set(username ?: "")
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.elapsed -> {
@@ -578,12 +607,6 @@ class LoginViewModel @JvmOverloads constructor(
         subscriptionId = null
     }
 
-    private suspend fun saveToken(token: String) {
-        authHelper.status.set(AuthStatus.valid)
-        authHelper.token.set(token)
-        authHelper.email.set(username ?: "")
-    }
-
     private fun getSubscription(previousState: LoginViewModelState?) {
         status.postValue(LoginViewModelState.LOADING)
         launch {
@@ -727,7 +750,7 @@ class LoginViewModel @JvmOverloads constructor(
         return authHelper.isElapsed()
     }
 
-    override val coroutineContext: CoroutineContext  = SupervisorJob() + Dispatchers.IO
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.IO
 }
 
 enum class LoginViewModelState {
