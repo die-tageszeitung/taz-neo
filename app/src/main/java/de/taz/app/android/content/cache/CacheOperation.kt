@@ -74,7 +74,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     private val totalItemCount
         get() = cacheItems.count()
 
-    protected var successfulCount: Int = 0
+    private var successfulCount: Int = 0
     protected var failedCount: Int = 0
 
     /**
