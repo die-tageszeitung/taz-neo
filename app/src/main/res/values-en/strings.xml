@@ -12,7 +12,7 @@
 
     <string name="notification_channel_fcm">Breaking news</string>
     <string name="notification_channel_fcm_description">Breaking news like election results</string>
-    <string name="popup_login_elapsed_header">Subscription expired on %s</string>
+    <string name="popup_login_elapsed_header">%s expired on %s</string>
     <string name="popup_login_elapsed_text">
         We are sorry but your subscription has expired.
         You still have access to the downloaded issues.
