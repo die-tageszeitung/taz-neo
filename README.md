@@ -38,6 +38,8 @@ efficient error reporting. It's distribution target is the Google Play Store and
 that are not included in the repo. (Namely google credentials and sentry auth tokens to upload proguard mappings)
 Because of the missing sentry token all "release" and "non-free" builds will fail or won't function properly without those present.
 
+The non-free app is published to the Google Play Store with the [Gradle Play Publisher Plugin](https://github.com/Triple-T/gradle-play-publisher).
+
 For internal development see [INTERNAL_DISTRIBUTION.md] for instructions to setup your development environment.
 
 ### Free variant
