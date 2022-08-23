@@ -1,13 +1,11 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import de.taz.app.android.data.DataService
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.sync.Mutex
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlinx.coroutines.launch
@@ -52,7 +50,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     }
 
     val log by Log
-    protected val dataService = DataService.getInstance(applicationContext)
     protected val issueRepository = IssueRepository.getInstance(applicationContext)
 
     /**
