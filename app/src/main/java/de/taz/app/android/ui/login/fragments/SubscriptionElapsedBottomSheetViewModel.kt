@@ -9,8 +9,10 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class SubscriptionElapsedBottomSheetViewModel(
@@ -23,30 +25,39 @@ class SubscriptionElapsedBottomSheetViewModel(
     private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
     val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
+    val customerType: Flow<CustomerType> = flow {
+        val type = apiService.getCustomerType()
+        if (type != null) {
+            emit(type)
+        }
+    }
+
     private val _uiStateFlow = MutableStateFlow(UIState.INIT)
     val uiState = _uiStateFlow as StateFlow<UIState>
 
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
-            var customerType = apiService.getCustomerType()
+            customerType.collect { customerType ->
+                // fallback to use if customerType is demo but we have stored a value in authHelper
+                // TODO remove once tokens for elapsed trialSubscription login implemented
+                val failsafeType = if (customerType== CustomerType.demo) {
+                    authHelper.customerType.get() ?: customerType
+                } else {
+                    null
+                }
 
-            // fallback to use if customerType is demo but we have stored a value in authHelper
-            // TODO remove once tokens for elapsed trialSubscription login implemented
-            if(customerType == CustomerType.demo) {
-                customerType = authHelper.customerType.get() ?: customerType
-            }
+                val type = mapCustomer2SubscriptionFormDataType(failsafeType)
 
-            val type = mapCustomer2SubscriptionFormDataType(customerType)
-
-            if (type != null) {
-                apiService.subscriptionFormData(
-                    type = type,
-                    message = message,
-                    requestCurrentSubscriptionOpportunities = contactMe
-                )
-                _uiStateFlow.emit(UIState.SENT)
-            } else {
-                _uiStateFlow.emit(UIState.ERROR)
+                if (type != null) {
+                    apiService.subscriptionFormData(
+                        type = type,
+                        message = message,
+                        requestCurrentSubscriptionOpportunities = contactMe
+                    )
+                    _uiStateFlow.emit(UIState.SENT)
+                } else {
+                    _uiStateFlow.emit(UIState.ERROR)
+                }
             }
         }
     }
