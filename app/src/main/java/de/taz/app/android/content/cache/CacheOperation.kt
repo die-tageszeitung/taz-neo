@@ -54,7 +54,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     val log by Log
     protected val dataService = DataService.getInstance(applicationContext)
     protected val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val waiterLock = Mutex()
 
     /**
      * The loading state is different for each discrete implementaion of [CacheOperation]
