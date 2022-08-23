@@ -37,7 +37,6 @@ class SubscriptionElapsedBottomSheetFragment :
             lifecycleScope.launch {
                 viewModel.customerType.collect { type ->
                     viewBinding.title.text = buildTitleString(type, elapsedOn)
-
                 }
             }
         }
