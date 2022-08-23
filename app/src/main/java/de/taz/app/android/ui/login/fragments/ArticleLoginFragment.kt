@@ -14,7 +14,6 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import kotlinx.coroutines.Dispatchers
@@ -64,11 +63,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                             letTheSubscriptionServiceContactYouCheckbox.isChecked
                         )
                     }
-                    readOnElapsedTitle.text =
-                        buildElapsedTitleString(
-                            elapsedViewModel.customerType.first(),
-                            elapsedViewModel.elapsedString.value
-                        )
+                    readOnElapsedTitle.text = buildElapsedTitleString()
+                    readOnElapsedDescription.text = buildElapsedDescriptionString()
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
@@ -140,17 +136,28 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         }
     }
 
-    private fun buildElapsedTitleString(type: CustomerType, elapsedOn: String?): String {
-        val typeString = when (type) {
+    private suspend fun buildElapsedTitleString(): String {
+        val typeString = when (elapsedViewModel.customerType.first()) {
             CustomerType.sample -> "Probeabo"
             else -> "Abonnement"
         }
-        return elapsedOn?.let {
+        return elapsedViewModel.elapsedString.value?.let {
             getString(
                 R.string.popup_login_elapsed_header,
                 typeString,
-                elapsedOn
+                it
             )
         } ?: getString(R.string.popup_login_elapsed_header_no_date, typeString)
+    }
+
+    private suspend fun buildElapsedDescriptionString(): String {
+        val typeString = when (elapsedViewModel.customerType.first()) {
+            CustomerType.sample -> "Probeabos"
+            else -> "Abonnements"
+        }
+        return getString(
+            R.string.popup_login_elapsed_text,
+            typeString,
+        )
     }
 }
