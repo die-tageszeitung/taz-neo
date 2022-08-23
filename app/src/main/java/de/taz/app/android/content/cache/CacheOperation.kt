@@ -1,13 +1,11 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import de.taz.app.android.data.DataService
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.sync.Mutex
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlinx.coroutines.launch
@@ -36,28 +34,15 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * exclude potentially conflicting, parallel operations on the same item
      */
     companion object {
-        private val log by Log
         internal val activeCacheOperations = ConcurrentHashMap<String, AnyCacheOperation>()
         internal val cacheStatusFlow = MutableSharedFlow<Pair<String, CacheStateUpdate>>()
-            .also { flow ->
-                CoroutineScope(Dispatchers.Default).launch {
-                    flow
-                        .map { it.second }
-                        .collect {
-                            val operationName = it.operation?.let { it::class.simpleName }
-                            log.verbose("${it.operation?.tag} ${operationName}: ${it.type} - ${it.cacheState}")
-                        }
-                }
-            }
     }
 
     val log by Log
-    protected val dataService = DataService.getInstance(applicationContext)
     protected val issueRepository = IssueRepository.getInstance(applicationContext)
-    private val waiterLock = Mutex()
 
     /**
-     * The loading state is different for each discrete implementaion of [CacheOperation]
+     * The loading state is different for each discrete implementation of [CacheOperation]
      */
     protected abstract val loadingState: CacheState
 
@@ -70,18 +55,12 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * The CacheItems that should be processed in this operation. It gets initialized with the
      * items in the constructor argument
      */
-    private val _cacheItems = mutableListOf<CacheOperationItem<ITEM>>()
-        .also {
-            it.addAll(
-                items.map { item ->
-                    CacheOperationItem(item, this).apply {
-                        // The CacheOperation overrides the priority of a CacheItem!
-                        // That allows us to dynamically rewrite the order as the user navigates
-                        item.priority = { this@CacheOperation.priority }
-                    }
-                }
-            )
-        }
+    private val _cacheItems = items.map { item ->
+        // The CacheOperation overrides the priority of a CacheItem!
+        // That allows us to dynamically rewrite the order as the user navigates
+        item.priority = { this@CacheOperation.priority }
+        CacheOperationItem(item, this)
+    }.toMutableList()
 
     /**
      * The CacheItems that should be processed in this operation.
@@ -95,7 +74,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     private val totalItemCount
         get() = cacheItems.count()
 
-    protected var successfulCount: Int = 0
+    private var successfulCount: Int = 0
     protected var failedCount: Int = 0
 
     /**
@@ -119,9 +98,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         CacheStateUpdate(
             CacheStateUpdate.Type.INITIAL,
             CacheState.ABSENT,
-            completedItemCount,
-            totalItemCount,
-            this
         )
     )
 
@@ -259,9 +235,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.BAD_CONNECTION,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
-                this
             )
         )
     }
@@ -280,9 +253,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.ITEM_SUCCESSFUL,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
-                this
             )
         )
     }
@@ -302,9 +272,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.ITEM_FAILED,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
-                this,
                 exception
             )
         )
@@ -333,9 +300,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 this.state.type,
                 loadingState,
-                completedItemCount,
-                totalItemCount,
-                this
             )
         )
     }
@@ -352,9 +316,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.FAILED,
                 CacheState.ABSENT,
-                completedItemCount,
-                totalItemCount,
-                this,
                 e
             )
         )
@@ -374,9 +335,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.SUCCEEDED,
                 targetState,
-                completedItemCount,
-                totalItemCount,
-                this
             )
         )
     }

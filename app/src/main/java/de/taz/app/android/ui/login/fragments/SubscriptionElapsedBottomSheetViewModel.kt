@@ -2,8 +2,6 @@ package de.taz.app.android.ui.login.fragments
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
@@ -30,7 +28,14 @@ class SubscriptionElapsedBottomSheetViewModel(
 
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
-            val customerType = apiService.getCustomerType()
+            var customerType = apiService.getCustomerType()
+
+            // fallback to use if customerType is demo but we have stored a value in authHelper
+            // TODO remove once tokens for elapsed trialSubscription login implemented
+            if(customerType == CustomerType.demo) {
+                customerType = authHelper.customerType.get() ?: customerType
+            }
+
             val type = mapCustomer2SubscriptionFormDataType(customerType)
 
             if (type != null) {
