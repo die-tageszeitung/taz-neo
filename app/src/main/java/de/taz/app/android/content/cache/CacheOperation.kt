@@ -98,8 +98,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
         CacheStateUpdate(
             CacheStateUpdate.Type.INITIAL,
             CacheState.ABSENT,
-            completedItemCount,
-            totalItemCount,
         )
     )
 
@@ -237,8 +235,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.BAD_CONNECTION,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
             )
         )
     }
@@ -257,8 +253,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.ITEM_SUCCESSFUL,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
             )
         )
     }
@@ -278,8 +272,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.ITEM_FAILED,
                 this.state.cacheState,
-                completedItemCount,
-                totalItemCount,
                 exception
             )
         )
@@ -308,8 +300,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 this.state.type,
                 loadingState,
-                completedItemCount,
-                totalItemCount,
             )
         )
     }
@@ -326,8 +316,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.FAILED,
                 CacheState.ABSENT,
-                completedItemCount,
-                totalItemCount,
                 e
             )
         )
@@ -347,8 +335,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheStateUpdate(
                 CacheStateUpdate.Type.SUCCEEDED,
                 targetState,
-                completedItemCount,
-                totalItemCount,
             )
         )
     }

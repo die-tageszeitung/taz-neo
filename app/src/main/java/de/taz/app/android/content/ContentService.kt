@@ -109,16 +109,12 @@ class ContentService(
             CacheStateUpdate(
                 CacheStateUpdate.Type.INITIAL,
                 CacheState.PRESENT,
-                0,
-                0,
                 null
             )
         } else {
             CacheStateUpdate(
                 CacheStateUpdate.Type.INITIAL,
                 CacheState.ABSENT,
-                0,
-                0,
                 null
             )
         }
