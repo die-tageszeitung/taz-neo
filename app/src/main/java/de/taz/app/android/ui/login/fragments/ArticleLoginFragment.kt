@@ -64,7 +64,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                         )
                     }
                     readOnElapsedTitle.text = buildElapsedTitleString()
-                    readOnElapsedDescription.text = buildElapsedDescriptionString()
+                    if(elapsedViewModel.customerType.first() != CustomerType.sample) {
+                        readOnElapsedDescription.visibility = View.GONE
+                    }
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
@@ -148,16 +150,5 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 it
             )
         } ?: getString(R.string.popup_login_elapsed_header_no_date, typeString)
-    }
-
-    private suspend fun buildElapsedDescriptionString(): String {
-        val typeString = when (elapsedViewModel.customerType.first()) {
-            CustomerType.sample -> "Probeabos"
-            else -> "Abonnements"
-        }
-        return getString(
-            R.string.popup_login_elapsed_text,
-            typeString,
-        )
     }
 }

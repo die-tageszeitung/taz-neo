@@ -17,7 +17,7 @@
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>
     <string name="popup_login_elapsed_text">
-        Wir haben Ihnen zum Ablauf Ihres %s Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\n
+        Wir haben Ihnen zum Ablauf Ihres kostenlosen Probeabos Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\n
         Falls Sie diese E-Mail nicht finden können, oder weitere Fragen an unsere Aboabteilung haben, können Sie jetzt einfach der Aboabteilung eine Nachricht zusenden.\n\n
         Für weitere Fragen wenden Sie sich bitte an unseren Service unter: <a href="mailto:fragen@taz.de">fragen@taz.de</a>
     </string>
