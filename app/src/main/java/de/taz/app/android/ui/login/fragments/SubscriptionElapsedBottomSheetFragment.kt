@@ -9,13 +9,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
+import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
 
 class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
@@ -32,10 +33,13 @@ class SubscriptionElapsedBottomSheetFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.elapsedString.observe(this) { elapsedOn ->
+            lifecycleScope.launch {
+                viewModel.customerType.collect { type ->
+                    viewBinding.title.text = buildTitleString(type, elapsedOn)
 
-        viewModel.elapsedString.observe(this) {
-            viewBinding.title.text = it?.let { getString(R.string.popup_login_elapsed_header, it) }
-                ?: getString(R.string.popup_login_elapsed_header_no_date)
+                }
+            }
         }
 
         viewBinding.sendButton.setOnClickListener {
@@ -68,5 +72,14 @@ class SubscriptionElapsedBottomSheetFragment :
                 }
             }
         }
+    }
+
+    private fun buildTitleString(type: CustomerType, elapsedOn: String?): String {
+        val typeString =  when(type) {
+            CustomerType.sample -> "Probeabo"
+            else -> "Abonnement"
+        }
+        return elapsedOn?.let { getString(R.string.popup_login_elapsed_header, typeString, elapsedOn) }
+            ?: getString(R.string.popup_login_elapsed_header_no_date, typeString)
     }
 }
