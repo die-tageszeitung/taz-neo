@@ -34,19 +34,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * exclude potentially conflicting, parallel operations on the same item
      */
     companion object {
-        private val log by Log
         internal val activeCacheOperations = ConcurrentHashMap<String, AnyCacheOperation>()
         internal val cacheStatusFlow = MutableSharedFlow<Pair<String, CacheStateUpdate>>()
-            .also { flow ->
-                CoroutineScope(Dispatchers.Default).launch {
-                    flow
-                        .map { it.second }
-                        .collect {
-                            val operationName = it.operation?.let { it::class.simpleName }
-                            log.verbose("${it.operation?.tag} ${operationName}: ${it.type} - ${it.cacheState}")
-                        }
-                }
-            }
     }
 
     val log by Log
@@ -111,7 +100,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
             CacheState.ABSENT,
             completedItemCount,
             totalItemCount,
-            this
         )
     )
 
@@ -251,7 +239,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 this.state.cacheState,
                 completedItemCount,
                 totalItemCount,
-                this
             )
         )
     }
@@ -272,7 +259,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 this.state.cacheState,
                 completedItemCount,
                 totalItemCount,
-                this
             )
         )
     }
@@ -294,7 +280,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 this.state.cacheState,
                 completedItemCount,
                 totalItemCount,
-                this,
                 exception
             )
         )
@@ -325,7 +310,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 loadingState,
                 completedItemCount,
                 totalItemCount,
-                this
             )
         )
     }
@@ -344,7 +328,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 CacheState.ABSENT,
                 completedItemCount,
                 totalItemCount,
-                this,
                 e
             )
         )
@@ -366,7 +349,6 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
                 targetState,
                 completedItemCount,
                 totalItemCount,
-                this
             )
         )
     }
