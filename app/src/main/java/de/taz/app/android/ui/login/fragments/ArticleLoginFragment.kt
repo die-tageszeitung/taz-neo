@@ -153,7 +153,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private suspend fun buildElapsedDescriptionString(): String {
         val typeString = when (elapsedViewModel.customerType.first()) {
             CustomerType.sample -> "Probeabos"
-            else -> "Abonnements"
+            else -> "Abos"
         }
         return getString(
             R.string.popup_login_elapsed_text,
