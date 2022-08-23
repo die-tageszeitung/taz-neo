@@ -53,7 +53,7 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     protected val issueRepository = IssueRepository.getInstance(applicationContext)
 
     /**
-     * The loading state is different for each discrete implementaion of [CacheOperation]
+     * The loading state is different for each discrete implementation of [CacheOperation]
      */
     protected abstract val loadingState: CacheState
 
