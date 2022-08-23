@@ -137,7 +137,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
-                        // clear info once valid again
+                        // TODO remove once tokens for elapsed trialSubscription login implemented
                         customerType.set(null)
                     }
                     else -> Unit
