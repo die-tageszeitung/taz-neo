@@ -9,14 +9,15 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
+import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
@@ -62,11 +63,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                             letTheSubscriptionServiceContactYouCheckbox.isChecked
                         )
                     }
-                    val elapsedOn =
-                        DateHelper.stringToLongLocalizedString(authHelper.elapsedDateMessage.get())
-                    readOnElapsedTitle.text =
-                        elapsedOn?.let { getString(R.string.popup_login_elapsed_header, elapsedOn) }
-                            ?: getString(R.string.popup_login_elapsed_header_no_date)
+                    readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
+                    readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
@@ -137,4 +135,5 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             }
         }
     }
+
 }
