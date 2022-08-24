@@ -63,8 +63,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                             letTheSubscriptionServiceContactYouCheckbox.isChecked
                         )
                     }
-                    readOnElapsedTitle.text = buildElapsedTitleString()
-                    readOnElapsedDescription.text = buildElapsedDescriptionString()
+                    readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
+                    readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
                 } else {
                     // Set listeners of login buttons when not elapsed
                     readOnLoginButton.setOnClickListener {
@@ -136,28 +136,4 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         }
     }
 
-    private suspend fun buildElapsedTitleString(): String {
-        val typeString = when (elapsedViewModel.customerType.first()) {
-            CustomerType.sample -> "Probeabo"
-            else -> "Abonnement"
-        }
-        return elapsedViewModel.elapsedString.value?.let {
-            getString(
-                R.string.popup_login_elapsed_header,
-                typeString,
-                it
-            )
-        } ?: getString(R.string.popup_login_elapsed_header_no_date, typeString)
-    }
-
-    private suspend fun buildElapsedDescriptionString(): String {
-        val typeString = when (elapsedViewModel.customerType.first()) {
-            CustomerType.sample -> "Probeabos"
-            else -> "Abos"
-        }
-        return getString(
-            R.string.popup_login_elapsed_text,
-            typeString,
-        )
-    }
 }
