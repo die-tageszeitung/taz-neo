@@ -5,9 +5,13 @@ import de.taz.app.android.MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
+import io.ktor.client.engine.android.*
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.coroutines.*
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 const val BACK_OFF_FACTOR = 1.75f
 
@@ -17,6 +21,9 @@ data class WaitingCall(
 )
 
 const val INFINITE = -1
+
+// Default ktor client engine to be used
+public val HTTP_CLIENT_ENGINE = Android
 
 @Mockable
 abstract class ConnectionHelper {
