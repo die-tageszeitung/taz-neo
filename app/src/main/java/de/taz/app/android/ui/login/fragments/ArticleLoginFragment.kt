@@ -59,7 +59,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
                     sendButton.setOnClickListener {
                         elapsedViewModel.sendMessage(
-                            messageToSubscriptionService.text.toString(),
+                            messageToSubscriptionService.editText?.text.toString(),
                             letTheSubscriptionServiceContactYouCheckbox.isChecked
                         )
                     }

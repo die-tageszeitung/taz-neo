@@ -115,7 +115,7 @@ class CoverView @JvmOverloads constructor(
         if (date !== null) {
             when (dateFormat) {
                 DateFormat.LongWithWeekDay ->
-                    momentDate.text = DateHelper.stringToLongLocalizedString(date)
+                    momentDate.text = DateHelper.stringToLongLocalizedLowercaseString(date)
                 DateFormat.LongWithoutWeekDay ->
                     momentDate.text = DateHelper.stringToMediumLocalizedString(date)
                 DateFormat.None ->
