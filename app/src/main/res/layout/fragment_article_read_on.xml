@@ -83,7 +83,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/popup_login_elapsed_header"
-            android:textAlignment="center"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -91,20 +90,28 @@
             android:id="@+id/read_on_elapsed_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_button_margin_top"
             android:text="@string/popup_login_elapsed_text"
-            android:textAlignment="center"
             android:autoLink="email"
             app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
 
 
-        <EditText
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message_to_subscription_service"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="@string/popup_login_elapsed_message_to_abo"
-            android:hint="@string/popup_login_elapsed_message_to_abo"
-            android:inputType="textMultiLine"
-            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description"/>
+            app:hintEnabled="false"
+            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/popup_login_elapsed_message_to_abo"
+                android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/let_the_subscription_service_contact_you_checkbox"
