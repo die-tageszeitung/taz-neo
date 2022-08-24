@@ -2,17 +2,14 @@ package de.taz.app.android.ui.login.fragments
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.map
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SubscriptionElapsedBottomSheetViewModel(
@@ -22,11 +19,11 @@ class SubscriptionElapsedBottomSheetViewModel(
     private val apiService: ApiService = ApiService.getInstance(application)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application)
 
-    private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
-    val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
+    private val elapsedOnString = authHelper.elapsedDateMessage.asFlow()
+    private val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
     val customerType: Flow<CustomerType> = flow {
-        val type = apiService.getCustomerType()
+        val type = authHelper.customerType.get() ?: apiService.getCustomerType()
         if (type != null) {
             emit(type)
         }
@@ -40,7 +37,7 @@ class SubscriptionElapsedBottomSheetViewModel(
             customerType.collect { customerType ->
                 // fallback to use if customerType is demo but we have stored a value in authHelper
                 // TODO remove once tokens for elapsed trialSubscription login implemented
-                val failsafeType = if (customerType== CustomerType.demo) {
+                val failsafeType = if (customerType == CustomerType.demo) {
                     authHelper.customerType.get() ?: customerType
                 } else {
                     null
@@ -77,4 +74,35 @@ class SubscriptionElapsedBottomSheetViewModel(
         SENT
     }
 
+    private val typeString: Flow<String> = customerType.map {
+        when (it) {
+            CustomerType.sample -> application.getString(R.string.trial_subscription)
+            else -> application.getString(R.string.subscription)
+        }
+    }
+
+    private val genitiveTypeString: Flow<String> = customerType.map {
+        when (it) {
+            CustomerType.sample -> application.getString(R.string.trial_subscription_genitive)
+            else -> application.getString(R.string.subscription_genitive)
+        }
+    }
+
+
+    val elapsedTitleString: Flow<String> = typeString.map { typeString ->
+        elapsedString.first()?.let {
+            application.getString(
+                R.string.popup_login_elapsed_header,
+                typeString,
+                it,
+            )
+        } ?: application.getString(R.string.popup_login_elapsed_header_no_date, typeString)
+    }
+
+    val elapsedDescriptionString: Flow<String> = genitiveTypeString.map {
+        application.getString(
+            R.string.popup_login_elapsed_text,
+            it,
+        )
+    }
 }
