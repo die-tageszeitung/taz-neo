@@ -40,7 +40,7 @@ class SubscriptionElapsedBottomSheetFragment :
 
         viewBinding.sendButton.setOnClickListener {
             viewModel.sendMessage(
-                viewBinding.messageToSubscriptionService.text.toString(),
+                viewBinding.messageToSubscriptionService.editText?.text.toString(),
                 viewBinding.letTheSubscriptionServiceContactYouCheckbox.isChecked
             )
         }
