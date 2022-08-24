@@ -23,6 +23,10 @@ file("../keystore.properties").with { propFile ->
     }
 }
 
+
+// Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
+// The configuration is part of the secret bundle downloaded by the gitlab ci pipeline.
+// The plugin provides the publishNonfreeTazProductionReleaseBundle gradle task called from the ci
 play {
     track.set('internal')
     serviceAccountCredentials.set(file('../play-publish.json'))
