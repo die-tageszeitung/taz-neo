@@ -43,10 +43,6 @@ class SubscriptionAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentSubscriptionAccountEmailLayout.markRequired()
-        viewBinding.fragmentSubscriptionAccountPasswordLayout.markRequired()
-        viewBinding.fragmentSubscriptionAccountTermsAndConditions.markRequired()
-
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
         viewBinding.fragmentSubscriptionAccountEmail.setText(viewModel.username)
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
@@ -210,7 +206,7 @@ class SubscriptionAccountFragment :
                     }
                     if (!Pattern.compile(PASSWORD_PATTERN).matcher(pw).matches()) {
                         done = false
-                        viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.setError(
+                        viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(
                             R.string.login_password_regex_error
                         )
                     }
