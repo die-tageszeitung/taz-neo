@@ -44,6 +44,8 @@
     <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
     <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
     <dimen name="fragment_login_text_link_padding_bottom">10dp</dimen>
+    <dimen name="login_description_text_size">20sp</dimen>
+    <dimen name="login_username_margin_top">45dp</dimen>
     <dimen name="login_separator_line_margin_vertical">10dp</dimen>
     <dimen name="login_box_margin_vertical">20dp</dimen>
     <dimen name="login_box_title_text_size">20sp</dimen>
