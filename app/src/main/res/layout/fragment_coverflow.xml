@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/superDarkGrey"
     android:fitsSystemWindows="true">
 
@@ -26,8 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top"
-        />
+        app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top" />
 
     <TextView
         android:id="@+id/home_login_button"
@@ -35,6 +34,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_top"
         android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/fragment_cover_flow_login_button_padding"
         android:text="@string/fragment_home_login"
         android:textColor="@color/lightGrey"
         app:layout_constraintRight_toRightOf="parent"
