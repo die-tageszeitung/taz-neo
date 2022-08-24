@@ -10,11 +10,11 @@ import de.taz.app.android.api.models.AppInfoKey
 import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.*
+import de.taz.app.android.data.HTTP_CLIENT_ENGINE
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.utils.io.*
 import io.sentry.Sentry
@@ -25,7 +25,6 @@ import java.lang.Exception
 import java.security.MessageDigest
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
 /**
  * [FileDownloader] is used by [ContentDownload] to download individual files
@@ -56,7 +55,7 @@ class FileDownloader(
         ensureDownloaderRunning()
     }
 
-    private val httpClient = HttpClient(CIO)
+    private val httpClient: HttpClient = HttpClient(HTTP_CLIENT_ENGINE)
 
     private suspend fun ensureHelperInitialized() {
         val contentService = ContentService.getInstance(applicationContext)
