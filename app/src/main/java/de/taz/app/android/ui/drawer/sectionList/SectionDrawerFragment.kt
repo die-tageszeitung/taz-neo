@@ -329,7 +329,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private fun setMomentDate(issueStub: IssueStub?) {
         viewBinding.fragmentDrawerSectionsDate.text =
-            issueStub?.date?.let(DateHelper::stringToLongLocalizedString) ?: ""
+            issueStub?.date?.let(DateHelper::stringToLongLocalizedLowercaseString) ?: ""
     }
 
     override fun onDestroyView() {

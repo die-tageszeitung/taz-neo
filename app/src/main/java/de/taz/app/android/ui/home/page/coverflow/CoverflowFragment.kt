@@ -170,7 +170,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
         // set date text
-        this.date.text = DateHelper.dateToLongLocalizedString(date)
+        this.date.text = DateHelper.dateToLongLocalizedLowercaseString(date)
     }
 
     /**

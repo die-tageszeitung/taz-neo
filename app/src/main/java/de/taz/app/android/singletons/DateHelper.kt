@@ -61,22 +61,29 @@ object DateHelper {
         return dateHelper.parse(string)?.time
     }
 
-    fun stringToStringWithDelta(string: String, days: Int): String? {
-        return stringToDateWithDelta(string, days)?.let {
-            dateToString(it)
-        }
+    fun dateToLongLocalizedLowercaseString(date: Date): String {
+        return SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
+            date
+        ).lowercase(Locale.getDefault())
     }
 
     fun dateToLongLocalizedString(date: Date): String {
         return SimpleDateFormat("EEEE, d.M.yyyy", deviceLocale).format(
             date
-        ).lowercase(Locale.getDefault())
+        )
     }
 
     fun stringToLongLocalizedString(dateString: String): String? {
         if (dateString == "") return null
         return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
             dateToLongLocalizedString(issueDate)
+        }
+    }
+
+    fun stringToLongLocalizedLowercaseString(dateString: String): String? {
+        if (dateString == "") return null
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            dateToLongLocalizedLowercaseString(issueDate)
         }
     }
 
