@@ -19,7 +19,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
             android:text="@string/fragment_switch_title"
-            android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.Settings.Category" />
 
         <TextView
@@ -28,8 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_title"
             android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
-            android:text="@string/fragment_switch_description"
-            android:textAlignment="center" />
+            android:text="@string/fragment_switch_description" />
 
         <TextView
             android:id="@+id/fragment_switch_email_aboID_title"
