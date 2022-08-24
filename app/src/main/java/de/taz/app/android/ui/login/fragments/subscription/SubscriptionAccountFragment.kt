@@ -206,7 +206,7 @@ class SubscriptionAccountFragment :
                     }
                     if (!Pattern.compile(PASSWORD_PATTERN).matcher(pw).matches()) {
                         done = false
-                        viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.setError(
+                        viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(
                             R.string.login_password_regex_error
                         )
                     }
