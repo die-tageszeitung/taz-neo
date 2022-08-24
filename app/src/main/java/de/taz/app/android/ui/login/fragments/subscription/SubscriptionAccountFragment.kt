@@ -43,10 +43,6 @@ class SubscriptionAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentSubscriptionAccountEmailLayout.markRequired()
-        viewBinding.fragmentSubscriptionAccountPasswordLayout.markRequired()
-        viewBinding.fragmentSubscriptionAccountTermsAndConditions.markRequired()
-
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
         viewBinding.fragmentSubscriptionAccountEmail.setText(viewModel.username)
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)

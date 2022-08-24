@@ -57,13 +57,6 @@ class SubscriptionAddressFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            fragmentSubscriptionAddressFirstNameLayout.markRequired()
-            fragmentSubscriptionAddressSurnameLayout.markRequired()
-            fragmentSubscriptionAddressStreetLayout.markRequired()
-            fragmentSubscriptionAddressCityLayout.markRequired()
-            fragmentSubscriptionAddressCountryLayout.markRequired()
-            fragmentSubscriptionAddressPostcodeLayout.markRequired()
-
             if (viewModel.price == 0) {
                 fragmentSubscriptionAddressStreetLayout.visibility = View.GONE
                 fragmentSubscriptionAddressCityLayout.visibility = View.GONE
