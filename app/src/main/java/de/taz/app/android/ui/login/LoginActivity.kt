@@ -471,7 +471,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         }
 
         fragment.lifecycleScope.launchWhenResumed {
-            rootView.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
             hideLoadingScreen()
         }
     }

@@ -1,100 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_login_missing_subscription_header"
-        style="@style/TextAppearance.Login.Text"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_missing_subscription_header"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="@dimen/fragment_login_padding_top"
+        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
+        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_missing_subscription_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_header">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_login_missing_subscription"
+        <TextView
+            android:id="@+id/fragment_login_missing_subscription_header"
+            style="@style/TextAppearance.Login.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="username"
-            android:hint="@string/login_subscription_hint"
-            android:imeOptions="actionNext"
-            android:inputType="numberDecimal"
-            android:nextFocusForward="@id/fragment_login_missing_subscription_password" />
+            android:text="@string/fragment_login_missing_subscription_header"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_missing_subscription_password_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_layout"
-        app:passwordToggleEnabled="true">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_login_missing_subscription_password"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_login_missing_subscription_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="password"
-            android:hint="@string/login_password_hint"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_header">
 
-    <Button
-        android:id="@+id/fragment_login_missing_subscription_connect_account"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_missing_subscription_connect_subscription"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_password_layout" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_login_missing_subscription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="username"
+                android:hint="@string/login_subscription_hint"
+                android:imeOptions="actionNext"
+                android:inputType="numberDecimal"
+                android:nextFocusForward="@id/fragment_login_missing_subscription_password" />
 
-    <TextView
-        android:id="@+id/fragment_login_missing_subscription_subscription"
-        style="@style/TextAppearance.Login.Text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
-        android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
-        android:text="@string/trial_subscription_title"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/fragment_login_missing_subscription_subscription_button"
-        style="@style/AppTheme.ButtonStyle.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_missing_subscription_test_subscription"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_login_missing_subscription_password_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_layout"
+            app:passwordToggleEnabled="true">
 
-    <TextView
-        android:id="@+id/fragment_login_missing_subscription_forgot_password"
-        style="@style/TextAppearance.Login.Text.Link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login_forgot_password"
-        android:textAlignment="center"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription_button" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_login_missing_subscription_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="password"
+                android:hint="@string/login_password_hint"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/fragment_login_missing_subscription_help"
-        style="@style/TextAppearance.Login.Text.Link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/help"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
+        <Button
+            android:id="@+id/fragment_login_missing_subscription_connect_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_missing_subscription_connect_subscription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_password_layout"
+            app:layout_constraintWidth="@dimen/button_max_width" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/fragment_login_missing_subscription_subscription"
+            style="@style/TextAppearance.Login.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
+            android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
+            android:text="@string/trial_subscription_title"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account" />
 
+        <Button
+            android:id="@+id/fragment_login_missing_subscription_subscription_button"
+            style="@style/AppTheme.ButtonStyle.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_missing_subscription_test_subscription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription"
+            app:layout_constraintWidth="@dimen/button_max_width" />
+
+        <TextView
+            android:id="@+id/fragment_login_missing_subscription_forgot_password"
+            style="@style/TextAppearance.Login.Text.Link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_forgot_password"
+            android:textAlignment="center"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription_button" />
+
+        <TextView
+            android:id="@+id/fragment_login_missing_subscription_help"
+            style="@style/TextAppearance.Login.Text.Link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/help"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

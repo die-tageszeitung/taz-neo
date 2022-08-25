@@ -1,45 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_login_subscription_taken_header"
-        style="@style/TextAppearance.Login.Text"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_subscription_taken_header"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="@dimen/fragment_login_padding_top"
+        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
+        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
 
-    <Button
-        android:id="@+id/fragment_login_subscription_taken_retry"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_subscription_taken_retry"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_header" />
+        <TextView
+            android:id="@+id/fragment_login_subscription_taken_header"
+            style="@style/TextAppearance.Login.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_subscription_taken_header"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/fragment_login_subscription_taken_body"
-        style="@style/TextAppearance.Login.Text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login_or_contact_support"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_retry" />
+        <Button
+            android:id="@+id/fragment_login_subscription_taken_retry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_subscription_taken_retry"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_header"
+            app:layout_constraintWidth="@dimen/button_max_width" />
 
-    <TextView
-        android:id="@+id/fragment_login_subscription_taken_email"
-        style="@style/TextAppearance.Login.Text.Link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:text="@string/fragment_login_taz_mail_underlined"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_body" />
+        <TextView
+            android:id="@+id/fragment_login_subscription_taken_body"
+            style="@style/TextAppearance.Login.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_or_contact_support"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_retry" />
+
+        <TextView
+            android:id="@+id/fragment_login_subscription_taken_email"
+            style="@style/TextAppearance.Login.Text.Link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:text="@string/fragment_login_taz_mail_underlined"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_body" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
