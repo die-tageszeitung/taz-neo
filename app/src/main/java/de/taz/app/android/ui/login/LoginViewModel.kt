@@ -36,7 +36,7 @@ class LoginViewModel @JvmOverloads constructor(
     private var statusBeforePasswordRequest: LoginViewModelState? = null
     var statusBeforeEmailAlreadyLinked: LoginViewModelState? = null
 
-    val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
+    val status = MutableLiveData<LoginViewModelState>()
     val noInternet by lazy { MutableLiveData(false) }
 
     var username: String? = runBlocking { authHelper.email.get() }
@@ -767,6 +767,7 @@ enum class LoginViewModelState {
     PASSWORD_REQUEST_SUBSCRIPTION_ID,
     PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
+    LOGIN,
     PASSWORD_REQUEST_NO_MAIL,
     PASSWORD_REQUEST_INVALID_ID,
     POLLING_FAILED,

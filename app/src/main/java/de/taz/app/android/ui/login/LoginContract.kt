@@ -18,7 +18,7 @@ class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.
      *          on the UI in the LoginActivity
      */
     data class Input(
-        val register: Boolean = false,
+        val status: LoginViewModelState = LoginViewModelState.LOGIN,
         val username: String? = null,
         val password: String? = null,
         val articleFileName: String? = null
@@ -33,7 +33,7 @@ class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.
         Intent(context, LoginActivity::class.java).apply {
             putExtra(LOGIN_EXTRA_USERNAME, input.username)
             putExtra(LOGIN_EXTRA_PASSWORD, input.password)
-            putExtra(LOGIN_EXTRA_REGISTER, input.register)
+            putExtra(LOGIN_EXTRA_STATUS, input.status.toString())
             putExtra(LOGIN_EXTRA_ARTICLE, input.articleFileName)
         }
 

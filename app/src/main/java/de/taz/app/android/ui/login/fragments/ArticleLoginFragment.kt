@@ -15,6 +15,7 @@ import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
+import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -42,11 +43,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.apply {
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                    elapsedViewModel.isElapsed.collect { setUIElapsed(it) }
-                }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                elapsedViewModel.isElapsed.collect { setUIElapsed(it) }
             }
         }
     }
@@ -69,6 +68,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 }
                 readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
                 readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
+
             } else {
                 // Set listeners of login buttons when not elapsed
                 readOnLoginButton.setOnClickListener {
@@ -83,19 +83,37 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                     register()
                 }
             }
+
+
+            readOnTrialSubscriptionBoxButton.setOnClickListener {
+                register()
+            }
+
+            readOnSwitchPrint2digiBoxButton.setOnClickListener {
+                switchPrintToDigi()
+            }
+
+            readOnExtendPrintWithDigiBoxButton.setOnClickListener {
+                extendPrintWithDigi()
+            }
         }
     }
 
     private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim()
     private fun getPassword(): String = viewBinding.readOnPassword.text.toString()
 
-    private fun login() = startLoginActivity(false)
-    private fun register() = startLoginActivity(true)
+    private fun login() = startLoginActivity(LoginViewModelState.LOGIN)
+    private fun register() = startLoginActivity(LoginViewModelState.SUBSCRIPTION_REQUEST)
+    private fun switchPrintToDigi() =
+        startLoginActivity(LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST)
 
-    private fun startLoginActivity(register: Boolean) {
+    private fun extendPrintWithDigi() =
+        startLoginActivity(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
+
+    private fun startLoginActivity(status: LoginViewModelState) {
         activityResultLauncher.launch(
             LoginContract.Input(
-                register = register,
+                status = status,
                 username = getUsername(),
                 password = getPassword(),
                 articleFileName = articleFileName,
