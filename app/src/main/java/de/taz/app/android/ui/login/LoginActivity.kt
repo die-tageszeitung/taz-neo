@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -36,7 +35,7 @@ import kotlinx.coroutines.launch
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
-const val LOGIN_EXTRA_REGISTER: String = "LOGIN_EXTRA_REGISTER"
+const val LOGIN_EXTRA_OPTION: String = "LOGIN_EXTRA_OPTION"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 /**
@@ -86,33 +85,39 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
-        val register = intent.getBooleanExtra(LOGIN_EXTRA_REGISTER, false)
-        val username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
-        val password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
+        val option: LoginContract.Option? =
+            intent.getStringExtra(LOGIN_EXTRA_OPTION)?.let { LoginContract.Option.valueOf(it) }
 
-        if(!register && !username.isNullOrBlank() && !password.isNullOrBlank()) {
-            viewModel.login(username, password)
+        val initialStatus: LoginViewModelState =
+            when(option) {
+                LoginContract.Option.LOGIN -> LoginViewModelState.LOGIN
+                LoginContract.Option.REGISTER -> LoginViewModelState.SUBSCRIPTION_REQUEST
+                LoginContract.Option.PRINT_TO_DIGI -> LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST
+                LoginContract.Option.EXTEND_PRINT -> LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST
+                null -> LoginViewModelState.INITIAL
+            }
+
+        viewModel.apply {
+            username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
+            password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
+            status.postValue(initialStatus)
         }
 
         viewModel.backToArticle = article != null
 
         viewModel.status.observe(this) { loginViewModelState: LoginViewModelState? ->
-            if(loginViewModelState != LoginViewModelState.LOADING)
+            if (loginViewModelState != LoginViewModelState.LOADING)
                 hideLoadingScreen()
 
             when (loginViewModelState) {
                 LoginViewModelState.INITIAL -> {
-                    lifecycleScope.launch {
-                        viewModel.validCredentials = viewModel.isElapsed()
-                    }
-                    if (register) {
-                        showSubscriptionPossibilities()
-                    } else {
-                        showLoginForm()
-                    }
+                    showLoginForm()
                 }
                 LoginViewModelState.LOADING -> {
                     showLoadingScreen()
+                }
+                LoginViewModelState.LOGIN -> {
+                    viewModel.login()
                 }
                 LoginViewModelState.EMAIL_ALREADY_LINKED -> {
                     showEmailAlreadyLinked()
@@ -130,7 +135,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showMissingCredentials()
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
-                    showSubscriptionElapsed()
+                    done()
                 }
                 LoginViewModelState.SUBSCRIPTION_INVALID -> {
                     showSubscriptionInvalid()
@@ -212,7 +217,9 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showSubscriptionBank(
                     ibanNoSepa = true
                 )
-                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPossibilities(priceInvalid = true)
+                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPossibilities(
+                    priceInvalid = true
+                )
                 null -> {
                     Sentry.captureMessage("login status is null")
                     viewModel.status.postValue(LoginViewModelState.INITIAL)
@@ -310,14 +317,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         showFragment(SubscriptionAlreadyLinkedFragment())
     }
 
-    private fun showSubscriptionElapsed() {
-        log.debug("showSubscriptionElapsed")
-        SubscriptionElapsedBottomSheetFragment().show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
-    }
-
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
         log.debug("showSubscriptionMissing")
         viewModel.validCredentials = true
@@ -359,7 +358,8 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             if (BuildConfig.IS_NON_FREE) {
                 showFragment(
                     SubscriptionTrialOnlyFragment.createInstance(
-                    elapsed = authHelper.isElapsed())
+                        elapsed = authHelper.isElapsed()
+                    )
                 )
             }
             // otherwise - on free flavor - we can call getPriceList to receive
@@ -483,7 +483,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
             } else {
-                setBottomNavigationBackActivity(null,  BottomNavigationItem.Settings)
+                setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
                 super.onBackPressed()
             }
         }

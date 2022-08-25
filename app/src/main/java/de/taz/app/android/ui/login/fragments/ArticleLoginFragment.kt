@@ -7,23 +7,20 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
-import de.taz.app.android.api.dto.CustomerType
+import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
-import kotlinx.coroutines.Dispatchers
+import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
-
-    private lateinit var authHelper: AuthHelper
 
     private var articleFileName: String? = null
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
@@ -40,45 +37,64 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityResultLauncher = registerForActivityResult(LoginContract(), this)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                elapsedViewModel.isElapsedFlow.collect { setUIElapsed(it) }
+            }
+        }
+    }
+
+    private suspend fun setUIElapsed(isElapsed: Boolean) {
         viewBinding.apply {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (authHelper.isElapsed()) {
-                    readOnLoginGroup.visibility = View.GONE
-                    readOnSeparatorLine.visibility = View.GONE
-                    readOnTrialSubscriptionBox.visibility = View.GONE
-                    readOnSwitchPrint2digiBox.visibility = View.GONE
-                    readOnExtendPrintWithDigiBox.visibility = View.GONE
-                    readOnElapsedGroup.visibility = View.VISIBLE
+            if (isElapsed) {
+                readOnLoginGroup.visibility = View.GONE
+                readOnSeparatorLine.visibility = View.GONE
+                readOnTrialSubscriptionBox.visibility = View.GONE
+                readOnSwitchPrint2digiBox.visibility = View.GONE
+                readOnExtendPrintWithDigiBox.visibility = View.GONE
+                readOnElapsedGroup.visibility = View.VISIBLE
 
-                    sendButton.setOnClickListener {
-                        elapsedViewModel.sendMessage(
-                            messageToSubscriptionService.editText?.text.toString(),
-                            letTheSubscriptionServiceContactYouCheckbox.isChecked
-                        )
-                    }
-                    readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
-                    readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
-                } else {
-                    // Set listeners of login buttons when not elapsed
-                    readOnLoginButton.setOnClickListener {
-                        login()
-                    }
-
-                    readOnPassword.setOnEditorActionListener(
-                        OnEditorActionDoneListener(::login)
+                sendButton.setOnClickListener {
+                    elapsedViewModel.sendMessage(
+                        messageToSubscriptionService.editText?.text.toString(),
+                        letTheSubscriptionServiceContactYouCheckbox.isChecked
                     )
-
-                    readOnTrialSubscriptionBoxButton.setOnClickListener {
-                        register()
-                    }
                 }
+                readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
+                readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionStringFlow.first()
+
+            } else {
+                // Set listeners of login buttons when not elapsed
+                readOnLoginButton.setOnClickListener {
+                    login()
+                }
+
+                readOnPassword.setOnEditorActionListener(
+                    OnEditorActionDoneListener(::login)
+                )
+
+                readOnTrialSubscriptionBoxButton.setOnClickListener {
+                    register()
+                }
+            }
+
+
+            readOnTrialSubscriptionBoxButton.setOnClickListener {
+                register()
+            }
+
+            readOnSwitchPrint2digiBoxButton.setOnClickListener {
+                switchPrintToDigi()
+            }
+
+            readOnExtendPrintWithDigiBoxButton.setOnClickListener {
+                extendPrintWithDigi()
             }
         }
     }
@@ -86,13 +102,15 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim()
     private fun getPassword(): String = viewBinding.readOnPassword.text.toString()
 
-    private fun login() = startLoginActivity(false)
-    private fun register() = startLoginActivity(true)
+    private fun login() = startLoginActivity(LoginContract.Option.LOGIN)
+    private fun register() = startLoginActivity(LoginContract.Option.REGISTER)
+    private fun switchPrintToDigi() = startLoginActivity(LoginContract.Option.PRINT_TO_DIGI)
+    private fun extendPrintWithDigi() = startLoginActivity(LoginContract.Option.EXTEND_PRINT)
 
-    private fun startLoginActivity(register: Boolean) {
+    private fun startLoginActivity(option: LoginContract.Option) {
         activityResultLauncher.launch(
             LoginContract.Input(
-                register = register,
+                option = option,
                 username = getUsername(),
                 password = getPassword(),
                 articleFileName = articleFileName,

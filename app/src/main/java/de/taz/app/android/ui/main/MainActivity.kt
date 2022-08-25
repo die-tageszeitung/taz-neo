@@ -60,7 +60,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         super.onCreate(savedInstanceState)
         authHelper = AuthHelper.getInstance(applicationContext)
 
-        lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 checkIfSubscriptionElapsed()
                 maybeShowTryPdfDialog()

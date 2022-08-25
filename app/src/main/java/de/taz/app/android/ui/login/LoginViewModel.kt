@@ -36,7 +36,7 @@ class LoginViewModel @JvmOverloads constructor(
     private var statusBeforePasswordRequest: LoginViewModelState? = null
     var statusBeforeEmailAlreadyLinked: LoginViewModelState? = null
 
-    val status by lazy { MutableLiveData(LoginViewModelState.INITIAL) }
+    val status = MutableLiveData<LoginViewModelState>()
     val noInternet by lazy { MutableLiveData(false) }
 
     var username: String? = runBlocking { authHelper.email.get() }
@@ -214,17 +214,17 @@ class LoginViewModel @JvmOverloads constructor(
         status.postValue(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
+    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState) {
         register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState) {
         register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         invalidMailState: LoginViewModelState
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
@@ -248,7 +248,7 @@ class LoginViewModel @JvmOverloads constructor(
         firstName: String?,
         surname: String?,
         invalidMailState: LoginViewModelState,
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState
     ) {
         try {
             val subscriptionInfo = apiService.trialSubscription(
@@ -315,7 +315,7 @@ class LoginViewModel @JvmOverloads constructor(
 
 
     fun connect(): Job {
-        val previousState = status.value
+        val previousState = requireNotNull(status.value) { "a state must be set" }
         status.postValue(LoginViewModelState.LOADING)
         return launch {
             if (!createNewAccount) {
@@ -334,7 +334,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     private suspend fun handleConnect(
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
@@ -416,7 +416,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun poll(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         timeoutMillis: Long = 100,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ): Job {
@@ -429,7 +429,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     private suspend fun handlePoll(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         timeoutMillis: Long,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ) {
@@ -592,7 +592,10 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
-        status.postValue(statusBeforePasswordRequest)
+        status.postValue(
+            requireNotNull(statusBeforePasswordRequest) {
+                "before requesting password a state must be set"
+            })
         statusBeforePasswordRequest = null
     }
 
@@ -608,7 +611,7 @@ class LoginViewModel @JvmOverloads constructor(
         subscriptionId = null
     }
 
-    private fun getSubscription(previousState: LoginViewModelState?) {
+    private fun getSubscription(previousState: LoginViewModelState) {
         status.postValue(LoginViewModelState.LOADING)
         launch {
             try {
@@ -723,7 +726,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     fun requestSubscription() = launch {
-        val previousState = status.value
+        val previousState = requireNotNull(status.value) { "There should always be a state" }
         status.postValue(LoginViewModelState.LOADING)
         if (!createNewAccount) {
             val checkCredentials = checkCredentials()
@@ -767,6 +770,7 @@ enum class LoginViewModelState {
     PASSWORD_REQUEST_SUBSCRIPTION_ID,
     PASSWORD_REQUEST_INVALID_MAIL,
     LOADING,
+    LOGIN,
     PASSWORD_REQUEST_NO_MAIL,
     PASSWORD_REQUEST_INVALID_ID,
     POLLING_FAILED,

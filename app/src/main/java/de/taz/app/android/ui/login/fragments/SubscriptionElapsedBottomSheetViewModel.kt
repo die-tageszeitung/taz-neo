@@ -16,25 +16,24 @@ class SubscriptionElapsedBottomSheetViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
 
+    // region UIState
+    enum class UIState {
+        INIT,
+        ERROR,
+        SENT
+    }
+    // endregion
+
+
+    // region singletons
     private val apiService: ApiService = ApiService.getInstance(application)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application)
+    // endregion
 
-    private val elapsedOnString = authHelper.elapsedDateMessage.asFlow()
-    private val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
-
-    val customerType: Flow<CustomerType> = flow {
-        val type = authHelper.customerType.get() ?: apiService.getCustomerType()
-        if (type != null) {
-            emit(type)
-        }
-    }
-
-    private val _uiStateFlow = MutableStateFlow(UIState.INIT)
-    val uiState = _uiStateFlow as StateFlow<UIState>
-
+    // region logic
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
-            customerType.collect { customerType ->
+            customerTypeFlow.collect { customerType ->
                 // fallback to use if customerType is demo but we have stored a value in authHelper
                 // TODO remove once tokens for elapsed trialSubscription login implemented
                 val failsafeType = if (customerType == CustomerType.demo) {
@@ -67,21 +66,32 @@ class SubscriptionElapsedBottomSheetViewModel(
             else -> null
         }
     }
+    // endregion
 
-    enum class UIState {
-        INIT,
-        ERROR,
-        SENT
+    // region flows
+    private val elapsedOnStringFlow = authHelper.elapsedDateMessage.asFlow()
+    private val elapsedStringFlow = elapsedOnStringFlow.map { DateHelper.stringToLongLocalizedString(it) }
+
+    val isElapsedFlow = authHelper.isElapsedFlow
+
+    private val customerTypeFlow: Flow<CustomerType> = flow {
+        val type = authHelper.customerType.get() ?: apiService.getCustomerType()
+        if (type != null) {
+            emit(type)
+        }
     }
 
-    private val typeString: Flow<String> = customerType.map {
+    private val _uiStateFlow = MutableStateFlow(UIState.INIT)
+    val uiStateFlow = _uiStateFlow as StateFlow<UIState>
+
+    private val typeStringFlow: Flow<String> = customerTypeFlow.map {
         when (it) {
             CustomerType.sample -> application.getString(R.string.trial_subscription)
             else -> application.getString(R.string.subscription)
         }
     }
 
-    private val genitiveTypeString: Flow<String> = customerType.map {
+    private val genitiveTypeStringFlow: Flow<String> = customerTypeFlow.map {
         when (it) {
             CustomerType.sample -> application.getString(R.string.trial_subscription_genitive)
             else -> application.getString(R.string.subscription_genitive)
@@ -89,8 +99,8 @@ class SubscriptionElapsedBottomSheetViewModel(
     }
 
 
-    val elapsedTitleString: Flow<String> = typeString.map { typeString ->
-        elapsedString.first()?.let {
+    val elapsedTitleStringFlow: Flow<String> = typeStringFlow.map { typeString ->
+        elapsedStringFlow.first()?.let {
             application.getString(
                 R.string.popup_login_elapsed_header,
                 typeString,
@@ -99,10 +109,11 @@ class SubscriptionElapsedBottomSheetViewModel(
         } ?: application.getString(R.string.popup_login_elapsed_header_no_date, typeString)
     }
 
-    val elapsedDescriptionString: Flow<String> = genitiveTypeString.map {
+    val elapsedDescriptionStringFlow: Flow<String> = genitiveTypeStringFlow.map {
         application.getString(
             R.string.popup_login_elapsed_text,
             it,
         )
     }
+    // endregion
 }
