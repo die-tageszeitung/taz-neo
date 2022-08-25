@@ -250,7 +250,7 @@
     <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
 
     <string name="fragment_subscription_bank_title">Bankdaten</string>
-    <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
+    <string name="fragment_subscription_bank_description">Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich.</string>
 
     <string name="street_hint">Straße/Hausnummer</string>
     <string name="postcode_hint">PLZ</string>
