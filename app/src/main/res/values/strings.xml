@@ -201,7 +201,7 @@
     <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Lesern in verschiedenen Abomodellen lesen.</string>
     <string name="login_trial_subscription_button_text">Jetzt kostenlos testen</string>
     <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
-    <string name="login_switch_print2digi_body">Sie haben ein PrintAbo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen. Wie es geht? Kontaktieren Sie unser Service-Team.</string>
+    <string name="login_switch_print2digi_body">Sie haben ein PrintAbo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen.\nWie es geht? Kontaktieren Sie unser Service-Team.</string>
     <string name="login_switch_print2digi_button_text">Jetzt informieren</string>
     <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
     <string name="login_extend_print_with_digi_body">Kein Problem - kontaktieren Sie unser Service-Team.</string>
