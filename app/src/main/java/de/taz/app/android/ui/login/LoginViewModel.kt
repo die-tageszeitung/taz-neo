@@ -315,7 +315,7 @@ class LoginViewModel @JvmOverloads constructor(
 
 
     fun connect(): Job {
-        val previousState = requireNotNull(status.value) {"a state must be set"}
+        val previousState = requireNotNull(status.value) { "a state must be set" }
         status.postValue(LoginViewModelState.LOADING)
         return launch {
             if (!createNewAccount) {
@@ -592,10 +592,10 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
-        requireNotNull(statusBeforePasswordRequest) {
-            "before requesting password a state must be set"
-        }
-        status.postValue(statusBeforePasswordRequest)
+        status.postValue(
+            requireNotNull(statusBeforePasswordRequest) {
+                "before requesting password a state must be set"
+            })
         statusBeforePasswordRequest = null
     }
 
