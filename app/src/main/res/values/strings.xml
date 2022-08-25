@@ -16,9 +16,9 @@
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>
-    <string name="popup_login_elapsed_text">Wir haben Ihnen zum Ablauf Ihres %s Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\nFalls Sie diese E-Mail nicht finden können, oder weitere Fragen an unsere Aboabteilung haben, können Sie jetzt einfach der Aboabteilung eine Nachricht zusenden.\n\nFür weitere Fragen wenden Sie sich bitte an unseren Service unter: <a href="mailto:fragen@taz.de">fragen@taz.de</a></string>
+    <string name="popup_login_elapsed_text">Wir haben Ihnen zum Ablauf Ihres %s Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\nFalls Sie diese E-Mail nicht finden können, oder weitere Fragen haben, können Sie jetzt einfach unserem Service-Team eine Nachricht zusenden.\n\nFür weitere Fragen wenden Sie sich bitte an unseren Service unter: <a href="mailto:fragen@taz.de">fragen@taz.de</a></string>
     <string name="popup_login_elapsed_message_to_abo">Ihre Nachricht</string>
-    <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo Möglichkeiten</string>
+    <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo-Möglichkeiten</string>
     <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
