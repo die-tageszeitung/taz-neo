@@ -17,7 +17,6 @@
             android:id="@+id/fragment_switch_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
             android:text="@string/fragment_switch_title"
             android:textAppearance="@style/TextAppearance.Settings.Category" />
 

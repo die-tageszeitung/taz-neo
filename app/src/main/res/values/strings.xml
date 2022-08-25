@@ -210,7 +210,7 @@
     <string name="login_switch_print2digi_title">Von Print zu Digital</string>
     <string name="login_switch_print2digi_body">auf in die zukunft! taz wird digital. machen Sie es wie weitere 45.000 digitale Leser. Seien sie überall immer mit uns.</string>
     <string name="login_switch_print2digi_button_text">Jetzt digital lesen</string>
-    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print\n und möchten diese um Digital erweitern?</string>
+    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
     <string name="login_extend_print_with_digi_body">Kein Problem - lassen Sie einfach zu Ihrem PrintAbo die digitale Erweiterung freischalten!</string>
     <string name="login_extend_print_with_digi_button_text">Jetzt digital zubuchen</string>
 
@@ -252,7 +252,7 @@
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
 
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
-    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
     <string name="fragment_subscription_trial_only_description">
         Testen Sie uns für 6 Wochen!
         \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
@@ -403,7 +403,7 @@
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\n Wir kontaktieren Sie so schnell wie möglich mit den Vertragsänderungen.</string>
+    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie so schnell wie möglich mit den Vertragsänderungen.</string>
     <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
     <string name="fragment_switch_surname_title">Nachname</string>
     <string name="fragment_switch_first_name_title">Vorname</string>
@@ -416,7 +416,7 @@
     <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
-    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\n Wir werden sie dann kontaktieren.</string>
+    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden sie dann kontaktieren.</string>
     <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
     <string name="fragment_extend_surname_title">Nachname</string>
     <string name="fragment_extend_first_name_title">Vorname</string>
