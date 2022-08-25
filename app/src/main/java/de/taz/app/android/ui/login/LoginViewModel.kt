@@ -214,17 +214,17 @@ class LoginViewModel @JvmOverloads constructor(
         status.postValue(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
     }
 
-    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState?) {
+    fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState) {
         register(previousState, LoginViewModelState.CREDENTIALS_MISSING_FAILED)
     }
 
-    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState?) {
+    private fun getTrialSubscriptionForNewCredentials(previousState: LoginViewModelState) {
         register(previousState, LoginViewModelState.SUBSCRIPTION_REQUEST_INVALID_EMAIL)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun register(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         invalidMailState: LoginViewModelState
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
@@ -248,7 +248,7 @@ class LoginViewModel @JvmOverloads constructor(
         firstName: String?,
         surname: String?,
         invalidMailState: LoginViewModelState,
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState
     ) {
         try {
             val subscriptionInfo = apiService.trialSubscription(
@@ -723,7 +723,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     fun requestSubscription() = launch {
-        val previousState = status.value
+        val previousState = requireNotNull(status.value) { "There should always be a state" }
         status.postValue(LoginViewModelState.LOADING)
         if (!createNewAccount) {
             val checkCredentials = checkCredentials()
