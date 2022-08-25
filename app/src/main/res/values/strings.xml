@@ -252,7 +252,7 @@
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
 
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
-    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
     <string name="fragment_subscription_trial_only_description">
         Testen Sie uns für 6 Wochen!
         \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
