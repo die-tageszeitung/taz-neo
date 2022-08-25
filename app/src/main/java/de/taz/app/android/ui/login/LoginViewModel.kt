@@ -315,7 +315,7 @@ class LoginViewModel @JvmOverloads constructor(
 
 
     fun connect(): Job {
-        val previousState = status.value
+        val previousState = requireNotNull(status.value) {"a state must be set"}
         status.postValue(LoginViewModelState.LOADING)
         return launch {
             if (!createNewAccount) {
@@ -334,7 +334,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     private suspend fun handleConnect(
-        previousState: LoginViewModelState?
+        previousState: LoginViewModelState
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionId2TazId(
@@ -416,7 +416,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun poll(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         timeoutMillis: Long = 100,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ): Job {
@@ -429,7 +429,7 @@ class LoginViewModel @JvmOverloads constructor(
     }
 
     private suspend fun handlePoll(
-        previousState: LoginViewModelState?,
+        previousState: LoginViewModelState,
         timeoutMillis: Long,
         @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
     ) {
@@ -592,6 +592,9 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
+        requireNotNull(statusBeforePasswordRequest) {
+            "before requesting password a state must be set"
+        }
         status.postValue(statusBeforePasswordRequest)
         statusBeforePasswordRequest = null
     }
@@ -608,7 +611,7 @@ class LoginViewModel @JvmOverloads constructor(
         subscriptionId = null
     }
 
-    private fun getSubscription(previousState: LoginViewModelState?) {
+    private fun getSubscription(previousState: LoginViewModelState) {
         status.postValue(LoginViewModelState.LOADING)
         launch {
             try {
