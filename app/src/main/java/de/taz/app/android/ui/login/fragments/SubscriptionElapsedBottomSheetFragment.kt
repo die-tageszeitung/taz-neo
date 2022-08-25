@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
@@ -35,8 +34,8 @@ class SubscriptionElapsedBottomSheetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
-            viewBinding.title.text = viewModel.elapsedTitleString.first()
-            viewBinding.description.text = viewModel.elapsedDescriptionString.first()
+            viewBinding.title.text = viewModel.elapsedTitleStringFlow.first()
+            viewBinding.description.text = viewModel.elapsedDescriptionStringFlow.first()
         }
 
         viewBinding.sendButton.setOnClickListener {
@@ -52,7 +51,7 @@ class SubscriptionElapsedBottomSheetFragment :
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.uiState.collectLatest {
+                viewModel.uiStateFlow.collectLatest {
                     when (it) {
                         UIState.ERROR -> {
                             toastHelper.showToast(R.string.something_went_wrong_try_later)

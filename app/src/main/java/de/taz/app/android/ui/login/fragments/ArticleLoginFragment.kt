@@ -45,7 +45,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                elapsedViewModel.isElapsed.collect { setUIElapsed(it) }
+                elapsedViewModel.isElapsedFlow.collect { setUIElapsed(it) }
             }
         }
     }
@@ -66,8 +66,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                         letTheSubscriptionServiceContactYouCheckbox.isChecked
                     )
                 }
-                readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
-                readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
+                readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
+                readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionStringFlow.first()
 
             } else {
                 // Set listeners of login buttons when not elapsed
