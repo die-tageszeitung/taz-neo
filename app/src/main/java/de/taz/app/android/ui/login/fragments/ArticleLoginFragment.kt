@@ -7,23 +7,19 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
-import de.taz.app.android.api.dto.CustomerType
+import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
-
-    private lateinit var authHelper: AuthHelper
 
     private var articleFileName: String? = null
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
@@ -40,7 +36,6 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityResultLauncher = registerForActivityResult(LoginContract(), this)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
     }
 
 
@@ -48,36 +43,44 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (authHelper.isElapsed()) {
-                    readOnLoginGroup.visibility = View.GONE
-                    readOnSeparatorLine.visibility = View.GONE
-                    readOnTrialSubscriptionBox.visibility = View.GONE
-                    readOnSwitchPrint2digiBox.visibility = View.GONE
-                    readOnExtendPrintWithDigiBox.visibility = View.GONE
-                    readOnElapsedGroup.visibility = View.VISIBLE
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    elapsedViewModel.isElapsed.collect { setUIElapsed(it) }
+                }
+            }
+        }
+    }
 
-                    sendButton.setOnClickListener {
-                        elapsedViewModel.sendMessage(
-                            messageToSubscriptionService.editText?.text.toString(),
-                            letTheSubscriptionServiceContactYouCheckbox.isChecked
-                        )
-                    }
-                    readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
-                    readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
-                } else {
-                    // Set listeners of login buttons when not elapsed
-                    readOnLoginButton.setOnClickListener {
-                        login()
-                    }
+    private suspend fun setUIElapsed(isElapsed: Boolean) {
+        viewBinding.apply {
+            if (isElapsed) {
+                readOnLoginGroup.visibility = View.GONE
+                readOnSeparatorLine.visibility = View.GONE
+                readOnTrialSubscriptionBox.visibility = View.GONE
+                readOnSwitchPrint2digiBox.visibility = View.GONE
+                readOnExtendPrintWithDigiBox.visibility = View.GONE
+                readOnElapsedGroup.visibility = View.VISIBLE
 
-                    readOnPassword.setOnEditorActionListener(
-                        OnEditorActionDoneListener(::login)
+                sendButton.setOnClickListener {
+                    elapsedViewModel.sendMessage(
+                        messageToSubscriptionService.editText?.text.toString(),
+                        letTheSubscriptionServiceContactYouCheckbox.isChecked
                     )
+                }
+                readOnElapsedTitle.text = elapsedViewModel.elapsedTitleString.first()
+                readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionString.first()
+            } else {
+                // Set listeners of login buttons when not elapsed
+                readOnLoginButton.setOnClickListener {
+                    login()
+                }
 
-                    readOnTrialSubscriptionBoxButton.setOnClickListener {
-                        register()
-                    }
+                readOnPassword.setOnEditorActionListener(
+                    OnEditorActionDoneListener(::login)
+                )
+
+                readOnTrialSubscriptionBoxButton.setOnClickListener {
+                    register()
                 }
             }
         }

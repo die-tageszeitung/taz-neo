@@ -22,6 +22,8 @@ class SubscriptionElapsedBottomSheetViewModel(
     private val elapsedOnString = authHelper.elapsedDateMessage.asFlow()
     private val elapsedString = elapsedOnString.map { DateHelper.stringToLongLocalizedString(it) }
 
+    val isElapsed = authHelper.isElapsedFlow
+
     val customerType: Flow<CustomerType> = flow {
         val type = authHelper.customerType.get() ?: apiService.getCustomerType()
         if (type != null) {

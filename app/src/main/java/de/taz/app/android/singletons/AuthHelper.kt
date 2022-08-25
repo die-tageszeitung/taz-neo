@@ -24,6 +24,7 @@ import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
@@ -113,6 +114,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     )
 
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
+    val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
+
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid || status.get() == AuthStatus.elapsed
 
