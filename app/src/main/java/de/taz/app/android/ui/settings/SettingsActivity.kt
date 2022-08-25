@@ -49,7 +49,6 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
             showSubscriptionElapsedBottomSheet()
-            (application as TazApplication).elapsedPopupAlreadyShown = true
         }
     }
 
