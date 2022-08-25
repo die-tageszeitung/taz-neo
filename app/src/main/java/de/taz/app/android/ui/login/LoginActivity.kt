@@ -127,7 +127,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showMissingCredentials()
                 }
                 LoginViewModelState.SUBSCRIPTION_ELAPSED -> {
-                    showSubscriptionElapsed()
+                    done()
                 }
                 LoginViewModelState.SUBSCRIPTION_INVALID -> {
                     showSubscriptionInvalid()
@@ -307,14 +307,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionAlreadyLinked() {
         log.debug("showSubscriptionAlreadyLinked")
         showFragment(SubscriptionAlreadyLinkedFragment())
-    }
-
-    private fun showSubscriptionElapsed() {
-        log.debug("showSubscriptionElapsed")
-        SubscriptionElapsedBottomSheetFragment().show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
