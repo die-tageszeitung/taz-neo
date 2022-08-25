@@ -157,7 +157,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_trial_subscription_title"
-            android:textAlignment="center"
             android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -167,7 +166,6 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_trial_subscription_body"
-            android:textAlignment="center"
             app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title" />
 
         <com.google.android.material.button.MaterialButton
@@ -192,7 +190,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_switch_print2digi_title"
-            android:textAlignment="center"
             android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -202,7 +199,6 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_switch_print2digi_body"
-            android:textAlignment="center"
             app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title" />
 
         <com.google.android.material.button.MaterialButton
@@ -227,7 +223,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_extend_print_with_digi_title"
-            android:textAlignment="center"
             android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -237,7 +232,6 @@
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
             android:text="@string/login_extend_print_with_digi_body"
-            android:textAlignment="center"
             app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title" />
 
         <com.google.android.material.button.MaterialButton

@@ -39,8 +39,7 @@
             style="@style/TextAppearance.Dialog.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_header"
-            android:textAlignment="center" />
+            android:text="@string/popup_login_elapsed_header" />
 
         <TextView
             android:id="@+id/description"
