@@ -204,8 +204,8 @@
     <string name="login_switch_print2digi_body">auf in die zukunft! taz wird digital. machen Sie es wie weitere 45.000 digitale Leser. Seien sie überall immer mit uns.</string>
     <string name="login_switch_print2digi_button_text">Jetzt digital lesen</string>
     <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
-    <string name="login_extend_print_with_digi_body">Kein Problem - lassen Sie einfach zu Ihrem PrintAbo die digitale Erweiterung freischalten!</string>
-    <string name="login_extend_print_with_digi_button_text">Jetzt digital zubuchen</string>
+    <string name="login_extend_print_with_digi_body">Kein Problem - kontaktieren Sie unser Service-Team.</string>
+    <string name="login_extend_print_with_digi_button_text">Jetzt Infos anfordern</string>
 
     <string name="login_first_name_helper">Mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>
