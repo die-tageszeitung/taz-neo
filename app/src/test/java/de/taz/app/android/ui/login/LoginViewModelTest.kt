@@ -116,7 +116,7 @@ class LoginViewModelTest {
             authHelper = authHelper,
             toastHelper = toastHelper,
             subscriptionPollHelper = subscriptionPollHelper
-        )
+        ).apply { status.postValue(LoginViewModelState.INITIAL) }
     }
 
     @After
