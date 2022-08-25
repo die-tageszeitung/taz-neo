@@ -1,71 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_login_missing_names_header"
-        style="@style/TextAppearance.Login.Text"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_login_missing__names_header"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginTop="@dimen/fragment_login_padding_top"
+        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
+        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_missing_first_name_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:autofillHints=""
-        app:counterEnabled="true"
-        app:counterMaxLength="23"
-        app:helperText="@string/login_first_name_helper"
-        app:helperTextEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_names_header">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_login_missing_first_name"
+        <TextView
+            android:id="@+id/fragment_login_missing_names_header"
+            style="@style/TextAppearance.Login.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="personGivenName"
-            android:hint="@string/login_first_name_hint"
-            android:imeOptions="actionNext"
-            android:inputType="text"
-            android:nextFocusForward="@id/fragment_login_missing_credentials_surname" />
+            android:text="@string/fragment_login_missing__names_header"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/fragment_login_missing_surname_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:counterEnabled="true"
-        app:counterMaxLength="23"
-        app:helperText="@string/login_surname_helper"
-        app:helperTextEnabled="true"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_first_name_layout">
-
-        <de.taz.app.android.util.AppTextInputEditText
-            android:id="@+id/fragment_login_missing_surname"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_login_missing_first_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints="personFamilyName"
-            android:hint="@string/login_surname_hint"
-            android:imeOptions="actionDone"
-            android:inputType="text" />
+            android:autofillHints=""
+            app:counterEnabled="true"
+            app:counterMaxLength="23"
+            app:helperText="@string/login_first_name_helper"
+            app:helperTextEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_names_header">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_login_missing_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="personGivenName"
+                android:hint="@string/login_first_name_hint"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_login_missing_credentials_surname" />
 
-    <Button
-        android:id="@+id/fragment_login_missing_names_login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_login_missing_subscription_test_subscription"
-        app:layout_constraintWidth="@dimen/button_max_width"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_surname_layout" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_login_missing_surname_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="23"
+            app:helperText="@string/login_surname_helper"
+            app:helperTextEnabled="true"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_first_name_layout">
 
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_login_missing_surname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="personFamilyName"
+                android:hint="@string/login_surname_hint"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/fragment_login_missing_names_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_login_missing_subscription_test_subscription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_surname_layout"
+            app:layout_constraintWidth="@dimen/button_max_width" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,36 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/fragment_subscription_trial_only_title"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/fragment_subscription_trial_only_title"
-        android:textAppearance="@style/TextAppearance.Fragment.Title" />
+        android:layout_marginTop="@dimen/fragment_login_padding_top"
+        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
 
-    <TextView
-        android:id="@+id/fragment_subscription_trial_only_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-        android:text="@string/fragment_subscription_trial_only_description" />
+        <TextView
+            android:id="@+id/fragment_subscription_trial_only_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_subscription_trial_only_title"
+            android:textAppearance="@style/TextAppearance.Fragment.Title" />
 
-    <TextView
-        android:id="@+id/fragment_subscription_trial_only_description_elapsed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-        android:text="@string/fragment_subscription_trial_only_description_elapsed"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/fragment_subscription_trial_only_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
+            android:text="@string/fragment_subscription_trial_only_description" />
 
-    <Button
-        android:id="@+id/fragment_subscription_address_proceed"
-        android:layout_width="@dimen/button_max_width"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-        android:text="@string/next_button"/>
+        <TextView
+            android:id="@+id/fragment_subscription_trial_only_description_elapsed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
+            android:text="@string/fragment_subscription_trial_only_description_elapsed"
+            android:visibility="gone" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/fragment_subscription_address_proceed"
+            android:layout_width="@dimen/button_max_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
+            android:text="@string/next_button" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
