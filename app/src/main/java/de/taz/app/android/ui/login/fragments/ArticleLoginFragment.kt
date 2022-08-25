@@ -102,18 +102,15 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim()
     private fun getPassword(): String = viewBinding.readOnPassword.text.toString()
 
-    private fun login() = startLoginActivity(LoginViewModelState.LOGIN)
-    private fun register() = startLoginActivity(LoginViewModelState.SUBSCRIPTION_REQUEST)
-    private fun switchPrintToDigi() =
-        startLoginActivity(LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST)
+    private fun login() = startLoginActivity(LoginContract.Option.LOGIN)
+    private fun register() = startLoginActivity(LoginContract.Option.REGISTER)
+    private fun switchPrintToDigi() = startLoginActivity(LoginContract.Option.PRINT_TO_DIGI)
+    private fun extendPrintWithDigi() = startLoginActivity(LoginContract.Option.EXTEND_PRINT)
 
-    private fun extendPrintWithDigi() =
-        startLoginActivity(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
-
-    private fun startLoginActivity(status: LoginViewModelState) {
+    private fun startLoginActivity(option: LoginContract.Option) {
         activityResultLauncher.launch(
             LoginContract.Input(
-                status = status,
+                option = option,
                 username = getUsername(),
                 password = getPassword(),
                 articleFileName = articleFileName,

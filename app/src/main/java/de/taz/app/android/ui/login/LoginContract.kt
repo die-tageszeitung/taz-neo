@@ -12,13 +12,21 @@ import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
  */
 class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.Output>() {
 
+    enum class Option {
+        LOGIN,
+        REGISTER,
+        PRINT_TO_DIGI,
+        EXTEND_PRINT
+    }
+
+
     /**
      * @param register whether to register a user - false by default so trying to log in
      * @param articleFileName - if coming from an article provide its name - this has influences
      *          on the UI in the LoginActivity
      */
     data class Input(
-        val status: LoginViewModelState = LoginViewModelState.LOGIN,
+        val option: Option = Option.LOGIN,
         val username: String? = null,
         val password: String? = null,
         val articleFileName: String? = null
@@ -33,7 +41,7 @@ class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.
         Intent(context, LoginActivity::class.java).apply {
             putExtra(LOGIN_EXTRA_USERNAME, input.username)
             putExtra(LOGIN_EXTRA_PASSWORD, input.password)
-            putExtra(LOGIN_EXTRA_STATUS, input.status.toString())
+            putExtra(LOGIN_EXTRA_OPTION, input.option.toString())
             putExtra(LOGIN_EXTRA_ARTICLE, input.articleFileName)
         }
 

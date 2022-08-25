@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 const val ACTIVITY_LOGIN_REQUEST_CODE: Int = 161
 const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
-const val LOGIN_EXTRA_STATUS: String = "LOGIN_EXTRA_STATUS"
+const val LOGIN_EXTRA_OPTION: String = "LOGIN_EXTRA_OPTION"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
 
 /**
@@ -85,14 +85,22 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
-        val intentStatus: LoginViewModelState =
-            intent.getStringExtra(LOGIN_EXTRA_STATUS)?.let { LoginViewModelState.valueOf(it) }
-                ?: LoginViewModelState.INITIAL
+        val option: LoginContract.Option? =
+            intent.getStringExtra(LOGIN_EXTRA_OPTION)?.let { LoginContract.Option.valueOf(it) }
+
+        val initialStatus: LoginViewModelState =
+            when(option) {
+                LoginContract.Option.LOGIN -> LoginViewModelState.LOGIN
+                LoginContract.Option.REGISTER -> LoginViewModelState.SUBSCRIPTION_REQUEST
+                LoginContract.Option.PRINT_TO_DIGI -> LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST
+                LoginContract.Option.EXTEND_PRINT -> LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST
+                null -> LoginViewModelState.INITIAL
+            }
 
         viewModel.apply {
             username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)
             password = intent.getStringExtra(LOGIN_EXTRA_PASSWORD)
-            status.postValue(intentStatus)
+            status.postValue(initialStatus)
         }
 
         viewModel.backToArticle = article != null
