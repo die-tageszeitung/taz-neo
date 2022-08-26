@@ -13,13 +13,7 @@
     <string name="notification_channel_fcm">Breaking news</string>
     <string name="notification_channel_fcm_description">Breaking news like election results</string>
     <string name="popup_login_elapsed_header">%s expired on %s</string>
-    <string name="popup_login_elapsed_text">
-        We are sorry but your %s has expired.
-        You still have access to the downloaded issues.
-        Click on Order get a paid subscription.
-        If you have any questions, please contact our service department at
-    </string>
-    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
+    <string name="popup_login_elapsed_text">We are sorry but your %s has expired.\nYou still have access to the downloaded issues.\nClick on Order get a paid subscription.\nIf you have any questions, please contact our service department at</string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
