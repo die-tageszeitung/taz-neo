@@ -38,7 +38,8 @@
     <dimen name="fragment_cover_flow_login_button_padding">10dp</dimen>
     <dimen name="fragment_cover_flow_login_button_margin_top">15dp</dimen>
     <dimen name="fragment_cover_flow_login_button_margin_end">10dp</dimen>
-
+    <dimen name="fragment_cover_flow_arrow_margin_start">3dp</dimen>
+    <dimen name="fragment_cover_flow_arrow_translation_y">-3dp</dimen>
 
     <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
     <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
