@@ -28,7 +28,7 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top" />
 
-    <TextView
+    <LinearLayout
         android:id="@+id/home_login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -37,11 +37,22 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/fragment_cover_flow_login_button_padding"
-        android:text="@string/fragment_home_login"
-        android:textColor="@color/lightGrey"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Anmelden" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_home_login"
+            android:textColor="@color/lightGrey" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:translationY="@dimen/fragment_cover_flow_arrow_translation_y"
+            android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
+            android:src="@drawable/ic_arrow_right" />
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_date"
