@@ -58,7 +58,7 @@ class SubscriptionElapsedBottomSheetFragment :
                             dismiss()
                         }
                         UIState.SENT -> {
-                            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+                            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long=true)
                             dismiss()
                         }
                         else -> {
