@@ -6,7 +6,7 @@
     android:fitsSystemWindows="true"
     app:statusBarBackground="@android:color/transparent">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_login_padding_top"
@@ -15,25 +15,26 @@
 
         <TextView
             android:id="@+id/fragment_extend_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_extend_title"
-            android:textAppearance="@style/TextAppearance.Settings.Category" />
+            android:textAppearance="@style/TextAppearance.Settings.Category"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/fragment_extend_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_title"
             android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
-            android:text="@string/fragment_extend_description" />
+            android:text="@string/fragment_extend_description"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_title" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/fragment_extend_email_aboID_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_description"
-            android:layout_marginTop="@dimen/login_description_input_margin">
+            android:layout_marginTop="@dimen/login_description_input_margin"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_description">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_email_aboID"
@@ -50,7 +51,7 @@
             android:id="@+id/fragment_extend_surname_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_email_aboID_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_aboID_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_surname"
@@ -66,7 +67,7 @@
             android:id="@+id/fragment_extend_first_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_surname_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_surname_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_first_name"
@@ -83,7 +84,7 @@
             android:id="@+id/fragment_extend_address_street_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_first_name_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_first_name_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_address_street"
@@ -100,7 +101,7 @@
             android:id="@+id/fragment_extend_address_city_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_address_street_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_street_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_address_city"
@@ -117,7 +118,7 @@
             android:id="@+id/fragment_extend_address_zipcode_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_address_city_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_city_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_address_zipcode"
@@ -134,7 +135,7 @@
             android:id="@+id/fragment_extend_address_country_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_address_zipcode_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_zipcode_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_address_country"
@@ -151,7 +152,7 @@
             android:id="@+id/fragment_extend_message_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_address_country_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_message"
@@ -163,19 +164,21 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- FIXME: no max width possible here due to relative layout -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fragment_extend_send_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_message_layout"
             android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            android:text="@string/fragment_extend_send_button" />
+            android:text="@string/fragment_extend_send_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_message_layout"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <include
             android:id="@+id/loading_screen"
             layout="@layout/include_loading_screen"
             android:visibility="gone" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
