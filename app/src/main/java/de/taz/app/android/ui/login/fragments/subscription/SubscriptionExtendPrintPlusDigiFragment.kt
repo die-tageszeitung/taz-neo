@@ -102,7 +102,7 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
                 message,
                 false
             )
-            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast)
+            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long=true)
         }
         requireActivity().finish()
     }
