@@ -403,7 +403,6 @@
     <string name="fragment_extend_address_country_title">Land</string>
     <string name="fragment_extend_message_title">Ihre Nachricht</string>
     <string name="fragment_extend_send_button">Absenden</string>
-    <string name="fragment_extend_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 
     <string name="subscription">Abonnement</string>
     <string name="subscription_genitive">Abos</string>
