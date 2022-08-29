@@ -44,8 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_home_login"
-            android:textColor="@color/lightGrey"
-            tools:text="Anmelden" />
+            android:textColor="@color/lightGrey" />
 
         <ImageView
             android:layout_width="wrap_content"
