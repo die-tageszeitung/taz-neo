@@ -61,14 +61,14 @@
 
         <Button
             android:id="@+id/read_on_login_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/login_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/read_on_password_layout"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -90,18 +90,17 @@
             android:id="@+id/read_on_elapsed_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_button_margin_top"
-            android:text="@string/popup_login_elapsed_text"
             android:autoLink="email"
+            android:text="@string/popup_login_elapsed_text"
             app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
 
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message_to_subscription_service"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
             app:hintEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description">
 
@@ -118,14 +117,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/popup_login_elapsed_checkbox_message"
-            app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service"/>
+            app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/send_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/popup_login_elapsed_positive_button"
-            app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.Barrier
@@ -170,11 +172,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_trial_subscription_box_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
             android:text="@string/login_trial_subscription_button_text"
-            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -203,11 +208,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_switch_print2digi_box_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
             android:text="@string/login_switch_print2digi_button_text"
-            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -236,11 +244,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/read_on_extend_print_with_digi_box_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
             android:text="@string/login_extend_print_with_digi_button_text"
-            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

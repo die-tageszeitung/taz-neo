@@ -62,14 +62,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fragment_login_login_button"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/login_button"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <TextView
             android:id="@+id/fragment_login_missing_subscription_forgot_password"
@@ -121,11 +121,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fragment_login_trial_subscription_box_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
                 android:text="@string/login_trial_subscription_button_text"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_text" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -154,11 +157,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fragment_login_switch_print2digi_box_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
                 android:text="@string/login_switch_print2digi_button_text"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_text" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -187,11 +193,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/fragment_login_extend_print_with_digi_box_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
                 android:text="@string/login_extend_print_with_digi_button_text"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_text" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

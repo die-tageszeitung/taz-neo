@@ -5,18 +5,18 @@
     android:id="@+id/rounded_corner_wrapper"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
     android:maxHeight="@dimen/match_parent"
-    android:theme="@style/AppTheme"
-    android:background="@android:color/transparent">
+    android:theme="@style/AppTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:paddingTop="@dimen/bottom_sheet_round_padding_top"
+        android:orientation="vertical"
         android:paddingHorizontal="@dimen/bottom_sheet_round_padding_horizontal"
+        android:paddingTop="@dimen/bottom_sheet_round_padding_top"
         android:paddingBottom="@dimen/bottom_sheet_round_padding_bottom">
 
         <TextView
@@ -51,9 +51,9 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message_to_subscription_service"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -73,6 +73,7 @@
             android:id="@+id/send_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/popup_login_elapsed_positive_button" />
 
     </LinearLayout>

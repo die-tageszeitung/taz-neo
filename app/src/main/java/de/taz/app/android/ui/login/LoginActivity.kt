@@ -220,10 +220,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPossibilities(
                     priceInvalid = true
                 )
-                null -> {
-                    Sentry.captureMessage("login status is null")
-                    viewModel.status.postValue(LoginViewModelState.INITIAL)
-                }
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
                     nameTooLong = true
                 )
@@ -253,6 +249,10 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 }
                 LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST -> {
                     showExtendPrintWithDigiForm()
+                }
+                null -> {
+                    Sentry.captureMessage("login status is null")
+                    viewModel.status.postValue(LoginViewModelState.INITIAL)
                 }
             }
         }
