@@ -24,6 +24,7 @@
             android:id="@+id/fragment_login_missing_subscription_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_description_input_margin"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_header">
 
             <de.taz.app.android.util.AppTextInputEditText
@@ -57,13 +58,14 @@
 
         <Button
             android:id="@+id/fragment_login_missing_subscription_connect_account"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/fragment_login_missing_subscription_connect_subscription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_password_layout"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <TextView
             android:id="@+id/fragment_login_missing_subscription_subscription"
@@ -78,13 +80,14 @@
         <Button
             android:id="@+id/fragment_login_missing_subscription_subscription_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/fragment_login_missing_subscription_test_subscription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_subscription"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <TextView
             android:id="@+id/fragment_login_missing_subscription_forgot_password"

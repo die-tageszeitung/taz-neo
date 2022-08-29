@@ -33,6 +33,7 @@
             android:id="@+id/fragment_subscription_account_email_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_description_input_margin"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_switch_new_account">
 
             <de.taz.app.android.util.AppTextInputEditText
@@ -108,13 +109,14 @@
 
         <Button
             android:id="@+id/fragment_subscription_account_proceed"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/order_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_terms_and_conditions"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
 
         <TextView

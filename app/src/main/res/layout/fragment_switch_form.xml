@@ -32,16 +32,17 @@
             android:id="@+id/fragment_switch_email_aboID_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_switch_description">
+            android:layout_below="@id/fragment_switch_description"
+            android:layout_marginTop="@dimen/login_description_input_margin">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_email_aboID"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_email_aboID_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_surname" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_email_aboID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_email_aboID_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_surname" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,14 +52,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_email_aboID_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_surname"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_surname_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_first_name" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_surname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_surname_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_first_name" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,14 +69,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_surname_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_first_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_first_name_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_address_street" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_first_name_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_address_street" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -85,14 +86,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_first_name_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_address_street"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_address_street_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_address_city" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_address_street"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_address_street_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_address_city" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -102,14 +103,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_address_street_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_address_city"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_address_city_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_address_zipcode" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_address_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_address_city_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_address_zipcode" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -119,14 +120,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_address_city_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_address_zipcode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_address_zipcode_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_address_country"/>
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_address_zipcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_address_zipcode_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_address_country" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -136,14 +137,14 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_address_zipcode_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_address_country"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:hint="@string/fragment_switch_address_country_title"
-                    android:imeOptions="actionNext"
-                    android:nextFocusForward="@id/fragment_switch_message" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_address_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_address_country_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_switch_message" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -153,23 +154,24 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_switch_address_country_layout">
 
-                <de.taz.app.android.util.AppTextInputEditText
-                    android:id="@+id/fragment_switch_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:hint="@string/fragment_switch_message_title"
-                    android:imeOptions="actionDone" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_switch_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_switch_message_title"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- FIXME: no max width possible here due to relative layout -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fragment_switch_send_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_button_margin_top"
-            android:text="@string/fragment_switch_send_button"
-            android:layout_below="@id/fragment_switch_message_title_layout" />
+            android:layout_below="@id/fragment_switch_message_title_layout"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            android:text="@string/fragment_switch_send_button" />
 
         <include
             android:id="@+id/loading_screen"

@@ -33,6 +33,7 @@
             android:id="@+id/fragment_subscription_bank_iban_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_description_input_margin"
             app:counterEnabled="true"
             app:counterMaxLength="30"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_bank_description">
@@ -71,13 +72,14 @@
 
         <Button
             android:id="@+id/fragment_subscription_bank_proceed"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/next_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_bank_account_holder_layout"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

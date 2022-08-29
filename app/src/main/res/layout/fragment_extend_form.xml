@@ -32,7 +32,8 @@
             android:id="@+id/fragment_extend_email_aboID_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fragment_extend_description">
+            android:layout_below="@id/fragment_extend_description"
+            android:layout_marginTop="@dimen/login_description_input_margin">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_email_aboID"
@@ -162,12 +163,13 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- FIXME: no max width possible here due to relative layout -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/fragment_extend_send_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/fragment_extend_message_layout"
-            android:layout_marginTop="@dimen/login_button_margin_top"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/fragment_extend_send_button" />
 
         <include

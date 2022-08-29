@@ -22,13 +22,14 @@
 
         <Button
             android:id="@+id/fragment_login_subscription_taken_retry"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
             android:text="@string/fragment_login_subscription_taken_retry"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_header"
-            app:layout_constraintWidth="@dimen/button_max_width" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <TextView
             android:id="@+id/fragment_login_subscription_taken_body"
