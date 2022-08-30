@@ -198,7 +198,7 @@
     <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.\n\nWenn Sie bereits mit einer E-Mail-Adresse und Passwort bei der taz registriert sind, geben Sie sie bitte zur Anmeldung hier ein.</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
-    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Lesern in verschiedenen Abomodellen lesen.</string>
+    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Leser:innen in verschiedenen Abomodellen lesen.</string>
     <string name="login_trial_subscription_button_text">Jetzt kostenlos testen</string>
     <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
     <string name="login_switch_print2digi_body">Sie haben ein PrintAbo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen.\nWie es geht? Kontaktieren Sie unser Service-Team.</string>
@@ -268,8 +268,8 @@
     <string name="postcode_error_empty">Adresse wird benötigt.</string>
     <string name="country_error_empty">Adresse wird benötigt.</string>
 
-    <string name="account_holder_helper">Falls abweichend zu Abonnent:In</string>
-    <string name="account_holder_hint">Kontoinhaber:In</string>
+    <string name="account_holder_helper">Falls abweichend zu Abonnent:in</string>
+    <string name="account_holder_hint">Kontoinhaber:in</string>
     <string name="subscription_field_invalid">Enthält nur ungültige Zeichen.</string>
 
     <string name="login_button">Anmelden</string>
@@ -324,7 +324,7 @@
     <string name="dialog_try_pdf_title">Entdecken Sie jetzt die Zeitungsansicht</string>
     <string name="dialog_try_pdf_description">Hier können Sie zwischen der mobilen und der Ansicht der Zeitungsseiten wechseln.</string>
 
-    <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler\*innen sind informiert.</string>
+    <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler:innen sind informiert.</string>
 
     <string name="button_close_text">×</string>
 
@@ -356,10 +356,10 @@
     <string name="search_advanced_sort_by">sortierung</string>
     <string name="search_input_hint">taz Archiv durchsuchen</string>
     <string name="search_input_error">Nach was wollen Sie suchen?</string>
-    <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
+    <string name="search_description">Suche nach Autor:innnen, Artikeln, Rubriken oder Themen</string>
     <string name="search_filter">Suche filtern</string>
     <string name="search_advanced_title">Titel</string>
-    <string name="search_advanced_author">Autor*in</string>
+    <string name="search_advanced_author">Autor:in</string>
     <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>
     <string name="search_advanced_radio_timeslot_last_day">letzter Tag</string>
     <string name="search_advanced_radio_timeslot_last_week">letzte 7 Tage</string>
