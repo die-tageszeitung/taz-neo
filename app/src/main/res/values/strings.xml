@@ -246,8 +246,8 @@
 
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
     <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
-    <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
-    <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
+    <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen Sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können Sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
+    <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
 
     <string name="fragment_subscription_bank_title">Bankdaten</string>
     <string name="fragment_subscription_bank_description">Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich.</string>
@@ -260,7 +260,7 @@
 
     <string name="iban_hint">IBAN</string>
     <string name="iban_error_invalid">Die IBAN ist ungültig.</string>
-    <string name="iban_error_empty">Bitte geben sie Ihre IBAN an.</string>
+    <string name="iban_error_empty">Bitte geben Sie Ihre IBAN an.</string>
     <string name="iban_error_no_sepa">SEPA leider nicht verfügbar.</string>
 
     <string name="street_error_empty">Adresse wird benötigt.</string>
@@ -341,7 +341,7 @@
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
-    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
+    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
@@ -393,7 +393,7 @@
     <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
-    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden sie dann kontaktieren.</string>
+    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
     <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
     <string name="fragment_extend_surname_title">Nachname</string>
     <string name="fragment_extend_first_name_title">Vorname</string>
