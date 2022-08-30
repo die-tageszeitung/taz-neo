@@ -22,7 +22,7 @@
     <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
-    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer Email-Adresse ein.</string>
+    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer E-Mail-Adresse ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
@@ -64,7 +64,7 @@
     <string name="order_button">Bestellen</string>
     <string name="order_with_costs_button">kostenpflichtig Bestellen</string>
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
-    <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per Email um Bestätigung gebeten. Sollten Sie diese Email nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
+    <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per E-Mail um Bestätigung gebeten. Sollten Sie diese E-Mail nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer:in sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
     <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
@@ -172,7 +172,7 @@
     <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
-    <string name="fragment_error_report_email_title">Ihre Email-Adresse</string>
+    <string name="fragment_error_report_email_title">Ihre E-Mail-Adresse</string>
     <string name="fragment_error_report_email_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="fragment_error_report_message_title">Ihre Nachricht</string>
     <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
@@ -198,10 +198,10 @@
     <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.\n\nWenn Sie bereits mit einer E-Mail-Adresse und Passwort bei der taz registriert sind, geben Sie sie bitte zur Anmeldung hier ein.</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
-    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Leser:innen in verschiedenen Abomodellen lesen.</string>
+    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Leser:innen in verschiedenen Abo-Modellen lesen.</string>
     <string name="login_trial_subscription_button_text">Jetzt kostenlos testen</string>
     <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
-    <string name="login_switch_print2digi_body">Sie haben ein PrintAbo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen.\nWie es geht? Kontaktieren Sie unser Service-Team.</string>
+    <string name="login_switch_print2digi_body">Sie haben ein Print-Abo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen.\nWie es geht? Kontaktieren Sie unser Service-Team.</string>
     <string name="login_switch_print2digi_button_text">Jetzt informieren</string>
     <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
     <string name="login_extend_print_with_digi_body">Kein Problem - kontaktieren Sie unser Service-Team.</string>
@@ -304,7 +304,7 @@
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
     <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
 
-    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer Email-Adresse verknüpft.</string>
+    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer E-Mail-Adresse verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
@@ -316,7 +316,7 @@
     <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
 
-    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden.\nBitte wenden Sie sich an den Support:</string>
+    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine E-Mail senden.\nBitte wenden Sie sich an den Support:</string>
     <string name="fragment_login_taz_mail">app@taz.de</string>
     <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
 
