@@ -2,16 +2,21 @@
 set -e
 set -o xtrace
 
+# FIXME(johannes): curl v7.76 will allow us to use --fail-with-body which is preferable to --fail
+#                  on REST endpoints as we will get the actual error message from the server.
+#                  Once the android-docker image resp. the cimg/android updates curl we should use it
 
+# Use the AAPT from the default Android build tools as defined on the android-docker build image
+AAPT_BIN="$BUILD_TOOLS_ROOT/aapt"
 
-RECENT_TAG=`git describe --abbrev=0`
-export RELEASE_MESSAGE=`git tag -l --format='%(contents)' ${RECENT_TAG}`
-export APP_VERSION=${CI_COMMIT_TAG}
-export APP_VERSION_CODE=${APP_VERSION_CODE:-`/opt/android/sdk/build-tools/29.0.2/aapt dump badging app/build/outputs/apk/freeTazProduction/manualUpdateRelease/app-free-taz-production-manualUpdateRelease.apk | grep "VersionCode" | sed -e "s/.*versionCode='//" -e "s/' .*//"`}
+RECENT_TAG=$(git describe --abbrev=0)
+RELEASE_MESSAGE=$(git tag -l --format='%(contents)' "$RECENT_TAG")
+APP_VERSION=$CI_COMMIT_TAG
+APP_VERSION_CODE=$($AAPT_BIN dump badging app/build/outputs/apk/freeTazProduction/manualUpdateRelease/app-free-taz-production-manualUpdateRelease.apk | grep "package:" | sed -e "s/.*versionCode='//" -e "s/' .*//")
 
-export FREE_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD} | jq -r .ocs.data.url`
-export DEBUG_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD} | jq -r .ocs.data.url`
-export STAGING_DEBUG_APP_URL=`curl --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_STAGING_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD} | jq -r .ocs.data.url`
+FREE_APP_URL=$(curl --fail --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u "$NEXTCLOUD_RELEASE_USER:$NEXTCLOUD_RELEASE_PASSWORD" | jq -r .ocs.data.url)
+DEBUG_APP_URL=$(curl --fail --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u "$NEXTCLOUD_RELEASE_USER:$NEXTCLOUD_RELEASE_PASSWORD" | jq -r .ocs.data.url)
+STAGING_DEBUG_APP_URL=$(curl --fail --header 'Accept: application/json' --header 'OCS-APIRequest: true' --header 'Content-Type: application/json' --data "{\"path\":\"${FREE_STAGING_DEBUG_APK_PATH}\",\"shareType\":\"3\"}" https://cloud.alt.coop/ocs/v2.php/apps/files_sharing/api/v1/shares -u "$NEXTCLOUD_RELEASE_USER:$NEXTCLOUD_RELEASE_PASSWORD" | jq -r .ocs.data.url)
 
 TAZ_RELEASE_JSON=$(
   jq -n '{
@@ -31,6 +36,7 @@ TAZ_RELEASE_JSON=$(
 )
 
 curl -v \
+  --fail \
   -X POST \
   --header 'Content-Type: application/json' \
   --header "Authorization: Token $TOOLBOX_API_TOKEN" \
