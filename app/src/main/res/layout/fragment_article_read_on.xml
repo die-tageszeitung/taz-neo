@@ -20,7 +20,7 @@
             android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
             android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
             android:autoLink="all"
-            android:text="@string/fragment_login_description"
+            android:text="@string/fragment_read_on_description"
             android:textAlignment="center"
             app:layout_constraintTop_toTopOf="parent" />
 
