@@ -35,7 +35,17 @@
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
+        <!--
+            Using windowSoftInputMode=adjustNothing to prevent errors with the CoverFlow when the
+            SubscriptionElapsedBottomSheetFragment has been viewed. See the discussions at
+            https://gitlab.alt.coop/taz/taz-app/-/issues/149 and
+            https://gitlab.alt.coop/taz/taz-app/-/merge_requests/1219 for further information.
+
+            WARNING: This will apply to all text input fields within the MainActivity.
+                     Currently there is no other, but be careful when adding another.
+        -->
         <activity android:name=".ui.main.MainActivity"
+            android:windowSoftInputMode="stateHidden|adjustNothing"
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.issueViewer.IssueViewerActivity"
             android:theme="@style/noAnimationOnActivityChange"/>
