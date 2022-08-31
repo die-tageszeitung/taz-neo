@@ -8,7 +8,13 @@ mutation SubscriptionFormData(
     $postcode: String,
     $country: String,
     $message: String,
-    $requestCurrentSubscriptionOpportunities: Boolean
+    $requestCurrentSubscriptionOpportunities: Boolean,
+    $deviceName: String,
+    $deviceVersion: String,
+    $appVersion: String,
+    $deviceFormat: DeviceFormat,
+    $deviceType: DeviceType,
+    $deviceOS: String
 ) {
     subscriptionFormData(
         type: $subscriptionFormDataType,
@@ -20,7 +26,13 @@ mutation SubscriptionFormData(
         postcode: $postcode,
         country: $country,
         message: $message,
-        requestCurrentSubscriptionOpportunities: $requestCurrentSubscriptionOpportunities
+        requestCurrentSubscriptionOpportunities: $requestCurrentSubscriptionOpportunities,
+        deviceName: $deviceName,
+        deviceVersion: $deviceVersion,
+        appVersion: $appVersion,
+        deviceFormat: $deviceFormat,
+        deviceType: $deviceType,
+        deviceOS: $deviceOS
     ) {
         error
         errorMessage
