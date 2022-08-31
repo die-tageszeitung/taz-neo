@@ -381,7 +381,7 @@
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie dann so schnell wie möglich.</string>
+    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
     <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
     <string name="fragment_switch_surname_title">Nachname</string>
     <string name="fragment_switch_first_name_title">Vorname</string>
