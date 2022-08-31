@@ -13,18 +13,20 @@ import java.io.File
 import java.util.*
 
 @ExperimentalSerializationApi
-@Serializable(with = DateSerializer::class)
+@Serializable
 data class Image(
     override val name: String,
     override val storageType: StorageType,
     override val moTime: Long,
     override val sha256: String,
     override val size: Long,
+    @Deprecated("folder field deprecated, file path now stored in path")
     override val folder: String,
     override val path: String,
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
+    @Serializable(DateSerializer::class)
     override val dateDownload: Date?,
     override val storageLocation: StorageLocation
 ) : FileEntryOperations {
