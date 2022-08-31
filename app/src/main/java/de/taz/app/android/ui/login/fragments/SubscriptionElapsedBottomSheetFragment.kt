@@ -1,8 +1,12 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,6 +51,15 @@ class SubscriptionElapsedBottomSheetFragment :
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
+        viewBinding.roundedCornerWrapper.setOnTouchListener(object :
+            View.OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                hideKeyBoard()
+                return false
+            }
+        })
+
         (dialog as BottomSheetDialog).behavior.doNotFlattenCorners()
 
         lifecycleScope.launch {
@@ -66,6 +79,15 @@ class SubscriptionElapsedBottomSheetFragment :
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private fun hideKeyBoard() {
+        activity?.apply {
+            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
+                val view = viewBinding.root
+                hideSoftInputFromWindow(view.windowToken, 0)
             }
         }
     }

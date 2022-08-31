@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -76,6 +78,14 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
             }
         }
 
+        viewBinding.fragmentExtendNestedScrollView.setOnTouchListener(object :
+            View.OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                hideKeyBoard()
+                return false
+            }
+        })
     }
 
 
@@ -102,7 +112,7 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
                 message,
                 false
             )
-            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long=true)
+            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long = true)
         }
         requireActivity().finish()
     }

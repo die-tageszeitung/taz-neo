@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -77,6 +79,14 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             }
         }
 
+        viewBinding.fragmentSwitchNestedScrollView.setOnTouchListener(object :
+            View.OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                hideKeyBoard()
+                return false
+            }
+        })
     }
 
 
