@@ -59,44 +59,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         }
     }
 
-    fun toggleMenuItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { id ->
-            toggleMenuItem(id)
-        }
-    }
-
-    fun activateItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { menuItem ->
-            activateItem(menuItem)
-        }
-    }
-
-    fun activateItem(menuItem: MenuItem) {
-        menuItem.isChecked = true
-        menuItem.isCheckable = true
-    }
-
-    fun deactivateItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { menuItem ->
-            deactivateItem(menuItem)
-        }
-    }
-
-    fun deactivateItem(menuItem: MenuItem) {
-        menuItem.isChecked = false
-        menuItem.isCheckable = false
-    }
-
-    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
-        menu.iterator().forEach {
-            if (it.itemId !in permanentlyActiveItemIds && it != except) {
-                deactivateItem(it)
-            }
-        }
-    }
 
     fun setIcon(itemId: Int, @DrawableRes iconRes: Int) {
         val menuView = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
@@ -104,14 +66,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         // prevent call while layouting
         menuView?.post {
             menu?.findItem(itemId)?.setIcon(iconRes)
-        }
-    }
-
-    private fun toggleMenuItem(menuItem: MenuItem) {
-        if (menuItem.isCheckable) {
-            deactivateItem(menuItem)
-        } else {
-            onBottomNavigationItemClicked(menuItem)
         }
     }
 
