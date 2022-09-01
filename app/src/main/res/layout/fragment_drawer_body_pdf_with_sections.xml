@@ -30,9 +30,8 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
                     android:orientation="vertical">
 
                     <androidx.cardview.widget.CardView
@@ -44,9 +43,8 @@
 
                         <ImageView
                             android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
-                            android:layout_width="match_parent"
+                            android:layout_width="@dimen/fragment_drawer_thumbnail_image_width"
                             android:layout_height="wrap_content"
-                            android:scaleType="fitXY"
                             tools:ignore="ContentDescription"
                             tools:layout_height="166dp"
                             tools:layout_width="112dp"

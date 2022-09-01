@@ -22,6 +22,7 @@
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
     <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
+    <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
 
