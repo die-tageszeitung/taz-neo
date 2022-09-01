@@ -158,15 +158,13 @@ class DrawerBodyPdfWithSectionsFragment :
     }
 
     private fun hideLoadingScreen() {
-        activity?.runOnUiThread {
-            viewBinding.pdfDrawerLoadingScreen.root.apply {
-                animate()
-                    .alpha(0f)
-                    .withEndAction {
-                        visibility = View.GONE
-                    }
-                    .duration = LOADING_SCREEN_FADE_OUT_TIME
-            }
+        viewBinding.pdfDrawerLoadingScreen.root.apply {
+            animate()
+                .alpha(0f)
+                .withEndAction {
+                    visibility = View.GONE
+                }
+                .duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 }
