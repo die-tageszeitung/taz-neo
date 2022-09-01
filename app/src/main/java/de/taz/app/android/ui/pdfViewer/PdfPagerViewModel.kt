@@ -131,7 +131,7 @@ class PdfPagerViewModel(
     }
 
 
-    val pdfPageToC = MediatorLiveData<List<PageWithArticles>>().apply {
+    private val _pdfPageToC = MediatorLiveData<List<PageWithArticles>>().apply {
         addSource(issue) { issue ->
             viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
@@ -163,6 +163,8 @@ class PdfPagerViewModel(
             }
         }
     }
+
+    val pdfPageToC = _pdfPageToC as LiveData<List<PageWithArticles>>
 
     val currentPage = MediatorLiveData<Page>().apply {
         addSource(pdfPageList) { pdfPageList ->
