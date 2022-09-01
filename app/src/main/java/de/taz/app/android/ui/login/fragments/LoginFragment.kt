@@ -1,11 +1,12 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
-import android.view.*
+import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.util.hideSoftInputKeyboard
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
@@ -80,7 +81,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         val username = viewBinding.fragmentLoginUsername.text.toString().trim()
         val password = viewBinding.fragmentLoginPassword.text.toString()
         viewModel.login(username, password)
-        hideKeyBoard()
+        hideSoftInputKeyboard()
     }
 
     private fun showPasswordError(passwordErrorId: Int) {

@@ -7,6 +7,7 @@ import de.taz.app.android.databinding.FragmentLoginMissingSubscriptionBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
+import de.taz.app.android.util.hideSoftInputKeyboard
 
 class SubscriptionMissingFragment :
     SubscriptionBaseFragment<FragmentLoginMissingSubscriptionBinding>() {
@@ -85,7 +86,7 @@ class SubscriptionMissingFragment :
     }
 
     override fun next() {
-        hideKeyBoard()
+        hideSoftInputKeyboard()
         viewModel.connect()
     }
 
