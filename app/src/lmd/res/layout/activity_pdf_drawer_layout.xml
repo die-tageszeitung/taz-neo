@@ -22,7 +22,7 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:layout_marginEnd="-65dp"
+        android:layout_marginEnd="@dimen/negated_min_drawer_width"
         android:background="@color/navigation_drawer_pdf_background"
         android:clipChildren="false"
         android:clipToPadding="false"
