@@ -34,16 +34,8 @@ class SubscriptionElapsedBottomSheetViewModel(
     fun sendMessage(message: String, contactMe: Boolean) {
         getApplicationScope().launch {
             customerTypeFlow.collect { customerType ->
-                // fallback to use if customerType is demo but we have stored a value in authHelper
-                // TODO remove once tokens for elapsed trialSubscription login implemented
-                val failsafeType = if (customerType == CustomerType.demo) {
-                    authHelper.customerType.get() ?: customerType
-                } else {
-                    null
-                }
 
-                val type = mapCustomer2SubscriptionFormDataType(failsafeType)
-
+                val type = mapCustomer2SubscriptionFormDataType(customerType)
                 if (type != null) {
                     apiService.subscriptionFormData(
                         type = type,
@@ -75,7 +67,7 @@ class SubscriptionElapsedBottomSheetViewModel(
     val isElapsedFlow = authHelper.isElapsedFlow
 
     private val customerTypeFlow: Flow<CustomerType> = flow {
-        val type = authHelper.customerType.get() ?: apiService.getCustomerType()
+        val type = apiService.getCustomerType()
         if (type != null) {
             emit(type)
         }

@@ -697,6 +697,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             country,
             message,
             requestCurrentSubscriptionOpportunities,
+            deviceFormat = deviceFormat
         )
         log.debug("call graphql  $tag with variables: $variables")
         return transformToConnectivityException {

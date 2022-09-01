@@ -70,11 +70,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
 
         viewBinding.navigationBottom.apply {
-            itemIconTintList = null
-
-            // hack to not auto select first item
-            menu.getItem(0).isCheckable = false
-
             setOnItemSelectedListener {
                 this@LoginActivity.apply {
                     val data = Intent()
