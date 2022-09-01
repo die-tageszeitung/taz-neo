@@ -38,7 +38,6 @@ private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
 private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
-private const val PREFERENCES_AUTH_CUSTOMER_TYPE = "customer_type"
 // endregion
 
 
