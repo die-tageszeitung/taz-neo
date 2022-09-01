@@ -133,7 +133,7 @@ class PdfPagerViewModel(
 
     val pdfPageToC = MediatorLiveData<List<PageWithArticles>>().apply {
         addSource(issue) { issue ->
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
                     val pages = mutableListOf<PageWithArticles>()
                     issue.pageList.forEach { page ->
