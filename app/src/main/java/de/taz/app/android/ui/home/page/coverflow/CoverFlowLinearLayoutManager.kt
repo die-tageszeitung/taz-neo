@@ -23,11 +23,7 @@ class CoverFlowLinearLayoutManager(
 
     override fun onLayoutCompleted(state: RecyclerView.State?) {
         super.onLayoutCompleted(state)
-
-        // Only resize when the state is settled. Do not resize during the RecyclerView "setup"
-        if (state != null && !state.isPreLayout && !state.isMeasuring) {
-            ZoomPageTransformer.adjustViewSizes(bouncyRecyclerView)
-        }
+        ZoomPageTransformer.adjustViewSizes(bouncyRecyclerView)
     }
 
 }

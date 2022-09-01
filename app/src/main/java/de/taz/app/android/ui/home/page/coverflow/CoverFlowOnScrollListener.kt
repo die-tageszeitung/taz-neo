@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home.page.coverflow
 
+import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
