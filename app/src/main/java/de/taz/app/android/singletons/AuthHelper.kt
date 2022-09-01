@@ -104,15 +104,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_TOKEN), ""
     )
 
-    // TODO remove once tokens for elapsed trialSubscription login implemented
-    val customerType = MappingDataStoreEntry<CustomerType?, String>(
-        dataStore,
-        stringPreferencesKey(PREFERENCES_AUTH_CUSTOMER_TYPE),
-        null,
-        { it?.toString() ?: "" },
-        { string -> if (string.isEmpty()) null else CustomerType.valueOf(string) }
-    )
-
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
 
@@ -140,8 +131,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
-                        // TODO remove once tokens for elapsed trialSubscription login implemented
-                        customerType.set(null)
                     }
                     else -> Unit
                 }
