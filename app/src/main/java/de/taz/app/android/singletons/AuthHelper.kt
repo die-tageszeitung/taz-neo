@@ -12,7 +12,6 @@ import androidx.lifecycle.map
 import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
@@ -38,7 +37,6 @@ private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
 private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
-private const val PREFERENCES_AUTH_CUSTOMER_TYPE = "customer_type"
 // endregion
 
 
@@ -104,15 +102,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_TOKEN), ""
     )
 
-    // TODO remove once tokens for elapsed trialSubscription login implemented
-    val customerType = MappingDataStoreEntry<CustomerType?, String>(
-        dataStore,
-        stringPreferencesKey(PREFERENCES_AUTH_CUSTOMER_TYPE),
-        null,
-        { it?.toString() ?: "" },
-        { string -> if (string.isEmpty()) null else CustomerType.valueOf(string) }
-    )
-
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
 
@@ -140,8 +129,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                         firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
-                        // TODO remove once tokens for elapsed trialSubscription login implemented
-                        customerType.set(null)
                     }
                     else -> Unit
                 }
