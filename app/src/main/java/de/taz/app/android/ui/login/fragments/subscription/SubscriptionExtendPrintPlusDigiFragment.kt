@@ -40,8 +40,9 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
             val message = viewBinding.fragmentExtendMessage.text.toString().trim()
 
             val necessaryCredentialsPresent =
-                surname.isNotEmpty() && firstname.isNotEmpty() && addressStreetNr.isNotEmpty()
-                        && addressZipCode.isNotEmpty() && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
+                emailOrAboID.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
+                        && addressStreetNr.isNotEmpty() && addressZipCode.isNotEmpty()
+                        && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
 
             if (necessaryCredentialsPresent) {
                 sendExtendPrintPlusDigiForm(
@@ -56,6 +57,9 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
                 )
             }
             else {
+                if (emailOrAboID.isEmpty()) {
+                    viewBinding.fragmentExtendEmailAboID.error = requireContext().getString(R.string.login_email_aboid_error_empty)
+                }
                 if (surname.isEmpty()) {
                     viewBinding.fragmentExtendSurname.error = requireContext().getString(R.string.login_surname_error_empty)
                 }

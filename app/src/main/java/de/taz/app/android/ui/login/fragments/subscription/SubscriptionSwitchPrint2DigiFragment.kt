@@ -41,8 +41,9 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             val message = viewBinding.fragmentSwitchMessage.text.toString().trim()
 
             val necessaryCredentialsPresent =
-                surname.isNotEmpty() && firstname.isNotEmpty() && addressStreetNr.isNotEmpty()
-                        && addressZipCode.isNotEmpty() && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
+                emailOrAboID.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
+                        && addressStreetNr.isNotEmpty() && addressZipCode.isNotEmpty()
+                        && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
 
             if (necessaryCredentialsPresent) {
                 sendSwitchPrint2DigiForm(
@@ -57,6 +58,9 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 )
             }
             else {
+                if (emailOrAboID.isEmpty()) {
+                    viewBinding.fragmentSwitchEmailAboID.error = requireContext().getString(R.string.login_email_aboid_error_empty)
+                }
                 if (surname.isEmpty()) {
                     viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
                 }

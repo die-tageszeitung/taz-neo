@@ -233,6 +233,7 @@
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
+    <string name="login_email_aboid_error_empty">E-Mail-Adresse oder Abo-Nummer darf nicht leer sein.</string>
 
     <string name="login_comment_hint">Bemerkung</string>
 
@@ -314,7 +315,7 @@
 
     <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
 
-    <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
+    <string name="fragment_login_subscription_taken_header">Das Abo ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine E-Mail senden.\nBitte wenden Sie sich an den Support:</string>
@@ -382,7 +383,7 @@
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
     <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
-    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
     <string name="fragment_switch_surname_title">Nachname</string>
     <string name="fragment_switch_first_name_title">Vorname</string>
     <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
@@ -391,11 +392,11 @@
     <string name="fragment_switch_address_country_title">Land</string>
     <string name="fragment_switch_message_title">Ihre Nachricht</string>
     <string name="fragment_switch_send_button">Absenden</string>
-    <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
+    <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an unser Service-Team gesendet</string>
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
     <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
-    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
     <string name="fragment_extend_surname_title">Nachname</string>
     <string name="fragment_extend_first_name_title">Vorname</string>
     <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>
