@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp"
+    android:layout_marginBottom="@dimen/list_item_pdf_page_toc_margin_bottom"
     tools:context=".ui.pdfViewer.ArticleAdapter"
     tools:showIn="@layout/list_item_pdf_page_with_content">
 

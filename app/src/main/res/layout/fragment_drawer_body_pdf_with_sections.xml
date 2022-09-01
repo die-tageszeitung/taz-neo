@@ -75,7 +75,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp">
+                android:layout_marginTop="@dimen/fragment_drawer_body_table_of_content_header_margin_top">
 
                 <TextView
                     android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
@@ -100,8 +100,8 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp"
+                android:layout_height="@dimen/fragment_drawer_separator_line_height"
+                android:layout_marginTop="@dimen/fragment_drawer_separator_margin_top"
                 android:background="@color/pdf_section_font" />
 
             <androidx.recyclerview.widget.RecyclerView
