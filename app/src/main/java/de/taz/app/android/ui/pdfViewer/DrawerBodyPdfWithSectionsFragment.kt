@@ -1,24 +1,18 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
@@ -31,14 +25,9 @@ import kotlinx.coroutines.launch
  * Fragment used in the drawer to display the currently selected page and the content/articles
  * of an issue.
  */
-class DrawerBodyPdfWithSectionsFragment : Fragment() {
+class DrawerBodyPdfWithSectionsFragment :
+    ViewBindingFragment<FragmentDrawerBodyPdfWithSectionsBinding>() {
 
-    private lateinit var currentPageImageView: ImageView
-    private lateinit var currentPageTitleView: TextView
-    private lateinit var issueTitleTextView: TextView
-    private lateinit var loadingScreenConstraintLayout: ConstraintLayout
-
-    private lateinit var navigationPageArticleRecyclerView: RecyclerView
     private lateinit var storageService: StorageService
 
     private var adapter: PageWithArticlesAdapter? =
@@ -50,31 +39,14 @@ class DrawerBodyPdfWithSectionsFragment : Fragment() {
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-        val view =
-            inflater.inflate(R.layout.fragment_drawer_body_pdf_with_sections, container, false)
-
-        currentPageImageView =
-            view.findViewById(R.id.fragment_drawer_body_pdf_with_sections_current_page_image)
-        currentPageTitleView =
-            view.findViewById(R.id.fragment_drawer_body_pdf_with_sections_current_page_title)
-        issueTitleTextView = view.findViewById(R.id.fragment_drawer_body_pdf_with_sections_title)
-        loadingScreenConstraintLayout = view.findViewById(R.id.pdf_drawer_loading_screen)
-
-        navigationPageArticleRecyclerView =
-            view.findViewById(R.id.navigation_page_article_recycler_view)
-        navigationPageArticleRecyclerView.layoutManager = LinearLayoutManager(context)
-        navigationPageArticleRecyclerView.adapter = adapter
-
-        return view
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
+
+        viewBinding.navigationPageArticleRecyclerView.layoutManager = LinearLayoutManager(context)
+        viewBinding.navigationPageArticleRecyclerView.adapter = adapter
+
         pdfPagerViewModel.currentPage.observe(viewLifecycleOwner) {
             pdfPagerViewModel.currentItem.value?.let { _ ->
                 refreshCurrentPage()
@@ -84,7 +56,7 @@ class DrawerBodyPdfWithSectionsFragment : Fragment() {
             val date = DateHelper.stringToDate(issue_publication.date)
             val dateString = date?.let { DateHelper.dateToMonthYearString(it) }
 
-            issueTitleTextView.text = getString(
+            viewBinding.fragmentDrawerBodyPdfWithSectionsTitle.text = getString(
                 R.string.issue_title,
                 dateString
             )
@@ -151,7 +123,7 @@ class DrawerBodyPdfWithSectionsFragment : Fragment() {
             pages,
             { position -> handlePageClick(position) },
             { article -> handleArticleClick(article) })
-        navigationPageArticleRecyclerView.adapter = adapter
+        viewBinding.navigationPageArticleRecyclerView.adapter = adapter
         hideLoadingScreen()
     }
 
@@ -165,15 +137,16 @@ class DrawerBodyPdfWithSectionsFragment : Fragment() {
             .load(pdfPagerViewModel.currentPage.value
                 ?.let {
                     storageService.getAbsolutePath(it.pagePdf)
-                }).into(currentPageImageView)
+                }).into(viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage)
 
-        currentPageTitleView.text = pdfPagerViewModel.currentPage.value?.type?.ordinal?.let {
-            resources.getQuantityString(
-                R.plurals.pages,
-                it,
-                pdfPagerViewModel.currentPage.value?.pagina
-            )
-        }
+        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text =
+            pdfPagerViewModel.currentPage.value?.type?.ordinal?.let {
+                resources.getQuantityString(
+                    R.plurals.pages,
+                    it,
+                    pdfPagerViewModel.currentPage.value?.pagina
+                )
+            }
     }
 
     private fun popArticlePagerFragmentIfOpen() {
@@ -186,11 +159,11 @@ class DrawerBodyPdfWithSectionsFragment : Fragment() {
 
     private fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loadingScreenConstraintLayout.apply {
+            viewBinding.pdfDrawerLoadingScreen.root.apply {
                 animate()
                     .alpha(0f)
                     .withEndAction {
-                        this.visibility = View.GONE
+                        visibility = View.GONE
                     }
                     .duration = LOADING_SCREEN_FADE_OUT_TIME
             }
