@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:background="@color/navigation_drawer_pdf_background"
-    tools:context=".ui.pdfViewer.DrawerBodyPdfWithSectionsFragment">
+    android:layout_height="match_parent">
 
     <include
         android:id="@+id/pdf_drawer_loading_screen"
@@ -20,11 +18,16 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
-            android:paddingHorizontal="@dimen/drawer_margin_horizontal"
-            android:paddingVertical="@dimen/drawer_margin_vertical">
+            android:paddingStart="@dimen/drawer_margin_horizontal"
+            android:paddingTop="@dimen/drawer_margin_vertical"
+            android:paddingEnd="@dimen/drawer_margin_horizontal"
+            android:paddingBottom="@dimen/drawer_margin_vertical">
 
             <LinearLayout
+                android:id="@+id/activity_pdf_drawer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -43,78 +46,53 @@
                         app:cardElevation="@dimen/moment_elevation">
 
                         <ImageView
-                            android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
+                            android:id="@+id/activity_pdf_drawer_front_page"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:scaleType="fitXY"
                             tools:ignore="ContentDescription"
                             tools:layout_height="166dp"
-                            tools:layout_width="112dp"
-                            tools:src="@tools:sample/avatars" />
-
+                            tools:layout_width="112dp" />
 
                     </androidx.cardview.widget.CardView>
 
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
+                    android:id="@+id/activity_pdf_drawer_date"
+                    style="@style/TextAppearance.Drawer.Sections.Date"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
                     android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
                     android:layout_weight="0.5"
-                    android:textColor="@color/pdf_section_font"
+                    android:textColor="@color/fragment_drawer_date_text_color"
                     android:textSize="@dimen/fragment_drawer_date_text_size"
-                    android:textStyle="bold"
-                    tools:text="Seite 5" />
+                    tools:text="weekday,\n DD.MM.JJJJ" />
 
             </LinearLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/activity_pdf_drawer_front_page_title"
+                style="@style/TextAppearance.Drawer.PDF.Sections"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_drawer_body_table_of_content_header_margin_top">
-
-                <TextView
-                    android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/table_of_content"
-                    android:textColor="@color/pdf_section_font"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/pdf_section_font"
-                    android:textStyle="italic"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Ausgabe 07/2021" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/fragment_drawer_separator_line_height"
-                android:layout_marginTop="@dimen/fragment_drawer_separator_margin_top"
-                android:background="@color/pdf_section_font" />
+                android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
+                android:textSize="@dimen/fragment_drawer_thumbnail_text_size"
+                tools:text="title of 1st page" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/navigation_page_article_recycler_view"
+                android:id="@+id/navigation_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:listitem="@layout/list_item_pdf_page_with_content" />
+                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                tools:listitem="@layout/view_pdf_drawer_item"
+                tools:spanCount="2" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

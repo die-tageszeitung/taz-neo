@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="@dimen/list_item_pdf_page_with_content_padding"
+    tools:context=".ui.pdfViewer.PageWithArticlesAdapter">
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/preview_page_card"
+        android:layout_width="@dimen/list_item_pdf_page_with_content_card_width"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
+        app:cardBackgroundColor="@color/pdf_drawer_card_background"
+        app:cardElevation="@dimen/moment_elevation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/preview_page_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="ContentDescription"
+            tools:layout_height="111dp"
+            tools:layout_width="75dp"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/toc_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/list_item_pdf_page_with_content_toc_margin_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/preview_page_card"
+        app:layout_constraintTop_toTopOf="@id/preview_page_card"
+        tools:listitem="@layout/list_item_pdf_page_toc" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

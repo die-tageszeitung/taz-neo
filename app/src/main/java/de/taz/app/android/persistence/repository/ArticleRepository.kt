@@ -57,12 +57,16 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         // save authors
         articleToSave.authorList.forEachIndexed { index, author ->
-            author.imageAuthor?.let {
-                fileEntryRepository.save(it)
-                appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                    ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
+//            TODO(peter) Check if it's okay to not have an image of author
+            author.imageAuthor?.let { fileEntryRepository.save(it) }
+            appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                ArticleAuthorImageJoin(
+                    articleFileName,
+                    author.name,
+                    author.imageAuthor?.name,
+                    index
                 )
-            }
+            )
         }
     }
 

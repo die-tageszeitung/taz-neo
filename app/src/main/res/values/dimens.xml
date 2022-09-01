@@ -25,6 +25,16 @@
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
 
+    <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
+    <dimen name="fragment_drawer_separator_margin_top">4dp</dimen>
+
+    <dimen name="list_item_pdf_page_with_content_padding">8dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_card_width">75dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_toc_margin_start">14dp</dimen>
+
+
+    <dimen name="list_item_pdf_page_toc_margin_bottom">20dp</dimen>
+
     <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_x">-5dp</dimen>
     <dimen name="drawer_logo_translation_y">40dp</dimen>
@@ -190,7 +200,7 @@
     <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
     <dimen name="search_advanced_title_margin_bottom">-2dp</dimen>
     <dimen name="search_advanced_text_size">18sp</dimen>
-    
+
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">68dp</dimen>
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
