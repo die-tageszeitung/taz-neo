@@ -128,11 +128,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * @param password - the password of the user
      * @return [AuthTokenInfo] indicating if authentication has been successful and with token if successful
      */
+    // TODO only return authTokenInfo again once elapsed trialSubscription login returns token
     suspend fun authenticate(user: String, password: String): AuthTokenInfo? {
         val tag = "authenticate"
         log.debug("$tag username: $user")
 
-        return transformToConnectivityException {
+        val data = transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(
@@ -140,8 +141,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     password = password,
                     deviceFormat = deviceFormat
                 )
-            ).data?.authentificationToken
+            ).data
         }
+
+        return data?.authentificationToken
     }
 
     /**
@@ -694,6 +697,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             country,
             message,
             requestCurrentSubscriptionOpportunities,
+            deviceFormat = deviceFormat
         )
         log.debug("call graphql  $tag with variables: $variables")
         return transformToConnectivityException {
@@ -701,6 +705,19 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.SubscriptionFormData,
                 variables
             ).data?.subscription
+        }
+    }
+    /**
+     * function to get the customer type
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getCustomerType(): CustomerType? {
+        val tag = "customerInfo"
+        log.debug("call graphql  $tag")
+        return transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.CustomerInfo
+            ).data?.customerInfo?.customerType
         }
     }
 }

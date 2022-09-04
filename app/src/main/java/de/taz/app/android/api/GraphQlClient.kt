@@ -9,20 +9,18 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.variables.Variables
+import de.taz.app.android.data.HTTP_CLIENT_ENGINE
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import kotlinx.coroutines.withContext
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
@@ -32,7 +30,7 @@ import io.ktor.serialization.kotlinx.json.*
  */
 @Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
-    private val httpClient: HttpClient = HttpClient(CIO) {
+    private val httpClient: HttpClient = HttpClient(HTTP_CLIENT_ENGINE) {
         install(ContentNegotiation) {
             json(Json)
             serialization(ContentType.Any, Json)
@@ -108,6 +106,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
             // only update if it changes
             if (authHelper.status.get() != it.status) {
                 authHelper.status.set(it.status)
+                authHelper.elapsedDateMessage.set(it.message ?: "")
             }
         }
         return wrapper

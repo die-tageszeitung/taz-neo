@@ -56,7 +56,7 @@ class NamesMissingFragment : LoginBaseFragment<FragmentLoginMissingNamesBinding>
         if (somethingWrong) {
             return
         } else {
-            viewModel.getTrialSubscriptionForExistingCredentials(viewModel.status.value)
+            viewModel.status.value?.let { viewModel.getTrialSubscriptionForExistingCredentials(it) }
         }
     }
 

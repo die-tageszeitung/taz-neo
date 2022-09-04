@@ -1,177 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_extend_nested_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:paddingBottom="@dimen/fragment_login_padding_to_navbar"
     app:statusBarBackground="@android:color/transparent">
-    
-    <TextView
-        android:id="@+id/fragment_extend_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
-        android:text="@string/fragment_extend_title"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.Settings.Category" />
 
-    <TextView
-        android:id="@+id/fragment_extend_description"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_title"
-        android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
-        android:text="@string/fragment_extend_description"
-        android:textAlignment="center" />
+        android:layout_marginTop="@dimen/fragment_login_padding_top"
+        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
+        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
 
-    <TextView
-        android:id="@+id/fragment_extend_email_aboID_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_description"
-        android:layout_marginTop="@dimen/fragment_login_description_margin_bottom"
-        android:labelFor="@id/fragment_extend_email_aboID"
-        android:text="@string/fragment_extend_email_aboID_title" />
+        <TextView
+            android:id="@+id/fragment_extend_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/appFontRegular"
+            android:text="@string/fragment_extend_title"
+            android:textAppearance="@style/TextAppearance.Settings.Category"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/fragment_extend_email_aboID"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_email_aboID_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_surname" />
+        <TextView
+            android:id="@+id/fragment_extend_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
+            android:text="@string/fragment_extend_description"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_title" />
 
-    <TextView
-        android:id="@+id/fragment_extend_surname_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_email_aboID"
-        android:labelFor="@id/fragment_extend_surname"
-        android:text="@string/fragment_extend_surname_title" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_email_aboID_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_description_input_margin"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_description">
 
-    <EditText
-        android:id="@+id/fragment_extend_surname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_surname_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_first_name" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_email_aboID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_email_aboID_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_surname" />
 
-    <TextView
-        android:id="@+id/fragment_extend_first_name_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_surname"
-        android:labelFor="@id/fragment_extend_first_name"
-        android:text="@string/fragment_extend_first_name_title" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/fragment_extend_first_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_first_name_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_address_street" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_surname_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_aboID_layout">
 
-    <TextView
-        android:id="@+id/fragment_extend_address_street_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_first_name"
-        android:labelFor="@id/fragment_extend_address_street"
-        android:text="@string/fragment_extend_address_street_title" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_surname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_surname_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_first_name" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/fragment_extend_address_street"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_street_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_address_city" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_first_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_surname_layout">
 
-    <TextView
-        android:id="@+id/fragment_extend_address_city_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_street"
-        android:labelFor="@id/fragment_extend_address_city"
-        android:text="@string/fragment_extend_address_city_title" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_first_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_first_name_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_address_street" />
 
-    <EditText
-        android:id="@+id/fragment_extend_address_city"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_city_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_address_zipcode" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <TextView
-        android:id="@+id/fragment_extend_address_zipcode_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_city"
-        android:labelFor="@id/fragment_extend_address_zipcode"
-        android:text="@string/fragment_extend_address_zipcode_title" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_address_street_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_first_name_layout">
 
-    <EditText
-        android:id="@+id/fragment_extend_address_zipcode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_zipcode_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_address_country" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_address_street"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_address_street_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_address_city" />
 
-    <TextView
-        android:id="@+id/fragment_extend_address_country_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_zipcode"
-        android:labelFor="@id/fragment_extend_address_country"
-        android:text="@string/fragment_extend_address_country_title" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/fragment_extend_address_country"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_country_title"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:nextFocusForward="@id/fragment_extend_message" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_address_city_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_street_layout">
 
-    <TextView
-        android:id="@+id/fragment_extend_message_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_address_country"
-        android:labelFor="@id/fragment_extend_message"
-        android:text="@string/fragment_extend_message_title" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_address_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_address_city_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_address_zipcode" />
 
-    <EditText
-        android:id="@+id/fragment_extend_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_message_title"
-        android:imeOptions="actionDone"
-        android:inputType="textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/fragment_extend_send_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/fragment_extend_message"
-        android:layout_marginTop="@dimen/login_button_margin_top"
-        android:text="@string/fragment_extend_send_button" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_address_zipcode_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_city_layout">
 
-    <include
-        android:id="@+id/loading_screen"
-        layout="@layout/include_loading_screen"
-        android:visibility="gone" />
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_address_zipcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_address_zipcode_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_address_country" />
 
-</RelativeLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_address_country_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_zipcode_layout">
+
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_address_country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_address_country_title"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_message" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_message_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country_layout">
+
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_message_title"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fragment_extend_send_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            android:text="@string/fragment_extend_send_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_message_layout"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+        <include
+            android:id="@+id/loading_screen"
+            layout="@layout/include_loading_screen"
+            android:visibility="gone" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

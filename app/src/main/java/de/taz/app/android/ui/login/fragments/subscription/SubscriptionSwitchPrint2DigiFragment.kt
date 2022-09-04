@@ -1,7 +1,9 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -39,8 +41,9 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             val message = viewBinding.fragmentSwitchMessage.text.toString().trim()
 
             val necessaryCredentialsPresent =
-                surname.isNotEmpty() && firstname.isNotEmpty() && addressStreetNr.isNotEmpty()
-                        && addressZipCode.isNotEmpty() && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
+                emailOrAboID.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
+                        && addressStreetNr.isNotEmpty() && addressZipCode.isNotEmpty()
+                        && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
 
             if (necessaryCredentialsPresent) {
                 sendSwitchPrint2DigiForm(
@@ -55,6 +58,9 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 )
             }
             else {
+                if (emailOrAboID.isEmpty()) {
+                    viewBinding.fragmentSwitchEmailAboID.error = requireContext().getString(R.string.login_email_aboid_error_empty)
+                }
                 if (surname.isEmpty()) {
                     viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
                 }
@@ -77,6 +83,14 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             }
         }
 
+        viewBinding.fragmentSwitchNestedScrollView.setOnTouchListener(object :
+            View.OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                hideKeyBoard()
+                return false
+            }
+        })
     }
 
 
@@ -103,7 +117,7 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 message,
                 false
             )
-            toastHelper.showToast(R.string.fragment_switch_send_success_toast)
+            toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long=true)
         }
         requireActivity().finish()
     }

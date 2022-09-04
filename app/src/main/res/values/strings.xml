@@ -13,17 +13,15 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
-    <string name="popup_login_elapsed_header">Abonnement abgelaufen</string>
-    <string name="popup_login_elapsed_text">
-        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
-        Sie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        Klicken Sie auf Bestellen um ein kostenpflichtiges Abo abzuschließen.
-        Bei Fragen wenden Sie sich an unseren Service unter:
-    </string>
-    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
+    <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
+    <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>
+    <string name="popup_login_elapsed_text">Wir haben Ihnen zum Ablauf Ihres %s Informationen zu unseren Abonnements an Ihre E-Mail-Adresse zugesandt.\n\nFalls Sie diese E-Mail nicht finden können, oder weitere Fragen haben, können Sie jetzt einfach unserem Service-Team eine Nachricht zusenden.\n\nFür weitere Fragen wenden Sie sich bitte an unseren Service unter: <a href="mailto:fragen@taz.de">fragen@taz.de</a></string>
+    <string name="popup_login_elapsed_message_to_abo">Ihre Nachricht</string>
+    <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo-Möglichkeiten</string>
+    <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
-    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer Email-Adresse ein.</string>
+    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer E-Mail-Adresse ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
@@ -66,7 +64,7 @@
     <string name="order_button">Bestellen</string>
     <string name="order_with_costs_button">kostenpflichtig Bestellen</string>
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
-    <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per Email um Bestätigung gebeten. Sollten Sie diese Email nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
+    <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per E-Mail um Bestätigung gebeten. Sollten Sie diese E-Mail nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer:in sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
     <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
@@ -107,7 +105,8 @@
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
-    <string name="settings_account_elapsed"><u>abgelaufen</u></string>
+    <string name="settings_account_elapsed">&lt;u>abgelaufen&lt;/u></string>
+    <string name="settings_account_elapsed_on">&lt;u>seit %s abgelaufen&lt;/u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
@@ -117,10 +116,7 @@
     <string name="settings_faq"><u>FAQ</u></string>
     <string name="settings_reset_app"><u>App in Auslieferungszustand zurücksetzen</u></string>
     <string name="settings_reset_app_dialog_title">Sind Sie sicher?</string>
-    <string name="settings_reset_app_dialog_message">Alle Daten werden zurückgesetzt.
-        \nDas heißt, Sie müssen sich auch neu anmelden.
-        \nWenn Sie auf zurücksetzen klicken wird die App geschlossen.
-    </string>
+    <string name="settings_reset_app_dialog_message">Alle Daten werden zurückgesetzt.\nDas heißt, Sie müssen sich auch neu anmelden.\nWenn Sie auf zurücksetzen klicken wird die App geschlossen.</string>
     <string name="settings_reset_app_dialog_positive_button">Zurücksetzen</string>
     <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
     <string name="settings_terms"><u>AGB</u></string>
@@ -152,14 +148,14 @@
 
     <string name="settings_dialog_cancellation_are_you_sure_title">Möchten Sie Ihr Konto wirklich löschen?</string>
     <string name="settings_dialog_cancellation_taz_id_title">Website zum Löschen Ihres Kontos aufrufen?</string>
-    <string name="settings_dialog_cancellation_not_possible">Sie verwenden kein selbst erstelltes Konto. Sie können dieses Konto nicht löschen.\n\nBei weiteren Fragen wenden Sie sich bitte an den Service unter app@taz.de.</string>
+    <string name="settings_dialog_cancellation_not_possible">Sie verwenden kein selbst erstelltes Konto. Sie können dieses Konto nicht löschen.\n\nBei weiteren Fragen wenden Sie sich bitte an den Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
     <string name="settings_dialog_cancellation_direct">Diese Aktion kann nicht rückgängig gemacht werden. Sie können keine weiteren Ausgaben herunterladen.</string>
     <string name="settings_dialog_cancellation_try_later_offline_toast">Etwas unerwartetes ist passiert. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es später erneut.</string>
     <string name="settings_dialog_cancellation_already_canceled_title">Konto gelöscht</string>
     <string name="settings_dialog_cancellation_already_canceled_description">Ihr Konto wurde bereits zur Löschung vorgemerkt. Die Bearbeitung erfolgt normalerweise innerhalb eines Arbeitstages.\n\nWenn Ihr Konto endgültig gelöscht ist, werden Sie automatisch abgemeldet. Heruntergeladene Ausgaben können Sie weiterhin lesen.</string>
     <string name="settings_dialog_cancellation_open_website">Webseite öffnen</string>
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
-    <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter app@taz.de.</string>
+    <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
 
     <string name="settings_dialog_notifications_must_be_enabled_title">Benachrichtigungen müssen für die App erlaubt sein</string>
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
@@ -176,7 +172,7 @@
     <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
-    <string name="fragment_error_report_email_title">Ihre Email-Adresse</string>
+    <string name="fragment_error_report_email_title">Ihre E-Mail-Adresse</string>
     <string name="fragment_error_report_email_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="fragment_error_report_message_title">Ihre Nachricht</string>
     <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
@@ -198,18 +194,19 @@
     <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
 
     <string name="fragment_login_title">Anmeldung</string>
-    <string name="fragment_login_description">Bitte melden Sie sich an um weiterzulesen.</string>
+    <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
+    <string name="fragment_login_description">Anmeldung für Digital-Abonnent:innen</string>
     <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.\n\nWenn Sie bereits mit einer E-Mail-Adresse und Passwort bei der taz registriert sind, geben Sie sie bitte zur Anmeldung hier ein.</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
-    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Lesern in verschiedenen Abomodellen lesen.</string>
-    <string name="login_trial_subscription_button_text">Hier zum kostenlosen Probeabo</string>
-    <string name="login_switch_print2digi_title">Switch!\n von Print zu Digital</string>
-    <string name="login_switch_print2digi_body">auf in die zukunft! taz wird digital. machen Sie es wie weitere 45.000 digitale Leser. Seien sie überall immer mit uns.</string>
-    <string name="login_switch_print2digi_button_text">KOSTENLOS AUF DIGITAL UMSTEIGEN</string>
-    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print\n und möchten diese um Digital erweitern?</string>
-    <string name="login_extend_print_with_digi_body">Kein Problem - lassen Sie einfach zu Ihrem PrintAbo die digitale Erweiterung freischalten!</string>
-    <string name="login_extend_print_with_digi_button_text">JETZT DIGITAL FREISCHALTEN</string>
+    <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Leser:innen in verschiedenen Abo-Modellen lesen.</string>
+    <string name="login_trial_subscription_button_text">Jetzt kostenlos testen</string>
+    <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
+    <string name="login_switch_print2digi_body">Sie haben ein Print-Abo und wollen nur noch digital lesen? Auf in die Zukunft! taz wird digital. Machen Sie es wie weitere 45.000 digitale Leser:innen.\nWie es geht? Kontaktieren Sie unser Service-Team.</string>
+    <string name="login_switch_print2digi_button_text">Jetzt informieren</string>
+    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
+    <string name="login_extend_print_with_digi_body">Kein Problem — kontaktieren Sie unser Service-Team.</string>
+    <string name="login_extend_print_with_digi_button_text">Jetzt Infos anfordern</string>
 
     <string name="login_first_name_helper">Mit dem Nachnamen max 24 Zeichen.</string>
     <string name="login_first_name_hint">Vorname</string>
@@ -236,6 +233,7 @@
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
+    <string name="login_email_aboid_error_empty">E-Mail-Adresse oder Abo-Nummer darf nicht leer sein.</string>
 
     <string name="login_comment_hint">Bemerkung</string>
 
@@ -249,27 +247,12 @@
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
 
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
-    <string name="fragment_subscription_trial_only_title">kostenloses Probeabo</string>
-    <string name="fragment_subscription_trial_only_description">
-        Testen Sie uns für 6 Wochen!
-        \nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.
-        \nAber wir haben etwas für Sie: Testen sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.
-        \nFalls Sie gleich das Abo wollen, können sie aber auch unter www.taz.de/abo
-        \neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!
-    </string>
-    <string name="fragment_subscription_trial_only_description_elapsed">
-        Ihr kostenloses Probeabo ist abgelaufen, sie können über taz.de ein kostenpflichtiges Abo abschließen.
-        \nVor einigen Tagen sollten Sie eine Email-Benachrichtigung mit weiteren Informationen  bekommen haben.
-    </string>
+    <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
+    <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen Sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können Sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
+    <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
 
-    <string name="popup_login_elapsed_text_non_free">
-        Es tut uns leid aber Ihr Abo ist leider abgelaufen.
-        \nSie haben weiterhin Zugriff auf die heruntergeladenen Ausgaben.
-        \nSie müssen Ihr Abo über www.taz.de/abo verlängern, vor einigen Tagen sollten Sie eine Email-Benachrichtigung bekommen haben.
-        \nBei Fragen wenden Sie sich an unseren Service unter:
-    </string>
     <string name="fragment_subscription_bank_title">Bankdaten</string>
-    <string name="fragment_subscription_bank_description"> Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich. </string>
+    <string name="fragment_subscription_bank_description">Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich.</string>
 
     <string name="street_hint">Straße/Hausnummer</string>
     <string name="postcode_hint">PLZ</string>
@@ -279,7 +262,7 @@
 
     <string name="iban_hint">IBAN</string>
     <string name="iban_error_invalid">Die IBAN ist ungültig.</string>
-    <string name="iban_error_empty">Bitte geben sie Ihre IBAN an.</string>
+    <string name="iban_error_empty">Bitte geben Sie Ihre IBAN an.</string>
     <string name="iban_error_no_sepa">SEPA leider nicht verfügbar.</string>
 
     <string name="street_error_empty">Adresse wird benötigt.</string>
@@ -287,8 +270,8 @@
     <string name="postcode_error_empty">Adresse wird benötigt.</string>
     <string name="country_error_empty">Adresse wird benötigt.</string>
 
-    <string name="account_holder_helper">Falls abweichend zu Abonnent:In</string>
-    <string name="account_holder_hint">Kontoinhaber:In</string>
+    <string name="account_holder_helper">Falls abweichend zu Abonnent:in</string>
+    <string name="account_holder_hint">Kontoinhaber:in</string>
     <string name="subscription_field_invalid">Enthält nur ungültige Zeichen.</string>
 
     <string name="login_button">Anmelden</string>
@@ -323,7 +306,7 @@
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
     <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
 
-    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer Email-Adresse verknüpft.</string>
+    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer E-Mail-Adresse verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
@@ -332,10 +315,10 @@
 
     <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
 
-    <string name="fragment_login_subscription_taken_header">Das Abo ist bereist mit anderen Digiabo-Zugangsdaten verknüpft.</string>
+    <string name="fragment_login_subscription_taken_header">Das Abo ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
 
-    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine Email senden.\nBitte wenden Sie sich an den Support:</string>
+    <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine E-Mail senden.\nBitte wenden Sie sich an den Support:</string>
     <string name="fragment_login_taz_mail">app@taz.de</string>
     <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
 
@@ -343,7 +326,7 @@
     <string name="dialog_try_pdf_title">Entdecken Sie jetzt die Zeitungsansicht</string>
     <string name="dialog_try_pdf_description">Hier können Sie zwischen der mobilen und der Ansicht der Zeitungsseiten wechseln.</string>
 
-    <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler\*innen sind informiert.</string>
+    <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler:innen sind informiert.</string>
 
     <string name="button_close_text">×</string>
 
@@ -360,7 +343,7 @@
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
-    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen sie ein Abo ab.</string>
+    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
@@ -375,10 +358,10 @@
     <string name="search_advanced_sort_by">sortierung</string>
     <string name="search_input_hint">taz Archiv durchsuchen</string>
     <string name="search_input_error">Nach was wollen Sie suchen?</string>
-    <string name="search_description">Suche nach Autor*innnen, Artikeln, Rubriken oder Themen</string>
+    <string name="search_description">Suche nach Autor:innnen, Artikeln, Rubriken oder Themen</string>
     <string name="search_filter">Suche filtern</string>
     <string name="search_advanced_title">Titel</string>
-    <string name="search_advanced_author">Autor*in</string>
+    <string name="search_advanced_author">Autor:in</string>
     <string name="search_advanced_radio_timeslot_any">beliebiger Zeitraum</string>
     <string name="search_advanced_radio_timeslot_last_day">letzter Tag</string>
     <string name="search_advanced_radio_timeslot_last_week">letzte 7 Tage</string>
@@ -407,8 +390,8 @@
     <string name="author_list">von %s</string>
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\n Wir kontaktieren Sie so schnell wie möglich mit den Vertragsänderungen.</string>
-    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
+    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
     <string name="fragment_switch_surname_title">Nachname</string>
     <string name="fragment_switch_first_name_title">Vorname</string>
     <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
@@ -417,11 +400,11 @@
     <string name="fragment_switch_address_country_title">Land</string>
     <string name="fragment_switch_message_title">Ihre Nachricht</string>
     <string name="fragment_switch_send_button">Absenden</string>
-    <string name="fragment_switch_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
+    <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an unser Service-Team gesendet</string>
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
-    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\n Wir werden sie dann kontaktieren.</string>
-    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abonummer (wenn vorhanden)</string>
+    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
+    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
     <string name="fragment_extend_surname_title">Nachname</string>
     <string name="fragment_extend_first_name_title">Vorname</string>
     <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>
@@ -430,5 +413,9 @@
     <string name="fragment_extend_address_country_title">Land</string>
     <string name="fragment_extend_message_title">Ihre Nachricht</string>
     <string name="fragment_extend_send_button">Absenden</string>
-    <string name="fragment_extend_send_success_toast">Ihre Anfrage wurde an die Abo-Abteilung gesendet</string>
+
+    <string name="subscription">Abonnement</string>
+    <string name="subscription_genitive">Abos</string>
+    <string name="trial_subscription">Probeabo</string>
+    <string name="trial_subscription_genitive">Probeabos</string>
 </resources>

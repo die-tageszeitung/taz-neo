@@ -1,0 +1,12 @@
+query customerInfo {
+    customerInfo {
+        authInfo {
+            status,
+            message
+        },
+        customerType,
+        subscriptionType,
+        cancellation,
+        sampleType
+    }
+}

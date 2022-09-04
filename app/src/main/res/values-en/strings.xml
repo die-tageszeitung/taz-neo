@@ -12,14 +12,8 @@
 
     <string name="notification_channel_fcm">Breaking news</string>
     <string name="notification_channel_fcm_description">Breaking news like election results</string>
-    <string name="popup_login_elapsed_header">Subscription expired</string>
-    <string name="popup_login_elapsed_text">
-        We are sorry but your subscription has expired.
-        You still have access to the downloaded issues.
-        Click on Order get a paid subscription.
-        If you have any questions, please contact our service department at
-    </string>
-    <string name="popup_login_elapsed_taz_mail_underlined"><u>digiabo@taz.de</u></string>
+    <string name="popup_login_elapsed_header">%s expired on %s</string>
+    <string name="popup_login_elapsed_text">We are sorry but your %s has expired.\nYou still have access to the downloaded issues.\nClick on Order get a paid subscription.\nIf you have any questions, please contact our service department at</string>
 
     <string name="toast_no_internet">No Internet Connection.</string>
     <string name="toast_no_email_client">No configured e-mail client found.</string>
@@ -259,4 +253,8 @@
     <string name="fragment_login_subscription_already_taken_insert_new">Enter different subscription details</string>
     <string name="fragment_login_missing_credentials_help">We want to facilitate the access to our digital services. Therfore we are changing our sign-on procedure. Please enter a valid email address and a password. Afterwards use these credentials to log in.</string>
 
+    <string name="subscription">subscription</string>
+    <string name="subscription_genitive">subscription</string>
+    <string name="trial_subscription">trial subscription</string>
+    <string name="trial_subscription_genitive">trial subscription</string>
 </resources>

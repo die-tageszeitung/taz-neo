@@ -19,6 +19,7 @@ query AuthenticationQuery(
         deviceOS: $deviceOS
     ) {
         token
+        customerType
         authInfo {
             status
             message

@@ -46,27 +46,29 @@
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 
-    <dimen name="fragment_cover_flow_login_button_margin_top">25dp</dimen>
-    <dimen name="fragment_cover_flow_login_button_margin_end">30dp</dimen>
-    <dimen name="fragment_cover_flow_login_button_icon_margin_top">5dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_padding">10dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_margin_top">15dp</dimen>
+    <dimen name="fragment_cover_flow_login_button_margin_end">10dp</dimen>
+    <dimen name="fragment_cover_flow_arrow_margin_start">3dp</dimen>
+    <dimen name="fragment_cover_flow_arrow_translation_y">-3dp</dimen>
 
-    <dimen name="fragment_login_title_margin_top">45dp</dimen>
     <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
     <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
     <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
     <dimen name="fragment_login_text_link_padding_bottom">10dp</dimen>
+    <dimen name="login_description_text_size">20sp</dimen>
+    <dimen name="login_username_margin_top">45dp</dimen>
     <dimen name="login_separator_line_margin_vertical">10dp</dimen>
     <dimen name="login_box_margin_vertical">20dp</dimen>
     <dimen name="login_box_title_text_size">20sp</dimen>
     <dimen name="login_box_content_margin_vertical">5dp</dimen>
     <dimen name="login_box_button_margin_vertical">10dp</dimen>
     <dimen name="login_box_separator_line_height">0.5dp</dimen>
-    <!-- navbar_height=52dp + 10dp-->
-    <dimen name="fragment_login_padding_to_navbar">62dp</dimen>
+
+    <dimen name="fragment_login_padding_top">45dp</dimen>
+    <dimen name="fragment_login_padding_bottom">10dp</dimen>
 
     <dimen name="fragment_subscription_trial_only_margin_top">30dp</dimen>
-
-    <dimen name="login_button_margin_top">7dp</dimen>
 
     <dimen name="fragment_article_read_on_description_margin_bottom">30dp</dimen>
     <dimen name="fragment_article_read_on_description_margin_top">10dp</dimen>
@@ -131,6 +133,7 @@
     <dimen name="bottom_sheet_setting_padding_horizontal">20dp</dimen>
     <dimen name="bottom_sheet_setting_padding_horizontal_switch">10dp</dimen>
     <dimen name="bottom_sheet_setting_padding_vertical">20dp</dimen>
+    <dimen name="bottom_sheet_setting_text_box_margin_top">7dp</dimen>
 
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
     <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
@@ -211,5 +214,13 @@
     <!--    special dimens -->
     <!--    dimen equals to match_parent (see https://stackoverflow.com/questions/16478808/value-equals-to-match-parent-or-fill-parent-in-dimens-xml) -->
     <dimen name="custom_match_parent">-1px</dimen>
+
+    <dimen name="bottom_sheet_round_padding_top">18dp</dimen>
+    <dimen name="bottom_sheet_round_padding_horizontal">18dp</dimen>
+    <dimen name="bottom_sheet_round_padding_bottom">24dp</dimen>
+    <dimen name="bottom_sheet_round_corner_radius">16dp</dimen>
+
+    <dimen name="login_action_button_margin_vertical">7dp</dimen>
+    <dimen name="login_description_input_margin">10dp</dimen>
 
 </resources>

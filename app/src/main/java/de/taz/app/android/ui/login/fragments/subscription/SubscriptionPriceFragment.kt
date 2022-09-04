@@ -15,8 +15,6 @@ import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.databinding.FragmentSubscriptionPriceBinding
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginViewModelState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 

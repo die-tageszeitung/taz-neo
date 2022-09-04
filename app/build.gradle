@@ -23,6 +23,10 @@ file("../keystore.properties").with { propFile ->
     }
 }
 
+
+// Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
+// The configuration is part of the secret bundle downloaded by the gitlab ci pipeline.
+// The plugin provides the publishNonfreeTazProductionReleaseBundle gradle task called from the ci
 play {
     track.set('internal')
     serviceAccountCredentials.set(file('../play-publish.json'))
@@ -345,7 +349,10 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
-    implementation "io.ktor:ktor-client-cio:$ktor_version"
+    implementation "io.ktor:ktor-client-android:$ktor_version"
+    implementation ("io.ktor:ktor-network-jvm:$ktor_version") {
+        because "We use io.ktor.network.sockets.SocketTimeoutException on ConnectivityException which is only defined on this module"
+    }
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"

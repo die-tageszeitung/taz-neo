@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <bool name="isTablet">false</bool>
     <declare-styleable name="CoverView">
         <attr name="archive_item_padding" format="dimension" />
         <attr name="archive_item_text_color" format="color" />
@@ -10,9 +9,4 @@
     <declare-styleable name="DottedLineView">
         <attr name="color" format="color" />
     </declare-styleable>
-    <integer name="text_default_size">100</integer>
-    <fraction name="nav_button_scale_factor">33%</fraction>
-    <item name="match_parent" type="dimen">-1</item>
-    <fraction name="cover_width_screen_factor">75%</fraction>
-    <fraction name="cover_scale_factor">80%</fraction>
 </resources>

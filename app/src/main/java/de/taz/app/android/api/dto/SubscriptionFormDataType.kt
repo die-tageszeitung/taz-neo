@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 enum class SubscriptionFormDataType {
     expiredDigiPrint,
     trialSubscription,
-    expiredDigilSubscription,
+    expiredDigiSubscription,
     print2Digi,
     printPlusDigi,
     weekendPlusDigi,

@@ -12,10 +12,7 @@ import androidx.lifecycle.map
 import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
@@ -26,6 +23,7 @@ import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
@@ -38,6 +36,7 @@ private const val PREFERENCES_AUTH_POLL = "poll"
 private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
+private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
 // endregion
 
 
@@ -90,6 +89,10 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INSTALLATION_ID), ""
     )
 
+    val elapsedDateMessage = SimpleDataStoreEntry(
+        dataStore, stringPreferencesKey(PREFERENCES_AUTH_INFO_MESSAGE), ""
+    )
+
     final val status = MappingDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_STATUS), AuthStatus.notValid,
         { authStatus -> authStatus.name }, { string -> AuthStatus.valueOf(string) }
@@ -100,6 +103,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     )
 
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
+    val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
+
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid || status.get() == AuthStatus.elapsed
 
@@ -115,9 +120,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
                 when (authStatus) {
-                    AuthStatus.elapsed -> {
-                        toastHelper.showToast(R.string.toast_logout_elapsed)
-                    }
                     AuthStatus.notValid -> {
                         elapsedButWaiting.set(false)
                         toastHelper.showToast(R.string.toast_logout_invalid)

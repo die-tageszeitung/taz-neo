@@ -4,19 +4,25 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -60,7 +66,7 @@ class IssueViewerActivity : AppCompatActivity() {
         if (fragment.onBackPressed()) {
             return
         }
-        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
         super.onBackPressed()
     }
 
@@ -71,7 +77,7 @@ class IssueViewerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        setBottomNavigationBackActivity(null,  BottomNavigationItem.Home)
+        setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
     }
 
 }
@@ -112,6 +118,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             )
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -139,6 +146,20 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                     )
                 } else {
                     issueViewerViewModel.setDisplayable(issue.issueKey, loadIssue = true)
+                }
+            }
+
+            // show bottom sheet  if  user's subscription is elapsed and the issue status is public
+            lifecycleScope.launch {
+                val subscriptionElapsed =
+                    issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
+                val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                    .mapNotNull { it }.first().issueKey
+                if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+                    SubscriptionElapsedBottomSheetFragment().show(
+                        childFragmentManager,
+                        "showSubscriptionElapsed"
+                    )
                 }
             }
         }
