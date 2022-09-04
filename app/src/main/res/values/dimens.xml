@@ -22,6 +22,7 @@
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
     <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
+    <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
 
@@ -205,5 +206,10 @@
     <dimen name="fab_margin_bottom">68dp</dimen>
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
+
+
+    <!--    special dimens -->
+    <!--    dimen equals to match_parent (see https://stackoverflow.com/questions/16478808/value-equals-to-match-parent-or-fill-parent-in-dimens-xml) -->
+    <dimen name="custom_match_parent">-1px</dimen>
 
 </resources>

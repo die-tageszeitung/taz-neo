@@ -1,0 +1,7 @@
+<resources>
+    <dimen name="drawer_width">@dimen/custom_match_parent</dimen>
+    <!--    For more explanation about this value see
+    https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:drawerlayout/drawerlayout/src/main/java/androidx/drawerlayout/widget/DrawerLayout.java;l=170?q=DrawerLayout
+    https://stackoverflow.com/questions/16754305/full-width-navigation-drawer -->
+    <dimen name="negated_min_drawer_width">-64dp</dimen>
+</resources>
