@@ -73,15 +73,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                         onRefresh()
                         val end = Date().time
                         // show animation at least 1000 ms so it looks smoother
-                        if (end - start < 1000) {
-                            delay(1000 - (end - start))
-                        }
+                        delay(1000L - (end - start))
                         hideRefreshLoadingIcon()
                     }
                 }
                 reduceDragSensitivity(10)
             }
-            coverflowRefreshLayout.reduceDragSensitivity(10)
 
             fabActionPdf.setOnClickListener {
                 homePageViewModel.togglePdfMode()

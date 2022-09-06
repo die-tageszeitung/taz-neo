@@ -174,6 +174,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             this.doubleBackToExitPressedOnce = true
             toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
+            // FIXME (johannes): Use coroutines instead of the Looper for uniformity
             Handler(Looper.getMainLooper()).postDelayed({
                 doubleBackToExitPressedOnce = false
             }, 2000)
