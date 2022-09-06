@@ -148,20 +148,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                     issueViewerViewModel.setDisplayable(issue.issueKey, loadIssue = true)
                 }
             }
-
-            // show bottom sheet  if  user's subscription is elapsed and the issue status is public
-            lifecycleScope.launch {
-                val subscriptionElapsed =
-                    issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
-                val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                    .mapNotNull { it }.first().issueKey
-                if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
-                    SubscriptionElapsedBottomSheetFragment().show(
-                        childFragmentManager,
-                        "showSubscriptionElapsed"
-                    )
-                }
-            }
+            checkElapsedAndShowBottomSheet()
         }
 
         // show an error if downloading the metadata, the issue, or another file fails
@@ -169,8 +156,31 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             .filter { isError -> isError }
             .asLiveData()
             .observe(this) {
+                checkElapsedAndShowBottomSheet(
+                    showDownloadFailedDialogOnNotElapsed = true
+                )
+            }
+    }
+
+    /**
+     * Show bottom sheet if user's subscription is elapsed and the issue status is public.
+     * @param showDownloadFailedDialogOnNotElapsed Set true will show generic [showIssueDownloadFailedDialog].
+     */
+    private fun checkElapsedAndShowBottomSheet(showDownloadFailedDialogOnNotElapsed: Boolean = false) {
+        lifecycleScope.launch {
+            val subscriptionElapsed =
+                issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
+            val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                .mapNotNull { it }.first().issueKey
+            if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+                SubscriptionElapsedBottomSheetFragment().show(
+                    childFragmentManager,
+                    "showSubscriptionElapsed"
+                )
+            } else if (showDownloadFailedDialogOnNotElapsed) {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
+        }
     }
 
 }
