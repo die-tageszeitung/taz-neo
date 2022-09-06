@@ -10,31 +10,30 @@ import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.main.MainActivity
 
 abstract class StartupActivity : AppCompatActivity() {
-    private val generalDataStore by lazy {
-        GeneralDataStore.getInstance(applicationContext)
-    }
 
     protected suspend fun startActualApp() {
-        if (isDataPolicyAccepted()) {
-            if (hasSeenWelcomeScreen()) {
-                val intent = Intent(this, WelcomeActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                intent.putExtra(START_HOME_ACTIVITY, true)
-                startActivity(intent)
-            } else {
+        val generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        val isDataPolicyAccepted = generalDataStore.dataPolicyAccepted.get()
+        val hasSeenWelcomeScreen = generalDataStore.hasSeenWelcomeScreen.get()
+
+        when {
+            isDataPolicyAccepted && hasSeenWelcomeScreen ->
                 MainActivity.start(this, Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            }
-        } else {
-            val intent = Intent(this, DataPolicyActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            startActivity(intent)
+
+            isDataPolicyAccepted && !hasSeenWelcomeScreen ->
+                Intent(this, WelcomeActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    putExtra(START_HOME_ACTIVITY, true)
+                    startActivity(this)
+                }
+
+            else ->
+                Intent(this, DataPolicyActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                    startActivity(this)
+                }
         }
     }
-
-    private suspend fun isDataPolicyAccepted(): Boolean =
-        generalDataStore.dataPolicyAccepted.get()
-
-    private suspend fun hasSeenWelcomeScreen(): Boolean = !generalDataStore.hasSeenWelcomeScreen.get()
 
     protected val applicationScope by lazy {
         (application as TazApplication).applicationScope
