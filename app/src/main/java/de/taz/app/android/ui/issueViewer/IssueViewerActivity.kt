@@ -163,8 +163,8 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
     }
 
     /**
-     * show bottom sheet  if  user's subscription is elapsed and the issue status is public
-     * @param showDownloadFailedDialogOnNotElapsed set true will show generic [showIssueDownloadFailedDialog]
+     * Show bottom sheet if user's subscription is elapsed and the issue status is public.
+     * @param showDownloadFailedDialogOnNotElapsed Set true will show generic [showIssueDownloadFailedDialog].
      */
     private fun checkElapsedAndShowBottomSheet(showDownloadFailedDialogOnNotElapsed: Boolean = false) {
         lifecycleScope.launch {
