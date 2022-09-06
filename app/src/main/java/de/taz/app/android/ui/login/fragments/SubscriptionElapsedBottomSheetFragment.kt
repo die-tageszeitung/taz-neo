@@ -40,9 +40,6 @@ class SubscriptionElapsedBottomSheetFragment :
         if (isLandscape) {
             behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
-        else {
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
     }
 
     override fun onAttach(context: Context) {
