@@ -98,11 +98,17 @@
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+                  The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_account_elapsed">&lt;u>abgelaufen&lt;/u></string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_account_elapsed_on">&lt;u>seit %s abgelaufen&lt;/u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
     <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
     <string name="settings_category_support">Hilfe</string>
