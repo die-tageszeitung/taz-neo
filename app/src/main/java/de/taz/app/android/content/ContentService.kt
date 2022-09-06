@@ -3,14 +3,17 @@ package de.taz.app.android.content
 import android.content.Context
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.*
+import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
@@ -37,6 +40,8 @@ class ContentService(
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
+    private val apiService = ApiService.getInstance(applicationContext)
+    private val feedRepository = FeedRepository.getInstance(applicationContext)
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
@@ -223,5 +228,57 @@ class ContentService(
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
         IssueDeletion.prepare(applicationContext, issuePublication)
             .execute()
+    }
+
+    /**
+     * Get the [Feed] by name.
+     * @param allowCache Boolean determining if cache is allowed
+     * @param retryOnFailure if true, feed is fetched from [ApiService]
+     */
+    suspend fun getFeedByName(
+        name: String,
+        allowCache: Boolean = true,
+        retryOnFailure: Boolean = false
+    ): Feed? {
+        if (allowCache) {
+            feedRepository.get(name)?.let {
+                return it
+            }
+        }
+        val feed = if (retryOnFailure) {
+            apiService.retryOnConnectionFailure {
+                apiService.getFeedByName(name)
+            }
+        } else {
+            apiService.getFeedByName(name)
+        }
+        feed?.let {
+            feedRepository.save(feed)
+        }
+        return feed
+    }
+
+
+    /**
+     * Refresh the the Feed with [feedName] and return an [Issue] if a new issue date was detected
+     * @param feedName to refresh
+     */
+    suspend fun refreshFeedAndGetIssueKeyIfNew(
+        feedName: String
+    ): IssueKey? {
+        val cachedFeed = getFeedByName(feedName)
+        val refreshedFeed = getFeedByName(feedName, allowCache = false)
+
+        val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
+        val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)
+
+        return if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
+            (downloadMetadata(
+                download = IssuePublication(feedName, simpleDateFormat.format(newestIssueDate)),
+                maxRetries = 3
+            ) as Issue).issueKey
+        } else {
+            null
+        }
     }
 }

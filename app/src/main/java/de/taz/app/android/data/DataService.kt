@@ -36,5 +36,4 @@ class DataService(applicationContext: Context) {
     suspend fun saveLastPageOnIssue(issueKey: IssueKey, pageName: Int) =
         issueRepository.saveLastPagePosition(issueKey, pageName)
 
-
 }
