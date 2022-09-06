@@ -62,9 +62,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                checkIfSubscriptionElapsed()
-                maybeShowTryPdfDialog()
-                maybeShowLoggedOutDialog()
+                if (!checkIfSubscriptionElapsedAndShowBottomSheet()) {
+                    maybeShowTryPdfDialog()
+                    maybeShowLoggedOutDialog()
+                }
             }
         }
 
@@ -89,7 +90,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var loggedOutDialog: AlertDialog? = null
     private suspend fun maybeShowLoggedOutDialog() {
-        if (generalDataStore.pdfMode.get() && !authHelper.isValid()) {
+        if (generalDataStore.pdfMode.get() && !authHelper.isValid() && !authHelper.isElapsed()) {
             loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
                 .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
                 .setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -133,13 +134,23 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         }
     }
 
-    private suspend fun checkIfSubscriptionElapsed() {
+    /**
+     * check if subscription is elapsed,
+     * if the elapsed subscription was NOT already extended (isElapsedButWaiting)
+     * and if the elapsed bottom sheet was NOT already shown (alreadyShown)
+     * then show the bottom sheet
+     * @return true if the bottom sheet was shown
+     */
+    private suspend fun checkIfSubscriptionElapsedAndShowBottomSheet(): Boolean {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
+        return if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
             showSubscriptionElapsedBottomSheet()
             (application as TazApplication).elapsedPopupAlreadyShown = true
+            true
+        } else {
+            false
         }
     }
 
