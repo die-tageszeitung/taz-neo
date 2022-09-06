@@ -19,27 +19,35 @@
         android:paddingTop="@dimen/bottom_sheet_round_padding_top"
         android:paddingBottom="@dimen/bottom_sheet_round_padding_bottom">
 
-        <TextView
-            android:id="@+id/button_close"
-            android:layout_width="@dimen/ic_close_button_size"
-            android:layout_height="@dimen/ic_close_button_size"
-            android:layout_gravity="top|end"
-            android:layout_marginBottom="@dimen/ic_close_button_size"
-            android:background="@drawable/ic_circle"
-            android:backgroundTint="@color/backgroundColor"
-            android:elevation="@dimen/ic_close_button_elevation"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="@string/button_close_text"
-            android:textColor="@color/lightGrey"
-            android:textSize="@dimen/activity_welcome_button_text_size" />
-
-        <TextView
-            android:id="@+id/title"
-            style="@style/TextAppearance.Dialog.Title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_header" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.Dialog.Title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_weight="1"
+                android:text="@string/popup_login_elapsed_header" />
+
+            <TextView
+                android:id="@+id/button_close"
+                android:layout_width="@dimen/ic_close_button_size"
+                android:layout_height="@dimen/ic_close_button_size"
+                android:layout_gravity="top|end"
+                android:layout_marginBottom="@dimen/ic_close_button_size"
+                android:background="@drawable/ic_circle"
+                android:backgroundTint="@color/backgroundColor"
+                android:elevation="@dimen/ic_close_button_elevation"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/button_close_text"
+                android:textColor="@color/lightGrey"
+                android:textSize="@dimen/activity_welcome_button_text_size" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/description"
