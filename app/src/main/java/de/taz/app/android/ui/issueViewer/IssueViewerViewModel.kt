@@ -63,7 +63,7 @@ class IssueViewerViewModel(
         issueDisplayable?.let {
             // persist the last displayable in db
             viewModelScope.launch {
-                dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
+                issueRepository.saveLastDisplayable(it.issueKey, it.displayableKey)
             }
         }
     }
@@ -79,7 +79,7 @@ class IssueViewerViewModel(
             try {
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
-                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: issueRepository.getLastDisplayable(issueKey)
                     ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
                 setDisplayable(
                     IssueKeyWithDisplayableKey(issueKey, displayable)

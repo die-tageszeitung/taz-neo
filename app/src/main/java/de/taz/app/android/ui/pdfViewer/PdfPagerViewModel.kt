@@ -61,7 +61,7 @@ class PdfPagerViewModel(
             // Save current position to database to restore later on
             viewModelScope.launch {
                 issueKey.value?.let {
-                    dataService.saveLastPageOnIssue(
+                    issueRepository.saveLastPagePosition(
                         it.getIssueKey(),
                         position
                     )
