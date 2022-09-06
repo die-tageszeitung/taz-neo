@@ -18,7 +18,6 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
@@ -62,9 +61,16 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (!checkIfSubscriptionElapsedAndShowBottomSheet()) {
-                    maybeShowTryPdfDialog()
-                    maybeShowLoggedOutDialog()
+                val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+                val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+                val isPdfMode = generalDataStore.pdfMode.get()
+                val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
+
+                when {
+                    authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown -> showSubscriptionElapsedBottomSheet()
+                    isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
+                    !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
+                    else -> Unit // do nothing else
                 }
             }
         }
@@ -89,68 +95,43 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private var loggedOutDialog: AlertDialog? = null
-    private suspend fun maybeShowLoggedOutDialog() {
-        if (generalDataStore.pdfMode.get() && !authHelper.isValid() && !authHelper.isElapsed()) {
-            loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
-                .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.login_button) { dialog, _ ->
-                    startActivityForResult(
-                        Intent(this@MainActivity, LoginActivity::class.java),
-                        ACTIVITY_LOGIN_REQUEST_CODE
-                    )
-                    dialog.dismiss()
-                }
-                .create()
+    private suspend fun showLoggedOutDialog() {
+        loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
+            .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.login_button) { dialog, _ ->
+                startActivityForResult(
+                    Intent(this@MainActivity, LoginActivity::class.java),
+                    ACTIVITY_LOGIN_REQUEST_CODE
+                )
+                dialog.dismiss()
+            }
+            .create()
 
-            loggedOutDialog!!.show()
-
-        }
+        loggedOutDialog?.show()
     }
 
     private var tryPdfDialog: AlertDialog? = null
-    private suspend fun maybeShowTryPdfDialog() {
+    private suspend fun showTryPdfDialog() {
         val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
-        if (timesPdfShown < 1) {
-            tryPdfDialog = MaterialAlertDialogBuilder(this)
-                .setView(R.layout.dialog_try_pdf)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    applicationScope.launch(Dispatchers.Main) {
-                        generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                        dialog.dismiss()
-                    }
-                }
-                .create()
-
-            tryPdfDialog?.show()
-            tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
+        tryPdfDialog = MaterialAlertDialogBuilder(this)
+            .setView(R.layout.dialog_try_pdf)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 applicationScope.launch(Dispatchers.Main) {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                    tryPdfDialog?.dismiss()
+                    dialog.dismiss()
                 }
             }
-        }
-    }
+            .create()
 
-    /**
-     * check if subscription is elapsed,
-     * if the elapsed subscription was NOT already extended (isElapsedButWaiting)
-     * and if the elapsed bottom sheet was NOT already shown (alreadyShown)
-     * then show the bottom sheet
-     * @return true if the bottom sheet was shown
-     */
-    private suspend fun checkIfSubscriptionElapsedAndShowBottomSheet(): Boolean {
-        val authStatus = authHelper.status.get()
-        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-        return if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-            showSubscriptionElapsedBottomSheet()
-            (application as TazApplication).elapsedPopupAlreadyShown = true
-            true
-        } else {
-            false
+        tryPdfDialog?.show()
+        tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
+            applicationScope.launch(Dispatchers.Main) {
+                generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
+                tryPdfDialog?.dismiss()
+            }
         }
     }
 
@@ -172,6 +153,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedBottomSheet() {
+        (application as TazApplication).elapsedPopupAlreadyShown = true
         SubscriptionElapsedBottomSheetFragment().show(
             supportFragmentManager,
             "showSubscriptionElapsed"
