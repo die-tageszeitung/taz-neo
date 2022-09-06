@@ -2,8 +2,6 @@ package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
@@ -11,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.WEBVIEW_HTML_FILE
 import de.taz.app.android.base.ViewBindingActivity
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.ActivityWebviewBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
@@ -34,7 +31,6 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
     private var downloadedObserver: Observer<Boolean>? = null
     private var isDownloadedLiveData: LiveData<Boolean>? = null
 
-    private lateinit var dataService: DataService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
 
@@ -47,7 +43,6 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         storageService = StorageService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
-        dataService = DataService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewBinding.apply {

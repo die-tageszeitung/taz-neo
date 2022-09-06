@@ -6,7 +6,7 @@ import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.FeedService
+import de.taz.app.android.data.DataService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.util.NewIssuePollingScheduler
 import kotlinx.coroutines.flow.flowOf
@@ -57,6 +57,31 @@ class IssueDownloadWorkManagerWorkerTest {
     @Test
     fun scheduleDownloadWithoutPoll() = runBlocking {
         whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
+
+        `when`(
+            mockDataService.getFeedByName(
+                anyOrNull(),
+                eq(false),
+                eq(false)
+            )
+        ).thenReturn(
+            newFeedMock
+        )
+
+        `when`(
+            mockApiService.getIssueByPublication(anyOrNull())
+        ).thenReturn(
+            TestDataUtil.getIssue()
+        )
+
+        `when`(
+            mockApiService.getMomentByFeedAndDate(
+                anyOrNull(),
+                anyOrNull()
+            )
+        ).thenReturn(
+            Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
+        )
 
         val worker = TestListenableWorkerBuilder<IssueDownloadWorkManagerWorker>(
             context = context,

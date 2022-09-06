@@ -6,7 +6,6 @@ import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
@@ -37,7 +36,6 @@ class IssueViewerViewModel(
 ) : AndroidViewModel(application) {
     private val log by Log
     private val authHelper = AuthHelper.getInstance(application)
-    private val dataService = DataService.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)

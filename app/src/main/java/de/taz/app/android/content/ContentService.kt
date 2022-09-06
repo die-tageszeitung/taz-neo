@@ -9,7 +9,6 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.cache.*
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
