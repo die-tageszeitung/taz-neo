@@ -67,7 +67,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewModel.requestPasswordReset()
         }
 
-        viewBinding.fragmentLoginForgotHelp.setOnClickListener {
+        viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
             showHelpDialog(R.string.fragment_login_help)
         }
 

@@ -80,7 +80,7 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
         <TextView
-            android:id="@+id/fragment_login_forgot_help"
+            android:id="@+id/fragment_login_forgotten_help"
             style="@style/TextAppearance.Login.Text.Link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
             android:layout_height="@dimen/login_box_separator_line_height"
             android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
             android:background="@color/login_box_separator_line_color"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_forgot_help" />
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_forgotten_help" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_login_trial_subscription_box"
