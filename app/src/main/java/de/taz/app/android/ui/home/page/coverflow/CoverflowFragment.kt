@@ -86,6 +86,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         date.setOnClickListener { openDatePicker() }
 
         viewModel.feed.observeDistinct(this) { feed ->
+            // Fresh is true if this Fragment was just created and no adapter had been assigned yet
+            val fresh = !::adapter.isInitialized
+
             // Setup manual position restore from the previous coverflows scroll state
             val (wasHomeSelected, currentMomentDate) = if (::adapter.isInitialized) {
                 // The adapter is already initialized. This is an update which might break our scroll position.
@@ -115,10 +118,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             )
             grid.adapter = adapter
 
-
-            // Fresh is true if this Fragment was just created and no adapter had been assigned yet
-            val fresh = !::adapter.isInitialized
-
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
             // we let Android restore the scroll position. This might work as long as the feed did not change.
             // FIXME(johannes): test if it actually works as a new adapter is assigned
@@ -132,7 +131,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     fresh && initialIssueDisplay == null -> skipToHome()
                     wasHomeSelected -> skipToHome()
                     currentMomentDate != null -> skipToDate(currentMomentDate)
-                    else -> Unit // This is a undefined state that should not be reached. Ignore.
+                    else -> Unit // This is a undefined state that should not be reached.
                 }
             }
 
