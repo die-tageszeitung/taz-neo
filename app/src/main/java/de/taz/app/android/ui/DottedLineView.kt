@@ -33,7 +33,7 @@ class DottedLineView @JvmOverloads constructor(
             dottedLineCircleRadiusDp,
             resources.displayMetrics
         )
-        addCircle(0f, 0f, radius, Path.Direction.CW)
+        addCircle(radius, 0f, radius, Path.Direction.CW)
     }
     private val circlePathEffect = PathDashPathEffect(
         circlePath,
@@ -59,9 +59,11 @@ class DottedLineView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
         super.onDraw(canvas)
-        path.reset()
-        path.moveTo(0f, height / 2f)
-        path.quadTo(width / 2f, height / 2f, width.toFloat(), height / 2f)
+        path.apply{
+            reset()
+            moveTo(0f, height / 2f)
+            lineTo(width.toFloat(), height / 2f)
+        }
 
         canvas.drawPath(path, paint)
     }
