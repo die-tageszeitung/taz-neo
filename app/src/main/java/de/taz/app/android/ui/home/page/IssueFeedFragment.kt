@@ -43,7 +43,6 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     private val log by Log
 
-    private lateinit var contentService: ContentService
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
@@ -84,7 +83,6 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         super.onAttach(context)
 
         // get or initialize the singletons
-        contentService = ContentService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
     }
