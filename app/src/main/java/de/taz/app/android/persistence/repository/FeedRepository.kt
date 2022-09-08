@@ -4,6 +4,8 @@ import android.content.Context
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 @Mockable
 class FeedRepository private constructor(applicationContext: Context) :
@@ -20,10 +22,10 @@ class FeedRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun get(feedName: String): Feed? {
-        return appDatabase.feedDao().get(feedName)
+        return getFlow(feedName).first()
     }
 
-    suspend fun getAll(): List<Feed> {
-        return appDatabase.feedDao().getAll()
+    fun getFlow(feedName: String): Flow<Feed?> {
+        return appDatabase.feedDao().get(feedName)
     }
 }
