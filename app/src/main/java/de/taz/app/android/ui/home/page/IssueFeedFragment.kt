@@ -10,6 +10,7 @@ import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
@@ -20,6 +21,8 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,7 +39,8 @@ import kotlinx.coroutines.withContext
  * see [onItemSelected]
  *
  */
-abstract class IssueFeedFragment<VIEW_BINDING: ViewBinding> : BaseViewModelFragment<IssueFeedViewModel, VIEW_BINDING>() {
+abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
+    BaseViewModelFragment<IssueFeedViewModel, VIEW_BINDING>() {
 
     private val log by Log
 
@@ -55,19 +59,25 @@ abstract class IssueFeedFragment<VIEW_BINDING: ViewBinding> : BaseViewModelFragm
 
         // get feed and propagate it to the viewModel
         lifecycleScope.launch {
-            try {
-                val feed = dataService.getFeedByName(
-                    DISPLAYED_FEED,
-                    retryOnFailure = true
-                )
-                withContext(Dispatchers.Main) {
-                    viewModel.setFeed(feed!!)
+            val feedService = FeedService.getInstance(requireContext().applicationContext)
+
+            // Get the latest feed and propagate it if it is valid.
+            // Otherwise (null feed) show a warning to the user.
+            // Warning: This will re-try to request the feed from the api indefinitely in case of connection failures.
+            feedService
+                .getFeedFlowByName(DISPLAYED_FEED, retryOnFailure = true)
+                .distinctUntilChanged()
+                .collect {
+                    if (it != null) {
+                        viewModel.setFeed(it)
+                    } else {
+                        val message =
+                            "Failed to retrieve feed $DISPLAYED_FEED, cannot show anything"
+                        log.error(message)
+                        Sentry.captureMessage(message)
+                        toastHelper.showSomethingWentWrongToast()
+                    }
                 }
-            } catch (e: NullPointerException) {
-                log.error("Failed to retrieve feed $DISPLAYED_FEED, cannot show anything")
-                Sentry.captureException(e)
-                toastHelper.showSomethingWentWrongToast()
-            }
         }
     }
 

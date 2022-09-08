@@ -6,17 +6,15 @@ import androidx.work.WorkerParameters
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.util.NewIssuePollingScheduler
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.IssueKeyWithPages
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.SingletonHolder
+import de.taz.app.android.util.NewIssuePollingScheduler
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 
 const val KEY_SCHEDULE_NEXT = "KEY_SCHEDULE_NEXT"
 
@@ -30,12 +28,10 @@ class IssueDownloadWorkManagerWorker(
 
     private val downloadScheduler = DownloadScheduler.getInstance(applicationContext)
 
+
     override suspend fun doWork(): Result = coroutineScope {
-        val dataService = withContext(Dispatchers.Main) {
-            DataService.getInstance(applicationContext)
-        }
         val contentService = ContentService.getInstance(applicationContext)
-        val oldFeed = dataService.getFeedByName(DISPLAYED_FEED)
+        val feedService = FeedService.getInstance(applicationContext)
 
         val scheduleNext = inputData.getBoolean(KEY_SCHEDULE_NEXT, false)
 
@@ -50,8 +46,9 @@ class IssueDownloadWorkManagerWorker(
 
         try {
             // maybe get new issue
-            val newestIssueKey = dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+            val newestIssueKey = feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
             if (newestIssueKey == null) {
+                val oldFeed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {

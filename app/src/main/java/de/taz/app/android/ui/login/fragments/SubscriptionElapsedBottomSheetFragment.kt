@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
@@ -28,6 +29,17 @@ class SubscriptionElapsedBottomSheetFragment :
 
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var toastHelper: ToastHelper
+
+    override fun onStart() {
+        super.onStart()
+
+        val isLandscape =
+            this.resources.displayMetrics.heightPixels < this.resources.displayMetrics.widthPixels
+        val behavior = BottomSheetBehavior.from(requireView().parent as View)
+        if (isLandscape) {
+            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        }
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

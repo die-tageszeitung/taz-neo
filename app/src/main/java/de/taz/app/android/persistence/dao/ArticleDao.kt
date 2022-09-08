@@ -18,10 +18,26 @@ interface ArticleDao : BaseDao<ArticleStub> {
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     suspend fun get(articleFileNames: List<String>): List<ArticleStub>
 
-    @Query("SELECT * FROM Article WHERE Article.bookmarkedTime IS NOT NULL ORDER BY Article.bookmarkedTime DESC")
+    @Query(
+        """SELECT * FROM Article
+            INNER JOIN SectionArticleJoin
+            INNER JOIN IssueSectionJoin
+        WHERE  SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
+            AND Article.articleFileName == SectionArticleJoin.articleFileName
+            AND Article.bookmarkedTime IS NOT NULL
+         ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
+    )
     fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
 
-    @Query("SELECT * FROM Article WHERE Article.bookmarkedTime IS NOT NULL ORDER BY Article.bookmarkedTime DESC")
+    @Query(
+        """SELECT * FROM Article
+            INNER JOIN SectionArticleJoin
+            INNER JOIN IssueSectionJoin
+        WHERE  SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
+            AND Article.articleFileName == SectionArticleJoin.articleFileName
+            AND Article.bookmarkedTime IS NOT NULL
+         ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
+    )
     suspend fun getBookmarkedArticles(): List<ArticleStub>
 
     @Query(
