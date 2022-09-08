@@ -3,7 +3,6 @@ package de.taz.app.android.content
 import android.content.Context
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
@@ -12,7 +11,6 @@ import de.taz.app.android.content.cache.*
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
@@ -39,8 +37,6 @@ class ContentService(
     private val cacheStatusFlow = CacheOperation.cacheStatusFlow
     private val activeCacheOperations = CacheOperation.activeCacheOperations
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
-    private val apiService = ApiService.getInstance(applicationContext)
-    private val feedRepository = FeedRepository.getInstance(applicationContext)
 
     /**
      * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
