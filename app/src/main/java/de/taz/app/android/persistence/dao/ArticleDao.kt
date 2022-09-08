@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
@@ -27,18 +28,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
             AND Article.bookmarkedTime IS NOT NULL
          ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
     )
-    fun getBookmarkedArticlesLiveData(): LiveData<List<ArticleStub>>
-
-    @Query(
-        """SELECT * FROM Article
-            INNER JOIN SectionArticleJoin
-            INNER JOIN IssueSectionJoin
-        WHERE  SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
-            AND Article.articleFileName == SectionArticleJoin.articleFileName
-            AND Article.bookmarkedTime IS NOT NULL
-         ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
-    )
-    suspend fun getBookmarkedArticles(): List<ArticleStub>
+    fun getBookmarkedArticlesFlow(): Flow<List<ArticleStub>>
 
     @Query(
         """SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
