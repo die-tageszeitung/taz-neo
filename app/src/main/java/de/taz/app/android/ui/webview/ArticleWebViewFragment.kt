@@ -7,13 +7,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticleWebViewFragment : WebViewFragment<
         Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding

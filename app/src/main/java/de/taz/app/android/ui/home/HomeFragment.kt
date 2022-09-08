@@ -12,6 +12,7 @@ import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -91,14 +92,8 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private suspend fun onRefresh() {
         try {
-            DataService.getInstance(requireContext().applicationContext)
-                .getFeedByName(DISPLAYED_FEED, allowCache = false)?.let {
-                    withContext(Dispatchers.Main) {
-                        homePageViewModel.setFeed(
-                            it
-                        )
-                    }
-                }
+            val feedService = FeedService.getInstance(requireContext().applicationContext)
+            feedService.refreshFeed(DISPLAYED_FEED)
         } catch (e: ConnectivityException.NoInternetException) {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showNoConnectionToast()
