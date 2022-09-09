@@ -13,7 +13,6 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
@@ -46,8 +45,9 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
     private suspend fun checkIfSubscriptionElapsed() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+        val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
         val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
+        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown && !isElapsedFormAlreadySent) {
             showSubscriptionElapsedBottomSheet()
         }
     }

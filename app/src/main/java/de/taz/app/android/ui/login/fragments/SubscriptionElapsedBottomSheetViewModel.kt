@@ -43,6 +43,7 @@ class SubscriptionElapsedBottomSheetViewModel(
                         requestCurrentSubscriptionOpportunities = contactMe
                     )
                     _uiStateFlow.emit(UIState.SENT)
+                    authHelper.elapsedFormAlreadySent.set(true)
                 } else {
                     _uiStateFlow.emit(UIState.ERROR)
                 }
