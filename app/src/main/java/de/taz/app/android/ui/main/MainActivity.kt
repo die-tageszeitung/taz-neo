@@ -64,12 +64,15 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+                val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
                 val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
                 val isPdfMode = generalDataStore.pdfMode.get()
                 val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
 
+                val elapsedBottomSheetConditions =
+                    authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
                 when {
-                    authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown -> showSubscriptionElapsedBottomSheet()
+                    elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
                     isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
                     !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
                     else -> Unit // do nothing else

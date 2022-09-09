@@ -113,6 +113,8 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         viewBinding.fragmentBottomSheetIssueShare.setOnClickListener {
             lifecycleScope.launch {
+                loadingScreen?.visibility = View.VISIBLE
+
                 var issue = contentService.downloadMetadata(issuePublication) as Issue
                 var image = issue.moment.getMomentFileToShare()
                 fileEntryRepository.get(
@@ -142,8 +144,9 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                     val shareIntent = Intent.createChooser(sendIntent, null)
                     view.context.startActivity(shareIntent)
                 }
+                loadingScreen?.visibility = View.GONE
+                dismiss()
             }
-            dismiss()
         }
 
         viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener {

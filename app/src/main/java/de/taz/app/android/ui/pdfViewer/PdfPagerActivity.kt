@@ -192,9 +192,10 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         lifecycleScope.launch {
             val subscriptionElapsed =
                 pdfPagerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
+            val isElapsedFormAlreadySent = pdfPagerViewModel.elapsedFormAlreadySent.first()
             val issueKey = pdfPagerViewModel.issueKey.asFlow()
                 .filterNotNull().first()
-            if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+            if (issueKey.status == IssueStatus.public && subscriptionElapsed && !isElapsedFormAlreadySent) {
                 SubscriptionElapsedBottomSheetFragment().show(
                     supportFragmentManager,
                     "showSubscriptionElapsed"

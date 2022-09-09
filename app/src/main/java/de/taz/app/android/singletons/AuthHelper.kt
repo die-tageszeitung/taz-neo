@@ -19,6 +19,7 @@ import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -36,6 +37,7 @@ private const val PREFERENCES_AUTH_POLL = "poll"
 private const val PREFERENCES_AUTH_STATUS = "status"
 private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
+private const val PREFERENCES_ELAPSED_FORM_ALREADY_SENT = "elapsed_form_already_sent"
 private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
 // endregion
 
@@ -73,8 +75,20 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     private val firebaseHelper by lazy { FirebaseHelper.getInstance(applicationContext) }
 
-    val elapsedButWaiting = SimpleDataStoreEntry(
+    /**
+     * determines if a follow up registration was already triggered by the app via [LoginViewModelState.REGISTRATION_EMAIL]
+     */
+    @Deprecated("""This will never be true as we are not allowing to make a subscription
+        |from within the app anymore, but maybe in future with in-app purchases""")
+    val elapsedButWaiting: SimpleDataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(PREFERENCES_AUTH_ELAPSED_BUT_WAITING), false
+    )
+
+    /*
+     * determines if the [SubscriptionElapsedBottomSheet] form was already sent to subscription service
+     */
+    val elapsedFormAlreadySent: SimpleDataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(PREFERENCES_ELAPSED_FORM_ALREADY_SENT), false
     )
 
     val email = SimpleDataStoreEntry(
@@ -122,10 +136,12 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 when (authStatus) {
                     AuthStatus.notValid -> {
                         elapsedButWaiting.set(false)
+                        elapsedFormAlreadySent.set(false)
                         toastHelper.showToast(R.string.toast_logout_invalid)
                     }
                     AuthStatus.valid -> {
                         elapsedButWaiting.set(false)
+                        elapsedFormAlreadySent.set(false)
                         firebaseHelper.ensureTokenSent()
                         transformBookmarks()
                         isPolling.set(false)
