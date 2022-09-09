@@ -4,16 +4,17 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.MAX_TEST_SIZE
 import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class TextSettingsViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+class TextSettingsViewModel(application: Application) : AndroidViewModel(application),
+    CoroutineScope {
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
 
@@ -32,15 +33,15 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun setNightMode(activated: Boolean) {
-        launch { tazApiCssDataStore.nightMode.set(activated) }
+        viewModelScope.launch { tazApiCssDataStore.nightMode.set(activated) }
     }
 
     fun resetFontSize() {
-        launch { tazApiCssDataStore.fontSize.reset() }
+        viewModelScope.launch { tazApiCssDataStore.fontSize.reset() }
     }
 
     fun decreaseFontSize() {
-        launch {
+        viewModelScope.launch {
             val newSize = getFontSize() - 10
             if (newSize >= MIN_TEXT_SIZE) {
                 setFontSize(newSize.toString())
@@ -49,7 +50,7 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     fun increaseFontSize() {
-        launch {
+        viewModelScope.launch {
             val newSize = getFontSize() + 10
             if (newSize <= MAX_TEST_SIZE) {
                 setFontSize(newSize.toString())
@@ -58,10 +59,10 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun setFontSize(value: String) {
-        launch { tazApiCssDataStore.fontSize.set(value) }
+        viewModelScope.launch { tazApiCssDataStore.fontSize.set(value) }
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
 
-    override val coroutineContext: CoroutineContext =  SupervisorJob()
+    override val coroutineContext: CoroutineContext = SupervisorJob()
 }
