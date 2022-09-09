@@ -13,6 +13,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
@@ -170,9 +171,10 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         lifecycleScope.launch {
             val subscriptionElapsed =
                 issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
+            val isElapsedFormAlreadySent = issueViewerViewModel.elapsedFormAlreadySent.first()
             val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
                 .mapNotNull { it }.first().issueKey
-            if (issueKey.status == IssueStatus.public && subscriptionElapsed) {
+            if (issueKey.status == IssueStatus.public && subscriptionElapsed && !isElapsedFormAlreadySent) {
                 SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
                     "showSubscriptionElapsed"
