@@ -16,6 +16,7 @@ import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
+import io.sentry.Sentry
 import java.util.*
 
 /**
@@ -434,20 +435,27 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      * function to inform server that text notifications are enabled or not
      * @param [enabled] Boolean indicating that text notifications are allowed
      */
-    suspend fun setNotificationsEnabled(enabled: Boolean): Boolean =
-        transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.Notification,
-                fireBaseDataStore.token.get()?.let {
+    suspend fun setNotificationsEnabled(enabled: Boolean): Boolean {
+        val pushToken = fireBaseDataStore.token.get()
+        return if (pushToken.isNullOrBlank()) {
+            val hint = "No pushToken is found. It is necessary to use when enabling notifications"
+            log.warn("hint")
+            Sentry.captureMessage(hint)
+            false
+        } else {
+            transformToConnectivityException {
+                graphQlClient.query(
+                    QueryType.Notification,
                     NotificationVariables(
-                        pushToken = it,
+                        pushToken = pushToken,
                         deviceFormat = deviceFormat,
                         textNotification = enabled,
                     )
-                }
-            ).data?.notification
-                ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
+                ).data?.notification
+                    ?: throw ConnectivityException.ImplementationException("Expected notification in response to send notification query")
+            }
         }
+    }
 
     /**
      * function to request a subscription
