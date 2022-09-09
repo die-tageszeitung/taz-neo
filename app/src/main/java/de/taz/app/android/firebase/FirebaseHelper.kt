@@ -29,13 +29,13 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
         val token = store.token.get()
         val oldToken = store.oldToken.get()
 
-        return if (token != null) {
+        return if (token.isNullOrBlank()) {
+            false
+        } else {
             log.info("Sending notification info")
             apiService.retryOnConnectionFailure {
                 apiService.sendNotificationInfo(token, oldToken)
             }
-        } else {
-            false
         }
     }
 
