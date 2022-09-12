@@ -41,11 +41,11 @@ class TextSettingsFragment :
             )
         }
 
-        viewModel.observeNightMode(this) { activated ->
+        viewModel.observeNightMode(viewLifecycleOwner) { activated ->
             setNightMode(activated)
         }
 
-        viewModel.observeFontSize(this) { textSizePercentage ->
+        viewModel.observeFontSize(viewLifecycleOwner) { textSizePercentage ->
             setFontSizePercentage(textSizePercentage)
         }
     }
