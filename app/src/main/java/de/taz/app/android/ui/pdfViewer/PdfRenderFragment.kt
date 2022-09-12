@@ -28,6 +28,7 @@ import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -85,7 +86,9 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         if (page == null) {
             arguments?.getString(PAGE_NAME)?.let {
                 try {
-                    lifecycleScope.launch {
+                    // FIXME(eike): Check why Dispatchers.IO is necessary here. pageRepository stuff
+                    // should be on IO anyway...
+                    lifecycleScope.launch(Dispatchers.IO) {
                         page = pageRepository.get(it)
                         withContext(Dispatchers.Main) { initializeThePageAdapter() }
                     }
