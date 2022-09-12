@@ -143,13 +143,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setTextJustification(isChecked)
             }
 
-            fragmentSettingsNightMode.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
+
+            // FIXME (johannes): hotfix for https://redmine.hal.taz.de/issues/14333 to prevent an infinite loop
+            // when the settings are opened from an article "TextSettingsFragment"
+            // There seems to be a race condition when there are multiple observers on tazApiCssDataStore.nightMode
+            // - especially when the "WebViewFragment" is still active in the background, as it does re-create the
+            // whole webview.
+            // By using a onClickListener instead of a onCheckedChangeListener we are only listening
+            // for actual user interaction. If the status is changes programmatically due to the observer
+            // it wont trigger any action.
+            fragmentSettingsNightMode.setOnClickListener {
+                if (fragmentSettingsNightMode.isChecked) {
                     enableNightMode()
                 } else {
                     disableNightMode()
                 }
             }
+
             fragmentSettingsTapToScroll.setOnCheckedChangeListener { _, isChecked ->
                 setTapToScroll(isChecked)
             }
