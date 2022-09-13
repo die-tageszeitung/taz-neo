@@ -77,13 +77,16 @@ class SubscriptionElapsedBottomSheetFragment :
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.uiStateFlow.collectLatest {
                     when (it) {
-                        UIState.ERROR -> {
+                        UIState.SUBMISSION_ERROR -> {
                             toastHelper.showToast(R.string.something_went_wrong_try_later)
                             dismiss()
                         }
                         UIState.SENT -> {
                             toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long=true)
                             dismiss()
+                        }
+                        UIState.FORM_INVALID_MESSAGE_LENGTH -> {
+                            viewBinding.messageToSubscriptionService.error = getString(R.string.popup_login_elapsed_message_to_short)
                         }
                         else -> {
                             // do nothing
