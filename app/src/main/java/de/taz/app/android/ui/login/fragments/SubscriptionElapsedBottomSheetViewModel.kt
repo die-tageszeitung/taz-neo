@@ -15,6 +15,8 @@ import io.sentry.Sentry
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+private const val MESSAGE_MIN_LENGTH = 12
+
 class SubscriptionElapsedBottomSheetViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
@@ -24,7 +26,8 @@ class SubscriptionElapsedBottomSheetViewModel(
     // region UIState
     enum class UIState {
         INIT,
-        ERROR,
+        FORM_INVALID_MESSAGE_LENGTH,
+        SUBMISSION_ERROR,
         SENT
     }
     // endregion
@@ -37,6 +40,11 @@ class SubscriptionElapsedBottomSheetViewModel(
 
     // region logic
     fun sendMessage(message: String, contactMe: Boolean) {
+        if (message.length < MESSAGE_MIN_LENGTH) {
+            _uiStateFlow.value = UIState.FORM_INVALID_MESSAGE_LENGTH
+            return
+        }
+
         getApplicationScope().launch {
             customerTypeFlow.collect { customerType ->
 
@@ -55,10 +63,10 @@ class SubscriptionElapsedBottomSheetViewModel(
                         val hint = "Could not submit subscriptionFormData"
                         log.debug(hint, e)
                         Sentry.captureException(e, hint)
-                        _uiStateFlow.emit(UIState.ERROR)
+                        _uiStateFlow.emit(UIState.SUBMISSION_ERROR)
                     }
                 } else {
-                    _uiStateFlow.emit(UIState.ERROR)
+                    _uiStateFlow.emit(UIState.SUBMISSION_ERROR)
                 }
             }
         }
@@ -135,9 +143,7 @@ class SubscriptionElapsedBottomSheetViewModel(
     }
 
     fun errorWasHandled() {
-        if (_uiStateFlow.value == UIState.ERROR) {
-            _uiStateFlow.value = UIState.INIT
-        }
+        _uiStateFlow.value = UIState.INIT
     }
     // endregion
 }

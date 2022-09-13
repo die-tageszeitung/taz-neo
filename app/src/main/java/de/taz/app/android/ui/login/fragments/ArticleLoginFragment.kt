@@ -172,7 +172,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 elapsedViewModel.uiStateFlow.collect {
                     when (it) {
                         INIT -> showElapsedUi()
-                        ERROR -> handleElapsedFormSendError()
+                        FORM_INVALID_MESSAGE_LENGTH -> showMessageLengthErrorHint()
+                        SUBMISSION_ERROR -> handleElapsedFormSendError()
                         SENT -> handleElapsedFormSend()
                     }
                 }
@@ -203,6 +204,12 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             readOnSwitchPrint2digiBox.visibility = View.VISIBLE
             readOnExtendPrintWithDigiBox.visibility = View.VISIBLE
             readOnElapsedGroup.visibility = View.GONE
+        }
+    }
+
+    private fun showMessageLengthErrorHint() {
+        viewBinding.apply {
+            messageToSubscriptionService.error = getString(R.string.popup_login_elapsed_message_to_short)
         }
     }
 
