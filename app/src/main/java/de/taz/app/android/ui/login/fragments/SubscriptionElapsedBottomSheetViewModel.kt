@@ -10,12 +10,16 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class SubscriptionElapsedBottomSheetViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
+
+    private val log by Log
 
     // region UIState
     enum class UIState {
@@ -38,13 +42,21 @@ class SubscriptionElapsedBottomSheetViewModel(
 
                 val type = mapCustomer2SubscriptionFormDataType(customerType)
                 if (type != null) {
-                    apiService.subscriptionFormData(
-                        type = type,
-                        message = message,
-                        requestCurrentSubscriptionOpportunities = contactMe
-                    )
-                    _uiStateFlow.emit(UIState.SENT)
-                    authHelper.elapsedFormAlreadySent.set(true)
+                    try {
+                        apiService.subscriptionFormData(
+                            type = type,
+                            message = message,
+                            requestCurrentSubscriptionOpportunities = contactMe
+                        )
+                        _uiStateFlow.emit(UIState.SENT)
+                        authHelper.elapsedFormAlreadySent.set(true)
+
+                    } catch (e: Exception) {
+                        val hint = "Could not submit subscriptionFormData"
+                        log.debug(hint, e)
+                        Sentry.captureException(e, hint)
+                        _uiStateFlow.emit(UIState.ERROR)
+                    }
                 } else {
                     _uiStateFlow.emit(UIState.ERROR)
                 }
@@ -64,7 +76,8 @@ class SubscriptionElapsedBottomSheetViewModel(
 
     // region flows
     private val elapsedOnStringFlow = authHelper.elapsedDateMessage.asFlow()
-    private val elapsedStringFlow = elapsedOnStringFlow.map { DateHelper.stringToLongLocalizedString(it) }
+    private val elapsedStringFlow =
+        elapsedOnStringFlow.map { DateHelper.stringToLongLocalizedString(it) }
 
     val isElapsedFlow = authHelper.isElapsedFlow
 
@@ -119,6 +132,12 @@ class SubscriptionElapsedBottomSheetViewModel(
             R.string.popup_login_elapsed_text,
             it,
         )
+    }
+
+    fun errorWasHandled() {
+        if (_uiStateFlow.value == UIState.ERROR) {
+            _uiStateFlow.value = UIState.INIT
+        }
     }
     // endregion
 }
