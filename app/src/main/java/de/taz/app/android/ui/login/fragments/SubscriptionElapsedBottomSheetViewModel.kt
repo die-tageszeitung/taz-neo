@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.CustomerType
 import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
@@ -68,7 +69,18 @@ class SubscriptionElapsedBottomSheetViewModel(
     val isElapsedFlow = authHelper.isElapsedFlow
 
     private val customerTypeFlow: Flow<CustomerType> = flow {
-        val type = apiService.getCustomerType()
+        val type = try {
+            // FIXME(johannes): This endpoint is called each time any of the flows using it via map is collected.
+            //                  Currently it is executed two times because of flow maps (elapsedTitleStringFlow and elapsedDescriptionStringFlow).
+            //                  We might consider if we want to cache this. Then again it is not a very much used code path and might be fine.
+            apiService.getCustomerType()
+        } catch (e: ConnectivityException) {
+            // If we have no internet we can not determine the customer type.
+            // Falling back to unknown will result in a standard subscription screen been shown,
+            // as we can't know if the user did have a trial subscription.
+            CustomerType.unknown
+        }
+
         if (type != null) {
             emit(type)
         }
