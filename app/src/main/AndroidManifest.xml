@@ -48,6 +48,7 @@
             android:windowSoftInputMode="stateHidden|adjustNothing"
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.issueViewer.IssueViewerActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.search.SearchActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"
