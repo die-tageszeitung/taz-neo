@@ -20,6 +20,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -160,7 +161,7 @@ class ArticleWebViewFragment : WebViewFragment<
             View.OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(view: View, event: MotionEvent): Boolean {
-                hideKeyBoard()
+                hideSoftInputKeyboard()
                 return false
             }
         })
