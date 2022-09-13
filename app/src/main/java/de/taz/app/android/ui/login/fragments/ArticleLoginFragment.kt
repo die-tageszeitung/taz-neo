@@ -97,6 +97,11 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             sendButton.setOnClickListener {
                 onSubmitElapsedForm()
             }
+            
+            // Elapsed form cancel button
+            cancelButton.setOnClickListener {
+                hideAllViews()
+            }
         }
     }
 
