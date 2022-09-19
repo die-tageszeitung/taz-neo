@@ -22,6 +22,7 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
+import de.taz.app.android.util.hideSoftInputKeyboard
 import java.util.regex.Pattern
 
 class CredentialsMissingFragment :
@@ -119,11 +120,11 @@ class CredentialsMissingFragment :
         }
 
         viewBinding.fragmentLoginMissingCredentialsSurname.setOnEditorActionListener(
-            OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
+            OnEditorActionDoneListener { hideSoftInputKeyboard() }
         )
 
         viewBinding.fragmentLoginMissingCredentialsPassword.setOnEditorActionListener(
-            OnEditorActionDoneListener(this@CredentialsMissingFragment::hideKeyBoard)
+            OnEditorActionDoneListener { hideSoftInputKeyboard() }
         )
 
         viewBinding.fragmentLoginMissingCredentialsFirstName.doAfterTextChanged { text ->

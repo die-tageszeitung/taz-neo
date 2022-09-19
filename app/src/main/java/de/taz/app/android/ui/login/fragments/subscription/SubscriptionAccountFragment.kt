@@ -14,12 +14,12 @@ import androidx.core.view.isVisible
 import de.taz.app.android.*
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
+import de.taz.app.android.util.hideSoftInputKeyboard
 import java.util.regex.Pattern
 
 class SubscriptionAccountFragment :
@@ -59,7 +59,7 @@ class SubscriptionAccountFragment :
         }
 
         viewBinding.fragmentSubscriptionAccountComment.setOnEditorActionListener(
-            OnEditorActionDoneListener(::hideKeyBoard)
+            OnEditorActionDoneListener{ hideSoftInputKeyboard()}
         )
 
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
@@ -143,7 +143,7 @@ class SubscriptionAccountFragment :
             }.apply {
                 imeOptions = EditorInfo.IME_ACTION_DONE
                 setOnEditorActionListener(
-                    OnEditorActionDoneListener(this@SubscriptionAccountFragment::hideKeyBoard)
+                    OnEditorActionDoneListener{ hideSoftInputKeyboard() }
                 )
             }
         } else {

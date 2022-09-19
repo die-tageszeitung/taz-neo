@@ -1,23 +1,27 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
-import de.taz.app.android.ui.login.LoginViewModelState
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.*
+import de.taz.app.android.util.hideSoftInputKeyboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
@@ -25,6 +29,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private var articleFileName: String? = null
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var activityResultLauncher: ActivityResultLauncher<LoginContract.Input>
+    private lateinit var toastHelper: ToastHelper
 
     companion object {
         fun create(articleFileName: String): ArticleLoginFragment {
@@ -37,53 +42,43 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityResultLauncher = registerForActivityResult(LoginContract(), this)
+        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupInteractionHandlers()
+
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                elapsedViewModel.isElapsedFlow.collect { setUIElapsed(it) }
+                elapsedViewModel.isElapsedFlow.collect { isElapsed ->
+                    if (isElapsed) {
+                        startElapsedHandling()
+                    } else {
+                        stopElapsedHandling()
+                        showLoginSubscribeUi()
+                    }
+                }
             }
         }
     }
 
-    private suspend fun setUIElapsed(isElapsed: Boolean) {
+    private fun setupInteractionHandlers() {
         viewBinding.apply {
-            if (isElapsed) {
-                readOnLoginGroup.visibility = View.GONE
-                readOnSeparatorLine.visibility = View.GONE
-                readOnTrialSubscriptionBox.visibility = View.GONE
-                readOnSwitchPrint2digiBox.visibility = View.GONE
-                readOnExtendPrintWithDigiBox.visibility = View.GONE
-                readOnElapsedGroup.visibility = View.VISIBLE
-
-                sendButton.setOnClickListener {
-                    elapsedViewModel.sendMessage(
-                        messageToSubscriptionService.editText?.text.toString(),
-                        letTheSubscriptionServiceContactYouCheckbox.isChecked
-                    )
-                }
-                readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
-                readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionStringFlow.first()
-
-            } else {
-                // Set listeners of login buttons when not elapsed
-                readOnLoginButton.setOnClickListener {
-                    login()
-                }
-
-                readOnPassword.setOnEditorActionListener(
-                    OnEditorActionDoneListener(::login)
-                )
-
-                readOnTrialSubscriptionBoxButton.setOnClickListener {
-                    register()
-                }
+            // Set listeners on all buttons - even if they are not not shown in case of elapsed
+            readOnLoginButton.setOnClickListener {
+                login()
             }
 
+            readOnPassword.setOnEditorActionListener(
+                OnEditorActionDoneListener(::login)
+            )
+
+            readOnTrialSubscriptionBoxButton.setOnClickListener {
+                register()
+            }
 
             readOnTrialSubscriptionBoxButton.setOnClickListener {
                 register()
@@ -95,6 +90,16 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
             readOnExtendPrintWithDigiBoxButton.setOnClickListener {
                 extendPrintWithDigi()
+            }
+
+            // Elapsed form send button
+            sendButton.setOnClickListener {
+                onSubmitElapsedForm()
+            }
+            
+            // Elapsed form cancel button
+            cancelButton.setOnClickListener {
+                hideAllViews()
             }
         }
     }
@@ -116,15 +121,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 articleFileName = articleFileName,
             )
         )
-        hideKeyBoard()
-    }
-
-
-    private fun hideKeyBoard() {
-        (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-            val view = activity?.currentFocus ?: View(activity)
-            hideSoftInputFromWindow(view.windowToken, 0)
-        }
+        hideSoftInputKeyboard()
     }
 
     /**
@@ -154,4 +151,86 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         }
     }
 
+    private fun onSubmitElapsedForm() {
+        viewBinding.apply {
+            elapsedViewModel.sendMessage(
+                messageToSubscriptionService.editText?.text.toString(),
+                letTheSubscriptionServiceContactYouCheckbox.isChecked
+            )
+        }
+    }
+
+    private var elapsedFlowJob: Job? = null
+    private fun startElapsedHandling() {
+        elapsedFlowJob?.cancel()
+        elapsedFlowJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                elapsedViewModel.uiStateFlow.collect {
+                    when (it) {
+                        INIT -> showElapsedUi()
+                        FORM_INVALID_MESSAGE_LENGTH -> showMessageLengthErrorHint()
+                        SUBMISSION_ERROR -> handleElapsedFormSendError()
+                        SENT -> handleElapsedFormSend()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun stopElapsedHandling() {
+        elapsedFlowJob?.cancel()
+    }
+
+    private fun handleElapsedFormSendError() {
+        toastHelper.showToast(R.string.something_went_wrong_try_later)
+        elapsedViewModel.errorWasHandled()
+    }
+
+    private fun handleElapsedFormSend() {
+        stopElapsedHandling()
+        toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long = true)
+        hideAllViews()
+    }
+
+    private fun showLoginSubscribeUi() {
+        viewBinding.apply {
+            readOnLoginGroup.visibility = View.VISIBLE
+            readOnSeparatorLine.visibility = View.VISIBLE
+            readOnTrialSubscriptionBox.visibility = View.VISIBLE
+            readOnSwitchPrint2digiBox.visibility = View.VISIBLE
+            readOnExtendPrintWithDigiBox.visibility = View.VISIBLE
+            readOnElapsedGroup.visibility = View.GONE
+        }
+    }
+
+    private fun showMessageLengthErrorHint() {
+        viewBinding.apply {
+            messageToSubscriptionService.error = getString(R.string.popup_login_elapsed_message_to_short)
+        }
+    }
+
+    private suspend fun showElapsedUi() = withContext(Dispatchers.Main) {
+        viewBinding.apply {
+            readOnLoginGroup.visibility = View.GONE
+            readOnSeparatorLine.visibility = View.GONE
+            readOnTrialSubscriptionBox.visibility = View.GONE
+            readOnSwitchPrint2digiBox.visibility = View.GONE
+            readOnExtendPrintWithDigiBox.visibility = View.GONE
+            readOnElapsedGroup.visibility = View.VISIBLE
+
+            readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
+            readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionStringFlow.first()
+        }
+    }
+
+    private fun hideAllViews() {
+        viewBinding.apply {
+            readOnLoginGroup.visibility = View.GONE
+            readOnSeparatorLine.visibility = View.GONE
+            readOnTrialSubscriptionBox.visibility = View.GONE
+            readOnSwitchPrint2digiBox.visibility = View.GONE
+            readOnExtendPrintWithDigiBox.visibility = View.GONE
+            readOnElapsedGroup.visibility = View.GONE
+        }
+    }
 }

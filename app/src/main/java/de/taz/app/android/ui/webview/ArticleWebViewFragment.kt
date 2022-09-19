@@ -1,19 +1,29 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.MotionEvent
+import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
-import kotlinx.coroutines.*
+import de.taz.app.android.util.hideSoftInputKeyboard
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArticleWebViewFragment : WebViewFragment<
         Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
@@ -143,6 +153,19 @@ class ArticleWebViewFragment : WebViewFragment<
             }
             super.hideLoadingScreen()
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewBinding.nestedScrollView.setOnTouchListener(object :
+            View.OnTouchListener {
+            @SuppressLint("ClickableViewAccessibility")
+            override fun onTouch(view: View, event: MotionEvent): Boolean {
+                hideSoftInputKeyboard()
+                return false
+            }
+        })
+
     }
 }
 

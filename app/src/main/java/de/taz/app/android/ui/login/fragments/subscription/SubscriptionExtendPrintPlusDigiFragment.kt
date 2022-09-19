@@ -11,6 +11,7 @@ import de.taz.app.android.api.dto.SubscriptionFormDataType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentExtendFormBinding
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
             View.OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(view: View, event: MotionEvent): Boolean {
-                hideKeyBoard()
+                hideSoftInputKeyboard()
                 return false
             }
         })

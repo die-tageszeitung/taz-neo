@@ -19,6 +19,7 @@
     <string name="popup_login_elapsed_message_to_abo">Ihre Nachricht</string>
     <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo-Möglichkeiten</string>
     <string name="popup_login_elapsed_positive_button">Absenden</string>
+    <string name="popup_login_elapsed_message_to_short">Ihre Nachricht ist zu kurz!</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer E-Mail-Adresse ein.</string>
@@ -27,7 +28,6 @@
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
-    <string name="toast_logout_elapsed">Ihr Abo ist abgelaufen.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
@@ -39,17 +39,13 @@
     <string name="tab_bar_home">Home</string>
     <string name="tab_bar_bookmarks">Leseliste</string>
     <string name="tab_bar_search">Suche</string>
-    <string name="tab_bar_settings">Einstellungen</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
-    <string name="bottom_navigation_action_help">Hilfe anzeigen</string>
     <string name="bottom_navigation_action_home">Zum Home-Bildschirm</string>
     <string name="bottom_navigation_action_audio">Audio abspielen</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
     <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
-    <string name="bottom_navigation_action_app">Web-Ansicht</string>
-
     <string name="fragment_home_login">Anmelden</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
@@ -60,7 +56,6 @@
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
     <string name="trial_subscription_name">6 Wochen Testabo</string>
 
-    <string name="register_button">Registrieren</string>
     <string name="order_button">Bestellen</string>
     <string name="order_with_costs_button">kostenpflichtig Bestellen</string>
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
@@ -96,7 +91,6 @@
     <string name="settings_category_text">Darstellung</string>
     <string name="settings_category_account">Abo</string>
     <string name="settings_category_legal">Rechtliches</string>
-    <string name="settings_category_expiremental">experimente</string>
     <string name="settings_text_font_size">Textgröße</string>
     <string name="settings_text_justified">Blocksatz</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
@@ -105,11 +99,17 @@
     <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
     <string name="settings_account_logout"><u>Abmelden</u></string>
     <string name="settings_account_delete"><u>Konto löschen</u></string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+                  The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_account_elapsed">&lt;u>abgelaufen&lt;/u></string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_account_elapsed_on">&lt;u>seit %s abgelaufen&lt;/u></string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="percentage">%d%%</string>
+    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
+              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
     <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
     <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
     <string name="settings_category_support">Hilfe</string>
@@ -173,7 +173,6 @@
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
     <string name="fragment_error_report_email_title">Ihre E-Mail-Adresse</string>
-    <string name="fragment_error_report_email_empty">E-Mail-Adresse muss angegeben sein</string>
     <string name="fragment_error_report_message_title">Ihre Nachricht</string>
     <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
     <string name="fragment_error_report_last_action_title">Letzte Interaktion</string>
@@ -196,7 +195,7 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
     <string name="fragment_login_description">Anmeldung für Digital-Abonnent:innen</string>
-    <string name="fragment_login_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte zunächst Ihre bisherige Abo-ID und Passwort ein. In einem zweiten Schritt werden Sie gebeten sich mit einer gültigen E-Mail-Adresse und einem selbst gewählten Passwort anzumelden. Fertig! Sie können sich ab jetzt mit Ihrer E-Mail-Adresse anmelden.\n\nWenn Sie bereits mit einer E-Mail-Adresse und Passwort bei der taz registriert sind, geben Sie sie bitte zur Anmeldung hier ein.</string>
+    <string name="fragment_login_help">Geben Sie bitte entweder Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort oder — falls Ihre E-Mail-Adresse bei uns registriert ist — diese und das von Ihnen bei der Registrierung gewählte Passwort ein.</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
     <string name="login_trial_subscription_body">Testen Sie uns doch mal 6 Wochen für umme! Nach 6 Wochen können Sie unabhängigen Journalismus mit 45.000 anderen digitalen Leser:innen in verschiedenen Abo-Modellen lesen.</string>
@@ -276,9 +275,6 @@
 
     <string name="login_button">Anmelden</string>
 
-    <string name="fragment_login_subscription_inactive_header">Ihr taz-Digiabo ist leider inaktiv (weil es bspw. abgelaufen ist).</string>
-    <string name="fragment_login_subscription_inactive_body">Bitte kontaktieren Sie unseren Service:</string>
-
     <string name="fragment_login_missing_credentials_header_registration">Sie haben noch kein taz-Konto? Hier können Sie sich ein neues taz-Konto einrichten.</string>
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password">Haben Sie Ihr Passwort vergessen?</string>
@@ -330,7 +326,6 @@
 
     <string name="button_close_text">×</string>
 
-    <string name="fragment_date_picker_selected_issue_toast">Neue Ausgabe wurde ausgewählt</string>
     <string name="issue_not_found">Ausgabe nicht auffindbar.</string>
 
     <string name="next_button">Weiter</string>
@@ -349,7 +344,6 @@
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
     <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach einfach unter taz.de/abo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>
 
-    <string name="search_activity">Suche</string>
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>
     <string name="search_advanced_timeslot_until"> bis </string>

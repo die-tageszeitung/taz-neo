@@ -207,4 +207,5 @@ class PdfPagerViewModel(
     }
 
     val elapsedSubscription = authHelper.status.asFlow()
+    val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
 }

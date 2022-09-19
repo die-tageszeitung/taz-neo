@@ -66,18 +66,14 @@ class ContentService(
                 parentTags.any { tag -> pair.first.startsWith(tag) } || tag == pair.first
             }
             .map { it.second }
-            .also {
-                CoroutineScope(Dispatchers.Default).launch {
-                    val stateUpdate: CacheStateUpdate =
-                        activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
-                            ?: getCacheState(download)
+            .onEmpty {
+                val stateUpdate: CacheStateUpdate =
+                    activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
+                        ?: getCacheState(download)
 
-                    // only emit if no status has been provided yet
-                    cacheStatusFlow.onEmpty {
-                        log.debug("emmiting on empty $stateUpdate")
-                        cacheStatusFlow.emit(tag to stateUpdate)
-                    }
-                }
+                // only emit if no status has been provided yet
+                log.debug("emitting on empty $stateUpdate")
+                emit(stateUpdate)
             }
     }
 

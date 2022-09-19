@@ -18,7 +18,6 @@ import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
@@ -33,10 +32,12 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
+private const val DOUBLE_BACK_TO_EXIT_INTERVAL = 2000L
 
 @Mockable
 class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
@@ -62,9 +63,20 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                checkIfSubscriptionElapsed()
-                maybeShowTryPdfDialog()
-                maybeShowLoggedOutDialog()
+                val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+                val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
+                val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+                val isPdfMode = generalDataStore.pdfMode.get()
+                val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
+
+                val elapsedBottomSheetConditions =
+                    authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
+                when {
+                    elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
+                    isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
+                    !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
+                    else -> Unit // do nothing else
+                }
             }
         }
 
@@ -88,58 +100,43 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private var loggedOutDialog: AlertDialog? = null
-    private suspend fun maybeShowLoggedOutDialog() {
-        if (generalDataStore.pdfMode.get() && !authHelper.isValid()) {
-            loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
-                .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setNegativeButton(R.string.login_button) { dialog, _ ->
-                    startActivityForResult(
-                        Intent(this@MainActivity, LoginActivity::class.java),
-                        ACTIVITY_LOGIN_REQUEST_CODE
-                    )
-                    dialog.dismiss()
-                }
-                .create()
+    private suspend fun showLoggedOutDialog() {
+        loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
+            .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.login_button) { dialog, _ ->
+                startActivityForResult(
+                    Intent(this@MainActivity, LoginActivity::class.java),
+                    ACTIVITY_LOGIN_REQUEST_CODE
+                )
+                dialog.dismiss()
+            }
+            .create()
 
-            loggedOutDialog!!.show()
-
-        }
+        loggedOutDialog?.show()
     }
 
     private var tryPdfDialog: AlertDialog? = null
-    private suspend fun maybeShowTryPdfDialog() {
+    private suspend fun showTryPdfDialog() {
         val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
-        if (timesPdfShown < 1) {
-            tryPdfDialog = MaterialAlertDialogBuilder(this)
-                .setView(R.layout.dialog_try_pdf)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    applicationScope.launch(Dispatchers.Main) {
-                        generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                        dialog.dismiss()
-                    }
-                }
-                .create()
-
-            tryPdfDialog?.show()
-            tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
+        tryPdfDialog = MaterialAlertDialogBuilder(this)
+            .setView(R.layout.dialog_try_pdf)
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 applicationScope.launch(Dispatchers.Main) {
                     generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                    tryPdfDialog?.dismiss()
+                    dialog.dismiss()
                 }
             }
-        }
-    }
+            .create()
 
-    private suspend fun checkIfSubscriptionElapsed() {
-        val authStatus = authHelper.status.get()
-        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown) {
-            showSubscriptionElapsedBottomSheet()
-            (application as TazApplication).elapsedPopupAlreadyShown = true
+        tryPdfDialog?.show()
+        tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
+            applicationScope.launch(Dispatchers.Main) {
+                generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
+                tryPdfDialog?.dismiss()
+            }
         }
     }
 
@@ -161,6 +158,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedBottomSheet() {
+        (application as TazApplication).elapsedPopupAlreadyShown = true
         SubscriptionElapsedBottomSheetFragment().show(
             supportFragmentManager,
             "showSubscriptionElapsed"
@@ -181,9 +179,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             this.doubleBackToExitPressedOnce = true
             toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-            Handler(Looper.getMainLooper()).postDelayed({
+            lifecycleScope.launch {
+                delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
                 doubleBackToExitPressedOnce = false
-            }, 2000)
+            }
         } else {
             showHome()
         }

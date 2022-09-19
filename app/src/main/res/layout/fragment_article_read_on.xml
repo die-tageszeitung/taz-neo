@@ -128,6 +128,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cancel_button"
+            style="@style/AppTheme.ButtonStyle.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/send_button"
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.Barrier

@@ -5,17 +5,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
 import androidx.work.testing.TestListenableWorkerBuilder
 import androidx.work.workDataOf
-import de.taz.app.android.DISPLAYABLE_NAME
-import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.TestDataUtil
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.Cycle
-import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.data.DataService
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.NewIssuePollingScheduler
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert
@@ -27,11 +21,9 @@ import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.whenever
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-
-private const val OLD_DATE = "2019-01-02"
-private const val NEW_DATE = "2019-01-03"
 
 
 @RunWith(MockitoJUnitRunner::class)
@@ -40,34 +32,8 @@ class IssueDownloadWorkManagerWorkerTest {
     private lateinit var context: Context
     private lateinit var executor: Executor
 
-
-    private val oldFeedMock = Feed(
-        DISPLAYABLE_NAME,
-        Cycle.daily,
-        0.67f,
-        publicationDates = listOf(
-            requireNotNull(simpleDateFormat.parse(OLD_DATE))
-        ),
-        OLD_DATE,
-        OLD_DATE
-    )
-    private val newFeedMock = Feed(
-        DISPLAYABLE_NAME,
-        Cycle.daily,
-        0.67f,
-        publicationDates = listOf(
-            requireNotNull(simpleDateFormat.parse(NEW_DATE)),
-            requireNotNull(simpleDateFormat.parse(OLD_DATE))
-        ),
-        OLD_DATE,
-        NEW_DATE
-    )
-
     @Mock
-    private lateinit var mockDataService: DataService
-
-    @Mock
-    private lateinit var mockApiService: ApiService
+    private lateinit var mockFeedService: FeedService
 
     @Mock
     private lateinit var mockContentService: ContentService
@@ -79,8 +45,7 @@ class IssueDownloadWorkManagerWorkerTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         executor = Executors.newSingleThreadExecutor()
-        DataService.inject(mockDataService)
-        ApiService.inject(mockApiService)
+        FeedService.inject(mockFeedService)
         ContentService.inject(mockContentService)
         DownloadScheduler.inject(mockDownloadScheduler)
     }
@@ -91,40 +56,7 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Test
     fun scheduleDownloadWithoutPoll() = runBlocking {
-        `when`(
-            mockDataService.getFeedByName(
-                anyOrNull(),
-                eq(true),
-                eq(false)
-            )
-        ).thenReturn(
-            oldFeedMock
-        )
-
-        `when`(
-            mockDataService.getFeedByName(
-                anyOrNull(),
-                eq(false),
-                eq(false)
-            )
-        ).thenReturn(
-            newFeedMock
-        )
-
-        `when`(
-            mockApiService.getIssueByPublication(anyOrNull())
-        ).thenReturn(
-            TestDataUtil.getIssue()
-        )
-
-        `when`(
-            mockApiService.getMomentByFeedAndDate(
-                anyOrNull(),
-                anyOrNull()
-            )
-        ).thenReturn(
-            Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
-        )
+        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
 
         val worker = TestListenableWorkerBuilder<IssueDownloadWorkManagerWorker>(
             context = context,
@@ -145,17 +77,7 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Test
     fun pollNewIssue() = runBlocking {
-        `when`(mockDataService.refreshFeedAndGetIssueKeyIfNew(anyOrNull())).thenReturn(
-            TestDataUtil.getIssue().issueKey
-        )
-        `when`(
-            mockApiService.getMomentByFeedAndDate(
-                anyOrNull(),
-                anyOrNull()
-            )
-        ).thenReturn(
-            Moment(DISPLAYED_FEED, NEW_DATE, IssueStatus.public, "", dateDownload = null)
-        )
+        whenever(mockFeedService.getFeedFlowByName(anyString())).thenReturn(flowOf(null))
 
         val worker = TestListenableWorkerBuilder<IssueDownloadWorkManagerWorker>(
             context = context,

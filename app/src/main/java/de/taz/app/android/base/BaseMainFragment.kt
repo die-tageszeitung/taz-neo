@@ -1,11 +1,9 @@
 package de.taz.app.android.base
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
 import androidx.core.view.iterator
@@ -16,9 +14,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.IndexOutOfBoundsException
 
 abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
 
@@ -48,7 +46,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
      */
     private fun configBottomNavigation() {
         // only show bottomNavigation if visible items exist
-
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
 
             bottomNavigationMenuRes?.let {
@@ -57,63 +54,7 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
             }
 
             itemIconTintList = null
-
-            deactivateAllItems(menu)
-
-            // hack to not auto select first item
-            try {
-                menu.getItem(0).isCheckable = false
-            } catch (ioobe: IndexOutOfBoundsException) {
-                // do nothing no items exist
-            }
-
-            // hack to make items de- and selectable
-            setOnNavigationItemSelectedListener { menuItem ->
-                run {
-                    deactivateAllItems(menu, except = menuItem)
-                    toggleMenuItem(menuItem)
-                    false
-                }
-            }
-
-            setOnNavigationItemReselectedListener { menuItem ->
-                run {
-                    deactivateAllItems(menu, except = menuItem)
-                    toggleMenuItem(menuItem)
-                }
-            }
         }
-    }
-
-    fun toggleMenuItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { id ->
-            toggleMenuItem(id)
-        }
-    }
-
-    fun activateItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { menuItem ->
-            activateItem(menuItem)
-        }
-    }
-
-    fun activateItem(menuItem: MenuItem) {
-        menuItem.isChecked = true
-        menuItem.isCheckable = true
-    }
-
-    fun deactivateItem(itemId: Int) {
-        val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
-        menu?.findItem(itemId)?.let { menuItem ->
-            deactivateItem(menuItem)
-        }
-    }
-
-    fun deactivateItem(menuItem: MenuItem) {
-        menuItem.isChecked = false
-        menuItem.isCheckable = false
     }
 
     fun hideItem(itemId: Int){
@@ -138,13 +79,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         menuItem.setVisible(true)
     }
 
-    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
-        menu.iterator().forEach {
-            if (it.itemId !in permanentlyActiveItemIds && it != except) {
-                deactivateItem(it)
-            }
-        }
-    }
 
     fun setIcon(itemId: Int, @DrawableRes iconRes: Int) {
         val menuView = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
@@ -152,14 +86,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         // prevent call while layouting
         menuView?.post {
             menu?.findItem(itemId)?.setIcon(iconRes)
-        }
-    }
-
-    private fun toggleMenuItem(menuItem: MenuItem) {
-        if (menuItem.isCheckable) {
-            deactivateItem(menuItem)
-        } else {
-            onBottomNavigationItemClicked(menuItem)
         }
     }
 
@@ -203,17 +129,8 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         return addBottomSheet
     }
 
-    protected fun hideKeyBoard() {
-        activity?.apply {
-            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-                val view = activity?.currentFocus ?: View(activity)
-                hideSoftInputFromWindow(view.windowToken, 0)
-            }
-        }
-    }
-
     override fun onDetach() {
-        hideKeyBoard()
+        hideSoftInputKeyboard()
         super.onDetach()
     }
 }

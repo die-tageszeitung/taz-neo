@@ -13,27 +13,32 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.*
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
+import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.Log
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
-import kotlin.Exception
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
@@ -51,6 +56,7 @@ class SplashActivity : StartupActivity() {
     private lateinit var storageDataStore: StorageDataStore
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var feedService: FeedService
 
     private var showSplashScreen = true
 
@@ -68,6 +74,7 @@ class SplashActivity : StartupActivity() {
         contentService = ContentService.getInstance(application)
         storageDataStore = StorageDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
+        feedService = FeedService.getInstance(application)
 
         lifecycleScope.launch {
             coroutineScope {
@@ -80,9 +87,6 @@ class SplashActivity : StartupActivity() {
                 ensureAppInfo()
                 initResources()
                 initFeed()
-                applicationScope.launch {
-                    checkForNewestIssue()
-                }
             } catch (e: InitializationException) {
                 log.error("Error while initializing")
                 e.printStackTrace()
@@ -91,6 +95,12 @@ class SplashActivity : StartupActivity() {
                 showConnectionErrorDialog()
                 Sentry.captureException(e)
                 return@launch
+            }
+
+            // Start checking for new issues on a Job launched in the background on the applicationScope.
+            // Thus it will not be canceled when the `SplashActivity` finishes
+            applicationScope.launch {
+                checkForNewestIssue(feedService, toastHelper)
             }
 
             val currentStorageLocation = storageDataStore.storageLocation.get()
@@ -129,26 +139,25 @@ class SplashActivity : StartupActivity() {
 
     private suspend fun initFeed() {
         try {
-            val feed = dataService.getFeedByName(DISPLAYED_FEED)
-            if (feed?.publicationDates?.isEmpty() == true) {
-                dataService.getFeedByName(
-                    DISPLAYABLE_NAME,
-                    allowCache = false,
-                    retryOnFailure = false
-                )
+            // First try to get the latest feed. This will refresh the feed automatically if it has
+            // not been fetched yet.
+            val feed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
+
+            // If for any reason we don't have a feed with publication dates, we will try once more
+            // to refresh the feed from the API - in case that for unknown reasons only the the
+            // locally cached feed is missing the publication dates.
+            // Note: we assume that any feed that is refreshed from the API will contain non null,
+            // non empty publication dates.
+            val hasPublicationDate = feed?.publicationDates?.isNotEmpty() == true
+            if (!hasPublicationDate) {
+                feedService.refreshFeed(DISPLAYED_FEED)
             }
+
         } catch (e: ConnectivityException) {
             throw InitializationException("Could not retrieve feed during first start")
         }
     }
 
-    private suspend fun checkForNewestIssue() {
-        try {
-            dataService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
-        } catch (e: ConnectivityException) {
-            toastHelper.showConnectionToServerFailedToast()
-        }
-    }
 
     /**
      * download AppInfo and persist it
@@ -388,3 +397,15 @@ class SplashActivity : StartupActivity() {
 
 class InitializationException(message: String, override val cause: Throwable? = null) :
     Exception(message, cause)
+
+
+// This function will be called as part of a applicationScope bound coroutine that is not canceled when the SplashActivity finishes.
+// Thus we can not throw the InitializationException to showConnectionErrorDialog() but have to fall back to a basic toast.
+private suspend fun checkForNewestIssue(feedService: FeedService, toastHelper: ToastHelper) {
+    try {
+        feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+    } catch (e: ConnectivityException) {
+
+        toastHelper.showConnectionToServerFailedToast()
+    }
+}

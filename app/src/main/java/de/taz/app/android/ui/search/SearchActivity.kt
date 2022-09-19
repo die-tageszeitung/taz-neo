@@ -1,13 +1,10 @@
 package de.taz.app.android.ui.search
 
-import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
-import androidx.core.view.isNotEmpty
 import androidx.core.view.size
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +25,7 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -105,7 +103,7 @@ class SearchActivity :
             }
             searchAuthorInput.setOnKeyListener { _, _, keyEvent ->
                 if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                    hideKeyboard()
+                    hideSoftInputKeyboard()
                 }
                 false
             }
@@ -190,7 +188,7 @@ class SearchActivity :
             showNoInputError()
             return
         }
-        hideKeyboard()
+        hideSoftInputKeyboard()
         hideSearchDescription()
         if (showLoadingScreen) showLoadingScreen()
 
@@ -319,7 +317,7 @@ class SearchActivity :
             searchDescriptionIcon.visibility = View.VISIBLE
             searchResultList.visibility = View.GONE
         }
-        hideKeyboard()
+        hideSoftInputKeyboard()
     }
 
     private fun hideSearchDescription() {
@@ -330,14 +328,7 @@ class SearchActivity :
             expandableAdvancedSearch.visibility = View.GONE
             advancedSearchTitle.visibility = View.GONE
         }
-        hideKeyboard()
-    }
-
-    private fun hideKeyboard() {
-        this.currentFocus?.let { view ->
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            imm?.hideSoftInputFromWindow(view.windowToken, 0)
-        }
+        hideSoftInputKeyboard()
     }
 
     private fun clearSearchList() {

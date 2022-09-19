@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import de.taz.app.android.MAX_TEST_SIZE
 import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.dataStore.TazApiCssDataStore
+import de.taz.app.android.monkey.observeDistinct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,11 +25,11 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
 
 
     fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
-        nightModeLiveData.observe(lifecycleOwner, Observer(block))
+        nightModeLiveData.observeDistinct(lifecycleOwner, Observer(block))
     }
 
     fun observeFontSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
-        textSizeLiveData.observe(lifecycleOwner, Observer(block))
+        textSizeLiveData.observeDistinct(lifecycleOwner, Observer(block))
     }
 
     fun setNightMode(activated: Boolean) {
