@@ -18,7 +18,6 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -116,16 +115,15 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     }
 
     private fun hideLoadingScreen() {
-        requireActivity().runOnUiThread {
-            viewBinding.pdfLoadingScreen.root.animate().apply {
-                alpha(0f)
-                duration = LOADING_SCREEN_FADE_OUT_TIME
-                withEndAction {
-                    viewBinding.pdfLoadingScreen.root.visibility = View.GONE
-                }
+        val pdfLoadingScreenRoot = viewBinding.pdfLoadingScreen.root
+        pdfLoadingScreenRoot.animate().apply {
+            alpha(0f)
+            duration = LOADING_SCREEN_FADE_OUT_TIME
+            withEndAction {
+                pdfLoadingScreenRoot.visibility = View.GONE
             }
-            pdfPagerViewModel.hideDrawerLogo.postValue(true)
         }
+        pdfPagerViewModel.hideDrawerLogo.postValue(true)
     }
 
     /**
