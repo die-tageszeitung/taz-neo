@@ -149,7 +149,7 @@ android {
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
-        buildConfigField "Boolean", "IS_PDF_MODE_DEFAULT", "false"
+        buildConfigField "Boolean", "IS_LMD", "false"
 
         def ENV = System.getenv()
         def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
@@ -185,7 +185,7 @@ android {
             dimension "owner"
             applicationId "de.monde_diplomatique.android.app"
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
-            buildConfigField "Boolean", "IS_PDF_MODE_DEFAULT", "true"
+            buildConfigField "Boolean", "IS_LMD", "true"
         }
 
         free {

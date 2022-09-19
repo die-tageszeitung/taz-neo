@@ -55,8 +55,12 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(DRAWER_SHOWN_COUNT), 0
     )
 
+    /* The lmd build variant has pdf as its default and only mode.
+       That's why the default value for the pdfMode entry depends on whether
+       we have the lmd variant or not.
+     */
     val pdfMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(PDF_MODE), BuildConfig.IS_PDF_MODE_DEFAULT
+        dataStore, booleanPreferencesKey(PDF_MODE), BuildConfig.IS_LMD
     )
 
     val tryPdfDialogCount: DataStoreEntry<Int> = SimpleDataStoreEntry(
