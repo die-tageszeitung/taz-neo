@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
@@ -35,9 +36,14 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                    val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                    viewBinding.fabActionPdf.setImageResource(drawable)
+                if (BuildConfig.IS_LMD) {
+                    viewBinding.fabActionPdf.visibility = View.GONE
+                }
+                else {
+                    homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
+                        val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                        viewBinding.fabActionPdf.setImageResource(drawable)
+                    }
                 }
             }
         }
