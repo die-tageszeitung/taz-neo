@@ -150,8 +150,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     issueContentViewModel.lastSectionKey = null
                     // in pdf mode update the corresponding page:
                     if (tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-                        val pdfPageWhereArticleBegins = nextStub.pageNameList.first()
-                        pdfPagerViewModel.goToPdfPage(pdfPageWhereArticleBegins)
+                        val pdfPageWhereArticleBegins = nextStub.pageNameList.firstOrNull()
+                        pdfPageWhereArticleBegins?.let {
+                            lifecycleScope.launch {
+                                pdfPagerViewModel.goToPdfPage(it)
+                            }
+                        }
                     }
                 }
             }
