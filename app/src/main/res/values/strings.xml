@@ -235,7 +235,7 @@
 
     <string name="login_email_hint">E-Mail-Adresse</string>
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
-    <string name="login_email_error_invalid">Muss eine E-Mail-Adresse sein.</string>
+    <string name="login_email_error_invalid">E-Mail-Adresse ungültig</string>
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
