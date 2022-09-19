@@ -172,7 +172,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                     if (link.startsWith("art") && link.endsWith(".html")) {
                         lifecycleScope.launch {
                             pdfPagerViewModel.hideDrawerLogo.postValue(false)
-                            val article = articleRepository.get(link)
+                            val article = pdfPagerViewModel.getCorrectArticle(link)
                             val fragment =
                                 if (article?.isImprint() == true) ImprintWebViewFragment()
                                 else ArticlePagerFragment()
@@ -188,7 +188,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
                             issueContentViewModel.setDisplayable(
                                 IssueKey(issueKey),
-                                link
+                                article?.key
                             )
                         }
                     } else if (link.startsWith("http") || link.startsWith("mailto:")) {
