@@ -7,7 +7,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.FeedService
@@ -65,14 +65,14 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
             // Otherwise (null feed) show a warning to the user.
             // Warning: This will re-try to request the feed from the api indefinitely in case of connection failures.
             feedService
-                .getFeedFlowByName(DISPLAYED_FEED, retryOnFailure = true)
+                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED, retryOnFailure = true)
                 .distinctUntilChanged()
                 .collect {
                     if (it != null) {
                         viewModel.setFeed(it)
                     } else {
                         val message =
-                            "Failed to retrieve feed $DISPLAYED_FEED, cannot show anything"
+                            "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
                         log.error(message)
                         Sentry.captureMessage(message)
                         toastHelper.showSomethingWentWrongToast()

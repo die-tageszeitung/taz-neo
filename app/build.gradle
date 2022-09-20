@@ -150,6 +150,7 @@ android {
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
         buildConfigField "Boolean", "IS_LMD", "false"
+        buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
 
         def ENV = System.getenv()
         def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
@@ -179,6 +180,7 @@ android {
             dimension "owner"
             applicationId "de.taz.android.app"
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"taz.de/appGraphQl\""
+            buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
         }
 
         lmd {
@@ -186,6 +188,7 @@ android {
             applicationId "de.monde_diplomatique.android.app"
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
             buildConfigField "Boolean", "IS_LMD", "true"
+            buildConfigField "String", "DISPLAYED_FEED", "\"lmd\""
         }
 
         free {

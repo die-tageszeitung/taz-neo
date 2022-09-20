@@ -15,7 +15,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
-import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
@@ -141,7 +140,7 @@ class SplashActivity : StartupActivity() {
         try {
             // First try to get the latest feed. This will refresh the feed automatically if it has
             // not been fetched yet.
-            val feed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
+            val feed = feedService.getFeedFlowByName(BuildConfig.DISPLAYED_FEED).first()
 
             // If for any reason we don't have a feed with publication dates, we will try once more
             // to refresh the feed from the API - in case that for unknown reasons only the the
@@ -150,7 +149,7 @@ class SplashActivity : StartupActivity() {
             // non empty publication dates.
             val hasPublicationDate = feed?.publicationDates?.isNotEmpty() == true
             if (!hasPublicationDate) {
-                feedService.refreshFeed(DISPLAYED_FEED)
+                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
             }
 
         } catch (e: ConnectivityException) {
@@ -403,7 +402,7 @@ class InitializationException(message: String, override val cause: Throwable? = 
 // Thus we can not throw the InitializationException to showConnectionErrorDialog() but have to fall back to a basic toast.
 private suspend fun checkForNewestIssue(feedService: FeedService, toastHelper: ToastHelper) {
     try {
-        feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+        feedService.refreshFeedAndGetIssueKeyIfNew(BuildConfig.DISPLAYED_FEED)
     } catch (e: ConnectivityException) {
 
         toastHelper.showConnectionToServerFailedToast()

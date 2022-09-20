@@ -13,7 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.ApiService
@@ -210,7 +210,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleFileName: String,
         datePublished: Date
     ) {
-        val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+        val issueMetadata = apiService?.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
         issueMetadata?.let { issue ->
             contentService?.downloadMetadata(issue, maxRetries = 5)
             articleRepository?.get(articleFileName)?.let {

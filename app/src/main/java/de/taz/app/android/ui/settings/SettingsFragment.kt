@@ -380,7 +380,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
 
-        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
+        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: BuildConfig.DISPLAYED_FEED
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0

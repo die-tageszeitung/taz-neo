@@ -44,9 +44,6 @@ const val CONNECTION_FAILURE_BACKOFF_TIME_MS = 100L
 const val MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS = 4000L
 const val MAX_BYTES = 4294967296 // = 2^32
 
-// feed
-const val DISPLAYED_FEED = "taz"
-
 // onSaveInstanceState
 const val DISPLAYABLE_NAME = "displayableName"
 
