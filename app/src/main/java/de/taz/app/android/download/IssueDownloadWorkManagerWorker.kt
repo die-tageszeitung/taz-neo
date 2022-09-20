@@ -3,7 +3,7 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
@@ -46,9 +46,10 @@ class IssueDownloadWorkManagerWorker(
 
         try {
             // maybe get new issue
-            val newestIssueKey = feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
+            val newestIssueKey =
+                feedService.refreshFeedAndGetIssueKeyIfNew(BuildConfig.DISPLAYED_FEED)
             if (newestIssueKey == null) {
-                val oldFeed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
+                val oldFeed = feedService.getFeedFlowByName(BuildConfig.DISPLAYED_FEED).first()
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
                 return@coroutineScope Result.success()
             } else {

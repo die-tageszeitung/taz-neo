@@ -9,7 +9,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
@@ -96,7 +95,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private suspend fun onRefresh() {
         try {
             val feedService = FeedService.getInstance(requireContext().applicationContext)
-            feedService.refreshFeed(DISPLAYED_FEED)
+            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
         } catch (e: ConnectivityException.NoInternetException) {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showNoConnectionToast()
