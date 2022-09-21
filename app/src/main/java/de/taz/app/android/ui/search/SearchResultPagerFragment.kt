@@ -27,11 +27,13 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -75,7 +77,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         // we either want to restore the last position or the one given on initialization
         initialPosition = savedInstanceState?.getInt(RESTORATION_POSITION)
-                ?: requireArguments().getInt(INITIAL_POSITION, RecyclerView.NO_POSITION)
+            ?: requireArguments().getInt(INITIAL_POSITION, RecyclerView.NO_POSITION)
         log.verbose("initialPosition is $initialPosition")
 
         setupViewPager()
@@ -210,15 +212,23 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleFileName: String,
         datePublished: Date
     ) {
-        val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
-        issueMetadata?.let { issue ->
-            contentService?.downloadMetadata(issue, maxRetries = 5)
-            articleRepository?.get(articleFileName)?.let {
-                contentService?.downloadToCache(it)
-                articleRepository?.bookmarkArticle(it)
+        try {
+            val issueMetadata = apiService?.getIssueByFeedAndDate(DISPLAYED_FEED, datePublished)
+            issueMetadata?.let { issue ->
+                contentService?.downloadMetadata(issue, maxRetries = 5)
+                articleRepository?.get(articleFileName)?.let {
+                    contentService?.downloadToCache(it)
+                    articleRepository?.bookmarkArticle(it)
+                }
             }
+        } catch (e: Exception) {
+            val hint = "Error while trying to download a full article because of a bookmark request"
+            log.error(hint, e)
+            Sentry.captureException(e, hint)
+            ToastHelper.getInstance(requireActivity().applicationContext)
+                .showToast(R.string.toast_problem_bookmarking_article, long = true)
         }
-}
+    }
 
     fun share() {
         lifecycleScope.launch {

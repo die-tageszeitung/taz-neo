@@ -20,12 +20,14 @@ import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -173,6 +175,12 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                     contentService.downloadIssuePublicationToCache(issuePublication)
                 } catch (e: CacheOperationFailedException) {
                     // Errors are handled in CoverViewBinding
+                } catch (e: CannotDetermineBaseUrlException) {
+                    // FIXME (johannes): Workaround to #14367
+                    // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
+                    val hint = "Could not determine baseurl for issue with publication $issuePublication"
+                    log.error(hint, e)
+                    Sentry.captureException(e, hint)
                 }
             }
             dismiss()
