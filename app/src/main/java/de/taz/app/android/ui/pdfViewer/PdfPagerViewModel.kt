@@ -93,6 +93,11 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
+
+                // Start the download of the issue publication in the background on the application coroutine scope,
+                // thus it wont be canceled when this ViewModel is destroyed.
+                // But wait (join) until the operations coroutine has finished - note that we don't know if the
+                // downloadToCache did succeed or failed: only that the launched coroutine has stopped
                 getApplicationScope().launch {
                     contentService.downloadToCache(issuePublicationWithPages)
                 }.join()
