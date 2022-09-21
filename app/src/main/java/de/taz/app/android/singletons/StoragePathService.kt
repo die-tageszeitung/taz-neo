@@ -11,7 +11,6 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,6 +22,7 @@ class StoragePathService private constructor(private val applicationContext: Con
 
     private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
 
     /**
      * Determine the base url of a collection by resolving the issue or determining it's a global
@@ -34,7 +34,6 @@ class StoragePathService private constructor(private val applicationContext: Con
         fileEntry: FileEntry,
         collection: DownloadableCollection? = null,
     ): String = withContext(Dispatchers.IO) {
-        val contentService = ContentService.getInstance(applicationContext)
         when (fileEntry.storageType) {
             StorageType.global -> {
                 (contentService.downloadMetadata(
@@ -50,15 +49,7 @@ class StoragePathService private constructor(private val applicationContext: Con
             }
             StorageType.issue -> {
                 when (collection) {
-                    is Moment -> if (collection.baseUrl.isNotEmpty()) {
-                        collection.baseUrl
-                    } else {
-                        // TODO: We migrated baseUrl from Issue in earlier versions to make the Moment standalone. To monitor this volatile migration report any inconsistency
-                        // Can be removed if no problem occurs
-                        val hint =
-                            "Moment.baseUrl was not properly migrated for ${collection.getDownloadTag()}"
-                        Sentry.captureMessage(hint)
-                        log.warn(hint)
+                    is Moment -> collection.baseUrl.ifEmpty {
                         issueRepository.get(
                             IssueKey(
                                 collection.issueFeedName,
