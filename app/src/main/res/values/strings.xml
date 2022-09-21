@@ -12,6 +12,7 @@
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
+    <string name="toast_problem_bookmarking_article">Der Artikel konnte nicht zu den Lesezeichen hinzugefügt werden. Bitte versuchen Sie es erneut.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>

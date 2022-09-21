@@ -10,10 +10,12 @@ import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import io.sentry.Sentry
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
@@ -82,15 +84,7 @@ class IssueViewerViewModel(
                 setDisplayable(
                     IssueKeyWithDisplayableKey(issueKey, displayable)
                 )
-                // Start downloading the whole issue in background
-                getApplicationScope().launch {
-                    try {
-                        contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
-                        issueRepository.updateLastViewedDate(issueKey)
-                    } catch (e: CacheOperationFailedException) {
-                        issueLoadingFailedErrorFlow.emit(true)
-                    }
-                }
+                startBackgroundIssueDownload(issueKey)
             } catch (e: CacheOperationFailedException) {
                 issueLoadingFailedErrorFlow.emit(true)
             }
@@ -99,6 +93,24 @@ class IssueViewerViewModel(
                 IssueKeyWithDisplayableKey(issueKey, displayableKey),
                 immediate
             )
+        }
+    }
+
+    private fun startBackgroundIssueDownload(issueKey: IssueKey) {
+        getApplicationScope().launch {
+            try {
+                contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
+                issueRepository.updateLastViewedDate(issueKey)
+            } catch (e: CacheOperationFailedException) {
+                issueLoadingFailedErrorFlow.emit(true)
+            } catch (e: CannotDetermineBaseUrlException) {
+                // FIXME (johannes): Workaround to #14367
+                // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
+                val hint = "Could not determine baseurl for issue with key $issueKey"
+                log.error(hint, e)
+                Sentry.captureException(e, hint)
+                issueLoadingFailedErrorFlow.emit(true)
+            }
         }
     }
 

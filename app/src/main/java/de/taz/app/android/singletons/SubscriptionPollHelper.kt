@@ -27,6 +27,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
     init {
         authHelper.isPolling.asLiveData()
+            // FIXME (johannes): Use `status.asFlow` instead of `asLiveData`
             .observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
                 if (isPolling) {
                     poll()
@@ -50,7 +51,8 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
                         authHelper.status.set(AuthStatus.valid)
-                        launch {
+                        // FIXME (johannes): Use `status.asFlow` instead of `asLiveData`
+                        withContext(Dispatchers.Main) {
                             authHelper.status.asLiveData()
                                 .observeDistinctOnce(ProcessLifecycleOwner.get()) {
                                     launch(Dispatchers.IO) {
@@ -91,7 +93,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                     }
                     SubscriptionStatus.toManyPollTrys -> {
                         authHelper.isPolling.set(false)
-                        Sentry.captureMessage("ToManyPollTrys")
+                        Sentry.captureMessage("TooManyPollTrys")
                     }
                     else -> {
                         // should not happen
