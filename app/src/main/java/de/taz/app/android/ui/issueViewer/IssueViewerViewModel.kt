@@ -78,7 +78,8 @@ class IssueViewerViewModel(
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
                     ?: dataService.getLastDisplayableOnIssue(issueKey)
-                    ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
+                    ?: sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                    ?: throw Exception("Could not get sections for issue $issueKey")
                 setDisplayable(
                     IssueKeyWithDisplayableKey(issueKey, displayable)
                 )
