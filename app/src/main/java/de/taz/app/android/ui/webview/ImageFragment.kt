@@ -14,7 +14,6 @@ import de.taz.app.android.WEBVIEW_JQUERY_FILE
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -42,7 +41,6 @@ const val HTML_BACKGROUND_CONTAINER = """
 class ImageFragment : Fragment(R.layout.fragment_image) {
     var image: Image? = null
     private var toDownloadImage: Image? = null
-    private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -65,7 +63,6 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        dataService = DataService.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)

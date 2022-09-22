@@ -25,7 +25,6 @@ import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -48,7 +47,6 @@ class SplashActivity : StartupActivity() {
 
     private val log by Log
 
-    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -66,7 +64,6 @@ class SplashActivity : StartupActivity() {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { showSplashScreen }
 
-        dataService = DataService.getInstance(application)
         authHelper = AuthHelper.getInstance(application)
         toastHelper = ToastHelper.getInstance(application)
         fileEntryRepository = FileEntryRepository.getInstance(application)
@@ -157,7 +154,6 @@ class SplashActivity : StartupActivity() {
             throw InitializationException("Could not retrieve feed during first start")
         }
     }
-
 
     /**
      * download AppInfo and persist it

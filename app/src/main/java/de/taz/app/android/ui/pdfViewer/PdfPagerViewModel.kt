@@ -6,7 +6,6 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
@@ -27,7 +26,6 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val authHelper = AuthHelper.getInstance(application)
-    private val dataService = DataService.getInstance(application)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
@@ -61,7 +59,7 @@ class PdfPagerViewModel(
             // Save current position to database to restore later on
             viewModelScope.launch {
                 issueKey.value?.let {
-                    dataService.saveLastPageOnIssue(
+                    issueRepository.saveLastPagePosition(
                         it.getIssueKey(),
                         position
                     )

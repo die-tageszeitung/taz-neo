@@ -11,7 +11,6 @@ import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.FeedService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
@@ -44,7 +43,6 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     private val log by Log
 
-    private lateinit var dataService: DataService
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 
@@ -85,7 +83,6 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         super.onAttach(context)
 
         // get or initialize the singletons
-        dataService = DataService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
     }
