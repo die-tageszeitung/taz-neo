@@ -482,7 +482,7 @@ class LoginViewModel @JvmOverloads constructor(
                 SubscriptionStatus.noFirstName -> {
                     status.postValue(LoginViewModelState.NAME_MISSING)
                 }
-                SubscriptionStatus.toManyPollTrys -> {
+                SubscriptionStatus.tooManyPollTries -> {
                     authHelper.isPolling.set(false)
                     Sentry.captureMessage("ToManyPollTrys")
                 }
@@ -680,7 +680,7 @@ class LoginViewModel @JvmOverloads constructor(
                         SubscriptionStatus.valid,
                         SubscriptionStatus.invalidConnection,
                         SubscriptionStatus.noPollEntry,
-                        SubscriptionStatus.toManyPollTrys,
+                        SubscriptionStatus.tooManyPollTries,
                         SubscriptionStatus.subscriptionIdNotValid,
                         SubscriptionStatus.elapsed -> {
                             // this should not happen
