@@ -11,7 +11,6 @@ import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityWelcomeBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -34,7 +33,6 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     private val log by Log
 
     private lateinit var storageService: StorageService
-    private lateinit var dataService: DataService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
     private var resourceInfoRepository: ResourceInfoRepository? = null
@@ -52,7 +50,6 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
         storageService = StorageService.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
-        dataService = DataService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
 

@@ -4,14 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
@@ -26,15 +24,9 @@ import kotlin.math.floor
 class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
 
     override lateinit var adapter: IssueFeedAdapter
-    private lateinit var dataService: DataService
 
     private val grid by lazy { viewBinding.fragmentArchiveGrid }
     private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        dataService = DataService.getInstance(requireContext().applicationContext)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

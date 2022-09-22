@@ -27,11 +27,13 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -75,7 +77,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         // we either want to restore the last position or the one given on initialization
         initialPosition = savedInstanceState?.getInt(RESTORATION_POSITION)
-                ?: requireArguments().getInt(INITIAL_POSITION, RecyclerView.NO_POSITION)
+            ?: requireArguments().getInt(INITIAL_POSITION, RecyclerView.NO_POSITION)
         log.verbose("initialPosition is $initialPosition")
 
         setupViewPager()
@@ -87,6 +89,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         fontSizeLiveData.observeDistinct(this) {
             reloadAfterCssChange()
         }
+
+        viewModel.isBookmarkedLiveData.observeDistinct(
+            this@SearchResultPagerFragment,
+            isBookmarkedObserver
+        )
     }
 
     private fun setupViewPager() {
@@ -107,38 +114,28 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
-    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-            if (isBookmarked) {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-            } else {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-            }
+    private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+        if (isBookmarked) {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+        } else {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
         }
-        private var isBookmarkedLiveData: LiveData<Boolean>? = null
+    }
 
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
             super.onPageSelected(position)
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
-            lifecycleScope.launchWhenResumed {
-                // show the share icon always when in public article
-                // OR when an onLink link is provided
-                viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    determineShareIconVisibility(
-                        getCurrentSearchHit()?.article?.onlineLink,
-                        getCurrentSearchHit()?.article?.articleHtml?.name.toString()
-                    )
-
-                isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = viewModel.isBookmarkedLiveData
-                isBookmarkedLiveData?.observeDistinct(
-                    this@SearchResultPagerFragment,
-                    isBookmarkedObserver
+            // show the share icon always when in public article
+            // OR when an onLink link is provided
+            viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                determineShareIconVisibility(
+                    getCurrentSearchHit()?.article?.onlineLink,
+                    getCurrentSearchHit()?.article?.articleHtml?.name.toString()
                 )
-            }
         }
     }
 
@@ -210,15 +207,23 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleFileName: String,
         datePublished: Date
     ) {
-        val issueMetadata = apiService?.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
-        issueMetadata?.let { issue ->
-            contentService?.downloadMetadata(issue, maxRetries = 5)
-            articleRepository?.get(articleFileName)?.let {
-                contentService?.downloadToCache(it)
-                articleRepository?.bookmarkArticle(it)
+        try {
+            val issueMetadata = apiService?.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
+            issueMetadata?.let { issue ->
+                contentService?.downloadMetadata(issue, maxRetries = 5)
+                articleRepository?.get(articleFileName)?.let {
+                    contentService?.downloadToCache(it)
+                    articleRepository?.bookmarkArticle(it)
+                }
             }
+        } catch (e: Exception) {
+            val hint = "Error while trying to download a full article because of a bookmark request"
+            log.error(hint, e)
+            Sentry.captureException(e, hint)
+            ToastHelper.getInstance(requireActivity().applicationContext)
+                .showToast(R.string.toast_problem_bookmarking_article, long = true)
         }
-}
+    }
 
     fun share() {
         lifecycleScope.launch {

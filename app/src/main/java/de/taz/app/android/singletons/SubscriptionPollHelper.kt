@@ -1,20 +1,18 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.ViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
-import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinctOnce
-import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.distinctUntilChanged
+
+private const val POLLING_TIMEOUT_INITIAL_MS = 100L
+private const val POLLING_TIMEOUT_MAX_MS = 3600000L // 1 hour
 
 class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
@@ -23,20 +21,26 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
     private val apiService = ApiService.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val toastHelper = ToastHelper.getInstance(applicationContext)
-    private val issueRepository = IssueRepository.getInstance(applicationContext)
+
+    private val scope = CoroutineScope(Dispatchers.Default)
+    private var pollingJob: Job? = null
 
     init {
-        authHelper.isPolling.asLiveData()
-            .observeDistinct(ProcessLifecycleOwner.get()) { isPolling ->
-                if (isPolling) {
-                    poll()
+        scope.launch {
+            authHelper.isPolling.asFlow()
+                .distinctUntilChanged()
+                .collect {
+                    if (it) {
+                        poll()
+                    }
                 }
-            }
+        }
     }
 
-    private fun poll(timeoutMillis: Long = 100) {
-        val timeMillis = timeoutMillis.coerceAtMost(3600000)
-        CoroutineScope(Dispatchers.Default).launch {
+    private fun poll(timeoutMillis: Long = POLLING_TIMEOUT_INITIAL_MS) {
+        pollingJob?.cancel()
+        pollingJob = scope.launch {
+            val timeMillis = timeoutMillis.coerceAtMost(POLLING_TIMEOUT_MAX_MS)
             delay(timeMillis)
 
             try {
@@ -49,18 +53,16 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                         authHelper.token.set(requireNotNull(subscriptionInfo.token) {
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
+                        val currentAuthStatus = authHelper.status.get()
                         authHelper.status.set(AuthStatus.valid)
-                        launch {
-                            authHelper.status.asLiveData()
-                                .observeDistinctOnce(ProcessLifecycleOwner.get()) {
-                                    launch(Dispatchers.IO) {
-                                        issueRepository.saveIfDoesNotExist(
-                                            apiService.getLastIssues()
-                                        )
-                                    }
-                                }
-                        }
+
                         toastHelper.showToast(R.string.toast_login_successful)
+
+                        // FIXME (johannes): remove this comment if no errors are reported
+                        // Previously we did call apiService.getLastIssues() once the AuthStatus become valid
+                        // We heavily tested its removal as we should not need this explicit call in case of
+                        // E-Mail verification. The flow is the same as just logging in and should already
+                        // be handled successfully.
                     }
                     SubscriptionStatus.tazIdNotValid,
                     SubscriptionStatus.subscriptionIdNotValid,
@@ -89,9 +91,9 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                         // continue and wait for correct response
                         poll(timeMillis * 2)
                     }
-                    SubscriptionStatus.toManyPollTrys -> {
+                    SubscriptionStatus.tooManyPollTries -> {
                         authHelper.isPolling.set(false)
-                        Sentry.captureMessage("ToManyPollTrys")
+                        Sentry.captureMessage("TooManyPollTries")
                     }
                     else -> {
                         // should not happen

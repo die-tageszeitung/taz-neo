@@ -16,6 +16,7 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.IssuePublicationMonitor
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,8 @@ class DownloadObserver(
     private val checkmarkIconView: View,
     private val downloadProgressView: View
 ) {
+    private val log by Log
+
     private val contentService by lazy { ContentService.getInstance(fragment.requireContext().applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(fragment.requireContext().applicationContext) }
     private val downloadDataStore by lazy { DownloadDataStore.getInstance(fragment.requireContext().applicationContext) }
@@ -160,7 +163,7 @@ class DownloadObserver(
             withContext(Dispatchers.Main) {
                 startObserving()
             }
-            contentService.downloadIssuePublicationToCache(issuePublication)
+            downloadIssuePublication(issuePublication)
         }
     }
 
@@ -173,7 +176,19 @@ class DownloadObserver(
         fragment.lifecycleScope.launch {
             downloadDataStore.pdfAdditionally.set(pdfAdditionally)
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
+            downloadIssuePublication(issuePublication)
+        }
+    }
+
+    // Try to download the issue publication and catch and log _any exception_
+    // The exception is not re-thrown!
+    private suspend fun downloadIssuePublication(issuePublication: AbstractIssuePublication) {
+        try {
             contentService.downloadIssuePublicationToCache(issuePublication)
+        } catch (e: Exception) {
+            val hint = "Exception while downloading an issue publication from the download observer"
+            log.error(hint, e)
+            Sentry.captureException(e, hint)
         }
     }
 }

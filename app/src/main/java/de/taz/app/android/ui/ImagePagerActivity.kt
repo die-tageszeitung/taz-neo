@@ -12,7 +12,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
 import de.taz.app.android.base.ViewBindingActivity
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.ActivityImagePagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -21,7 +20,6 @@ import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 
@@ -40,13 +38,10 @@ class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
     private lateinit var pagerAdapter: ImagePagerAdapter
     private lateinit var imageName: String
 
-    private lateinit var dataService: DataService
-
     val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dataService = DataService.getInstance(applicationContext)
 
         try {
             displayableName = intent.extras!!.getString(DISPLAYABLE_NAME)!!

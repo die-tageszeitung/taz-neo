@@ -132,9 +132,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
         private var hasAudioObserver = Observer<Boolean> { hasAudio ->
             if (hasAudio) {
-                showItem(R.id.bottom_navigation_action_audio)
+                activateItem(R.id.bottom_navigation_action_audio)
             } else {
-                hideItem(R.id.bottom_navigation_action_audio)
+                deactivateItem(R.id.bottom_navigation_action_audio)
             }
         }
         private var hasAudioLiveData: LiveData<Boolean>? = null
@@ -167,8 +167,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     issueContentViewModel.lastSectionKey = null
                     // in pdf mode update the corresponding page:
                     if (tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-                        val pdfPageWhereArticleBegins = nextStub.pageNameList.first()
-                        pdfPagerViewModel.goToPdfPage(pdfPageWhereArticleBegins)
+                        val pdfPageWhereArticleBegins = nextStub.pageNameList.firstOrNull()
+                        pdfPageWhereArticleBegins?.let {
+                            lifecycleScope.launch {
+                                pdfPagerViewModel.goToPdfPage(it)
+                            }
+                        }
                     }
                 }
             }

@@ -27,11 +27,13 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
+import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.*
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
@@ -289,6 +291,13 @@ abstract class WebViewFragment<
                 }
                 path?.let { loadUrl(it) }
             } catch (e: CacheOperationFailedException) {
+                issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
+            } catch (e: CannotDetermineBaseUrlException) {
+                // FIXME (johannes): Workaround to #14367
+                // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
+                val hint = "Could not determine baseurl for the displayable ${displayable.key}"
+                log.error(hint, e)
+                Sentry.captureException(e, hint)
                 issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             }
         }

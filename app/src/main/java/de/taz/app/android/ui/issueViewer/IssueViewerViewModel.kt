@@ -6,14 +6,15 @@ import androidx.lifecycle.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.util.Log
 import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import io.sentry.Sentry
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
@@ -35,7 +36,6 @@ class IssueViewerViewModel(
 ) : AndroidViewModel(application) {
     private val log by Log
     private val authHelper = AuthHelper.getInstance(application)
-    private val dataService = DataService.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
@@ -61,7 +61,7 @@ class IssueViewerViewModel(
         issueDisplayable?.let {
             // persist the last displayable in db
             viewModelScope.launch {
-                dataService.saveLastDisplayableOnIssue(it.issueKey, it.displayableKey)
+                issueRepository.saveLastDisplayable(it.issueKey, it.displayableKey)
             }
         }
     }
@@ -77,20 +77,12 @@ class IssueViewerViewModel(
             try {
                 // either displayable is specified, persisted or defaulted to first section
                 val displayable = displayableKey
-                    ?: dataService.getLastDisplayableOnIssue(issueKey)
+                    ?: issueRepository.getLastDisplayable(issueKey)
                     ?: sectionRepository.getSectionStubsForIssue(issueKey).first().key
                 setDisplayable(
                     IssueKeyWithDisplayableKey(issueKey, displayable)
                 )
-                // Start downloading the whole issue in background
-                getApplicationScope().launch {
-                    try {
-                        contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
-                        issueRepository.updateLastViewedDate(issueKey)
-                    } catch (e: CacheOperationFailedException) {
-                        issueLoadingFailedErrorFlow.emit(true)
-                    }
-                }
+                startBackgroundIssueDownload(issueKey)
             } catch (e: CacheOperationFailedException) {
                 issueLoadingFailedErrorFlow.emit(true)
             }
@@ -99,6 +91,24 @@ class IssueViewerViewModel(
                 IssueKeyWithDisplayableKey(issueKey, displayableKey),
                 immediate
             )
+        }
+    }
+
+    private fun startBackgroundIssueDownload(issueKey: IssueKey) {
+        getApplicationScope().launch {
+            try {
+                contentService.downloadIssuePublicationToCache(IssuePublication(issueKey))
+                issueRepository.updateLastViewedDate(issueKey)
+            } catch (e: CacheOperationFailedException) {
+                issueLoadingFailedErrorFlow.emit(true)
+            } catch (e: CannotDetermineBaseUrlException) {
+                // FIXME (johannes): Workaround to #14367
+                // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
+                val hint = "Could not determine baseurl for issue with key $issueKey"
+                log.error(hint, e)
+                Sentry.captureException(e, hint)
+                issueLoadingFailedErrorFlow.emit(true)
+            }
         }
     }
 

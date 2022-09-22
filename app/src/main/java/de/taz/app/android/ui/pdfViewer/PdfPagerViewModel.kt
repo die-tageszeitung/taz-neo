@@ -2,16 +2,13 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.R
-import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.*
+import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -34,7 +31,6 @@ class PdfPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val authHelper = AuthHelper.getInstance(application)
-    private val dataService = DataService.getInstance(application)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(application)
@@ -68,7 +64,7 @@ class PdfPagerViewModel(
             // Save current position to database to restore later on
             viewModelScope.launch {
                 issueKey.value?.let {
-                    dataService.saveLastPageOnIssue(
+                    issueRepository.saveLastPagePosition(
                         it.getIssueKey(),
                         position
                     )
@@ -100,6 +96,11 @@ class PdfPagerViewModel(
 
                 issueRepository.updateLastViewedDate(issue)
                 postValue(issue)
+
+                // Start the download of the issue publication in the background on the application coroutine scope,
+                // thus it wont be canceled when this ViewModel is destroyed.
+                // But wait (join) until the operations coroutine has finished - note that we don't know if the
+                // downloadToCache did succeed or failed: only that the launched coroutine has stopped
                 getApplicationScope().launch {
                     contentService.downloadToCache(issuePublicationWithPages)
                 }.join()
@@ -199,11 +200,26 @@ class PdfPagerViewModel(
     }
 
     fun goToPdfPage(link: String) {
-        updateCurrentItem(getPositionOfPdf(link))
+        // it is only possible to go to another page if we are on a regular issue
+        // (otherwise we only have the first page)
+        if (issue.value?.status == IssueStatus.regular) {
+            updateCurrentItem(getPositionOfPdf(link))
+        }
     }
 
     private fun getPositionOfPdf(fileName: String): Int {
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
+    }
+
+    suspend fun getCorrectArticle(link: String): Article? {
+        val correctLink = if (issue.value?.status == IssueStatus.regular) {
+            link
+        } else {
+            // if we are not on a regular issue all the articles have "public" indication
+            // unfortunately it is not delivered via [page.frameList] so we need to modify it here:
+            link.replace(".html", ".public.html")
+        }
+        return articleRepository.get(correctLink)
     }
 
     val elapsedSubscription = authHelper.status.asFlow()
