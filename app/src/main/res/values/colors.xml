@@ -43,6 +43,9 @@
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
 
     <color name="coverflow_background">@color/superDarkGrey</color>
+    <color name="coverflow_text_color">@color/lightGrey</color>
+    <color name="coverflow_icon_tint">@color/lightGrey</color>
+
     <color name="fragment_archive_background">@color/superDarkGrey</color>
 
     <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>

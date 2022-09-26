@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
@@ -214,7 +215,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
 
         // set date text
-        this.date.text = DateHelper.dateToLongLocalizedLowercaseString(date)
+        if (BuildConfig.IS_LMD) {
+            this.date.text = DateHelper.dateToLocalizedMonthAndYearString(date)
+        } else {
+            this.date.text = DateHelper.dateToLongLocalizedLowercaseString(date)
+        }
     }
 
     /**

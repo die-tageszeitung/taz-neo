@@ -44,14 +44,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_home_login"
-            android:textColor="@color/lightGrey" />
+            android:textColor="@color/coverflow_text_color" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:translationY="@dimen/fragment_cover_flow_arrow_translation_y"
             android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
-            android:src="@drawable/ic_arrow_right" />
+            android:src="@drawable/ic_arrow_right"
+            app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Guideline
@@ -114,7 +115,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/icon_tint" />
+                app:tint="@color/coverflow_icon_tint" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -139,7 +140,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/icon_tint" />
+                app:tint="@color/coverflow_icon_tint" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -174,6 +175,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
+        app:tint="@color/coverflow_icon_tint"
         tools:srcCompat="@drawable/ic_arrow_down" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

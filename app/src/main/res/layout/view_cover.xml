@@ -86,7 +86,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/icon_tint" />
+                app:tint="@color/coverflow_icon_tint" />
 
             <ImageView
                 android:id="@+id/view_moment_download_finished"
@@ -99,7 +99,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/icon_tint" />
+                app:tint="@color/coverflow_icon_tint" />
 
             <ProgressBar
                 android:id="@+id/view_moment_downloading"
