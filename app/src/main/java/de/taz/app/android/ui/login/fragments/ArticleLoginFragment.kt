@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
@@ -195,11 +196,20 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private fun showLoginSubscribeUi() {
         viewBinding.apply {
             readOnLoginGroup.visibility = View.VISIBLE
-            readOnSeparatorLine.visibility = View.VISIBLE
-            readOnTrialSubscriptionBox.visibility = View.VISIBLE
-            readOnSwitchPrint2digiBox.visibility = View.VISIBLE
-            readOnExtendPrintWithDigiBox.visibility = View.VISIBLE
             readOnElapsedGroup.visibility = View.GONE
+
+            if (BuildConfig.IS_LMD) {
+                readOnSeparatorLine.visibility = View.GONE
+                readOnTrialSubscriptionBox.visibility = View.GONE
+                readOnSwitchPrint2digiBox.visibility = View.GONE
+                readOnExtendPrintWithDigiBox.visibility = View.GONE
+            }
+            else {
+                readOnSeparatorLine.visibility = View.VISIBLE
+                readOnTrialSubscriptionBox.visibility = View.VISIBLE
+                readOnSwitchPrint2digiBox.visibility = View.VISIBLE
+                readOnExtendPrintWithDigiBox.visibility = View.VISIBLE
+            }
         }
     }
 
