@@ -95,11 +95,11 @@ interface ArticleDao : BaseDao<ArticleStub> {
         ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
     """
     )
-    suspend fun getBookmarkedArticleStubsForIssue(
+    fun getBookmarkedArticleStubsForIssue(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): List<ArticleStub>
+    ): Flow<List<ArticleStub>>
 
     @Query(
         """

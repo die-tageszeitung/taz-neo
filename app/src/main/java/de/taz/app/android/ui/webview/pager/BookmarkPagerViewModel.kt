@@ -40,6 +40,10 @@ class BookmarkPagerViewModel(
 
     // Transform the Flows to livedata within the default dispatcher so that the flows map operation dont run on main
     private val flowToLiveDataContext = viewModelScope.coroutineContext + Dispatchers.Default
+
+    /**
+     * IS_LMD
+     */
     val bookmarkedArticleStubsLiveData = articleRepository.getBookmarkedArticleStubsFlow().asLiveData(flowToLiveDataContext)
     val bookmarkedArticlesLiveData = articleRepository.getBookmarkedArticlesFlow().asLiveData(flowToLiveDataContext)
 

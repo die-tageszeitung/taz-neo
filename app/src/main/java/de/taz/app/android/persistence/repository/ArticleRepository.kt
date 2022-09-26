@@ -238,6 +238,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStubLiveData(articleName).map { it.bookmarkedTime != null }
     }
 
+    fun getBookmarkedArticleStubsForIssue(issueKey: IssueKey): Flow<List<ArticleStub>> {
+        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
     suspend fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
