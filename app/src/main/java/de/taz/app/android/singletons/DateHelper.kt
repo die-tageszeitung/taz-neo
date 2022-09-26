@@ -9,7 +9,8 @@ import java.util.*
 enum class DateFormat {
     None,
     LongWithWeekDay,
-    LongWithoutWeekDay
+    LongWithoutWeekDay,
+    MonthNameAndYear,
 }
 
 enum class AppTimeZone {
@@ -81,6 +82,15 @@ object DateHelper {
         }
     }
 
+    /**
+     * returns eg "Dezember 2023"
+     */
+    fun dateToLocalizedMonthAndYearString(date: Date): String {
+        return SimpleDateFormat("MMMM yyyy", deviceLocale).format(
+            date
+        )
+    }
+
     fun dateToMediumLocalizedString(date: Date): String {
         return SimpleDateFormat("d.M.yyyy", deviceLocale).format(
             date
@@ -111,6 +121,21 @@ object DateHelper {
         return try {
             SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
                 dateToMediumLocalizedString(issueDate)
+            }
+        } catch (e: ParseException) {
+            null
+        }
+    }
+
+    /**
+     * @param [dateString] of kind "2022-12-13"
+     * @return localized month name and year, eg "Dezember 2023"
+     *
+     */
+    fun stringToMonthNameAndYearString(dateString: String): String? {
+        return try {
+            SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+                dateToLocalizedMonthAndYearString(issueDate)
             }
         } catch (e: ParseException) {
             null

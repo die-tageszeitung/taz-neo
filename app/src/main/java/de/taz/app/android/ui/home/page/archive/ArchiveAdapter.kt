@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page.archive
 
 import androidx.annotation.LayoutRes
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.ui.home.page.*
@@ -21,5 +22,10 @@ class ArchiveAdapter(
     ),
     observeDownloads = true
 ) {
-    override val dateFormat: DateFormat = DateFormat.LongWithoutWeekDay
+    override val dateFormat: DateFormat =
+        if (BuildConfig.IS_LMD) {
+            DateFormat.MonthNameAndYear
+        } else {
+            DateFormat.LongWithoutWeekDay
+        }
 }

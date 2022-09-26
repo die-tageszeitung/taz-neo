@@ -118,6 +118,8 @@ class CoverView @JvmOverloads constructor(
                     momentDate.text = DateHelper.stringToLongLocalizedLowercaseString(date)
                 DateFormat.LongWithoutWeekDay ->
                     momentDate.text = DateHelper.stringToMediumLocalizedString(date)
+                DateFormat.MonthNameAndYear ->
+                    momentDate.text = DateHelper.stringToMonthNameAndYearString(date)
                 DateFormat.None ->
                     momentDate.visibility = View.GONE
             }
