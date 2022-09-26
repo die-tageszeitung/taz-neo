@@ -2,8 +2,8 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.api.models.*
 import de.taz.app.android.R
+import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
@@ -110,7 +110,8 @@ class PdfPagerViewModel(
     }
 
     val navButton = MediatorLiveData<Image>().apply {
-        val defaultDrawerFileName = getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
+        val defaultDrawerFileName =
+            getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
         viewModelScope.launch {
             postValue(imageRepository.get(defaultDrawerFileName))
         }
@@ -134,9 +135,22 @@ class PdfPagerViewModel(
         }
     }
 
+    // IS_LMD
+    private val bookmarkedArticles: LiveData<List<ArticleStub>> = issueKey.switchMap {
+        // Convert the flow to a livedata
+        liveData {
+            val bookmarkedArticleStubsFlow =
+                articleRepository.getBookmarkedArticleStubsForIssue(it.getIssueKey())
+            bookmarkedArticleStubsFlow.collect {
+                emit(it)
+            }
+        }
+    }
 
+    // IS_LMD
     private val _pdfPageToC = MediatorLiveData<List<PageWithArticles>>().apply {
-        addSource(issue) { issue ->
+        fun refreshPageToc(issue: IssueWithPages) {
+
             viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
                     val pages = mutableListOf<PageWithArticles>()
@@ -145,6 +159,7 @@ class PdfPagerViewModel(
                         page.frameList?.forEach { frame ->
                             frame.link?.let { link ->
                                 if (link.startsWith("art") && link.endsWith(".html")) {
+                                    // FIXME (johannes): this might be optimized by a "SELECT .. WHERE Article.articleFileName IN :articleFileNames" query
                                     val article = articleRepository.get(link)
                                     if (article != null) {
                                         articles.add(article)
@@ -162,12 +177,18 @@ class PdfPagerViewModel(
                             )
                         )
                     }
+
                     postValue(pages)
                 }
             }
         }
+
+        // FIXME (johannes): At the moment the refreshPageToc() will be run at least twice! because we wait for both sources. This could be optimized. Or we could simply use Flows
+        addSource(issue) { refreshPageToc(it) }
+        addSource(bookmarkedArticles) { issue.value?.let { refreshPageToc(it) } }
     }
 
+    // IS_LMD
     val pdfPageToC = _pdfPageToC as LiveData<List<PageWithArticles>>
 
     val currentPage = MediatorLiveData<Page>().apply {
