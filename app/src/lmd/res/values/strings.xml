@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">LMd</string>
     <string name="author_list">von %s</string>
+    <string name="search_input_hint">LMd Archiv durchsuchen</string>
 </resources>
