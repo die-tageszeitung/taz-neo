@@ -10,6 +10,7 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -120,8 +121,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
-        articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
-            drawerViewModel.navButton.postValue(it)
+        // TODO(peter) The following wrap with the if-condition can be removed when graphql of LMd
+        //  returns the right issue navButton.
+        if (!BuildConfig.IS_LMD) {
+            articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
+                drawerViewModel.navButton.postValue(it)
+            }
         }
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
