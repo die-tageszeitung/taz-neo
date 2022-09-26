@@ -92,18 +92,26 @@
                 android:layout_height="wrap_content"
                 android:text="@string/search_advanced_radio_timeslot_any" />
 
-            <TextView
-                style="@style/TextAppearance.Search.Category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/search_advanced_published_in" />
-
-            <TextView
-                android:id="@+id/advanced_search_published_in"
-                style="@style/TextAppearance.Settings.Entry"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/advanced_search_published_in_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/search_advanced_radio_published_in_any" />
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.Search.Category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_advanced_published_in" />
+
+                <TextView
+                    android:id="@+id/advanced_search_published_in"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_advanced_radio_published_in_any" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <TextView
                 style="@style/TextAppearance.Search.Category"
