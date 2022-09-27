@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
@@ -109,7 +110,8 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         // TODO: Although we expect a navbutton to be existent consistency issues happened in the past. We log them for now
         val navButton =
-            appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
+            appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName) ?:
+            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
 
         if (navButton == null) {
             Sentry.captureMessage("Expected navbutton for $sectionFileName but found none")

@@ -41,10 +41,12 @@ class SearchResultPagerViewModel(
         get() = articleFileNameLiveData.value
         set(value) { articleFileNameLiveData.value = value }
 
-    private val articleLiveData: LiveData<ArticleStub> = articleFileNameLiveData.switchMap {
+    private val articleLiveData: LiveData<ArticleStub?> = articleFileNameLiveData.switchMap {
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            it?.let {
+            if (it != null) {
                 emitSource(articleRepository.getStubLiveData(it))
+            } else {
+                emit(null)
             }
         }
     }
@@ -53,7 +55,8 @@ class SearchResultPagerViewModel(
         articleLiveData.map { article -> isBookmarked(article) }
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
-        val rangeInWhereToLoadMore = searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: totalFound
+        val rangeInWhereToLoadMore =
+            searchResultsLiveData.value?.size?.minus(RELOAD_BEFORE_LAST) ?: totalFound
         val searchResultListSize = searchResultsLiveData.value?.size ?: 0
         return rangeInWhereToLoadMore in 1..lastVisible
                 && currentlyLoadingMore.value == false

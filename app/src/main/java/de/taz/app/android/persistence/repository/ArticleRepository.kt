@@ -2,7 +2,10 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
@@ -11,11 +14,9 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.lang.Exception
 import java.util.*
 
 @Mockable
@@ -70,21 +71,21 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun get(articleFileName: String): Article? {
-        return getStub(articleFileName)?.let {articleStubToArticle(it) }
+        return getStub(articleFileName)?.let { articleStubToArticle(it) }
     }
 
     suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
     }
 
-    fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
+    fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
         return appDatabase.articleDao().getLiveData(articleName)
     }
 
-    fun getLiveData(articleName: String): LiveData<Article> {
+    fun getLiveData(articleName: String): LiveData<Article?> {
         return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
             liveData {
-                emit(articleStubToArticle(articleStub))
+                emit(articleStub?.let { articleStubToArticle(it) })
             }
         }
     }
@@ -231,7 +232,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it.bookmarkedTime != null }
+        return getStubLiveData(articleName).map { it?.bookmarkedTime != null }
     }
 
     suspend fun getIndexInSection(articleName: String): Int {
@@ -353,7 +354,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param articleImageFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleImageJoin] by Articles that have a [Article.dateDownload]
      */
-     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
-         return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
+    suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
+        return appDatabase.articleDao()
+            .getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
 }
