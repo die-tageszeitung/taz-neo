@@ -140,7 +140,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     R.id.fragment_issue_content_container, fragment, fragmentClass
                 )
                 .hide(fragment)
-                .runOnCommit { runWhenAdded?.let { runWhenAdded() } }
+                .runOnCommit { runWhenAdded?.invoke() }
                 .commit()
         }
     }
