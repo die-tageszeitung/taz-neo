@@ -2,6 +2,7 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -12,6 +13,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.artifex.mupdf.viewer.MuPDFCore
 import com.artifex.mupdf.viewer.PageAdapter
+import com.artifex.mupdf.viewer.PageView
+import com.artifex.mupdfdemo.ReaderView
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
@@ -28,7 +31,6 @@ import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,6 +44,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
     companion object {
         private const val PAGE_NAME = "PAGE_NAME"
+        private const val SCALE_FACTOR_FOR_PANORAMA_PAGES = 2f
 
         fun create(page: Page): PdfRenderFragment {
             val fragment = PdfRenderFragment()
@@ -58,6 +61,9 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private lateinit var issueKey: IssueKeyWithPages
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
+
+    // Set to true if we have to force a pdf view update because we did set an initial manual scale
+    private var requestPdfUpdateOnResume = false
 
     private val storageService by lazy {
         StorageService.getInstance(requireContext().applicationContext)
@@ -105,6 +111,8 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
             issueKey = it
         }
 
+        maybeUpdatePdfView()
+
         lifecycleScope.launchWhenResumed {
             tazApiCssDataStore.keepScreenOn.asFlow().collect {
                 KeepScreenOnHelper.toggleScreenOn(it, activity)
@@ -144,7 +152,7 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                         addView(pdfReaderView!!)
                     }
                     if (page?.type == PageType.panorama) {
-                        pdfReaderView!!.zoomPanoramaPage()
+                        zoomPanoramaPageInPortrait()
                     }
                 } catch (npe: NullPointerException) {
                     Sentry.captureException(npe)
@@ -231,5 +239,30 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private fun finishActivityWithErrorToast() {
         requireActivity().finish()
         toastHelper.showToast(R.string.toast_problem_showing_pdf)
+    }
+
+    private fun zoomPanoramaPageInPortrait() {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)  {
+            pdfReaderView?.mScale = SCALE_FACTOR_FOR_PANORAMA_PAGES
+            requestPdfUpdateOnResume = true
+        }
+    }
+
+    /**
+     * Updates the [PageView] (which is behind the [ReaderView]),
+     * so the page is rendered in high quality.
+     * This is done automatically when changing the layout with gestures (scrolling, zooming, etc),
+     * but not when done programmatically, eg. on zooming in the panorama pages in adapter.
+     */
+    private fun maybeUpdatePdfView() {
+        if (requestPdfUpdateOnResume) {
+            pdfReaderView?.apply {
+                (displayedView as? PageView)
+                    ?.updateHq(false)
+                    ?: log.warn("cannot cast as PageView as displayedView is null")
+            }
+
+            requestPdfUpdateOnResume = false
+        }
     }
 }

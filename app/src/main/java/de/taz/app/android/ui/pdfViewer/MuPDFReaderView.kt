@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
-import android.content.res.Configuration
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -181,13 +180,4 @@ class MuPDFReaderView constructor(
             }
         }
     }
-
-    fun zoomPanoramaPage() {
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT)  {
-            val newScale = 2f
-            mScale = newScale
-        }
-    }
-
-
 }
