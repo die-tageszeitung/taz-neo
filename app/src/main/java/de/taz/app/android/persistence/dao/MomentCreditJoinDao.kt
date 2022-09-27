@@ -33,4 +33,10 @@ interface MomentCreditJoinDao : BaseDao<MomentCreditJoin> {
     )
     suspend fun getIssueStub(momentFileName: String): IssueStub
 
+    /**
+     * Delete all the entries related to the given issue from this join table.
+     * Note: this does not delete any data in the related Moment or FileEntry table.
+     */
+    @Query("DELETE FROM MomentCreditJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
+    suspend fun delete(feedName: String, date: String, status: IssueStatus)
 }

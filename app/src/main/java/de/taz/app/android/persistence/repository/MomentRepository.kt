@@ -25,21 +25,39 @@ class MomentRepository private constructor(applicationContext: Context) :
         imageRepository.save(moment.creditList)
         fileEntryRepository.save(moment.momentList)
         appDatabase.momentDao().insertOrReplace(MomentStub(moment))
-        appDatabase.momentImageJoinJoinDao().insertOrReplace(
-            moment.imageList.mapIndexed { index, image ->
-                MomentImageJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
-            }
-        )
-        appDatabase.momentCreditJoinDao().insertOrReplace(
-            moment.creditList.mapIndexed { index, image ->
-                MomentCreditJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
-            }
-        )
-        appDatabase.momentFilesJoinDao().insertOrReplace(
-            moment.momentList.mapIndexed { index, file ->
-                MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
-            }
-        )
+
+        // Create the relation between this moment by joining its issue with the respective FileEntries.
+        // We have to delete all of the previous join table entries before inserting the current ones
+        // to ensure only the actual entries of this moments image, credit and momentList are stored.
+        // Leaving the previous ones resulted in a crash when the filename of a Moment was changed
+        // on the backend: https://redmine.hal.taz.de/issues/14295
+        // Note that the only the join table is cleared but the actual file and its FileEntry remains
+        // - even if the issue it was previously related to is deleted. We would have to implement
+        // some kind of cleanup/scrubber process to find and remove leftover files.
+        appDatabase.momentImageJoinJoinDao().apply {
+            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+            insertOrAbort(
+                moment.imageList.mapIndexed { index, image ->
+                    MomentImageJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
+                }
+            )
+        }
+        appDatabase.momentCreditJoinDao().apply {
+            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+            insertOrAbort(
+                moment.creditList.mapIndexed { index, image ->
+                    MomentCreditJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
+                }
+            )
+        }
+        appDatabase.momentFilesJoinDao().apply{
+            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+            insertOrAbort(
+                moment.momentList.mapIndexed { index, file ->
+                    MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
+                }
+            )
+        }
         return get(moment.momentKey)!!
     }
 
