@@ -20,51 +20,51 @@
         android:paddingHorizontal="@dimen/drawer_margin_horizontal"
         android:paddingVertical="@dimen/drawer_margin_vertical">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardBackgroundColor="@color/pdf_drawer_card_background"
+                app:cardElevation="@dimen/moment_elevation"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
+                app:layout_constraintStart_toStartOf="parent">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
+                    android:layout_width="@dimen/fragment_drawer_thumbnail_image_width"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
-                    app:cardBackgroundColor="@color/pdf_drawer_card_background"
-                    app:cardElevation="@dimen/moment_elevation">
-
-                    <ImageView
-                        android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
-                        android:layout_width="@dimen/fragment_drawer_thumbnail_image_width"
-                        android:layout_height="wrap_content"
-                        tools:ignore="ContentDescription"
-                        tools:layout_height="166dp"
-                        tools:layout_width="112dp"
-                        tools:src="@tools:sample/avatars" />
+                    tools:ignore="ContentDescription"
+                    tools:layout_height="166dp"
+                    tools:layout_width="112dp"
+                    tools:src="@tools:sample/avatars" />
 
 
-                </androidx.cardview.widget.CardView>
+            </androidx.cardview.widget.CardView>
 
-            </LinearLayout>
 
             <TextView
                 android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
-                android:layout_weight="0.5"
                 android:textColor="@color/pdf_section_font"
                 android:textSize="@dimen/fragment_drawer_date_text_size"
                 android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/cardView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardView"
                 tools:text="Seite 5" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
