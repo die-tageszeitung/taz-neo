@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="@dimen/list_item_pdf_page_with_content_padding"
+    android:paddingVertical="@dimen/list_item_pdf_page_with_content_padding"
+    android:paddingEnd="@dimen/list_item_pdf_page_with_content_padding"
     tools:context=".ui.pdfViewer.PageWithArticlesAdapter">
 
 

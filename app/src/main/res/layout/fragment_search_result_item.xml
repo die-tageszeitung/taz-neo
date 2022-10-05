@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/search_result_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,41 +13,45 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_result_title_margin_top"
-        android:textSize="@dimen/search_result_title_text_size"
-        android:lineSpacingExtra="@dimen/search_result_title_line_spacing_extra"
         android:fontFamily="@font/appFontBold"
+        android:lineSpacingExtra="@dimen/search_result_title_line_spacing_extra"
+        android:textSize="@dimen/search_result_title_text_size"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/lorem" />
 
     <TextView
         android:id="@+id/search_result_author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_result_author_margin_top"
-        android:textSize="@dimen/search_result_author_text_size"
         android:fontFamily="@font/appFontRegular"
+        android:textSize="@dimen/search_result_author_text_size"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_result_title" />
+        app:layout_constraintTop_toBottomOf="@id/search_result_title"
+        tools:text="@tools:sample/first_names" />
 
     <TextView
         android:id="@+id/search_result_snippet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/search_result_snippet_text_size"
         android:fontFamily="@font/appFontAlternative"
         android:lineSpacingExtra="@dimen/search_result_snippet_line_spacing_extra"
+        android:textSize="@dimen/search_result_snippet_text_size"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_result_author" />
+        app:layout_constraintTop_toBottomOf="@id/search_result_author"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "/>
 
     <TextView
         android:id="@+id/search_result_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:textSize="@dimen/search_result_small_text_size"
         android:lineSpacingExtra="@dimen/search_result_small_text_line_spacing_extra"
+        android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_result_snippet" />
+        app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
+        tools:text="7.7.2002"/>
 
     <TextView
         android:id="@+id/search_result_section"
@@ -54,10 +59,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_results_small_margin"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:textSize="@dimen/search_result_small_text_size"
         android:lineSpacingExtra="@dimen/search_result_small_text_line_spacing_extra"
+        android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toEndOf="@id/search_result_date"
-        app:layout_constraintTop_toBottomOf="@id/search_result_snippet" />
+        app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
+        tools:text="Feuilleton"/>
 
     <View
         android:layout_width="match_parent"

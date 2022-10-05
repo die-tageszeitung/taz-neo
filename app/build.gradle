@@ -176,6 +176,16 @@ android {
     flavorDimensions "source", "owner", "graphql"
 
     productFlavors {
+        free {
+            dimension "source"
+            applicationIdSuffix ".free"
+        }
+
+        nonfree {
+            dimension "source"
+            buildConfigField "Boolean", "IS_NON_FREE", "true"
+        }
+
         taz {
             dimension "owner"
             applicationId "de.taz.android.app"
@@ -191,16 +201,6 @@ android {
             buildConfigField "String", "DISPLAYED_FEED", "\"lmd\""
         }
 
-        free {
-            dimension "source"
-            applicationIdSuffix ".free"
-        }
-
-        nonfree {
-            dimension "source"
-            buildConfigField "Boolean", "IS_NON_FREE", "true"
-        }
-
         staging {
             applicationIdSuffix ".staging"
             dimension "graphql"
@@ -212,6 +212,17 @@ android {
             buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://dl.\""
         }
 
+    }
+
+    // Adds only the resource folders nonfreeLmd [and freeLmd] to the the source sets of all possible
+    // build variants nonfreeLmdProductionDebug, nonfreeLmdProductionRelease, ...
+    // This does not add stuff like AndroidManifest.xml, etc.
+    sourceSets.all { sourceSet ->
+        if (sourceSet.name.toLowerCase().contains('nonfreelmd')) {
+            sourceSet.res.srcDirs += files("$projectDir/src/nonfreeLmd/res")
+        } else if (sourceSet.name.toLowerCase().contains('freelmd')) {
+            sourceSet.res.srcDirs += files("$projectDir/src/freeLmd/res")
+        }
     }
 
     signingConfigs {
@@ -353,7 +364,7 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation ("io.ktor:ktor-network-jvm:$ktor_version") {
+    implementation("io.ktor:ktor-network-jvm:$ktor_version") {
         because "We use io.ktor.network.sockets.SocketTimeoutException on ConnectivityException which is only defined on this module"
     }
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
