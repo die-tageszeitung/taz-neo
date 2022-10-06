@@ -87,45 +87,45 @@
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
-    <string name="settings_header">Einstellungen</string>
-    <string name="settings_category_issue_management">Ausgabenverwaltung</string>
-    <string name="settings_category_text">Darstellung</string>
-    <string name="settings_category_account">Abo</string>
-    <string name="settings_category_legal">Rechtliches</string>
-    <string name="settings_text_font_size">Textgröße</string>
+    <string name="settings_header">einstellungen</string>
+    <string name="settings_category_issue_management">ausgabenverwaltung</string>
+    <string name="settings_category_text">darstellung</string>
+    <string name="settings_category_account">konto</string>
+    <string name="settings_category_support">hilfe</string>
+    <string name="settings_category_legal">rechtliches</string>
+    <string name="settings_category_extended">erweitert</string>
+    <string name="settings_text_font_size">Textgröße (Inhalte)</string>
     <string name="settings_text_justified">Blocksatz</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
-    <string name="settings_account_manage_account"><u>Konto verwalten</u></string>
-    <string name="settings_account_logout"><u>Abmelden</u></string>
-    <string name="settings_account_delete"><u>Konto löschen</u></string>
-    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
-                  The escaped HTML string will not work if used directly from a XML layout via @string/... -->
-    <string name="settings_account_elapsed">&lt;u>abgelaufen&lt;/u></string>
-    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
-              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
-    <string name="settings_account_elapsed_on">&lt;u>seit %s abgelaufen&lt;/u></string>
+    <string name="settings_account_manage_account">Anmelden</string>
+    <string name="settings_account_logout">Abmelden (%s)</string>
+    <string name="settings_account_delete">Konto löschen</string>
+    <string name="settings_account_elapsed">abgelaufen</string>
+    <string name="settings_account_elapsed_on">seit %s abgelaufen</string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
+    <string name="settings_decrease_keep_issues_number">Weniger Ausgaben speichern</string>
+    <string name="settings_increase_keep_issues_number">Mehr Ausgaben speichern</string>
+    <string name="settings_extended_collapse">erweiterte Einstellungen anzeigen</string>
     <string name="percentage">%d%%</string>
-    <!-- Warning: As this string is used from code and should render simple HTML we escape the first "<" according to https://bit.ly/3RBaUKL
-              The escaped HTML string will not work if used directly from a XML layout via @string/... -->
-    <string name="settings_general_keep_number_issues">Die letzten &lt;u>%s&lt;/u> Ausgaben speichern</string>
-    <string name="settings_general_keep_number_issue_title">Gespeicherte Ausgaben</string>
-    <string name="settings_category_support">Hilfe</string>
-    <string name="settings_faq"><u>FAQ</u></string>
-    <string name="settings_reset_app"><u>App in Auslieferungszustand zurücksetzen</u></string>
+    <string name="settings_general_keep_number_issues">Maximale Anzahl der zu speichernden Ausgaben</string>
+    <string name="settings_general_keep_number_issues_detail">Nach dem Download einer weiteren Ausgabe, wird die zuerst geöffnete Ausgabe gelöscht.</string>
+    <string name="settings_faq">FAQ</string>
+    <string name="settings_faq_open_in_browser">FAQ im Browser öffnen</string>
+    <string name="settings_delete_all_issues">Alle Ausgaben löschen</string>
+    <string name="settings_reset_app">App in Auslieferungszustand zurücksetzen</string>
     <string name="settings_reset_app_dialog_title">Sind Sie sicher?</string>
     <string name="settings_reset_app_dialog_message">Alle Daten werden zurückgesetzt.\nDas heißt, Sie müssen sich auch neu anmelden.\nWenn Sie auf zurücksetzen klicken wird die App geschlossen.</string>
     <string name="settings_reset_app_dialog_positive_button">Zurücksetzen</string>
-    <string name="settings_welcome_slides"><u>Erste Schritte</u></string>
-    <string name="settings_terms"><u>AGB</u></string>
-    <string name="settings_data_policy"><u>Datenschutzerklärung</u></string>
-    <string name="settings_revocation"><u>Widerruf</u></string>
+    <string name="settings_welcome_slides">Erste Schritte</string>
+    <string name="settings_terms">Allgemeine Geschäftsbedingungen (AGB)</string>
+    <string name="settings_data_policy">Datenschutzerklärung</string>
+    <string name="settings_revocation">Widerruf</string>
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
-    <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht (PDF) automatisch mitladen</string>
+    <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht immer mitladen</string>
     <string name="settings_notifications">Benachrichtigungen erlauben</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s%s</string>
@@ -162,7 +162,6 @@
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
-    <string name="settings_delete_all_issues"><u>Alle Ausgaben löschen</u></string>
     <string name="settings_delete_all_issues_for_sure">Sind Sie sicher?</string>
     <string name="settings_delete_all_issues_for_sure_detail">Es werden alle heruntergeladenen Ausgaben gelöscht. Die Lesezeichen bleiben erhalten. Der Vorgang kann einige Sekunden dauern.</string>
     <string name="settings_delete_progress_text">%d von %d Ausgaben gelöscht</string>

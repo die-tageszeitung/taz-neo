@@ -63,17 +63,19 @@
     <dimen name="fragment_article_read_on_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_settings_padding_top">0dp</dimen>
-    <dimen name="fragment_settings_padding_bottom">0dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">18dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+    <dimen name="fragment_settings_padding_top">3dp</dimen>
+    <dimen name="fragment_settings_category_padding_top">29.5dp</dimen>
+    <dimen name="fragment_settings_category_padding_bottom">8dp</dimen>
     <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
-    <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
-    <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
-    <dimen name="fragment_settings_text_font_size">17sp</dimen>
+    <dimen name="fragment_settings_text_font_size">16sp</dimen>
+    <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
     <dimen name="fragment_settings_value_font_size">13sp</dimen>
     <dimen name="fragment_settings_min_height">40dp</dimen>
     <dimen name="fragment_settings_version_margin">20dp</dimen>
+    <dimen name="fragment_settings_icon_size">25dp</dimen>
+
+    <dimen name="settings_separator_view_line_height">1dp</dimen>
+    <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
 
     <dimen name="fragment_header_default_height">76dp</dimen>
     <dimen name="fragment_header_default_margin_top">36dp</dimen>

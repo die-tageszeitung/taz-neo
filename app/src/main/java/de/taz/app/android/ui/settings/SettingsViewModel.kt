@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.settings
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
@@ -63,8 +64,18 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
     }
 
-    suspend fun setKeepIssueNumber(number: Int) {
-        storageDataStore.keepIssuesNumber.set(number)
+    fun increaseKeepIssueNumber() {
+        viewModelScope.launch {
+            val newVal = storageDataStore.keepIssuesNumber.get().plus(1)
+            storageDataStore.keepIssuesNumber.set(newVal)
+        }
+    }
+
+    fun decreaseKeepIssueNumber() {
+        viewModelScope.launch {
+            val newVal = storageDataStore.keepIssuesNumber.get().minus(1).coerceAtLeast(2)
+            storageDataStore.keepIssuesNumber.set(newVal)
+        }
     }
 
     fun setOnlyWifi(onlyWifi: Boolean) {

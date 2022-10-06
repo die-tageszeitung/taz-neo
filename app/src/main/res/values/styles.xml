@@ -224,36 +224,6 @@
         <item name="android:textSize">25sp</item>
     </style>
 
-    <style name="TextAppearance.Settings.TextSize.Increase" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="firstBaselineToTopHeight">0dp</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size_increase_big_a</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:layout_marginBottom">5sp</item>
-    </style>
-
-    <style name="TextAppearance.Settings.TextSize.Size" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="firstBaselineToTopHeight">0dp</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingBottom">1sp</item>
-    </style>
-
-    <style name="TextAppearance.Settings.TextSize.Decrease" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="firstBaselineToTopHeight">0dp</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size_decrease_small_a
-        </item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:gravity">center_horizontal</item>
-        <item name="android:paddingBottom">2sp</item>
-    </style>
-
-
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/lightGrey</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
@@ -267,15 +237,21 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
+    <style name="TextAppearance.Settings.Detail" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColorAccent</item>
+        <item name="android:textSize">@dimen/fragment_settings_text_detail_font_size</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:gravity">top</item>
+    </style>
+
     <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
         <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
-        <item name="android:paddingBottom">@dimen/fragment_settings_padding_bottom</item>
     </style>
 
     <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
