@@ -39,7 +39,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 viewBinding.pdfViewpager.apply {
                     adapter = PdfPagerAdapter(this@PdfPagerFragment, it)
                     reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-                    offscreenPageLimit = 2
+                    offscreenPageLimit = 1
 
                     // set position so it does not default to 0
                     pdfPagerViewModel.currentItem.value?.let { position ->
