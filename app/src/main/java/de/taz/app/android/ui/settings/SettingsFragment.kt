@@ -11,7 +11,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -19,7 +20,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.*
@@ -50,7 +50,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.coroutines.*
-import java.util.*
 import java.util.regex.Pattern
 
 @Suppress("UNUSED")
@@ -79,20 +78,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            root.findViewById<TextView>(R.id.fragment_header_default_title).text =
-                getString(R.string.settings_header).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryIssueManagement.text =
-                getString(R.string.settings_category_issue_management).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryText.text =
-                getString(R.string.settings_category_text).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryLegal.text =
-                getString(R.string.settings_category_legal).lowercase(Locale.GERMAN)
-            fragmentSettingsCategoryAccount.text =
-                getString(R.string.settings_category_account).lowercase(Locale.GERMAN)
-            fragmentSettingsCategorySupport.text =
-                getString(R.string.settings_category_support).lowercase(Locale.GERMAN)
-
-            fragmentSettingsGeneralKeepIssues.setOnClickListener { showKeepIssuesDialog() }
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
             fragmentSettingsAccountManageAccount.setOnClickListener {
@@ -126,14 +111,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsTextSize.apply {
-                settingsTextDecreaseWrapper.setOnClickListener {
+                settingsTextDecrease.setOnClickListener {
                     decreaseFontSize()
                 }
-                settingsTextIncreaseWrapper.setOnClickListener {
+                settingsTextIncrease.setOnClickListener {
                     increaseFontSize()
                 }
-                settingsTextSizeWrapper.setOnClickListener {
+                settingsTextSize.setOnClickListener {
                     resetFontSize()
+                }
+            }
+            fragmentSettingsGeneralKeepIssues.apply {
+                settingsKeepLessIssues.setOnClickListener {
+                    decreaseAmountOfIssues()
+
+                }
+                settingsKeepMoreIssues.setOnClickListener {
+                    increaseAmountOfIssues()
                 }
             }
             fragmentSettingsStorageLocation.root.setOnClickListener {
@@ -176,7 +170,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsAccountLogout.setOnClickListener {
-                fragmentSettingsAccountElapsed.visibility = View.GONE
+                fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
                 logout()
             }
 
@@ -221,7 +215,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             if (FLAVOR_source == "nonfree") {
-                fragmentSettingsNotificationsSwitch.visibility = View.VISIBLE
+                fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
                     setNotificationsEnabled(isChecked)
                 }
@@ -235,6 +229,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 showResetAppDialog()
             }
 
+            fragmentSettingsCategoryExtended.setOnClickListener {
+                toggleExtendedContent()
+            }
         }
 
 
@@ -298,40 +295,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
-            viewBinding.fragmentSettingsAccountEmail.text = email
+            viewBinding.fragmentSettingsAccountLogout.text =
+                getString(R.string.settings_account_logout, email)
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            // and only if the account email is visible (sometimes email is still stored but not shown)
-            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches() || email.toIntOrNull() != null)
-                && viewBinding.fragmentSettingsAccountEmail.isVisible
+            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
+                    .matches() || email.toIntOrNull() != null)
             ) {
-                viewBinding.fragmentSettingsAccountDelete.visibility = View.VISIBLE
+                viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
             } else {
-                viewBinding.fragmentSettingsAccountDelete.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun showKeepIssuesDialog() {
-        context?.let {
-            val dialog = MaterialAlertDialogBuilder(it)
-                .setView(R.layout.dialog_settings_keep_number)
-                .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                    (dialog as AlertDialog).findViewById<EditText>(
-                        R.id.dialog_settings_keep_number
-                    )?.text.toString().toIntOrNull()?.let { number ->
-                        setStoredIssueNumber(number)
-                        dialog.hide()
-                    }
-                }
-                .setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
-                }
-                .create()
-            dialog.show()
-            storedIssueNumber?.let {
-                dialog.findViewById<TextView>(
-                    R.id.dialog_settings_keep_number
-                )?.text = storedIssueNumber.toString()
+                viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
             }
         }
     }
@@ -526,12 +498,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showStoredIssueNumber(number: Int) {
-        storedIssueNumber = number
-        val text = HtmlCompat.fromHtml(
-            getString(R.string.settings_general_keep_number_issues, number.toString()),
-            HtmlCompat.FROM_HTML_MODE_LEGACY
-        )
-        view?.findViewById<TextView>(R.id.fragment_settings_general_keep_issues)?.text = text
+        view?.findViewById<TextView>(R.id.settings_keep_issues)?.text = number.toString()
     }
 
     private fun showElapsedIndication(elapsed: Boolean) {
@@ -545,9 +512,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
                 viewBinding.fragmentSettingsAccountElapsed.text = elapsedOnText
             }
-            viewBinding.fragmentSettingsAccountElapsed.visibility = View.VISIBLE
+            viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.VISIBLE
         } else {
-            viewBinding.fragmentSettingsAccountElapsed.visibility = View.GONE
+            viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
         }
     }
 
@@ -600,23 +567,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showLogoutButton() = viewBinding.apply {
-        fragmentSettingsAccountEmail.visibility = View.VISIBLE
-        fragmentSettingsAccountLogout.visibility = View.VISIBLE
-        fragmentSettingsAccountManageAccount.visibility = View.GONE
+        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
+        fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
     }
 
     private fun showManageAccountButton() = viewBinding.apply {
-        fragmentSettingsAccountEmail.visibility = View.GONE
-        fragmentSettingsAccountLogout.visibility = View.GONE
-        fragmentSettingsAccountDelete.visibility = View.GONE
-        fragmentSettingsAccountManageAccount.visibility = View.VISIBLE
-    }
-
-    private fun setStoredIssueNumber(number: Int) {
-        lifecycleScope.launch {
-            log.debug("setKeepNumber: $number")
-            viewModel.setKeepIssueNumber(number)
-        }
+        fragmentSettingsAccountLogoutWrapper.visibility = View.GONE
+        fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
+        fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
     }
 
     private fun disableNightMode() {
@@ -653,10 +611,17 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun resetFontSize() {
-        lifecycleScope.launch {
-            log.debug("resetFontSize")
-            viewModel.resetFontSize()
-        }
+        log.debug("resetFontSize")
+        viewModel.resetFontSize()
+
+    }
+
+    private fun increaseAmountOfIssues() {
+        viewModel.increaseKeepIssueNumber()
+    }
+
+    private fun decreaseAmountOfIssues() {
+        viewModel.decreaseKeepIssueNumber()
     }
 
     private fun reportBug() {
@@ -687,6 +652,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showNotificationsEnabledToggle(false)
         } else {
             viewModel.setNotificationsEnabled(notificationsEnabled)
+        }
+    }
+
+    private fun toggleExtendedContent() {
+        if (viewBinding.fragmentSettingsExtendedContent.visibility == View.GONE) {
+            log.debug("show extended settings")
+            viewBinding.fragmentSettingsExtendedContent.visibility = View.VISIBLE
+            viewBinding.fragmentSettingsExtendedIndicator.rotation = 180f
+        } else {
+            log.debug("hide extended settings")
+            viewBinding.fragmentSettingsExtendedContent.visibility = View.GONE
+            viewBinding.fragmentSettingsExtendedIndicator.rotation = 0f
         }
     }
 
