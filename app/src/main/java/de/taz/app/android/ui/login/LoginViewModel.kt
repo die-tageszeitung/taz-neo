@@ -416,21 +416,19 @@ class LoginViewModel @JvmOverloads constructor(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun poll(
         previousState: LoginViewModelState,
-        timeoutMillis: Long = 100,
-        @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
-    ): Job {
+        timeoutMillis: Long = 100
+    ) {
         status.postValue(LoginViewModelState.LOADING)
 
-        return launch {
+        launch {
             delay(timeoutMillis)
-            handlePoll(previousState, timeoutMillis * 2, runBlocking)
+            handlePoll(previousState, timeoutMillis * 2)
         }
     }
 
     private suspend fun handlePoll(
         previousState: LoginViewModelState,
-        timeoutMillis: Long,
-        @VisibleForTesting(otherwise = VisibleForTesting.NONE) runBlocking: Boolean = false
+        timeoutMillis: Long
     ) {
         try {
             val subscriptionInfo = apiService.subscriptionPoll()
@@ -467,11 +465,7 @@ class LoginViewModel @JvmOverloads constructor(
                 }
                 null,
                 SubscriptionStatus.waitForProc -> {
-                    if (runBlocking) {
-                        poll(previousState, timeoutMillis, runBlocking).join()
-                    } else {
-                        poll(previousState, timeoutMillis)
-                    }
+                    poll(previousState, timeoutMillis)
                 }
                 SubscriptionStatus.noPollEntry -> {
                     resetCredentialsPassword()
@@ -494,12 +488,7 @@ class LoginViewModel @JvmOverloads constructor(
             }
         } catch (e: ConnectivityException) {
             noInternet.postValue(true)
-            if (runBlocking) {
-                poll(previousState, timeoutMillis, runBlocking).join()
-            } else {
-                poll(previousState, timeoutMillis)
-            }
-
+            poll(previousState, timeoutMillis)
         }
     }
 
