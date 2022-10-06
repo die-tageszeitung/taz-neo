@@ -41,14 +41,9 @@ class PdfPagerViewModel(
     private val imageRepository = ImageRepository.getInstance(application)
 
     val issuePublication = MutableLiveData<IssuePublicationWithPages>()
-    val issueKey = MediatorLiveData<IssueKeyWithPages>().apply {
-        addSource(issuePublication) {
-            viewModelScope.launch {
-                val issue = contentService.downloadMetadata(it) as IssueWithPages
-                postValue(issue.issueKey)
-            }
-        }
-    }
+    private val _issueKey = MutableLiveData<IssueKeyWithPages>(null)
+    val issueKey = _issueKey
+
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
@@ -79,10 +74,10 @@ class PdfPagerViewModel(
         }
     }
 
-    private val issue = MediatorLiveData<IssueWithPages>().apply {
+    private val issueWithPages = MediatorLiveData<IssueWithPages>().apply {
         addSource(issuePublication) { issuePublicationWithPages ->
             viewModelScope.launch {
-                // First we'll try to download the issues metadata 3 times.
+                // We'll try to download the issues metadata 3 times.
                 // If that fails (for example due to missing network) we will emit an error and retry
                 // the download indefinitely.
                 // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
@@ -95,6 +90,17 @@ class PdfPagerViewModel(
                     downloadIssueMetadata(issuePublicationWithPages)
                 }
 
+                // Store the issue metadata
+                _issueKey.value = issue.issueKey
+                value = issue
+            }
+        }
+    }
+
+    private val downloadedIssue = MediatorLiveData<IssueWithPages>().apply {
+        addSource(issueWithPages) { issueWithPages ->
+            viewModelScope.launch {
+
                 // Then we start the actual download of the Issue data with the PDF pages.
                 // While this will also download the issues metadata it does not return that data.
                 // The download will be started on the application scope, so that it can finish even
@@ -103,23 +109,23 @@ class PdfPagerViewModel(
                 // downloadToCache did succeed or failed: only that the launched coroutine has stopped.
                 // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
                 getApplicationScope().launch {
-                    contentService.downloadToCache(issuePublicationWithPages    )
+                    contentService.downloadToCache(issueWithPages.issueKey)
                 }.join()
 
                 // Update the latest page position and the viewDate
-                updateCurrentItemInternal(issue.lastPagePosition ?: 0)
-                issueRepository.updateLastViewedDate(issue)
+                updateCurrentItemInternal(issueWithPages.lastPagePosition ?: 0)
+                issueRepository.updateLastViewedDate(issueWithPages)
 
                 // Last we'll get the latest issue entry from the database, so that we will have
                 // a correct download date and isDownloaded() can return true.
-                val issueStub = issueRepository.getStub(issue.issueKey)
+                val issueStub = issueRepository.getStub(issueWithPages.issueKey)
                 if (issueStub != null) {
                     // We will not get the full issue from the database as this requires quite some work/time,
                     // only the latest issue stub to update our metadata with
-                    val downloadedIssue = issue.copyWithMetadata(issueStub)
+                    val downloadedIssue = issueWithPages.copyWithMetadata(issueStub)
 
                     // Finally emit the downloaded issue
-                    postValue(downloadedIssue)
+                    value = downloadedIssue
 
                 } else {
                     val hint = "Issue that was just downloaded is not found in the database."
@@ -138,7 +144,7 @@ class PdfPagerViewModel(
     } as LiveData<Image>
 
     val pdfPageList = MediatorLiveData<List<Page>>().apply {
-        addSource(issue) { issue ->
+        addSource(downloadedIssue) { issue ->
             viewModelScope.launch {
                 if (issue.isDownloaded(application)) {
                     // as we do not know before downloading where we stored the fileEntry
@@ -170,7 +176,7 @@ class PdfPagerViewModel(
     fun goToPdfPage(link: String) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
-        if (issue.value?.status == IssueStatus.regular) {
+        if (downloadedIssue.value?.status == IssueStatus.regular) {
             updateCurrentItem(getPositionOfPdf(link))
         }
     }
@@ -180,7 +186,7 @@ class PdfPagerViewModel(
     }
 
     suspend fun getCorrectArticle(link: String): Article? {
-        val correctLink = if (issue.value?.status == IssueStatus.regular) {
+        val correctLink = if (downloadedIssue.value?.status == IssueStatus.regular) {
             link
         } else {
             // if we are not on a regular issue all the articles have "public" indication
