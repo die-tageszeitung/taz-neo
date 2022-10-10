@@ -8,7 +8,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
@@ -43,7 +42,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     private val log by Log
 
 
-    private lateinit var dataService: DataService
     private lateinit var sectionRepository: SectionRepository
     private lateinit var imageRepository: ImageRepository
     private lateinit var articleRepository: ArticleRepository
@@ -64,7 +62,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        dataService = DataService.getInstance(requireContext().applicationContext)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
@@ -143,7 +140,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     R.id.fragment_issue_content_container, fragment, fragmentClass
                 )
                 .hide(fragment)
-                .runOnCommit { runWhenAdded?.let { runWhenAdded() } }
+                .runOnCommit { runWhenAdded?.invoke() }
                 .commit()
         }
     }

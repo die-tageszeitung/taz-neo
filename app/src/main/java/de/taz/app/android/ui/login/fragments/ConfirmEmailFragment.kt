@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginConfirmEmailBinding
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -13,7 +14,7 @@ class ConfirmEmailFragment : LoginBaseFragment<FragmentLoginConfirmEmailBinding>
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        hideKeyBoard()
+        hideSoftInputKeyboard()
 
         lifecycleScope.launch {
             viewModel.setPolling(startPolling = !viewModel.isElapsed())

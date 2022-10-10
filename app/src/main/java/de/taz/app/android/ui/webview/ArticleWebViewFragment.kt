@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,9 +22,11 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 class ArticleWebViewFragment : WebViewFragment<
         Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
@@ -156,15 +160,31 @@ class ArticleWebViewFragment : WebViewFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewBinding.nestedScrollView.setOnTouchListener(object :
-            View.OnTouchListener {
-            @SuppressLint("ClickableViewAccessibility")
-            override fun onTouch(view: View, event: MotionEvent): Boolean {
-                hideKeyBoard()
-                return false
-            }
-        })
+        hideKeyboardOnAllViewsExceptEditText(view)
+    }
 
+    /**
+     * This function adds hideKeyboard as touchListener on non EditTExt views recursively.
+     * Inspired from SO: https://stackoverflow.com/a/11656129
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    fun hideKeyboardOnAllViewsExceptEditText(view: View) {
+
+        // Set up touch listener for non-text box views to hide keyboard.
+        if (view !is EditText) {
+            view.setOnTouchListener { _, _ ->
+                hideSoftInputKeyboard()
+                false
+            }
+        }
+
+        // If a layout container, iterate over children and seed recursion.
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val innerView = view.getChildAt(i)
+                hideKeyboardOnAllViewsExceptEditText(innerView)
+            }
+        }
     }
 }
 

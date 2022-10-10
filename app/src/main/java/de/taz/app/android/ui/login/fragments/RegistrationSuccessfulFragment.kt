@@ -6,6 +6,7 @@ import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginRegistrationSuccessfulBinding
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.runBlocking
 
 class RegistrationSuccessfulFragment :
@@ -14,7 +15,7 @@ class RegistrationSuccessfulFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        hideKeyBoard()
+        hideSoftInputKeyboard()
 
         runBlocking {
             if (!viewModel.backToArticle || viewModel.isElapsed()) {

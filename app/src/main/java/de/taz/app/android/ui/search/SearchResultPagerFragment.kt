@@ -89,6 +89,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         fontSizeLiveData.observeDistinct(this) {
             reloadAfterCssChange()
         }
+
+        viewModel.isBookmarkedLiveData.observeDistinct(
+            this@SearchResultPagerFragment,
+            isBookmarkedObserver
+        )
     }
 
     private fun setupViewPager() {
@@ -109,38 +114,28 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
-    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-        private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-            if (isBookmarked) {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-            } else {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-            }
+    private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
+        if (isBookmarked) {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+        } else {
+            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
         }
-        private var isBookmarkedLiveData: LiveData<Boolean>? = null
+    }
 
+    private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
             super.onPageSelected(position)
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
-            lifecycleScope.launchWhenResumed {
-                // show the share icon always when in public article
-                // OR when an onLink link is provided
-                viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    determineShareIconVisibility(
-                        getCurrentSearchHit()?.article?.onlineLink,
-                        getCurrentSearchHit()?.article?.articleHtml?.name.toString()
-                    )
-
-                isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = viewModel.isBookmarkedLiveData
-                isBookmarkedLiveData?.observeDistinct(
-                    this@SearchResultPagerFragment,
-                    isBookmarkedObserver
+            // show the share icon always when in public article
+            // OR when an onLink link is provided
+            viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
+                determineShareIconVisibility(
+                    getCurrentSearchHit()?.article?.onlineLink,
+                    getCurrentSearchHit()?.article?.articleHtml?.name.toString()
                 )
-            }
         }
     }
 

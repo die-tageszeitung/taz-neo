@@ -1,11 +1,9 @@
 package de.taz.app.android.base
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
 import androidx.core.view.iterator
@@ -16,9 +14,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.IndexOutOfBoundsException
 
 abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
 
@@ -48,7 +46,6 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
      */
     private fun configBottomNavigation() {
         // only show bottomNavigation if visible items exist
-
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
 
             bottomNavigationMenuRes?.let {
@@ -181,17 +178,8 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         return addBottomSheet
     }
 
-    protected fun hideKeyBoard() {
-        activity?.apply {
-            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-                val view = activity?.currentFocus ?: View(activity)
-                hideSoftInputFromWindow(view.windowToken, 0)
-            }
-        }
-    }
-
     override fun onDetach() {
-        hideKeyBoard()
+        hideSoftInputKeyboard()
         super.onDetach()
     }
 }

@@ -45,8 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="@dimen/fragment_settings_padding_horizontal"
-                android:paddingEnd="@dimen/fragment_settings_padding_horizontal"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
 
                 <TextView
                     android:id="@+id/fragment_error_report_title"

@@ -13,8 +13,8 @@ import de.taz.app.android.ui.home.page.IssueFeedAdapter
 
 class CoverflowAdapter(
     private val fragment: CoverflowFragment,
-    @LayoutRes private val itemLayoutRes: Int,
-    val feed: Feed,
+    @LayoutRes itemLayoutRes: Int,
+    feed: Feed,
     glideRequestManager: RequestManager,
     onCoverViewActionListener: CoverViewActionListener
 ) : IssueFeedAdapter(

@@ -26,7 +26,7 @@ enum class SubscriptionStatus {
     priceNotValid,
     subscriptionIdNotValid,
     tazIdNotValid,
-    toManyPollTrys,
+    tooManyPollTries,
     valid,
     waitForMail,
     waitForProc

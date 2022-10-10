@@ -178,8 +178,17 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun updateUIForCurrentDate() {
         val date = viewModel.currentDate.value
         val feed = viewModel.feed.value
-        // don't change UI if date is already used
-        if (currentlyFocusedDate == date || date == null || feed == null) {
+
+        if (date == null || feed == null) {
+            return
+        }
+
+        // Always check if we need to snap to the date's position - even if the date did not change.
+        // This prevents a bug that results in non-snapping behavior when a user logged in.
+        val nextPosition = adapter.getPosition(date)
+        skipToPositionIfNecessary(nextPosition)
+
+        if (currentlyFocusedDate == date) {
             return
         }
         currentlyFocusedDate = date
@@ -204,8 +213,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             startObserving()
         }
 
-        val nextPosition = adapter.getPosition(date)
-        skipToPositionIfNecessary(nextPosition)
         // set date text
         this.date.text = DateHelper.dateToLongLocalizedLowercaseString(date)
     }

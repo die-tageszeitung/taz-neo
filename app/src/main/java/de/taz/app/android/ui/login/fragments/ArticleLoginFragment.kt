@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.viewModels
@@ -18,6 +16,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.*
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -122,15 +121,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 articleFileName = articleFileName,
             )
         )
-        hideKeyBoard()
-    }
-
-
-    private fun hideKeyBoard() {
-        (activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-            val view = activity?.currentFocus ?: View(activity)
-            hideSoftInputFromWindow(view.windowToken, 0)
-        }
+        hideSoftInputKeyboard()
     }
 
     /**

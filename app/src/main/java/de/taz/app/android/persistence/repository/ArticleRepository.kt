@@ -14,6 +14,9 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 @Mockable
@@ -215,19 +218,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    fun getBookmarkedArticlesLiveData(): LiveData<List<Article>> =
-        appDatabase.articleDao().getBookmarkedArticlesLiveData().switchMap { input ->
-            liveData {
-                emit(input.map { articleStub -> articleStubToArticle(articleStub) })
-            }
+    fun getBookmarkedArticlesFlow(): Flow<List<Article>> =
+        appDatabase.articleDao().getBookmarkedArticlesFlow().map { articles ->
+            articles.map { articleStubToArticle(it) }
         }
 
     suspend fun getBookmarkedArticleStubs(): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticles()
+        return appDatabase.articleDao().getBookmarkedArticlesFlow().first()
     }
 
-    fun getBookmarkedArticleStubsLiveData(): LiveData<List<ArticleStub>> {
-        return appDatabase.articleDao().getBookmarkedArticlesLiveData()
+    fun getBookmarkedArticleStubsFlow(): Flow<List<ArticleStub>> {
+        return appDatabase.articleDao().getBookmarkedArticlesFlow()
     }
 
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {

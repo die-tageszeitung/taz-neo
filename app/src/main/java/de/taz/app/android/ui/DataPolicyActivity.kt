@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityDataPolicyBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -36,7 +35,6 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     private val dataPolicyPageName = "welcomeSlidesDataPolicy.html"
 
     private lateinit var storageService: StorageService
-    private lateinit var dataService: DataService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
@@ -52,7 +50,6 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
         finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
         storageService = StorageService.getInstance(applicationContext)
-        dataService = DataService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)

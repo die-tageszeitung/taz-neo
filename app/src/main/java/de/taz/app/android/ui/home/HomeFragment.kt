@@ -13,7 +13,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.FeedService
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -74,15 +73,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                         onRefresh()
                         val end = Date().time
                         // show animation at least 1000 ms so it looks smoother
-                        if (end - start < 1000) {
-                            delay(1000 - (end - start))
-                        }
+                        delay(1000L - (end - start))
                         hideRefreshLoadingIcon()
                     }
                 }
                 reduceDragSensitivity(10)
             }
-            coverflowRefreshLayout.reduceDragSensitivity(10)
 
             fabActionPdf.setOnClickListener {
                 homePageViewModel.togglePdfMode()

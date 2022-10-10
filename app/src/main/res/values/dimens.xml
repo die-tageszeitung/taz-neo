@@ -63,17 +63,19 @@
     <dimen name="fragment_article_read_on_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_settings_padding_top">0dp</dimen>
-    <dimen name="fragment_settings_padding_bottom">0dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">18dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+    <dimen name="fragment_settings_padding_top">3dp</dimen>
+    <dimen name="fragment_settings_category_padding_top">29.5dp</dimen>
+    <dimen name="fragment_settings_category_padding_bottom">8dp</dimen>
     <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
-    <dimen name="fragment_settings_text_font_size_decrease_small_a">19sp</dimen>
-    <dimen name="fragment_settings_text_font_size_increase_big_a">26sp</dimen>
-    <dimen name="fragment_settings_text_font_size">17sp</dimen>
+    <dimen name="fragment_settings_text_font_size">16sp</dimen>
+    <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
     <dimen name="fragment_settings_value_font_size">13sp</dimen>
     <dimen name="fragment_settings_min_height">40dp</dimen>
     <dimen name="fragment_settings_version_margin">20dp</dimen>
+    <dimen name="fragment_settings_icon_size">25dp</dimen>
+
+    <dimen name="settings_separator_view_line_height">1dp</dimen>
+    <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
 
     <dimen name="fragment_header_default_height">76dp</dimen>
     <dimen name="fragment_header_default_margin_top">36dp</dimen>
@@ -108,8 +110,8 @@
     <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_margin_bottom">62dp</dimen>
-    <dimen name="fragment_cover_flow_guideline_end">150dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_margin_bottom">10dp</dimen>
+    <dimen name="fragment_cover_flow_guideline_end">98dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">100dp</dimen>
 
     <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
@@ -195,7 +197,7 @@
     <dimen name="search_advanced_text_size">18sp</dimen>
     
     <dimen name="fab_margin_start">24dp</dimen>
-    <dimen name="fab_margin_bottom">68dp</dimen>
+    <dimen name="fab_margin_bottom">16dp</dimen>
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 

@@ -1,12 +1,10 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +17,7 @@ import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBind
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
+import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -67,7 +66,7 @@ class SubscriptionElapsedBottomSheetFragment :
             View.OnTouchListener {
             @SuppressLint("ClickableViewAccessibility")
             override fun onTouch(view: View, event: MotionEvent): Boolean {
-                hideKeyBoard()
+                hideSoftInputKeyboard()
                 return false
             }
         })
@@ -94,15 +93,6 @@ class SubscriptionElapsedBottomSheetFragment :
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private fun hideKeyBoard() {
-        activity?.apply {
-            (getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager)?.apply {
-                val view = viewBinding.root
-                hideSoftInputFromWindow(view.windowToken, 0)
             }
         }
     }

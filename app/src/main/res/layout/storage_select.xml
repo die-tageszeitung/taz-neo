@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/settings_storage_type"
-        android:textAppearance="@style/TextAppearance.Settings.Entry"
+        style="@style/TextAppearance.Settings.Entry"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toLeftOf="@id/settings_storage_location_value" />

@@ -18,7 +18,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.data.DataService
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
@@ -52,7 +51,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var sectionListAdapter: SectionListAdapter
 
     private lateinit var fontHelper: FontHelper
-    private lateinit var dataService: DataService
     private lateinit var issueRepository: IssueRepository
     private lateinit var contentService: ContentService
     private lateinit var momentRepository: MomentRepository
@@ -76,7 +74,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
-        dataService = DataService.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         feedRepository = FeedRepository.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)

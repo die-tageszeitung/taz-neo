@@ -10,11 +10,22 @@ import androidx.core.view.ViewCompat
 import kotlin.math.max
 import kotlin.math.min
 
+private const val ANIMATION_DURATION_MS = 150L
+
+// Thresholds define the percentage of the the visible height of the bar required to let the
+// animator finish the expansion or retraction of the bar.
+private const val SCROLL_UP_THRESHOLD = 0.01f
+private const val SCROLL_DOWN_THRESHOLD = 0.5f
+
 class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) :
     CoordinatorLayout.Behavior<V>(context, attrs) {
 
-    private var offsetAnimator: ValueAnimator? = null
+    private val offsetAnimator: ValueAnimator = ValueAnimator().apply {
+        interpolator = DecelerateInterpolator()
+        duration = ANIMATION_DURATION_MS
+    }
     private var isInitialized = false
+    private var translationOnScrollStart = 0f
 
     override fun onStartNestedScroll(
         coordinatorLayout: CoordinatorLayout,
@@ -32,26 +43,32 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
             initializeBottomNavigationView(child)
             isInitialized = true
         }
-
-        offsetAnimator?.cancel()
+        offsetAnimator.cancel()
+        translationOnScrollStart = child.translationY
 
         return true
     }
 
-    override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, type: Int) {
+    override fun onStopNestedScroll(
+        coordinatorLayout: CoordinatorLayout,
+        child: V,
+        target: View,
+        type: Int
+    ) {
+        val currentTranslation = child.translationY
+        val visibleHeight = child.height - currentTranslation
 
-        val currTranslation = child.translationY
-        val childHalfHeight = child.height * 0.5f
+        if (translationOnScrollStart < currentTranslation) {
+            // The user did scroll down on the nested content
+            // Hide the bar when the threshold is met
+            val hideBar = visibleHeight <= child.height * SCROLL_DOWN_THRESHOLD
+            animateBarVisibility(child, isVisible = !hideBar)
+        } else {
+            // The user did (or tried to) scroll up on the nested content
+            val showBar = visibleHeight >= child.height * SCROLL_UP_THRESHOLD
+            animateBarVisibility(child, isVisible = showBar)
 
-        // translate down
-        if (currTranslation >= childHalfHeight) {
-            animateBarVisibility(child, isVisible = false)
         }
-        // translate up
-        else {
-            animateBarVisibility(child, isVisible = true)
-        }
-
     }
 
     override fun onNestedPreScroll(
@@ -71,28 +88,34 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
     }
 
     private fun animateBarVisibility(child: View, isVisible: Boolean) {
-        if (offsetAnimator == null) {
-            offsetAnimator = ValueAnimator().apply {
-                interpolator = DecelerateInterpolator()
-                duration = 150L
-            }
+        offsetAnimator.cancel()
 
-            offsetAnimator?.addUpdateListener {
+        val childIsFullyVisible = (child.translationY == 0f)
+        val childIsFullyHidden = (child.translationY == child.height.toFloat())
+
+        // Abort if we are already in our target state
+        if (isVisible && childIsFullyVisible || !isVisible && childIsFullyHidden) {
+            return
+        }
+
+        val currentTranslation = child.translationY
+        val targetTranslation = when (isVisible) {
+            true -> 0f
+            false -> child.height.toFloat()
+        }
+
+        offsetAnimator.apply {
+            removeAllUpdateListeners()
+            addUpdateListener {
                 child.translationY = it.animatedValue as Float
             }
-        } else {
-            offsetAnimator?.cancel()
+            setFloatValues(currentTranslation, targetTranslation)
+            start()
         }
-        val targetTranslation = if (isVisible) {
-            0f
-        } else {
-            child.height.toFloat()
-        }
-        offsetAnimator?.setFloatValues(child.translationY, targetTranslation)
-        offsetAnimator?.start()
     }
 
     private fun initializeBottomNavigationView(view: View) {
+        // Make the view visible but hide it, by moving it out of the bottom of the screen via translation of its full height
         view.translationY = view.height.toFloat()
         view.visibility = View.VISIBLE
     }

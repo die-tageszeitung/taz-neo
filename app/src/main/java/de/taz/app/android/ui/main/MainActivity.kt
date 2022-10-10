@@ -32,10 +32,12 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
+private const val DOUBLE_BACK_TO_EXIT_INTERVAL = 2000L
 
 @Mockable
 class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
@@ -177,9 +179,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             this.doubleBackToExitPressedOnce = true
             toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-            Handler(Looper.getMainLooper()).postDelayed({
+            lifecycleScope.launch {
+                delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
                 doubleBackToExitPressedOnce = false
-            }, 2000)
+            }
         } else {
             showHome()
         }
