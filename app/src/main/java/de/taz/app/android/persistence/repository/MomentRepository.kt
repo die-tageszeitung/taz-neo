@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.cache.IssueInMemoryCache
 import de.taz.app.android.persistence.join.*
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
@@ -15,9 +16,12 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     private val imageRepository = ImageRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val issueCache = IssueInMemoryCache.getInstance(Unit)
+
 
     suspend fun update(momentStub: MomentStub) {
         appDatabase.momentDao().insertOrReplace(momentStub)
+        issueCache.invalidate(IssueKey(momentStub.issueKey))
     }
 
     suspend fun save(moment: Moment): Moment {
@@ -58,6 +62,8 @@ class MomentRepository private constructor(applicationContext: Context) :
                 }
             )
         }
+
+        issueCache.invalidate(moment.issueKey)
         return get(moment.momentKey)!!
     }
 
@@ -191,6 +197,8 @@ class MomentRepository private constructor(applicationContext: Context) :
                 // do not delete is used by another issue
             }
             appDatabase.momentDao().delete(MomentStub(moment))
+
+            issueCache.invalidate(moment.issueKey)
         }
     }
 }

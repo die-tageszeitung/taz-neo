@@ -70,10 +70,9 @@ data class IssueWithPages(
 
     /**
      * Copy this issue with the updated metadata from the provided issue stub.
-     * This will skip re-fetching the recursive section, page and article lists from the db.
      */
     fun copyWithMetadata(issueStub: IssueStub): IssueWithPages {
-        assert(issueKey.getIssueKey() == issueStub.issueKey) { "Metadata may only be updated for the same issue" }
+        require(issueKey.getIssueKey() == issueStub.issueKey) { "Metadata may only be updated for the same issue" }
         return copy(
             feedName = issueStub.feedName,
             date = issueStub.date,
