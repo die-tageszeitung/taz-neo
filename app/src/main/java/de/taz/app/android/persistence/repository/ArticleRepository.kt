@@ -9,6 +9,7 @@ import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.cache.IssueInMemoryCache
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
@@ -26,9 +27,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val issueCache = IssueInMemoryCache.getInstance(Unit)
 
     suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
+        issueCache.invalidate(IssuePublication(articleStub))
     }
 
     suspend fun save(article: Article) {
@@ -68,6 +71,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 )
             }
         }
+
+        issueCache.invalidate(IssuePublication(article))
     }
 
     suspend fun get(articleFileName: String): Article? {
@@ -97,6 +102,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             appDatabase.articleDao().update(
                 articleStub.copy(percentage = percentage, position = position)
             )
+            issueCache.updateArticle(articleStub)
         }
     }
 
@@ -194,12 +200,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         val currentDate = Date()
         getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
     suspend fun setBookmarkedTime(articleName: String, date: Date) {
         getStub(articleName)?.copy(bookmarkedTime = date)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
@@ -215,6 +223,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         log.debug("removed bookmark from article $articleName")
         getStub(articleName)?.copy(bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
@@ -307,6 +316,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     // TODO need to refactor this
                 }
             }
+            issueCache.invalidate(IssuePublication(articleStub))
         }
     }
 
@@ -328,6 +338,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         articleStub: ArticleStub,
         date: Date?
     ) {
+        // Note, that we are invalidating the issue cache when calling update() with the dateDownloaded.
+        // While this is quite broad it prevents us from having outdated FileEntry information on the Issues Article instances
         update(articleStub.copy(dateDownload = date))
     }
 

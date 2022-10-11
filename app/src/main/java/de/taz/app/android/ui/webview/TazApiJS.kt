@@ -55,6 +55,8 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         }
     }
 
+    // TODO (johannes): We are no longer consuming the position stored on the Article but are using
+    //                  ViewerStateRepository - check if this call is still needed/makes sense
     @JavascriptInterface
     fun pageReady(percentage: Int, position: Int) {
         log.debug("pageReady $percentage $position")

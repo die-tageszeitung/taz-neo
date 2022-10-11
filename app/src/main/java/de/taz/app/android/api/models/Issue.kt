@@ -69,6 +69,28 @@ data class Issue(
 
     override val issueKey: IssueKey
         get() = IssueKey(feedName, date, status)
+
+    /**
+     * Copy this issue with the updated metadata from the provided issue stub.
+     */
+    fun copyWithMetadata(issueStub: IssueStub): Issue {
+        require(issueKey == issueStub.issueKey) { "Metadata may only be updated for the same issue" }
+        return copy(
+            feedName = issueStub.feedName,
+            date = issueStub.date,
+            key = issueStub.key,
+            baseUrl = issueStub.baseUrl,
+            status = issueStub.status,
+            minResourceVersion = issueStub.minResourceVersion,
+            isWeekend = issueStub.isWeekend,
+            moTime = issueStub.moTime,
+            dateDownload = issueStub.dateDownload,
+            dateDownloadWithPages = issueStub.dateDownloadWithPages,
+            lastDisplayableName = issueStub.lastDisplayableName,
+            lastPagePosition = issueStub.lastPagePosition,
+            lastViewedDate = issueStub.lastViewedDate
+        )
+    }
 }
 
 

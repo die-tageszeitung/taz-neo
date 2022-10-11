@@ -108,6 +108,24 @@ data class Article(
         return ArticleRepository.getInstance(applicationContext).setDownloadDate(ArticleStub(this@Article), date)
     }
 
+    /**
+     * Copy this article with the updated metadata from the provided article stub.
+     */
+    fun copyWithMetadata(articleStub: ArticleStub): Article {
+        require(key == articleStub.key) { "Metadata may only be updated for the same article"}
+        return copy(
+            title = articleStub.title,
+            teaser = articleStub.teaser,
+            onlineLink = articleStub.onlineLink,
+            pageNameList = articleStub.pageNameList,
+            bookmarkedTime = articleStub.bookmarkedTime,
+            articleType = articleStub.articleType,
+            position = articleStub.position,
+            percentage = articleStub.percentage,
+            dateDownload = articleStub.dateDownload
+        )
+    }
+
 }
 
 enum class ArticleType {

@@ -2,7 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
