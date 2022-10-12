@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".ui.bookmarks.BookmarkListViewHolder">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
@@ -78,6 +79,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    tools:text="@tools:sample/lorem"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -88,15 +90,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
+                    tools:text="@tools:sample/full_names"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title" />
 
                 <TextView
+                    tools:text="donnerstag, 11.august 2022"
                     android:id="@+id/fragment_bookmark_date"
                     style="@style/TextAppearance.Bookmarks.Entry.Date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share" />
+                    app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share"
+                    app:layout_constraintStart_toStartOf="parent" />
 
                 <ImageView
                     android:id="@+id/fragment_bookmark_image"
@@ -106,6 +110,7 @@
                     android:scaleType="centerCrop"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    tools:srcCompat="@tools:sample/backgrounds/scenic"
                     tools:ignore="ContentDescription" />
 
                 <ImageView
@@ -115,9 +120,9 @@
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_share"
                     android:src="@drawable/ic_share"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_image"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:tint="@color/textColorAccent" />
 
                 <ImageView
@@ -127,9 +132,9 @@
                     android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
                     android:contentDescription="@string/fragment_bookmarks_delete"
                     android:src="@drawable/ic_delete"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@id/fragment_bookmark_image"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_image"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:tint="@color/textColorAccent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
