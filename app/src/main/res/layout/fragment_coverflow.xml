@@ -93,7 +93,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@tools:sample/lorem"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_coverflow_moment_download"
