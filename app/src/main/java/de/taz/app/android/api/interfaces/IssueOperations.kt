@@ -11,6 +11,7 @@ interface IssueOperations: DownloadableStub {
     val baseUrl: String
     val feedName: String
     val date: String
+    val validityDate: String?
     val status: IssueStatus
     override val dateDownload: Date?
     val dateDownloadWithPages: Date?
