@@ -9,6 +9,7 @@ import java.util.*
 data class Issue(
     override val feedName: String,
     override val date: String,
+    override val validityDate: String?,
     val moment: Moment,
     override val key: String? = null,
     override val baseUrl: String,
@@ -29,6 +30,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
+        issueDto.validityDate,
         Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
@@ -50,6 +52,7 @@ data class Issue(
     constructor(issue: IssueWithPages) : this(
         issue.feedName,
         issue.date,
+        issue.validityDate,
         issue.moment,
         issue.key,
         issue.baseUrl,

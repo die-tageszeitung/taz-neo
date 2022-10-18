@@ -14,6 +14,7 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
             issueMinDate
             issueList(issueDate: $issueDate, limit: $limit) {
                 date
+                validityDate
                 moment {
                     imageList {
                         name
