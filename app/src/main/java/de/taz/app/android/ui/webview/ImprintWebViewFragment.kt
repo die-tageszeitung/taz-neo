@@ -82,7 +82,6 @@ class ImprintWebViewFragment : WebViewFragment<
 
     override fun onResume() {
         super.onResume()
-        drawerViewModel.setDefaultDrawerNavButton()
 
         requireActivity().setupBottomNavigation(
             viewBinding.navigationBottomImprint,

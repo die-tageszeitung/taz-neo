@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
@@ -11,9 +12,8 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
-
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
@@ -33,7 +33,7 @@ class SectionRepositoryTest {
 
 
     @Before
-    fun setUp() {
+    suspend fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
@@ -49,6 +49,9 @@ class SectionRepositoryTest {
 
         sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
+
+        // initialize the DEFAULT NAV BUTTON:
+        fileEntryRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
     }
 
     @After

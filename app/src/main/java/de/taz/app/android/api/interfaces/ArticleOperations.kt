@@ -37,8 +37,4 @@ interface ArticleOperations {
             getSectionStub(applicationContext)?.getIssueStub(applicationContext)
         }
     }
-
-    suspend fun getNavButton(applicationContext: Context): Image? {
-        return this@ArticleOperations.getSectionStub(applicationContext)?.getNavButton(applicationContext)
-    }
 }
