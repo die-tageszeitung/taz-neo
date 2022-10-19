@@ -292,8 +292,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                     )
                 )
             }
-            activityPdfDrawerDate.text =
-                DateHelper.stringToLongLocalized2LineString(issuePublication.date)
+            activityPdfDrawerDate.text = setDrawerDate(issuePublication)
 
             drawerAdapter =
                 PdfDrawerRecyclerViewAdapter(
@@ -396,6 +395,18 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
         if (articlePagerFragment != null && articlePagerFragment.isVisible) {
             supportFragmentManager.popBackStack()
+        }
+    }
+
+    private fun setDrawerDate(issuePublicationWithPages: IssuePublicationWithPages): String? {
+        val issue = pdfPagerViewModel.issue.value
+        return if (issue?.isWeekend == true && !issue.validityDate.isNullOrBlank()) {
+            DateHelper.stringsToWeek2LineString(
+                issue.date,
+                issue.validityDate
+            )
+        } else {
+            DateHelper.stringToLongLocalized2LineString(issuePublicationWithPages.date)
         }
     }
 
