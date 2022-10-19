@@ -133,15 +133,24 @@ class SectionWebViewFragment : WebViewFragment<
                 DateHelper.stringToDate(displayable.issueDate)?.let { date ->
                     headerView.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = if (issueStub?.isWeekend == true) {
-                            DateHelper.dateToWeekendNotation(date)
+                            if (issueStub.validityDate.isNullOrBlank()) {
+                                DateHelper.dateToWeekendNotation(date)
+                            } else {
+                                DateHelper.dateToWeekNotation(
+                                    date,
+                                    issueStub.validityDate
+                                )
+                            }
                         } else {
                             DateHelper.dateToLowerCaseString(date)
                         }
                     }
                 }
 
-                // On first section "die tageszeitung" the header should be bigger:
-                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
+                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)
+                    || displayable.getHeaderTitle() == getString(R.string.fragment_default_week_header_title)
+                ) {
                     val textPixelSize =
                         resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
                     val textSpSize =

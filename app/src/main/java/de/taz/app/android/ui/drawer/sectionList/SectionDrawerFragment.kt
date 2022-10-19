@@ -329,7 +329,14 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private fun setMomentDate(issueStub: IssueStub?) {
         viewBinding.fragmentDrawerSectionsDate.text =
-            issueStub?.date?.let(DateHelper::stringToLongLocalizedLowercaseString) ?: ""
+            if (issueStub?.isWeekend == true
+                && !issueStub.validityDate.isNullOrBlank()
+            ) {
+                val formattedDate = DateHelper.stringToDate(issueStub.date)
+                DateHelper.dateToWeekNotation(formattedDate, issueStub.validityDate)
+            } else {
+                issueStub?.date?.let(DateHelper::stringToLongLocalizedLowercaseString) ?: ""
+            }
     }
 
     override fun onDestroyView() {

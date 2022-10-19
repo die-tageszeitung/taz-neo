@@ -70,7 +70,7 @@ class PdfPagerViewModel(
         }
     }
 
-    private val issue = MediatorLiveData<IssueWithPages>().apply {
+    val issue = MediatorLiveData<IssueWithPages>().apply {
         addSource(issuePublication) { issuePublicationWithPages ->
             suspend fun downloadMetaData(maxRetries: Int = -1) = contentService.downloadMetadata(
                 issuePublicationWithPages,
