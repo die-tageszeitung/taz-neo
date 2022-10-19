@@ -9,9 +9,7 @@ import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
-import de.taz.app.android.persistence.join.SectionNavButtonJoin
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
 import java.util.*
 
 @Mockable
@@ -42,15 +40,6 @@ class SectionRepository private constructor(applicationContext: Context) :
             .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
-
-        imageRepository.save(section.navButton)
-
-        appDatabase.sectionNavButtonJoinDao().insertOrReplace(
-            SectionNavButtonJoin(
-                sectionFileName = section.sectionHtml.name,
-                navButtonFileName = section.navButton.name
-            )
-        )
 
     }
 
@@ -108,22 +97,16 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        // TODO: Although we expect a navbutton to be existent consistency issues happened in the past. We log them for now
-        val navButton =
-            appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName) ?:
-            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-
-        if (navButton == null) {
-            Sentry.captureMessage("Expected navbutton for $sectionFileName but found none")
+        val navButton = requireNotNull(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)) {
+            "navigation button is essential for the app running"
         }
-
 
         return Section(
             sectionHtml = sectionFile,
             issueDate = sectionStub.issueDate,
             title = sectionStub.title,
             type = sectionStub.type,
-            navButton = navButton!!,
+            navButton = navButton,
             articleList = articles,
             imageList = images,
             extendedTitle = sectionStub.extendedTitle,
@@ -164,12 +147,6 @@ class SectionRepository private constructor(applicationContext: Context) :
             }
         }
 
-        appDatabase.sectionNavButtonJoinDao().delete(
-            SectionNavButtonJoin(
-                section.sectionHtml.name,
-                section.navButton.name
-            )
-        )
 
         // TODO: Atm we are skipping contraint errors assuming, some foreign key constraint
         // is still important enough to protect these things
@@ -187,17 +164,6 @@ class SectionRepository private constructor(applicationContext: Context) :
             // do not delete still used
         }
     }
-
-    suspend fun getNavButtonForSection(sectionFileName: String): Image? {
-        return appDatabase.sectionNavButtonJoinDao().getNavButtonForSection(sectionFileName)
-    }
-
-    suspend fun getNavButtonForArticle(articleName: String): Image? {
-        return getSectionStubForArticle(articleName)?.let {
-            getNavButtonForSection(it.sectionFileName)
-        }
-    }
-
 
     suspend fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
         return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)

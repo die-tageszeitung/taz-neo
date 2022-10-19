@@ -2,7 +2,6 @@ package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -99,21 +98,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
             }
             tazApiCssDataStore.keepScreenOn.asFlow().collect {
                 KeepScreenOnHelper.toggleScreenOn(it, activity)
-            }
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                val navButton = when {
-                    it == null -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                    it.startsWith("art") -> sectionRepository.getNavButtonForArticle(it)
-                    it.startsWith("sec") -> sectionRepository.getNavButtonForSection(it)
-                    else -> imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-                }
-                sectionDrawerViewModel.navButton.postValue(navButton)
             }
         }
     }

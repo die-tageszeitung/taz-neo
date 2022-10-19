@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.AppDatabase
@@ -28,7 +29,7 @@ class IssueRepositoryTest {
     private val issue2 = TestDataUtil.getIssue("testIssue2")
 
     @Before
-    fun createDb() {
+    suspend fun createDb() {
         context = ApplicationProvider.getApplicationContext()
         db = Room.inMemoryDatabaseBuilder(
             context, AppDatabase::class.java
@@ -49,6 +50,9 @@ class IssueRepositoryTest {
 
         issueRepository = IssueRepository.getInstance(context)
         issueRepository.appDatabase = db
+
+        // initialize the DEFAULT NAV BUTTON:
+        fileEntryRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
     }
 
     @After

@@ -20,8 +20,4 @@ interface SectionOperations {
         return IssueRepository.getInstance(applicationContext).getIssueStubForSection(key)
     }
 
-    suspend fun getNavButton(applicationContext: Context): Image? {
-        return SectionRepository.getInstance(applicationContext)
-            .getNavButtonForSection(this@SectionOperations.key)
-    }
 }
