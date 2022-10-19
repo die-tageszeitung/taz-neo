@@ -139,7 +139,7 @@ object DateHelper {
             SimpleDateFormat("d.", Locale.GERMANY).format(it)
         }
         val formattedToDate = realToDate?.let {
-            SimpleDateFormat("d.MM.yyyy", Locale.GERMANY).format(it)
+            SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(it)
         }
         return "woche\n$formattedFromDate – $formattedToDate"
     }
