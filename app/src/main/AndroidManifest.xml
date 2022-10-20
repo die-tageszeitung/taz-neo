@@ -51,7 +51,7 @@
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.search.SearchActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.bookmarks.BookmarkListActivity"
             android:theme="@style/noAnimationOnActivityChange"/>

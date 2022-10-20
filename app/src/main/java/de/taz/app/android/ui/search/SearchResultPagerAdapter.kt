@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.R
 import de.taz.app.android.api.dto.SearchHitDto
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
@@ -72,11 +73,11 @@ class SearchResultPagerAdapter(
                 null
             )
         }
-        holder.viewBinding.collapsingToolbarLayout.findViewById<ConstraintLayout>(R.id.header)?.let {
+        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header)?.let {
             it.visibility = View.GONE
         }
 
-        holder.viewBinding.collapsingToolbarLayout.findViewById<ConstraintLayout>(R.id.header_search_hit)?.apply {
+        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_search_hit)?.apply {
             visibility = View.VISIBLE
             findViewById<TextView>(R.id.search_hit_index).text = fragment.requireActivity().getString(
                 R.string.fragment_header_search_result_index,

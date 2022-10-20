@@ -21,6 +21,8 @@
     <color name="textColor">@color/superLightGrey</color>
     <color name="textColorAccent">@color/lightGrey</color>
     <color name="textColorSection">@color/superLightGrey</color>
+    <color name="buttonColor">@color/superLightGrey</color>
+    <color name="buttonTextColor">@color/black</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
 

@@ -24,6 +24,7 @@
             android:layout_height="wrap_content"
             app:expandedTitleGravity="top"
             app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:contentScrim="@color/backgroundColor"
             app:scrimAnimationDuration="0">
 
             <include
@@ -150,16 +151,17 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_auto_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                tools:checked="true"
                 android:text="@string/settings_auto_downloads_switch" />
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_auto_download_wifi_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -168,7 +170,7 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_auto_pdf_download_switch"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -214,7 +216,7 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_text_justified"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -223,7 +225,7 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_night_mode"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -232,7 +234,7 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_tap_to_scroll"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -241,7 +243,7 @@
 
             <include layout="@layout/settings_separator_view" />
 
-            <androidx.appcompat.widget.SwitchCompat
+            <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/fragment_settings_keep_screen_on"
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
@@ -384,7 +386,7 @@
                     android:orientation="vertical"
                     android:visibility="gone">
 
-                    <androidx.appcompat.widget.SwitchCompat
+                    <com.google.android.material.materialswitch.MaterialSwitch
                         android:id="@+id/fragment_settings_notifications_switch"
                         style="@style/TextAppearance.Settings.Entry"
                         android:layout_width="match_parent"

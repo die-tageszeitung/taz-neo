@@ -110,7 +110,7 @@ def getVersionCode = { ->
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     buildFeatures {
         viewBinding true
@@ -119,7 +119,7 @@ android {
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode getVersionCode()
         versionName getVersionName()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -356,7 +356,7 @@ dependencies {
 
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.7.0-rc01'
 
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'

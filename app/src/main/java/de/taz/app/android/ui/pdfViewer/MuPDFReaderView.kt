@@ -43,7 +43,7 @@ class MuPDFReaderView constructor(
         return true
     }
 
-    override fun onDoubleTapEvent(p0: MotionEvent?): Boolean {
+    override fun onDoubleTapEvent(p0: MotionEvent): Boolean {
         return false
     }
 
@@ -70,19 +70,20 @@ class MuPDFReaderView constructor(
         return true
     }
 
-    override fun onScale(detector: ScaleGestureDetector?): Boolean {
-        log.verbose("scaling: ${detector?.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
-        val pinchOut = detector?.scaleFactor!! < 0.9
+
+    override fun onScale(detector: ScaleGestureDetector): Boolean {
+        log.verbose("scaling: ${detector.scaleFactor}. total scale: ${displayedView.width / width.toFloat()} displayedVies.scale: ${displayedView.scaleX}")
+        val pinchOut = detector.scaleFactor < 0.9
         onScaleOutListener?.invoke(pinchOut)
         return super.onScale(detector)
     }
 
-    override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+    override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
         onScaleListener?.invoke(true)
         return super.onScaleBegin(detector)
     }
 
-    override fun onScaleEnd(detector: ScaleGestureDetector?) {
+    override fun onScaleEnd(detector: ScaleGestureDetector) {
         onScaleListener?.invoke(false)
         checkWhichBordersAreVisible()
         onBorderListener?.invoke(currentBorder)
@@ -90,13 +91,13 @@ class MuPDFReaderView constructor(
     }
 
     override fun onScroll(
-        e1: MotionEvent?,
-        e2: MotionEvent?,
+        e1: MotionEvent,
+        e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        if (e1?.action == MotionEvent.ACTION_DOWN &&
-            e2?.action == MotionEvent.ACTION_MOVE &&
+        if (e1.action == MotionEvent.ACTION_DOWN &&
+            e2.action == MotionEvent.ACTION_MOVE &&
             abs(distanceX) > abs(distanceY)
         ) {
             checkWhichBordersAreVisible()

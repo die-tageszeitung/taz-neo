@@ -42,7 +42,9 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // trigger for recyclerview as well
         for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
-        WindowInsetsCompat.CONSUMED.toWindowInsets()
+        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
+            "This is not allowed to be null since API 33"
+        }
     }
 
     recyclerView.setOnApplyWindowInsetsListener { v, insets ->
@@ -56,7 +58,9 @@ fun ViewPager2.moveContentBeneathStatusBar() {
         }
         // use post to prevent requestLayout while layouting
         v.post { v.layoutParams = layoutParams }
-        WindowInsetsCompat.CONSUMED.toWindowInsets()
+        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
+            "This is not allowed to be null since API 33"
+        }
     }
 
     requestApplyInsets()
@@ -75,7 +79,9 @@ fun ViewGroup.moveContentBeneathStatusBar() {
             rightMargin = systemWindowInsets.right
             bottomMargin = systemWindowInsets.bottom
         }
-        WindowInsetsCompat.CONSUMED.toWindowInsets()
+        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
+            "This is not allowed to be null since API 33"
+        }
     }
 
     requestApplyInsets()

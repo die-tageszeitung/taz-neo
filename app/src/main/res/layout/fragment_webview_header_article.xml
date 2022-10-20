@@ -1,50 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
-    android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
-    android:background="@color/backgroundColor"
-    app:layout_constraintTop_toTopOf="parent">
+    android:background="@color/backgroundColor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/title_container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/fragment_header_default_height"
-        android:paddingBottom="@dimen/fragment_header_title_padding_bottom"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
+        android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/article_num"
-            style="@style/TextAppearance.Header.Article.Num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
-            android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
-            android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/section" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/title_container"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/fragment_header_default_height"
+            android:paddingBottom="@dimen/fragment_header_title_padding_bottom"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/section"
-            style="@style/TextAppearance.Header.Article.Section"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:textAlignment="viewEnd"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <TextView
+                android:id="@+id/article_num"
+                style="@style/TextAppearance.Header.Article.Num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/fragment_header_article_num_margin_horizontal"
+                android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/section" />
+
+            <TextView
+                android:id="@+id/section"
+                style="@style/TextAppearance.Header.Article.Section"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:textAlignment="viewEnd"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <de.taz.app.android.ui.DottedLineView
+            android:id="@+id/dotted_line"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            app:color="@color/textColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title_container" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <de.taz.app.android.ui.DottedLineView
-        android:id="@+id/dotted_line"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        app:color="@color/textColor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_container" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-
+</com.google.android.material.appbar.MaterialToolbar>
