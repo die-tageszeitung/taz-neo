@@ -1,12 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorError">@color/tazRed</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
         <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
@@ -23,13 +21,15 @@
         <item name="android:ambientShadowAlpha">0.1</item>
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
         <item name="android:scrollbarSize">5dp</item>
+        <item name="colorOnPrimary">@color/backgroundColor</item>
         <item name="bottomSheetStyle">@style/AppTheme.BottomSheetMenuTheme</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+    <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:background">@color/backgroundColor</item>
         <item name="alertDialogStyle">@style/AppTheme.MaterialAlertDialog.MaterialComponents</item>
     </style>
 
@@ -40,34 +40,25 @@
         <item name="backgroundInsetBottom">10dp</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="android:textColor">@color/white</item>
+    <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/buttonTextColor</item>
         <item name="fontFamily">@font/appFontRegular</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:theme">@style/Theme.MaterialComponents</item>
-        <item name="colorButtonNormal">@color/tazRed</item>
-        <item name="android:colorButtonNormal">@color/tazRed</item>
-        <item name="textAllCaps">false</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:maxWidth">@dimen/button_max_width</item>
+        <item name="android:includeFontPadding">true</item>
+        <item name="backgroundTint">@color/buttonColor</item>
+        <item name="maxWidth">@dimen/button_max_width</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
-        <item name="fontFamily">@font/appFontBold</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:theme">@style/Theme.MaterialComponents</item>
+    <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="backgroundTint">@color/backgroundColor</item>
-        <item name="textAllCaps">false</item>
-        <item name="strokeColor">@color/colorAccent</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:includeFontPadding">true</item>
+        <item name="strokeColor">@color/buttonColor</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="rippleColor">@color/outline_button_ripple_color</item>
         <item name="android:maxWidth">@dimen/button_max_width</item>
     </style>
 
-    <style name="AppTheme.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+    <style name="AppTheme.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/textColorAccent</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
         <item name="boxBackgroundColor">@color/backgroundColor</item>
@@ -168,7 +159,6 @@
 
     <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
-        <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
         <item name="itemIconTint">@color/bottom_nav_icon_color</item>
         <item name="itemTextColor">@color/bottom_nav_icon_color</item>
@@ -252,6 +242,7 @@
         <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
         <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
+        <item name="trackTint">@color/material_switch_color_list</item>
     </style>
 
     <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
@@ -275,7 +266,7 @@
         <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
     </style>
 
-    <style name="TextAppearance.Search.Input" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+    <style name="TextAppearance.Search.Input" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="android:layout_marginStart">@dimen/search_input_field_margin_horizontally</item>
         <item name="android:layout_marginEnd">@dimen/search_input_field_margin_horizontally</item>
         <item name="android:layout_marginTop">@dimen/search_input_field_margin_top</item>
@@ -362,7 +353,7 @@
         <item name="behavior_fitToContents">true</item>
     </style>
 
-    <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
+    <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheetModal</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

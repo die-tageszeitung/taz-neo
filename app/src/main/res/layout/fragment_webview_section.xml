@@ -24,6 +24,9 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:scrimAnimationDuration="0">
 
+            <include android:id="@+id/header"
+                layout="@layout/fragment_webview_header_section" />
+
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

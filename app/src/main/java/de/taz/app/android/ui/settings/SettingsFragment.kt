@@ -14,7 +14,6 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SwitchCompat
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
@@ -22,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.*
 import de.taz.app.android.BuildConfig.FLAVOR_graphql
 import de.taz.app.android.BuildConfig.FLAVOR_source
@@ -519,43 +519,44 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showTextJustification(justified: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_text_justified)?.isChecked =
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_text_justified)?.isChecked =
             justified
     }
 
     private fun showNightMode(nightMode: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
     private fun showTapToScroll(enabled: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
     }
 
     private fun showKeepScreenOn(screenOn: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
     }
 
     private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_switch)?.isChecked =
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
+            if (!downloadsEnabled) setDownloadOnlyInWifi(false)
             isEnabled = downloadsEnabled
         }
     }
 
     private fun showDownloadAdditionallyPdf(additionallyEnabled: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_auto_pdf_download_switch)?.apply {
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_pdf_download_switch)?.apply {
             isChecked = additionallyEnabled
         }
     }
 
     private fun showNotificationsEnabledToggle(notificationsEnabled: Boolean) {
-        view?.findViewById<SwitchCompat>(R.id.fragment_settings_notifications_switch)?.apply {
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_notifications_switch)?.apply {
             isChecked = notificationsEnabled
         }
     }
