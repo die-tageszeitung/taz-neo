@@ -95,13 +95,13 @@ object DateHelper {
     /**
      * function to get the formatted date for the wochentaz
      * @param date - Date of the issue
-     * @param validityDate - String (eg "2022-11-18") given by [IssueStub.validityDate]
-     * @return eg "woche 12. – 18.11.2022"
+     * @param validityDate - String (eg "2023-02-05") given by [IssueStub.validityDate]
+     * @return eg "woche 29.1. – 5.2.2023"
      */
     fun dateToWeekNotation(date: Date?, validityDate: String): String {
         val formattedToDate = stringToDate(validityDate)
         val fromDate = date?.let {
-            SimpleDateFormat("d.", Locale.GERMANY).format(it)
+            SimpleDateFormat("d.M.", Locale.GERMANY).format(it)
         }
         val toDate = formattedToDate?.let {
             SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(it)
@@ -130,13 +130,13 @@ object DateHelper {
      * @param toDate - String holding the "until" date
      * @return the [String] of date in a two line format: "EEEE,<br>> d.M.yyyy", eg:
      *    woche
-     *    12. – 18.11.2022
+     *    29.1. – 5.2.2023
      */
     fun stringsToWeek2LineString(fromDate: String, toDate: String): String? {
         val realFromDate = stringToDate(fromDate)
         val realToDate = stringToDate(toDate)
         val formattedFromDate = realFromDate?.let {
-            SimpleDateFormat("d.", Locale.GERMANY).format(it)
+            SimpleDateFormat("d.M.", Locale.GERMANY).format(it)
         }
         val formattedToDate = realToDate?.let {
             SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(it)

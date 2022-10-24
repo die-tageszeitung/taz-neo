@@ -16,8 +16,6 @@ import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.R
@@ -93,7 +91,7 @@ class SectionWebViewFragment : WebViewFragment<
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub =displayable.getIssueStub(requireContext().applicationContext)
+                val issueStub = displayable.getIssueStub(requireContext().applicationContext)
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
@@ -132,17 +130,15 @@ class SectionWebViewFragment : WebViewFragment<
                 sectionTextView?.text = displayable.getHeaderTitle()
                 DateHelper.stringToDate(displayable.issueDate)?.let { date ->
                     headerView.findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = if (issueStub?.isWeekend == true) {
-                            if (issueStub.validityDate.isNullOrBlank()) {
+                        text = when {
+                            issueStub?.isWeekend == true && issueStub.validityDate.isNullOrBlank() ->
+                                // Regular Weekend Issue
                                 DateHelper.dateToWeekendNotation(date)
-                            } else {
-                                DateHelper.dateToWeekNotation(
-                                    date,
-                                    issueStub.validityDate
-                                )
-                            }
-                        } else {
-                            DateHelper.dateToLowerCaseString(date)
+                            issueStub?.isWeekend == true && issueStub.validityDate?.isNotBlank() == true ->
+                                // Wochentaz Issue
+                                DateHelper.dateToWeekNotation(date, issueStub.validityDate)
+                            else ->
+                                DateHelper.dateToLowerCaseString(date)
                         }
                     }
                 }
