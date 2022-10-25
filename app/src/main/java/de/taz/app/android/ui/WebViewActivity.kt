@@ -1,13 +1,14 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.WEBVIEW_HTML_FILE
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityWebviewBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -25,6 +26,15 @@ import kotlinx.coroutines.withContext
 
 class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
 
+    companion object {
+        private const val WEBVIEW_HTML_FILE = "htmlFile"
+
+        fun newIntent(packageContext: Context, htmlFile: String) = Intent(packageContext, WebViewActivity::class.java).apply {
+            putExtra(WEBVIEW_HTML_FILE, htmlFile)
+        }
+    }
+
+
     private lateinit var storageService: StorageService
     private var resourceInfoRepository: ResourceInfoRepository? = null
 
@@ -35,6 +45,10 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
     private lateinit var toastHelper: ToastHelper
 
     private val log by Log
+
+    private val htmlFile: String
+        get() = intent.extras?.getString(WEBVIEW_HTML_FILE)
+            ?: throw IllegalArgumentException("WebViewActivity needs to be started with WEBVIEW_HTML_FILE extra in intent")
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,19 +70,14 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
             }
         }
 
-        intent.extras?.getString(WEBVIEW_HTML_FILE)?.let {
-            try {
-                showHtmlFile(it)
-            } catch (e: HTMLFileNotFoundException) {
-                val hint = "Html file $it not found"
-                log.error(hint)
-                Sentry.captureException(e, hint)
-                showFatalErrorDialog()
-            }
-        } ?: run {
-            throw IllegalArgumentException("WebViewActivity needs to be started with WEBVIEW_HTML_FILE extra in intent")
+        try {
+            showHtmlFile(htmlFile)
+        } catch (e: HTMLFileNotFoundException) {
+            val hint = "Html file $htmlFile not found"
+            log.error(hint)
+            Sentry.captureException(e, hint)
+            showFatalErrorDialog()
         }
-
     }
 
     private fun showHtmlFile(htmlFileKey: String) {
@@ -80,13 +89,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
                     viewBinding.webViewFullscreenContent.loadUrl(it)
                 }
             } ?: run {
-                throw HTMLFileNotFoundException(
-                    "Could not find html file ${
-                        intent.extras?.getString(
-                            WEBVIEW_HTML_FILE
-                        )
-                    }"
-                )
+                throw HTMLFileNotFoundException("Could not find html file $htmlFile")
             }
         }
     }

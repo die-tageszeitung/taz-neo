@@ -93,21 +93,24 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsTerms.setOnClickListener {
-                    val intent = Intent(activity, WebViewActivity::class.java)
-                    intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
-                    activity?.startActivity(intent)
+                activity?.apply {
+                    val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_TERMS)
+                    startActivity(intent)
                 }
+            }
 
             fragmentSettingsRevocation.setOnClickListener {
-                val intent = Intent(activity, WebViewActivity::class.java)
-                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
-                activity?.startActivity(intent)
+                activity?.apply {
+                    val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_REVOCATION)
+                    startActivity(intent)
+                }
             }
 
             fragmentSettingsDataPolicy.setOnClickListener {
-                val intent = Intent(activity, WebViewActivity::class.java)
-                intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_DATA_POLICY)
-                activity?.startActivity(intent)
+                activity?.apply {
+                    val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
+                    startActivity(intent)
+                }
             }
 
             fragmentSettingsTextSize.apply {

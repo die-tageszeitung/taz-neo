@@ -374,6 +374,7 @@
     <string name="search_advanced_start_search">Suche starten</string>
     <string name="search_result_amount_found">%d von %d Treffer:</string>
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
+    <string name="search_advanced_help">hilfe</string>
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
     <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>

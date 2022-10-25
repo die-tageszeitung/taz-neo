@@ -125,8 +125,16 @@
                 android:layout_marginTop="6dp"
                 android:text="@string/search_advanced_start_search" />
 
+            <TextView
+                android:id="@+id/search_help"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_help" />
+
         </LinearLayout>
     </ScrollView>
+
     <Button
         android:id="@+id/search_cancel_button"
         style="@style/Widget.Material3.Button.TextButton"
