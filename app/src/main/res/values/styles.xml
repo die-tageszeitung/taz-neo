@@ -279,7 +279,7 @@
         <item name="boxStrokeWidth">0dp</item>
         <item name="endIconMode">clear_text</item>
         <item name="hintEnabled">false</item>
-        <item name="startIconContentDescription">@string/search</item>
+        <item name="startIconContentDescription">@string/tab_bar_search</item>
         <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 

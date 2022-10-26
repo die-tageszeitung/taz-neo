@@ -9,10 +9,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.artifex.mupdf.fitz.FileStream
-import com.artifex.mupdf.viewer.MuPDFCore
-import com.artifex.mupdf.viewer.PageAdapter
-import com.artifex.mupdf.viewer.PageView
-import com.artifex.mupdfdemo.ReaderView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
@@ -25,6 +21,8 @@ import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.pdfViewer.mupdf.MuPDFCore
+import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import java.io.File
@@ -57,9 +55,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private lateinit var pageRepository: PageRepository
     private lateinit var toastHelper: ToastHelper
 
-    // Set to true if we have to force a pdf view update because we did set an initial manual scale
-    private var requestPdfUpdateOnResume = false
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         val applicationContext = context.applicationContext
@@ -82,6 +77,14 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 tazApiCssDataStore.keepScreenOn.asFlow().collect {
                     KeepScreenOnHelper.toggleScreenOn(it, activity)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                pdfPagerViewModel.forceFlingToSwipe.collect {
+                    pdfReaderView?.forceFlingToSwipe = it
                 }
             }
         }
@@ -113,11 +116,6 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         } else {
             log.error("Missing page or PAGE_NAME arguments")
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        maybeUpdatePdfView()
     }
 
     override fun onDestroyView() {
@@ -181,26 +179,8 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
     private fun zoomPanoramaPageInPortrait() {
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            pdfReaderView?.mScale = SCALE_FACTOR_FOR_PANORAMA_PAGES
-            requestPdfUpdateOnResume = true
+            pdfReaderView?.zoomTo(SCALE_FACTOR_FOR_PANORAMA_PAGES, 0f, 0f)
         }
     }
 
-    /**
-     * Updates the [PageView] (which is behind the [ReaderView]),
-     * so the page is rendered in high quality.
-     * This is done automatically when changing the layout with gestures (scrolling, zooming, etc),
-     * but not when done programmatically, eg. on zooming in the panorama pages in adapter.
-     */
-    private fun maybeUpdatePdfView() {
-        if (requestPdfUpdateOnResume) {
-            pdfReaderView?.apply {
-                (displayedView as? PageView)
-                    ?.updateHq(false)
-                    ?: log.warn("cannot cast as PageView as displayedView is null")
-            }
-
-            requestPdfUpdateOnResume = false
-        }
-    }
 }

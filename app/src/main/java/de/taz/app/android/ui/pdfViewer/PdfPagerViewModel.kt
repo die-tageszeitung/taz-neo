@@ -13,14 +13,13 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 private const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
+private const val FORCE_FLING_TO_SWIPE_DELAY_MS = 1000L
 
 enum class SwipeEvent {
     LEFT, RIGHT
@@ -284,5 +283,23 @@ class PdfPagerViewModel(
         issuePublicationWithPages,
         maxRetries = maxRetries
     ) as IssueWithPages
+
+
+    private val _forceFlingToSwipe = MutableStateFlow(false)
+    val forceFlingToSwipe = _forceFlingToSwipe
+
+    private var disableFlingToSwipeJob: Job? = null
+    fun onPageFullyInView() {
+        disableFlingToSwipeJob?.cancel()
+        disableFlingToSwipeJob = viewModelScope.launch {
+            delay(FORCE_FLING_TO_SWIPE_DELAY_MS)
+            _forceFlingToSwipe.value = false
+        }
+    }
+
+    fun onSwipeToPage() {
+        _forceFlingToSwipe.value = true
+    }
+
 }
 

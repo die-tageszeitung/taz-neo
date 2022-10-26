@@ -364,8 +364,8 @@ dependencies {
     // stetho debug bridge
     implementation 'com.facebook.stetho:stetho:1.6.0'
 
-    // pdf viewer
-    implementation project(':mupdf-lib')
+    // mupdf
+    implementation project(':mupdf-jni')
 
     // error reports
     implementation 'io.sentry:sentry-android:5.4.0'

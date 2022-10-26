@@ -23,10 +23,10 @@ stages:
         - $GRADLE_USER_HOME/caches
     - key:
         files:
-          - .git/modules/mupdf-lib/HEAD
+          - .git/modules/mupdf-jni/HEAD
       paths:
-        - mupdf-lib/jni/libmupdf/generated/resources/
-        - mupdf-lib/jni/build
+        - mupdf-jni/libmupdf/generated/resources/
+        - mupdf-jni/build
 
   before_script:
     # Download and extract non-free fonts used by the app
@@ -37,7 +37,7 @@ stages:
     # Setup the keystore from the CI secret variables
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
-    - make -C mupdf-lib/jni/libmupdf generate
+    - make -C mupdf-jni/libmupdf generate
 
 .assemble:
   extends: .prepareEnv
