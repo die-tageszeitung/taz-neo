@@ -7,6 +7,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -74,7 +75,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             lifecycleScope.launch {
                 delay(delay)
                 viewBinding.pdfViewpager.isUserInputEnabled = !disallow
-                viewBinding.pdfViewpager.requestDisallowInterceptTouchEvent(disallow)
             }
         }
 
@@ -82,6 +82,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             // only update currentItem if it has not been swiped
             if (viewBinding.pdfViewpager.currentItem != position) {
                 viewBinding.pdfViewpager.setCurrentItem(position, true)
+                pdfPagerViewModel.onSwipeToPage()
             }
         }
 
@@ -101,6 +102,16 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
                     pdfPagerViewModel.updateCurrentItem(newPosition)
                 }
+        }
+
+        viewBinding.pdfViewpager.registerOnPageChangeCallback(onPageChangeCallback)
+    }
+
+    private val onPageChangeCallback = object : OnPageChangeCallback() {
+        override fun onPageScrollStateChanged(state: Int) {
+            if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                pdfPagerViewModel.onPageFullyInView()
+            }
         }
     }
 
