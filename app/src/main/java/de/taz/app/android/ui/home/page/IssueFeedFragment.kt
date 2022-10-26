@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.home.page
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -13,6 +12,8 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -21,7 +22,6 @@ import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -115,14 +115,13 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
      * @param issuePublication the issue to be opened
      */
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
-        val (viewerActivityClass, extraKeyIssue) = if (viewModel.pdfModeLiveData.value == true) {
-            PdfPagerActivity::class.java to PdfPagerActivity.KEY_ISSUE_PUBLICATION
-        } else {
-            IssueViewerActivity::class.java to IssueViewerActivity.KEY_ISSUE_PUBLICATION
-        }
-        Intent(requireActivity(), viewerActivityClass).apply {
-            putExtra(extraKeyIssue, issuePublication)
-            startActivity(this)
+        requireActivity().apply {
+            val intent = if (viewModel.pdfModeLiveData.value == true) {
+                PdfPagerActivity.newIntent(this,  IssuePublicationWithPages(issuePublication))
+            } else {
+                IssueViewerActivity.newIntent(this, IssuePublication(issuePublication))
+            }
+            startActivity(intent)
         }
     }
 

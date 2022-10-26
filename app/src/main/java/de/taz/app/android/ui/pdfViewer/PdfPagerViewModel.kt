@@ -10,20 +10,26 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-const val DEFAULT_NUMBER_OF_PAGES = 29
-const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
-const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
+private const val DEFAULT_NUMBER_OF_PAGES = 29
+private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
+private const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
 
 enum class SwipeEvent {
     LEFT, RIGHT
+}
+
+sealed class OpenLinkEvent {
+    class ShowArticle(val issueKey: IssueKey, val displayableKey: String?) : OpenLinkEvent()
+    class ShowImprint(val issueKeyWithDisplayableKey: IssueKeyWithDisplayableKey) : OpenLinkEvent()
+    class OpenExternal(val link: String) : OpenLinkEvent()
 }
 
 class PdfPagerViewModel(
@@ -40,9 +46,13 @@ class PdfPagerViewModel(
     private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
 
-    val issuePublication = MutableLiveData<IssuePublicationWithPages>()
-    private val _issueKey = MutableLiveData<IssueKeyWithPages>(null)
-    val issueKey = _issueKey
+    private var issuePublication: IssuePublicationWithPages? = null
+
+    private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
+    private val pdfPageListFlow: Flow<List<Page>?> = issueFlow
+        .map(::pdfPageListMapper)
+        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+    val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
 
     val userInputEnabled = MutableLiveData(true)
     val requestDisallowInterceptTouchEvent = MutableLiveData(false)
@@ -61,27 +71,47 @@ class PdfPagerViewModel(
     }
 
     private suspend fun updateCurrentItemInternal(position: Int) = withContext(Dispatchers.Main) {
-        if (_currentItem.value != position) {
-            _currentItem.value = position
+        if (_currentItem.value == position) {
+            return@withContext
+        }
+
+        val pdfPageList = pdfPageListFlow.first()
+        val validPosition = position.coerceIn(0, pdfPageList?.size ?: DEFAULT_NUMBER_OF_PAGES)
+        if (_currentItem.value != validPosition) {
+            _currentItem.value = validPosition
 
             // Save current position to database to restore later on
-            issueKey.value?.let {
+            issueFlow.value?.issueKey?.let {
                 issueRepository.saveLastPagePosition(
                     it.getIssueKey(),
-                    position
+                    validPosition
                 )
+
             }
         }
     }
 
-    private val issueWithPages = MediatorLiveData<IssueWithPages>().apply {
-        addSource(issuePublication) { issuePublicationWithPages ->
+    fun setIssuePublication(issuePublication: IssuePublicationWithPages) {
+        require(this.issuePublication == null || this.issuePublication == issuePublication) {
+            "Each PdfPagerViewModel instance may only be used for exactly one issue. Updating it to another is not allowed."
+        }
+
+        if (this.issuePublication == null) {
+            // Reload the issue if a new publication is set
+            this.issuePublication = issuePublication
+            loadIssue()
+        }
+    }
+
+    private fun loadIssue() {
+        val issuePublicationWithPages = this.issuePublication
+        if (issuePublicationWithPages != null) {
             viewModelScope.launch {
                 // We'll try to download the issues metadata 3 times.
                 // If that fails (for example due to missing network) we will emit an error and retry
                 // the download indefinitely.
                 // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
-                val issue = try {
+                var issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadIssueMetadata(issuePublicationWithPages, maxRetries = 3)
                 } catch (e: CacheOperationFailedException) {
@@ -89,17 +119,6 @@ class PdfPagerViewModel(
                     issueDownloadFailedErrorFlow.emit(true)
                     downloadIssueMetadata(issuePublicationWithPages)
                 }
-
-                // Store the issue metadata
-                _issueKey.value = issue.issueKey
-                value = issue
-            }
-        }
-    }
-
-    private val downloadedIssue = MediatorLiveData<IssueWithPages>().apply {
-        addSource(issueWithPages) { issueWithPages ->
-            viewModelScope.launch {
 
                 // Then we start the actual download of the Issue data with the PDF pages.
                 // While this will also download the issues metadata it does not return that data.
@@ -109,30 +128,53 @@ class PdfPagerViewModel(
                 // downloadToCache did succeed or failed: only that the launched coroutine has stopped.
                 // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
                 getApplicationScope().launch {
-                    contentService.downloadToCache(issueWithPages.issueKey)
+                    contentService.downloadToCache(issue.issueKey)
                 }.join()
 
                 // Update the latest page position and the viewDate
-                updateCurrentItemInternal(issueWithPages.lastPagePosition ?: 0)
-                issueRepository.updateLastViewedDate(issueWithPages)
+                updateCurrentItemInternal(issue.lastPagePosition ?: 0)
+                issueRepository.updateLastViewedDate(issue)
 
-                // Last we'll get the latest issue entry from the database, so that we will have
-                // a correct download date and isDownloaded() can return true.
-                val issueStub = issueRepository.getStub(issueWithPages.issueKey)
-                if (issueStub != null) {
-                    // We will not get the full issue from the database as this requires quite some work/time,
-                    // only the latest issue stub to update our metadata with
-                    val downloadedIssue = issueWithPages.copyWithMetadata(issueStub)
-
-                    // Finally emit the downloaded issue
-                    value = downloadedIssue
-
-                } else {
-                    val hint = "Issue that was just downloaded is not found in the database."
+                // Last we'll get the latest issue entry from the database, so that we will have a correct download date
+                val issueStub = issueRepository.getStub(issue.issueKey)
+                if (issueStub == null) {
+                    val hint =
+                        "Issue ${issue.issueKey} that was just downloaded is not found in the database."
                     log.error(hint)
                     Sentry.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
+                    return@launch
                 }
+
+                // We will not get the full issue from the database as this requires quite some work/time,
+                // only the latest issue stub to update our metadata with
+                issue = issue.copyWithMetadata(issueStub)
+
+                if (issue.dateDownloadWithPages == null) {
+                    val hint = "Issue ${issue.issueKey} was not fully downloaded."
+                    log.error(hint)
+                    Sentry.captureMessage(hint)
+                    issueDownloadFailedErrorFlow.emit(true)
+                    return@launch
+                }
+
+                // Finally store the downloaded issue and its data
+                issueFlow.value = issue
+            }
+        } else {
+            issueFlow.value = null
+        }
+    }
+
+    private suspend fun pdfPageListMapper(issue: IssueWithPages?): List<Page>? {
+        return if (issue == null || issue.dateDownloadWithPages == null) {
+            null
+        } else {
+            issue.pageList.map {
+                val fileEntry = requireNotNull(fileEntryRepository.get(it.pagePdf.name)) {
+                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                }
+                it.copy(pagePdf = fileEntry)
             }
         }
     }
@@ -143,27 +185,6 @@ class PdfPagerViewModel(
         }
     } as LiveData<Image>
 
-    val pdfPageList = MediatorLiveData<List<Page>>().apply {
-        addSource(downloadedIssue) { issue ->
-            viewModelScope.launch {
-                if (issue.isDownloaded(application)) {
-                    // as we do not know before downloading where we stored the fileEntry
-                    // and the fileEntry storageLocation is in the model - get it freshly from DB
-                    postValue(
-                        issue.pageList.map {
-                            it.copy(pagePdf = requireNotNull(
-                                fileEntryRepository.get(it.pagePdf.name)
-                            ) { "Refreshing pagePdf fileEntry failed as fileEntry was null" })
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    fun getAmountOfPdfPages(): Int {
-        return pdfPageList.value?.size ?: DEFAULT_NUMBER_OF_PAGES
-    }
 
     fun setUserInputEnabled(enabled: Boolean = true) {
         userInputEnabled.value = enabled
@@ -176,7 +197,7 @@ class PdfPagerViewModel(
     fun goToPdfPage(link: String) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
-        if (downloadedIssue.value?.status == IssueStatus.regular) {
+        if (issueFlow.value?.status == IssueStatus.regular) {
             updateCurrentItem(getPositionOfPdf(link))
         }
     }
@@ -185,8 +206,53 @@ class PdfPagerViewModel(
         return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
-    suspend fun getCorrectArticle(link: String): Article? {
-        val correctLink = if (downloadedIssue.value?.status == IssueStatus.regular) {
+    fun onFrameLinkClicked(link: String) {
+        if (link.startsWith("art") && link.endsWith(".html")) {
+            showArticle(link)
+        } else if (link.startsWith("http") || link.startsWith("mailto:")) {
+            _openLinkEventFlow.value = OpenLinkEvent.OpenExternal(link)
+        } else if (link.startsWith("s") && link.endsWith(".pdf")) {
+            goToPdfPage(link)
+        } else {
+            val hint = "Don't know how to open $link"
+            log.warn(hint)
+            Sentry.captureMessage(hint)
+        }
+    }
+
+    private val _openLinkEventFlow: MutableStateFlow<OpenLinkEvent?> = MutableStateFlow(null)
+    val openLinkEventFlow = _openLinkEventFlow.asStateFlow()
+
+    private fun showArticle(link: String) {
+        viewModelScope.launch(Dispatchers.Main) {
+            hideDrawerLogo.value = false
+            val article = getCorrectArticle(link)
+
+            val issueKeyWithPages = issueFlow.value?.issueKey
+            if (issueKeyWithPages == null) {
+                log.info("Could not show article for link $link because there is no issue selected")
+                return@launch
+            }
+
+            val issueKey = IssueKey(issueKeyWithPages)
+
+            _openLinkEventFlow.value = when {
+                article != null && article.isImprint() ->
+                    OpenLinkEvent.ShowImprint(IssueKeyWithDisplayableKey(issueKey, article.key))
+                else -> OpenLinkEvent.ShowArticle(issueKey, article?.key)
+            }
+        }
+    }
+
+    /**
+     * To be called immediately when any event from openLinkEventFlow has been consumed
+     */
+    fun linkEventIsConsumed() {
+        _openLinkEventFlow.value = null
+    }
+
+    private suspend fun getCorrectArticle(link: String): Article? {
+        val correctLink = if (issueFlow.value?.status == IssueStatus.regular) {
             link
         } else {
             // if we are not on a regular issue all the articles have "public" indication
@@ -196,8 +262,20 @@ class PdfPagerViewModel(
         return articleRepository.get(correctLink)
     }
 
-    val elapsedSubscription = authHelper.status.asFlow()
-    val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
+    /**
+     * Flow that indicates if the subscription elapsed dialog should be shown.
+     * Will not emit anything until a issue is loaded.
+     */
+    val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
+        issueFlow.filterNotNull(),
+        authHelper.status.asFlow(),
+        authHelper.elapsedFormAlreadySent.asFlow()
+    ) { issue, authStatus, isElapsedFormAlreadySent ->
+        val isPublic = issue.issueKey.status == IssueStatus.public
+        val isElapsed = authStatus == AuthStatus.elapsed
+
+        isPublic && isElapsed && !isElapsedFormAlreadySent
+    }
 
     private suspend fun downloadIssueMetadata(
         issuePublicationWithPages: IssuePublicationWithPages,

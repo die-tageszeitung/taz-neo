@@ -29,7 +29,7 @@ class SubscriptionAccountFragment :
     private var subscriptionInvalid = false
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             mailInvalid: Boolean = false,
             subscriptionInvalid: Boolean = false
         ): SubscriptionAccountFragment {

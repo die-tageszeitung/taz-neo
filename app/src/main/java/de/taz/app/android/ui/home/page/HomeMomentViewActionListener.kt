@@ -5,7 +5,6 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.bottomSheet.issue.IssueBottomSheetFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 open class HomeMomentViewActionListener(
     private val issueFeedFragment: IssueFeedFragment<*>
@@ -28,7 +27,7 @@ open class HomeMomentViewActionListener(
     override fun onLongClicked(coverPublication: AbstractCoverPublication) {
         issueFeedFragment.lifecycleScope.launch(Dispatchers.Main) {
             issueFeedFragment.showBottomSheet(
-                IssueBottomSheetFragment.create(
+                IssueBottomSheetFragment.newInstance(
                     IssuePublication(coverPublication)
                 )
             )

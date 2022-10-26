@@ -131,7 +131,7 @@ class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
         override fun createFragment(position: Int): Fragment {
             val imageKey = uniqueImageKeys[position]
             val imageSet = getImageSet(imageKey)
-            return ImageFragment.createInstance(
+            return ImageFragment.newInstance(
                 imageSet.first,
                 imageSet.second
             )

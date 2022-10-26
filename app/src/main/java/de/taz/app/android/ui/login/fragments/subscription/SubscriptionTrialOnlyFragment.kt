@@ -10,7 +10,7 @@ import de.taz.app.android.ui.login.LoginViewModelState
 class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscriptionTrialOnlyBinding>() {
     private var elapsed: Boolean = false
     companion object {
-        fun createInstance(
+        fun newInstance(
             elapsed: Boolean
         ): SubscriptionTrialOnlyFragment {
             val fragment = SubscriptionTrialOnlyFragment()

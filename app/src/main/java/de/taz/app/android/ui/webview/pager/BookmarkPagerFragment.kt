@@ -6,7 +6,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -15,7 +17,9 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.*
+import de.taz.app.android.monkey.moveContentBeneathStatusBar
+import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -24,9 +28,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewPagerBinding>() {
 
@@ -65,12 +67,16 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
         issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this) {
             if (it != null) {
-                Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                    putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, IssuePublication(it.issueKey))
-                    putExtra(IssueViewerActivity.KEY_DISPLAYABLE, it.displayableKey)
-                    startActivity(this)
+                requireActivity().apply {
+                    startActivity(
+                        IssueViewerActivity.newIntent(
+                            this,
+                            IssuePublication(it.issueKey),
+                            it.displayableKey
+                        )
+                    )
+                    finish()
                 }
-                requireActivity().finish()
             }
         }
     }
@@ -245,7 +251,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
-            return ArticleWebViewFragment.createInstance(article.articleFileName)
+            return ArticleWebViewFragment.newInstance(article.articleFileName)
         }
 
         override fun getItemId(position: Int): Long {

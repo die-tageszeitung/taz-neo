@@ -59,9 +59,9 @@ class SectionWebViewFragment : WebViewFragment<
     companion object {
         private val log by Log
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
-        fun createInstance(sectionFileName: String): SectionWebViewFragment {
+        fun newInstance(sectionFileName: String): SectionWebViewFragment {
             val args = Bundle()
-            log.debug("SectionWebViewFragment.createInstance($sectionFileName)")
+            log.debug("SectionWebViewFragment.newInstance($sectionFileName)")
             args.putString(SECTION_FILE_NAME, sectionFileName)
             return SectionWebViewFragment().apply {
                 arguments = args
