@@ -28,7 +28,7 @@ class SubscriptionAddressFragment :
     var surnameInvalid: Boolean = false
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             cityInvalid: Boolean = false,
             countryInvalid: Boolean = false,
             postcodeInvalid: Boolean = false,

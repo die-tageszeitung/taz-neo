@@ -25,7 +25,7 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
     private var invalidPrice: Boolean = false
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             priceList: List<PriceInfo>,
             invalidPrice: Boolean = false
         ): SubscriptionPriceFragment {

@@ -99,9 +99,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                         }
                     }
 
-                    pdfPagerViewModel.updateCurrentItem(
-                        newPosition.coerceIn(0, pdfPagerViewModel.getAmountOfPdfPages() - 1)
-                    )
+                    pdfPagerViewModel.updateCurrentItem(newPosition)
                 }
         }
     }
@@ -132,11 +130,11 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private inner class PdfPagerAdapter(fragment: Fragment, private val pageList: List<Page>) :
         FragmentStateAdapter(fragment) {
         override fun createFragment(position: Int): Fragment {
-            return PdfRenderFragment.create(pageList[position])
+            return PdfRenderFragment.newInstance(pageList[position])
         }
 
         override fun getItemCount(): Int {
-            return pdfPagerViewModel.getAmountOfPdfPages()
+            return pageList.size
         }
     }
 }

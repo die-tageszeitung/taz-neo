@@ -19,7 +19,7 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
     var ibanNoSepa: Boolean = false
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             accountHolderInvalid: Boolean = false,
             ibanEmpty: Boolean = false,
             ibanInvalid: Boolean = false,

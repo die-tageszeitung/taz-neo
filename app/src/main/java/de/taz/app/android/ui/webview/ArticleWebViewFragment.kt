@@ -45,7 +45,7 @@ class ArticleWebViewFragment : WebViewFragment<
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
-        fun createInstance(articleFileName: String): ArticleWebViewFragment {
+        fun newInstance(articleFileName: String): ArticleWebViewFragment {
             val args = Bundle()
             args.putString(ARTICLE_FILE_NAME, articleFileName)
             return ArticleWebViewFragment().apply {

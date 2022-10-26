@@ -50,7 +50,7 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
     val log by Log
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             image: Image?,
             toDownloadImage: Image?
         ): ImageFragment {
