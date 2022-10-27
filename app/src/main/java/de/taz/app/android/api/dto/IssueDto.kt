@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.*
 @Mockable
 class IssueDto(
     val date: String,
+    val validityDate: String? = null,
     val moment: MomentDto,
     val key: String? = null,
     val baseUrl: String,
@@ -17,5 +18,5 @@ class IssueDto(
     val isWeekend: Boolean = false,
     val sectionList: List<SectionDto>? = null,
     val pageList: List<PageDto>? = null,
-    val moTime: String
+    val moTime: String,
 )
