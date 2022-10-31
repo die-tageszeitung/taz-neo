@@ -11,15 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import de.taz.app.android.*
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.ResourceInfo
-import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.databinding.ActivityTazViewerBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
@@ -36,8 +33,7 @@ const val DRAWER_OVERLAP_OFFSET = -5F
  * [de.taz.app.android.ui.issueViewer.IssueViewerActivity] and
  * [de.taz.app.android.ui.bookmarks.BookmarkViewerActivity]
  *
- * This activity handles the navButton and
- * creates an instance of [fragmentClass] which is then shown
+ * This activity creates an instance of [fragmentClass] which is then shown
  *
  */
 abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
@@ -133,24 +129,9 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     override fun onResume() {
         super.onResume()
 
-        sectionDrawerViewModel.navButton.observeDistinct(this) {
-            lifecycleScope.launch {
-                val resourceInfo = contentService.downloadMetadata(
-                    ResourceInfoKey(-1),
-                    maxRetries = -1 // Retry indefinitely
-                ) as ResourceInfo
-                val baseUrl = resourceInfo.resourceBaseUrl
-                if (it != null) {
-                    contentService.downloadSingleFileIfNotDownloaded(FileEntry(it), baseUrl)
-                    showNavButton(it)
-                } else {
-                    imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let { image ->
-                        contentService.downloadSingleFileIfNotDownloaded(FileEntry(image), baseUrl)
-                        showNavButton(
-                            image
-                        )
-                    }
-                }
+        lifecycleScope.launch {
+            imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)?.let {
+                showNavButton(it)
             }
         }
     }

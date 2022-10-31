@@ -17,6 +17,7 @@ import java.util.*
 data class IssueStub(
     override val feedName: String,
     override val date: String,
+    override val validityDate: String?,
     override val key: String? = null,
     override val baseUrl: String,
     override val status: IssueStatus,
@@ -33,6 +34,7 @@ data class IssueStub(
     constructor(issue: IssueOperations): this (
         issue.feedName,
         issue.date,
+        issue.validityDate,
         issue.key,
         issue.baseUrl,
         issue.status,

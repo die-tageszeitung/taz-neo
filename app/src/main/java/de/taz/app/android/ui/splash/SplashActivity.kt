@@ -13,10 +13,7 @@ import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
-import de.taz.app.android.DISPLAYED_FEED
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -27,6 +24,7 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
@@ -224,6 +222,64 @@ class SplashActivity : StartupActivity() {
             storageLocation = currentStorageLocation
         )
             ?.let(::File)?.mkdirs()
+
+        // region init default navigation drawer image
+        val existingNavButtonFileEntry = fileEntryRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+        var navButtonFileEntry =
+            if (existingNavButtonFileEntry != null && existingNavButtonFileEntry.storageLocation != StorageLocation.NOT_STORED) {
+                existingNavButtonFileEntry
+            } else {
+                val newFileEntry = FileEntry(
+                    name = DEFAULT_NAV_DRAWER_FILE_NAME,
+                    storageType = StorageType.resource,
+                    moTime = Date().time,
+                    sha256 = "",
+                    size = 0,
+                    folder = RESOURCE_FOLDER,
+                    dateDownload = null,
+                    path = "$RESOURCE_FOLDER/$DEFAULT_NAV_DRAWER_FILE_NAME",
+                    storageLocation = currentStorageLocation
+                )
+                val newFile = storageService.getFile(newFileEntry)
+                if (newFile?.exists() == true) {
+                    fileEntryRepository.saveOrReplace(
+                        newFileEntry.copy(
+                            dateDownload = Date(),
+                            size = newFile.length(),
+                            sha256 = storageService.getSHA256(newFile)
+                        )
+                    )
+                } else {
+                    fileEntryRepository.saveOrReplace(newFileEntry)
+                }
+            }
+        val navButtonFile = try {
+            storageService.getFile(navButtonFileEntry)
+        } catch (e: ExternalStorageNotAvailableException) {
+            // If card was ejected create new file
+            navButtonFileEntry =
+                fileEntryRepository.saveOrReplace(navButtonFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
+            storageService.getFile(navButtonFileEntry)
+        }
+        if (navButtonFile?.exists() == false) {
+            navButtonFile.createNewFile()
+            fileEntryRepository.saveOrReplace(
+                navButtonFileEntry.copy(
+                    dateDownload = Date(),
+                    size = navButtonFile.length(),
+                    sha256 = storageService.getSHA256(navButtonFile),
+                )
+            )
+            log.debug("Created $DEFAULT_NAV_DRAWER_FILE_NAME")
+        }
+        // create imageStub
+        val imageStub =
+            ImageStub(DEFAULT_NAV_DRAWER_FILE_NAME, ImageType.button, 1f, ImageResolution.normal)
+        // save to image repository
+        ImageRepository.getInstance(applicationContext).save(
+            Image(navButtonFileEntry, imageStub)
+        )
+        // endregion
 
         var tazApiJSFileEntry =
             if (existingTazApiJSFileEntry != null && existingTazApiJSFileEntry.storageLocation != StorageLocation.NOT_STORED) {

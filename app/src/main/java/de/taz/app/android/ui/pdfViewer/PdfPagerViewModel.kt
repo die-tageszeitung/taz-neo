@@ -48,6 +48,9 @@ class PdfPagerViewModel(
     private var issuePublication: IssuePublicationWithPages? = null
 
     private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
+    val issue: IssueWithPages?
+        get() = issueFlow.value
+
     private val pdfPageListFlow: Flow<List<Page>?> = issueFlow
         .map(::pdfPageListMapper)
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)

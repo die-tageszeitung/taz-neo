@@ -126,9 +126,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
-        articleToBindTo.getNavButton(requireContext().applicationContext)?.let {
-            drawerViewModel.navButton.postValue(it)
-        }
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
         viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
