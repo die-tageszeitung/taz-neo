@@ -29,12 +29,6 @@ buildscript {
 allprojects {
     repositories {
         google()
-        //noinspection JcenterRepositoryObsolete
-        jcenter() {
-            content {
-                includeModule("com.factor", "bouncy")
-            }
-        }
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
