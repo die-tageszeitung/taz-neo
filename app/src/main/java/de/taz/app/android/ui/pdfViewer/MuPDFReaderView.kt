@@ -104,6 +104,12 @@ class MuPDFReaderView constructor(context: Context) : ReaderView(context) {
     }
 
     override fun onDocTap(docRelX: Float, docRelY: Float) {
-        clickCoordinatesListener?.invoke(docRelX to docRelY)
+        displayedView?.let {
+            // The click coordinates are relative to the rendered PDF size.
+            // For handling frames we have to use size independent ratios from 0..1
+            val docRatioX = docRelX / it.width
+            val docRatioY = docRelY / it.height
+            clickCoordinatesListener?.invoke(docRatioX to docRatioY)
+        }
     }
 }
