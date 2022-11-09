@@ -1,0 +1,44 @@
+diff --git a/build.gradle b/build.gradle
+index f1c1f87..b64f05d 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -6,11 +6,6 @@ version = '1.20.2'
+ 
+ buildscript {
+ 	repositories {
+-		if (project.hasProperty('MAVEN_REPO')) {
+-			maven { url MAVEN_REPO }
+-		} else {
+-			maven { url "file://${System.properties['user.home']}/MAVEN" }
+-		}
+ 		google()
+ 		mavenCentral()
+ 	}
+@@ -21,11 +16,6 @@ buildscript {
+ 
+ allprojects {
+ 	repositories {
+-		if (project.hasProperty('MAVEN_REPO')) {
+-			maven { url MAVEN_REPO }
+-		} else {
+-			maven { url "file://${System.properties['user.home']}/MAVEN" }
+-		}
+ 		google()
+ 		mavenCentral()
+ 	}
+@@ -88,14 +78,7 @@ project.afterEvaluate {
+ 			}
+ 		}
+ 		repositories {
+-			maven {
+-				name 'Local'
+-				if (project.hasProperty('MAVEN_REPO')) {
+-					url = MAVEN_REPO
+-				} else {
+-					url = "file://${System.properties['user.home']}/MAVEN"
+-				}
+-			}
++			mavenLocal()
+ 		}
+ 	}
+ }

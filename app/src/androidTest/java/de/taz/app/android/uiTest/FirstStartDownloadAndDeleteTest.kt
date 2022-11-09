@@ -108,7 +108,7 @@ class FirstStartDownloadAndDeleteTest {
                 withText(R.string.fragment_bottom_sheet_issue_delete),
                 childAtPosition(
                     childAtPosition(
-                        withId(R.id.design_bottom_sheet),
+                        withId(com.google.android.material.R.id.design_bottom_sheet),
                         0
                     ),
                     4
@@ -135,7 +135,7 @@ class FirstStartDownloadAndDeleteTest {
             allOf(
                 withId(R.id.fragment_bottom_sheet_issue_download),
                 withText(R.string.fragment_bottom_sheet_issue_download),
-                withParent(withParent(withId(R.id.design_bottom_sheet))),
+                withParent(withParent(withId(com.google.android.material.R.id.design_bottom_sheet))),
                 isDisplayed()
             )
         )
@@ -148,7 +148,7 @@ class FirstStartDownloadAndDeleteTest {
                 withText(R.string.fragment_bottom_sheet_issue_download),
                 childAtPosition(
                     childAtPosition(
-                        withId(R.id.design_bottom_sheet),
+                        withId(com.google.android.material.R.id.design_bottom_sheet),
                         0
                     ),
                     5
