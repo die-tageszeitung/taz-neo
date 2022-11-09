@@ -25,10 +25,13 @@ Before starting the build process it is necessary to initialize the mupdf-androi
 ```
 git submodule update --init --recursive
 ```
-Additionally mupdf needs to be generated:
+
+Additionally mupdf needs to be published to the local maven repository.
+This step has to be repeated everytime the mupdf library is updated to a new version.
 ```
-make -C mupdf-lib/jni/libmupdf generate
+./scripts/publish-mupdf-to-maven-local.sh
 ```
+
 With that the build process can be started.
 
 ### Non-free variant
