@@ -34,7 +34,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportFragmentManager.beginTransaction().add(
             android.R.id.content,
-            BookmarkViewerFragment.instance(
+            BookmarkViewerFragment.newInstance(
                 intent.getStringExtra(KEY_SHOWN_ARTICLE),
             )
         ).commit()
@@ -63,7 +63,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
 class BookmarkViewerFragment : TazViewerFragment() {
     companion object {
         const val KEY_SHOWN_ARTICLE = "KEY_SHOWN_ARTICLE"
-        fun instance(showArticle: String?) = BookmarkViewerFragment().apply {
+        fun newInstance(showArticle: String?) = BookmarkViewerFragment().apply {
             arguments = bundleOf(KEY_SHOWN_ARTICLE to showArticle)
         }
     }

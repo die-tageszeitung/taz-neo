@@ -112,7 +112,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
         override fun createFragment(position: Int): Fragment {
             val sectionStub = sectionStubs[position]
-            return SectionWebViewFragment.createInstance(sectionStub.sectionFileName)
+            return SectionWebViewFragment.newInstance(sectionStub.sectionFileName)
         }
 
         override fun getItemCount(): Int = sectionStubs.size

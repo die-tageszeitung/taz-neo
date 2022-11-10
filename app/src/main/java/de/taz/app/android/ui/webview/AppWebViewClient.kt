@@ -15,7 +15,6 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URLDecoder
@@ -37,7 +36,7 @@ class AppWebViewClient(
     @Deprecated("Deprecated in Java - But needed for Android versions pre 7.0.0")
     @Suppress("DEPRECATION")
     override fun shouldOverrideUrlLoading(webView: WebView?, url: String?): Boolean {
-        return shouldOverride(webView, url) || super.shouldOverrideUrlLoading(webView, url)
+        return shouldOverride(webView, url)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -45,54 +44,55 @@ class AppWebViewClient(
         webView: WebView?,
         request: WebResourceRequest?
     ): Boolean {
-        return shouldOverride(webView, request?.url.toString())
-                || super.shouldOverrideUrlLoading(webView, request)
+        return shouldOverride(webView, request?.url?.toString())
     }
 
     private fun shouldOverride(webView: WebView?, url: String?): Boolean {
-        val decodedUrl = URLDecoder.decode(url.toString(), "UTF-8")
-        return if (handleLinks(webView, decodedUrl)) {
-            createNewFragment(decodedUrl)
-        } else {
-            handleExternally(webView, decodedUrl)
+        if (url == null) {
+            log.info("Canceling loading a null url")
+            return true
+        }
+
+        if (webView == null) {
+            log.info("Canceling loading url=$url with a null webView")
+            return true
+        }
+        
+        return runBlocking {
+            val decodedUrl = URLDecoder.decode(url, "UTF-8")
+            if (handleLinks(decodedUrl)) {
+                createNewFragment(decodedUrl)
+            } else {
+                openInBrowser(webView, url)
+                true
+            }
         }
     }
 
     /** internal links should be handled by the app, external ones - by a web browser
     this function checks whether a link is internal
      */
-    private fun handleLinks(webView: WebView?, url: String?): Boolean {
-        url?.let { urlString ->
-            webView?.let {
-                return urlString.startsWith("file:///") || checkIfWeHaveLocally(url)
-            }
-        }
-        return false
+    private suspend fun handleLinks(url: String): Boolean {
+        return url.startsWith("file:///") || checkIfWeHaveLocally(url)
     }
 
-    private fun createNewFragment(url: String?): Boolean {
-        url?.let {
-            return when {
-                it.startsWith("file:///") && it.contains("section") && it.endsWith(".html") -> {
-                    callBack.onLinkClicked(url.split("/").last())
-                    true
-                }
-                it.startsWith("file:///") && it.contains("art") && it.endsWith(".html") -> {
-                    callBack.onLinkClicked(url.split("/").last())
-                    true
-                }
-                else -> false
+    private fun createNewFragment(url: String): Boolean {
+        return when {
+            url.startsWith("file:///") && url.contains("section") && url.endsWith(".html") -> {
+                callBack.onLinkClicked(url.split("/").last())
+                true
             }
+            url.startsWith("file:///") && url.contains("art") && url.endsWith(".html") -> {
+                callBack.onLinkClicked(url.split("/").last())
+                true
+            }
+            else -> false
         }
-        return false
     }
 
-    override fun shouldInterceptRequest(view: WebView?, url: String?): WebResourceResponse? {
-        return if (handleLinks(view, url)) {
-            createCustomWebResourceResponse(view, url)
-        } else {
-            return null
-        }
+    @Deprecated("Deprecated in Java")
+    override fun shouldInterceptRequest(webView: WebView?, url: String?): WebResourceResponse? {
+        return shouldIntercept(webView, url)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -100,23 +100,28 @@ class AppWebViewClient(
         webView: WebView?,
         request: WebResourceRequest?
     ): WebResourceResponse? {
-        request?.let {
-            val url = Uri.decode(request.url.toString())
-            if (handleLinks(webView, url)) {
-                return createCustomWebResourceResponse(webView, url)
-            }
-        }
-        return null
+        return shouldIntercept(webView, request?.url?.toString())
     }
 
-    private fun handleExternally(webView: WebView?, url: String?): Boolean {
-        webView?.let {
-            url?.let {
-                log.debug("handling $url externally")
-                openInBrowser(webView, url)
+    private fun shouldIntercept(webView: WebView?, url: String?): WebResourceResponse? {
+        if (url == null) {
+            log.info("Abort intercepting a request with a null url")
+            return null
+        }
+
+        if (webView == null) {
+            log.info("Abort intercepting a request for url=$url with a a null webView")
+            return null
+        }
+
+        return runBlocking {
+            val decodedUrl = URLDecoder.decode(url, "UTF-8")
+            if (handleLinks(decodedUrl)) {
+                createCustomWebResourceResponse(decodedUrl)
+            } else {
+                null
             }
         }
-        return true
     }
 
     private fun openInBrowser(webView: WebView, url: String) {
@@ -129,57 +134,54 @@ class AppWebViewClient(
     /**
      * intercept links to "resources/" and "global/" and point them to the correct directories
      */
-    private fun overrideInternalLinks(view: WebView?, url: String?): String? {
-        view?.let {
-            url?.let {
-                val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
-                val fileEntry = runBlocking {  fileEntryRepository.get(fileName) }
-                fileEntry?.let { return storageService.getFileUri(it) }
-            }
-
-        }
-        return url
+    private suspend fun overrideInternalLinks(url: String): String? {
+        val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
+        val fileEntry = fileEntryRepository.get(fileName)
+        return fileEntry?.let { return storageService.getFileUri(it) }
     }
 
     /**
      * handle correctly different resource types
      * TODO not sure whether these are all possible resource types and whether all mimeTypes are correct
      */
-    private fun createCustomWebResourceResponse(
-        view: WebView?,
-        url: String?
-    ): WebResourceResponse? {
-        val newUrl = overrideInternalLinks(view, url)
-        val data = File(newUrl.toString().removePrefix("file://"))
+    private suspend fun createCustomWebResourceResponse(url: String): WebResourceResponse? {
+        val internalUrl = overrideInternalLinks(url)
+        if (internalUrl == null) {
+            log.info("Could not create internal url for url=$url")
+            return null
+        }
 
-        return try {
-            when {
-                url.toString().endsWith(".css") ->
-                    WebResourceResponse("text/css", "UTF-8", data.inputStream())
-                url.toString().endsWith(".html") ->
-                    WebResourceResponse("text/html", "UTF-8", data.inputStream())
-                url.toString().endsWith(".js") ->
-                    WebResourceResponse("application/javascript", "UTF-8", data.inputStream())
-                url.toString().endsWith(".png") ->
-                    WebResourceResponse("image/png", "binary", data.inputStream())
-                url.toString().endsWith(".svg") ->
-                    WebResourceResponse("image/svg+xml", "UTF-8", data.inputStream())
-                url.toString().endsWith(".woff") ->
-                    WebResourceResponse("font/woff", "binary", data.inputStream())
-                else ->
-                    WebResourceResponse("text/plain", "UTF-8", data.inputStream())
-            }
+        val data = File(internalUrl.removePrefix("file://"))
+        val inputStream = try {
+            data.inputStream()
         } catch (e: Exception) {
-            val hint = "trying to open non-existent file $newUrl"
+            val hint = "trying to open non-existent file $url (internal: $internalUrl)"
             log.error(hint)
             Sentry.captureException(e, hint)
-            null
+            return null
+        }
+
+        return when {
+            url.endsWith(".css") ->
+                WebResourceResponse("text/css", "UTF-8", inputStream)
+            url.endsWith(".html") ->
+                WebResourceResponse("text/html", "UTF-8", inputStream)
+            url.endsWith(".js") ->
+                WebResourceResponse("application/javascript", "UTF-8", inputStream)
+            url.endsWith(".png") ->
+                WebResourceResponse("image/png", "binary", inputStream)
+            url.endsWith(".svg") ->
+                WebResourceResponse("image/svg+xml", "UTF-8", inputStream)
+            url.endsWith(".woff") ->
+                WebResourceResponse("font/woff", "binary", inputStream)
+            else ->
+                WebResourceResponse("text/plain", "UTF-8", inputStream)
         }
     }
 
-    private fun checkIfWeHaveLocally(url: String): Boolean = runBlocking {
+    private suspend fun checkIfWeHaveLocally(url: String): Boolean {
         val fileName = url.substring(url.lastIndexOf('/') + 1, url.length)
-        fileEntryRepository.get(fileName) != null
+        return (fileEntryRepository.get(fileName) != null)
     }
 
     override fun onPageFinished(webview: WebView, url: String) {

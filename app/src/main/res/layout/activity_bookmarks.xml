@@ -9,7 +9,9 @@
         android:id="@+id/main_content_fragment_placeholder"
         android:name="de.taz.app.android.ui.bookmarks.BookmarkListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout="@layout/fragment_bookmarks" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

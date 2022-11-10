@@ -9,6 +9,7 @@ import java.util.*
 data class Issue(
     override val feedName: String,
     override val date: String,
+    override val validityDate: String?,
     val moment: Moment,
     override val key: String? = null,
     override val baseUrl: String,
@@ -29,6 +30,7 @@ data class Issue(
     constructor(feedName: String, issueDto: IssueDto) : this(
         feedName,
         issueDto.date,
+        issueDto.validityDate,
         Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
         issueDto.key,
         issueDto.baseUrl,
@@ -50,6 +52,7 @@ data class Issue(
     constructor(issue: IssueWithPages) : this(
         issue.feedName,
         issue.date,
+        issue.validityDate,
         issue.moment,
         issue.key,
         issue.baseUrl,
@@ -69,6 +72,28 @@ data class Issue(
 
     override val issueKey: IssueKey
         get() = IssueKey(feedName, date, status)
+
+    /**
+     * Copy this issue with the updated metadata from the provided issue stub.
+     */
+    fun copyWithMetadata(issueStub: IssueStub): Issue {
+        require(issueKey == issueStub.issueKey) { "Metadata may only be updated for the same issue" }
+        return copy(
+            feedName = issueStub.feedName,
+            date = issueStub.date,
+            key = issueStub.key,
+            baseUrl = issueStub.baseUrl,
+            status = issueStub.status,
+            minResourceVersion = issueStub.minResourceVersion,
+            isWeekend = issueStub.isWeekend,
+            moTime = issueStub.moTime,
+            dateDownload = issueStub.dateDownload,
+            dateDownloadWithPages = issueStub.dateDownloadWithPages,
+            lastDisplayableName = issueStub.lastDisplayableName,
+            lastPagePosition = issueStub.lastPagePosition,
+            lastViewedDate = issueStub.lastViewedDate
+        )
+    }
 }
 
 

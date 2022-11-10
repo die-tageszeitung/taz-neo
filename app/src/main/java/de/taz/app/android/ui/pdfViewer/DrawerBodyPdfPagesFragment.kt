@@ -10,7 +10,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -19,10 +23,12 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Fragment used in the drawer to display preview of pages with page titles of an issue
@@ -44,6 +50,11 @@ class DrawerBodyPdfPagesFragment : Fragment() {
 
     private lateinit var storageService: StorageService
 
+    companion object {
+        // The drawer initialization will be delayed, so that the main pdf rendering has some time to finish
+        private const val DRAWER_INIT_DELAY_MS = 10L
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,8 +71,8 @@ class DrawerBodyPdfPagesFragment : Fragment() {
         loadingScreenConstraintLayout = view.findViewById(R.id.pdf_drawer_loading_screen)
         navigationRecyclerView = view.findViewById(R.id.navigation_recycler_view)
 
-        pdfPagerViewModel.issue.observe(viewLifecycleOwner) {
-            initDrawerAdapter(it.pageList, it.issueKey)
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
+            initDrawerAdapterWithDelay(it)
         }
 
         navigationRecyclerView.addOnItemTouchListener(
@@ -77,7 +88,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                         pdfPagerViewModel.updateCurrentItem(realPosition)
                         adapter.activePosition = drawerPosition
                     }
-                    popArticlePagerFragmentIfOpen()
+                    (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
                     activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
                 }
             )
@@ -86,7 +97,16 @@ class DrawerBodyPdfPagesFragment : Fragment() {
 
     }
 
-    private fun initDrawerAdapter(items: List<Page>, issue: IssueKeyWithPages) {
+    private fun initDrawerAdapterWithDelay(items: List<Page>) {
+        lifecycleScope.launch {
+            delay(DRAWER_INIT_DELAY_MS)
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                initDrawAdapter(items)
+            }
+        }
+    }
+
+    private fun initDrawAdapter(items: List<Page>) {
         if (items.isNotEmpty()) {
             // Setup a gridManager which takes 2 columns for panorama pages
             val gridLayoutManager = GridLayoutManager(requireContext(), 2)
@@ -118,7 +138,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                     pdfPagerViewModel.updateCurrentItem(newPosition)
                     adapter.activePosition = newPosition
                 }
-                popArticlePagerFragmentIfOpen()
+                (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
                 frontPageTextView.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),
@@ -136,8 +156,9 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                     )
                 )
             }
+
             issueDateTextView.text =
-                DateHelper.stringToLongLocalized2LineString(issue.date)
+                pdfPagerViewModel.issuePublication?.let { setDrawerDate(it) } ?: ""
 
             adapter =
                 PdfDrawerRecyclerViewAdapter(
@@ -162,11 +183,15 @@ class DrawerBodyPdfPagesFragment : Fragment() {
 
     }
 
-    private fun popArticlePagerFragmentIfOpen() {
-        val articlePagerFragment =
-            parentFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
-        if (articlePagerFragment != null && articlePagerFragment.isVisible) {
-            parentFragmentManager.popBackStack()
+    private fun setDrawerDate(issuePublicationWithPages: IssuePublicationWithPages): String? {
+        val issue = pdfPagerViewModel.issue
+        return if (issue?.isWeekend == true && !issue.validityDate.isNullOrBlank()) {
+            DateHelper.stringsToWeek2LineString(
+                issue.date,
+                issue.validityDate
+            )
+        } else {
+            DateHelper.stringToLongLocalized2LineString(issuePublicationWithPages.date)
         }
     }
 

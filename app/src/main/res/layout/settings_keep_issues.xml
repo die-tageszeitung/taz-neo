@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/settings_keep_issues_text"
+        style="@style/TextAppearance.Settings.Entry"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_general_keep_number_issues"
+        app:layout_constraintEnd_toStartOf="@id/settings_keep_issues_control"
+        app:layout_constraintHorizontal_weight="4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/settings_keep_issues_control"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintStart_toEndOf="@id/settings_keep_issues_text"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/settings_keep_less_issues"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/fragment_settings_min_height"
+            android:contentDescription="@string/settings_decrease_keep_issues_number"
+            android:src="@drawable/ic_settings_minus_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/settings_keep_issues"
+            style="@style/TextAppearance.Settings.Entry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/settings_keep_more_issues"
+            app:layout_constraintStart_toEndOf="@id/settings_keep_less_issues"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/settings_keep_more_issues"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/fragment_settings_min_height"
+            android:contentDescription="@string/settings_increase_keep_issues_number"
+            android:src="@drawable/ic_settings_plus_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+

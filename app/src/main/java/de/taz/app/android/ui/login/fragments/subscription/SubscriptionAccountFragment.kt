@@ -29,7 +29,7 @@ class SubscriptionAccountFragment :
     private var subscriptionInvalid = false
 
     companion object {
-        fun createInstance(
+        fun newInstance(
             mailInvalid: Boolean = false,
             subscriptionInvalid: Boolean = false
         ): SubscriptionAccountFragment {
@@ -236,9 +236,10 @@ class SubscriptionAccountFragment :
     }
 
     private fun showTermsAndConditions() {
-        val intent = Intent(activity, WebViewActivity::class.java)
-        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_TERMS)
+            startActivity(intent)
+        }
     }
 
     private fun showDataPolicy() {
@@ -248,9 +249,10 @@ class SubscriptionAccountFragment :
     }
 
     private fun showRevocation() {
-        val intent = Intent(activity, WebViewActivity::class.java)
-        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_REVOCATION)
+            startActivity(intent)
+        }
     }
 
 }

@@ -14,7 +14,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
     suspend fun get(articleFileName: String): ArticleStub?
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName == :articleFileName LIMIT 1")
-    fun getLiveData(articleFileName: String): LiveData<ArticleStub>
+    fun getLiveData(articleFileName: String): LiveData<ArticleStub?>
 
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     suspend fun get(articleFileNames: List<String>): List<ArticleStub>

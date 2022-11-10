@@ -1,39 +1,31 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.net.Uri
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import androidx.browser.customtabs.CustomTabColorSchemeParams
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.artifex.mupdf.viewer.MuPDFCore
-import com.artifex.mupdf.viewer.PageAdapter
-import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+import androidx.lifecycle.repeatOnLifecycle
+import com.artifex.mupdf.fitz.FileStream
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfRenderBinding
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.NotFoundException
+import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.webview.ImprintWebViewFragment
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import de.taz.app.android.ui.pdfViewer.mupdf.MuPDFCore
+import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.lang.NullPointerException
 
 
 class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
@@ -42,8 +34,9 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
 
     companion object {
         private const val PAGE_NAME = "PAGE_NAME"
+        private const val SCALE_FACTOR_FOR_PANORAMA_PAGES = 2f
 
-        fun create(page: Page): PdfRenderFragment {
+        fun newInstance(page: Page): PdfRenderFragment {
             val fragment = PdfRenderFragment()
             fragment.page = page
             fragment.arguments = Bundle().also { it.putString(PAGE_NAME, page.pagePdf.name) }
@@ -55,67 +48,48 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private var pdfReaderView: MuPDFReaderView? = null
-    private lateinit var issueKey: IssueKeyWithPages
+
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-
-    private val storageService by lazy {
-        StorageService.getInstance(requireContext().applicationContext)
-    }
-
-    private val pageRepository by lazy {
-        PageRepository.getInstance(requireContext().applicationContext)
-    }
-
-    private val toastHelper by lazy {
-        ToastHelper.getInstance(requireContext().applicationContext)
-    }
-
-    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
+    private lateinit var storageService: StorageService
+    private lateinit var pageRepository: PageRepository
+    private lateinit var toastHelper: ToastHelper
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
-        articleRepository = ArticleRepository.getInstance(context)
-        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
+        val applicationContext = context.applicationContext
+        articleRepository = ArticleRepository.getInstance(applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
+        pageRepository = PageRepository.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // FIXME (johannes): kept for timing debugging
         super.onCreate(savedInstanceState)
-        // if page is null get Page from DB and PAGE_NAME argument
-        if (page == null) {
-            arguments?.getString(PAGE_NAME)?.let {
-                try {
-                    // FIXME(eike): Check why Dispatchers.IO is necessary here. pageRepository stuff
-                    // should be on IO anyway...
-                    lifecycleScope.launch(Dispatchers.IO) {
-                        page = pageRepository.get(it)
-                        withContext(Dispatchers.Main) { initializeThePageAdapter() }
-                    }
-                } catch (nfe: NotFoundException) {
-                    log.error("Created with PAGE_NAME set")
-                }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        pdfPagerViewModel.issueKey.observe(this) {
-            issueKey = it
-        }
-
-        lifecycleScope.launchWhenResumed {
-            tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                KeepScreenOnHelper.toggleScreenOn(it, activity)
-            }
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        pdfReaderView = MuPDFReaderView(requireContext())
-        pdfReaderView?.apply {
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                    KeepScreenOnHelper.toggleScreenOn(it, activity)
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                pdfPagerViewModel.forceFlingToSwipe.collect {
+                    pdfReaderView?.forceFlingToSwipe = it
+                }
+            }
+        }
+
+        pdfReaderView = MuPDFReaderView(requireContext()).apply {
             clickCoordinatesListener = { coordinates ->
                 showFramesIfPossible(coordinates.first, coordinates.second)
             }
@@ -131,27 +105,17 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
                 }
             }
         }
-        initializeThePageAdapter()
-    }
 
-    private fun initializeThePageAdapter() {
-        page?.pagePdf?.let { fileEntry ->
-            storageService.getAbsolutePath(fileEntry)?.let { path ->
-                try {
-                    pdfReaderView!!.adapter = PageAdapter(context, MuPDFCore(File(path).readBytes(), path))
-                    viewBinding.muPdfWrapper.apply {
-                        removeAllViews()
-                        addView(pdfReaderView!!)
-                    }
-                    if (page?.type == PageType.panorama) {
-                        pdfReaderView!!.zoomPanoramaPage()
-                    }
-                } catch (npe: NullPointerException) {
-                    Sentry.captureException(npe)
-                    finishActivityWithErrorToast()
-                }
-            } ?: finishActivityWithErrorToast()
-        } ?: finishActivityWithErrorToast()
+        val pageName = arguments?.getString(PAGE_NAME)
+
+        // if page is null get Page from DB and PAGE_NAME argument
+        if (page != null) {
+            initializeThePageAdapter(requireNotNull(page))
+        } else if (pageName != null) {
+            initPage(pageName)
+        } else {
+            log.error("Missing page or PAGE_NAME arguments")
+        }
     }
 
     override fun onDestroyView() {
@@ -160,70 +124,50 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         super.onDestroyView()
     }
 
-    private fun showFramesIfPossible(x: Float, y: Float) {
-        log.verbose("Clicked on x: $x, y:$y")
-        val pageList = pdfPagerViewModel.pdfPageList.value
-        pageList?.let { list ->
-            val frameList =
-                pdfPagerViewModel.currentItem.value?.let { list[it].frameList } ?: emptyList()
-            val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-            frame?.let {
-                it.link?.let { link ->
-                    if (link.startsWith("art") && link.endsWith(".html")) {
-                        lifecycleScope.launch {
-                            pdfPagerViewModel.hideDrawerLogo.postValue(false)
-                            val article = pdfPagerViewModel.getCorrectArticle(link)
-                            val fragment =
-                                if (article?.isImprint() == true) ImprintWebViewFragment()
-                                else ArticlePagerFragment()
-                            requireActivity().supportFragmentManager.beginTransaction()
-                                .add(
-                                    R.id.activity_pdf_fragment_placeholder,
-                                    fragment,
-                                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-                                )
-                                .addToBackStack(null)
-                                .commit()
-
-
-                            issueContentViewModel.setDisplayable(
-                                IssueKey(issueKey),
-                                article?.key
-                            )
-                        }
-                    } else if (link.startsWith("http") || link.startsWith("mailto:")) {
-                        openExternally(it.link)
-                    } else if (link.startsWith("s") && link.endsWith(".pdf")) {
-                        pdfPagerViewModel.goToPdfPage(it.link)
-                    } else {
-                        val hint = "Don't know how to open $link"
-                        log.warn(hint)
-                        Sentry.captureMessage(hint)
-                    }
-                }
-            } ?: run {
-                frameList.forEach {
-                    log.debug("possible frame: $it")
-                }
+    private fun initPage(pageName: String) {
+        lifecycleScope.launch {
+            try {
+                page = pageRepository.getOrThrow(pageName)
+                initializeThePageAdapter(requireNotNull(page))
+            } catch (nfe: NotFoundException) {
+                log.error("Could not find page for pageName $pageName")
             }
         }
     }
 
-    private fun openExternally(url: String) {
-        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
-        try {
-            CustomTabsIntent.Builder()
-                .setDefaultColorSchemeParams(
-                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
-                )
-                .build()
-                .apply { launchUrl(requireContext(), Uri.parse(url)) }
-        } catch (e: ActivityNotFoundException) {
-            val toastHelper = ToastHelper.getInstance(requireContext())
-            if (url.startsWith("mailto:")) {
-                toastHelper.showToast(R.string.toast_no_email_client)
-            } else {
-                toastHelper.showToast(R.string.toast_unknown_error)
+    private fun initializeThePageAdapter(page: Page) {
+        val pdfReaderView = this.pdfReaderView
+        val path = storageService.getAbsolutePath(page.pagePdf)
+
+        if (pdfReaderView != null && path != null) {
+            val muPdfInputStream = FileStream(File(path), "r")
+            pdfReaderView.adapter = PageAdapter(context, MuPDFCore(muPdfInputStream, path))
+            viewBinding.muPdfWrapper.apply {
+                removeAllViews()
+                addView(pdfReaderView)
+            }
+            if (page.type == PageType.panorama) {
+                zoomPanoramaPageInPortrait()
+            }
+
+        } else {
+            log.error("Failed initializing the pdf page adapter (PdfReaderView is null? ${pdfReaderView == null}, path is null? ${path == null}")
+            finishActivityWithErrorToast()
+        }
+    }
+
+
+    private fun showFramesIfPossible(x: Float, y: Float) {
+        log.verbose("Clicked on x: $x, y:$y")
+        val frameList = page?.frameList ?: emptyList()
+        val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
+        if (frame != null) {
+            frame.link?.let {
+                pdfPagerViewModel.onFrameLinkClicked(it)
+            }
+        } else {
+            frameList.forEach {
+                log.debug("possible frame: $it")
             }
         }
     }
@@ -232,4 +176,11 @@ class PdfRenderFragment : BaseMainFragment<FragmentPdfRenderBinding>() {
         requireActivity().finish()
         toastHelper.showToast(R.string.toast_problem_showing_pdf)
     }
+
+    private fun zoomPanoramaPageInPortrait() {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            pdfReaderView?.zoomTo(SCALE_FACTOR_FOR_PANORAMA_PAGES, 0f, 0f)
+        }
+    }
+
 }

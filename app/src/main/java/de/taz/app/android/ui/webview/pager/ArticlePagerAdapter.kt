@@ -12,7 +12,7 @@ class ArticlePagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         val article = articleStubs[position]
-        return ArticleWebViewFragment.createInstance(article.articleFileName)
+        return ArticleWebViewFragment.newInstance(article.articleFileName)
     }
 
 

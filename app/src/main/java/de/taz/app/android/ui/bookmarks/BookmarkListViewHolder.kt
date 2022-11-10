@@ -9,8 +9,12 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 class BookmarkListViewHolder(
@@ -35,6 +39,7 @@ class BookmarkListViewHolder(
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
     private val bookmarksAdapter =
         BookmarkListAdapter(bookmarksFragment, bookmarksFragment.applicationScope)
+    private val issueRepository = IssueRepository.getInstance(parent.context.applicationContext)
     private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
 
     init {
@@ -49,7 +54,10 @@ class BookmarkListViewHolder(
 
     fun bind(article: Article) {
         article.let {
-            bookmarkDate?.text = DateHelper.dateToLowerCaseString(article.issueDate)
+
+            CoroutineScope(Dispatchers.Main).launch {
+                bookmarkDate?.text = setDateText(article)
+            }
 
             if (article.imageList.isNotEmpty()) {
                 fileHelper.getAbsolutePath(article.imageList.first())?.let {
@@ -93,5 +101,16 @@ class BookmarkListViewHolder(
 
     fun setBookmarks(bookmarks: MutableList<Article>) {
         this.bookmarks = bookmarks
+    }
+
+    private suspend fun setDateText(article: Article): String? {
+        val issueStub = issueRepository.getIssueStubForArticle(article.articleHtml.name)
+        return if (issueStub?.isWeekend == true && !issueStub.validityDate.isNullOrBlank()) {
+            val formattedDate = DateHelper.stringToDate(issueStub.date)
+            DateHelper.dateToWeekNotation(formattedDate, issueStub.validityDate)
+        } else {
+            DateHelper.dateToLowerCaseString(article.issueDate)
+        }
+
     }
 }

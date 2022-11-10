@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
     app:statusBarBackground="@android:color/transparent"
-    android:layout_marginBottom="@dimen/nav_bottom_height"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout

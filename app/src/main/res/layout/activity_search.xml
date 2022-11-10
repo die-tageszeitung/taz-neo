@@ -44,7 +44,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/search_title"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/search_results_small_margin"
@@ -63,7 +63,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/search_author"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                style="@style/Widget.Material3.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/search_results_small_margin"
@@ -134,12 +134,19 @@
                 android:layout_marginTop="6dp"
                 android:text="@string/search_advanced_start_search" />
 
+            <TextView
+                android:id="@+id/search_help"
+                style="@style/TextAppearance.Settings.Entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/search_advanced_help" />
+
         </LinearLayout>
     </ScrollView>
 
     <Button
         android:id="@+id/search_cancel_button"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Material3.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_cancel_button_margin_top"

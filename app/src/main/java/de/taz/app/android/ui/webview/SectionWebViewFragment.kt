@@ -16,8 +16,6 @@ import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.R
@@ -59,9 +57,9 @@ class SectionWebViewFragment : WebViewFragment<
     companion object {
         private val log by Log
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
-        fun createInstance(sectionFileName: String): SectionWebViewFragment {
+        fun newInstance(sectionFileName: String): SectionWebViewFragment {
             val args = Bundle()
-            log.debug("SectionWebViewFragment.createInstance($sectionFileName)")
+            log.debug("SectionWebViewFragment.newInstance($sectionFileName)")
             args.putString(SECTION_FILE_NAME, sectionFileName)
             return SectionWebViewFragment().apply {
                 arguments = args
@@ -93,7 +91,7 @@ class SectionWebViewFragment : WebViewFragment<
         activity?.apply {
 
             lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub =displayable.getIssueStub(requireContext().applicationContext)
+                val issueStub = displayable.getIssueStub(requireContext().applicationContext)
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
@@ -132,16 +130,23 @@ class SectionWebViewFragment : WebViewFragment<
                 sectionTextView?.text = displayable.getHeaderTitle()
                 DateHelper.stringToDate(displayable.issueDate)?.let { date ->
                     headerView.findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = if (issueStub?.isWeekend == true) {
-                            DateHelper.dateToWeekendNotation(date)
-                        } else {
-                            DateHelper.dateToLowerCaseString(date)
+                        text = when {
+                            issueStub?.isWeekend == true && issueStub.validityDate.isNullOrBlank() ->
+                                // Regular Weekend Issue
+                                DateHelper.dateToWeekendNotation(date)
+                            issueStub?.isWeekend == true && issueStub.validityDate?.isNotBlank() == true ->
+                                // Wochentaz Issue
+                                DateHelper.dateToWeekNotation(date, issueStub.validityDate)
+                            else ->
+                                DateHelper.dateToLowerCaseString(date)
                         }
                     }
                 }
 
-                // On first section "die tageszeitung" the header should be bigger:
-                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
+                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)
+                    || displayable.getHeaderTitle() == getString(R.string.fragment_default_week_header_title)
+                ) {
                     val textPixelSize =
                         resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
                     val textSpSize =

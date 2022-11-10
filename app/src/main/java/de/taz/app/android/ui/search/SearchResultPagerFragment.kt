@@ -8,7 +8,6 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -45,7 +44,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private val log by Log
 
     companion object {
-        fun instance(position: Int) = SearchResultPagerFragment().apply {
+        fun newInstance(position: Int) = SearchResultPagerFragment().apply {
             arguments = bundleOf(INITIAL_POSITION to position)
         }
     }

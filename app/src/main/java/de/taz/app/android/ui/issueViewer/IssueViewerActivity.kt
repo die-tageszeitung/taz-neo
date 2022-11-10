@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.issueViewer
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -13,7 +15,6 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
@@ -44,8 +45,19 @@ import kotlin.reflect.KClass
  */
 class IssueViewerActivity : AppCompatActivity() {
     companion object {
-        const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
-        const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublication,
+            displayableKey: String? = null
+        ) = Intent(packageContext, IssueViewerActivity::class.java).apply {
+            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+            displayableKey?.let {
+                putExtra(KEY_DISPLAYABLE, it)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,8 +65,8 @@ class IssueViewerActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(
                 android.R.id.content,
-                IssueViewerWrapperFragment.instance(
-                    intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!,
+                IssueViewerWrapperFragment.newInstance(
+                    requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) { "IssueViewerActivity must be instantiated with KEY_ISSUE_PUBLICATION" },
                     intent.getStringExtra(KEY_DISPLAYABLE),
                 )
             ).commit()
@@ -109,7 +121,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
 
-        fun instance(
+        fun newInstance(
             issuePublication: IssuePublication,
             displayableKey: String? = null
         ) = IssueViewerWrapperFragment().apply {

@@ -10,6 +10,7 @@ import java.util.*
 data class IssueWithPages(
     override val feedName: String,
     override val date: String,
+    override val validityDate: String?,
     val moment: Moment,
     override val key: String? = null,
     override val baseUrl: String,
@@ -30,6 +31,7 @@ data class IssueWithPages(
     constructor(issue: Issue) : this(
         issue.feedName,
         issue.date,
+        issue.validityDate,
         issue.moment,
         issue.key,
         issue.baseUrl,
@@ -66,5 +68,27 @@ data class IssueWithPages(
 
     override fun getDownloadTag(): String {
         return "$tag/pdf"
+    }
+
+    /**
+     * Copy this issue with the updated metadata from the provided issue stub.
+     */
+    fun copyWithMetadata(issueStub: IssueStub): IssueWithPages {
+        require(issueKey.getIssueKey() == issueStub.issueKey) { "Metadata may only be updated for the same issue" }
+        return copy(
+            feedName = issueStub.feedName,
+            date = issueStub.date,
+            key = issueStub.key,
+            baseUrl = issueStub.baseUrl,
+            status = issueStub.status,
+            minResourceVersion = issueStub.minResourceVersion,
+            isWeekend = issueStub.isWeekend,
+            moTime = issueStub.moTime,
+            dateDownload = issueStub.dateDownload,
+            dateDownloadWithPages = issueStub.dateDownloadWithPages,
+            lastDisplayableName = issueStub.lastDisplayableName,
+            lastPagePosition = issueStub.lastPagePosition,
+            lastViewedDate = issueStub.lastViewedDate
+        )
     }
 }

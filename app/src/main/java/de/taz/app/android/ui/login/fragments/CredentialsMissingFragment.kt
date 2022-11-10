@@ -230,9 +230,10 @@ class CredentialsMissingFragment :
     }
 
     private fun showTermsAndConditions() {
-        val intent = Intent(activity, WebViewActivity::class.java)
-        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_TERMS)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_TERMS)
+            startActivity(intent)
+        }
     }
 
     private fun showDataPolicy() {
@@ -242,9 +243,10 @@ class CredentialsMissingFragment :
     }
 
     private fun showRevocation() {
-        val intent = Intent(activity, WebViewActivity::class.java)
-        intent.putExtra(WEBVIEW_HTML_FILE, WEBVIEW_HTML_FILE_REVOCATION)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_REVOCATION)
+            startActivity(intent)
+        }
     }
 
 }

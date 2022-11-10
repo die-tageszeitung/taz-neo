@@ -352,7 +352,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             // so we show a fragment where we only allow the trial subscription:
             if (BuildConfig.IS_NON_FREE) {
                 showFragment(
-                    SubscriptionTrialOnlyFragment.createInstance(
+                    SubscriptionTrialOnlyFragment.newInstance(
                         elapsed = authHelper.isElapsed()
                     )
                 )
@@ -362,7 +362,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             else {
                 getPriceList()?.let {
                     showFragment(
-                        SubscriptionPriceFragment.createInstance(
+                        SubscriptionPriceFragment.newInstance(
                             it,
                             invalidPrice = priceInvalid
                         )
@@ -497,7 +497,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     ) {
         log.debug("showSubscriptionAddress")
         showFragment(
-            SubscriptionAddressFragment.createInstance(
+            SubscriptionAddressFragment.newInstance(
                 nameTooLong = nameTooLong,
                 firstNameEmpty = firstNameEmpty,
                 firstNameInvalid = firstNameInvalid,
@@ -517,7 +517,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     ) {
         log.debug("showSubscriptionAccount")
         showFragment(
-            SubscriptionAccountFragment.createInstance(
+            SubscriptionAccountFragment.newInstance(
                 mailInvalid = mailInvalid,
                 subscriptionInvalid = subscriptionInvalid
             )
@@ -532,7 +532,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     ) {
         log.debug("showSubscriptionBank")
         showFragment(
-            SubscriptionBankFragment.createInstance(
+            SubscriptionBankFragment.newInstance(
                 accountHolderInvalid = accountHolderInvalid,
                 ibanEmpty = ibanEmpty,
                 ibanInvalid = ibanInvalid,

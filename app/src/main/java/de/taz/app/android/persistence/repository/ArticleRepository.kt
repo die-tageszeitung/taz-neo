@@ -2,20 +2,22 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.cache.IssueInMemoryCache
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.lang.Exception
 import java.util.*
 
 @Mockable
@@ -25,9 +27,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val issueCache = IssueInMemoryCache.getInstance(Unit)
 
     suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
+        issueCache.invalidate(IssuePublication(articleStub))
     }
 
     suspend fun save(article: Article) {
@@ -71,24 +75,26 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 )
             )
         }
+
+        issueCache.invalidate(IssuePublication(article))
     }
 
     suspend fun get(articleFileName: String): Article? {
-        return getStub(articleFileName)?.let {articleStubToArticle(it) }
+        return getStub(articleFileName)?.let { articleStubToArticle(it) }
     }
 
     suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
     }
 
-    fun getStubLiveData(articleName: String): LiveData<ArticleStub> {
+    fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
         return appDatabase.articleDao().getLiveData(articleName)
     }
 
-    fun getLiveData(articleName: String): LiveData<Article> {
+    fun getLiveData(articleName: String): LiveData<Article?> {
         return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
             liveData {
-                emit(articleStubToArticle(articleStub))
+                emit(articleStub?.let { articleStubToArticle(it) })
             }
         }
     }
@@ -100,6 +106,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             appDatabase.articleDao().update(
                 articleStub.copy(percentage = percentage, position = position)
             )
+            issueCache.updateArticle(articleStub)
         }
     }
 
@@ -197,12 +204,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         val currentDate = Date()
         getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
     suspend fun setBookmarkedTime(articleName: String, date: Date) {
         getStub(articleName)?.copy(bookmarkedTime = date)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
@@ -218,6 +227,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         log.debug("removed bookmark from article $articleName")
         getStub(articleName)?.copy(bookmarkedTime = null)?.let {
             appDatabase.articleDao().update(it)
+            issueCache.updateArticle(it)
         }
     }
 
@@ -235,7 +245,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     }
 
     fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it.bookmarkedTime != null }
+        return getStubLiveData(articleName).map { it?.bookmarkedTime != null }
     }
 
     fun getBookmarkedArticleStubsForIssue(issueKey: IssueKey): Flow<List<ArticleStub>> {
@@ -314,6 +324,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     // TODO need to refactor this
                 }
             }
+            issueCache.invalidate(IssuePublication(articleStub))
         }
     }
 
@@ -335,6 +346,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         articleStub: ArticleStub,
         date: Date?
     ) {
+        // Note, that we are invalidating the issue cache when calling update() with the dateDownloaded.
+        // While this is quite broad it prevents us from having outdated FileEntry information on the Issues Article instances
         update(articleStub.copy(dateDownload = date))
     }
 
@@ -361,8 +374,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
      * @param articleImageFileName The [FileEntry] name of the file that should be checked
      * @return The amount of references on that file from [ArticleImageJoin] by Articles that have a [Article.dateDownload]
      */
-     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
-         return appDatabase.articleDao().getDownloadedArticleImageReferenceCount(articleImageFileName)
+    suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
+        return appDatabase.articleDao()
+            .getDownloadedArticleImageReferenceCount(articleImageFileName)
     }
 
     fun hasAudioLiveData(articleFileName: String): LiveData<Boolean> {

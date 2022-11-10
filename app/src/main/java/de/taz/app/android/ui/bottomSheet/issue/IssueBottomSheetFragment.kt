@@ -23,12 +23,14 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -52,7 +54,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private val homeViewModel: IssueFeedViewModel by activityViewModels()
 
     companion object {
-        fun create(
+        fun newInstance(
             issuePublication: AbstractIssuePublication
         ): IssueBottomSheetFragment {
             val args = Bundle()
@@ -96,19 +98,14 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueRead.setOnClickListener {
-            if (homeViewModel.getPdfMode()) {
-                Intent(requireActivity(), PdfPagerActivity::class.java).apply {
-                    putExtra(
-                        PdfPagerActivity.KEY_ISSUE_PUBLICATION,
-                        IssuePublicationWithPages(issuePublication)
-                    )
-                    startActivity(this)
-                }
-            } else {
-                Intent(requireActivity(), IssueViewerActivity::class.java).apply {
-                    putExtra(IssueViewerActivity.KEY_ISSUE_PUBLICATION, issuePublication)
-                    startActivityForResult(this, 0)
-                }
+            requireActivity().apply {
+                val intent =
+                    if (homeViewModel.getPdfMode()) {
+                        PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
+                    } else {
+                        IssueViewerActivity.newIntent(this, issuePublication)
+                    }
+                startActivity(intent)
             }
             dismiss()
         }

@@ -37,7 +37,7 @@ class SearchResultListAdapter(
 
         fun bind(position: Int) {
             searchResultItem.setOnClickListener {
-                val fragment = SearchResultPagerFragment.instance(position)
+                val fragment = SearchResultPagerFragment.newInstance(position)
                 val activity: AppCompatActivity = view.context as AppCompatActivity
                 activity.supportFragmentManager.beginTransaction()
                     .add(

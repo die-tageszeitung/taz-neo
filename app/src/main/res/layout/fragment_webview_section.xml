@@ -24,14 +24,18 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:scrimAnimationDuration="0">
 
+            <include android:id="@+id/header"
+                layout="@layout/fragment_webview_header_section" />
+
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <include
         android:id="@+id/loading_screen"
-        layout="@layout/include_loading_screen"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        layout="@layout/include_loading_screen" />
 
+    <!-- This needs the layout_marginBottom="@dimen/nav_bottom_height" because we still use
+         a overlapping toolbar in fragment_webview_pager.xml due to our BottomNavigationBehavior implementation -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/web_view_wrapper"
         android:layout_width="match_parent"
@@ -47,8 +51,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_webview_section_margin_top"
-            android:overScrollMode="never"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:overScrollMode="never" />
     </androidx.core.widget.NestedScrollView>
 </de.taz.app.android.util.NestedCoordinatorLayout>

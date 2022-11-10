@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.search
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -11,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.R
+import de.taz.app.android.*
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SearchFilter
 import de.taz.app.android.api.dto.SearchHitDto
@@ -19,9 +20,9 @@ import de.taz.app.android.api.dto.Sorting
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
@@ -90,6 +91,9 @@ class SearchActivity :
             searchText.doOnTextChanged { _, _, _, _ ->
                 searchInput.error = null
             }
+            searchHelp.setOnClickListener {
+                showHelp()
+            }
             expandAdvancedSearchButton.setOnClickListener {
                 toggleAdvancedSearchLayout(expandableAdvancedSearch.visibility == View.VISIBLE)
             }
@@ -129,27 +133,27 @@ class SearchActivity :
                 )
                 return@setOnClickListener
             }
-            viewModel.chosenTimeSlot.observeDistinct(this@SearchActivity) {
-                mapTimeSlot(it)
-            }
-            viewModel.chosenPublishedIn.observeDistinct(this@SearchActivity) {
-                viewModel.searchFilter.postValue(mapSearchFilter(it))
-            }
-            viewModel.chosenSortBy.observeDistinct(this@SearchActivity) {
-                viewModel.sorting.postValue(mapSortingFilter(it))
-            }
-            viewModel.pubDateFrom.observeDistinct(this@SearchActivity) { from ->
-                if (from != null) {
-                    if (viewModel.pubDateUntil.value != null) {
-                        updateCustomTimeSlot(from, viewModel.pubDateUntil.value)
-                    }
+        }
+        viewModel.chosenTimeSlot.observeDistinct(this) {
+            mapTimeSlot(it)
+        }
+        viewModel.chosenPublishedIn.observeDistinct(this) {
+            viewModel.searchFilter.postValue(mapSearchFilter(it))
+        }
+        viewModel.chosenSortBy.observeDistinct(this) {
+            viewModel.sorting.postValue(mapSortingFilter(it))
+        }
+        viewModel.pubDateFrom.observeDistinct(this) { from ->
+            if (from != null) {
+                if (viewModel.pubDateUntil.value != null) {
+                    updateCustomTimeSlot(from, viewModel.pubDateUntil.value)
                 }
             }
-            viewModel.pubDateUntil.observeDistinct(this@SearchActivity) { until ->
-                if (until != null) {
-                    if (viewModel.pubDateFrom.value != null) {
-                        updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
-                    }
+        }
+        viewModel.pubDateUntil.observeDistinct(this) { until ->
+            if (until != null) {
+                if (viewModel.pubDateFrom.value != null) {
+                    updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
                 }
             }
         }
@@ -259,7 +263,7 @@ class SearchActivity :
                     showAmountFound(searchResultItemsList.size, viewModel.totalFound)
                 }
                 viewModel.currentlyLoadingMore.postValue(false)
-            }else {
+            } else {
                 toastHelper.showNoConnectionToast()
                 clearSearchList()
                 clearAdvancedSettings()
@@ -462,6 +466,11 @@ class SearchActivity :
             supportFragmentManager,
             "advancedSortByDialog"
         )
+    }
+
+    private fun showHelp() {
+        val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_SEARCH_HELP)
+        startActivity(intent)
     }
 
     // endregion

@@ -10,6 +10,7 @@ import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
+import de.taz.app.android.persistence.cache.IssueInMemoryCache
 import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
@@ -30,6 +31,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
+    private val issueCache = IssueInMemoryCache.getInstance(Unit)
 
 
     suspend fun save(issues: List<Issue>) {
@@ -94,6 +96,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         // It is important to refresh the issue after this operation, as in the sub operation
         // (saving articles, sections etc.) might be business logic slightly altering the actually
         // saved data, naming bookmarked state that is being preserved, for instance.
+        issueCache.invalidate(issue.issueKey)
         return get(issue.issueKey)!!
     }
 
@@ -129,6 +132,7 @@ class IssueRepository private constructor(applicationContext: Context) :
      */
     suspend fun update(issueStub: IssueStub) {
         appDatabase.issueDao().update(issueStub)
+        issueCache.update(issueStub)
     }
 
     suspend fun getLastDisplayable(issueKey: IssueKey): String? {
@@ -146,12 +150,20 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun get(issueKey: IssueKey): Issue? {
-        return getStub(issueKey)?.let { issueStubToIssue(it) }
+        val cached = issueCache.get(issueKey)
+        if (cached != null) {
+            return cached
+        }
+
+        val issue = getStub(issueKey)?.let { issueStubToIssue(it) }
+        issue?.let { issueCache.add(it) }
+        return issue
     }
 
 
     suspend fun get(issueKey: IssueKeyWithPages): IssueWithPages? {
-        return getStub(IssueKey(issueKey))?.let { issueStubToIssue(it) }?.let { IssueWithPages(it) }
+        val issue = get(IssueKey(issueKey))
+        return issue?.let { IssueWithPages(it) }
     }
 
     suspend fun getStub(issueKey: AbstractIssueKey): IssueStub? {
@@ -186,9 +198,11 @@ class IssueRepository private constructor(applicationContext: Context) :
 
 
     suspend fun getIssueByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): Issue? {
-        return getIssueStubByFeedDateAndStatus(feedName, date, status)?.let {
+        val issue = getIssueStubByFeedDateAndStatus(feedName, date, status)?.let {
             issueStubToIssue(it)
         }
+        issue?.let { issueCache.add(it) }
+        return issue
     }
 
     suspend fun getIssueStubByImprintFileName(imprintFileName: String): IssueStub? {
@@ -196,6 +210,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun getIssuesByFeedAndDate(feedName: String, date: String): List<Issue> {
+        // Note that we are not caching this bulk get - it is only used from the deletion process
         return getIssueStubsByFeedAndDate(feedName, date).map {
             issueStubToIssue(it)
         }
@@ -363,7 +378,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             Sentry.captureMessage(hint)
             null
         }
-        
+
         val moment = momentRepository.get(issueStub) ?: run {
             val hint = "No moment for ${issueStub.issueKey} was found, this is unexpected"
             log.error(hint)
@@ -390,6 +405,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         return Issue(
             issueStub.feedName,
             issueStub.date,
+            issueStub.validityDate,
             moment,
             issueStub.key,
             issueStub.baseUrl,
@@ -419,7 +435,14 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun getIssue(issueStub: IssueStub): Issue {
-        return issueStubToIssue(issueStub)
+        val cached = issueCache.get(issueStub.issueKey)
+        if (cached != null) {
+            return cached
+        }
+
+        val issue = issueStubToIssue(issueStub)
+        issueCache.add(issue)
+        return issue
     }
 
     suspend fun delete(issueKey: IssueKey) {
@@ -534,6 +557,8 @@ class IssueRepository private constructor(applicationContext: Context) :
         appDatabase.issueDao().delete(
             IssueStub(issue)
         )
+
+        issueCache.invalidate(issue.issueKey)
     }
 }
 
@@ -578,6 +603,9 @@ data class IssuePublication(
         coverPublication.feedName,
         coverPublication.date
     )
+
+    constructor(articleStub: ArticleStub) : this(articleStub.issueFeedName, articleStub.issueDate)
+    constructor(article: Article) : this(article.issueFeedName, article.issueDate)
 
     override fun getDownloadTag(): String {
         return "$feedName/$date"

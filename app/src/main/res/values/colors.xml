@@ -3,10 +3,11 @@
     <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
     <color name="black">#000</color>
     <color name="blue">#007AFF</color>
+    <color name="green">#34C759</color>
+    <color name="mediumLightGrey">#707070</color>
     <color name="darkGrey">#1C1C1E</color>
     <color name="deleteRed">#d50e2f</color>
     <color name="lightGrey">#9C9C9C</color>
-    <color name="mediumLightGrey">#707070</color>
     <color name="superDarkGrey">#121212</color>
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
@@ -32,11 +33,14 @@
     <color name="navigation_drawer_pdf_background">@color/darkGrey</color>
 
     <color name="fragment_bookmarks_delete_background">@color/deleteRed</color>
+    <color name="textColorAccent">@color/lightGrey</color>
+    <color name="textColorSection">@color/tazRed</color>
+    <color name="buttonColor">@color/black</color>
+    <color name="buttonTextColor">@color/white</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
     <color name="icon_tint">@color/lightGrey</color>
     <color name="pdf_drawer_sections_item">@color/lightGrey</color>
-    <color name="textColorAccent">@color/lightGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
 
@@ -51,7 +55,6 @@
     <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
-    <color name="button">@color/tazRed</color>
     <color name="colorAccent">@color/tazRed</color>
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
@@ -60,7 +63,6 @@
     <color name="info_icon">@color/tazRed</color>
     <color name="link">@color/tazRed</color>
     <color name="splashBackground">@color/tazRed</color>
-    <color name="textColorSection">@color/tazRed</color>
 
     <color name="text_highlight_mark_color">@color/yellow</color>
     <color name="text_highlight_text_color">@color/black</color>
@@ -68,7 +70,6 @@
     <color name="archive_navigation_end_list_item">@color/white</color>
     <color name="backgroundColor">@color/white</color>
     <color name="bottom_sheet_background">@color/white</color>
-    <color name="button_text">@color/white</color>
     <color name="data_policy_background">@color/white</color>
     <color name="drawer_pdf_sections_text">@color/white</color>
     <color name="fragment_bookmarks_delete">@color/white</color>
@@ -85,4 +86,10 @@
 
     <color name="login_box_background">@color/superLightGrey</color>
     <color name="login_box_separator_line_color">@color/lightGrey</color>
+
+    <color name="settings_separator_view_color">@color/superLightGrey</color>
+    <color name="settings_plus_minus_icon_color">@color/textColorAccent</color>
+    <color name="settings_plus_minus_icon_circle_color">@color/superLightGrey</color>
+
+    <color name="material_switch_color">@color/green</color>
 </resources>

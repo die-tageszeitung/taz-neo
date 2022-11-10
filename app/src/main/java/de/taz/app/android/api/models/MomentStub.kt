@@ -1,6 +1,8 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.MomentKey
 import java.util.*
 
 @Entity(
@@ -23,4 +25,6 @@ data class MomentStub(
         moment.dateDownload
     )
 
+    val issueKey
+        get() = IssueKey(issueFeedName, issueDate, issueStatus)
 }

@@ -143,7 +143,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             issueViewerWrapperFragment.parentFragmentManager.apply {
                 beginTransaction().replace(
                     android.R.id.content,
-                    IssueViewerWrapperFragment.instance(
+                    IssueViewerWrapperFragment.newInstance(
                         issueViewerWrapperFragment.issuePublication,
                         result.articleFileName
                     )

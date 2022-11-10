@@ -7,6 +7,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -39,7 +40,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 viewBinding.pdfViewpager.apply {
                     adapter = PdfPagerAdapter(this@PdfPagerFragment, it)
                     reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-                    offscreenPageLimit = 2
+                    offscreenPageLimit = 1
 
                     // set position so it does not default to 0
                     pdfPagerViewModel.currentItem.value?.let { position ->
@@ -74,7 +75,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             lifecycleScope.launch {
                 delay(delay)
                 viewBinding.pdfViewpager.isUserInputEnabled = !disallow
-                viewBinding.pdfViewpager.requestDisallowInterceptTouchEvent(disallow)
             }
         }
 
@@ -82,6 +82,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             // only update currentItem if it has not been swiped
             if (viewBinding.pdfViewpager.currentItem != position) {
                 viewBinding.pdfViewpager.setCurrentItem(position, true)
+                pdfPagerViewModel.onSwipeToPage()
             }
         }
 
@@ -99,10 +100,18 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                         }
                     }
 
-                    pdfPagerViewModel.updateCurrentItem(
-                        newPosition.coerceIn(0, pdfPagerViewModel.getAmountOfPdfPages() - 1)
-                    )
+                    pdfPagerViewModel.updateCurrentItem(newPosition)
                 }
+        }
+
+        viewBinding.pdfViewpager.registerOnPageChangeCallback(onPageChangeCallback)
+    }
+
+    private val onPageChangeCallback = object : OnPageChangeCallback() {
+        override fun onPageScrollStateChanged(state: Int) {
+            if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                pdfPagerViewModel.onPageFullyInView()
+            }
         }
     }
 
@@ -132,11 +141,11 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private inner class PdfPagerAdapter(fragment: Fragment, private val pageList: List<Page>) :
         FragmentStateAdapter(fragment) {
         override fun createFragment(position: Int): Fragment {
-            return PdfRenderFragment.create(pageList[position])
+            return PdfRenderFragment.newInstance(pageList[position])
         }
 
         override fun getItemCount(): Int {
-            return pdfPagerViewModel.getAmountOfPdfPages()
+            return pageList.size
         }
     }
 }

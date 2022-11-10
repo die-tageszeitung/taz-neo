@@ -52,8 +52,8 @@ class DrawerBodyPdfWithSectionsFragment :
                 refreshCurrentPage()
             }
         }
-        pdfPagerViewModel.issuePublication.observe(viewLifecycleOwner) { issue_publication ->
-            val date = DateHelper.stringToDate(issue_publication.date)
+        pdfPagerViewModel.issueLiveData.observe(viewLifecycleOwner) { issue ->
+            val date = DateHelper.stringToDate(issue.date)
             val dateString = date?.let { DateHelper.dateToMonthYearString(it) }
 
             viewBinding.fragmentDrawerBodyPdfWithSectionsTitle.text = getString(
@@ -101,9 +101,9 @@ class DrawerBodyPdfWithSectionsFragment :
                 .addToBackStack(null)
                 .commit()
 
-            pdfPagerViewModel.issueKey.value?.let {
+            pdfPagerViewModel.issue?.let {
                 issueContentViewModel.setDisplayable(
-                    IssueKey(it),
+                    IssueKey(it.issueKey),
                     article.key
                 )
             }

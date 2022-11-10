@@ -2,7 +2,6 @@ package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
 import android.os.Bundle
-import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -100,22 +99,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
-            lifecycleScope.launch {
-                val defaultDrawerFileName = resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
-                val navButton = when {
-                    it == null -> imageRepository.get(defaultDrawerFileName)
-                    it.startsWith("art") -> sectionRepository.getNavButtonForArticle(it)
-                    it.startsWith("sec") -> sectionRepository.getNavButtonForSection(it)
-                    else -> imageRepository.get(defaultDrawerFileName)
-                }
-                sectionDrawerViewModel.navButton.postValue(navButton)
-            }
-        }
-    }
-
     private fun setDisplayMode(displayMode: IssueContentDisplayMode) {
         val transaction = childFragmentManager.beginTransaction()
         childFragmentManager.fragments.forEach {
@@ -141,7 +124,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     R.id.fragment_issue_content_container, fragment, fragmentClass
                 )
                 .hide(fragment)
-                .runOnCommit { runWhenAdded?.let { runWhenAdded() } }
+                .runOnCommit { runWhenAdded?.invoke() }
                 .commit()
         }
     }
