@@ -49,6 +49,21 @@ class ContentService(
     }
 
     /**
+     * As [ObservableDownload]s will trigger multiple (sub) operations, concerning the
+     * very same, we need to differentiate the "parent" [CacheOperation], that will live through the whole
+     * lifecycle of all sub [CacheOperation]s.
+     * Therefore we need to check whether the pdfs are downloaded too (indicated by "/pdf" suffix).
+     * (Only one operation can be active per tag)
+     */
+    private fun determinePdfTag(download: ObservableDownload): String {
+        return if (download.getDownloadTag().endsWith("/pdf")) {
+            download.getDownloadTag()
+        } else {
+            "${download.getDownloadTag()}/pdf"
+        }
+    }
+
+    /**
      * Get a [Flow] emitting [CacheStateUpdate]s concerning [download]
      *
      * @param download The download to listen updates on
@@ -58,7 +73,7 @@ class ContentService(
         // we need to listen for either parent tag or tag with /pdf because downloads with pages
         // should also be shown as download of issue and deletion as well.
         val parentTags: List<String> =
-            listOf(determineParentTag(download), download.getDownloadTag() + "/pdf")
+            listOf(determineParentTag(download), determinePdfTag(download))
         val tag = download.getDownloadTag()
         return cacheStatusFlow
             .filter { pair ->
