@@ -69,6 +69,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
                     // redraw all visible views
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                    updateUIForCurrentDate(forceStartDownloadObserver = true)
                 }
             }
         }
@@ -174,8 +175,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
+     * @param forceStartDownloadObserver - Boolean indication it was a pdf mode switch. Then do not return too early.
      */
-    private fun updateUIForCurrentDate() {
+    private fun updateUIForCurrentDate(forceStartDownloadObserver: Boolean = false) {
         val date = viewModel.currentDate.value
         val feed = viewModel.feed.value
 
@@ -188,7 +190,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
 
-        if (currentlyFocusedDate == date) {
+        if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
             return
         }
         currentlyFocusedDate = date

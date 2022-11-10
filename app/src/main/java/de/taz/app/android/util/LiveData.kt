@@ -35,7 +35,9 @@ class IssuePublicationMonitor(
             addSource(
                 cacheStatusFlow
                     .asLiveData()
-            ) { postValue(it) }
+            ) {
+                postValue(it)
+            }
         }
 
     override val coroutineContext: CoroutineContext = Dispatchers.Default
