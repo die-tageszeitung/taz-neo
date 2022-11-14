@@ -333,6 +333,11 @@
         <item name="android:textAlignment">center</item>
     </style>
 
+    <style name="TextAppearance.Login.Text.Headline" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/login_box_title_text_size</item>
+        <item name="fontFamily">@font/appFontBold</item>
+    </style>
+
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
