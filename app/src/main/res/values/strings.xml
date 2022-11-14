@@ -377,32 +377,22 @@
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
     <string name="search_advanced_help">hilfe</string>
 
-    <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
-    <string name="fragment_switch_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
-    <string name="fragment_switch_email_title">E-Mail-Adresse</string>
-    <string name="fragment_switch_surname_title">Nachname</string>
-    <string name="fragment_switch_first_name_title">Vorname</string>
-    <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
-    <string name="fragment_switch_address_zipcode_title">PLZ</string>
-    <string name="fragment_switch_address_city_title">Ort</string>
-    <string name="fragment_switch_address_country_title">Land</string>
-    <string name="fragment_switch_message_title">Ihre Nachricht</string>
-    <string name="fragment_switch_send_button">Absenden</string>
+    <string name="subscription_inquiry_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
+    <string name="subscription_inquiry_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
+    <string name="subscription_inquiry_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
+    <string name="subscription_inquiry_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
+    <string name="subscription_inquiry_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
+    <string name="subscription_inquiry_email_title">E-Mail-Adresse</string>
+    <string name="subscription_inquiry_surname_title">Nachname</string>
+    <string name="subscription_inquiry_first_name_title">Vorname</string>
+    <string name="subscription_inquiry_address_street_title">Straße und Hausnummer</string>
+    <string name="subscription_inquiry_address_zipcode_title">PLZ</string>
+    <string name="subscription_inquiry_address_city_title">Ort</string>
+    <string name="subscription_inquiry_address_country_title">Land</string>
+    <string name="subscription_inquiry_message_title">Ihre Nachricht</string>
+    <string name="subscription_inquiry_send_button">Absenden</string>
     <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an unser Service-Team gesendet</string>
-
-    <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
-    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
-    <string name="fragment_extend_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
-    <string name="fragment_extend_email_title">E-Mail-Adresse</string>
-    <string name="fragment_extend_surname_title">Nachname</string>
-    <string name="fragment_extend_first_name_title">Vorname</string>
-    <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>
-    <string name="fragment_extend_address_zipcode_title">PLZ</string>
-    <string name="fragment_extend_address_city_title">Ort</string>
-    <string name="fragment_extend_address_country_title">Land</string>
-    <string name="fragment_extend_message_title">Ihre Nachricht</string>
-    <string name="fragment_extend_send_button">Absenden</string>
+    <string name="subscription_inquiry_submission_error">Fehler beim Senden der Anfrage:\n%s</string>
 
     <string name="subscription">Abonnement</string>
     <string name="subscription_genitive">Abos</string>

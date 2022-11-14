@@ -167,10 +167,11 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 elapsedViewModel.uiStateFlow.collect {
                     when (it) {
-                        INIT -> showElapsedUi()
-                        FORM_INVALID_MESSAGE_LENGTH -> showMessageLengthErrorHint()
-                        SUBMISSION_ERROR -> handleElapsedFormSendError()
-                        SENT -> handleElapsedFormSend()
+                        Init -> showElapsedUi()
+                        FormInvalidMessageLength -> showMessageLengthErrorHint()
+                        UnexpectedFailure -> handleUnexpectedElapsedFormSendFailure()
+                        Sent -> handleElapsedFormSend()
+                        is SubmissionError -> handleElapsedFormSubmissionError(it.message)
                     }
                 }
             }
@@ -181,7 +182,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         elapsedFlowJob?.cancel()
     }
 
-    private fun handleElapsedFormSendError() {
+    private fun handleUnexpectedElapsedFormSendFailure() {
         toastHelper.showToast(R.string.something_went_wrong_try_later)
         elapsedViewModel.errorWasHandled()
     }
@@ -190,6 +191,12 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         stopElapsedHandling()
         toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long = true)
         hideAllViews()
+    }
+
+    private fun handleElapsedFormSubmissionError(message: String) {
+        val toastMessage = getString(R.string.subscription_inquiry_submission_error, message)
+        toastHelper.showToast(toastMessage, long = true)
+        elapsedViewModel.errorWasHandled()
     }
 
     private fun showLoginSubscribeUi() {
