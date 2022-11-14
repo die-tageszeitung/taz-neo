@@ -693,7 +693,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         country: String? = null,
         message: String? = null,
         requestCurrentSubscriptionOpportunities: Boolean? = null,
-    ): SubscriptionInfo? {
+    ): SubscriptionFormData {
         val tag = "subscriptionFormData"
         val variables = SubscriptionFormDataVariables(
             type,
@@ -711,10 +711,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         )
         log.debug("call graphql  $tag with variables: $variables")
         return transformToConnectivityException {
-            graphQlClient.query(
+            val response = graphQlClient.query(
                 QueryType.SubscriptionFormData,
                 variables
-            ).data?.subscription
+            ).data?.subscriptionFormData
+
+            response ?: throw Exception("Missing SubscriptionFormData response - was null")
         }
     }
     /**

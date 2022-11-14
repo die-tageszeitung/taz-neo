@@ -23,6 +23,6 @@ data class DataDto (
     val subscriptionPoll: SubscriptionInfo? = null,
     val subscriptionReset: SubscriptionResetInfo? = null,
     val trialSubscription: SubscriptionInfo? = null,
-    val subscriptionFormDataType: SubscriptionFormData? = null,
+    val subscriptionFormData: SubscriptionFormData? = null,
     val customerInfo: CustomerInfo? = null
 )
