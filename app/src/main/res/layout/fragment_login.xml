@@ -105,10 +105,10 @@
 
             <TextView
                 android:id="@+id/fragment_login_trial_subscription_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/login_trial_subscription_title"
-                android:textSize="@dimen/login_box_title_text_size"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -141,10 +141,10 @@
 
             <TextView
                 android:id="@+id/fragment_login_switch_print2digi_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/login_switch_print2digi_title"
-                android:textSize="@dimen/login_box_title_text_size"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -177,10 +177,10 @@
 
             <TextView
                 android:id="@+id/fragment_login_extend_print_with_digi_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/login_extend_print_with_digi_title"
-                android:textSize="@dimen/login_box_title_text_size"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
