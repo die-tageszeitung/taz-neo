@@ -139,7 +139,9 @@ class PdfPagerViewModel(
                 // downloadToCache did succeed or failed: only that the launched coroutine has stopped.
                 // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
                 getApplicationScope().launch {
-                    contentService.downloadToCache(issue.issueKey)
+                    contentService.downloadToCache(
+                        download = IssuePublicationWithPages(issue.issueKey)
+                    )
                 }.join()
 
                 // Update the latest page position and the viewDate

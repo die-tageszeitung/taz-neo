@@ -1,32 +1,40 @@
-image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.2
+image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.3
 
 variables:
   SENTRY_ENVIRONMENT: official
   GIT_STRATEGY: fetch
   GIT_SUBMODULE_STRATEGY: recursive
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
+  GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
 
 stages:
-  - buildTests
+  - prepare
   - test
   - build
   - publish
 
 .prepareEnv:
-  stage: build
   cache:
     # This cache includes the gradle wrapper and caches.
-    # It is shared between all branches and jobs.
-    - key: android-base
+    # It is shared between all branches and jobs that share the same gradle version.
+    # Note that this cache is quite big (about 1G) and will be copied and zipped at the start and
+    # end of each job. It still seems to make sense to keep it - but we should remember to clear the
+    # cache from the ci interface if the pipelines get slower due to cache copying.
+    - key:
+        files:
+          - gradle/wrapper/gradle-wrapper.properties
       paths:
         - $GRADLE_USER_HOME/wrapper
         - $GRADLE_USER_HOME/caches
-    - key:
-        files:
-          - .git/modules/mupdf-jni/HEAD
+
+    # Unfortunately gitlab does not support using files from submodules or the .git directory
+    # for cache keys. Thus we have to fall back to a global cache for mupdf binaries shared across
+    # all jobs. This should be fine as the cache size wont grow much as we dont update mupdf often.
+    - key: mupdf-local-mvn-repo
       paths:
-        - mupdf-jni/libmupdf/generated/resources/
-        - mupdf-jni/build
+        - ${MAVEN_LOCAL_REPOSITORY}/com/artifex/mupdf/fitz
+      policy: pull
 
   before_script:
     # Download and extract non-free fonts used by the app
@@ -37,46 +45,34 @@ stages:
     # Setup the keystore from the CI secret variables
     - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
-    - make -C mupdf-jni/libmupdf generate
 
-.assemble:
-  extends: .prepareEnv
-  artifacts:
-    paths:
-      - app/build/outputs/
-
-assembleAllFlavors:
-  extends: .assemble
-  interruptible: true
+buildMupdf:
+  stage: prepare
+  cache:
+    - key: mupdf-local-mvn-repo
+      paths:
+        - ${MAVEN_LOCAL_REPOSITORY}/com/artifex/mupdf/fitz
+      policy: pull-push
   script:
-    - ./gradlew assembleNonfreeTazProductionDebug
-    - ./gradlew assembleNonfreeTazProductionRelease
-    - ./gradlew assembleFreeTazProductionDebug
-    - ./gradlew assembleFreeTazStagingDebug
-    - ./gradlew assembleFreeTazProductionManualUpdateRelease
-    - ./gradlew assembleFreeTazProductionUnminifiedRelease
+    - if ! ./scripts/test-mupdf-in-maven-local.sh; then ./scripts/publish-mupdf-to-maven-local.sh ; fi
 
 lint:
+  stage: test
   extends: .prepareEnv
   interruptible: true
-  stage: test
   script:
     - ./gradlew --no-daemon --console=plain lintNonFreeTazProductionDebug lintNonfreeTazProductionRelease
 
-  artifacts:
-    paths:
-      - app/build/outputs/
-
 unitTests:
+  stage: test
   extends: .prepareEnv
   interruptible: true
-  stage: test
   script:
     - ./gradlew --no-daemon --console=plain :app:testNonfreeTazProductionDebugUnitTest
 
 integrationTests:
-  extends: .prepareEnv
   stage: test
+  extends: .prepareEnv
   interruptible: true
   script:
     - sudo -E ${ANDROID_HOME}/emulator/emulator @test -no-boot-anim -no-window &
@@ -84,11 +80,10 @@ integrationTests:
   tags:
     - kvm-enabled
 
-
 # UI Tests are disabled until we actually buy a device farm
 .uiTests:
-  extends: .prepareEnv
   stage: test
+  extends: .prepareEnv
   variables:
     SENTRY_ENVIRONMENT: automatedTests
   script:
@@ -99,10 +94,25 @@ integrationTests:
     - merge_requests
     - master
 
+assembleAllFlavors:
+  stage: build
+  extends: .prepareEnv
+  interruptible: true
+  script:
+    - ./gradlew --console=plain assembleNonfreeTazProductionDebug
+    - ./gradlew --console=plain assembleNonfreeTazProductionRelease
+    - ./gradlew --console=plain assembleFreeTazProductionDebug
+    - ./gradlew --console=plain assembleFreeTazStagingDebug
+    - ./gradlew --console=plain assembleFreeTazProductionManualUpdateRelease
+    - ./gradlew --console=plain assembleFreeTazProductionUnminifiedRelease
+  artifacts:
+    paths:
+      - app/build/outputs/
 
 publishNextcloud:
-  cache: {}
   stage: publish
+  cache: {}
+  artifacts:  {}
   variables:
     RELEASE_FOLDER: releases/${CI_COMMIT_TAG}
     NONFREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-production-debug.apk
@@ -124,11 +134,12 @@ publishNextcloud:
     - tags
 
 publishGooglePlay:
-  cache: {}
-  extends: .prepareEnv
   stage: publish
+  cache: {}
+  artifacts:  {}
+  extends: .prepareEnv
   script:
-    - ./gradlew publishNonfreeTazProductionReleaseBundle
+    - ./gradlew --no-daemon --console=plain publishNonfreeTazProductionReleaseBundle
   only:
     - tags
   when: manual

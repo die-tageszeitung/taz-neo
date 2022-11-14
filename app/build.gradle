@@ -39,22 +39,25 @@ def versionNameToCode = { name ->
     def patchDigits = 2
     def preReleaseTypeDigits = 1
     def preReleaseVersionDigits = 2
+
+
     def versionParts = name.split('-')
     def semverCore = versionParts[0]
-    def preReleaseIdentifier = null
+
+    def preReleaseIdentifierParts = []
     if (versionParts.length >= 2) {
-        preReleaseIdentifier = versionParts[1]
+        def preReleaseIdentifier = versionParts[1]
+        preReleaseIdentifierParts = preReleaseIdentifier.split('\\.')
     }
-    def versionNumbers = []
-    semverCore.split("\\.").eachWithIndex { item, idx ->
-        versionNumbers.add(Integer.parseInt(item))
-    }
-    def (major, minor, patch) = versionNumbers
+
+    def (major, minor, patch) = semverCore.split("\\.").collect { item -> Integer.parseInt(item) }
+
     // 9 is reserved for releases without pre-release identifier
     def preReleaseTypeNumber = 9
     def preReleaseVersion = 0
-    if (preReleaseIdentifier != null) {
-        def (preReleaseType, preReleaseVersionParsed) = preReleaseIdentifier.split('\\.')
+
+    if (preReleaseIdentifierParts.length >= 2) {
+        def (preReleaseType, preReleaseVersionParsed) = preReleaseIdentifierParts
         preReleaseVersionParsed = Integer.parseInt(preReleaseVersionParsed)
         preReleaseVersion = preReleaseVersionParsed
         switch (preReleaseType) {
@@ -91,14 +94,14 @@ def getVersionName = { ->
     }
     proc.waitFor()
     def versionName = proc.text.trim()
-    println "This build has versionName: $versionName"
     return versionName
 }
 
 def getVersionCode = { ->
     try {
-        def code = versionNameToCode(getVersionName())
-        println "This build has versionCode: $code"
+        def versionName = getVersionName()
+        def code = versionNameToCode(versionName)
+        println "This build has versionCode: $code (versionName: $versionName)"
         return code
     } catch (e) {
         logger.warn(
@@ -383,7 +386,7 @@ dependencies {
     implementation 'com.facebook.stetho:stetho:1.6.0'
 
     // mupdf
-    implementation project(':mupdf-jni')
+    implementation 'com.artifex.mupdf:fitz:1.20.2'
 
     // error reports
     implementation 'io.sentry:sentry-android:5.4.0'

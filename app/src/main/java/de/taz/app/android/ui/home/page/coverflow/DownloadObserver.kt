@@ -8,7 +8,9 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.cache.*
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.CacheState
+import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -19,7 +21,6 @@ import de.taz.app.android.util.IssuePublicationMonitor
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,19 +68,11 @@ class DownloadObserver(
     }
 
 
-    private fun setDownloadIconForStatus(downloadStatus: CacheState) {
-        when (downloadStatus) {
-            CacheState.PRESENT -> {
-                hideDownloadIcon()
-            }
-            CacheState.LOADING_CONTENT, CacheState.LOADING_METADATA,
-            CacheState.DELETING_METADATA, CacheState.DELETING_CONTENT,
-            CacheState.METADATA_PRESENT -> {
-                showLoadingIcon()
-            }
-            CacheState.ABSENT -> {
-                showDownloadIcon()
-            }
+    private fun setDownloadIconForStatus(update: CacheState) {
+        when (update) {
+            CacheState.PRESENT -> hideDownloadIcon()
+            CacheState.ABSENT -> showDownloadIcon()
+            else -> showLoadingIcon()
         }
     }
 
@@ -123,9 +116,11 @@ class DownloadObserver(
     }
 
     private fun showLoadingIcon() {
-        downloadIconView.visibility = View.GONE
-        checkmarkIconView.visibility = View.GONE
-        downloadProgressView.visibility = View.VISIBLE
+        if (downloadProgressView.visibility != View.VISIBLE) {
+            downloadIconView.visibility = View.GONE
+            checkmarkIconView.visibility = View.GONE
+            downloadProgressView.visibility = View.VISIBLE
+        }
     }
 
     private suspend fun maybeShowAutomaticDownloadDialog() {

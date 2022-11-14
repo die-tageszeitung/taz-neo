@@ -31,6 +31,13 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+
+        // Use maven local for mupdf
+        mavenLocal {
+            content {
+                includeModule("com.artifex.mupdf", "fitz")
+            }
+        }
     }
 }
 
