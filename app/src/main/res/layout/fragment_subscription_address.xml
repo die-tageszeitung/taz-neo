@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_title">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_first_name_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_surname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_surname_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_name_affix"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_name_affix_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_street"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_street_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_country"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -121,7 +121,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_country_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_postcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_postcode_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_city_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_address_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

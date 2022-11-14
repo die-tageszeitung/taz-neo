@@ -27,7 +27,7 @@
             android:layout_marginTop="@dimen/login_description_input_margin"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_header">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_login_missing_subscription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_layout"
             app:passwordToggleEnabled="true">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_login_missing_subscription_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
