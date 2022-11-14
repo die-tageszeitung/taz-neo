@@ -8,4 +8,6 @@
 
     <dimen name="fragment_settings_padding_top">5dp</dimen>
     <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+
+    <dimen name="button_custom_padding_to_center_aktiv_grotesk_font">10dp</dimen>
 </resources>

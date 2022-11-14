@@ -361,6 +361,7 @@
     <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheetModal</item>
+        <item name="android:backgroundTint">@color/backgroundColor</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
