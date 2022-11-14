@@ -1,6 +1,7 @@
 mutation SubscriptionFormData(
     $subscriptionFormDataType: SubscriptionFormDataType!,
     $mail: String,
+    $subscriptionId: Int,
     $surname: String,
     $firstname: String,
     $street: String,
@@ -19,6 +20,7 @@ mutation SubscriptionFormData(
     subscriptionFormData(
         type: $subscriptionFormDataType,
         mail: $mail,
+        subscriptionId: $subscriptionId,
         surname: $surname,
         firstName: $firstname,
         street: $street,
