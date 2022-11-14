@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.text.isDigitsOnly
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SubscriptionFormDataType
@@ -31,7 +32,8 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
 
         viewBinding.fragmentExtendSendButton.setOnClickListener {
             viewBinding.loadingScreen.root.visibility = View.VISIBLE
-            val emailOrAboID = viewBinding.fragmentExtendEmailAboID.text.toString().trim()
+            val email = viewBinding.fragmentExtendEmail.text.toString().trim()
+            val subscriptionIdString = viewBinding.fragmentExtendSubscriptionId.text.toString().trim()
             val surname = viewBinding.fragmentExtendSurname.text.toString().trim()
             val firstname = viewBinding.fragmentExtendFirstName.text.toString().trim()
             val addressStreetNr = viewBinding.fragmentExtendAddressStreet.text.toString().trim()
@@ -41,13 +43,17 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
             val message = viewBinding.fragmentExtendMessage.text.toString().trim()
 
             val necessaryCredentialsPresent =
-                emailOrAboID.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
+                email.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
                         && addressStreetNr.isNotEmpty() && addressZipCode.isNotEmpty()
                         && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
 
-            if (necessaryCredentialsPresent) {
+            val isSubscriptionIdNumeric = subscriptionIdString.isDigitsOnly()
+
+            if (necessaryCredentialsPresent && isSubscriptionIdNumeric) {
+                val subscriptionId = subscriptionIdString.toInt()
                 sendExtendPrintPlusDigiForm(
-                    emailOrAboID,
+                    email,
+                    subscriptionId,
                     surname,
                     firstname,
                     addressStreetNr,
@@ -58,8 +64,11 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
                 )
             }
             else {
-                if (emailOrAboID.isEmpty()) {
-                    viewBinding.fragmentExtendEmailAboID.error = requireContext().getString(R.string.login_email_aboid_error_empty)
+                if (!isSubscriptionIdNumeric) {
+                    viewBinding.fragmentExtendSubscriptionId.error = requireContext().getString(R.string.login_subscription_id_error_not_numeric)
+                }
+                if (email.isEmpty()) {
+                    viewBinding.fragmentExtendEmail.error = requireContext().getString(R.string.login_email_error_empty)
                 }
                 if (surname.isEmpty()) {
                     viewBinding.fragmentExtendSurname.error = requireContext().getString(R.string.login_surname_error_empty)
@@ -95,7 +104,8 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
 
 
     private fun sendExtendPrintPlusDigiForm(
-        emailOrAboID: String?,
+        email: String?,
+        subscriptionId: Int?,
         surname: String?,
         firstName: String?,
         addressStreetNr: String?,
@@ -107,7 +117,8 @@ class SubscriptionExtendPrintPlusDigiFragment: BaseMainFragment<FragmentExtendFo
         CoroutineScope(Dispatchers.IO).launch {
             apiService.subscriptionFormData(
                 SubscriptionFormDataType.printPlusDigi,
-                emailOrAboID,
+                email,
+                subscriptionId,
                 surname,
                 firstName,
                 addressStreetNr,

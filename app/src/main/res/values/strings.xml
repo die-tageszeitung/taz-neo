@@ -227,13 +227,13 @@
     <string name="login_subscription_error_empty">Bitte Abo-ID angeben.</string>
 
     <string name="login_email_hint">E-Mail-Adresse</string>
-    <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
-    <string name="login_email_error_invalid">E-Mail-Adresse ungültig</string>
+    <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein.</string>
+    <string name="login_email_error_invalid">E-Mail-Adresse ungültig.</string>
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
+    <string name="login_subscription_id_error_not_numeric">Ihre Abo-Nummer muss aus Ziffern bestehen.</string>
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
-    <string name="login_email_aboid_error_empty">E-Mail-Adresse oder Abo-Nummer darf nicht leer sein.</string>
 
     <string name="login_comment_hint">Bemerkung</string>
 
@@ -379,7 +379,8 @@
 
     <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
     <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
-    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
+    <string name="fragment_switch_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
+    <string name="fragment_switch_email_title">E-Mail-Adresse</string>
     <string name="fragment_switch_surname_title">Nachname</string>
     <string name="fragment_switch_first_name_title">Vorname</string>
     <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
@@ -392,7 +393,8 @@
 
     <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
     <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
-    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
+    <string name="fragment_extend_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
+    <string name="fragment_extend_email_title">E-Mail-Adresse</string>
     <string name="fragment_extend_surname_title">Nachname</string>
     <string name="fragment_extend_first_name_title">Vorname</string>
     <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>

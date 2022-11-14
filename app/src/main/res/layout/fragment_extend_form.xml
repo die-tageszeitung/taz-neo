@@ -32,19 +32,19 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_extend_title" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_extend_email_aboID_layout"
+            android:id="@+id/fragment_extend_email_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_description_input_margin"
             app:layout_constraintTop_toBottomOf="@id/fragment_extend_description">
 
             <de.taz.app.android.util.AppTextInputEditText
-                android:id="@+id/fragment_extend_email_aboID"
+                android:id="@+id/fragment_extend_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/fragment_extend_email_aboID_title"
+                android:hint="@string/fragment_extend_email_title"
                 android:imeOptions="actionNext"
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:nextFocusForward="@id/fragment_extend_surname" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -53,7 +53,7 @@
             android:id="@+id/fragment_extend_surname_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_aboID_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_email_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_surname"
@@ -146,6 +146,23 @@
                 android:hint="@string/fragment_extend_address_country_title"
                 android:imeOptions="actionNext"
                 android:inputType="text"
+                android:nextFocusForward="@id/fragment_extend_subscription_id" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fragment_extend_subscription_id_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country_layout">
+
+            <de.taz.app.android.util.AppTextInputEditText
+                android:id="@+id/fragment_extend_subscription_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/fragment_extend_subscription_id_title"
+                android:imeOptions="actionNext"
+                android:inputType="number"
                 android:nextFocusForward="@id/fragment_extend_message" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -154,7 +171,7 @@
             android:id="@+id/fragment_extend_message_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_extend_address_country_layout">
+            app:layout_constraintTop_toBottomOf="@id/fragment_extend_subscription_id_layout">
 
             <de.taz.app.android.util.AppTextInputEditText
                 android:id="@+id/fragment_extend_message"

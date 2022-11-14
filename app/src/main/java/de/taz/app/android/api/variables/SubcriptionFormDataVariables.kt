@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 data class SubscriptionFormDataVariables(
     val subscriptionFormDataType: SubscriptionFormDataType,
     val mail: String?,
+    val subscriptionId: Int?,
     val surname: String?,
     val firstname: String?,
     val street: String?,

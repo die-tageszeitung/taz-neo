@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.text.isDigitsOnly
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.dto.SubscriptionFormDataType
@@ -32,7 +33,8 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
 
         viewBinding.fragmentSwitchSendButton.setOnClickListener {
             viewBinding.loadingScreen.root.visibility = View.VISIBLE
-            val emailOrAboID = viewBinding.fragmentSwitchEmailAboID.text.toString().trim()
+            val email = viewBinding.fragmentSwitchEmail.text.toString().trim()
+            val subscriptionIdString = viewBinding.fragmentSwitchSubscriptionId.text.toString().trim()
             val surname = viewBinding.fragmentSwitchSurname.text.toString().trim()
             val firstname = viewBinding.fragmentSwitchFirstName.text.toString().trim()
             val addressStreetNr = viewBinding.fragmentSwitchAddressStreet.text.toString().trim()
@@ -42,13 +44,17 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
             val message = viewBinding.fragmentSwitchMessage.text.toString().trim()
 
             val necessaryCredentialsPresent =
-                emailOrAboID.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
+                email.isNotEmpty() && surname.isNotEmpty() && firstname.isNotEmpty()
                         && addressStreetNr.isNotEmpty() && addressZipCode.isNotEmpty()
                         && addressCity.isNotEmpty() && addressCountry.isNotEmpty()
 
-            if (necessaryCredentialsPresent) {
+            val isSubscriptionIdNumeric = subscriptionIdString.isDigitsOnly()
+
+            if (necessaryCredentialsPresent && isSubscriptionIdNumeric) {
+                val subscriptionId = subscriptionIdString.toInt()
                 sendSwitchPrint2DigiForm(
-                    emailOrAboID,
+                    email,
+                    subscriptionId,
                     surname,
                     firstname,
                     addressStreetNr,
@@ -59,8 +65,11 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
                 )
             }
             else {
-                if (emailOrAboID.isEmpty()) {
-                    viewBinding.fragmentSwitchEmailAboID.error = requireContext().getString(R.string.login_email_aboid_error_empty)
+                if (!isSubscriptionIdNumeric) {
+                    viewBinding.fragmentSwitchSubscriptionId.error = requireContext().getString(R.string.login_subscription_id_error_not_numeric)
+                }
+                if (email.isEmpty()) {
+                    viewBinding.fragmentSwitchEmail.error = requireContext().getString(R.string.login_email_error_empty)
                 }
                 if (surname.isEmpty()) {
                     viewBinding.fragmentSwitchSurname.error = requireContext().getString(R.string.login_surname_error_empty)
@@ -96,7 +105,8 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
 
 
     private fun sendSwitchPrint2DigiForm(
-        emailOrAboID: String?,
+        email: String?,
+        subscriptionId: Int?,
         surname: String?,
         firstName: String?,
         addressStreetNr: String?,
@@ -108,7 +118,8 @@ class SubscriptionSwitchPrint2DigiFragment : BaseMainFragment<FragmentSwitchForm
         CoroutineScope(Dispatchers.IO).launch {
             apiService.subscriptionFormData(
                 SubscriptionFormDataType.print2Digi,
-                emailOrAboID,
+                email,
+                subscriptionId,
                 surname,
                 firstName,
                 addressStreetNr,

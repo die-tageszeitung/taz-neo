@@ -684,6 +684,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun subscriptionFormData(
         type: SubscriptionFormDataType,
         mail: String? = null,
+        subscriptionId: Int? = null,
         surname: String? = null,
         firstname: String? = null,
         street: String? = null,
@@ -697,6 +698,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         val variables = SubscriptionFormDataVariables(
             type,
             mail,
+            subscriptionId,
             surname,
             firstname,
             street,
