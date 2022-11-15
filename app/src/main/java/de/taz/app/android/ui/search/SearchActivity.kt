@@ -287,17 +287,17 @@ class SearchActivity :
 
     fun loadMore() {
         val offset = searchResultItemsList.size
-            advancedSearch(
-                searchText = viewModel.searchText.value.toString(),
-                title = viewModel.searchTitle.value.toString(),
-                author = viewModel.searchAuthor.value.toString(),
-                offset = offset,
-                pubDateFrom = viewModel.pubDateFrom.value,
-                pubDateUntil = viewModel.pubDateUntil.value,
-                searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-                sorting = viewModel.sorting.value ?: Sorting.relevance,
-                showLoadingScreen = false
-            )
+        advancedSearch(
+            searchText = viewModel.searchText.value.toString(),
+            title = viewModel.searchTitle.value.toString(),
+            author = viewModel.searchAuthor.value.toString(),
+            offset = offset,
+            pubDateFrom = viewModel.pubDateFrom.value,
+            pubDateUntil = viewModel.pubDateUntil.value,
+            searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+            sorting = viewModel.sorting.value ?: Sorting.relevance,
+            showLoadingScreen = false
+        )
     }
 
     // endregion
