@@ -180,6 +180,7 @@ class SearchActivity :
         searchText: String,
         title: String? = null,
         author: String? = null,
+        sessionId: String? = null,
         rowCnt: Int = DEFAULT_SEARCH_RESULTS_TO_FETCH,
         offset: Int = 0,
         pubDateFrom: String? = null,
@@ -201,6 +202,7 @@ class SearchActivity :
         log.debug("searchText: $searchText")
         log.debug("title: $title")
         log.debug("author: $author")
+        log.debug("sessionId: $sessionId")
         log.debug("offset: $offset")
         log.debug("rowCnt: $rowCnt")
         log.debug("pubDateFrom: $pubDateFrom")
@@ -228,6 +230,7 @@ class SearchActivity :
                     searchText = searchText,
                     title = title,
                     author = author,
+                    sessionId = sessionId,
                     rowCnt = rowCnt,
                     offset = offset,
                     pubDateFrom = pubDateFrom,
@@ -251,6 +254,7 @@ class SearchActivity :
                         }
                     }
                     showAmountFound(searchResultItemsList.size, viewModel.totalFound)
+                    viewModel.sessionId = it.sessionId
                 }
                 viewModel.currentlyLoadingMore.postValue(false)
             } else {
@@ -291,6 +295,7 @@ class SearchActivity :
             searchText = viewModel.searchText.value.toString(),
             title = viewModel.searchTitle.value.toString(),
             author = viewModel.searchAuthor.value.toString(),
+            sessionId = viewModel.sessionId,
             offset = offset,
             pubDateFrom = viewModel.pubDateFrom.value,
             pubDateUntil = viewModel.pubDateUntil.value,
@@ -313,6 +318,7 @@ class SearchActivity :
     private fun clearRecyclerView() {
         searchResultItemsList.clear()
         viewModel.searchResultsLiveData.postValue(emptyList())
+        viewModel.sessionId = null
     }
 
     private fun showSearchDescription() {
@@ -337,6 +343,7 @@ class SearchActivity :
 
     private fun clearSearchList() {
         viewModel.totalFound = 0
+        viewModel.sessionId = null
         viewBinding.apply {
             searchInput.editText?.text?.clear()
             clearRecyclerView()
