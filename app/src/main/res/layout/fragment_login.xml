@@ -16,12 +16,11 @@
 
         <TextView
             android:id="@+id/fragment_login_description"
-            style="@style/TextAppearance.Login.Text"
+            style="@style/TextAppearance.Fragment.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_description"
             android:textAlignment="textStart"
-            android:textSize="@dimen/login_description_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout

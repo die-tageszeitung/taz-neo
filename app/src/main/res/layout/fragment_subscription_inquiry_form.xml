@@ -19,9 +19,8 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/appFontRegular"
             tools:text="@string/subscription_inquiry_switch_title"
-            android:textAppearance="@style/TextAppearance.Settings.Category"
+            android:textAppearance="@style/TextAppearance.Fragment.Title"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
