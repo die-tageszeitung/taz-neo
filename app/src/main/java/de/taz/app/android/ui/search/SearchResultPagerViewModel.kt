@@ -34,6 +34,7 @@ class SearchResultPagerViewModel(
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)
+    var sessionId: String? = null
     var totalFound = 0
     var minPubDate = MIN_PUB_DATE
 
