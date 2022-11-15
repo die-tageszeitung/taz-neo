@@ -268,7 +268,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
-            notificationsEnabledLivedata.observeDistinctIgnoreFirst(viewLifecycleOwner) { notificationsEnabled ->
+            notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
