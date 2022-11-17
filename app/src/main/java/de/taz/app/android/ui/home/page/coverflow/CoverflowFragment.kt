@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
@@ -29,6 +30,7 @@ import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.math.abs
 
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
@@ -228,10 +230,21 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // nextPosition could already be correct because of scrolling if not skip there
         if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
             firstTimeFragmentIsShown = false
+
+            // Stop any scroll that might still be going on.
+            // Either from a previous scrollTo call or a user fling.
             grid.stopScroll()
-            grid.smoothScrollToPosition(position)
-            grid.layoutManager?.scrollToPosition(position)
-            snapHelper.scrollToPosition(position)
+
+            val shouldSmoothScroll =
+                abs(position - snapHelper.currentSnappedPosition) <= COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
+
+            // We are using the RecycleViews default scrolling mechanism and rely on the
+            // snapHelpers observing to do the final snapping.
+            if (shouldSmoothScroll) {
+                grid.smoothScrollToPosition(position)
+            } else {
+                grid.scrollToPosition(position)
+            }
         }
     }
     // endregion
