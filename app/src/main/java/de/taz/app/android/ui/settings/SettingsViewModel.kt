@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.settings
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
@@ -14,11 +13,7 @@ import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -127,7 +122,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun increaseFontSize() {
         viewModelScope.launch {
             val newSize = getFontSize() + 10
-            if (newSize <= MAX_TEST_SIZE) {
+            if (newSize <= MAX_TEXT_SIZE) {
                 setFontSize(newSize.toString())
             }
         }

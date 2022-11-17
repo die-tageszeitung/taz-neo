@@ -4,12 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import de.taz.app.android.MAX_TEST_SIZE
+import de.taz.app.android.MAX_TEXT_SIZE
 import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.monkey.observeDistinct
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -52,7 +51,7 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     fun increaseFontSize() {
         launch {
             val newSize = getFontSize() + 10
-            if (newSize <= MAX_TEST_SIZE) {
+            if (newSize <= MAX_TEXT_SIZE) {
                 setFontSize(newSize.toString())
             }
         }
