@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
+import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +36,7 @@ import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlin.math.abs
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
@@ -253,6 +255,7 @@ abstract class WebViewFragment<
                 hideLoadingScreen()
             }
         }
+        addPaddingBottomIfNecessary()
     }
 
     override fun onPageFinishedLoading() {
@@ -312,6 +315,26 @@ abstract class WebViewFragment<
             lifecycleScope.launch {
                 issueViewerViewModel.setDisplayable(it, displayableKey)
             }
+        }
+    }
+    /**
+     * This function checks if there is enough room that allow the tool bar to collapse.
+     * Otherwise it is not possible to scroll down to the bottom
+     */
+    private fun addPaddingBottomIfNecessary() {
+        val webViewHeight = webView.height
+        val screenHeight = this.resources.displayMetrics.heightPixels
+        val difference = webViewHeight - screenHeight
+        val navBottomHeight = this.resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+        val collapsingToolBarHeight = this.resources.getDimensionPixelSize(R.dimen.fragment_header_default_height)
+        val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5*collapsingToolBarHeight
+
+        if (abs(difference) < spaceNeededThatTheToolBarCanCollapse) {
+            val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
+            log.debug("Add paddingBottom to allow the tool bar to collapse")
+            scrollView?.updatePadding(
+                0,0,0, navBottomHeight
+            )
         }
     }
 }
