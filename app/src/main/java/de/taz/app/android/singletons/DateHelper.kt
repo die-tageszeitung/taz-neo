@@ -1,16 +1,10 @@
 package de.taz.app.android.singletons
 
 import de.taz.app.android.annotation.Mockable
+import io.ktor.util.date.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-
-enum class DateFormat {
-    None,
-    LongWithWeekDay,
-    LongWithoutWeekDay
-}
 
 enum class AppTimeZone {
     Default,
@@ -81,8 +75,21 @@ object DateHelper {
         }
     }
 
+
+    /**
+     * Returns e.g. "23.8.2022"
+     */
     fun dateToMediumLocalizedString(date: Date): String {
         return SimpleDateFormat("d.M.yyyy", deviceLocale).format(
+            date
+        ).lowercase(Locale.getDefault())
+    }
+
+    /**
+     * Returns e.g. "23.8.22"
+     */
+    fun dateToShortLocalizedString(date: Date): String {
+        return SimpleDateFormat("d.M.yy", deviceLocale).format(
             date
         ).lowercase(Locale.getDefault())
     }
@@ -95,18 +102,29 @@ object DateHelper {
     /**
      * function to get the formatted date for the wochentaz
      * @param date - Date of the issue
+     * @param validityDate - Validity Date of the issue
+     * @return eg "woche 29.1. – 5.2.2023"
+     */
+    fun dateToWeekNotation(date: Date, validityDate: Date): String {
+        val fromDate = SimpleDateFormat("d.M.", Locale.GERMANY).format(date)
+        val toDate = SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(validityDate)
+        return "woche $fromDate – $toDate"
+    }
+
+
+    /**
+     * function to get the formatted date for the wochentaz
+     * @param date - Date of the issue
      * @param validityDate - String (eg "2023-02-05") given by [IssueStub.validityDate]
      * @return eg "woche 29.1. – 5.2.2023"
      */
     fun dateToWeekNotation(date: Date?, validityDate: String): String {
         val formattedToDate = stringToDate(validityDate)
-        val fromDate = date?.let {
-            SimpleDateFormat("d.M.", Locale.GERMANY).format(it)
+        return if (date !=null && formattedToDate != null ) {
+            dateToWeekNotation(date, formattedToDate)
+        } else {
+            ""
         }
-        val toDate = formattedToDate?.let {
-            SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(it)
-        }
-        return "woche $fromDate – $toDate"
     }
 
     /**
@@ -142,6 +160,44 @@ object DateHelper {
             SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(it)
         }
         return "woche\n$formattedFromDate – $formattedToDate"
+    }
+
+    /**
+     * Format a one line range string from the two given dates with medium sized date formats.
+     * If the two dates are from the same month, the month is omitted on the from date e.g. 1. - 5.1.2022
+     * Otherwise on month changes: 30.12. - 5.1.2022
+     */
+    fun dateToMediumRangeString(fromDate: Date, toDate: Date): String {
+        val fromCalendar = Calendar.getInstance().apply { time = fromDate }
+        val toCalendar = Calendar.getInstance().apply { time = toDate }
+        val fromString =
+            if (fromCalendar.get(Calendar.MONTH) != toCalendar.get(Calendar.MONTH)) {
+                SimpleDateFormat("d.M.", deviceLocale).format(fromDate)
+            } else {
+                SimpleDateFormat("d.", deviceLocale).format(fromDate)
+            }
+
+        val toString = SimpleDateFormat("d.M.yyyy", deviceLocale).format(toDate)
+        return "$fromString - $toString"
+    }
+
+    /**
+     * Format a one line range string from the two given dates with short sized date formats.
+     * If the two dates are from the same month, the month is omitted on the from date e.g. 1. - 5.1.22
+     * Otherwise on month changes: 30.12. - 5.1.22
+     */
+    fun dateToShortRangeString(fromDate: Date, toDate: Date): String {
+        val fromCalendar = Calendar.getInstance().apply { time = fromDate }
+        val toCalendar = Calendar.getInstance().apply { time = toDate }
+        val fromString =
+            if (fromCalendar.get(Calendar.MONTH) != toCalendar.get(Calendar.MONTH)) {
+                SimpleDateFormat("d.M.", deviceLocale).format(fromDate)
+            } else {
+                SimpleDateFormat("d.", deviceLocale).format(fromDate)
+            }
+
+        val toString = SimpleDateFormat("d.M.yy", deviceLocale).format(toDate)
+        return "$fromString - $toString"
     }
 
     fun stringToMediumLocalizedString(dateString: String): String? {

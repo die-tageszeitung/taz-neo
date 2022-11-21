@@ -11,7 +11,8 @@ data class FeedDto (
     val issueCnt: Int? = null,
     val issueMaxDate: String? = null,
     val issueMinDate: String? = null,
-    val issueList: List<IssueDto>? = null
+    val issueList: List<IssueDto>? = null,
+    val validityDates: List<ValidityDateDto> = emptyList()
 )
 
 @Serializable

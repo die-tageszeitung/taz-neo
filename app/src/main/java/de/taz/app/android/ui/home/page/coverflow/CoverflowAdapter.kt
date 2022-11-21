@@ -2,12 +2,12 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
-import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.api.models.PublicationDate
 import de.taz.app.android.ui.home.page.CoverViewActionListener
+import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
 
 
@@ -25,7 +25,8 @@ class CoverflowAdapter(
     onCoverViewActionListener,
     observeDownloads = false
 ) {
-    override val dateFormat: DateFormat = DateFormat.None
+    // Do not show any date on the coverflow
+    override fun formatDate(publicationDate: PublicationDate): CoverViewDate? = null
 
     private val viewHolderWidth by lazy { calculateViewHolderWidth() }
 

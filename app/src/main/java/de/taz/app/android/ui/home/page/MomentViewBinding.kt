@@ -19,14 +19,14 @@ import kotlin.IllegalStateException
 class MomentViewBinding(
     fragment: Fragment,
     momentPublication: MomentPublication,
-    dateFormat: DateFormat,
+    coverViewDate: CoverViewDate?,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
     observeDownload: Boolean
 ) : CoverViewBinding(
     fragment,
     momentPublication,
-    dateFormat,
+    coverViewDate,
     glideRequestManager,
     onMomentViewActionListener,
     observeDownload

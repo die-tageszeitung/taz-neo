@@ -15,14 +15,14 @@ import de.taz.app.android.singletons.*
 class FrontpageViewBinding(
     fragment: Fragment,
     frontpagePublication: FrontpagePublication,
-    dateFormat: DateFormat,
+    coverViewDate: CoverViewDate?,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
     observeDownload: Boolean
 ) : CoverViewBinding(
     fragment,
     frontpagePublication,
-    dateFormat,
+    coverViewDate,
     glideRequestManager,
     onMomentViewActionListener,
     observeDownload

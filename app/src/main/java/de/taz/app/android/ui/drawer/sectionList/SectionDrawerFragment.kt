@@ -21,7 +21,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
@@ -292,7 +291,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 momentBinder = MomentViewBinding(
                     this@SectionDrawerFragment,
                     momentPublication,
-                    DateFormat.None,
+                    null,
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {

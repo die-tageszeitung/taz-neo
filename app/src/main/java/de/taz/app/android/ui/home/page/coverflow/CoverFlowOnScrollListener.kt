@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home.page.coverflow
 
-import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -61,8 +60,10 @@ class CoverFlowOnScrollListener(
 
     private fun updateCurrentDate(recyclerView: RecyclerView) {
         val position = snapHelper.currentSnappedPosition
-        (recyclerView.adapter as IssueFeedAdapter).getItem(position)?.let { date ->
-            fragment.skipToDate(date)
+        val adapter = (recyclerView.adapter as? IssueFeedAdapter)
+        if (position != RecyclerView.NO_POSITION && adapter != null) {
+            val item = adapter.getItem(position)
+            item?.let { fragment.skipToDate(it.date) }
         }
     }
 

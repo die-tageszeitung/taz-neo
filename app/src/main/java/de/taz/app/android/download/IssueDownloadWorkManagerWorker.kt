@@ -49,7 +49,7 @@ class IssueDownloadWorkManagerWorker(
             val newestIssueKey = feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
             if (newestIssueKey == null) {
                 val oldFeed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
-                log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
+                log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)?.date}")
                 return@coroutineScope Result.success()
             } else {
                 if (DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {

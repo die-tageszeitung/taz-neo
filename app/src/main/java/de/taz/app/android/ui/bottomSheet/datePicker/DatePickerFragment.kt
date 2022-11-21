@@ -90,10 +90,12 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         }
     }
 
-    private fun setIssue(date: String) {
-        log.debug("call setIssue() with date $date")
-        if (feed.publicationDates.contains(simpleDateFormat.parse(date)!!)) {
-            showIssue(IssuePublication(feed.name, date))
+    private fun setIssue(dateString: String) {
+        log.debug("call setIssue() with date $dateString")
+        val date = simpleDateFormat.parse(dateString)
+        val publicationDate = feed.publicationDates.find { it.date == date }
+        if (publicationDate != null) {
+            showIssue(IssuePublication(feed.name, dateString))
         } else {
             toastHelper.showToast(R.string.issue_not_found)
         }
