@@ -59,8 +59,8 @@ class FeedService(applicationContext: Context) {
         val cachedFeed = feedRepository.get(name)
         val refreshedFeed = refreshFeed(name)
 
-        val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)
-        val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)
+        val newestIssueDate = refreshedFeed?.publicationDates?.getOrNull(0)?.date
+        val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)?.date
 
         return if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
             (contentService.downloadMetadata(

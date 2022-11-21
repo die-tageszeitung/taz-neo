@@ -5,11 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.content.ContentService
-import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.cover.CoverView
 import de.taz.app.android.ui.home.page.coverflow.DownloadObserver
 import io.sentry.Sentry
@@ -30,22 +26,19 @@ class CoverBindingException(
 abstract class CoverViewBinding(
     private val fragment: Fragment,
     protected val coverPublication: AbstractCoverPublication,
-    private val dateFormat: DateFormat,
+    private val coverViewDate: CoverViewDate?,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener,
-    private val observeDownloads: Boolean = true
+    private val observeDownloads: Boolean = true,
 ) {
     private var boundView: CoverView? = null
     private lateinit var coverViewData: CoverViewData
 
     protected val applicationContext: Context = fragment.requireContext().applicationContext
 
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
-    private val contentService = ContentService.getInstance(applicationContext)
     private var bindJob: Job? = null
 
     private var downloadObserver: DownloadObserver? = null
-    private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     abstract suspend fun prepareData(): CoverViewData
 
@@ -64,7 +57,7 @@ abstract class CoverViewBinding(
 
     private suspend fun bindView(view: CoverView) = withContext(Dispatchers.Main) {
         boundView = view.apply {
-            show(coverViewData, coverPublication.date, dateFormat, glideRequestManager)
+            show(coverViewData, coverViewDate, glideRequestManager)
 
             setOnImageClickListener {
                 onMomentViewActionListener.onImageClicked(coverPublication)

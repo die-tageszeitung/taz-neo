@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.home.page.archive
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
@@ -13,7 +12,6 @@ import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
-import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.launch
 import kotlin.math.floor
@@ -21,9 +19,7 @@ import kotlin.math.floor
 /**
  * Fragment to show the archive - a GridView of available issues
  */
-class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
-
-    override lateinit var adapter: IssueFeedAdapter
+class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     private val grid by lazy { viewBinding.fragmentArchiveGrid }
     private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
@@ -31,7 +27,7 @@ class ArchiveFragment: IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
                     // redraw all visible views

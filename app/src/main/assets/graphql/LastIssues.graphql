@@ -5,13 +5,6 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
             message
         }
         feedList(name: $feedName) {
-            name
-            cycle
-            momentRatio
-            publicationDates
-            issueCnt
-            issueMaxDate
-            issueMinDate
             issueList(limit: $limit) {
                 date
                 validityDate

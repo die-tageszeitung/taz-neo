@@ -5,24 +5,32 @@ import androidx.room.PrimaryKey
 import de.taz.app.android.api.dto.Cycle
 import de.taz.app.android.api.dto.FeedDto
 import de.taz.app.android.simpleDateFormat
-import java.util.*
 
 @Entity(tableName = "Feed")
 data class Feed(
     @PrimaryKey val name: String,
     val cycle: Cycle,
     val momentRatio: Float,
-    val publicationDates: List<Date>,
+    val publicationDates: List<PublicationDate>,
     val issueMinDate: String,
-    val issueMaxDate: String
+    val issueMaxDate: String,
 ) {
+
     constructor(feedDto: FeedDto) : this(
-        feedDto.name!!,
-        feedDto.cycle!!,
-        feedDto.momentRatio!!,
-        feedDto.publicationDates.map(simpleDateFormat::parse).sortedDescending(),
-        feedDto.issueMinDate!!,
-        feedDto.issueMaxDate!!
+        requireNotNull(feedDto.name),
+        requireNotNull(feedDto.cycle),
+        requireNotNull(feedDto.momentRatio),
+        feedDto.publicationDates.let { publicationDates ->
+            val validityMap = feedDto.validityDates.associate { it.date to it.validityDate }
+            publicationDates.sortedDescending().map {
+                PublicationDate(
+                    requireNotNull(simpleDateFormat.parse(it)),
+                    validityMap[it]?.let(simpleDateFormat::parse)
+                )
+            }
+        },
+        requireNotNull(feedDto.issueMinDate),
+        requireNotNull(feedDto.issueMaxDate)
     )
 
     fun momentRatioAsDimensionRatioString(): String {

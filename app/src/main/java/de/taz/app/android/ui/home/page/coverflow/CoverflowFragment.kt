@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
+import de.taz.app.android.api.models.PublicationDate
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
@@ -23,18 +24,18 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
-import de.taz.app.android.ui.home.page.IssueFeedAdapter
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.abs
 
-class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
-
-    override lateinit var adapter: IssueFeedAdapter
+class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
+    private val log by Log
 
     private lateinit var authHelper: AuthHelper
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
@@ -89,52 +90,46 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         date.setOnClickListener { openDatePicker() }
 
         viewModel.feed.observeDistinct(this) { feed ->
-            // Fresh is true if this Fragment was just created and no adapter had been assigned yet
-            val fresh = !::adapter.isInitialized
-
-            // Setup manual position restore from the previous coverflows scroll state
-            val (wasHomeSelected, currentMomentDate) = if (::adapter.isInitialized) {
-                // The adapter is already initialized. This is an update which might break our scroll position.
-                val currentMomentDate = viewModel.currentDate.value
-                val homeMomentDate = adapter.getItem(0)
-                val isHomeSelected = homeMomentDate != null && homeMomentDate == currentMomentDate
-
-                if (isHomeSelected) {
-                    true to null
-                } else {
-                    false to currentMomentDate
-                }
-            } else {
-                // The lateinit adapter has not been set yet. This is the first time this observer is
-                // called and there is no previous adapter/visible coverflow yet
-                false to null
-            }
-
+            // Store current adapter state before setting some new one
+            val prevMomentDate = viewModel.currentDate.value
+            val prevHomeMomentDate = adapter?.getItem(0)?.date
+            val initialAdapter = adapter == null
 
             val requestManager = Glide.with(this)
-            adapter = CoverflowAdapter(
+            val adapter = CoverflowAdapter(
                 this,
                 R.layout.fragment_cover_flow_item,
                 feed,
                 requestManager,
                 CoverflowCoverViewActionListener(this@CoverflowFragment)
             )
+            this.adapter = adapter
             grid.adapter = adapter
 
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
             // we let Android restore the scroll position. This might work as long as the feed did not change.
             // FIXME(johannes): test if it actually works as a new adapter is assigned
-            val restoreFromPersistedState = fresh && savedInstanceState != null
+            val restoreFromPersistedState = initialAdapter && savedInstanceState != null
 
             if (!restoreFromPersistedState) {
-                // Manually skip to the correct scroll position
-                when {
-                    fresh && initialIssueDisplay != null ->
+                if (initialAdapter) {
+                    // The adapter has not been set yet. This is the first time this observer is
+                    // called and there is no previous adapter/visible coverflow yet
+                    if (initialIssueDisplay != null) {
                         skipToPublication(requireNotNull(initialIssueDisplay))
-                    fresh && initialIssueDisplay == null -> skipToHome()
-                    wasHomeSelected -> skipToHome()
-                    currentMomentDate != null -> skipToDate(currentMomentDate)
-                    else -> Unit // This is a undefined state that should not be reached.
+                    } else {
+                        skipToHome()
+                    }
+                } else {
+                    // The adapter is already initialized. This is an update which might break our scroll position.
+                    val wasHomeSelected =
+                        prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
+
+                    if (!wasHomeSelected && prevMomentDate != null) {
+                        skipToDate(prevMomentDate)
+                    } else {
+                        skipToHome()
+                    }
                 }
             }
 
@@ -144,7 +139,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
         grid.addOnScrollListener(onScrollListener)
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -182,8 +176,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun updateUIForCurrentDate(forceStartDownloadObserver: Boolean = false) {
         val date = viewModel.currentDate.value
         val feed = viewModel.feed.value
+        val adapter = adapter
 
-        if (date == null || feed == null) {
+        if (date == null || feed == null || adapter == null) {
             return
         }
 
@@ -192,6 +187,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
 
+
+        val item = adapter.getItem(nextPosition)
         if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
             return
         }
@@ -218,7 +215,20 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
 
         // set date text
-        this.date.text = DateHelper.dateToLongLocalizedLowercaseString(date)
+        this.date.text = when {
+            item != null && item.validity != null ->
+                DateHelper.dateToWeekNotation(
+                    item.date,
+                    item.validity
+                )
+            item != null ->
+                DateHelper.dateToLongLocalizedLowercaseString(item.date)
+            else -> {
+                // The date itself is not found anymore. This is weird. Log an error but show the requested date
+                log.warn("The date $date was not found in the feeds publication dates")
+                DateHelper.dateToLongLocalizedLowercaseString(date)
+            }
+        }
     }
 
     /**
@@ -257,8 +267,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     fun skipToHome() {
         getHomeFragment().setHomeIconFilled()
-        viewModel.feed.value?.issueMaxDate?.let {
-            skipToDate(simpleDateFormat.parse(it)!!)
+        viewModel.feed.value?.publicationDates?.firstOrNull()?.let {
+            skipToDate(it.date)
         }
     }
 

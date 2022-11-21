@@ -11,10 +11,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.singletons.DateFormat
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
+import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.MomentWebView
 
 
@@ -39,19 +38,24 @@ class CoverView @JvmOverloads constructor(
     private var momentElevation: Float? = null
 
     // region views
-    private val coverPlaceholder by lazy { findViewById<FrameLayout>(R.id.cover_placeholder) }
-    private val momentContainer by lazy { findViewById<ConstraintLayout>(R.id.moment_container) }
-    private val momentDate by lazy { findViewById<TextView>(R.id.fragment_moment_date) }
-    private val momentProgressbar by lazy { findViewById<ProgressBar>(R.id.moment_progressbar) }
-    private val viewMomentDownloadIconWrapper by lazy { findViewById<ConstraintLayout>(R.id.view_moment_download_icon_wrapper) }
-    private val viewMomentDownload by lazy { findViewById<ImageView>(R.id.view_moment_download) }
-    private val viewMomentDownloadFinished by lazy { findViewById<ImageView>(R.id.view_moment_download_finished) }
-    private val viewMomentDownloading by lazy { findViewById<ProgressBar>(R.id.view_moment_downloading) }
+    init {
+        // Inflate the layout first, so that we can find the views below
+        LayoutInflater.from(context).inflate(R.layout.view_cover, this, true)
+    }
+
+    private val coverPlaceholder = findViewById<FrameLayout>(R.id.cover_placeholder)
+    private val momentContainer = findViewById<ConstraintLayout>(R.id.moment_container)
+    private val momentDate = findViewById<TextView>(R.id.fragment_moment_date)
+    private val momentProgressbar = findViewById<ProgressBar>(R.id.moment_progressbar)
+    private val viewMomentDownloadIconWrapper =
+        findViewById<ConstraintLayout>(R.id.view_moment_download_icon_wrapper)
+    private val viewMomentDownload = findViewById<ImageView>(R.id.view_moment_download)
+    private val viewMomentDownloadFinished =
+        findViewById<ImageView>(R.id.view_moment_download_finished)
+    private val viewMomentDownloading = findViewById<ProgressBar>(R.id.view_moment_downloading)
     // endregion
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_cover, this, true)
-
         // remove and store elevation, so we can restore it once the loading screen is hidden
         // otherwise the loading screen will have a shadow what is not wanted
         momentElevation = momentContainer.elevation
@@ -79,28 +83,22 @@ class CoverView @JvmOverloads constructor(
         showLoadingScreen()
     }
 
-    private fun clearDate() {
-        momentDate.text = ""
-    }
-
     /**
      * Show the Cover/Moment
-     * @param data - the data necessary to show it
-     * @param dateFormat    the format the date should be shown in
-     *                      defaults to [DateFormat.LongWithoutWeekDay]
+     * @param coverViewDate the formatted date string to show.
+     *                      if null the date text input will not be shown at all (GONE)
      * @param glideRequestManager the glideRequestManager to use when showing images
      */
     fun show(
         data: CoverViewData,
-        date: String,
-        dateFormat: DateFormat = DateFormat.LongWithoutWeekDay,
+        coverViewDate: CoverViewDate?,
         glideRequestManager: RequestManager
     ) {
         showLoadingScreen()
         data.momentUri?.let {
             showCover(it, data.momentType, glideRequestManager)
         }
-        setDate(date, dateFormat)
+        setDate(coverViewDate)
     }
 
     // catch a long click on the container
@@ -111,18 +109,29 @@ class CoverView @JvmOverloads constructor(
     /**
      * show given date or hide date altogether
      */
-    private fun setDate(date: String?, dateFormat: DateFormat) {
-        if (date !== null) {
-            when (dateFormat) {
-                DateFormat.LongWithWeekDay ->
-                    momentDate.text = DateHelper.stringToLongLocalizedLowercaseString(date)
-                DateFormat.LongWithoutWeekDay ->
-                    momentDate.text = DateHelper.stringToMediumLocalizedString(date)
-                DateFormat.None ->
-                    momentDate.visibility = View.GONE
+    private fun setDate(coverViewDate: CoverViewDate?) {
+        if (coverViewDate !== null) {
+            // All the items in the recyclerview grid should have the same width,
+            // thus we can simply check here which date to use, as it will be the same on all views.
+            val useShortDate =
+                width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
+
+            momentDate.apply {
+                text = coverViewDate.dateStringShort
+                    ?.takeIf { useShortDate }
+                    ?: coverViewDate.dateString
+
+                visibility = View.VISIBLE
             }
         } else {
             momentDate.visibility = View.GONE
+        }
+    }
+
+    private fun clearDate() {
+        momentDate.apply {
+            visibility = View.VISIBLE
+            text = ""
         }
     }
 
