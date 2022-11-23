@@ -111,6 +111,18 @@ object DateHelper {
         return "woche $fromDate – $toDate"
     }
 
+    /**
+     * function to get the formatted date for the wochentaz
+     * @param date - Date of the issue
+     * @param validityDate - Validity Date of the issue
+     * @return eg "wochentaz, 29.1. – 5.2.2023"
+     */
+    fun dateToWeekTazNotation(date: Date, validityDate: Date): String {
+        val fromDate = SimpleDateFormat("d.M.", Locale.GERMANY).format(date)
+        val toDate = SimpleDateFormat("d.M.yyyy", Locale.GERMANY).format(validityDate)
+        return "wochentaz, $fromDate – $toDate"
+    }
+
 
     /**
      * function to get the formatted date for the wochentaz

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/fragment_padding_horizontal">
+
+    <ImageView
+        android:id="@+id/fragment_bookmarks_moment_image"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/fragment_bookmarks_issue_header_moment_height"
+        android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_moment_margin_top"
+        android:adjustViewBounds="true"
+        android:elevation="@dimen/fragment_bookmarks_issue_header_moment_elevation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/fragment_bookmarks_issue_header_date"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/fragment_bookmarks_issue_header_date_margin_start"
+        android:fontFamily="@font/appFontBold"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/fragment_bookmarks_issue_header_date_text_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/fragment_bookmarks_moment_image"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="donnerstag, 24.2.22" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/fragment_bookmarks_issue_header_dotted_line_height"
+        android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_dotted_line_margin_top"
+        android:src="@drawable/dotted_line_bookmarks"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bookmarks_moment_image"
+        tools:ignore="ContentDescription" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -11,5 +11,9 @@ data class ArticleDto (
     val audioFile: FileEntryDto? = null,
     val pageNameList: List<String>? = null,
     val imageList: List<ImageDto>? = null,
-    val authorList: List<AuthorDto>? = null
+    val authorList: List<AuthorDto>? = null,
+    val mediaSyncId: Int? = null,
+    val chars: Int? = null,
+    val words: Int? = null,
+    val readMinutes: Int? = null,
 )

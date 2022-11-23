@@ -8,36 +8,46 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+private const val TYPE_HEADER = 0
+private const val TYPE_ITEM = 1
 
 
 class BookmarkListAdapter(
     private val bookmarksFragment: BookmarkListFragment,
     private val applicationScope: CoroutineScope
 ) :
-    RecyclerView.Adapter<BookmarkListViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var bookmarks: MutableList<Article> = emptyList<Article>().toMutableList()
+    val articleRepository =  ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext)
+    private var groupedBookmarks: MutableList<BookmarkListItem> = mutableListOf()
 
-    fun setData(bookmarks: MutableList<Article>) {
-        this.bookmarks = bookmarks
+    fun setData(bookmarks: List<BookmarkListItem>) {
+        groupedBookmarks = bookmarks.toMutableList()
         notifyDataSetChanged()
     }
 
-    private fun restoreBookmark(article: Article, position: Int) {
-        bookmarks.add(position, article)
+    override fun getItemViewType(position: Int): Int {
+        return when (groupedBookmarks[position]) {
+            is BookmarkListItem.Header -> TYPE_HEADER
+            else -> TYPE_ITEM
+        }
+    }
+
+    private fun restoreBookmark(item: BookmarkListItem.Item, position: Int) {
+        groupedBookmarks.add(position, BookmarkListItem.Item(item.bookmark))
         applicationScope.launch {
-            ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).bookmarkArticle(article)
+            articleRepository.bookmarkArticle(item.bookmark)
         }
         notifyItemInserted(position)
     }
 
-    private fun removeBookmark(article: Article, position: Int) {
+    private fun removeBookmark(item: BookmarkListItem.Item, position: Int) {
         applicationScope.launch {
-            ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext).debookmarkArticle(article)
+            articleRepository.debookmarkArticle(item.bookmark)
         }
         notifyItemRemoved(position)
     }
@@ -45,13 +55,13 @@ class BookmarkListAdapter(
     fun removeBookmarkWithUndo(
         viewHolder: RecyclerView.ViewHolder,
         position: Int,
-        bookmarkList: MutableList<Article>?
+        bookmarkList: List<BookmarkListItem>?
     ) {
-        // TODO: This is black magic - bookmarks is also written by a livedata observer in fragment, consistency unlear and lead to issues already - we need to clean this up and introduce a single point of truth
+        // TODO: This is black magic - bookmarks is also written by a livedata observer in fragment, consistency unclear and lead to issues already - we need to clean this up and introduce a single point of truth
         if (bookmarkList != null) {
-            bookmarks = bookmarkList
+            groupedBookmarks = bookmarkList.toMutableList()
         }
-        val article = bookmarks[position]
+        val article = groupedBookmarks[position] as BookmarkListItem.Item
         removeBookmark(article, position)
         // showing snack bar with undo option
         Snackbar.make(
@@ -76,17 +86,32 @@ class BookmarkListAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): BookmarkListViewHolder {
-        return BookmarkListViewHolder(bookmarksFragment, parent)
+    ): RecyclerView.ViewHolder {
+
+        return when (viewType) {
+            TYPE_HEADER -> IssueOfBookmarkViewHolder(parent)
+            TYPE_ITEM -> BookmarkListViewHolder(bookmarksFragment, parent)
+            else -> error("Unknown viewType: $viewType")
+        }
     }
 
-    override fun onBindViewHolder(holder: BookmarkListViewHolder, position: Int) {
-        val article = bookmarks[position]
-        holder.setBookmarks(bookmarks)
-        holder.bind(article)
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is IssueOfBookmarkViewHolder -> {
+                // do some Header things
+                val issueMoment = groupedBookmarks[position] as BookmarkListItem.Header
+
+                holder.bind(issueMoment)
+            }
+            is BookmarkListViewHolder -> {
+                val article = groupedBookmarks[position] as BookmarkListItem.Item
+                holder.setBookmarks(groupedBookmarks)
+                holder.bind(article)
+            }
+        }
     }
 
-    override fun getItemCount() = bookmarks.size
+    override fun getItemCount() = groupedBookmarks.size
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -106,8 +131,10 @@ class BookmarkListAdapter(
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-            val position = viewHolder.bindingAdapterPosition
-            removeBookmarkWithUndo(viewHolder, position, null)
+            if (viewHolder is BookmarkListViewHolder) {
+                val position = viewHolder.bindingAdapterPosition
+                removeBookmarkWithUndo(viewHolder, position, null)
+            }
         }
 
         override fun onChildDrawOver(
@@ -119,23 +146,27 @@ class BookmarkListAdapter(
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            val foregroundView =
-                viewHolder?.itemView?.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
-            getDefaultUIUtil().onDrawOver(
-                c,
-                recyclerView,
-                foregroundView,
-                dX,
-                dY,
-                actionState,
-                isCurrentlyActive
-            )
+            if (viewHolder is BookmarkListViewHolder) {
+                val foregroundView =
+                    viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
+                getDefaultUIUtil().onDrawOver(
+                    c,
+                    recyclerView,
+                    foregroundView,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
         }
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-            val foregroundView =
-                viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
-            getDefaultUIUtil().clearView(foregroundView)
+            if (viewHolder is BookmarkListViewHolder) {
+                val foregroundView =
+                    viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
+                getDefaultUIUtil().clearView(foregroundView)
+            }
         }
 
         override fun onChildDraw(
@@ -147,18 +178,20 @@ class BookmarkListAdapter(
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            val foregroundView =
-                viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
+            if (viewHolder is BookmarkListViewHolder) {
+                val foregroundView =
+                    viewHolder.itemView.findViewById<ConstraintLayout>(R.id.fragment_bookmark_foreground)
 
-            getDefaultUIUtil().onDraw(
-                c,
-                recyclerView,
-                foregroundView,
-                dX,
-                dY,
-                actionState,
-                isCurrentlyActive
-            )
+                getDefaultUIUtil().onDraw(
+                    c,
+                    recyclerView,
+                    foregroundView,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+            }
         }
 
     })

@@ -20,6 +20,10 @@ data class Article(
     val pageNameList: List<String>,
     val imageList: List<Image>,
     val authorList: List<Author>,
+    val mediaSyncId: Int?,
+    val chars: Int? ,
+    val words: Int?,
+    val readMinutes: Int?,
     override val articleType: ArticleType,
     val bookmarkedTime: Date?,
     val position: Int,
@@ -45,6 +49,10 @@ data class Article(
         articleDto.pageNameList ?: emptyList(),
         articleDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
         articleDto.authorList?.map { Author(it) } ?: emptyList(),
+        articleDto.mediaSyncId,
+        articleDto.chars,
+        articleDto.words,
+        articleDto.readMinutes,
         articleType,
         bookmarkedTime = null,
         0,
@@ -126,6 +134,18 @@ data class Article(
         )
     }
 
+    /**
+     * If articles file name contains "public" we assume the corresponding issue has [IssueStatus.public]
+     * otherwise we assume an issue with status [IssueStatus.regular]
+     */
+    fun guessIssueStatusByArticleFileName(): IssueStatus {
+        return if (key.endsWith("public.html")) {
+            IssueStatus.public
+        }
+        else {
+            IssueStatus.regular
+        }
+    }
 }
 
 enum class ArticleType {

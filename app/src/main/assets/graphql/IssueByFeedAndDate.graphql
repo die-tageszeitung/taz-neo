@@ -82,6 +82,10 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                             size
                         }
                     }
+                    mediaSyncId
+                    chars
+                    words
+                    readMinutes
                 }
                 isWeekend
                 sectionList {
@@ -144,6 +148,10 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                                 size
                             }
                         }
+                        mediaSyncId
+                        chars
+                        words
+                        readMinutes
                     }
                     imageList {
                         name

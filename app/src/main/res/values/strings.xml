@@ -84,6 +84,7 @@
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
     <string name="fragment_bookmarks_undo">Rückgängig</string>
+    <string name="read_minutes">%d min</string>
 
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>

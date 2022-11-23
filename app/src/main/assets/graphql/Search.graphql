@@ -84,6 +84,10 @@ query SearchQuery(
                         sharable
                     }
                 }
+                mediaSyncId
+                chars
+                words
+                readMinutes
             }
             snippet
             sectionTitle
