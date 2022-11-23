@@ -66,4 +66,5 @@
     <color name="settings_plus_minus_icon_circle_color">@color/superLightGrey</color>
 
     <color name="material_switch_color">@color/green</color>
+    <color name="read_minutes">@color/lightGrey</color>
 </resources>
