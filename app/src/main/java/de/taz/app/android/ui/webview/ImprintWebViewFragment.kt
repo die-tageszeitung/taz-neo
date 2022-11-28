@@ -8,7 +8,7 @@ import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.databinding.FragmentWebviewImprintBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -105,7 +105,7 @@ class ImprintWebViewFragment : WebViewFragment<
             issueStub?.apply {
                 if (isWeekend) {
                     val weekendTypefaceFileEntry =
-                        fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                        fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
                     val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
                     weekendTypefaceFile?.let {
                         FontHelper.getInstance(requireContext().applicationContext)
