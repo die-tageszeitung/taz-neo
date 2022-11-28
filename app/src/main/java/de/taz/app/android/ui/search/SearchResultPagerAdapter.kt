@@ -76,16 +76,16 @@ class SearchResultPagerAdapter(
             it.visibility = View.GONE
         }
 
-        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_search_hit)?.apply {
+        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_custom)?.apply {
             visibility = View.VISIBLE
-            findViewById<TextView>(R.id.search_hit_index).text = fragment.requireActivity().getString(
-                R.string.fragment_header_search_result_index,
+            findViewById<TextView>(R.id.index_indicator).text = fragment.requireActivity().getString(
+                R.string.fragment_header_custom_index_indicator,
                 position + 1,
                 total
             )
             findViewById<TextView>(R.id.section_title).text = searchResultItem.sectionTitle ?: ""
             findViewById<TextView>(R.id.published_date).text =  fragment.requireActivity().getString(
-                R.string.fragment_header_search_result_published_date,
+                R.string.fragment_header_custom_published_date,
                 DateHelper.stringToMediumLocalizedString(searchResultItem.date)
             )
         }

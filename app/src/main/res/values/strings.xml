@@ -53,8 +53,8 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_default_week_header_title">wochentaz</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
-    <string name="fragment_header_search_result_index">%1$d/%2$d</string>
-    <string name="fragment_header_search_result_published_date">Ausgabe %s</string>
+    <string name="fragment_header_custom_index_indicator">%1$d von %2$d</string>
+    <string name="fragment_header_custom_published_date">Ausgabe %s</string>
 
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
     <string name="trial_subscription_name">6 Wochen Testabo</string>
