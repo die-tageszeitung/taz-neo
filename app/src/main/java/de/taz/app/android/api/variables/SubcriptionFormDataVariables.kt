@@ -1,11 +1,7 @@
 package de.taz.app.android.api.variables
 
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.api.dto.SubscriptionFormDataType
 import kotlinx.serialization.Serializable
-
 
 @Serializable
 data class SubscriptionFormDataVariables(

@@ -1,6 +1,7 @@
 package de.taz.app.android.api
 
 import android.system.ErrnoException
+import de.taz.app.android.api.mappers.MappingException
 import de.taz.app.android.util.reportAndRethrowExceptions
 import io.ktor.client.network.sockets.*
 import io.ktor.client.plugins.*
@@ -78,6 +79,10 @@ suspend fun <T> transformToConnectivityException(block: suspend () -> T): T {
         throw e
     } catch (e: ConnectivityException) {
         // If it's already a ConnectivityException pass it along
+        throw e
+    } catch (e: MappingException) {
+        // Mapping exceptions should not result in a retry but should close the app and show
+        // an update hint. See [de.taz.app.android.util.UncaughtExceptionHandler] for its handling.
         throw e
     } catch (e: Exception) {
         if (networkExceptions.contains(e::class)) {

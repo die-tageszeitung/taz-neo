@@ -1,6 +1,6 @@
 package de.taz.app.android.api
 
-import de.taz.app.android.api.dto.DeviceFormat
+import de.taz.app.android.api.variables.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
 import de.taz.app.android.util.Json
 import kotlinx.serialization.decodeFromString

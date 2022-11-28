@@ -1,9 +1,5 @@
 package de.taz.app.android.api.models
 
-import kotlinx.serialization.Serializable
-
-
-@Serializable
 enum class SubscriptionStatus {
     alreadyLinked,
     elapsed,
@@ -29,5 +25,6 @@ enum class SubscriptionStatus {
     tooManyPollTries,
     valid,
     waitForMail,
-    waitForProc
+    waitForProc,
+    UNKNOWN_RESPONSE
 }

@@ -8,6 +8,9 @@ import de.taz.app.android.TAZ_AUTH_HEADER
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
+import de.taz.app.android.api.mappers.AuthInfoMapper
+import de.taz.app.android.api.mappers.AuthStatusMapper
+import de.taz.app.android.api.models.AuthInfo
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.data.HTTP_CLIENT_ENGINE
 import de.taz.app.android.singletons.AuthHelper
@@ -103,10 +106,11 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
 
         // if response carries authinfo we save it
         wrapper.data?.product?.authInfo?.let {
+            val authInfo = AuthInfoMapper.from(it)
             // only update if it changes
-            if (authHelper.status.get() != it.status) {
-                authHelper.status.set(it.status)
-                authHelper.elapsedDateMessage.set(it.message ?: "")
+            if (authHelper.status.get() != authInfo.status) {
+                authHelper.status.set(authInfo.status)
+                authHelper.elapsedDateMessage.set(authInfo.message ?: "")
             }
         }
         return wrapper
@@ -116,8 +120,8 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
         Exception("GraphQL server returned unexpected response", cause)
 
     class GraphQlImplementationException(wrapperDto: WrapperDto?) :
-        Exception("An unrecoverable GraphQL exception occured: $wrapperDto")
+        Exception("An unrecoverable GraphQL exception occurred: $wrapperDto")
 
     class GraphQlRecoverableServerException(wrapperDto: WrapperDto?) :
-        Exception("A probably recoverable error occured: $wrapperDto")
+        Exception("A probably recoverable error occurred: $wrapperDto")
 }

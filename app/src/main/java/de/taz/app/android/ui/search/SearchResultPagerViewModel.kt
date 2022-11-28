@@ -3,10 +3,10 @@ package de.taz.app.android.ui.search
 import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.SearchFilter
-import de.taz.app.android.api.dto.SearchHitDto
-import de.taz.app.android.api.dto.Sorting
+import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.SearchHit
+import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.persistence.repository.ArticleRepository
 import kotlinx.coroutines.Dispatchers
 
@@ -30,7 +30,7 @@ class SearchResultPagerViewModel(
     val searchText: MutableLiveData<String> = MutableLiveData(null)
     val searchTitle: MutableLiveData<String> = MutableLiveData(null)
     val searchAuthor: MutableLiveData<String> = MutableLiveData(null)
-    val searchResultsLiveData = MutableLiveData<List<SearchHitDto>>(emptyList())
+    val searchResultsLiveData = MutableLiveData<List<SearchHit>>(emptyList())
     val currentlyLoadingMore: MutableLiveData<Boolean> = MutableLiveData(false)
     private val articleRepository: ArticleRepository = ArticleRepository.getInstance(application)
     private val articleFileNameLiveData: MutableLiveData<String?> = MutableLiveData(null)

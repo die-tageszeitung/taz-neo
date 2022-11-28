@@ -6,7 +6,6 @@ import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
@@ -197,7 +196,11 @@ class IssueRepository private constructor(applicationContext: Context) :
     }
 
 
-    suspend fun getIssueByFeedDateAndStatus(feedName: String, date: String, status: IssueStatus): Issue? {
+    suspend fun getIssueByFeedDateAndStatus(
+        feedName: String,
+        date: String,
+        status: IssueStatus
+    ): Issue? {
         val issue = getIssueStubByFeedDateAndStatus(feedName, date, status)?.let {
             issueStubToIssue(it)
         }
@@ -249,7 +252,11 @@ class IssueRepository private constructor(applicationContext: Context) :
         return getImprint(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    suspend fun getImprint(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Article? {
+    suspend fun getImprint(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): Article? {
         val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
         )
@@ -385,15 +392,15 @@ class IssueRepository private constructor(applicationContext: Context) :
             Sentry.captureMessage(hint)
             // use dummy moment
             Moment(
-                IssueKey(
-                    issueStub.feedName,
-                    issueStub.date,
-                    issueStub.status
-                ),
+                issueStub.feedName,
+                issueStub.date,
+                issueStub.status,
                 issueStub.baseUrl,
-                MomentDto()
+                emptyList(),
+                emptyList(),
+                emptyList(),
+                null
             )
-
         }
         val pageList =
             appDatabase.issuePageJoinDao()
@@ -472,7 +479,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getAllPublicAndDemoIssueStubs()
     }
 
-    suspend fun getByFeedAndDateLiveData(feedName: String, date: String): LiveData<List<IssueStub>> {
+    suspend fun getByFeedAndDateLiveData(
+        feedName: String,
+        date: String
+    ): LiveData<List<IssueStub>> {
         return appDatabase.issueDao().getByFeedAndDateLiveData(feedName, date)
     }
 

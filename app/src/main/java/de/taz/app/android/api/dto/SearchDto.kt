@@ -1,11 +1,11 @@
 package de.taz.app.android.api.dto
 
+import de.taz.app.android.api.models.Sorting
 import kotlinx.serialization.Serializable
-import de.taz.app.android.api.models.AuthInfo
 
 @Serializable
 data class SearchDto(
-    val authInfo: AuthInfo,
+    val authInfo: AuthInfoDto,
     val sessionId: String?,
     val searchHitList: List<SearchHitDto>?,
     val total: Int,

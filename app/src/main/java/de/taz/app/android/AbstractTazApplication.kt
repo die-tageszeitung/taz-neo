@@ -9,6 +9,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.UncaughtExceptionHandler
 import io.sentry.Sentry
 import io.sentry.protocol.User
 import kotlinx.coroutines.*
@@ -28,6 +29,10 @@ abstract class AbstractTazApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Install the global exception handler
+        UncaughtExceptionHandler(applicationContext)
+
         authHelper = AuthHelper.getInstance(this)
         applicationScope.launch {
             generateInstallationId()

@@ -1,14 +1,8 @@
 package de.taz.app.android.api.variables
 
-import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.DeviceType
-import de.taz.app.android.api.dto.SearchFilter
-import de.taz.app.android.api.dto.Sorting
-import kotlinx.serialization.Required
-import kotlinx.serialization.encodeToString
-import de.taz.app.android.util.Json
+import de.taz.app.android.api.models.Sorting
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchVariables(

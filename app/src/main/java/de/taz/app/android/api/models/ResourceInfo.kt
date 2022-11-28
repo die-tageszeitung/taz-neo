@@ -1,11 +1,9 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.dto.ProductDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 const val RESOURCE_FOLDER = "resources"
@@ -28,13 +26,7 @@ data class ResourceInfo(
     val resourceList: List<FileEntry>,
     override val dateDownload: Date?
 ) : DownloadableCollection {
-    constructor(productDto: ProductDto) : this(
-        productDto.resourceVersion!!,
-        productDto.resourceBaseUrl!!,
-        productDto.resourceZip!!,
-        productDto.resourceList!!.map { FileEntry(it, StorageService.determineFilePath(it, null)) },
-        null
-    )
+
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return ResourceInfoRepository.getInstance(applicationContext).getDownloadStatus(this)

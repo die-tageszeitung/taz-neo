@@ -1,7 +1,7 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
-import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable

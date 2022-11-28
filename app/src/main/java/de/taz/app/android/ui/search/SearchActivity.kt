@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.search
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -11,14 +10,16 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import de.taz.app.android.*
+import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_SEARCH_HELP
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.SearchFilter
-import de.taz.app.android.api.dto.SearchHitDto
-import de.taz.app.android.api.dto.Sorting
+import de.taz.app.android.api.variables.SearchFilter
+import de.taz.app.android.api.models.SearchHit
+import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
@@ -36,7 +37,7 @@ private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
 
-    private val searchResultItemsList = mutableListOf<SearchHitDto>()
+    private val searchResultItemsList = mutableListOf<SearchHit>()
     private var lastVisiblePosition = 0
 
     private lateinit var apiService: ApiService

@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.dto.CustomerType
-import de.taz.app.android.api.dto.SubscriptionFormDataType
+import de.taz.app.android.api.models.CustomerType
+import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper

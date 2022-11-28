@@ -1,13 +1,9 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.dto.SectionDto
-import de.taz.app.android.api.dto.SectionType
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 data class Section(
@@ -21,20 +17,6 @@ data class Section(
     override val extendedTitle: String?,
     override val dateDownload: Date?
 ) : SectionOperations, WebViewDisplayable {
-
-    constructor(issueKey: IssueKey, sectionDto: SectionDto) : this(
-        sectionHtml = FileEntry(sectionDto.sectionHtml, StorageService.determineFilePath(sectionDto.sectionHtml, issueKey)),
-        issueDate = issueKey.date,
-        title = sectionDto.title,
-        type = sectionDto.type,
-        navButton = Image(sectionDto.navButton, StorageService.determineFilePath(sectionDto.navButton, issueKey)),
-        articleList = sectionDto.articleList?.map { Article(issueKey, it) }
-            ?: listOf(),
-        imageList = sectionDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) }
-            ?: listOf(),
-        extendedTitle = sectionDto.extendedTitle,
-        dateDownload = null
-    )
 
     override val key: String
         get() = sectionHtml.name
