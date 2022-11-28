@@ -659,7 +659,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showNotificationsMustBeAllowedDialog()
             showNotificationsEnabledToggle(false)
         } else {
-            viewModel.setNotificationsEnabled(notificationsEnabled)
+            lifecycleScope.launch {
+                val result = viewModel.setNotificationsEnabled(notificationsEnabled)
+                if (result != notificationsEnabled) {
+                    showNotificationsChangeErrorToast()
+                    showNotificationsEnabledToggle(result)
+                }
+            }
         }
     }
 
@@ -690,6 +696,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showNotificationsChangeErrorToast() {
+        toastHelper.showToast(R.string.settings_dialog_notification_change_error_toast, long = true)
+    }
 
     private fun openAndroidNotificationSettings() {
         activity?.applicationContext?.let { context ->

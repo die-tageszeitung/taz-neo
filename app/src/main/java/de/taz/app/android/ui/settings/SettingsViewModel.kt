@@ -5,17 +5,21 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.*
+import de.taz.app.android.MAX_TEXT_SIZE
+import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+    private val log by Log
 
     var fontSizeLiveData: LiveData<String>
     var textJustificationLiveData: LiveData<Boolean>
@@ -55,7 +59,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
         downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
         downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asLiveData()
-        downloadAdditionallyDialogDoNotShowAgain = downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
+        downloadAdditionallyDialogDoNotShowAgain =
+            downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
     }
 
@@ -91,11 +96,28 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun setNotificationsEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            downloadDataStore.notificationsEnabled.set(enabled)
-            apiService.setNotificationsEnabled(enabled)
+
+    /**
+     * Returns the value of the final notification enabled state.
+     * If the call was successful the return value will be equal to the passed [enabled] parameter.
+     * Changing the notifications may fail if there is no internet as we try to inform the API server.
+     */
+    suspend fun setNotificationsEnabled(enabled: Boolean): Boolean {
+        val current = downloadDataStore.notificationsEnabled.get()
+        if (current != enabled) {
+            try {
+                apiService.setNotificationsEnabled(enabled)
+                downloadDataStore.notificationsEnabled.set(enabled)
+                return enabled
+            } catch (exception: ConnectivityException) {
+                log.error(
+                    "Could not set notification status, as the backend is not available.",
+                    exception
+                )
+                return current
+            }
         }
+        return current
     }
 
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
