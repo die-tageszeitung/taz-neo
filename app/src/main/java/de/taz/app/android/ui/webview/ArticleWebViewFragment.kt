@@ -11,17 +11,12 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
-import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
@@ -45,12 +40,11 @@ class ArticleWebViewFragment : WebViewFragment<
 
     private lateinit var articleFileName: String
     private lateinit var articleRepository: ArticleRepository
-    private lateinit var feedRepository: FeedRepository
     private lateinit var issueRepository: IssueRepository
     private lateinit var fontHelper: FontHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
-    private var onBookmarkViewerActivity = false
+    private var isBookmarkViewerActivity = false
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -66,7 +60,6 @@ class ArticleWebViewFragment : WebViewFragment<
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        feedRepository = FeedRepository.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         fontHelper = FontHelper.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
@@ -84,31 +77,35 @@ class ArticleWebViewFragment : WebViewFragment<
                 )
             }
         }
-        onBookmarkViewerActivity = activity is BookmarkViewerActivity
+        isBookmarkViewerActivity = activity is BookmarkViewerActivity
     }
 
     override fun setHeader(displayable: Article) {
         lifecycleScope.launch {
-            if (onBookmarkViewerActivity) {
-                setBookmarkHeader(displayable)
+            val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
+            if (isBookmarkViewerActivity) {
+                setBookmarkHeader(displayable, issueStub)
             } else {
-                val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
-                val count = ArticleRepository.getInstance(
-                    requireContext().applicationContext
-                ).getSectionArticleStubListByArticleName(
-                    displayable.key
-                ).size
+                setRegularHeader(displayable, issueStub)
+            }
+        }
+    }
 
-                // only the imprint should have no section
-                val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
-                setHeaderForSection(index, count, sectionStub)
+    private suspend fun setRegularHeader(displayable: Article, issueStub: IssueStub?) {
+        val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
+        val count = ArticleRepository.getInstance(
+            requireContext().applicationContext
+        ).getSectionArticleStubListByArticleName(
+            displayable.key
+        ).size
 
-                val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
-                issueStub?.apply {
-                    if (isWeekend) {
-                        applyWeekendTypefaces()
-                    }
-                }
+        // only the imprint should have no section
+        val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
+        setHeaderForSection(index, count, sectionStub)
+
+        issueStub?.apply {
+            if (isWeekend) {
+                applyWeekendTypefaces()
             }
         }
     }
@@ -215,7 +212,8 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
-    private suspend fun setBookmarkHeader(article: Article) {
+    private suspend fun setBookmarkHeader(article: Article, issueStub: IssueStub?) {
+        // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
         viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header)
             ?.let {
                 it.visibility = View.GONE
@@ -234,21 +232,17 @@ class ArticleWebViewFragment : WebViewFragment<
                 findViewById<TextView>(R.id.section_title).text =
                     article.getSectionStub(requireContext().applicationContext)?.title
                 findViewById<TextView>(R.id.published_date).text = activity?.getString(
-                    R.string.fragment_header_custom_published_date, determineDateString(article)
+                    R.string.fragment_header_custom_published_date, determineDateString(article, issueStub)
                 )
             }
     }
 
-    private suspend fun determineDateString(article: Article): String {
-        val feed = feedRepository.get(DISPLAYED_FEED)
-        val bookmarkDate = DateHelper.stringToDate(article.issueDate)
+    private fun determineDateString(article: Article, issueStub: IssueStub?): String {
+        val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
+        val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
 
-        val publicationDate = feed?.publicationDates?.firstOrNull { publicationDate ->
-            publicationDate.date == bookmarkDate
-        }
-
-        val formattedDate = if (publicationDate?.validity != null) {
-            DateHelper.dateToMediumRangeString(publicationDate.date, publicationDate.validity)
+        val formattedDate = if (fromDate != null && toDate != null) {
+            DateHelper.dateToMediumRangeString(fromDate, toDate)
         } else {
             DateHelper.stringToMediumLocalizedString(article.issueDate)
         }
