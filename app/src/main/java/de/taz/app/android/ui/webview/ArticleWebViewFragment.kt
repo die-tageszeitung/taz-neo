@@ -3,7 +3,6 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -11,7 +10,8 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
+import de.taz.app.android.WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
@@ -93,19 +93,7 @@ class ArticleWebViewFragment : WebViewFragment<
             val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
             issueStub?.apply {
                 if (isWeekend) {
-                    val weekendTypefaceFileEntry =
-                        fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                    val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
-                    weekendTypefaceFile?.let {
-                        fontHelper
-                            .getTypeFace(it)?.let { typeface ->
-                                withContext(Dispatchers.Main) {
-                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                    view?.findViewById<TextView>(R.id.article_num)?.typeface =
-                                        typeface
-                                }
-                            }
-                    }
+                    applyWeekendTypefaces()
                 }
             }
         }
@@ -184,6 +172,31 @@ class ArticleWebViewFragment : WebViewFragment<
                 val innerView = view.getChildAt(i)
                 hideKeyboardOnAllViewsExceptEditText(innerView)
             }
+        }
+    }
+
+    private suspend fun applyWeekendTypefaces() {
+        val weekendTypefaceFileEntry =
+            fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
+        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+        weekendTypefaceFile?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                    }
+                }
+        }
+        val weekendTypefaceFileEntryRegular =
+            fileEntryRepository.get(WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME)
+        val weekendTypefaceFileRegular = weekendTypefaceFileEntryRegular?.let(storageService::getFile)
+        weekendTypefaceFileRegular?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                    }
+                }
         }
     }
 }
