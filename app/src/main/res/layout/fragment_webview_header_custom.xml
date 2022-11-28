@@ -21,7 +21,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/search_hit_index"
+                android:id="@+id/index_indicator"
                 style="@style/TextAppearance.Header.Article.Num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
