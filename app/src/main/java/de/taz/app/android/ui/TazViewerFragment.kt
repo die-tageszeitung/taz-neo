@@ -78,6 +78,8 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
         if (activity is BookmarkViewerActivity) {
             viewBinding.drawerLogo.visibility = View.GONE
         } else {
