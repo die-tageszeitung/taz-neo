@@ -108,7 +108,9 @@ class SectionWebViewFragment : WebViewFragment<
                 val headerView =
                     LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
                 val sectionTextView = headerView.findViewById<TextView>(R.id.section)
-                if (issueStub?.isWeekend == true) {
+
+                // Change typeface (to Knile) if it is weekend issue but not on title section:
+                if (issueStub?.isWeekend == true && displayable.getHeaderTitle() != getString(R.string.fragment_default_week_header_title)) {
                     val weekendTypeface = withContext(Dispatchers.IO) {
                         val weekendTypefaceFileEntry =
                             fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
