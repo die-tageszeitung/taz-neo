@@ -1,4 +1,4 @@
-package de.taz.app.android.api.dto
+package de.taz.app.android.api.variables
 
 import kotlinx.serialization.Serializable
 

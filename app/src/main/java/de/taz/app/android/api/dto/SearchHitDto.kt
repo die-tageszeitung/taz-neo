@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SearchHitDto(
-    val article: ArticleDto?,
+    val article: ArticleDto,
     val baseUrl: String,
     val snippet: String?,
     val title: String,

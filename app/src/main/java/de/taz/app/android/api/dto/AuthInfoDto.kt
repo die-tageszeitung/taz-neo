@@ -1,5 +1,9 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.AuthInfo
+import kotlinx.serialization.Serializable
 
-typealias AuthInfoDto = AuthInfo
+@Serializable
+data class AuthInfoDto (
+    val status: AuthStatusDto,
+    val message: String? = null
+)

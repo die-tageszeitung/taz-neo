@@ -31,6 +31,7 @@
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
+    <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
 

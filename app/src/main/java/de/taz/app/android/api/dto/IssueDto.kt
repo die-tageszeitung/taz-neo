@@ -1,8 +1,7 @@
 package de.taz.app.android.api.dto
 
-import kotlinx.serialization.Serializable
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.*
+import kotlinx.serialization.Serializable
 
 @Serializable
 @Mockable
@@ -12,7 +11,7 @@ class IssueDto(
     val moment: MomentDto,
     val key: String? = null,
     val baseUrl: String,
-    val status: IssueStatus,
+    val status: IssueStatusDto,
     val minResourceVersion: Int,
     val imprint: ArticleDto? = null,
     val isWeekend: Boolean = false,

@@ -1,12 +1,9 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.dto.ArticleDto
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 data class Article(
@@ -34,31 +31,6 @@ data class Article(
     override val path: String
         get() = articleHtml.path
 
-    constructor(
-        issueKey: IssueKey,
-        articleDto: ArticleDto,
-        articleType: ArticleType = ArticleType.STANDARD
-    ) : this(
-        FileEntry(articleDto.articleHtml, StorageService.determineFilePath(articleDto.articleHtml, issueKey)),
-        issueKey.feedName,
-        issueKey.date,
-        articleDto.title,
-        articleDto.teaser,
-        articleDto.onlineLink,
-        articleDto.audioFile?.let { FileEntry(articleDto.audioFile, StorageService.determineFilePath(it, issueKey)) },
-        articleDto.pageNameList ?: emptyList(),
-        articleDto.imageList?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
-        articleDto.authorList?.map { Author(it) } ?: emptyList(),
-        articleDto.mediaSyncId,
-        articleDto.chars,
-        articleDto.words,
-        articleDto.readMinutes,
-        articleType,
-        bookmarkedTime = null,
-        0,
-        0,
-        null
-    )
     val bookmarked = bookmarkedTime != null
 
     override val key: String

@@ -16,7 +16,7 @@ import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -89,8 +89,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             reloadAfterCssChange()
         }
 
-        viewModel.isBookmarkedLiveData.observeDistinct(
-            this@SearchResultPagerFragment,
+        viewModel.isBookmarkedLiveData.observe(
+            viewLifecycleOwner,
             isBookmarkedObserver
         )
     }
@@ -123,8 +123,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            viewModel.articleFileName = getCurrentSearchHit()?.article?.articleHtml?.name
+            val currentSearchHit = getCurrentSearchHit()
+            viewModel.articleFileName = currentSearchHit?.articleFileName
             super.onPageSelected(position)
+            log.debug("now on page: ${viewModel.articleFileName}!!! livedata: ${viewModel.isBookmarkedLiveData.value}")
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
@@ -132,8 +134,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             // OR when an onLink link is provided
             viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
                 determineShareIconVisibility(
-                    getCurrentSearchHit()?.article?.onlineLink,
-                    getCurrentSearchHit()?.article?.articleHtml?.name.toString()
+                    currentSearchHit?.onlineLink,
+                    currentSearchHit?.articleFileName
                 )
         }
     }
@@ -164,9 +166,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentSearchHit()?.let { hit ->
-                    hit.article?.let { article ->
-                        toggleBookmark(article.articleHtml.name, DateHelper.stringToDate(hit.date))
-                    }
+                    toggleBookmark(hit.articleFileName, DateHelper.stringToDate(hit.date))
                 }
             }
 
@@ -227,9 +227,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     fun share() {
         lifecycleScope.launch {
             getCurrentSearchHit()?.let { hit ->
-                val url: String? = hit.article?.onlineLink
-                url?.let {
-                    shareArticle(url, hit.title)
+                hit.onlineLink?.let {
+                    shareArticle(it, hit.title)
                 } ?: showSharingNotPossibleDialog()
             }
         }
@@ -253,7 +252,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         return webViewPager.currentItem
     }
 
-    private fun getCurrentSearchHit(): SearchHitDto? {
+    private fun getCurrentSearchHit(): SearchHit? {
         return getCurrentPagerPosition().let {
             viewModel.searchResultsLiveData.value?.get(it)
         }

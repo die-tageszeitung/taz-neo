@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Environment
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.FileEntryDto
-import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
@@ -44,8 +44,8 @@ class ExternalStorageNotAvailableException(message: String) : Exception(message)
 class StorageService private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<StorageService, Context>(::StorageService) {
-        fun determineFilePath(storable: Storable, issueKey: IssueKey?): String {
-            val folder = when (storable.storageType) {
+        fun determineFilePath(storageType: StorageType, name: String, issueKey: IssueKey?): String {
+            val folder = when (storageType) {
                 StorageType.global -> GLOBAL_FOLDER
                 StorageType.resource -> RESOURCE_FOLDER
                 StorageType.issue -> {
@@ -55,7 +55,11 @@ class StorageService private constructor(private val applicationContext: Context
                     "${issueKey.feedName}/${issueKey.date}/${issueKey.status}"
                 }
             }
-            return "${folder}/${storable.name}"
+            return "${folder}/${name}"
+        }
+
+        fun determineFilePath(storable: Storable, issueKey: IssueKey?): String {
+            return determineFilePath(storable.storageType, storable.name, issueKey)
         }
     }
 
@@ -132,16 +136,6 @@ class StorageService private constructor(private val applicationContext: Context
         return getAbsolutePath(fileEntry)?.let { "file://$it" }
     }
 
-    suspend fun createOrUpdateFileEntry(
-        fileEntryDto: FileEntryDto,
-        issueKey: IssueKey?
-    ): FileEntry {
-        val existing = fileEntryRepository.get(fileEntryDto.name)
-        val fileEntry = existing?.copy(path = determineFilePath(fileEntryDto, issueKey))
-            ?: FileEntry(fileEntryDto, determineFilePath(fileEntryDto, issueKey))
-        fileEntryRepository.saveOrReplace(fileEntry)
-        return fileEntry
-    }
 
     fun getFile(fileEntry: FileEntryOperations): File? {
         return getAbsolutePath(fileEntry)?.let(::File)

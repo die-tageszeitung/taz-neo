@@ -1,12 +1,8 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import kotlinx.serialization.Serializable
-import de.taz.app.android.api.dto.PageDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.PageRepository
-import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 
@@ -19,16 +15,6 @@ data class Page(
     override val dateDownload: Date?,
     val baseUrl: String
 ) : DownloadableCollection {
-
-    constructor(issueKey: IssueKey, pageDto: PageDto, baseUrl: String) : this(
-        FileEntry(pageDto.pagePdf, StorageService.determineFilePath(pageDto.pagePdf, issueKey)),
-        pageDto.title,
-        pageDto.pagina,
-        pageDto.type,
-        pageDto.frameList,
-        null,
-        baseUrl
-    )
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {
         return PageRepository.getInstance(applicationContext).getDownloadDate(this)
@@ -51,7 +37,6 @@ data class Page(
     }
 }
 
-@Serializable
 enum class PageType {
     left,
     right,

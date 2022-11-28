@@ -1,5 +1,12 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.Frame
+import kotlinx.serialization.Serializable
 
-typealias FrameDto = Frame
+@Serializable
+data class FrameDto (
+    val x1: Float,
+    val y1: Float,
+    val x2: Float,
+    val y2: Float,
+    val link: String? = null
+)

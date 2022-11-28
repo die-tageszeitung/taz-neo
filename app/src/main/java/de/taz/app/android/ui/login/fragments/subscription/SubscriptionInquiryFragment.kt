@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.dto.SubscriptionFormDataType
+import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
 import de.taz.app.android.singletons.ToastHelper

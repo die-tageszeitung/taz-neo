@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.api.dto.FileEntryDto
-import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -32,7 +30,8 @@ class FileEntryTest {
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
         db = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java).build()
+            context, AppDatabase::class.java
+        ).build()
         fileEntryRepository = FileEntryRepository.getInstance(context)
         fileEntryRepository.appDatabase = db
         storageService = StorageService.getInstance(context)
@@ -47,14 +46,18 @@ class FileEntryTest {
     @Test
     @Throws(Exception::class)
     fun deleteFile() = runBlocking {
-        val createdFileEntry = storageService.createOrUpdateFileEntry(fileEntryDtoTest, null).let {
-            fileEntryRepository.saveOrReplace(it.copy(storageLocation = StorageLocation.INTERNAL))
-        }
+        val fileEntryTest = createOrUpdateFileEntry("Ⓐ")
+        val createdFileEntry =
+            fileEntryRepository.saveOrReplace(fileEntryTest.copy(storageLocation = StorageLocation.INTERNAL))
+
         // determine storage location artificially
-        storageService.writeFile(createdFileEntry, ByteArrayInputStream(ByteArray(8)).toByteReadChannel())
+        storageService.writeFile(
+            createdFileEntry,
+            ByteArrayInputStream(ByteArray(8)).toByteReadChannel()
+        )
         val createdFile = storageService.getFile(createdFileEntry)
         assertNotNull(
-            fileEntryRepository.get(fileEntryDtoTest.name)
+            fileEntryRepository.get(fileEntryTest.name)
         )
         assertTrue(createdFile!!.exists())
 
@@ -66,9 +69,27 @@ class FileEntryTest {
 
         fileEntryRepository.delete(createdFileEntry)
         assertNull(
-            fileEntryRepository.get(fileEntryDtoTest.name)
+            fileEntryRepository.get(fileEntryTest.name)
         )
     }
-}
 
-val fileEntryDtoTest = FileEntryDto("Ⓐ", StorageType.global, 1L, "sha256", 0)
+    private suspend fun createOrUpdateFileEntry(fileName: String): FileEntry {
+        val path = StorageService.determineFilePath(StorageType.global, fileName, null)
+        val existing = fileEntryRepository.get(fileName)
+        val fileEntry = existing?.copy(
+            path = path
+        ) ?: FileEntry(
+            fileName,
+            StorageType.global,
+            1L,
+            "sha256",
+            0,
+            "",
+            null,
+            path,
+            StorageLocation.INTERNAL
+        )
+        fileEntryRepository.saveOrReplace(fileEntry)
+        return fileEntry
+    }
+}

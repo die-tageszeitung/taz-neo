@@ -6,12 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebSettings
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.webview.*
@@ -19,7 +18,7 @@ import de.taz.app.android.ui.webview.*
 class SearchResultPagerAdapter(
     private val fragment: Fragment,
     private val total: Int,
-    private var searchResultList: List<SearchHitDto>
+    private var searchResultList: List<SearchHit>
 ) : RecyclerView.Adapter<SearchResultPagerViewHolder>() {
 
     override fun onCreateViewHolder(

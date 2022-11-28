@@ -535,6 +535,8 @@ class LoginViewModel @JvmOverloads constructor(
                 SubscriptionResetStatus.noMail -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
                 }
+                SubscriptionResetStatus.UNKNOWN_RESPONSE,
+                    // FIXME (johannes): show a generic message in case of unknown responses
                 null -> {
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
@@ -671,7 +673,8 @@ class LoginViewModel @JvmOverloads constructor(
                         SubscriptionStatus.noPollEntry,
                         SubscriptionStatus.tooManyPollTries,
                         SubscriptionStatus.subscriptionIdNotValid,
-                        SubscriptionStatus.elapsed -> {
+                        SubscriptionStatus.elapsed,
+                        SubscriptionStatus.UNKNOWN_RESPONSE -> {
                             // this should not happen
                             Sentry.captureMessage("subscription returned ${subscriptionInfo.status} ")
                             toastHelper.showSomethingWentWrongToast()
