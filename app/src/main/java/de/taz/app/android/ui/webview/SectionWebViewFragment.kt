@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.core.os.bundleOf
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
@@ -27,7 +28,6 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,16 +53,19 @@ class SectionWebViewFragment : WebViewFragment<
     override val nestedScrollViewId: Int = R.id.web_view_wrapper
 
     private lateinit var sectionFileName: String
+    private val isFirst: Boolean
+        get() = requireArguments().getBoolean(SECTION_IS_FIRST)
 
     companion object {
-        private val log by Log
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
-        fun newInstance(sectionFileName: String): SectionWebViewFragment {
-            val args = Bundle()
-            log.debug("SectionWebViewFragment.newInstance($sectionFileName)")
-            args.putString(SECTION_FILE_NAME, sectionFileName)
+        private const val SECTION_IS_FIRST = "SECTION_IS_FIRST"
+
+        fun newInstance(sectionFileName: String, isFirst: Boolean): SectionWebViewFragment {
             return SectionWebViewFragment().apply {
-                arguments = args
+                arguments = bundleOf(
+                    SECTION_FILE_NAME to sectionFileName,
+                    SECTION_IS_FIRST to isFirst
+                )
             }
         }
     }
@@ -92,6 +95,8 @@ class SectionWebViewFragment : WebViewFragment<
 
             lifecycleScope.launch(Dispatchers.Main) {
                 val issueStub = displayable.getIssueStub(requireContext().applicationContext)
+                val isWeekend = issueStub?.isWeekend == true && issueStub.validityDate.isNullOrBlank()
+                val isWochentaz =  issueStub?.isWeekend == true && !issueStub.validityDate.isNullOrBlank()
 
                 val toolbar =
                     view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
@@ -99,7 +104,7 @@ class SectionWebViewFragment : WebViewFragment<
 
                 // The first page of the weekend taz should not display the title but the date instead
                 val layout =
-                    if (issueStub?.isWeekend == true && displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)) {
+                    if (isWeekend && isFirst) {
                         R.layout.fragment_webview_header_title_weekend_section
                     } else {
                         R.layout.fragment_webview_header_section
@@ -110,7 +115,7 @@ class SectionWebViewFragment : WebViewFragment<
                 val sectionTextView = headerView.findViewById<TextView>(R.id.section)
 
                 // Change typeface (to Knile) if it is weekend issue but not on title section:
-                if (issueStub?.isWeekend == true && displayable.getHeaderTitle() != getString(R.string.fragment_default_week_header_title)) {
+                if (isWeekend || (isWochentaz && !isFirst)) {
                     val weekendTypeface = withContext(Dispatchers.IO) {
                         val weekendTypefaceFileEntry =
                             fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
@@ -133,12 +138,12 @@ class SectionWebViewFragment : WebViewFragment<
                 DateHelper.stringToDate(displayable.issueDate)?.let { date ->
                     headerView.findViewById<TextView>(R.id.issue_date)?.apply {
                         text = when {
-                            issueStub?.isWeekend == true && issueStub.validityDate.isNullOrBlank() ->
+                            isWeekend ->
                                 // Regular Weekend Issue
                                 DateHelper.dateToWeekendNotation(date)
-                            issueStub?.isWeekend == true && issueStub.validityDate?.isNotBlank() == true ->
+                            isWochentaz ->
                                 // Wochentaz Issue
-                                DateHelper.dateToWeekNotation(date, issueStub.validityDate)
+                                DateHelper.dateToWeekNotation(date, requireNotNull(issueStub?.validityDate))
                             else ->
                                 DateHelper.dateToLowerCaseString(date)
                         }
@@ -146,9 +151,7 @@ class SectionWebViewFragment : WebViewFragment<
                 }
 
                 // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
-                if (displayable.getHeaderTitle() == getString(R.string.fragment_default_header_title)
-                    || displayable.getHeaderTitle() == getString(R.string.fragment_default_week_header_title)
-                ) {
+                if (isFirst && (isWeekend || isWochentaz)) {
                     val textPixelSize =
                         resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
                     val textSpSize =
