@@ -47,6 +47,7 @@ class StorageOrganizationActivity : StartupActivity() {
         super.onCreate(savedInstanceState)
 
         viewBinding = ActivityStorageMigrationBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
 
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
@@ -193,9 +194,12 @@ class StorageOrganizationActivity : StartupActivity() {
         log.info("Will delete $issueCount public issues")
 
         withContext(Dispatchers.Main) {
-            viewBinding.description.text = getString(R.string.storage_migration_help_text_delete_issues)
-            viewBinding.migrationProgress.progress = 0
-            viewBinding.migrationProgress.max = issueCount
+            viewBinding.apply {
+                description.text = getString(R.string.storage_migration_help_text_delete_issues)
+                numericProgress.text = "0 / $issueCount"
+                migrationProgress.progress = 0
+                migrationProgress.max = issueCount
+            }
         }
         var count = 0
         var errors = 0
