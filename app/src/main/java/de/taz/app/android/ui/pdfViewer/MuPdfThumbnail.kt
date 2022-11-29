@@ -1,11 +1,9 @@
 package de.taz.app.android.ui.pdfViewer
-
 import android.graphics.Bitmap
 import com.artifex.mupdf.fitz.Cookie
 import com.artifex.mupdf.fitz.Point
 import de.taz.app.android.ui.pdfViewer.mupdf.MuPDFCore
 import java.io.File
-
 
 class MuPDFThumbnail(filename: String) : MuPDFCore(File(filename).readBytes(), filename) {
 
