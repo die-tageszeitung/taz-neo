@@ -6,7 +6,6 @@ import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
 import android.view.MotionEvent
-import android.view.View
 import android.webkit.WebView
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
@@ -16,7 +15,8 @@ import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 import java.util.*
 
-const val MAILTO_PREFIX = "mailto:"
+private const val MAILTO_PREFIX = "mailto:"
+private const val MAX_DOWN_DURATION = 200L
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
@@ -25,41 +25,44 @@ class AppWebView @JvmOverloads constructor(
 ) : WebView(context, attributeSet, defStyle) {
     var onBorderTapListener: ((ViewBorder) -> Unit)? = null
     private val log by Log
-    private var currentBorder = ViewBorder.NONE
 
     init {
         // prevent horizontal scrolling
         isHorizontalScrollBarEnabled = false
-        setOnTouchListener(object : OnTouchListener {
-            var x = 0f
-            val MAX_DOWN_DURATION = 200L
-            var downTime = MAX_DOWN_DURATION
-            override fun onTouch(v: View?, event: MotionEvent): Boolean {
-                if (event.pointerCount > 1) { //Multi touch detected
-                    return true
-                }
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        // save x
-                        x = event.x
-                        downTime = Calendar.getInstance().timeInMillis
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        val duration =  Calendar.getInstance().timeInMillis - downTime
-                        if (duration < MAX_DOWN_DURATION) {
-                            handleTap(x)
-                        }
-                        event.setLocation(x, event.y)
-                    }
-                    MotionEvent.ACTION_MOVE, MotionEvent.ACTION_CANCEL -> {
-                        // set x so that it doesn't move
-                        event.setLocation(x, event.y)
-                    }
-                }
-                return false
-            }
-        })
         settings.allowFileAccess = true
+    }
+
+    private var initialTouchX = 0f
+    private var initialTouchDownTimeMs = 0L
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.pointerCount > 1) {
+            // We do not want to handle multi touch events to be handled:
+            // Ignore the event but signal that we have consumed it
+            return true
+        }
+
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            // Save the initial touch x position and re-set it on the following events,
+            // to prevent the webview from being able to be scrolled horizontally if its content
+            // is larger then the webview itself
+            initialTouchX = event.x
+        } else {
+            event.setLocation(initialTouchX, event.y)
+        }
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                initialTouchDownTimeMs = Calendar.getInstance().timeInMillis
+            }
+            MotionEvent.ACTION_UP -> {
+                val duration =  Calendar.getInstance().timeInMillis - initialTouchDownTimeMs
+                if (duration < MAX_DOWN_DURATION) {
+                    handleTap(event.x)
+                }
+            }
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun loadUrl(url: String) {

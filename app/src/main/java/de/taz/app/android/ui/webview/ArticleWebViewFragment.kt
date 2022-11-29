@@ -168,7 +168,6 @@ class ArticleWebViewFragment : WebViewFragment<
      */
     @SuppressLint("ClickableViewAccessibility")
     fun hideKeyboardOnAllViewsExceptEditText(view: View) {
-
         // Set up touch listener for non-text box views to hide keyboard.
         if (view !is EditText) {
             view.setOnTouchListener { _, _ ->
