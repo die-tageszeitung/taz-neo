@@ -31,8 +31,8 @@ import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.pdfViewer.ViewBorder
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.*

@@ -9,7 +9,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
 import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.ui.pdfViewer.ViewBorder
+import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
