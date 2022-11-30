@@ -97,11 +97,15 @@
                 <TextView
                     android:id="@+id/fragment_bookmark_author"
                     style="@style/TextAppearance.Bookmarks.Entry.Author"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_read_minutes"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:text="Auto Rindesartikels" />
+                    app:layout_constraintWidth_max="wrap"
+                    tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen" />
 
                 <TextView
                     android:id="@+id/fragment_bookmark_read_minutes"
@@ -109,6 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintBaseline_toBaselineOf="@id/fragment_bookmark_author"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toEndOf="@id/fragment_bookmark_author"
                     tools:text="3 min" />
 
