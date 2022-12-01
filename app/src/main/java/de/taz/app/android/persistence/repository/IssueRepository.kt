@@ -486,15 +486,21 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getByFeedAndDateLiveData(feedName, date)
     }
 
-    suspend fun getMostValuableIssueKeyForPublication(
+    suspend fun getMostValuableIssueStubForPublication(
         issuePublication: AbstractIssuePublication
-    ): AbstractIssueKey? {
+    ): IssueStub? {
         return appDatabase.issueDao()
             .getByFeedAndDate(issuePublication.feedName, issuePublication.date)
-            .map { if (issuePublication is IssuePublicationWithPages) IssueKeyWithPages(it.issueKey) else it.issueKey }
             .maxByOrNull {
                 it.status
             }
+    }
+
+    suspend fun getMostValuableIssueKeyForPublication(
+        issuePublication: AbstractIssuePublication
+    ): AbstractIssueKey? {
+        return getMostValuableIssueStubForPublication(issuePublication)
+            ?.let { if (issuePublication is IssuePublicationWithPages) IssueKeyWithPages(it.issueKey) else it.issueKey }
     }
 
     suspend fun delete(issue: Issue) {
@@ -745,3 +751,4 @@ data class FrontPageKey(
         return "$feedName/$date/$status/frontpage"
     }
 }
+
