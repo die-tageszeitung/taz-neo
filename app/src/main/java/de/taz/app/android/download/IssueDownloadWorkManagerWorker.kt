@@ -9,7 +9,8 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NewIssuePollingScheduler
 import io.sentry.Sentry
@@ -32,6 +33,7 @@ class IssueDownloadWorkManagerWorker(
     override suspend fun doWork(): Result = coroutineScope {
         val contentService = ContentService.getInstance(applicationContext)
         val feedService = FeedService.getInstance(applicationContext)
+        val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
         val scheduleNext = inputData.getBoolean(KEY_SCHEDULE_NEXT, false)
 
@@ -52,11 +54,12 @@ class IssueDownloadWorkManagerWorker(
                 log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)?.date}")
                 return@coroutineScope Result.success()
             } else {
-                if (DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {
-                    val issueKeyWithPages = IssueKeyWithPages(newestIssueKey)
-                    contentService.downloadToCache(issueKeyWithPages, isAutomaticDownload = true)
+                if (downloadDataStore.pdfAdditionally.get()) {
+                    val issuePublicationWithPages = IssuePublicationWithPages(newestIssueKey)
+                    contentService.downloadToCache(issuePublicationWithPages, isAutomaticDownload = true)
                 } else {
-                    contentService.downloadToCache(newestIssueKey, isAutomaticDownload = true)
+                    val issuePublication = IssuePublication(newestIssueKey)
+                    contentService.downloadToCache(issuePublication, isAutomaticDownload = true)
                 }
                 log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()

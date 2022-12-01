@@ -10,6 +10,7 @@ import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -65,15 +66,23 @@ class WrappedDownload(
             allowCache: Boolean,
             priority: DownloadPriority,
             tag: String
-        ): WrappedDownload = WrappedDownload(
-            applicationContext,
-            parent,
-            emptyList(),
-            isAutomaticDownload,
-            allowCache,
-            priority,
-            tag
-        )
+        ): WrappedDownload {
+            if (parent is AbstractIssueKey) {
+                error("It is not allowed to download issues by IssueKey as " +
+                        "the DownloadObserver is expecting tags without a status." +
+                        "Please use an IssuePublication to trigger the issue download.")
+            }
+
+            return WrappedDownload(
+                applicationContext,
+                parent,
+                emptyList(),
+                isAutomaticDownload,
+                allowCache,
+                priority,
+                tag
+            )
+        }
     }
 
     /**
@@ -88,7 +97,7 @@ class WrappedDownload(
 
         // For a wrapped download a successful cache hit is if the download and it's content is
         // complete, so we use the getCacheState function
-        if (allowCache && contentService.getCacheState(parent).cacheState == CacheState.PRESENT) {
+        if (allowCache && contentService.isPresent(parent)) {
             notifySuccess(Unit)
             return
         }
