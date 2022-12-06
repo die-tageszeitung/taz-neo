@@ -7,7 +7,7 @@
     <dimen name="search_result_snippet_line_spacing_extra">6sp</dimen>
 
     <dimen name="fragment_settings_padding_top">5dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+    <dimen name="fragment_settings_category_margin_bottom">-8dp</dimen>
 
     <dimen name="button_custom_padding_to_center_aktiv_grotesk_font">10dp</dimen>
 </resources>

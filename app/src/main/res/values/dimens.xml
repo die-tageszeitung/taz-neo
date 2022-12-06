@@ -64,8 +64,8 @@
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
     <dimen name="fragment_settings_padding_top">3dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">29.5dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">8dp</dimen>
+    <dimen name="fragment_settings_category_padding_top">25dp</dimen>
+    <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
     <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
     <dimen name="fragment_settings_text_font_size">16sp</dimen>
     <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
@@ -73,6 +73,7 @@
     <dimen name="fragment_settings_min_height">40dp</dimen>
     <dimen name="fragment_settings_version_margin">20dp</dimen>
     <dimen name="fragment_settings_icon_size">25dp</dimen>
+    <dimen name="fragment_settings_plus_minus_width">100dp</dimen>
 
     <dimen name="settings_separator_view_line_height">1dp</dimen>
     <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
@@ -91,7 +92,7 @@
     <dimen name="fragment_header_title_section_text_size">32sp</dimen>
     <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
-    <dimen name="fragment_webview_header_padding_top">35dp</dimen>
+    <dimen name="fragment_webview_header_padding_top">65dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
