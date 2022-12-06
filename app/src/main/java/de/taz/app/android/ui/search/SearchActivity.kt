@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.search
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -12,14 +11,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.*
+import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_SEARCH_HELP
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.dto.SearchFilter
-import de.taz.app.android.api.dto.SearchHitDto
-import de.taz.app.android.api.dto.Sorting
+import de.taz.app.android.api.variables.SearchFilter
+import de.taz.app.android.api.models.SearchHit
+import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.WebViewActivity
@@ -37,7 +38,7 @@ private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>() {
 
-    private val searchResultItemsList = mutableListOf<SearchHitDto>()
+    private val searchResultItemsList = mutableListOf<SearchHit>()
     private var lastVisiblePosition = 0
 
     private lateinit var apiService: ApiService
@@ -190,6 +191,7 @@ class SearchActivity :
         searchText: String,
         title: String? = null,
         author: String? = null,
+        sessionId: String? = null,
         rowCnt: Int = DEFAULT_SEARCH_RESULTS_TO_FETCH,
         offset: Int = 0,
         pubDateFrom: String? = null,
@@ -211,6 +213,7 @@ class SearchActivity :
         log.debug("searchText: $searchText")
         log.debug("title: $title")
         log.debug("author: $author")
+        log.debug("sessionId: $sessionId")
         log.debug("offset: $offset")
         log.debug("rowCnt: $rowCnt")
         log.debug("pubDateFrom: $pubDateFrom")
@@ -238,6 +241,7 @@ class SearchActivity :
                     searchText = searchText,
                     title = title,
                     author = author,
+                    sessionId = sessionId,
                     rowCnt = rowCnt,
                     offset = offset,
                     pubDateFrom = pubDateFrom,
@@ -261,6 +265,7 @@ class SearchActivity :
                         }
                     }
                     showAmountFound(searchResultItemsList.size, viewModel.totalFound)
+                    viewModel.sessionId = it.sessionId
                 }
                 viewModel.currentlyLoadingMore.postValue(false)
             } else {
@@ -297,17 +302,18 @@ class SearchActivity :
 
     fun loadMore() {
         val offset = searchResultItemsList.size
-            advancedSearch(
-                searchText = viewModel.searchText.value.toString(),
-                title = viewModel.searchTitle.value.toString(),
-                author = viewModel.searchAuthor.value.toString(),
-                offset = offset,
-                pubDateFrom = viewModel.pubDateFrom.value,
-                pubDateUntil = viewModel.pubDateUntil.value,
-                searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-                sorting = viewModel.sorting.value ?: Sorting.relevance,
-                showLoadingScreen = false
-            )
+        advancedSearch(
+            searchText = viewModel.searchText.value.toString(),
+            title = viewModel.searchTitle.value.toString(),
+            author = viewModel.searchAuthor.value.toString(),
+            sessionId = viewModel.sessionId,
+            offset = offset,
+            pubDateFrom = viewModel.pubDateFrom.value,
+            pubDateUntil = viewModel.pubDateUntil.value,
+            searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+            sorting = viewModel.sorting.value ?: Sorting.relevance,
+            showLoadingScreen = false
+        )
     }
 
     // endregion
@@ -323,6 +329,7 @@ class SearchActivity :
     private fun clearRecyclerView() {
         searchResultItemsList.clear()
         viewModel.searchResultsLiveData.postValue(emptyList())
+        viewModel.sessionId = null
     }
 
     private fun showSearchDescription() {
@@ -347,6 +354,7 @@ class SearchActivity :
 
     private fun clearSearchList() {
         viewModel.totalFound = 0
+        viewModel.sessionId = null
         viewBinding.apply {
             searchInput.editText?.text?.clear()
             clearRecyclerView()

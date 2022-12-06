@@ -3,24 +3,26 @@ package de.taz.app.android.ui.webview
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
+import de.taz.app.android.WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME
+import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +44,7 @@ class ArticleWebViewFragment : WebViewFragment<
     private lateinit var fontHelper: FontHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
+    private var isBookmarkViewerActivity = false
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -66,7 +69,6 @@ class ArticleWebViewFragment : WebViewFragment<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
-        log.debug("Creating an ArticleWebView for $articleFileName")
         lifecycleScope.launch {
             withContext(Dispatchers.Main) { viewModel }
             articleRepository.get(articleFileName)?.let {
@@ -75,38 +77,35 @@ class ArticleWebViewFragment : WebViewFragment<
                 )
             }
         }
+        isBookmarkViewerActivity = activity is BookmarkViewerActivity
     }
 
     override fun setHeader(displayable: Article) {
         lifecycleScope.launch {
-            val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
-            val count = ArticleRepository.getInstance(
-                requireContext().applicationContext
-            ).getSectionArticleStubListByArticleName(
-                displayable.key
-            ).size
-
-            // only the imprint should have no section
-            val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
-            setHeaderForSection(index, count, sectionStub)
-
             val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
-            issueStub?.apply {
-                if (isWeekend) {
-                    val weekendTypefaceFileEntry =
-                        fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
-                    val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
-                    weekendTypefaceFile?.let {
-                        fontHelper
-                            .getTypeFace(it)?.let { typeface ->
-                                withContext(Dispatchers.Main) {
-                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                    view?.findViewById<TextView>(R.id.article_num)?.typeface =
-                                        typeface
-                                }
-                            }
-                    }
-                }
+            if (isBookmarkViewerActivity) {
+                setBookmarkHeader(displayable, issueStub)
+            } else {
+                setRegularHeader(displayable, issueStub)
+            }
+        }
+    }
+
+    private suspend fun setRegularHeader(displayable: Article, issueStub: IssueStub?) {
+        val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
+        val count = ArticleRepository.getInstance(
+            requireContext().applicationContext
+        ).getSectionArticleStubListByArticleName(
+            displayable.key
+        ).size
+
+        // only the imprint should have no section
+        val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
+        setHeaderForSection(index, count, sectionStub)
+
+        issueStub?.apply {
+            if (isWeekend) {
+                applyWeekendTypefaces()
             }
         }
     }
@@ -169,7 +168,6 @@ class ArticleWebViewFragment : WebViewFragment<
      */
     @SuppressLint("ClickableViewAccessibility")
     fun hideKeyboardOnAllViewsExceptEditText(view: View) {
-
         // Set up touch listener for non-text box views to hide keyboard.
         if (view !is EditText) {
             view.setOnTouchListener { _, _ ->
@@ -185,6 +183,69 @@ class ArticleWebViewFragment : WebViewFragment<
                 hideKeyboardOnAllViewsExceptEditText(innerView)
             }
         }
+    }
+
+    private suspend fun applyWeekendTypefaces() {
+        val weekendTypefaceFileEntry =
+            fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
+        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+        weekendTypefaceFile?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        view?.findViewById<TextView>(R.id.section)?.typeface = typeface
+                    }
+                }
+        }
+        val weekendTypefaceFileEntryRegular =
+            fileEntryRepository.get(WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME)
+        val weekendTypefaceFileRegular =
+            weekendTypefaceFileEntryRegular?.let(storageService::getFile)
+        weekendTypefaceFileRegular?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        view?.findViewById<TextView>(R.id.article_num)?.typeface = typeface
+                    }
+                }
+        }
+    }
+
+    private suspend fun setBookmarkHeader(article: Article, issueStub: IssueStub?) {
+        // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
+        viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header)
+            ?.let {
+                it.visibility = View.GONE
+            }
+        viewBinding.root.findViewById<ImageView>(R.id.drawer_logo)?.visibility = View.GONE
+
+        val total = articleRepository.getBookmarkedArticleStubs().size
+        val index = articleRepository.getBookmarkedArticleStubs().indexOf(ArticleStub(article))
+
+        viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_custom)
+            ?.apply {
+                visibility = View.VISIBLE
+                findViewById<TextView>(R.id.index_indicator).text = activity?.getString(
+                    R.string.fragment_header_custom_index_indicator, index + 1, total
+                )
+                findViewById<TextView>(R.id.section_title).text =
+                    article.getSectionStub(requireContext().applicationContext)?.title
+                findViewById<TextView>(R.id.published_date).text = activity?.getString(
+                    R.string.fragment_header_custom_published_date, determineDateString(article, issueStub)
+                )
+            }
+    }
+
+    private fun determineDateString(article: Article, issueStub: IssueStub?): String {
+        val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
+        val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
+
+        val formattedDate = if (fromDate != null && toDate != null) {
+            DateHelper.dateToMediumRangeString(fromDate, toDate)
+        } else {
+            DateHelper.stringToMediumLocalizedString(article.issueDate)
+        }
+        return formattedDate ?: ""
     }
 }
 

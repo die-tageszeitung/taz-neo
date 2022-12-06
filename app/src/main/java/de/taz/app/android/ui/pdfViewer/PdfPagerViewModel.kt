@@ -20,11 +20,6 @@ import kotlinx.coroutines.flow.*
 private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 private const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
-private const val FORCE_FLING_TO_SWIPE_DELAY_MS = 1000L
-
-enum class SwipeEvent {
-    LEFT, RIGHT
-}
 
 data class PageWithArticles(
     val pagePdf: FileEntry,
@@ -39,7 +34,7 @@ sealed class OpenLinkEvent {
 
 class PdfPagerViewModel(
     application: Application,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
     private val log by Log
 
@@ -51,29 +46,23 @@ class PdfPagerViewModel(
     private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
 
-    var issuePublication: IssuePublicationWithPages? = null
-        private set
+    private var issuePublication: IssuePublicationWithPages? = null
 
     private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
-    val issueLiveData = issueFlow.filterNotNull().asLiveData()
-
     val issue: IssueWithPages?
         get() = issueFlow.value
 
-    private val pdfPageListFlow: Flow<List<Page>?> = issueFlow
+    private val pdfPageListFlow: SharedFlow<List<Page>?> = issueFlow
         .map(::pdfPageListMapper)
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
     val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
 
-    val userInputEnabled = MutableLiveData(true)
-    val requestDisallowInterceptTouchEvent = MutableLiveData(false)
     val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
-    val swipePageFlow = MutableSharedFlow<SwipeEvent>(0)
 
-    private val currentItemFlow = savedStateHandle.getStateFlow<Int?>(KEY_CURRENT_ITEM, null)
-    val currentItem = currentItemFlow.filterNotNull().asLiveData()
+    private val _currentItem = savedStateHandle.getLiveData<Int>(KEY_CURRENT_ITEM)
+    val currentItem = _currentItem as LiveData<Int>
 
     fun updateCurrentItem(position: Int) {
         viewModelScope.launch {
@@ -82,14 +71,14 @@ class PdfPagerViewModel(
     }
 
     private suspend fun updateCurrentItemInternal(position: Int) = withContext(Dispatchers.Main) {
-        if (currentItemFlow.value == position) {
+        if (_currentItem.value == position) {
             return@withContext
         }
 
         val pdfPageList = pdfPageListFlow.first()
         val validPosition = position.coerceIn(0, pdfPageList?.size ?: DEFAULT_NUMBER_OF_PAGES)
-        if (currentItemFlow.value != validPosition) {
-            savedStateHandle.set(KEY_CURRENT_ITEM, validPosition)
+        if (_currentItem.value != validPosition) {
+            _currentItem.value = validPosition
 
             // Save current position to database to restore later on
             issueFlow.value?.issueKey?.let {
@@ -200,24 +189,19 @@ class PdfPagerViewModel(
         }
     } as LiveData<Image>
 
-    fun setUserInputEnabled(enabled: Boolean = true) {
-        userInputEnabled.value = enabled
-    }
-
-    fun setRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-        requestDisallowInterceptTouchEvent.value = disallowIntercept
-    }
-
     fun goToPdfPage(link: String) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
         if (issueFlow.value?.status == IssueStatus.regular) {
-            updateCurrentItem(getPositionOfPdf(link))
+            viewModelScope.launch {
+                updateCurrentItemInternal(getPositionOfPdf(link))
+            }
         }
     }
 
-    private fun getPositionOfPdf(fileName: String): Int {
-        return pdfPageList.value?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
+    private suspend fun getPositionOfPdf(fileName: String): Int {
+        val pdfPageList = pdfPageListFlow.firstOrNull()
+        return pdfPageList?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
     fun onFrameLinkClicked(link: String) {
@@ -299,27 +283,9 @@ class PdfPagerViewModel(
         maxRetries = maxRetries
     ) as IssueWithPages
 
-
-    private val _forceFlingToSwipe = MutableStateFlow(false)
-    val forceFlingToSwipe = _forceFlingToSwipe
-
-    private var disableFlingToSwipeJob: Job? = null
-    fun onPageFullyInView() {
-        disableFlingToSwipeJob?.cancel()
-        disableFlingToSwipeJob = viewModelScope.launch {
-            delay(FORCE_FLING_TO_SWIPE_DELAY_MS)
-            _forceFlingToSwipe.value = false
-        }
-    }
-
-    fun onSwipeToPage() {
-        _forceFlingToSwipe.value = true
-    }
-
     private val bookmarkedArticles = issueFlow.filterNotNull().flatMapLatest {
         articleRepository.getBookmarkedArticleStubsForIssue(IssueKey(it.issueKey))
     }
-
 
     private val pdfPageTocFlow =
         combine(issueFlow.filterNotNull(), bookmarkedArticles) { issue, bookmarkArticles ->
@@ -358,7 +324,7 @@ class PdfPagerViewModel(
 
     private val currentPageFlow = combine(
         pdfPageListFlow.filterNotNull(),
-        currentItemFlow.filterNotNull()
+        _currentItem.asFlow()
     ) { pdfPageList, currentItem ->
         pdfPageList[currentItem]
     }

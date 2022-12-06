@@ -30,6 +30,7 @@
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
+    <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
 
@@ -52,8 +53,8 @@
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_default_week_header_title">wochentaz</string>
     <string name="fragment_header_article">%1$d/%2$d</string>
-    <string name="fragment_header_search_result_index">%1$d/%2$d</string>
-    <string name="fragment_header_search_result_published_date">Ausgabe %s</string>
+    <string name="fragment_header_custom_index_indicator">%1$d von %2$d</string>
+    <string name="fragment_header_custom_published_date">Ausgabe %s</string>
 
     <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
     <string name="trial_subscription_name">6 Wochen Testabo</string>
@@ -84,6 +85,7 @@
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
     <string name="fragment_bookmarks_undo">Rückgängig</string>
+    <string name="read_minutes">%d min</string>
 
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
@@ -161,13 +163,13 @@
 
     <string name="settings_dialog_notifications_must_be_enabled_title">Benachrichtigungen müssen für die App erlaubt sein</string>
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
+    <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues_for_sure">Sind Sie sicher?</string>
     <string name="settings_delete_all_issues_for_sure_detail">Es werden alle heruntergeladenen Ausgaben gelöscht. Die Lesezeichen bleiben erhalten. Der Vorgang kann einige Sekunden dauern.</string>
     <string name="settings_delete_progress_text">%d von %d Ausgaben gelöscht</string>
     <string name="settings_delete_all_issues_deleted">Alle Ausgaben erfolgreich gelöscht</string>
-
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
     <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie ihre Internetverbindung</string>
@@ -227,13 +229,13 @@
     <string name="login_subscription_error_empty">Bitte Abo-ID angeben.</string>
 
     <string name="login_email_hint">E-Mail-Adresse</string>
-    <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein</string>
-    <string name="login_email_error_invalid">E-Mail-Adresse ungültig</string>
+    <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein.</string>
+    <string name="login_email_error_invalid">E-Mail-Adresse ungültig.</string>
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
+    <string name="login_subscription_id_error_not_numeric">Ihre Abo-Nummer muss aus Ziffern bestehen.</string>
 
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
-    <string name="login_email_aboid_error_empty">E-Mail-Adresse oder Abo-Nummer darf nicht leer sein.</string>
 
     <string name="login_comment_hint">Bemerkung</string>
 
@@ -385,30 +387,22 @@
     </plurals>
     <string name="author_list">von %s</string>
 
-    <string name="fragment_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
-    <string name="fragment_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
-    <string name="fragment_switch_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
-    <string name="fragment_switch_surname_title">Nachname</string>
-    <string name="fragment_switch_first_name_title">Vorname</string>
-    <string name="fragment_switch_address_street_title">Straße und Hausnummer</string>
-    <string name="fragment_switch_address_zipcode_title">PLZ</string>
-    <string name="fragment_switch_address_city_title">Ort</string>
-    <string name="fragment_switch_address_country_title">Land</string>
-    <string name="fragment_switch_message_title">Ihre Nachricht</string>
-    <string name="fragment_switch_send_button">Absenden</string>
+    <string name="subscription_inquiry_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
+    <string name="subscription_inquiry_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>
+    <string name="subscription_inquiry_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
+    <string name="subscription_inquiry_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
+    <string name="subscription_inquiry_subscription_id_title">Abo-Nummer (wenn vorhanden)</string>
+    <string name="subscription_inquiry_email_title">E-Mail-Adresse</string>
+    <string name="subscription_inquiry_surname_title">Nachname</string>
+    <string name="subscription_inquiry_first_name_title">Vorname</string>
+    <string name="subscription_inquiry_address_street_title">Straße und Hausnummer</string>
+    <string name="subscription_inquiry_address_zipcode_title">PLZ</string>
+    <string name="subscription_inquiry_address_city_title">Ort</string>
+    <string name="subscription_inquiry_address_country_title">Land</string>
+    <string name="subscription_inquiry_message_title">Ihre Nachricht</string>
+    <string name="subscription_inquiry_send_button">Absenden</string>
     <string name="subscription_inquiry_send_success_toast">Ihre Anfrage wurde an unser Service-Team gesendet</string>
-
-    <string name="fragment_extend_title">Ja! Schalten Sie die App zu meinem Abo frei!</string>
-    <string name="fragment_extend_description">Das machen wir gerne! Geben Sie Ihre bei uns hinterlegten Kundendaten ein, so dass wir Sie zuordnen können.\nWir werden Sie dann kontaktieren.</string>
-    <string name="fragment_extend_email_aboID_title">E-Mail-Adresse oder Abo-Nummer (wenn vorhanden)</string>
-    <string name="fragment_extend_surname_title">Nachname</string>
-    <string name="fragment_extend_first_name_title">Vorname</string>
-    <string name="fragment_extend_address_street_title">Straße und Hausnummer</string>
-    <string name="fragment_extend_address_zipcode_title">PLZ</string>
-    <string name="fragment_extend_address_city_title">Ort</string>
-    <string name="fragment_extend_address_country_title">Land</string>
-    <string name="fragment_extend_message_title">Ihre Nachricht</string>
-    <string name="fragment_extend_send_button">Absenden</string>
+    <string name="subscription_inquiry_submission_error">Fehler beim Senden der Anfrage:\n%s</string>
 
     <string name="subscription">Abonnement</string>
     <string name="subscription_genitive">Abos</string>

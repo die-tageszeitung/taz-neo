@@ -1,14 +1,11 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.dto.MomentDto
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.FileEntryOperations
-import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.MomentKey
 import de.taz.app.android.persistence.repository.MomentRepository
-import de.taz.app.android.singletons.StorageService
 import java.util.*
 
 data class Moment(
@@ -21,41 +18,6 @@ data class Moment(
     val momentList: List<FileEntry> = emptyList(),
     override val dateDownload: Date?
 ) : DownloadableCollection {
-
-    constructor(
-        issueKey: IssueKey,
-        baseUrl: String,
-        momentDto: MomentDto
-    ) : this(
-        issueKey.feedName,
-        issueKey.date,
-        issueKey.status,
-        baseUrl,
-        momentDto.imageList
-            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
-        momentDto.creditList
-            ?.map { Image(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
-        momentDto.momentList
-            ?.map { FileEntry(it, StorageService.determineFilePath(it, issueKey)) } ?: emptyList(),
-        null
-    )
-
-    constructor(issueOperations: IssueOperations, momentDto: MomentDto) : this(
-        issueOperations.feedName,
-        issueOperations.date,
-        issueOperations.status,
-        issueOperations.baseUrl,
-        momentDto.imageList
-            ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") }
-            ?: emptyList(),
-        momentDto.creditList
-            ?.map { Image(it, "${issueOperations.feedName}/${issueOperations.date}") }
-            ?: emptyList(),
-        momentDto.momentList
-            ?.map { FileEntry(it, "${issueOperations.feedName}/${issueOperations.date}") }
-            ?: emptyList(),
-        null
-    )
 
     val issueKey = IssueKey(issueFeedName, issueDate, issueStatus)
     val momentKey = MomentKey(issueFeedName, issueDate, issueStatus)

@@ -8,6 +8,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheOperationItem
 import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -94,12 +95,13 @@ class ContentServiceTest {
 
     @Test
     fun retrieveIssueWithExceptions() = runTest {
+        val testIssuePublication = IssuePublication(testIssue.issueKey)
         FileDownloader.inject(catastrophicTestDownloader)
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 
         // Call to content service produces exception
         assertFailsWith<CacheOperationFailedException> {
-            contentService.downloadToCache(testIssue.issueKey)
+            contentService.downloadToCache(testIssuePublication)
         }
 
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
@@ -107,13 +109,14 @@ class ContentServiceTest {
 
     @Test
     fun retrieveIssueWithSomeExceptions() = runTest {
+        val testIssuePublication = IssuePublication(testIssue.issueKey)
         FileDownloader.inject(oneFileFailedDownloader)
         val testIssue = TestDataUtil.getIssue()
         assert(!issueRepository.isDownloaded(testIssue.issueKey))
 
         // Call to content service produces exception
         assertFailsWith<CacheOperationFailedException> {
-            contentService.downloadToCache(testIssue.issueKey)
+            contentService.downloadToCache(testIssuePublication)
         }
 
         assert(!issueRepository.isDownloaded(testIssue.issueKey))

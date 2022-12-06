@@ -6,12 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebSettings
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.webview.*
@@ -19,7 +18,7 @@ import de.taz.app.android.ui.webview.*
 class SearchResultPagerAdapter(
     private val fragment: Fragment,
     private val total: Int,
-    private var searchResultList: List<SearchHitDto>
+    private var searchResultList: List<SearchHit>
 ) : RecyclerView.Adapter<SearchResultPagerViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -77,16 +76,16 @@ class SearchResultPagerAdapter(
             it.visibility = View.GONE
         }
 
-        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_search_hit)?.apply {
+        holder.viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_custom)?.apply {
             visibility = View.VISIBLE
-            findViewById<TextView>(R.id.search_hit_index).text = fragment.requireActivity().getString(
-                R.string.fragment_header_search_result_index,
+            findViewById<TextView>(R.id.index_indicator).text = fragment.requireActivity().getString(
+                R.string.fragment_header_custom_index_indicator,
                 position + 1,
                 total
             )
             findViewById<TextView>(R.id.section_title).text = searchResultItem.sectionTitle ?: ""
             findViewById<TextView>(R.id.published_date).text =  fragment.requireActivity().getString(
-                R.string.fragment_header_search_result_published_date,
+                R.string.fragment_header_custom_published_date,
                 DateHelper.stringToMediumLocalizedString(searchResultItem.date)
             )
         }

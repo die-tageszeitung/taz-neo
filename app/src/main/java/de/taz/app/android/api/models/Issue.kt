@@ -1,7 +1,5 @@
 package de.taz.app.android.api.models
 
-import kotlinx.serialization.Serializable
-import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.persistence.repository.IssueKey
 
 import java.util.*
@@ -26,28 +24,6 @@ data class Issue(
     override val lastPagePosition: Int?,
     override val lastViewedDate: Date?,
 ) : AbstractIssue {
-
-    constructor(feedName: String, issueDto: IssueDto) : this(
-        feedName,
-        issueDto.date,
-        issueDto.validityDate,
-        Moment(IssueKey(feedName, issueDto.date, issueDto.status), issueDto.baseUrl, issueDto.moment),
-        issueDto.key,
-        issueDto.baseUrl,
-        issueDto.status,
-        issueDto.minResourceVersion,
-        issueDto.imprint?.let { Article(IssueKey(feedName, issueDto.date, issueDto.status), it, ArticleType.IMPRINT) },
-        issueDto.isWeekend,
-        issueDto.sectionList?.map { Section(IssueKey(feedName, issueDto.date, issueDto.status), it) } ?: emptyList(),
-        issueDto.pageList?.map { Page(IssueKey(feedName, issueDto.date, issueDto.status), it, issueDto.baseUrl) } ?: emptyList(),
-        issueDto.moTime,
-        null,
-        null,
-        null,
-        null,
-        null
-    )
-
 
     constructor(issue: IssueWithPages) : this(
         issue.feedName,
@@ -101,7 +77,6 @@ data class Issue(
  * The issue status should be in a ascending ordinal for they "value"
  * So the regular issue is more favorable than the public.
  */
-@Serializable
 enum class IssueStatus {
     public,
     demo,

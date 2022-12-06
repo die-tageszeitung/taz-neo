@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 25,
-    "identityHash": "a348a2f89628652b0df44d43c37a41d2",
+    "version": 26,
+    "identityHash": "95cefa2040eeb9a269d4dad8004f7859",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -188,7 +188,7 @@
       },
       {
         "tableName": "Article",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarkedTime` TEXT, `hasAudio` INTEGER NOT NULL, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`articleFileName` TEXT NOT NULL, `issueFeedName` TEXT NOT NULL, `issueDate` TEXT NOT NULL, `title` TEXT, `teaser` TEXT, `onlineLink` TEXT, `pageNameList` TEXT NOT NULL, `bookmarkedTime` TEXT, `articleType` TEXT NOT NULL, `position` INTEGER NOT NULL, `percentage` INTEGER NOT NULL, `dateDownload` TEXT, PRIMARY KEY(`articleFileName`))",
         "fields": [
           {
             "fieldPath": "articleFileName",
@@ -237,12 +237,6 @@
             "columnName": "bookmarkedTime",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "hasAudio",
-            "columnName": "hasAudio",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "articleType",
@@ -1572,7 +1566,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a348a2f89628652b0df44d43c37a41d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '95cefa2040eeb9a269d4dad8004f7859')"
     ]
   }
 }

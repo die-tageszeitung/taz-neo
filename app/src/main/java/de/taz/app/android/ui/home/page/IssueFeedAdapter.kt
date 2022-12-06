@@ -11,7 +11,7 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.DateFormat
+import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
 import java.util.*
 
 enum class CoverType {
@@ -22,6 +22,11 @@ data class CoverViewData(
     val momentType: CoverType,
     val momentUri: String?,
     val dimension: String
+)
+
+class CoverViewDate(
+    val dateString: String,
+    val dateStringShort: String?
 )
 
 /**
@@ -37,7 +42,7 @@ abstract class IssueFeedAdapter(
     private val observeDownloads: Boolean
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
 
-    abstract val dateFormat: DateFormat
+    abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate?
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -57,33 +62,41 @@ abstract class IssueFeedAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.unbind()
-        getItem(position)?.let {
-            holder.bind(fragment, it)
-        } ?: throw IllegalStateException("No date on position $position")
+
+        val item = getItem(position)
+        item?.let {
+            val coverViewDate = formatDate(item)
+            holder.bind(fragment, item.date, coverViewDate)
+        }
     }
 
-    fun getItem(position: Int): Date? {
+    fun getItem(position: Int): PublicationDate? {
         return feed.publicationDates.getOrNull(position)
     }
 
     fun getPosition(date: Date): Int {
-        return feed.publicationDates.indexOf(date)
+        return feed.publicationDates.binarySearch { publicationDate ->
+            val cmp = publicationDate.date.compareTo(date)
+
+            // As the publication dates are sorted descending we have to revert the comparison
+            cmp * -1
+        }
     }
 
     /**
      * ViewHolder for this Adapter
      */
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var binder: CoverViewBinding? = null
 
-        fun bind(fragment: IssueFeedFragment<*>, date: Date) {
+        fun bind(fragment: IssueFeedFragment<*>, date: Date, coverViewDate: CoverViewDate?) {
 
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(
                     fragment,
                     FrontpagePublication(feed.name, simpleDateFormat.format(date)),
-                    dateFormat = dateFormat,
-                    glideRequestManager = glideRequestManager,
+                    coverViewDate,
+                    glideRequestManager,
                     onMomentViewActionListener,
                     observeDownloads
                 )
@@ -91,10 +104,10 @@ abstract class IssueFeedAdapter(
                 MomentViewBinding(
                     fragment,
                     MomentPublication(feed.name, simpleDateFormat.format(date)),
-                    dateFormat = dateFormat,
-                    glideRequestManager = glideRequestManager,
+                    coverViewDate,
+                    glideRequestManager,
                     onMomentViewActionListener,
-                    observeDownloads
+                    observeDownloads,
                 )
             }
             binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))

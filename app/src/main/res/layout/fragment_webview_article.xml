@@ -27,9 +27,9 @@
             <include android:id="@+id/header"
                 layout="@layout/fragment_webview_header_article" />
 
-            <include android:id="@+id/header_search_hit"
+            <include android:id="@+id/header_custom"
                 android:visibility="gone"
-                layout="@layout/fragment_webview_header_search_result" />
+                layout="@layout/fragment_webview_header_custom" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

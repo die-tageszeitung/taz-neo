@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/deleteRed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_bookmark_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/fragment_padding_horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/delete_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_delete"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_bookmarks_delete_text_margin_top"
+                android:text="@string/fragment_bookmarks_delete"
+                android:textColor="@color/white"
+                android:textSize="@dimen/fragment_bookmarks_delete_text_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/delete_icon" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_bookmark_foreground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/backgroundColor"
+            android:paddingStart="@dimen/fragment_padding_horizontal"
+            android:paddingEnd="@dimen/fragment_padding_horizontal"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_bookmark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/fragment_bookmarks_top_margin"
+                android:paddingBottom="@dimen/fragment_bookmarks_padding_bottom"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/fragment_bookmark_title"
+                    style="@style/TextAppearance.Bookmarks.Entry.Title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Im Sinne der Anklage" />
+
+                <TextView
+                    android:id="@+id/fragment_bookmark_teaser"
+                    style="@style/TextAppearance.Bookmarks.Entry.Teaser"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title"
+                    tools:text="Langer teaser Text, der beschreibt was in dem Artikel behandelt wird oder so ähnlich. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden." />
+
+                <TextView
+                    android:id="@+id/fragment_bookmark_author"
+                    style="@style/TextAppearance.Bookmarks.Entry.Author"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_read_minutes"
+                    app:layout_constraintHorizontal_bias="0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintWidth_max="wrap"
+                    tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen" />
+
+                <TextView
+                    android:id="@+id/fragment_bookmark_read_minutes"
+                    style="@style/TextAppearance.Bookmarks.Entry.ReadMinutes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBaseline_toBaselineOf="@id/fragment_bookmark_author"
+                    app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
+                    app:layout_constraintStart_toEndOf="@id/fragment_bookmark_author"
+                    tools:text="3 min" />
+
+                <ImageView
+                    android:id="@+id/fragment_bookmark_image"
+                    android:layout_width="@dimen/fragment_bookmarks_thumbnail_size"
+                    android:layout_height="@dimen/fragment_bookmarks_thumbnail_size"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription"
+                    tools:src="@tools:sample/avatars" />
+
+                <ImageView
+                    android:id="@+id/fragment_bookmark_share"
+                    android:layout_width="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_height="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
+                    android:contentDescription="@string/fragment_bookmarks_share"
+                    android:src="@drawable/ic_share"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/fragment_bookmark_image"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_image"
+                    app:tint="@color/textColorAccent" />
+
+                <ImageView
+                    android:id="@+id/fragment_bookmark_delete"
+                    android:layout_width="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_height="@dimen/fragment_bookmarks_icon_size"
+                    android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
+                    android:contentDescription="@string/fragment_bookmarks_delete"
+                    android:src="@drawable/ic_bookmark_filled"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/fragment_bookmark_image"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_image"
+                    app:tint="@color/textColorAccent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/fragment_drawer_separator_line_height"
+            android:layout_marginHorizontal="@dimen/fragment_padding_horizontal"
+            android:background="@color/textColor"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+

@@ -20,7 +20,11 @@ data class ArticleStub(
     override val articleType: ArticleType,
     val position: Int,
     val percentage: Int,
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    val mediaSyncId: Int?,
+    val chars: Int? ,
+    val words: Int?,
+    val readMinutes: Int?,
 ) : ArticleOperations {
 
     constructor(article: Article) : this(
@@ -36,7 +40,11 @@ data class ArticleStub(
         article.articleType,
         article.position,
         article.percentage,
-        article.dateDownload
+        article.dateDownload,
+        article.mediaSyncId,
+        article.chars,
+        article.words,
+        article.readMinutes,
     )
 
     @Ignore

@@ -5,13 +5,6 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
             message
         }
         feedList(name: $feedName) {
-            name
-            cycle
-            momentRatio
-            publicationDates
-            issueCnt
-            issueMaxDate
-            issueMinDate
             issueList(limit: $limit) {
                 date
                 validityDate
@@ -89,6 +82,10 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                             size
                         }
                     }
+                    mediaSyncId
+                    chars
+                    words
+                    readMinutes
                 }
                 isWeekend
                 sectionList {
@@ -151,6 +148,10 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                                 size
                             }
                         }
+                        mediaSyncId
+                        chars
+                        words
+                        readMinutes
                     }
                     imageList {
                         name

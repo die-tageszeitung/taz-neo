@@ -23,7 +23,6 @@ import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -49,7 +48,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override val viewModel: BookmarkPagerViewModel by activityViewModels()
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
-    private val drawerViewModel: SectionDrawerViewModel by activityViewModels()
 
     override fun onResume() {
         super.onResume()

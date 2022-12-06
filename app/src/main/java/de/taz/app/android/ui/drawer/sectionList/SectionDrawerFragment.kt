@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_RESOURCE_FILE_NAME
+import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.ViewBindingFragment
@@ -21,7 +21,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.DateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
@@ -85,7 +84,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             SectionListAdapter(::onSectionItemClickListener, requireActivity().theme)
         lifecycleScope.launch(Dispatchers.IO) {
             val weekendTypefaceFileEntry =
-                fileEntryRepository.get(WEEKEND_TYPEFACE_RESOURCE_FILE_NAME)
+                fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
             defaultTypeface = ResourcesCompat.getFont(requireContext(), R.font.appFontBold)
             weekendTypeface =
                 weekendTypefaceFileEntry?.let {
@@ -292,7 +291,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 momentBinder = MomentViewBinding(
                     this@SectionDrawerFragment,
                     momentPublication,
-                    DateFormat.None,
+                    null,
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {

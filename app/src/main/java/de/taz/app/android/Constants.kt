@@ -19,10 +19,12 @@ const val WEBVIEW_HTML_FILE_DATA_POLICY = "welcomeSlidesDataPolicy.html"
 const val WEBVIEW_HTML_FILE_SEARCH_HELP = "searchHelp.html"
 const val WEBVIEW_JQUERY_FILE = "jquery-3.min.js"
 const val WEBVIEW_TAP_TO_SCROLL_OFFSET = 350
-const val WEEKEND_TYPEFACE_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
+const val WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
+const val WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME = "knile-regular-webfont.woff"
+const val COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE = 15
 
 const val MIN_TEXT_SIZE = 30
-const val MAX_TEST_SIZE = 200
+const val MAX_TEXT_SIZE = 200
 
 // Settings
 const val ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE = "ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE"

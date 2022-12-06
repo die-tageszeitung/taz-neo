@@ -64,48 +64,19 @@ class ContentService(
     }
 
     /**
-     * Get a [Flow] emitting [CacheStateUpdate]s concerning [download]
-     *
-     * @param download The download to listen updates on
-     * @return A Flow object emitting [CacheStateUpdate]s
-     */
-    fun getCacheStatusFlow(download: ObservableDownload): Flow<CacheStateUpdate> {
-        // we need to listen for either parent tag or tag with /pdf because downloads with pages
-        // should also be shown as download of issue and deletion as well.
-        val parentTags: List<String> =
-            listOf(determineParentTag(download), determinePdfTag(download))
-        val tag = download.getDownloadTag()
-        return cacheStatusFlow
-            .filter { pair ->
-                // Receive updates to both the parent operation and any discrete operation
-                parentTags.any { tag -> pair.first.startsWith(tag) } || tag == pair.first
-            }
-            .map { it.second }
-            .onEmpty {
-                val stateUpdate: CacheStateUpdate =
-                    activeCacheOperations.filterKeys { it in parentTags }.values.firstOrNull()?.state
-                        ?: getCacheState(download)
-
-                // only emit if no status has been provided yet
-                log.debug("emitting on empty $stateUpdate")
-                emit(stateUpdate)
-            }
-    }
-
-    /**
-     * Determine the [CacheState] by looking at [DownloadableStub.isDownloaded]
-     * and create a [CacheStateUpdate] from that information.
+     * Determine if the [observableDownload] is downloaded by looking at [DownloadableStub.isDownloaded].
      *
      * @param observableDownload The [ObservableDownload] of which the state should be determined
-     * @return A [CacheStateUpdate] indicating the current state of [observableDownload]
+     * @return true if the [observableDownload] is downloaded
      */
-    suspend fun getCacheState(
+    suspend fun isPresent(
         observableDownload: ObservableDownload,
-    ): CacheStateUpdate {
-        val isDownloaded = when (observableDownload) {
+    ): Boolean {
+        return when (observableDownload) {
             is DownloadableCollection -> observableDownload.isDownloaded(applicationContext)
             is AppInfoKey -> appInfoRepository.get() != null
-            is ResourceInfoKey -> resourceInfoRepository.getStub()?.resourceVersion ?: -1 > observableDownload.minVersion
+            is ResourceInfoKey ->
+                (resourceInfoRepository.getStub()?.resourceVersion ?: -1) > observableDownload.minVersion
             is MomentKey -> momentRepository.isDownloaded(observableDownload)
             is AbstractIssueKey -> issueRepository.isDownloaded(observableDownload)
             is AbstractIssuePublication -> issueRepository.getMostValuableIssueKeyForPublication(
@@ -115,19 +86,6 @@ class ContentService(
                 else false
             } ?: false
             else -> false
-        }
-        return if (isDownloaded) {
-            CacheStateUpdate(
-                CacheStateUpdate.Type.INITIAL,
-                CacheState.PRESENT,
-                null
-            )
-        } else {
-            CacheStateUpdate(
-                CacheStateUpdate.Type.INITIAL,
-                CacheState.ABSENT,
-                null
-            )
         }
     }
 

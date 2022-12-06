@@ -32,4 +32,5 @@
     <color name="settings_separator_view_color">@color/mediumLightGrey</color>
     <color name="settings_plus_minus_icon_color">@color/superSuperLightGrey</color>
     <color name="settings_plus_minus_icon_circle_color">@color/mediumLightGrey</color>
+    <color name="read_minutes">@color/mediumLightGrey</color>
 </resources>

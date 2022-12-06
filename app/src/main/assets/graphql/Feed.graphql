@@ -12,6 +12,10 @@ query FeedQuery($name: String) {
             issueCnt
             issueMaxDate
             issueMinDate
+            validityDates {
+                date
+                validityDate
+            }
         }
     }
 }

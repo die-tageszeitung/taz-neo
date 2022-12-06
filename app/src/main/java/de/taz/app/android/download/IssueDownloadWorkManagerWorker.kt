@@ -3,13 +3,14 @@ package de.taz.app.android.download
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import de.taz.app.android.BuildConfig
+import de.taz.app.android.BuildConfig.DISPLAYED_FEED
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NewIssuePollingScheduler
 import io.sentry.Sentry
@@ -32,6 +33,7 @@ class IssueDownloadWorkManagerWorker(
     override suspend fun doWork(): Result = coroutineScope {
         val contentService = ContentService.getInstance(applicationContext)
         val feedService = FeedService.getInstance(applicationContext)
+        val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
         val scheduleNext = inputData.getBoolean(KEY_SCHEDULE_NEXT, false)
 
@@ -47,17 +49,18 @@ class IssueDownloadWorkManagerWorker(
         try {
             // maybe get new issue
             val newestIssueKey =
-                feedService.refreshFeedAndGetIssueKeyIfNew(BuildConfig.DISPLAYED_FEED)
+                feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)
             if (newestIssueKey == null) {
-                val oldFeed = feedService.getFeedFlowByName(BuildConfig.DISPLAYED_FEED).first()
-                log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)}")
+                val oldFeed = feedService.getFeedFlowByName(DISPLAYED_FEED).first()
+                log.info("No new issue found, newest issue: ${oldFeed?.publicationDates?.getOrNull(0)?.date}")
                 return@coroutineScope Result.success()
             } else {
-                if (DownloadDataStore.getInstance(applicationContext).pdfAdditionally.get()) {
-                    val issueKeyWithPages = IssueKeyWithPages(newestIssueKey)
-                    contentService.downloadToCache(issueKeyWithPages, isAutomaticDownload = true)
+                if (downloadDataStore.pdfAdditionally.get()) {
+                    val issuePublicationWithPages = IssuePublicationWithPages(newestIssueKey)
+                    contentService.downloadToCache(issuePublicationWithPages, isAutomaticDownload = true)
                 } else {
-                    contentService.downloadToCache(newestIssueKey, isAutomaticDownload = true)
+                    val issuePublication = IssuePublication(newestIssueKey)
+                    contentService.downloadToCache(issuePublication, isAutomaticDownload = true)
                 }
                 log.info("Downloaded new issue automatically: ${newestIssueKey.date}")
                 return@coroutineScope Result.success()

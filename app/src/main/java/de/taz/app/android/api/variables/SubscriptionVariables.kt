@@ -1,13 +1,7 @@
 package de.taz.app.android.api.variables
 
-import kotlinx.serialization.Serializable
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.dto.DeviceFormat
-import de.taz.app.android.api.dto.DeviceType
-import kotlinx.serialization.Required
-import kotlinx.serialization.encodeToString
-import de.taz.app.android.util.Json
-
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class SubscriptionVariables(
@@ -28,7 +22,7 @@ data class SubscriptionVariables(
     val accountHolder: String? = null,
     val comment: String? = null,
     val deviceFormat: DeviceFormat,
-     val deviceName: String? = android.os.Build.MODEL,
+    val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,
     val deviceType: DeviceType = DeviceType.android,

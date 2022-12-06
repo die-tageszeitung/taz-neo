@@ -18,7 +18,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.dto.StorageType
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.StartupActivity

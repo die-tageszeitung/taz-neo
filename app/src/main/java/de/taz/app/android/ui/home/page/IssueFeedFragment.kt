@@ -50,7 +50,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     override val viewModel: IssueFeedViewModel by activityViewModels()
 
-    abstract var adapter: IssueFeedAdapter
+    protected var adapter: IssueFeedAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +93,10 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         // notify the adapter to redraw the item if it changed (e.g. got deleted)
         momentChangedListener = viewModel.addNotifyMomentChangedListener { date ->
             lifecycleScope.launch(Dispatchers.Main) {
-                adapter.notifyItemChanged(adapter.getPosition(date))
+                adapter?.apply {
+                    val position = getPosition(date)
+                    notifyItemChanged(position)
+                }
             }
         }
 
@@ -102,7 +105,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
             if (AuthStatus.valid == it) {
                 lifecycleScope.launchWhenResumed {
                     withContext(Dispatchers.Main) {
-                        adapter.notifyDataSetChanged()
+                        adapter?.notifyDataSetChanged()
                     }
                 }
             }
@@ -117,7 +120,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
         requireActivity().apply {
             val intent = if (viewModel.pdfModeLiveData.value == true) {
-                PdfPagerActivity.newIntent(this,  IssuePublicationWithPages(issuePublication))
+                PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
             } else {
                 IssueViewerActivity.newIntent(this, IssuePublication(issuePublication))
             }
@@ -128,6 +131,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     override fun onDestroy() {
         super.onDestroy()
+        adapter = null
         momentChangedListener?.let {
             viewModel.removeNotifyMomentChangedListener(it)
         }

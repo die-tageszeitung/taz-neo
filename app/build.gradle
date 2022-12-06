@@ -113,6 +113,7 @@ def getVersionCode = { ->
 }
 
 android {
+    namespace 'de.taz.app.android'
     compileSdkVersion 33
 
     buildFeatures {
@@ -316,7 +317,7 @@ dependencies {
     def coroutines_version = '1.6.4'
     def glide_version = '4.13.2'
     def ktor_version = '2.0.3'
-    def lifecycle_version = '2.5.0'
+    def lifecycle_version = '2.5.1'
     def mockito_version = '4.6.1'
     def powermock_version = '2.0.9'
     def room_version = '2.4.3'
@@ -324,19 +325,19 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'androidx.core:core-splashscreen:1.0.0-rc01'
+    implementation 'androidx.core:core-splashscreen:1.0.0'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.collection:collection-ktx:1.2.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    implementation 'androidx.fragment:fragment-ktx:1.5.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.4'
 
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.github.valkriaine:Bouncy:2.3'
@@ -417,19 +418,19 @@ dependencies {
     testImplementation "org.powermock:powermock-api-mockito2:$powermock_version"
 
     // Core library
-    androidTestImplementation 'androidx.test:core:1.4.0'
+    androidTestImplementation 'androidx.test:core:1.5.0'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test:rules:1.4.0'
-    androidTestUtil 'androidx.test:orchestrator:1.4.1'
+    androidTestImplementation 'androidx.test:runner:1.5.1'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestUtil 'androidx.test:orchestrator:1.4.2'
 
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
 
-    def espressoVersion = '3.4.0'
+    def espressoVersion = '3.5.0'
     // Espresso dependencies
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
@@ -448,10 +449,10 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.0.6'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.1.0'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
 }
 
 sentry {

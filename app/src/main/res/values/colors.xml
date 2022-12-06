@@ -6,7 +6,6 @@
     <color name="green">#34C759</color>
     <color name="mediumLightGrey">#707070</color>
     <color name="darkGrey">#1C1C1E</color>
-    <color name="deleteRed">#d50e2f</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="superDarkGrey">#121212</color>
     <color name="superLightGrey">#E3E3E3</color>
@@ -24,6 +23,9 @@
     <color name="drawer_sections_item_highlighted">@color/black</color>
     <color name="navigation_bottom_highlight">@color/black</color>
     <color name="textColor">@color/black</color>
+    <color name="colorAccent">@color/tazRed</color>
+    <color name="deleteRed">#d50e2f</color>
+    <color name="linkColor">@color/blue</color>
 
     <color name="icon_active_filter">@color/blue</color>
 
@@ -55,7 +57,6 @@
     <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>
     <color name="search_field_background_color">@color/superSuperLightGrey</color>
 
-    <color name="colorAccent">@color/tazRed</color>
     <color name="colorPrimary">@color/tazRed</color>
     <color name="colorPrimaryDark">@color/tazRed</color>
     <color name="drawer_sections_item">@color/tazRed</color>
@@ -92,4 +93,5 @@
     <color name="settings_plus_minus_icon_circle_color">@color/superLightGrey</color>
 
     <color name="material_switch_color">@color/green</color>
+    <color name="read_minutes">@color/lightGrey</color>
 </resources>

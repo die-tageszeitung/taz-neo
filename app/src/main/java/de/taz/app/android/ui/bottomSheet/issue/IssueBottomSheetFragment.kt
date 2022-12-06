@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
@@ -192,8 +191,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     }
 
     private suspend fun getIsDownloaded(): Boolean {
-        return contentService.getCacheState(
-            issuePublication
-        ).cacheState == CacheState.PRESENT
+        return contentService.isPresent(issuePublication)
     }
 }

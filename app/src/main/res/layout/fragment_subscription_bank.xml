@@ -38,7 +38,7 @@
             app:counterMaxLength="30"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_bank_description">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_bank_iban"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
             app:helperTextEnabled="true"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_bank_iban_layout">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_bank_account_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

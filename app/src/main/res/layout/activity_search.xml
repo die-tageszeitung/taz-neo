@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     android:animateLayoutChanges="true">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -139,6 +140,7 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/linkColor"
                 android:text="@string/search_advanced_help" />
 
         </LinearLayout>

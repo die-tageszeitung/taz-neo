@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.*
+import de.taz.app.android.api.mappers.*
 import de.taz.app.android.api.models.*
 import de.taz.app.android.api.variables.*
 import de.taz.app.android.data.INFINITE
@@ -104,7 +105,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     firstName = firstName,
                     deviceFormat = deviceFormat
                 )
-            ).data?.subscriptionId2tazId
+            ).data
+                ?.subscriptionId2tazId
+                ?.let { SubscriptionInfoMapper.from(it) }
         }
     }
 
@@ -119,7 +122,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     installationId = authHelper.installationId.get(),
                     deviceFormat = deviceFormat
                 )
-            ).data?.subscriptionPoll
+            ).data
+                ?.subscriptionPoll
+                ?.let { SubscriptionInfoMapper.from(it) }
         }
     }
 
@@ -134,7 +139,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         val tag = "authenticate"
         log.debug("$tag username: $user")
 
-        val data = transformToConnectivityException {
+        val response = transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Authentication,
                 AuthenticationVariables(
@@ -142,10 +147,10 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     password = password,
                     deviceFormat = deviceFormat
                 )
-            ).data
+            ).data?.authentificationToken
         }
 
-        return data?.authentificationToken
+        return response?.let { AuthTokenInfoMapper.from(it) }
     }
 
     /**
@@ -159,7 +164,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         subscriptionId: Int,
         password: String
     ): AuthInfo? = transformToConnectivityException {
-        graphQlClient.query(
+        val response = graphQlClient.query(
             QueryType.CheckSubscriptionId,
             CheckSubscriptionIdVariables(
                 subscriptionId = subscriptionId,
@@ -167,6 +172,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 deviceFormat = deviceFormat
             ),
         ).data?.checkSubscriptionId
+        response?.let { AuthInfoMapper.from(it) }
     }
 
 
@@ -176,8 +182,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun getAppInfo(): AppInfo = transformToConnectivityException {
         val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
+        log.error("!!! $productDto")
         if (productDto != null) {
-            AppInfo(productDto)
+            AppInfoMapper.from(productDto)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
@@ -193,7 +200,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             QueryType.Feed,
             FeedVariables(feedName = name)
         ).data?.product?.feedList?.map {
-            Feed(it)
+            FeedMapper.from(it)
         }?.firstOrNull()
     }
 
@@ -231,7 +238,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 QueryType.LastIssues,
                 IssueVariables(limit = limit)
             ).data?.product?.feedList?.forEach { feed ->
-                issues.addAll((feed.issueList ?: emptyList()).map { Issue(feed.name!!, it) })
+                val feedName = requireNotNull(feed.name)
+                val feedIssues = feed.issueList
+                    ?.map { IssueMapper.from(feedName, it) }
+                    ?: emptyList()
+                issues.addAll(feedIssues)
             }
         }
         return issues
@@ -244,13 +255,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         searchText: String,
         title: String?,
         author: String?,
+        sessionId: String? = null,
         rowCnt: Int = 20,
         offset: Int = 0,
         pubDateFrom: String? = null,
         pubDateUntil: String? = null,
         filter: SearchFilter = SearchFilter.all,
         sorting: Sorting = Sorting.relevance
-    ): SearchDto? {
+    ): Search? {
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Search,
@@ -258,6 +270,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     text = searchText,
                     title = title,
                     author = author,
+                    sessionId = sessionId,
                     rowCnt = rowCnt,
                     offset = offset,
                     pubDateFrom = pubDateFrom,
@@ -267,6 +280,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     deviceFormat = deviceFormat
                 )
             ).data?.search
+        }?.let { searchDto ->
+            SearchMapper.from(searchDto)
         }
     }
 
@@ -289,7 +304,11 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, limit)
-            ).data?.product?.feedList?.first()?.issueList?.map { Issue(feedName, it) }
+            ).data?.product
+                ?.feedList
+                ?.first()
+                ?.issueList
+                ?.map { IssueMapper.from(feedName, it) }
                 ?: emptyList()
         }
     }
@@ -309,9 +328,19 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.Moment, IssueVariables(feedName, dateString, 1)
-            ).data?.product?.feedList?.first()?.issueList?.first()?.let {
-                Moment(IssueKey(feedName, dateString, it.status), it.baseUrl, it.moment)
-            }
+            ).data?.product
+                ?.feedList
+                ?.first()
+                ?.issueList
+                ?.first()
+                ?.let {
+                    val status = IssueStatusMapper.from(it.status)
+                    MomentMapper.from(
+                        IssueKey(feedName, dateString, status),
+                        it.baseUrl,
+                        it.moment
+                    )
+                }
         }
     }
 
@@ -331,15 +360,23 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.IssueByFeedAndDate, IssueVariables(feedName, dateString, 1)
-            ).data?.product?.feedList?.first()?.issueList?.first()?.let { issue ->
-                issue.pageList?.firstOrNull()?.let { page ->
-                    Page(
-                        IssueKey(feedName, dateString, issue.status),
-                        page,
-                        issue.baseUrl
-                    ) to issue.status
+            ).data?.product
+                ?.feedList
+                ?.first()
+                ?.issueList
+                ?.first()
+                ?.let { issue ->
+                    issue.pageList?.firstOrNull()
+                        ?.let { pageDto ->
+                            val status = IssueStatusMapper.from(issue.status)
+                            val page = PageMapper.from(
+                                IssueKey(feedName, dateString, status),
+                                issue.baseUrl,
+                                pageDto
+                            )
+                            page to status
+                        }
                 }
-            }
         }
     }
 
@@ -352,7 +389,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(QueryType.ResourceInfo).data?.product
         }
         if (productDto != null) {
-            return ResourceInfo(productDto)
+            return ResourceInfoMapper.from(productDto)
         } else {
             throw ConnectivityException.ImplementationException("Unexpected response while retrieving AppInfo")
         }
@@ -505,7 +542,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     nameAffix = nameAffix,
                     deviceFormat = deviceFormat
                 )
-            ).data?.subscription
+            ).data
+                ?.subscription
+                ?.let { SubscriptionInfoMapper.from(it) }
         }
     }
 
@@ -539,7 +578,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     pushToken = fireBaseDataStore.token.get(),
                     deviceFormat = deviceFormat
                 )
-            ).data?.trialSubscription
+            ).data
+                ?.trialSubscription
+                ?.let { SubscriptionInfoMapper.from(it) }
         }
     }
 
@@ -631,7 +672,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     subscriptionId = subscriptionId,
                     deviceFormat = deviceFormat
                 )
-            ).data?.subscriptionReset
+            ).data
+                ?.subscriptionReset
+                ?.let { SubscriptionResetInfoMapper.from(it) }
         }
     }
 
@@ -639,7 +682,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return transformToConnectivityException {
             graphQlClient.query(
                 QueryType.PriceList
-            ).data?.priceList
+            ).data
+                ?.priceList
+                ?.map { PriceInfoMapper.from(it) }
         } ?: emptyList()
     }
 
@@ -654,9 +699,14 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 )
             )
 
-            issues.data?.product?.feedList?.firstOrNull()?.issueList?.firstOrNull()?.let {
-                Issue(issuePublication.feedName, it)
-            }
+            issues.data?.product
+                ?.feedList
+                ?.firstOrNull()
+                ?.issueList
+                ?.firstOrNull()
+                ?.let {
+                    IssueMapper.from(issuePublication.feedName, it)
+                }
         } ?: throw NotFoundException()
 
 
@@ -673,7 +723,9 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 CancellationVariables(
                     isForce
                 )
-            ).data?.cancellation
+            ).data
+                ?.cancellation
+                ?.let { CancellationStatusMapper.from(it) }
         }
     }
 
@@ -684,6 +736,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun subscriptionFormData(
         type: SubscriptionFormDataType,
         mail: String? = null,
+        subscriptionId: Int? = null,
         surname: String? = null,
         firstname: String? = null,
         street: String? = null,
@@ -692,11 +745,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         country: String? = null,
         message: String? = null,
         requestCurrentSubscriptionOpportunities: Boolean? = null,
-    ): SubscriptionInfo? {
+    ): SubscriptionFormData {
         val tag = "subscriptionFormData"
         val variables = SubscriptionFormDataVariables(
             type,
             mail,
+            subscriptionId,
             surname,
             firstname,
             street,
@@ -712,9 +766,13 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             graphQlClient.query(
                 QueryType.SubscriptionFormData,
                 variables
-            ).data?.subscription
-        }
+            )
+        }.data
+            ?.subscriptionFormData
+            ?.let { SubscriptionFormDataMapper.from(it) }
+            ?: throw Exception("Missing SubscriptionFormData response - was null")
     }
+
     /**
      * function to get the customer type
      */
@@ -722,10 +780,12 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     suspend fun getCustomerType(): CustomerType? {
         val tag = "customerInfo"
         log.debug("call graphql  $tag")
-        return transformToConnectivityException {
+        val response = transformToConnectivityException {
             graphQlClient.query(
                 QueryType.CustomerInfo
             ).data?.customerInfo?.customerType
         }
+
+        return response?.let { CustomerTypeMapper.from(it) }
     }
 }

@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/read_on_description">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/read_on_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
             app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
             app:passwordToggleEnabled="true">
 
-            <de.taz.app.android.util.AppTextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/read_on_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -167,10 +167,10 @@
 
         <TextView
             android:id="@+id/read_on_trial_subscription_box_title"
+            style="@style/TextAppearance.Login.Text.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_trial_subscription_title"
-            android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -203,10 +203,10 @@
 
         <TextView
             android:id="@+id/read_on_switch_print2digi_box_title"
+            style="@style/TextAppearance.Login.Text.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_switch_print2digi_title"
-            android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -239,10 +239,10 @@
 
         <TextView
             android:id="@+id/read_on_extend_print_with_digi_box_title"
+            style="@style/TextAppearance.Login.Text.Headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_extend_print_with_digi_title"
-            android:textSize="@dimen/login_box_title_text_size"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

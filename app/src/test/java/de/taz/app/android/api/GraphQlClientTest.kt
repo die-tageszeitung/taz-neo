@@ -6,8 +6,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.api.dto.AppName
-import de.taz.app.android.api.dto.AppType
+import de.taz.app.android.api.dto.AppNameDto
+import de.taz.app.android.api.dto.AppTypeDto
+import de.taz.app.android.api.models.AppName
+import de.taz.app.android.api.models.AppType
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Json
@@ -95,8 +97,8 @@ class GraphQlClientTest {
 
             val wrapperDto: WrapperDto = graphQlClient.query(QueryType.AppInfo)
             assertTrue(wrapperDto.data?.authentificationToken == null)
-            assertTrue(wrapperDto.data?.product!!.appName!! == AppName.taz)
-            assertTrue(wrapperDto.data?.product!!.appType!! == AppType.production)
+            assertTrue(wrapperDto.data?.product!!.appName!! == AppNameDto.taz)
+            assertTrue(wrapperDto.data?.product!!.appType!! == AppTypeDto.production)
         }
     }
 }

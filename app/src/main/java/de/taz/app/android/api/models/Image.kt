@@ -1,19 +1,11 @@
 package de.taz.app.android.api.models
 
 import android.content.Context
-import de.taz.app.android.api.dto.ImageDto
-import de.taz.app.android.api.dto.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.persistence.serializers.DateSerializer
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.Serializable
-import java.io.File
 import java.util.*
 
-@ExperimentalSerializationApi
-@Serializable
 data class Image(
     override val name: String,
     override val storageType: StorageType,
@@ -26,25 +18,9 @@ data class Image(
     val type: ImageType,
     val alpha: Float,
     val resolution: ImageResolution,
-    @Serializable(DateSerializer::class)
     override val dateDownload: Date?,
     override val storageLocation: StorageLocation
 ) : FileEntryOperations {
-
-    constructor(imageDto: ImageDto, path: String) : this(
-        name = imageDto.name,
-        storageType = imageDto.storageType,
-        moTime = imageDto.moTime,
-        sha256 = imageDto.sha256,
-        size = imageDto.size,
-        path = path,
-        folder = File(path).parent!!,
-        type = imageDto.type,
-        alpha = imageDto.alpha,
-        resolution = imageDto.resolution,
-        dateDownload = null,
-        storageLocation = StorageLocation.NOT_STORED
-    )
 
     constructor(fileEntry: FileEntry, imageStub: ImageStub) : this(
         name = fileEntry.name,

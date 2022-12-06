@@ -1,5 +1,10 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.api.models.AuthTokenInfo
+import kotlinx.serialization.Serializable
 
-typealias AuthTokenInfoDto = AuthTokenInfo
+@Serializable
+data class AuthTokenInfoDto(
+    var token: String? = null,
+    var authInfo: AuthInfoDto,
+    var customerType: CustomerTypeDto? = null,
+)

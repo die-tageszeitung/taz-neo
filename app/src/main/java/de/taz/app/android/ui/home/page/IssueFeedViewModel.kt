@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import java.util.*
 

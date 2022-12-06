@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
@@ -21,6 +20,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -90,44 +90,62 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                         v.height
                     )
                 }
+            }
+        }
 
-                drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-                    var opened = false
+        if (BuildConfig.IS_LMD) {
+            viewBinding.drawer.visibility = View.GONE
+            viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
+        } else {
+            // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
+            if (activity is BookmarkViewerActivity) {
+                viewBinding.drawerLogo.visibility = View.GONE
+            } else {
+                viewBinding.apply {
+                    drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                        drawerLayout.updateDrawerLogoBoundingBox(
+                            v.width,
+                            v.height
+                        )
+                    }
 
-                    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                        (drawerView.parent as? View)?.let { parentView ->
-                            val drawerWidth =
-                                drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width()
-                                    ?: 0)
-                            if (parentView.width < drawerWidth) {
-                                // translation needed for logo to be shown when drawer is too wide:
-                                val offsetOnOpenDrawer =
-                                    slideOffset * (parentView.width - drawerWidth)
-                                // translation needed when drawer is closed then:
-                                val offsetOnClosedDrawer =
-                                    (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                                drawerLogoWrapper.translationX =
-                                    offsetOnOpenDrawer + offsetOnClosedDrawer
+                    drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+                        var opened = false
+
+                        override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                            (drawerView.parent as? View)?.let { parentView ->
+                                val drawerWidth =
+                                    drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
+                                if (parentView.width < drawerWidth) {
+                                    // translation needed for logo to be shown when drawer is too wide:
+                                    val offsetOnOpenDrawer =
+                                        slideOffset * (parentView.width - drawerWidth)
+                                    // translation needed when drawer is closed then:
+                                    val offsetOnClosedDrawer =
+                                        (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                                    drawerLogoWrapper.translationX =
+                                        offsetOnOpenDrawer + offsetOnClosedDrawer
+                                }
                             }
                         }
-                    }
 
-                    override fun onDrawerOpened(drawerView: View) {
-                        opened = true
-                    }
+                        override fun onDrawerOpened(drawerView: View) {
+                            opened = true
+                        }
 
-                    override fun onDrawerClosed(drawerView: View) {
-                        opened = false
-                    }
+                        override fun onDrawerClosed(drawerView: View) {
+                            opened = false
+                        }
 
-                    override fun onDrawerStateChanged(newState: Int) {}
-                })
+                        override fun onDrawerStateChanged(newState: Int) {}
+                    })
 
-                sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
-                    if (it) {
-                        drawerLayout.openDrawer(GravityCompat.START)
-                    } else {
-                        drawerLayout.closeDrawers()
+                    sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
+                        if (it) {
+                            drawerLayout.openDrawer(GravityCompat.START)
+                        } else {
+                            drawerLayout.closeDrawers()
+                        }
                     }
                 }
             }

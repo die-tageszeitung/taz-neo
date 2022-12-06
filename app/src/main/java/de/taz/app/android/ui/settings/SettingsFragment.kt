@@ -36,7 +36,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.observeDistinct
-import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
@@ -50,6 +49,7 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import java.util.*
 import java.util.regex.Pattern
 
 @Suppress("UNUSED")
@@ -76,7 +76,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
+            text = context.getString(
+                R.string.settings
+            ).lowercase(Locale.getDefault())
+        }
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
@@ -268,7 +272,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
-            notificationsEnabledLivedata.observeDistinctIgnoreFirst(viewLifecycleOwner) { notificationsEnabled ->
+            notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
@@ -655,7 +659,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showNotificationsMustBeAllowedDialog()
             showNotificationsEnabledToggle(false)
         } else {
-            viewModel.setNotificationsEnabled(notificationsEnabled)
+            lifecycleScope.launch {
+                val result = viewModel.setNotificationsEnabled(notificationsEnabled)
+                if (result != notificationsEnabled) {
+                    showNotificationsChangeErrorToast()
+                    showNotificationsEnabledToggle(result)
+                }
+            }
         }
     }
 
@@ -686,6 +696,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showNotificationsChangeErrorToast() {
+        toastHelper.showToast(R.string.settings_dialog_notification_change_error_toast, long = true)
+    }
 
     private fun openAndroidNotificationSettings() {
         activity?.applicationContext?.let { context ->

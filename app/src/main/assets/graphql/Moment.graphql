@@ -1,13 +1,6 @@
 query Moment($feedName: String, $issueDate: String!, $limit: Int!) {
     product {
         feedList(name: $feedName) {
-            name
-            cycle
-            momentRatio
-            publicationDates
-            issueCnt
-            issueMaxDate
-            issueMinDate
             issueList(issueDate: $issueDate, limit: $limit) {
                 date
                 moment {

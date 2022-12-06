@@ -79,7 +79,7 @@
     <style name="TextAppearance.Fragment.Title" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
@@ -285,17 +285,38 @@
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">3</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:paddingTop">5dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:paddingEnd">5dp</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/read_minutes</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Date" parent="TextAppearance.AppCompat.Medium">
@@ -333,6 +354,11 @@
         <item name="android:textAlignment">center</item>
     </style>
 
+    <style name="TextAppearance.Login.Text.Headline" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">@dimen/login_box_title_text_size</item>
+        <item name="fontFamily">@font/appFontBold</item>
+    </style>
+
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
@@ -356,6 +382,7 @@
     <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheetModal</item>
+        <item name="android:backgroundTint">@color/backgroundColor</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 

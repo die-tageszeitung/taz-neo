@@ -21,6 +21,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -158,7 +159,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
             }
 
             issueDateTextView.text =
-                pdfPagerViewModel.issuePublication?.let { setDrawerDate(it) } ?: ""
+                pdfPagerViewModel.issue?.let { setDrawerDate(it) } ?: ""
 
             adapter =
                 PdfDrawerRecyclerViewAdapter(
@@ -183,7 +184,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
 
     }
 
-    private fun setDrawerDate(issuePublicationWithPages: IssuePublicationWithPages): String? {
+    private fun setDrawerDate(issueWithPages: IssueWithPages): String? {
         val issue = pdfPagerViewModel.issue
         return if (issue?.isWeekend == true && !issue.validityDate.isNullOrBlank()) {
             DateHelper.stringsToWeek2LineString(
@@ -191,7 +192,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 issue.validityDate
             )
         } else {
-            DateHelper.stringToLongLocalized2LineString(issuePublicationWithPages.date)
+            DateHelper.stringToLongLocalized2LineString(issueWithPages.date)
         }
     }
 

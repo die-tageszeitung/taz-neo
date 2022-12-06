@@ -1,7 +1,7 @@
 package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
-import de.taz.app.android.api.dto.Cycle
+import de.taz.app.android.api.models.Cycle
 
 
 class CycleTypeConverter{

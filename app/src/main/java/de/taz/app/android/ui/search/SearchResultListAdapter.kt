@@ -15,13 +15,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.api.dto.SearchHitDto
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.singletons.DateHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SearchResultListAdapter(
-    private var searchResultList: List<SearchHitDto>
+    private var searchResultList: List<SearchHit>
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
@@ -95,11 +95,9 @@ class SearchResultListAdapter(
         val dateString = date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
 
         // get the author(s) from the article
-        val authorList = searchResultItem.article?.authorList?.map { it.name }
-        if (authorList?.isNotEmpty() == true) {
-            val authorString = authorList.toString()
-                .replace("[", "")
-                .replace("]", "")
+        val authorList = searchResultItem.authorList.map { it.name }
+        if (authorList.isNotEmpty()) {
+            val authorString = authorList.joinToString(", ")
             holder.authorTextView.text = authorString
         } else {
             holder.authorTextView.visibility = View.GONE
