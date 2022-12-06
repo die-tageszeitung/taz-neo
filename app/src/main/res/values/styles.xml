@@ -255,7 +255,7 @@
         <item name="android:textSize">23sp</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
-        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_bottom</item>
+        <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
     </style>
 
     <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">

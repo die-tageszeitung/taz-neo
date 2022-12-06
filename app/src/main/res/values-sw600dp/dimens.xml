@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fragment_webview_header_padding_top">48dp</dimen>
+    <dimen name="fragment_webview_header_padding_top">61dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">120dp</dimen>
 
@@ -13,4 +13,5 @@
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
     <dimen name="drawer_width">390dp</dimen>
     <dimen name="fragment_drawer_sections_item_text_size">23dp</dimen>
+    <dimen name="fragment_settings_plus_minus_width">150dp</dimen>
 </resources>
