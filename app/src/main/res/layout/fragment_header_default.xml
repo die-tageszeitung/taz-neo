@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/backgroundColor"
+    app:contentInsetStart="@dimen/fragment_header_default_margin_horizontal"
+    app:contentInsetEnd="@dimen/fragment_header_default_margin_horizontal"
     android:paddingTop="@dimen/fragment_webview_header_padding_top"
     app:layout_constraintTop_toTopOf="parent">
 
