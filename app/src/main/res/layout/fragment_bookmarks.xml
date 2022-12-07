@@ -12,7 +12,8 @@
 
     <include
         android:id="@+id/loading_screen"
-        layout="@layout/include_loading_screen" />
+        layout="@layout/include_loading_screen"
+        tools:visibility="gone"/>
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -47,6 +48,7 @@
             android:id="@+id/drawer_menu_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/fragment_bookmarks_list_margin_top"
             app:layout_constraintBottom_toBottomOf="parent"
             tools:listitem="@layout/fragment_bookmarks_article_item" />
 

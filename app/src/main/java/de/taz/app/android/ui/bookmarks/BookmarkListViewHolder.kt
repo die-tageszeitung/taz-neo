@@ -3,6 +3,7 @@ package de.taz.app.android.ui.bookmarks
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -81,11 +82,15 @@ class BookmarkListViewHolder(
 
             // get the author(s) from the article
             val authorList = article.authorList.map { it.name }.distinct()
-            val authorString = authorList.toString()
-                .replace("[", "")
-                .replace("]", "")
-
-            bookmarkAuthor?.text = authorString
+            if (authorList.isNotEmpty()) {
+                bookmarkAuthor?.apply {
+                    visibility = View.VISIBLE
+                    text = authorList.joinToString(", ")
+                }
+            } else {
+                // Dont show an empty author textview to prevent some paddings on the readminutes
+                bookmarkAuthor?.visibility = View.GONE
+            }
 
             bookmarkBox?.setOnClickListener {
                 Intent(parent.context, BookmarkViewerActivity::class.java).apply {
