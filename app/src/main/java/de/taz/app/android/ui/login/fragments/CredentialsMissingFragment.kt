@@ -160,7 +160,8 @@ class CredentialsMissingFragment :
     }
 
     override fun done(): Boolean {
-        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim()
+        // email need to be lowercase as otherwise the regex pattern won't accept
+        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim().lowercase()
         val password = viewBinding.fragmentLoginMissingCredentialsPassword.text.toString()
 
         val passwordConfirm =

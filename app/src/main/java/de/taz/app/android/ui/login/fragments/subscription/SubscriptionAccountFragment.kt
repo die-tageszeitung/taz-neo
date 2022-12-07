@@ -176,7 +176,8 @@ class SubscriptionAccountFragment :
         var done = true
 
         if (!viewModel.validCredentials) {
-            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()
+            // email need to be lowercase as otherwise the regex pattern won't accept
+            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()
             if (email.isNullOrBlank() || !Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
                     .matches()
             ) {
