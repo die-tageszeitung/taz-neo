@@ -98,7 +98,10 @@ class SearchResultListAdapter(
         val authorList = searchResultItem.authorList.map { it.name }
         if (authorList.isNotEmpty()) {
             val authorString = authorList.joinToString(", ")
-            holder.authorTextView.text = authorString
+            holder.authorTextView.apply {
+                visibility = View.VISIBLE
+                text = authorString
+            }
         } else {
             holder.authorTextView.visibility = View.GONE
         }

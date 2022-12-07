@@ -131,6 +131,7 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
     <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
 
+    <dimen name="fragment_bookmarks_list_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
     <dimen name="fragment_bookmarks_icons_vertical_margin">13.5dp</dimen>
     <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
@@ -147,6 +148,9 @@
     <dimen name="fragment_bookmarks_issue_header_date_text_size">18sp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_height">3dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">11dp</dimen>
+
+    <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
+    <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
