@@ -3,14 +3,15 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
-import de.taz.app.android.W3C_EMAIL_PATTERN
 import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
-import java.util.regex.Pattern
+import de.taz.app.android.util.validation.EmailValidator
 
 class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPasswordBinding>() {
+
+    private val emailValidator = EmailValidator()
 
     private var invalidId: Boolean = false
     private var invalidMail: Boolean = false
@@ -74,14 +75,12 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             done = false
         } else {
             if (username.toIntOrNull() == null) {
-                // email need to be lowercase as otherwise the regex pattern won't accept
-                val email = username.lowercase()
-                if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches()) {
+                if (!emailValidator(username)) {
                     done = false
                     viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
                         getString(R.string.login_email_error_invalid)
                 } else {
-                    viewModel.username = email
+                    viewModel.username = username
                 }
             } else {
                 viewModel.subscriptionId = username.toIntOrNull()

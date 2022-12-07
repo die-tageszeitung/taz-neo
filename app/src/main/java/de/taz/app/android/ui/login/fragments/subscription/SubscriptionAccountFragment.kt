@@ -20,10 +20,14 @@ import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.util.hideSoftInputKeyboard
-import java.util.regex.Pattern
+import de.taz.app.android.util.validation.EmailValidator
+import de.taz.app.android.util.validation.PasswordValidator
 
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment<FragmentSubscriptionAccountBinding>() {
+
+    private val passwordValidator = PasswordValidator()
+    private val emailValidator = EmailValidator()
 
     private var mailInvalid = false
     private var subscriptionInvalid = false
@@ -176,11 +180,8 @@ class SubscriptionAccountFragment :
         var done = true
 
         if (!viewModel.validCredentials) {
-            // email need to be lowercase as otherwise the regex pattern won't accept
-            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()
-            if (email.isNullOrBlank() || !Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
-                    .matches()
-            ) {
+            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()
+            if (email.isNullOrBlank() || !emailValidator(email)) {
                 done = false
                 setEmailError(R.string.login_email_error_empty)
             } else {
@@ -205,7 +206,7 @@ class SubscriptionAccountFragment :
                             R.string.login_password_confirmation_error_match
                         )
                     }
-                    if (!Pattern.compile(PASSWORD_PATTERN).matcher(pw).matches()) {
+                    if (!passwordValidator(pw)) {
                         done = false
                         viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(
                             R.string.login_password_regex_error

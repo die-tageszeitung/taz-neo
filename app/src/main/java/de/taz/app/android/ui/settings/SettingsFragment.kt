@@ -47,10 +47,10 @@ import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
+import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.regex.Pattern
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -64,6 +64,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
+
+    private val emailValidator = EmailValidator()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -305,9 +307,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             viewBinding.fragmentSettingsAccountLogout.text =
                 getString(R.string.settings_account_logout, email)
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
-                    .matches() || email.toIntOrNull() != null)
-            ) {
+            log.error("EMAIL: $email")
+            if (emailValidator(email) || email.toIntOrNull() != null) {
                 viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
             } else {
                 viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
