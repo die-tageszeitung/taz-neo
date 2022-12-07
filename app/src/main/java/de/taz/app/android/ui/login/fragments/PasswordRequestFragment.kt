@@ -74,12 +74,14 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             done = false
         } else {
             if (username.toIntOrNull() == null) {
-                if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(username).matches()) {
+                // email need to be lowercase as otherwise the regex pattern won't accept
+                val email = username.lowercase()
+                if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches()) {
                     done = false
                     viewBinding.fragmentLoginForgotPasswordUsernameLayout.error =
                         getString(R.string.login_email_error_invalid)
                 } else {
-                    viewModel.username = username
+                    viewModel.username = email
                 }
             } else {
                 viewModel.subscriptionId = username.toIntOrNull()
