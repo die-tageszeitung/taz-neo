@@ -655,12 +655,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         val permissionNotSet =
             !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
 
-        // Check if android allow the app to display notifications:
-        if (notificationsEnabled && permissionNotSet) {
-            showNotificationsMustBeAllowedDialog()
-            showNotificationsEnabledToggle(false)
-        } else {
-            lifecycleScope.launch {
+        lifecycleScope.launch {
+            // Check if android allow the app to display notifications:
+            if (notificationsEnabled && permissionNotSet) {
+                showNotificationsMustBeAllowedDialog()
+                viewModel.setNotificationsEnabled(false)
+                showNotificationsEnabledToggle(false)
+            } else {
                 val result = viewModel.setNotificationsEnabled(notificationsEnabled)
                 if (result != notificationsEnabled) {
                     showNotificationsChangeErrorToast()
