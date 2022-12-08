@@ -161,7 +161,7 @@
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
 
-    <string name="settings_dialog_notifications_must_be_enabled_title">Benachrichtigungen müssen für die App erlaubt sein</string>
+    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die taz-App aktivieren. Wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
     <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 
