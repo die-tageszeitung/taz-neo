@@ -22,7 +22,7 @@
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
         <item name="android:scrollbarSize">5dp</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
-        <item name="bottomSheetStyle">@style/AppTheme.BottomSheetMenuTheme</item>
+        <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
@@ -38,6 +38,19 @@
         <item name="backgroundInsetEnd">10dp</item>
         <item name="backgroundInsetTop">10dp</item>
         <item name="backgroundInsetBottom">10dp</item>
+    </style>
+
+    <style name="AppTheme.BottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="android:backgroundTint">@color/backgroundColor</item>
+        <item name="behavior_fitToContents">true</item>
+    </style>
+
+    <style name="AppTheme.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/AppTheme.BottomSheetStyle</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
+        <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
@@ -364,25 +377,6 @@
         <item name="android:textColor">@color/tazRed</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
-    </style>
-
-    <!-- Stuff to make the bottom sheet with round top borders -->
-    <style name="BottomSheetShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">16dp</item>
-        <item name="cornerSizeTopRight">16dp</item>
-    </style>
-
-    <style name="BottomSheetModal" parent="Widget.Design.BottomSheet.Modal">
-        <item name="shapeAppearance">@style/BottomSheetShapeAppearance</item>
-        <item name="behavior_fitToContents">true</item>
-    </style>
-
-    <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="bottomSheetStyle">@style/BottomSheetModal</item>
-        <item name="android:backgroundTint">@color/backgroundColor</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
 </resources>
