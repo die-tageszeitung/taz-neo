@@ -25,8 +25,6 @@ import kotlinx.coroutines.launch
 class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
 
-    override fun getTheme(): Int = R.style.AppTheme_BottomSheetMenuTheme
-
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var toastHelper: ToastHelper
 
