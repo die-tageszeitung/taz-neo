@@ -23,6 +23,7 @@
         <item name="android:scrollbarSize">5dp</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
         <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
+        <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
