@@ -28,10 +28,12 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
@@ -82,6 +84,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
     private lateinit var storageService: StorageService
     private lateinit var issuePublication: IssuePublicationWithPages
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     // mutable instance state
     private var navButton: Image? = null
@@ -103,6 +106,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         storageService = StorageService.getInstance(applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
 
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
@@ -241,6 +245,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                         }
                         pdfPagerViewModel.linkEventIsConsumed()
                     }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                    KeepScreenOnHelper.toggleScreenOn(it, this@PdfPagerActivity)
+                }
             }
         }
     }
