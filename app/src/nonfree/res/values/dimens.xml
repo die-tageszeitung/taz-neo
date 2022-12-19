@@ -10,4 +10,7 @@
     <dimen name="fragment_settings_category_margin_bottom">-8dp</dimen>
 
     <dimen name="button_custom_padding_to_center_aktiv_grotesk_font">10dp</dimen>
+
+    <dimen name="fragment_bookmarks_top_margin">16dp</dimen>
+    <dimen name="fragment_bookmarks_grotesk_font_adjustment">2dp</dimen>
 </resources>

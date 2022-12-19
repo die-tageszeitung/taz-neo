@@ -305,7 +305,9 @@
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">3sp</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingBottom">4dp</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
+        <item name="android:paddingBottom">2dp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
@@ -316,6 +318,8 @@
         <item name="android:textSize">14.5sp</item>
         <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
