@@ -81,7 +81,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
                 R.string.settings
-            ).lowercase(Locale.getDefault())
+            ).lowercase(appLocale)
         }
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
