@@ -14,6 +14,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.appLocale
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -75,7 +76,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
             text = context.getString(
                 R.string.fragment_bookmarks_title
-            ).lowercase(Locale.getDefault())
+            ).lowercase(appLocale)
         }
     }
 

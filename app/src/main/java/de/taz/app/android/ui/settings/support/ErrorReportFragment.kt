@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.appLocale
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
 import de.taz.app.android.singletons.AuthHelper
@@ -45,7 +46,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
         view.apply {
             viewBinding.settingsHeader.fragmentHeaderDefaultTitle.text =
-                getString(R.string.settings_header).lowercase(Locale.GERMAN)
+                getString(R.string.settings_header).lowercase(appLocale)
 
             lifecycleScope.launch {
                 // read email from settings
