@@ -126,7 +126,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             val currentSearchHit = getCurrentSearchHit()
             viewModel.articleFileName = currentSearchHit?.articleFileName
             super.onPageSelected(position)
-            log.debug("now on page: ${viewModel.articleFileName}!!! livedata: ${viewModel.isBookmarkedLiveData.value}")
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
@@ -147,6 +146,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onStop() {
         webViewPager.unregisterOnPageChangeCallback(pageChangeCallback)
+        (activity as? SearchActivity)?.updateRecyclerView(
+            getCurrentPagerPosition()
+        )
         super.onStop()
     }
 

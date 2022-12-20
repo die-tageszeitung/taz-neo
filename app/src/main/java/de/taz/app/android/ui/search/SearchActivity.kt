@@ -308,6 +308,10 @@ class SearchActivity :
 
     // endregion
     // region UI update functions
+    fun updateRecyclerView(position: Int) {
+        viewBinding.searchResultList.scrollToPosition(position)
+    }
+
     private fun showLoadingScreen() {
         viewBinding.searchLoadingScreen.visibility = View.VISIBLE
     }
