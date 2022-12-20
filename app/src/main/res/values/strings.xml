@@ -107,6 +107,8 @@
     <string name="settings_account_delete">Konto löschen</string>
     <string name="settings_account_elapsed">abgelaufen</string>
     <string name="settings_account_elapsed_on">seit %s abgelaufen</string>
+    <string name="settings_reset_password">Passwort zurücksetzen</string>
+    <string name="settings_manage_account_online">Konto online verwalten</string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="settings_decrease_keep_issues_number">Weniger Ausgaben speichern</string>

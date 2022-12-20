@@ -64,6 +64,9 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
+        viewBinding.fragmentLoginForgotPasswordCancelButton.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 
     override fun done(): Boolean {
