@@ -101,7 +101,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
     private fun initDrawerAdapterWithDelay(items: List<Page>) {
         lifecycleScope.launch {
             delay(DRAWER_INIT_DELAY_MS)
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 initDrawAdapter(items)
             }
         }
