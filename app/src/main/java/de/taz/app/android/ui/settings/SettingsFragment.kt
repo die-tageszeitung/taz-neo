@@ -19,6 +19,8 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -44,6 +46,7 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.fragments.PasswordRequestFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
@@ -178,6 +181,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
             }
 
+            fragmentSettingsAccountResetPassword.setOnClickListener {
+                val fragment = PasswordRequestFragment.create(
+                    invalidId = false,
+                    invalidMail = false,
+                    showSubscriptionId = false
+                )
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_content_fragment_placeholder, fragment)
+                    .addToBackStack(fragment::class.java.name)
+                    .commit()
+            }
+
+            fragmentSettingsManageAccountOnline.setOnClickListener {
+                openProfileAccountOnline()
+            }
+
             fragmentSettingsAccountLogout.setOnClickListener {
                 fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
                 logout()
@@ -297,19 +317,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     AuthStatus.elapsed
                 )
             ) {
-                showLogoutButton()
+                showActionsWhenLoggedIn()
                 showElapsedIndication(authStatus == AuthStatus.elapsed)
             } else {
-                showManageAccountButton()
+                showLoginButton()
             }
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountLogout.text =
                 getString(R.string.settings_account_logout, email)
+            val isValidEmail = emailValidator(email)
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            log.error("EMAIL: $email")
-            if (emailValidator(email) || email.toIntOrNull() != null) {
-                viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+            if (isValidEmail || email.toIntOrNull() != null) {
+                showActionsWhenLoggedIn(isValidEmail)
             } else {
                 viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
             }
@@ -575,15 +595,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    private fun showLogoutButton() = viewBinding.apply {
-        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
-        fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-    }
-
-    private fun showManageAccountButton() = viewBinding.apply {
+    private fun showLoginButton() = viewBinding.apply {
         fragmentSettingsAccountLogoutWrapper.visibility = View.GONE
+        fragmentSettingsAccountResetPasswordWrapper.visibility = View.GONE
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.GONE
         fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
         fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
+    }
+
+    private fun showActionsWhenLoggedIn(isValidEmail: Boolean = false) = viewBinding.apply {
+        fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
+        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
+        fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+        // show reset password option only for when we have a valid mail:
+        if (isValidEmail) {
+            fragmentSettingsAccountResetPasswordWrapper.visibility = View.VISIBLE
+        }
     }
 
     private fun disableNightMode() {
@@ -734,6 +762,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+            toastHelper.showToast(R.string.toast_unknown_error)
+        }
+    }
+
+    private fun openProfileAccountOnline() {
+        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply { launchUrl(requireContext(), Uri.parse("https://portal.taz.de/user/login")) }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)

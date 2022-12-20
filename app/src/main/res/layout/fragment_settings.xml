@@ -108,6 +108,58 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/fragment_settings_account_reset_password_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/fragment_settings_account_reset_password"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_reset_password" />
+
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_settings_manage_account_online_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/fragment_settings_manage_account_online"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_manage_account_online"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:layout_width="@dimen/fragment_settings_icon_size"
+                        android:layout_height="0dp"
+                        android:contentDescription="@string/settings_manage_account_online"
+                        android:src="@drawable/ic_open_in_browser"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/fragment_settings_account_delete_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

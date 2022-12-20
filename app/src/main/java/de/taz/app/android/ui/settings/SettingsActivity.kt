@@ -39,7 +39,11 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
     }
 
     override fun onBackPressed() {
-        bottomNavigationBack()
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            supportFragmentManager.popBackStack()
+        } else {
+            bottomNavigationBack()
+        }
     }
 
     private suspend fun checkIfSubscriptionElapsed() {
