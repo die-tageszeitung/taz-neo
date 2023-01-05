@@ -240,13 +240,13 @@ object DateHelper {
     }
 
     /**
-     * @param [dateString] of kind "2022-12-13"
+     * @param [dateString] of kind "13.12.2022"
      * @return localized month name and year, eg "Dezember 2023"
      *
      */
     fun stringToMonthNameAndYearString(dateString: String): String? {
         return try {
-            SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            SimpleDateFormat("dd.MM.yyyy", deviceLocale).parse(dateString)?.let { issueDate ->
                 dateToLocalizedMonthAndYearString(issueDate)
             }
         } catch (e: ParseException) {
