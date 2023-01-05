@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.singletons.DateHelper
 
@@ -63,6 +64,11 @@ class AdvancedTimeslotDialogFragment : DialogFragment() {
             radioGroup.findViewById<RadioButton>(R.id.radio_button_custom)
         val fromField = view.findViewById<Button>(R.id.timeslot_pub_date_from)
         val untilField = view.findViewById<Button>(R.id.timeslot_pub_date_until)
+
+        if (BuildConfig.IS_LMD) {
+            radioButtonDay.visibility = View.GONE
+            radioButtonWeek.visibility = View.GONE
+        }
 
         when (viewModel.chosenTimeSlot.value) {
             getString(R.string.search_advanced_radio_timeslot_any) ->
