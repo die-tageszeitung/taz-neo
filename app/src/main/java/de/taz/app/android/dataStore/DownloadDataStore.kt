@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.util.SingletonHolder
 
 // region old setting names
@@ -39,7 +40,7 @@ class DownloadDataStore private constructor(applicationContext: Context) {
 
     val enabled = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ENABLED), true)
 
-    val pdfAdditionally = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), false)
+    val pdfAdditionally = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_ADDITIONALLY), BuildConfig.IS_LOADING_PDF_ADDITIONALLY)
 
     val notificationsEnabled = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(

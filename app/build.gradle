@@ -154,6 +154,7 @@ android {
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
         buildConfigField "Boolean", "IS_LMD", "false"
+        buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "false"
         buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
 
         def ENV = System.getenv()
@@ -202,6 +203,7 @@ android {
             applicationId "de.monde_diplomatique.android.app"
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
             buildConfigField "Boolean", "IS_LMD", "true"
+            buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "true"
             buildConfigField "String", "DISPLAYED_FEED", "\"lmd\""
         }
 

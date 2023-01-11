@@ -217,8 +217,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setDownloadEnabled(isChecked)
             }
 
-            fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
-                setPdfDownloadEnabled(isChecked)
+            if (BuildConfig.IS_LMD) {
+                hideAutoPdfDownloadSwitch()
+            } else {
+                fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    setPdfDownloadEnabled(isChecked)
+                }
             }
 
             if (FLAVOR_source == "nonfree") {
@@ -346,6 +350,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             dialog.dismiss()
         }
+    }
+
+    private fun hideAutoPdfDownloadSwitch() {
+        viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
+        viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
@@ -535,11 +544,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showTapToScroll(enabled: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked =
+            enabled
     }
 
     private fun showKeepScreenOn(screenOn: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_keep_screen_on)?.isChecked =
+            screenOn
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
@@ -550,10 +561,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
         view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
-            if (!downloadsEnabled) setDownloadOnlyInWifi(false)
-            isEnabled = downloadsEnabled
-        }
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)
+            ?.apply {
+                if (!downloadsEnabled) setDownloadOnlyInWifi(false)
+                isEnabled = downloadsEnabled
+            }
     }
 
     private fun showDownloadAdditionallyPdf(additionallyEnabled: Boolean) {
