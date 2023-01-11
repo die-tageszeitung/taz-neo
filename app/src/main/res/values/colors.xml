@@ -30,6 +30,7 @@
     <color name="buttonTextColor">@color/white</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
+    <color name="icon_tint">@color/lightGrey</color>
 
     <color name="splashBackground">@color/tazRed</color>
 

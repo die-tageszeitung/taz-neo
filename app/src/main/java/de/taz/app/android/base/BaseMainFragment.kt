@@ -43,7 +43,10 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
     /**
      * setup BottomNavigationBar
      * hacks to make icons de- and selectable
+     *
+     * see https://gitlab.alt.coop/taz/taz-app/-/merge_requests/1291 for previous discussions
      */
+    @Deprecated("These menu handling hacks should not be needed")
     private fun configBottomNavigation() {
         // only show bottomNavigation if visible items exist
         view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.apply {
@@ -82,38 +85,44 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         }
     }
 
-    fun toggleMenuItem(itemId: Int) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun toggleMenuItem(itemId: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
         menu?.findItem(itemId)?.let { id ->
             toggleMenuItem(id)
         }
     }
 
-    fun activateItem(itemId: Int) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun activateItem(itemId: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
         menu?.findItem(itemId)?.let { menuItem ->
             activateItem(menuItem)
         }
     }
 
-    fun activateItem(menuItem: MenuItem) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun activateItem(menuItem: MenuItem) {
         menuItem.isChecked = true
         menuItem.isCheckable = true
     }
 
-    fun deactivateItem(itemId: Int) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun deactivateItem(itemId: Int) {
         val menu = view?.findViewById<BottomNavigationView>(R.id.navigation_bottom)?.menu
         menu?.findItem(itemId)?.let { menuItem ->
             deactivateItem(menuItem)
         }
     }
 
-    fun deactivateItem(menuItem: MenuItem) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun deactivateItem(menuItem: MenuItem) {
         menuItem.isChecked = false
         menuItem.isCheckable = false
     }
 
-    fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
+    @Deprecated("These menu handling hacks should not be needed")
+    private fun deactivateAllItems(menu: Menu, except: MenuItem? = null) {
         menu.iterator().forEach {
             if (it.itemId !in permanentlyActiveItemIds && it != except) {
                 deactivateItem(it)
@@ -130,6 +139,7 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
         }
     }
 
+    @Deprecated("These menu handling hacks should not be needed")
     private fun toggleMenuItem(menuItem: MenuItem) {
         if (menuItem.isCheckable) {
             deactivateItem(menuItem)
