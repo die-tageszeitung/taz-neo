@@ -304,6 +304,7 @@ dependencies {
     def powermock_version = '2.0.9'
     def room_version = '2.4.3'
     def work_version = '2.7.1'
+    def exoplayer_version = '2.18.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -380,6 +381,10 @@ dependencies {
 
     // iban validation
     implementation 'nl.garvelink.oss:iban:1.12.0'
+
+    // media player
+    implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
 
     // testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"

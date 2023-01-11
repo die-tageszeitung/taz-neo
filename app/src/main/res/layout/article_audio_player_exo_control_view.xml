@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- For possible fields see https://github.com/google/ExoPlayer/blob/release-v2/library/ui/src/main/res/layout/exo_styled_player_control_view.xml -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/navigation_bottom_background"
+        android:layoutDirection="ltr">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:layout_marginTop="9dp"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@tools:sample/lorem" />
+
+            <ImageView
+                android:id="@+id/exo_rew"
+                android:layout_width="18dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="29dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_gobackward_15"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title" />
+
+            <TextView
+                android:id="@id/exo_position"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:text="00:00"
+                android:textColor="@color/icon_tint"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/exo_rew"
+                app:layout_constraintStart_toEndOf="@id/exo_rew"
+                app:layout_constraintTop_toTopOf="@id/exo_rew" />
+
+            <View
+                android:id="@id/exo_progress_placeholder"
+                android:layout_width="0dp"
+                android:layout_height="16dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="@color/icon_tint"
+                app:layout_constraintBottom_toBottomOf="@id/exo_rew"
+                app:layout_constraintEnd_toStartOf="@id/exo_duration"
+                app:layout_constraintStart_toEndOf="@id/exo_position"
+                app:layout_constraintTop_toTopOf="@id/exo_rew" />
+
+            <TextView
+                android:id="@id/exo_duration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="22dp"
+                android:text="00:00"
+                android:textColor="@color/icon_tint"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/exo_rew"
+                app:layout_constraintEnd_toStartOf="@id/exo_play_pause"
+                app:layout_constraintTop_toTopOf="@id/exo_rew" />
+
+            <ImageButton
+                android:id="@id/exo_play_pause"
+                style="@style/ExoStyledControls.Button.Center.PlayPause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="23dp"
+                app:layout_constraintBottom_toBottomOf="@id/exo_rew"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/exo_rew" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </FrameLayout>
+</merge>

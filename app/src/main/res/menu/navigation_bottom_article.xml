@@ -12,9 +12,10 @@
         android:id="@+id/bottom_navigation_action_share"
         android:icon="@drawable/ic_share"
         android:title="@string/bottom_navigation_action_share" />
-    <!--     <item android:id="@+id/bottom_navigation_action_mp3"
-                 android:title="@string/bottom_navigation_action_mp3"
-                 android:icon="@drawable/ic_text_size" /> -->
+    <item
+        android:id="@+id/bottom_navigation_action_audio"
+        android:icon="@drawable/ic_audio"
+        android:title="@string/bottom_navigation_action_audio" />
     <item
         android:id="@+id/bottom_navigation_action_size"
         android:icon="@drawable/ic_text_size"
