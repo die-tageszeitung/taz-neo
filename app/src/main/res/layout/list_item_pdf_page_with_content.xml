@@ -40,6 +40,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/preview_page_card"
         app:layout_constraintTop_toTopOf="@id/preview_page_card"
-        tools:listitem="@layout/list_item_pdf_page_toc" />
+        tools:listitem="@layout/list_item_pdf_page_toc"
+        tools:itemCount="2"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

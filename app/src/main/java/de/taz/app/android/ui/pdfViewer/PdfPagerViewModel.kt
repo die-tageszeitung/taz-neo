@@ -289,28 +289,40 @@ class PdfPagerViewModel(
 
     private val pdfPageTocFlow =
         combine(issueFlow.filterNotNull(), bookmarkedArticles) { issue, bookmarkArticles ->
+            val sortedArticlesOfIssueMap =
+                issue.getArticles()
+                    .map { it.key }
+                    .withIndex()
+                    .associate { it.value to it.index }
             if (issue.isDownloaded(application)) {
                 val pages = mutableListOf<PageWithArticles>()
                 issue.pageList.forEach { page ->
-                    val articles = mutableListOf<Article>()
+                    val articlesOfPage = mutableListOf<Article>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
                                 // FIXME (johannes): this might be optimized by a "SELECT .. WHERE Article.articleFileName IN :articleFileNames" query
                                 val article = articleRepository.get(link)
                                 if (article != null) {
-                                    articles.add(article)
+                                    articlesOfPage.add(article)
                                 }
                             }
                         }
                     }
+                    val sortedArticlesOfPage =
+                        articlesOfPage.sortedBy {
+                            sortedArticlesOfIssueMap.getOrDefault(
+                                it.key,
+                                Int.MAX_VALUE
+                            )
+                        }
                     pages.add(
                         PageWithArticles(
                             pagePdf = requireNotNull(
                                 fileEntryRepository.get(page.pagePdf.name)
                             ) {
                                 "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                            }, articles
+                            }, sortedArticlesOfPage
                         )
                     )
                 }
