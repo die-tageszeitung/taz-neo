@@ -177,7 +177,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_auto_pdf_downloads_switch" />
 
-            <include layout="@layout/settings_separator_view" />
+            <include
+                android:id="@+id/fragment_settings_auto_download_switch_separator_line"
+                layout="@layout/settings_separator_view" />
 
             <include
                 android:id="@+id/fragment_settings_storage_location"
