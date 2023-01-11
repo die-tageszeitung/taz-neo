@@ -4,6 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="nav_bottom_height">52dp</dimen>
+    <dimen name="audio_player_bottom_height">58dp</dimen>
     <!-- overriding android dimens: -->
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
