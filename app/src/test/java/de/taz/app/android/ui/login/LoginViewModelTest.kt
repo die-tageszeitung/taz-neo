@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -104,6 +105,9 @@ class LoginViewModelTest {
     lateinit var toastHelper: ToastHelper
 
     @Mock
+    lateinit var feedService: FeedService
+
+    @Mock
     lateinit var subscriptionPollHelper: SubscriptionPollHelper
 
     private lateinit var loginViewModel: LoginViewModel
@@ -122,6 +126,7 @@ class LoginViewModelTest {
             apiService = apiService,
             authHelper = authHelper,
             toastHelper = toastHelper,
+            feedService = feedService,
             subscriptionPollHelper = subscriptionPollHelper
         ).apply { status.postValue(LoginViewModelState.INITIAL) }
     }
