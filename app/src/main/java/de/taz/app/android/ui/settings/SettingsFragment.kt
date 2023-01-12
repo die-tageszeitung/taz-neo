@@ -328,6 +328,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 getString(R.string.settings_account_logout, email)
             val isValidEmail = emailValidator(email)
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+            // TODO(eike) check whether to add check for token before checking for valid mail
             if (isValidEmail || email.toIntOrNull() != null) {
                 showActionsWhenLoggedIn(isValidEmail)
             } else {
@@ -750,6 +751,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun logout() = requireActivity().lifecycleScope.launch {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
+        authHelper.email.set("")
         authHelper.status.set(AuthStatus.notValid)
     }
 
