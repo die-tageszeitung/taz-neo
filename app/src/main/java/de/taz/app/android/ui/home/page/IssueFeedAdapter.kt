@@ -80,7 +80,7 @@ abstract class IssueFeedAdapter(
 
             // As the publication dates are sorted descending we have to revert the comparison
             cmp * -1
-        }
+        }.coerceAtLeast(0)
     }
 
     /**

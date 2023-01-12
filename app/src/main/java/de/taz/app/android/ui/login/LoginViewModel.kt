@@ -4,13 +4,13 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import de.taz.app.android.DISPLAYED_FEED
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.PasswordResetInfo
-import de.taz.app.android.api.models.SubscriptionResetStatus
-import de.taz.app.android.api.models.SubscriptionStatus
+import de.taz.app.android.api.models.*
+import de.taz.app.android.content.FeedService
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -25,6 +25,7 @@ class LoginViewModel @JvmOverloads constructor(
     private val apiService: ApiService = ApiService.getInstance(application),
     private val authHelper: AuthHelper = AuthHelper.getInstance(application),
     private val toastHelper: ToastHelper = ToastHelper.getInstance(application),
+    private val feedService: FeedService = FeedService.getInstance(application),
     // even if IDE says it is unused - it will be initialized with the view model starting observing:
     private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(
         application
@@ -169,6 +170,14 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.token.set(requireNotNull(token) { "valid login has token" })
                     authHelper.status.set(AuthStatus.valid)
                     authHelper.email.set(username)
+                    authTokenInfo.authInfo.loginWeek?.let {
+                        if (it) {
+                            log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
+                            getApplicationScope().launch {
+                                feedService.refreshFeed(DISPLAYED_FEED)
+                            }
+                        }
+                    }
                     status.postValue(LoginViewModelState.DONE)
                 }
                 AuthStatus.notValid -> {
