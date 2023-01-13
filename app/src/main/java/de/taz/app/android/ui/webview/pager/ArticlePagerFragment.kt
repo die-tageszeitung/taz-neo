@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -9,9 +10,7 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -21,12 +20,15 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.articleReader.TtsError
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.articleReader.TtsService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -36,40 +38,75 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
 
+    companion object {
+        private const val ARTICLE_READER_AUDIO_BACK_SKIP_MS = 15000L
+    }
+
     private val log by Log
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
-    private var player: ExoPlayer? = null
 
-    private var articleRepository: ArticleRepository? = null
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var toastHelper: ToastHelper
+    private lateinit var ttsService: TtsService
+
     override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
+    private var player: ExoPlayer? = null
+
+    private var ttsServiceInitJob: Job? = null
     private var bottomBehavior: Behavior<View>? = null
 
     private fun initializePlayer() {
-        player =
-            ExoPlayer.Builder(requireContext().applicationContext).setSeekBackIncrementMs(15000)
+        if (player == null) {
+            player = ExoPlayer.Builder(requireContext().applicationContext)
+                .setSeekBackIncrementMs(ARTICLE_READER_AUDIO_BACK_SKIP_MS)
                 .build()
-        viewBinding.playerController.setPlayer(player)
+            viewBinding.playerController.player = player
+        }
     }
 
     private fun releasePlayer() {
         player?.release()
         player = null
+        viewBinding.playerController.player = null
+    }
+
+    private fun initializeTtsService() {
+        ttsServiceInitJob?.cancel()
+        ttsServiceInitJob = lifecycleScope.launch {
+            ttsService.init()
+        }
+    }
+
+    private fun shutdownTtsService() {
+        ttsServiceInitJob?.cancel()
+        ttsServiceInitJob = null
+        ttsService.apply {
+            stop()
+            shutdown()
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        ttsService = TtsService(requireActivity().applicationContext)
+        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
     }
 
     override fun onResume() {
         super.onResume()
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
             if (
                 articleStubs.map { it.key } !=
@@ -106,15 +143,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 issueContentViewModel.goPreviousArticle.value = false
             }
         }
-        if (Util.SDK_INT <= Build.VERSION_CODES.M || player == null) {
+        if (Util.SDK_INT <= Build.VERSION_CODES.M) {
             initializePlayer()
+            initializeTtsService()
         }
     }
 
     override fun onPause() {
         super.onPause()
         if (Util.SDK_INT <= Build.VERSION_CODES.M) {
+            stopMediaPlayer()
             releasePlayer()
+            shutdownTtsService()
+            setArticleAudioMenuItem(isPlaying = false)
         }
     }
 
@@ -131,8 +172,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }
         viewBinding.loadingScreen.root.visibility = View.GONE
-
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
     }
 
     override fun onStart() {
@@ -144,6 +183,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         // split window mode>
         if (Util.SDK_INT > Build.VERSION_CODES.M) {
             initializePlayer()
+            initializeTtsService()
         }
     }
 
@@ -153,9 +193,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         if (Util.SDK_INT > Build.VERSION_CODES.M) {
             stopMediaPlayer()
             releasePlayer()
+            shutdownTtsService()
+            setArticleAudioMenuItem(isPlaying = false)
         }
     }
-
 
     private fun setupViewPager() {
         viewBinding.webviewPagerViewpager.apply {
@@ -164,7 +205,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             registerOnPageChangeCallback(pageChangeListener)
         }
     }
-
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
@@ -215,6 +255,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
                 // if we are showing another article we will stop the player and hide the controls
                 stopMediaPlayer()
+                ttsService.stop()
+                setArticleAudioMenuItem(isPlaying = false)
             }
             lastPage = position
 
@@ -241,6 +283,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     override fun onBackPressed(): Boolean {
         stopMediaPlayer()
         releasePlayer()
+        shutdownTtsService()
+        setArticleAudioMenuItem(isPlaying = false)
 
         // FIXME (johannes): please check about the usefulness of the following logic
         return if (hasBeenSwiped) {
@@ -285,22 +329,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 showBottomSheet(TextSettingsFragment())
             }
 
-            R.id.bottom_navigation_action_audio -> {
-                if (player != null && player?.isPlaying == true) {
-                    stopMediaPlayer()
-                } else {
-                    playAudioOfArticle()
-                }
-            }
+            R.id.bottom_navigation_action_audio -> onAudioAction()
         }
     }
 
     private fun toggleBookmark(articleStub: ArticleStub) {
         applicationScope.launch {
             if (isBookmarkedLiveData?.value == true) {
-                articleRepository?.debookmarkArticle(articleStub)
+                articleRepository.debookmarkArticle(articleStub)
             } else {
-                articleRepository?.bookmarkArticle(articleStub)
+                articleRepository.bookmarkArticle(articleStub)
             }
         }
     }
@@ -369,14 +407,57 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())
     }
 
+    private fun onAudioAction() {
+        val articleStub = getCurrentArticleStub()
+        if (articleStub == null) {
+            return
+        }
+
+        if (articleStub.hasAudio) {
+            if (player?.isPlaying == true) {
+                stopMediaPlayer()
+            } else {
+                playAudioOfArticle()
+            }
+        } else {
+            if (ttsService.isPlaying.value) {
+                ttsService.stop()
+            } else {
+                lifecycleScope.launch {
+                    ttsService.apply {
+                        try {
+                            setArticle(articleStub)
+                            if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                                resume()
+                                setArticleAudioMenuItem(isPlaying = true)
+                            }
+                        } catch (error: TtsError) {
+                            log.error("Could not start TTS reader", error)
+                            toastHelper.showToast(R.string.toast_no_tts, long = true)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun setupArticleAudioMenuItem(articleStub: ArticleStub) {
-        val menuItem: MenuItem? = viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_audio)
-        menuItem?.isVisible = articleStub.hasAudio
+        val menuItem: MenuItem? =
+            viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_audio)
+        menuItem?.isVisible = true // FIXME (johannes): check for tts support articleStub.hasAudio || tts.isEnabled
+    }
+
+    private fun setArticleAudioMenuItem(isPlaying: Boolean) {
+        if (isPlaying) {
+            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio_filled)
+        } else {
+            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio)
+        }
     }
 
     private suspend fun getCurrentArticleAudioFile(): FileEntry? {
         return getCurrentArticleStub()?.articleFileName?.let { articleStub ->
-            articleRepository?.get(articleStub)
+            articleRepository.get(articleStub)
         }?.audioFile
     }
 
@@ -400,7 +481,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     }
                 }
             }
-            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio_filled)
+            setArticleAudioMenuItem(isPlaying = true)
         }
     }
 
@@ -419,7 +500,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         releaseToolbar()
         hidePlayerController()
         player?.stop()
-        setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio)
+        setArticleAudioMenuItem(isPlaying = false)
     }
 
     private fun hidePlayerController() {
@@ -452,6 +533,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
         stopMediaPlayer()
         releasePlayer()
+        shutdownTtsService()
+        setArticleAudioMenuItem(isPlaying = false)
         super.onDestroyView()
     }
 }
