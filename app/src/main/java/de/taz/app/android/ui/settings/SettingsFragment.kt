@@ -19,8 +19,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -250,6 +248,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
+            fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
+                toggleExperimentalArticleReader(isChecked)
+            }
+
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
@@ -296,6 +298,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
+            }
+            enableExperimentalArticleReader.observeDistinct(viewLifecycleOwner) { enabled ->
+                showEnableExperimentalArticleReaderToggle(enabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -590,6 +595,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showEnableExperimentalArticleReaderToggle(isEnabled: Boolean) {
+        viewBinding.fragmentSettingsExperimentalArticleReaderSwitch.apply {
+            isChecked = isEnabled
+        }
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -698,6 +709,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
         }
+    }
+
+    private fun toggleExperimentalArticleReader(enableArticleReader: Boolean) {
+        viewModel.setExperimentalArticleReader(enableArticleReader)
     }
 
     private fun toggleExtendedContent() {

@@ -11,6 +11,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
@@ -21,24 +22,26 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val log by Log
 
-    var fontSizeLiveData: LiveData<String>
-    var textJustificationLiveData: LiveData<Boolean>
-    var nightModeLiveData: LiveData<Boolean>
-    var tapToScrollLiveData: LiveData<Boolean>
-    var keepScreenOnLiveData: LiveData<Boolean>
+    val fontSizeLiveData: LiveData<String>
+    val textJustificationLiveData: LiveData<Boolean>
+    val nightModeLiveData: LiveData<Boolean>
+    val tapToScrollLiveData: LiveData<Boolean>
+    val keepScreenOnLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
     val downloadAdditionallyPdf: LiveData<Boolean>
     private val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
     val notificationsEnabledLivedata: LiveData<Boolean>
+    val enableExperimentalArticleReader: LiveData<Boolean>
 
-    var storageLocationLiveData: LiveData<StorageLocation>
-    var storedIssueNumberLiveData: LiveData<Int>
+    val storageLocationLiveData: LiveData<StorageLocation>
+    val storedIssueNumberLiveData: LiveData<Int>
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
     private val downloadDataStore = DownloadDataStore.getInstance(application)
     private val storageDataStore = StorageDataStore.getInstance(application)
+    private val generalDataStore = GeneralDataStore.getInstance(application)
     private val apiService = ApiService.getInstance(application)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application)
 
@@ -62,6 +65,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         downloadAdditionallyDialogDoNotShowAgain =
             downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
+
+        enableExperimentalArticleReader = generalDataStore.enableExperimentalArticleReader.asLiveData()
     }
 
     fun increaseKeepIssueNumber() {
@@ -120,6 +125,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return current
     }
 
+
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
         viewModelScope.launch {
             downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
@@ -177,6 +183,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setKeepScreenOn(value: Boolean) {
         viewModelScope.launch {
             tazApiCssDataStore.keepScreenOn.set(value)
+        }
+    }
+
+    fun setExperimentalArticleReader(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.enableExperimentalArticleReader.set(value)
         }
     }
 

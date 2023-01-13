@@ -137,6 +137,7 @@
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s%s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
+    <string name="settings_experimental_article_reader">Artikel vorlesen (experimentell)</string>
     <string name="settings_storage_type">Speicherort</string>
     <string name="settings_storage_type_internal">Interner Speicher</string>
     <string name="settings_storage_type_external">Externer Speicher</string>

@@ -21,13 +21,14 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.articleReader.TtsError
+import de.taz.app.android.articleReader.TtsService
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
-import de.taz.app.android.articleReader.TtsService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -53,6 +54,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
     private lateinit var ttsService: TtsService
 
@@ -66,6 +68,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private var ttsServiceInitJob: Job? = null
     private var bottomBehavior: Behavior<View>? = null
+    private var isArticleReaderEnabled: Boolean = false
 
     private fun initializePlayer() {
         if (player == null) {
@@ -101,8 +104,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        ttsService = TtsService(requireActivity().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
+        ttsService = TtsService(requireActivity().applicationContext)
     }
 
     override fun onResume() {
@@ -172,6 +176,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }
         viewBinding.loadingScreen.root.visibility = View.GONE
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED)  {
+                generalDataStore.enableExperimentalArticleReader.asFlow().collect {
+                    isArticleReaderEnabled = it
+                    setupArticleAudioMenuItem()
+                }
+            }
+        }
     }
 
     override fun onStart() {
@@ -274,8 +287,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     nextStub.isBookmarkedLiveData(requireContext().applicationContext)
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
-
-                setupArticleAudioMenuItem(nextStub)
+                setupArticleAudioMenuItem()
             }
         }
     }
@@ -441,10 +453,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private fun setupArticleAudioMenuItem(articleStub: ArticleStub) {
+    private fun setupArticleAudioMenuItem() {
+        // FIXME (johannes): get the current article stub here and only show the icon if articleReader is enabled, hasAudio is true or the system supports tts and the article type is readable
         val menuItem: MenuItem? =
             viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_audio)
-        menuItem?.isVisible = true // FIXME (johannes): check for tts support articleStub.hasAudio || tts.isEnabled
+        menuItem?.isVisible = isArticleReaderEnabled
     }
 
     private fun setArticleAudioMenuItem(isPlaying: Boolean) {
