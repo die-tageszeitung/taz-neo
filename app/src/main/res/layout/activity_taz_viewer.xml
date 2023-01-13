@@ -7,14 +7,12 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_viewer_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         tools:showIn="@layout/activity_taz_viewer" />
 
     <de.taz.app.android.ui.drawer.NavigationView
@@ -25,7 +23,6 @@
         android:background="@color/navigation_drawer_background"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:fitsSystemWindows="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
