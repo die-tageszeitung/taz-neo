@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/fragment_archive_background"
     android:fitsSystemWindows="true"
-    app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView

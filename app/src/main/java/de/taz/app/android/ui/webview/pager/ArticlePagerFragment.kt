@@ -25,7 +25,6 @@ import de.taz.app.android.articleReader.TtsService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -171,7 +170,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
 
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
         }

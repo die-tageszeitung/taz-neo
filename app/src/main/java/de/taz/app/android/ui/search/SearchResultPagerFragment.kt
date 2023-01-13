@@ -21,7 +21,6 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -98,7 +97,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private fun setupViewPager() {
         webViewPager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             if (adapter == null) {
