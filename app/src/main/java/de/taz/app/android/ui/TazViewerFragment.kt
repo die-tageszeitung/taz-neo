@@ -1,9 +1,11 @@
 package de.taz.app.android.ui
 
 import android.content.pm.ApplicationInfo
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -16,6 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
@@ -44,6 +47,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var contentService: ContentService
+    private lateinit var generalDataStore: GeneralDataStore
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
@@ -58,6 +62,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         storageService = StorageService.getInstance(requireContext().applicationContext)
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
 
         // supportFragmentManager recovers state by itself
         if (savedInstanceState == null) {
@@ -89,6 +94,14 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                         v.width,
                         v.height
                     )
+                }
+
+                // Adjust extra padding when we have cutout display
+                lifecycleScope.launch {
+                    val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+                    if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        navView.setPadding(0, extraPadding, 0 ,0)
+                    }
                 }
 
                 drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {

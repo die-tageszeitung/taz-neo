@@ -14,6 +14,7 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 
 // region setting keys
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
+private const val DISPLAY_CUTOUT_EXTRA_PADDING = "display_cutout_extra_padding"
 private const val FIRST_APP_START = "first_time_app_starts"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
@@ -45,6 +46,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val dataPolicyAccepted: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(DATA_POLICY_ACCEPTED), false
+    )
+
+    val displayCutoutExtraPadding: DataStoreEntry<Int> = SimpleDataStoreEntry(
+        dataStore, intPreferencesKey(DISPLAY_CUTOUT_EXTRA_PADDING), 0
     )
 
     val hasSeenWelcomeScreen: DataStoreEntry<Boolean> = SimpleDataStoreEntry(

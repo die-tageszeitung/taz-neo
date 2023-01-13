@@ -49,7 +49,6 @@
             android:id="@+id/web_view_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/fragment_article_padding_top"
             android:paddingBottom="@dimen/fragment_article_padding_bottom">
 
 
