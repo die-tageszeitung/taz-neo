@@ -18,6 +18,7 @@ private const val FIRST_APP_START = "first_time_app_starts"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
+private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 
 // endregion
 
@@ -62,4 +63,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(TRY_PDF_DIALOG_COUNT), 0
     )
 
+    val enableExperimentalArticleReader: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER), false
+    )
 }
