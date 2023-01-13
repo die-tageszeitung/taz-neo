@@ -22,6 +22,7 @@ import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -50,6 +51,7 @@ class SplashActivity : StartupActivity() {
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
     private lateinit var storageDataStore: StorageDataStore
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
     private lateinit var feedService: FeedService
@@ -68,6 +70,7 @@ class SplashActivity : StartupActivity() {
         storageService = StorageService.getInstance(application)
         contentService = ContentService.getInstance(application)
         storageDataStore = StorageDataStore.getInstance(application)
+        generalDataStore = GeneralDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
         feedService = FeedService.getInstance(application)
 
@@ -123,6 +126,25 @@ class SplashActivity : StartupActivity() {
         }
     }
 
+    override fun onAttachedToWindow() {
+        // Since Android sdk 28 there is a notch/cut-out support
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val displayCutout = window.decorView.rootWindowInsets.displayCutout
+            val cutoutHeight = displayCutout?.safeInsetTop
+            cutoutHeight?.let {
+                if (it > 0) {
+                    val extraPadding =
+                        it + resources.getDimensionPixelSize(R.dimen.space_between_status_bar_and_content_applied_when_cutout) - resources.getDimensionPixelSize(
+                            R.dimen.drawer_logo_translation_y
+                        )
+                    applicationScope.launch {
+                        generalDataStore.displayCutoutExtraPadding.set(extraPadding)
+                    }
+                }
+            }
+        }
+        super.onAttachedToWindow()
+    }
 
     private suspend fun verifyStorageLocation() {
         // if the configured storage is set to external, but no external device is mounted we need to reset it

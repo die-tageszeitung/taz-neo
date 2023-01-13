@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
@@ -28,6 +29,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.persistence.repository.IssueKey
@@ -85,6 +87,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
     private lateinit var storageService: StorageService
     private lateinit var issuePublication: IssuePublicationWithPages
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var generalDataStore: GeneralDataStore
 
     // mutable instance state
     private var navButton: Image? = null
@@ -100,6 +103,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
     private val activityPdfDrawerFrontPage by lazy { viewBinding.activityPdfDrawerFrontPage }
     private val activityPdfDrawerFrontPageTitle by lazy { viewBinding.activityPdfDrawerFrontPageTitle }
     private val activityPdfDrawerDate by lazy { viewBinding.activityPdfDrawerDate }
+    private val navView by lazy { viewBinding.navView }
 
     // endregion
 
@@ -107,6 +111,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         super.onCreate(savedInstanceState)
         storageService = StorageService.getInstance(applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
@@ -161,6 +166,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 }
             )
         )
+
+        // Adjust extra padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == ORIENTATION_PORTRAIT) {
+                navView.setPadding(0, extraPadding, 0 ,0)
+            }
+        }
 
         pdfDrawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {

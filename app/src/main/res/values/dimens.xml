@@ -85,7 +85,7 @@
     <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
     <dimen name="fragment_header_dotted_line_height">5dp</dimen>
-    <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
+    <dimen name="fragment_header_article_padding_bottom">11dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
     <dimen name="fragment_header_article_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_article_text_size">16sp</dimen>
@@ -161,7 +161,6 @@
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">40dp</dimen>
-    <dimen name="fragment_article_padding_top">11dp</dimen>
 
     <dimen name="icon_size">24dp</dimen>
     <dimen name="ic_circle_size">12dp</dimen>
@@ -223,5 +222,7 @@
 
     <dimen name="login_action_button_margin_vertical">7dp</dimen>
     <dimen name="login_description_input_margin">10dp</dimen>
+
+    <dimen name="space_between_status_bar_and_content_applied_when_cutout">10dp</dimen>
 
 </resources>
