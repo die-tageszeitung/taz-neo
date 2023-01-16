@@ -183,6 +183,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
         }
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED)  {
+                ttsService.isPlaying.collect { isPlaying ->
+                    setArticleAudioMenuItem(isPlaying)
+                }
+            }
+        }
     }
 
     override fun onStart() {
@@ -439,7 +447,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                             setArticle(articleStub)
                             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
                                 resume()
-                                setArticleAudioMenuItem(isPlaying = true)
                             }
                         } catch (error: TtsError) {
                             log.error("Could not start TTS reader", error)

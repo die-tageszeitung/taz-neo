@@ -154,7 +154,11 @@ class TtsService(private val applicationContext: Context) {
 
     fun resume() {
         log.verbose("resume from $position")
-        val tts = requireNotNull(tts) { "TextToSpeech has to be initialized before playing" }
+        val tts = this.tts
+        if (tts == null) {
+            log.error("TextToSpeech has to be initialized before playing")
+            return
+        }
 
         // stop any previous playings
         tts.stop()
@@ -190,6 +194,7 @@ class TtsService(private val applicationContext: Context) {
             log.verbose("onDone($utteranceId / $index)")
 
             if (index == utterances.lastIndex) {
+                position = 0
                 _isPlaying.value = false
             }
         }
