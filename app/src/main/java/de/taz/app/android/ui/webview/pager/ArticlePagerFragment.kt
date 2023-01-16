@@ -527,9 +527,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun releaseToolbar() {
-        val params =
-            viewBinding.navigationBottomLayout.layoutParams as CoordinatorLayout.LayoutParams
-        params.behavior = bottomBehavior
+        // Restore the previous bottom behavior.
+        // The variable bottomBehavior will be null if we never called fixToolbar,
+        // or if the bottomBehavior was already null before.
+        if (bottomBehavior != null) {
+            val params =
+                viewBinding.navigationBottomLayout.layoutParams as CoordinatorLayout.LayoutParams
+            params.behavior = bottomBehavior
+        }
     }
 
     override fun onDestroyView() {
