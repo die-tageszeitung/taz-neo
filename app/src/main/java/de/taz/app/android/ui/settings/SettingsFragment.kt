@@ -68,6 +68,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private val emailValidator = EmailValidator()
 
+    private var notificationsMustBeAllowedDialog: AlertDialog? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(requireContext().applicationContext)
@@ -243,8 +245,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             if (FLAVOR_source == "nonfree") {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
-                fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-                    setNotificationsEnabled(isChecked)
+                fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
+                    toggleNotificationsEnabled()
                 }
             }
 
@@ -340,6 +342,22 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
             }
         }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            if (FLAVOR_source == "nonfree") {
+                checkNotificationsAllowed()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        notificationsMustBeAllowedDialog?.dismiss()
+        notificationsMustBeAllowedDialog = null
     }
 
     private fun showDeleteAllIssuesDialog() {
@@ -562,11 +580,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun showTapToScroll(enabled: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked = enabled
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked =
+            enabled
     }
 
     private fun showKeepScreenOn(screenOn: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_keep_screen_on)?.isChecked = screenOn
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_keep_screen_on)?.isChecked =
+            screenOn
     }
 
     private fun showOnlyWifi(onlyWifi: Boolean) {
@@ -577,10 +597,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showDownloadsEnabled(downloadsEnabled: Boolean) {
         view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_switch)?.isChecked =
             downloadsEnabled
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.apply {
-            if (!downloadsEnabled) setDownloadOnlyInWifi(false)
-            isEnabled = downloadsEnabled
-        }
+        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)
+            ?.apply {
+                if (!downloadsEnabled) setDownloadOnlyInWifi(false)
+                isEnabled = downloadsEnabled
+            }
     }
 
     private fun showDownloadAdditionallyPdf(additionallyEnabled: Boolean) {
@@ -691,23 +712,44 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
-    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
-        val permissionNotSet =
-            !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
-
+    /**
+     * Called when the user clicked the notification toggle.
+     * Note that Android will still change the toggle button state itself,
+     * thus we have to reset the toggle state on errors manually.
+     */
+    private fun toggleNotificationsEnabled() {
         lifecycleScope.launch {
+            val areSystemNotificationsAllowed =
+                NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+            val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
+            val enableAppNotifications = !areAppNotificationsEnabled
+
             // Check if android allow the app to display notifications:
-            if (notificationsEnabled && permissionNotSet) {
+            if (enableAppNotifications && !areSystemNotificationsAllowed) {
                 showNotificationsMustBeAllowedDialog()
-                viewModel.setNotificationsEnabled(false)
                 showNotificationsEnabledToggle(false)
             } else {
-                val result = viewModel.setNotificationsEnabled(notificationsEnabled)
-                if (result != notificationsEnabled) {
+                val result = viewModel.setNotificationsEnabled(enableAppNotifications)
+                if (result != enableAppNotifications) {
                     showNotificationsChangeErrorToast()
                     showNotificationsEnabledToggle(result)
                 }
             }
+        }
+    }
+
+    /**
+     * Checks if the system notifications are allowed and shows a popup if we have set the inapp
+     * notifications to true but the app is not allowed to receive notifications from the android side.
+     * Note: this won't change the state of in app notification setting and wont try to call the server
+     */
+    private suspend fun checkNotificationsAllowed() {
+        val areSystemNotificationsAllowed =
+            NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+        val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
+
+        if (areAppNotificationsEnabled && !areSystemNotificationsAllowed) {
+            showNotificationsMustBeAllowedDialog()
         }
     }
 
@@ -729,16 +771,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showNotificationsMustBeAllowedDialog() {
         context?.let {
-            MaterialAlertDialogBuilder(it)
-                .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
-                .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
-                    openAndroidNotificationSettings()
-                }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
-                }
-                .create()
-                .show()
+            notificationsMustBeAllowedDialog?.dismiss()
+            notificationsMustBeAllowedDialog =
+                MaterialAlertDialogBuilder(it)
+                    .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
+                    .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
+                        (dialog as AlertDialog).hide()
+                        openAndroidNotificationSettings()
+                    }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                        (dialog as AlertDialog).hide()
+                    }
+                    .create()
+                    .apply {
+                        show()
+                    }
         }
     }
 
@@ -793,7 +839,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                 )
                 .build()
-                .apply { launchUrl(requireContext(), Uri.parse("https://portal.taz.de/user/login")) }
+                .apply {
+                    launchUrl(
+                        requireContext(),
+                        Uri.parse("https://portal.taz.de/user/login")
+                    )
+                }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)

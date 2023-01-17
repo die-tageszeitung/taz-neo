@@ -125,6 +125,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return current
     }
 
+    suspend fun getNotificationsEnabled(): Boolean = downloadDataStore.notificationsEnabled.get()
+
 
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
         viewModelScope.launch {
