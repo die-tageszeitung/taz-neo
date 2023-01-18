@@ -30,6 +30,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
         } else {
             viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener { ifDoneNext() }
         }
+        viewBinding.cancelButton.setOnClickListener { back() }
     }
 
     override fun done(): Boolean {

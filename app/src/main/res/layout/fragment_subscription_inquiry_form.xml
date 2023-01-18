@@ -192,6 +192,18 @@
             app:layout_constraintTop_toBottomOf="@id/message_title_layout"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
+        <Button
+            android:id="@+id/cancel_button"
+            style="@style/AppTheme.ButtonStyle.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            app:layout_constraintWidth_max="@dimen/button_max_width"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/send_button"
+            android:text="@string/cancel_button" />
+
         <include
             android:id="@+id/loading_screen"
             layout="@layout/include_loading_screen"
