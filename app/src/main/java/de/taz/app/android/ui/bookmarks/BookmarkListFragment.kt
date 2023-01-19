@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import de.taz.app.android.BuildConfig.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
@@ -47,7 +47,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         storageService = StorageService.getInstance(context.applicationContext)
         lifecycleScope.launch {
             feedFlow.value =
-                FeedRepository.getInstance(context.applicationContext).get(DISPLAYED_FEED)
+                FeedRepository.getInstance(context.applicationContext).get(BuildConfig.DISPLAYED_FEED)
         }
     }
 
