@@ -151,9 +151,18 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         }
 
         val formattedDate = if (publicationDate?.validity != null) {
+            // if we got validity date (eg wochentaz)
             DateHelper.dateToWeekTazNotation(publicationDate.date, publicationDate.validity)
         } else {
-            DateHelper.stringToLongLocalizedLowercaseString(article.issueDate)
+            if (BuildConfig.IS_LMD) {
+                // for LMd date should be "Ausgabe 10/2022"
+                resources.getString(
+                    R.string.fragment_header_custom_published_date,
+                    DateHelper.stringToMonthYearString(article.issueDate)
+                )
+            } else {
+                DateHelper.stringToLongLocalizedLowercaseString(article.issueDate)
+            }
         }
         return formattedDate ?: ""
     }

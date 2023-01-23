@@ -84,6 +84,18 @@ object DateHelper {
     }
 
     /**
+     * function to get the formatted date with month and year
+     * @param dateString - string of date in form of "yyyy-MM-dd"
+     * @return eg "01/2023"
+     */
+    fun stringToMonthYearString(dateString: String): String? {
+        if (dateString == "") return null
+        return SimpleDateFormat("yyyy-MM-dd", deviceLocale).parse(dateString)?.let { issueDate ->
+            dateToMonthYearString(issueDate)
+        }
+    }
+
+    /**
      * returns eg "Dezember 2023"
      */
     fun dateToLocalizedMonthAndYearString(date: Date): String {
