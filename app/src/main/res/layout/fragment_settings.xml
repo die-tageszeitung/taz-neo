@@ -121,7 +121,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_account_delete"
-                    android:textColor="@color/deleteRed" />
+                    android:textColor="@color/critical_action" />
 
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>
@@ -195,7 +195,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_delete_all_issues"
-                android:textColor="@color/deleteRed" />
+                android:textColor="@color/critical_action" />
 
             <include layout="@layout/settings_separator_view" />
             <!-- endregion -->
@@ -404,7 +404,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_reset_app"
-                    android:textColor="@color/deleteRed" />
+                    android:textColor="@color/critical_action" />
 
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>
