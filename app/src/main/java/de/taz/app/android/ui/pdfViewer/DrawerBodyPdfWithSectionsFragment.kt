@@ -34,7 +34,7 @@ class DrawerBodyPdfWithSectionsFragment :
         PageWithArticlesAdapter(
             emptyList(),
             { position -> handlePageClick(position) },
-            { article -> handleArticleClick(article) })
+            { pagePosition, article -> handleArticleClick(pagePosition, article) })
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
@@ -70,6 +70,14 @@ class DrawerBodyPdfWithSectionsFragment :
                 updateToc(pages)
             }
         }
+
+        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage.setOnClickListener{
+            pdfPagerViewModel.currentItem.value?.let { item -> handlePageClick(item) }
+        }
+
+        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.setOnClickListener{
+            pdfPagerViewModel.currentItem.value?.let { item -> handlePageClick(item) }
+        }
     }
 
     /**
@@ -86,9 +94,11 @@ class DrawerBodyPdfWithSectionsFragment :
     /**
      * Handle the event when an article is clicked.
      *
+     * @param pagePosition Absolute adapter position of article page.
      * @param article Article that was clicked.
      */
-    private fun handleArticleClick(article: Article) {
+    private fun handleArticleClick(pagePosition: Int, article: Article) {
+        pdfPagerViewModel.updateCurrentItem(pagePosition)
         lifecycleScope.launch {
             pdfPagerViewModel.hideDrawerLogo.postValue(false)
             val fragment = if (article.isImprint() == true) ImprintWebViewFragment()
@@ -124,7 +134,7 @@ class DrawerBodyPdfWithSectionsFragment :
         adapter = PageWithArticlesAdapter(
             pages,
             { position -> handlePageClick(position) },
-            { article -> handleArticleClick(article) })
+            { pagePosition, article -> handleArticleClick(pagePosition, article) })
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter
         hideLoadingScreen()
     }
