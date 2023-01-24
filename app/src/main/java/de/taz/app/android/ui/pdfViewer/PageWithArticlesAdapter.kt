@@ -23,14 +23,14 @@ import de.taz.app.android.singletons.StorageService
 class PageWithArticlesAdapter(
     var pages: List<PageWithArticles>,
     private val onPageCLick: (position: Int) -> Unit,
-    private val onArticleClick: (article: Article) -> Unit
+    private val onArticleClick: (pagePosition: Int, article: Article) -> Unit
 ) :
     RecyclerView.Adapter<PageWithArticlesAdapter.PageWithArticlesHolder>() {
 
     inner class PageWithArticlesHolder(
         view: View,
         val onPageCLick: (position: Int) -> Unit,
-        val onArticleClick: (article: Article) -> Unit
+        val onArticleClick: (pagePosition: Int, article: Article) -> Unit
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -60,7 +60,7 @@ class PageWithArticlesAdapter(
             pageTocRecyclerView.adapter = this.page.articles?.let {
                 ArticleAdapter(
                     it,
-                    { article -> onArticleClick(article) })
+                    { article -> onArticleClick(absoluteAdapterPosition, article) })
             }
         }
     }

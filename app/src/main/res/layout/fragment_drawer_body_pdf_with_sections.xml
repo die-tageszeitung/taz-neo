@@ -31,12 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
-                android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 app:cardBackgroundColor="@color/pdf_drawer_card_background"
                 app:cardElevation="@dimen/moment_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
                 app:layout_constraintStart_toStartOf="parent">
 
                 <ImageView
@@ -54,13 +52,13 @@
 
             <TextView
                 android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
                 android:textColor="@color/pdf_section_font"
                 android:textSize="@dimen/fragment_drawer_date_text_size"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/cardView"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardView"
                 tools:text="Seite 5" />
 
