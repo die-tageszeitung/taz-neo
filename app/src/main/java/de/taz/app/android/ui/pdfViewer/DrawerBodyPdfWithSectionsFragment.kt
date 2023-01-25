@@ -11,6 +11,7 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.IssueKey
@@ -153,10 +154,10 @@ class DrawerBodyPdfWithSectionsFragment :
                 }).into(viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage)
 
         viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text =
-            pdfPagerViewModel.currentPage.value?.type?.ordinal?.let {
+            pdfPagerViewModel.currentPage.value?.type?.let {
                 resources.getQuantityString(
                     R.plurals.pages,
-                    it,
+                    if (it == PageType.panorama) 2 else 1,
                     pdfPagerViewModel.currentPage.value?.pagina
                 )
             }
