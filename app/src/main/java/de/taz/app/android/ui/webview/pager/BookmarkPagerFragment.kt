@@ -33,14 +33,10 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     val log by Log
 
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+    private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-        if (isBookmarked) {
-            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-        } else {
-            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-        }
+        articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
     }
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
@@ -81,10 +77,11 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.navigationBottomWebviewPager.visibility = View.GONE
-        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
-        // in onViewCreated - when done in xml the 1st click wont be recognized...
-        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
+        articleBottomActionBarNavigationHelper = ArticleBottomActionBarNavigationHelper(
+            viewBinding.navigationBottom,
+            onClickHandler = ::onBottomNavigationItemClicked
+        )
+
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
         }
@@ -124,11 +121,10 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
-        viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-            determineShareIconVisibility(
-                articleToBindTo.onlineLink,
-                articleToBindTo.key
-            )
+        articleBottomActionBarNavigationHelper.setShareIconVisibility(
+            articleToBindTo.onlineLink,
+            articleToBindTo.key
+        )
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
         isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
@@ -152,7 +148,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireContext())
 

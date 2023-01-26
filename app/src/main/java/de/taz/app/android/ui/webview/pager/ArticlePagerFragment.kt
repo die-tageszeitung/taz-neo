@@ -57,7 +57,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private lateinit var toastHelper: ToastHelper
     private lateinit var ttsService: TtsService
 
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
+    private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
+
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
 
@@ -164,10 +165,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewBinding.navigationBottomWebviewPager.visibility = View.GONE
-        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
-        // in onViewCreated - when done in xml the 1st click wont be recognized...
-        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
+
+        articleBottomActionBarNavigationHelper = ArticleBottomActionBarNavigationHelper(
+            viewBinding.navigationBottom,
+            onClickHandler = ::onBottomNavigationItemClicked
+        )
+
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
 
@@ -228,11 +231,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-            if (isBookmarked) {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-            } else {
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-            }
+            articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
         }
 
         override fun onPageSelected(position: Int) {
@@ -282,11 +281,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             lifecycleScope.launchWhenResumed {
                 // show the share icon always when in public issues (as it shows a popup that the user should log in)
                 // OR when an onLink link is provided
-                viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                    determineShareIconVisibility(
-                        nextStub.onlineLink,
-                        nextStub.key
-                    )
+                articleBottomActionBarNavigationHelper.setShareIconVisibility(
+                    nextStub.onlineLink,
+                    nextStub.key
+                )
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData =
@@ -329,7 +327,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         } ?: false
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
@@ -459,17 +457,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private fun setupArticleAudioMenuItem() {
         // FIXME (johannes): get the current article stub here and only show the icon if articleReader is enabled, hasAudio is true or the system supports tts and the article type is readable
-        val menuItem: MenuItem? =
-            viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_audio)
-        menuItem?.isVisible = isArticleReaderEnabled
+        articleBottomActionBarNavigationHelper.setArticleAudioVisibility(isArticleReaderEnabled)
     }
 
     private fun setArticleAudioMenuItem(isPlaying: Boolean) {
-        if (isPlaying) {
-            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio_filled)
-        } else {
-            setIcon(R.id.bottom_navigation_action_audio, R.drawable.ic_audio)
-        }
+        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(isPlaying)
     }
 
     private suspend fun getCurrentArticleAudioFile(): FileEntry? {

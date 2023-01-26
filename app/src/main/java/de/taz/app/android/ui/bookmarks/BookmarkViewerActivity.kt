@@ -5,12 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import de.taz.app.android.R
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
-import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlin.reflect.KClass
@@ -33,10 +30,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         setBottomNavigationBackActivity(this, BottomNavigationItem.Bookmark)
-        setupBottomNavigation(
-            findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager),
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Bookmark)
-        )
     }
 
     override fun onDestroy() {
