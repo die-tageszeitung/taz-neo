@@ -50,6 +50,8 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
 
         viewBinding.fragmentSubscriptionBankProceed.setOnClickListener { ifDoneNext() }
 
+        viewBinding.backButton.setOnClickListener { back() }
+
         if (accountHolderInvalid) {
             setAccountHolderError(R.string.subscription_field_invalid)
         }

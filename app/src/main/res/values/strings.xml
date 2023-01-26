@@ -4,6 +4,7 @@
     <string name="accept_button">Akzeptieren</string>
     <string name="close_button">Schließen</string>
     <string name="cancel_button">Abbrechen</string>
+    <string name="back_button">Zurück</string>
     <string name="close_okay">Alles klar</string>
 
     <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>

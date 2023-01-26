@@ -38,6 +38,10 @@ class SubscriptionMissingFragment :
             ifDoneNext()
         }
 
+        viewBinding.backButton.setOnClickListener {
+            back()
+        }
+
         viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
             viewModel.requestPasswordReset(subscriptionId = true)
         }
