@@ -24,8 +24,6 @@ class ArticleAdapter(
     inner class ArticleHolder(view: View, val onArticleClick: (article: Article) -> Unit) :
         RecyclerView.ViewHolder(view) {
 
-        private lateinit var article: Article
-
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
         private val articleAuthors: TextView = itemView.findViewById(R.id.article_authors)
@@ -39,25 +37,31 @@ class ArticleAdapter(
          * @param article Article to be displayed.
          */
         fun bind(article: Article) {
-            this.article = article
 
-            articleTitle.text = this.article.title
-            articleTeaser.text = this.article.teaser
-            if (this.article.authorList.isNotEmpty()) {
+            articleTitle.text = article.title
+            if (!article.teaser.isNullOrBlank()) {
+                articleTeaser.apply{
+                    visibility = View.VISIBLE
+                    text = article.teaser
+                }
+            } else {
+                articleTeaser.visibility = View.GONE
+            }
+            if (article.authorList.isNotEmpty()) {
                 articleAuthors.visibility = View.VISIBLE
                 articleAuthors.text =
                     itemView.context.getString(
                         R.string.author_list,
-                        this.article.authorList.map { it.name }.distinct().joinToString(", ")
+                        article.authorList.map { it.name }.distinct().joinToString(", ")
                     )
             } else {
                 articleAuthors.visibility = View.GONE
             }
 
             itemView.setOnClickListener {
-                onArticleClick(this.article)
+                onArticleClick(article)
             }
-            if (this.article.bookmarked) {
+            if (article.bookmarked) {
                 articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
             } else {
                 articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
