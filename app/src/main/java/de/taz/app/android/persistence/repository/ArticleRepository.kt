@@ -333,16 +333,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     suspend fun getArticleStubListForIssue(
         issueKey: IssueKey
-    ): List<ArticleStubWithSectionKey> {
-        val articleStubList = appDatabase.articleDao()
+    ): List<ArticleStub> {
+        return appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        val sectionArticleJoinList = appDatabase.sectionArticleJoinDao().getSectionArticleJoinsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        val articleSectionMap = sectionArticleJoinList.associate { it.articleFileName to it.sectionFileName }
-
-        return articleStubList.map {
-            val sectionKey = requireNotNull(articleSectionMap[it.articleFileName])
-            ArticleStubWithSectionKey(it, sectionKey)
-        }
     }
 
     suspend fun setDownloadDate(

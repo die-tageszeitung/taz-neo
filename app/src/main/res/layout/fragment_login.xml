@@ -70,25 +70,13 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
-        <Button
-            android:id="@+id/cancel_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button"
-            android:text="@string/cancel_button" />
-
         <TextView
             android:id="@+id/fragment_login_missing_subscription_forgot_password"
             style="@style/TextAppearance.Login.Text.Link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login_forgot_password"
-            app:layout_constraintTop_toBottomOf="@id/cancel_button" />
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button" />
 
         <TextView
             android:id="@+id/fragment_login_forgotten_help"

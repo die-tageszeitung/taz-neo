@@ -67,18 +67,6 @@
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_password_layout"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
-        <Button
-            android:id="@+id/back_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account"
-            android:text="@string/back_button" />
-
         <TextView
             android:id="@+id/fragment_login_missing_subscription_subscription"
             style="@style/TextAppearance.Login.Text"
@@ -87,7 +75,7 @@
             android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
             android:layout_marginBottom="@dimen/fragment_login_description_margin_bottom"
             android:text="@string/trial_subscription_title"
-            app:layout_constraintTop_toBottomOf="@id/back_button" />
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_connect_account" />
 
         <Button
             android:id="@+id/fragment_login_missing_subscription_subscription_button"

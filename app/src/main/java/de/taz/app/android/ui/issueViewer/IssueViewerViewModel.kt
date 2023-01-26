@@ -130,8 +130,8 @@ class IssueViewerViewModel(
     val displayableKeyLiveData: LiveData<String?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.displayableKey }
 
-    val articleListLiveData: LiveData<List<ArticleStubWithSectionKey>> =
-        MediatorLiveData<List<ArticleStubWithSectionKey>>().apply {
+    val articleListLiveData: LiveData<List<ArticleStub>> =
+        MediatorLiveData<List<ArticleStub>>().apply {
             var lastIssueKey: IssueKey? = null
             addSource(issueKeyLiveData) {
                 it?.let {

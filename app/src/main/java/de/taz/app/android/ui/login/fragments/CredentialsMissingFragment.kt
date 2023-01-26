@@ -93,8 +93,6 @@ class CredentialsMissingFragment :
             )
         }
 
-        viewBinding.backButton.setOnClickListener { back() }
-
         if (viewModel.createNewAccount) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 viewBinding.fragmentLoginMissingCredentialsPassword.setAutofillHints(HintConstants.AUTOFILL_HINT_NEW_PASSWORD)
