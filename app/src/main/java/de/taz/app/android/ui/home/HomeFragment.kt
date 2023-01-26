@@ -54,9 +54,11 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                         super.onPageSelected(position)
                         when (position) {
                             COVERFLOW_PAGER_POSITION -> {
+                                onHome = true
                                 enableRefresh()
                             }
                             ARCHIVE_PAGER_POSITION -> {
+                                onHome = false
                                 setHomeIconFilled(false)
                                 disableRefresh()
                             }
@@ -122,10 +124,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
         val menu = menuView?.menu
         if (filled) {
-            onHome = true
-            menuView?.post {
-                menu?.findItem(R.id.bottom_navigation_action_home)
-                    ?.setIcon(R.drawable.ic_home_filled)
+            // Only set filled if onHome (not on archive)
+            if (onHome) {
+                menuView?.post {
+                    menu?.findItem(R.id.bottom_navigation_action_home)
+                        ?.setIcon(R.drawable.ic_home_filled)
+                }
             }
         } else {
             menuView?.post {
