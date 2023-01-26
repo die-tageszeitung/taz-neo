@@ -300,8 +300,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onBackPressed(): Boolean {
         stopMediaPlayer()
-        releasePlayer()
-        shutdownTtsService()
+        ttsService.stop()
         setArticleAudioMenuItem(isPlaying = false)
 
         // FIXME (johannes): please check about the usefulness of the following logic
