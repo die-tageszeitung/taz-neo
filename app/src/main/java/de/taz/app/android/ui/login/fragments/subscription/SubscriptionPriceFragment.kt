@@ -58,8 +58,6 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
         }
 
         viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener { ifDoneNext() }
-
-        viewBinding.backButton.setOnClickListener { back() }
     }
 
     override fun done(): Boolean {

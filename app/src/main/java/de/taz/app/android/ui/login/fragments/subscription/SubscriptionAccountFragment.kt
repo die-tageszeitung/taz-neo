@@ -62,10 +62,6 @@ class SubscriptionAccountFragment :
             ifDoneNext()
         }
 
-        viewBinding.backButton.setOnClickListener {
-            back()
-        }
-
         viewBinding.fragmentSubscriptionAccountComment.setOnEditorActionListener(
             OnEditorActionDoneListener{ hideSoftInputKeyboard()}
         )

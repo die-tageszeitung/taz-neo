@@ -95,10 +95,6 @@ class SubscriptionAddressFragment :
                 ifDoneNext()
             }
 
-            backButton.setOnClickListener {
-                back()
-            }
-
             if (nameTooLong) {
                 setFirstNameError(R.string.login_first_name_helper)
                 setSurnameError(R.string.login_surname_helper)

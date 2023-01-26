@@ -45,7 +45,6 @@ class CoverView @JvmOverloads constructor(
 
     private val coverPlaceholder = findViewById<FrameLayout>(R.id.cover_placeholder)
     private val momentContainer = findViewById<ConstraintLayout>(R.id.moment_container)
-    private val dateDownLoadWrapper = findViewById<ConstraintLayout>(R.id.view_cover_date_download_wrapper)
     private val momentDate = findViewById<TextView>(R.id.fragment_moment_date)
     private val momentProgressbar = findViewById<ProgressBar>(R.id.moment_progressbar)
     private val viewMomentDownloadIconWrapper =
@@ -121,10 +120,11 @@ class CoverView @JvmOverloads constructor(
                 text = coverViewDate.dateStringShort
                     ?.takeIf { useShortDate }
                     ?: coverViewDate.dateString
+
+                visibility = View.VISIBLE
             }
-            dateDownLoadWrapper.visibility = View.VISIBLE
         } else {
-            dateDownLoadWrapper.visibility = View.GONE
+            momentDate.visibility = View.GONE
         }
     }
 

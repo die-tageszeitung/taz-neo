@@ -69,8 +69,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var bottomBehavior: Behavior<View>? = null
     private var isArticleReaderEnabled: Boolean = false
 
-    private var sectionDividerTransformer: SectionDividerTransformer? = null
-
     private fun initializePlayer() {
         if (player == null) {
             player = ExoPlayer.Builder(requireContext().applicationContext)
@@ -112,13 +110,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onResume() {
         super.onResume()
-        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubsWithSectionKey ->
+        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubs ->
             if (
-                articleStubsWithSectionKey.map { it.articleStub.key } !=
+                articleStubs.map { it.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
             ) {
-                log.debug("New set of articles: ${articleStubsWithSectionKey.map { it.articleStub.key }}")
-                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubsWithSectionKey, this)
+                log.debug("New set of articles: ${articleStubs.map { it.key }}")
+                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubs, this)
                 issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
             }
         }
@@ -177,11 +175,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
         viewBinding.loadingScreen.root.visibility = View.GONE
 
-        sectionDividerTransformer =
-            SectionDividerTransformer(viewBinding.webviewPagerViewpager)
-
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED)  {
                 generalDataStore.enableExperimentalArticleReader.asFlow().collect {
                     isArticleReaderEnabled = it
                     setupArticleAudioMenuItem()
@@ -190,7 +185,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
 
         lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED)  {
                 ttsService.isPlaying.collect { isPlaying ->
                     setArticleAudioMenuItem(isPlaying)
                 }
@@ -300,16 +295,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
                 setupArticleAudioMenuItem()
             }
-        }
-
-        override fun onPageScrolled(
-            position: Int,
-            positionOffset: Float,
-            positionOffsetPixels: Int
-        ) {
-            sectionDividerTransformer?.onPageScrolled(
-                position, positionOffset, positionOffsetPixels
-            )
         }
     }
 
@@ -436,7 +421,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun getCurrentArticleStub(): ArticleStub? {
-        return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())?.articleStub
+        return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())
     }
 
     private fun onAudioAction() {
@@ -572,7 +557,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         releasePlayer()
         shutdownTtsService()
         setArticleAudioMenuItem(isPlaying = false)
-        sectionDividerTransformer = null
         super.onDestroyView()
     }
 }
