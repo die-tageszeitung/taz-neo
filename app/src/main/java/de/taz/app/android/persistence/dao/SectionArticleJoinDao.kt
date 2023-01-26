@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 
@@ -112,5 +113,21 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
         """
     )
     suspend fun getIndexOfArticleInSection(articleFileName: String): Int
+
+    @Query(
+        """
+        SELECT SectionArticleJoin.* FROM SectionArticleJoin
+        INNER JOIN IssueSectionJoin
+        WHERE IssueSectionJoin.issueFeedName == :issueFeedName
+            AND IssueSectionJoin.issueDate == :issueDate
+            AND IssueSectionJoin.issueStatus == :issueStatus
+            AND SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
+        """
+    )
+    suspend fun getSectionArticleJoinsForIssue(
+        issueFeedName: String,
+        issueDate: String,
+        issueStatus: IssueStatus
+    ): List<SectionArticleJoin>
 
 }
