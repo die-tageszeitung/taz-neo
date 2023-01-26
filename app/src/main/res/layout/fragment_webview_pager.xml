@@ -29,6 +29,7 @@
         android:background="@color/navigation_bottom_background"
         android:orientation="vertical"
         tools:visibility="visible"
+        android:visibility="invisible"
         app:layout_behavior="de.taz.app.android.util.BottomNavigationBehavior">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -39,14 +40,21 @@
     </LinearLayout>
 
 
-    <!-- This layout is not always shown - its visibility is defined in code -
-         but when it is shown it will draw over the navigation_bottom_layout -->
+    <!--
+        This navigation is only shown when paging through sections - it will be hidden on articles.
+        It has a fixed position on the bottom of the screen and is rendered above the ViewPager and
+        the CoordinatorLayout's navigation_bottom_layout navigation.
+        As the navigation_bottom and this have the same height the CoordinatorLayout takes care of
+        reserving enough space on the bottom to scroll the end of the page content high enough so
+        that it is not cutoff by this navigation_bottom_webview_pager.
+    -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bottom_webview_pager"
         style="@style/BottomNavigationTabBar"
         android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_bottom_height"
         android:layout_gravity="bottom"
-        android:layout_height="@dimen/nav_bottom_height" />
+        android:visibility="gone" />
 
     <com.google.android.exoplayer2.ui.StyledPlayerControlView
         android:id="@+id/player_controller"

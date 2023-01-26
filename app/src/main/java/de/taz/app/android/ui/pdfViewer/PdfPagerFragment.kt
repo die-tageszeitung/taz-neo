@@ -3,9 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
-import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -18,7 +16,6 @@ import de.taz.app.android.util.Log
  * The PdfPagerFragment uses a [ReaderView] to render the [PdfPagerViewModel.pdfPageList]
  */
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_home
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 

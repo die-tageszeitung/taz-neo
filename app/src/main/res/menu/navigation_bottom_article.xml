@@ -15,7 +15,8 @@
     <item
         android:id="@+id/bottom_navigation_action_audio"
         android:icon="@drawable/ic_audio"
-        android:title="@string/bottom_navigation_action_audio" />
+        android:title="@string/bottom_navigation_action_audio"
+        android:visible="false" />
     <item
         android:id="@+id/bottom_navigation_action_size"
         android:icon="@drawable/ic_text_size"

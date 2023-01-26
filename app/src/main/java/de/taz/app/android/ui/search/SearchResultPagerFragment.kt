@@ -30,6 +30,7 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
@@ -53,7 +54,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private var contentService: ContentService? = null
 
     // region views
-    override val bottomNavigationMenuRes = R.menu.navigation_bottom_article
     private val webViewPager: ViewPager2
         get() = viewBinding.webviewPagerViewpager
     private val loadingScreen: ConstraintLayout
@@ -64,12 +64,15 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Set the tool bar invisible so it is not open the 1st time. It needs to be done here
-        // in onViewCreated - when done in xml the 1st click wont be recognized...
-        viewBinding.navigationBottomLayout.visibility = View.INVISIBLE
+
+        articleBottomActionBarNavigationHelper = ArticleBottomActionBarNavigationHelper(
+            viewBinding.navigationBottom,
+            onClickHandler = ::onBottomNavigationItemClicked
+        )
 
         loadingScreen.visibility = View.GONE
 
@@ -112,11 +115,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
-        if (isBookmarked) {
-            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
-        } else {
-            setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark)
-        }
+        articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
     }
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -129,11 +128,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             }
             // show the share icon always when in public article
             // OR when an onLink link is provided
-            viewBinding.navigationBottom.menu.findItem(R.id.bottom_navigation_action_share).isVisible =
-                determineShareIconVisibility(
-                    currentSearchHit?.onlineLink,
-                    currentSearchHit?.articleFileName
-                )
+            articleBottomActionBarNavigationHelper.setShareIconVisibility(
+                currentSearchHit?.onlineLink,
+                currentSearchHit?.articleFileName
+            )
         }
     }
 
@@ -160,7 +158,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         super.onDestroy()
     }
 
-    override fun onBottomNavigationItemClicked(menuItem: MenuItem) {
+    private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
@@ -189,7 +187,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 }
             } ?: date?.let {
                 // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
-                setIcon(R.id.bottom_navigation_action_bookmark, R.drawable.ic_bookmark_filled)
+                articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
                 // no articleStub so probably article not downloaded, so download it:
                 downloadArticleAndSetBookmark(articleFileName, it)
             }
