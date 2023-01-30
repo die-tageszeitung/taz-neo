@@ -1,5 +1,3 @@
-package de.taz.app.android.ui.pdfViewer
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +8,9 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.pdfViewer.ArticleAdapter
+import de.taz.app.android.ui.pdfViewer.PageWithArticles
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Creates ViewHolders for item views that will bind data for the preview of a page and the table of content of this
@@ -23,21 +24,25 @@ import de.taz.app.android.singletons.StorageService
 class PageWithArticlesAdapter(
     var pages: List<PageWithArticles>,
     private val onPageCLick: (position: Int) -> Unit,
-    private val onArticleClick: (pagePosition: Int, article: Article) -> Unit
+    private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
+    private val onArticleBookmarkClick: (article: Article) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
 ) :
     RecyclerView.Adapter<PageWithArticlesAdapter.PageWithArticlesHolder>() {
 
     inner class PageWithArticlesHolder(
         view: View,
         val onPageCLick: (position: Int) -> Unit,
-        val onArticleClick: (pagePosition: Int, article: Article) -> Unit
+        val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
+        val onArticleBookmarkClick: (article: Article) -> Unit,
     ) :
         RecyclerView.ViewHolder(view) {
 
         private lateinit var page: PageWithArticles
 
         private val pagePreviewImage: ImageView = itemView.findViewById(R.id.preview_page_image)
-        private val pageTocRecyclerView: RecyclerView = itemView.findViewById(R.id.toc_recycler_view)
+        private val pageTocRecyclerView: RecyclerView =
+            itemView.findViewById(R.id.toc_recycler_view)
 
         /**
          * Bind data that should be displayed in the item view.
@@ -60,7 +65,10 @@ class PageWithArticlesAdapter(
             pageTocRecyclerView.adapter = this.page.articles?.let {
                 ArticleAdapter(
                     it,
-                    { article -> onArticleClick(absoluteAdapterPosition, article) })
+                    { article -> onArticleClick(absoluteAdapterPosition, article) },
+                    { article -> onArticleBookmarkClick(article) },
+                    articleBookmarkStateFlowCreator
+                )
             }
         }
     }
@@ -71,7 +79,7 @@ class PageWithArticlesAdapter(
     ): PageWithArticlesHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item_pdf_page_with_content, parent, false)
-        return PageWithArticlesHolder(view, onPageCLick, onArticleClick)
+        return PageWithArticlesHolder(view, onPageCLick, onArticleClick, onArticleBookmarkClick)
     }
 
     override fun getItemCount() = pages.size

@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
+import PageWithArticlesAdapter
 import android.os.Bundle
 import android.view.View
 import androidx.drawerlayout.widget.DrawerLayout
@@ -31,19 +32,26 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private lateinit var storageService: StorageService
 
-    private var adapter: PageWithArticlesAdapter? =
-        PageWithArticlesAdapter(
-            emptyList(),
-            { position -> handlePageClick(position) },
-            { pagePosition, article -> handleArticleClick(pagePosition, article) })
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+
+    private lateinit var adapter: PageWithArticlesAdapter
+
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         storageService = StorageService.getInstance(requireContext().applicationContext)
+
+        adapter =
+            PageWithArticlesAdapter(
+                emptyList(),
+                { position -> handlePageClick(position) },
+                { pagePosition, article -> handleArticleClick(pagePosition, article) },
+                { article -> handleArticleBookmarkClick(article) },
+                pdfPagerViewModel::createArticleBookmarkStateFlow
+            )
 
         viewBinding.navigationPageArticleRecyclerView.layoutManager = LinearLayoutManager(context)
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter
@@ -125,6 +133,15 @@ class DrawerBodyPdfWithSectionsFragment :
         }
     }
 
+    private fun handleArticleBookmarkClick(article: Article) {
+        toggleBookmark(article)
+    }
+
+
+    private fun toggleBookmark(article: Article) {
+        pdfPagerViewModel.toggleBookmark(article)
+    }
+
     /**
      * Update the list/table-of-content of an issue in the drawer.
      *
@@ -136,7 +153,10 @@ class DrawerBodyPdfWithSectionsFragment :
         adapter = PageWithArticlesAdapter(
             pages,
             { position -> handlePageClick(position) },
-            { pagePosition, article -> handleArticleClick(pagePosition, article) })
+            { pagePosition, article -> handleArticleClick(pagePosition, article) },
+            { article -> handleArticleBookmarkClick(article) },
+            pdfPagerViewModel::createArticleBookmarkStateFlow
+        )
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter
         hideLoadingScreen()
     }
