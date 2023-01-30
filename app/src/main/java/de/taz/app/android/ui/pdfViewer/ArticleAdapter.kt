@@ -8,6 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 
 /**
@@ -18,18 +22,24 @@ import de.taz.app.android.api.models.Article
  */
 class ArticleAdapter(
     var articles: List<Article>,
-    private val onArticleClick: (article: Article) -> Unit
+    private val onArticleClick: (article: Article) -> Unit,
+    private val onArticleBookmarkClick: (article: Article) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
-    inner class ArticleHolder(view: View, val onArticleClick: (article: Article) -> Unit) :
-        RecyclerView.ViewHolder(view) {
+    inner class ArticleHolder(
+        view: View,
+        private val onArticleClick: (article: Article) -> Unit,
+    ) : RecyclerView.ViewHolder(view), CoroutineScope {
+
+        override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+
 
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
         private val articleAuthors: TextView = itemView.findViewById(R.id.article_authors)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
-
 
         /**
          * Bind data that should be displayed in the item view.
@@ -61,10 +71,20 @@ class ArticleAdapter(
             itemView.setOnClickListener {
                 onArticleClick(article)
             }
-            if (article.bookmarked) {
-                articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
-            } else {
-                articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
+
+            articleIsBookmarked.setOnClickListener {
+                onArticleBookmarkClick(article)
+            }
+
+            val articleBookmarkFlow = articleBookmarkStateFlowCreator(article)
+            launch {
+                articleBookmarkFlow.collect { isBookmarked ->
+                    if (isBookmarked) {
+                        articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
+                    } else {
+                        articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
+                    }
+                }
             }
         }
 
@@ -79,7 +99,13 @@ class ArticleAdapter(
     override fun getItemCount() = articles.size
 
     override fun onBindViewHolder(holder: ArticleHolder, position: Int) {
+        holder.coroutineContext.cancelChildren()
         val article = articles[position]
         holder.bind(article)
+    }
+
+    override fun onViewRecycled(holder: ArticleHolder) {
+        super.onViewRecycled(holder)
+        holder.coroutineContext.cancelChildren()
     }
 }

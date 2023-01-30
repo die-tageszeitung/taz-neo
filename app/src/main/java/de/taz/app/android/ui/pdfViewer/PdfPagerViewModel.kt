@@ -2,7 +2,6 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
@@ -285,12 +284,25 @@ class PdfPagerViewModel(
         maxRetries = maxRetries
     ) as IssueWithPages
 
-    private val bookmarkedArticles = issueFlow.filterNotNull().flatMapLatest {
-        articleRepository.getBookmarkedArticleStubsForIssue(IssueKey(it.issueKey))
+    private val bookmarkedArticles: Flow<Set<String>> =
+        issueFlow.filterNotNull().flatMapLatest {
+            articleRepository
+                .getBookmarkedArticleStubsForIssue(IssueKey(it.issueKey))
+                .map { bookmarkedArticleStubs ->
+                    bookmarkedArticleStubs
+                        .map { articleStub -> articleStub.articleFileName }
+                        .toSet()
+                }
+        }
+
+    fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+        return bookmarkedArticles.map {
+            it.contains(article.key)
+        }
     }
 
     private val pdfPageTocFlow =
-        combine(issueFlow.filterNotNull(), bookmarkedArticles) { issue, bookmarkArticles ->
+        issueFlow.filterNotNull().map { issue ->
             val sortedArticlesOfIssueMap =
                 issue.getArticles()
                     .map { it.key }
@@ -335,6 +347,17 @@ class PdfPagerViewModel(
         }
 
     val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
+
+    fun toggleBookmark(article: Article) {
+        getApplicationScope().launch {
+            if (articleRepository.get(article.key)?.bookmarked == true) {
+                articleRepository.debookmarkArticle(article)
+            } else {
+                articleRepository.bookmarkArticle(article)
+            }
+        }
+    }
+
 
     private val currentPageFlow = combine(
         pdfPageListFlow.filterNotNull(),
