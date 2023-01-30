@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -99,6 +97,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
     override fun onResume() {
         super.onResume()
+        viewBinding.navigationBottomWebviewPager.visibility = View.VISIBLE
         requireActivity().setupBottomNavigation(
             viewBinding.navigationBottomWebviewPager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
