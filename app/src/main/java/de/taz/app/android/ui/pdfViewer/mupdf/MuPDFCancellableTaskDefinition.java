@@ -1,14 +1,15 @@
 package de.taz.app.android.ui.pdfViewer.mupdf;
 
-import android.util.Log;
-
 import com.artifex.mupdf.fitz.Cookie;
 
+import de.taz.app.android.util.Log;
 import io.sentry.Sentry;
 
 public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements CancellableTaskDefinition<Params, Result>
 {
 	private Cookie cookie;
+
+	private final Log log = new Log(MuPDFCancellableTaskDefinition.class.getName());
 	private String debugTag = "";
 
 	public MuPDFCancellableTaskDefinition()
@@ -29,7 +30,7 @@ public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements 
 		if (cookie == null)
 			return;
 
-		Log.d("MuPDF", "Render task canceled [tag: " + debugTag + "]");
+		log.debug("Render task canceled [tag: " + debugTag + "]", null);
 		cookie.abort();
 	}
 
@@ -39,7 +40,7 @@ public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements 
 		if (cookie == null)
 			return;
 
-		Log.d("MuPDF", "Render task cleanup [tag: " + debugTag + "]");
+		log.debug("Render task cleanup [tag: " + debugTag + "]", null);
 		cookie.destroy();
 		cookie = null;
 	}
@@ -47,15 +48,15 @@ public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements 
 	@Override
 	public final Result doInBackground(Params ... params)
 	{
-		Log.d("MuPDF", "Render task started [tag: " + debugTag + "]");
+		log.debug("Render task started [tag: " + debugTag + "]", null);
 		try {
 			Result result = doInBackground(cookie, params);
-			Log.d("MuPDF", "Render task finished [tag: " + debugTag + "]");
+			log.debug("Render task finished [tag: " + debugTag + "]", null);
 			return result;
 		} catch (RuntimeException e) {
 			String hint = "Render task failed [tag: " + debugTag + "]\n" +
 					"Exception will be ignored";
-			Log.e("MuPDF", hint , e);
+			log.error(hint , e);
 			Sentry.captureException(e, hint);
 			return null;
 		}
