@@ -225,7 +225,7 @@
 
     <dimen name="space_between_status_bar_and_content_applied_when_cutout">10dp</dimen>
 
-    <dimen name="article_section_divider_width">25dp</dimen>
+    <dimen name="article_section_divider_width">33dp</dimen>
     <dimen name="article_section_divider_margin">0dp</dimen>
 
 </resources>
