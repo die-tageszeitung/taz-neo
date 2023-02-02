@@ -12,6 +12,7 @@ import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
+import de.taz.app.android.util.getIndexOfDate
 import java.util.*
 
 enum class CoverType {
@@ -75,12 +76,7 @@ abstract class IssueFeedAdapter(
     }
 
     fun getPosition(date: Date): Int {
-        return feed.publicationDates.binarySearch { publicationDate ->
-            val cmp = publicationDate.date.compareTo(date)
-
-            // As the publication dates are sorted descending we have to revert the comparison
-            cmp * -1
-        }
+        return feed.publicationDates.getIndexOfDate(date)
     }
 
     /**
