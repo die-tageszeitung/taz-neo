@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">14.5sp</item>
+        <item name="android:lineSpacingExtra">3.63sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:paddingEnd">5dp</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
+        <item name="android:textSize" >@dimen/search_result_author_text_size</item>
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+    </style>
+</resources>

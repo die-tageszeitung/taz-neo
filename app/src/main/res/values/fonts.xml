@@ -3,4 +3,5 @@
     <item name="appFontRegular" format="reference" type="font">@font/roboto_regular</item>
     <item name="appFontBold" format="reference" type="font">@font/roboto_bold</item>
     <item name="appFontAlternative" format="reference" type="font">@font/charis_sil_regular</item>
+    <item name="appFontAlternativeItalic" format="reference" type="font">@font/charis_sil_regular</item>
 </resources>
