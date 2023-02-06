@@ -56,8 +56,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:textColor="@color/pdf_section_font"
-                android:textSize="@dimen/fragment_drawer_date_text_size"
+                android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_current_page_title"
                 android:textStyle="bold"
+                android:fontFamily="@font/appFontBold"
                 app:layout_constraintBottom_toBottomOf="@id/cardView"
                 app:layout_constraintStart_toEndOf="@+id/cardView"
                 tools:text="Seite 5" />
@@ -75,6 +76,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/table_of_content"
                 android:textColor="@color/pdf_section_font"
+                android:fontFamily="@font/appFontAlternative"
+                android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,6 +87,8 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/pdf_section_font"
                 android:textStyle="italic"
+                android:fontFamily="@font/appFontAlternative"
+                android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Ausgabe 07/2021" />

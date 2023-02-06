@@ -376,7 +376,7 @@
     <string name="search_advanced_apply_filter">Filter anwenden</string>
     <string name="search_advanced_start_search">Suche starten</string>
     <string name="search_result_amount_found">%d von %d Treffer:</string>
-    <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
+    <string name="search_result_amount_none_found">Es wurden leider keine Treffer gefunden</string>
     <string name="search_advanced_help">hilfe</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="issue_title">Ausgabe %s</string>

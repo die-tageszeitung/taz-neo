@@ -283,6 +283,19 @@
         <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
+    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
+        <item name="android:textSize" >@dimen/search_result_author_text_size</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">1</item>
@@ -302,6 +315,13 @@
         <item name="android:textSize">14.5sp</item>
         <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">

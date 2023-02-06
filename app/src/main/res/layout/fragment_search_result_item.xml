@@ -22,11 +22,10 @@
 
     <TextView
         android:id="@+id/search_result_author"
+        style="@style/TextAppearance.Search.Entry.Author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_result_author_margin_top"
-        android:fontFamily="@font/appFontRegular"
-        android:textSize="@dimen/search_result_author_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_title"
         tools:text="@tools:sample/first_names" />
@@ -44,6 +43,7 @@
 
     <TextView
         android:id="@+id/search_result_date"
+        style="@style/TextAppearance.Search.Entry.Date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_results_small_margin"
@@ -55,6 +55,7 @@
 
     <TextView
         android:id="@+id/search_result_section"
+        style="@style/TextAppearance.Search.Entry.Section"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_results_small_margin"

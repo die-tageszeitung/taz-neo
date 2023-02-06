@@ -20,12 +20,10 @@
 
     <TextView
         android:id="@+id/fragment_bookmarks_issue_header_date"
+        style="@style/TextAppearance.Bookmarks.Issue.Header"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/fragment_bookmarks_issue_header_date_margin_start"
-        android:fontFamily="@font/appFontBold"
-        android:gravity="center_vertical"
-        android:textSize="@dimen/fragment_bookmarks_issue_header_date_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/fragment_bookmarks_moment_image"
         app:layout_constraintTop_toTopOf="parent"
