@@ -115,6 +115,10 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             }
         }
 
+        drawerLogo.setOnClickListener {
+            pdfDrawerLayout.closeDrawer(GravityCompat.START)
+        }
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(
                 R.id.activity_pdf_fragment_placeholder,
