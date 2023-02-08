@@ -46,10 +46,11 @@ class DrawerLayout @JvmOverloads constructor(
     }
 
     private val exclusionRectList = listOf(
+        // exclusion rects are only allowed to be on 20% of the screen height
         Rect(
             0, 0,
             resources.displayMetrics.widthPixels / 4,
-            resources.displayMetrics.heightPixels / 2
+            resources.displayMetrics.heightPixels / 5
         )
     )
 

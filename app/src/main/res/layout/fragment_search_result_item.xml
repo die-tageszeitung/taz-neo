@@ -34,12 +34,14 @@
         android:id="@+id/search_result_snippet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/search_result_snippet_margin_top"
         android:fontFamily="@font/appFontAlternative"
         android:lineSpacingExtra="@dimen/search_result_snippet_line_spacing_extra"
+        android:lineSpacingMultiplier="0"
         android:textSize="@dimen/search_result_snippet_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_author"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "/>
+        tools:text="Langer teaser Text, der beschreibt was in dem Artikel behandelt wird oder so ähnlich. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden.. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden. . Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden." />
 
     <TextView
         android:id="@+id/search_result_date"
@@ -47,11 +49,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:lineSpacingExtra="@dimen/search_result_small_text_line_spacing_extra"
         android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
-        tools:text="7.7.2002"/>
+        tools:text="13.12.2022" />
 
     <TextView
         android:id="@+id/search_result_section"
@@ -60,11 +61,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_results_small_margin"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:lineSpacingExtra="@dimen/search_result_small_text_line_spacing_extra"
         android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toEndOf="@id/search_result_date"
         app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
-        tools:text="Feuilleton"/>
+        tools:text="politik" />
 
     <View
         android:layout_width="match_parent"

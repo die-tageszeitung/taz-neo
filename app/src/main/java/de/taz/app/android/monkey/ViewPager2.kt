@@ -1,10 +1,6 @@
 package de.taz.app.android.monkey
 
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowInsets
-import androidx.core.graphics.Insets
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
@@ -13,81 +9,12 @@ import androidx.viewpager2.widget.ViewPager2
  * Kudos: https://medium.com/@al.e.shevelev/how-to-reduce-scroll-sensitivity-of-viewpager2-widget-87797ad02414
  */
 fun ViewPager2.reduceDragSensitivity(factor: Int = 8) {
-    val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
-    recyclerViewField.isAccessible = true
-    val recyclerView = recyclerViewField.get(this) as RecyclerView
-
+    val recyclerView = getRecyclerView()
     val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
     touchSlopField.isAccessible = true
     val touchSlop = touchSlopField.get(recyclerView) as Int
     touchSlopField.set(recyclerView, touchSlop * factor)
 }
 
-/**
- * Monkey patching ViewPager2 so that the recyclerview is shown beneath the status bar
- */
-fun ViewPager2.moveContentBeneathStatusBar() {
-    val recyclerViewField = ViewPager2::class.java.getDeclaredField("mRecyclerView")
-    recyclerViewField.isAccessible = true
-    val recyclerView = recyclerViewField.get(this) as RecyclerView
-
-
-    setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = getSystemWindowInsets(v, insets)
-        (v.layoutParams as ViewGroup.MarginLayoutParams).apply {
-            topMargin = 0
-            leftMargin = systemWindowInsets.left
-            rightMargin = systemWindowInsets.right
-            bottomMargin = systemWindowInsets.bottom
-        }
-        // trigger for recyclerview as well
-        for (index in 0 until childCount) getChildAt(index).dispatchApplyWindowInsets(insets)
-        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
-            "This is not allowed to be null since API 33"
-        }
-    }
-
-    recyclerView.setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = getSystemWindowInsets(v, insets)
-        val layoutParams = ViewGroup.MarginLayoutParams(v.layoutParams)
-        layoutParams.apply {
-            topMargin = 0
-            leftMargin = systemWindowInsets.left
-            rightMargin = systemWindowInsets.right
-            bottomMargin = systemWindowInsets.bottom
-        }
-        // use post to prevent requestLayout while layouting
-        v.post { v.layoutParams = layoutParams }
-        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
-            "This is not allowed to be null since API 33"
-        }
-    }
-
-    requestApplyInsets()
-}
-
-
-/**
- * Monkey patching ViewPager2 so that the recyclerview is shown beneath the status bar
- */
-fun ViewGroup.moveContentBeneathStatusBar() {
-    setOnApplyWindowInsetsListener { v, insets ->
-        val systemWindowInsets = getSystemWindowInsets(v, insets)
-        (v.layoutParams as? ViewGroup.MarginLayoutParams)?.apply {
-            topMargin = 0
-            leftMargin = systemWindowInsets.left
-            rightMargin = systemWindowInsets.right
-            bottomMargin = systemWindowInsets.bottom
-        }
-        requireNotNull(WindowInsetsCompat.CONSUMED.toWindowInsets()) {
-            "This is not allowed to be null since API 33"
-        }
-    }
-
-    requestApplyInsets()
-}
-
-private fun getSystemWindowInsets(view: View, insets: WindowInsets): Insets {
-    val insetsCompat = WindowInsetsCompat.toWindowInsetsCompat(insets, view)
-    return insetsCompat.getInsets(WindowInsetsCompat.Type.systemBars())
-}
+fun ViewPager2.getRecyclerView(): RecyclerView = (get(0) as? RecyclerView)
+    ?: throw IllegalStateException("ViewPagers first child is expected to be the RecyclerView")

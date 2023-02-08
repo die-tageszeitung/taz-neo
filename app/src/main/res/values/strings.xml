@@ -3,6 +3,7 @@
     <string name="accept_button">Akzeptieren</string>
     <string name="close_button">Schließen</string>
     <string name="cancel_button">Abbrechen</string>
+    <string name="back_button">Zurück</string>
     <string name="close_okay">Alles klar</string>
 
     <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
@@ -31,6 +32,7 @@
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
+    <string name="toast_no_tts">Text-To-Speech ist auf diesem Gerät nicht verfügbar.\nBitte installieren Sie einen Text-To-Speech Service mit Unterstützung für deutsche Sprachausgabe.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
 
@@ -107,6 +109,8 @@
     <string name="settings_account_delete">Konto löschen</string>
     <string name="settings_account_elapsed">abgelaufen</string>
     <string name="settings_account_elapsed_on">seit %s abgelaufen</string>
+    <string name="settings_reset_password">Passwort zurücksetzen</string>
+    <string name="settings_manage_account_online">Konto online verwalten</string>
     <string name="settings_decrease_font_size">Textgröße verkleinern</string>
     <string name="settings_increase_font_size">Textgröße vergrößern</string>
     <string name="settings_decrease_keep_issues_number">Weniger Ausgaben speichern</string>
@@ -133,6 +137,7 @@
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s%s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
+    <string name="settings_experimental_article_reader">Artikel vorlesen (experimentell)</string>
     <string name="settings_storage_type">Speicherort</string>
     <string name="settings_storage_type_internal">Interner Speicher</string>
     <string name="settings_storage_type_external">Externer Speicher</string>
@@ -161,7 +166,7 @@
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
 
-    <string name="settings_dialog_notifications_must_be_enabled_title">Benachrichtigungen müssen für die App erlaubt sein</string>
+    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die taz-App aktivieren. Wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
     <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 

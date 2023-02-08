@@ -111,8 +111,6 @@ assembleAllFlavors:
 
 publishNextcloud:
   stage: publish
-  cache: {}
-  artifacts:  {}
   variables:
     RELEASE_FOLDER: releases/${CI_COMMIT_TAG}
     NONFREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-production-debug.apk
@@ -135,9 +133,8 @@ publishNextcloud:
 
 publishGooglePlay:
   stage: publish
-  cache: {}
-  artifacts:  {}
   extends: .prepareEnv
+  dependencies: [] # Do not use any artifacts from the previous build stage in this job
   script:
     - ./gradlew --no-daemon --console=plain publishNonfreeTazProductionReleaseBundle
   only:

@@ -47,6 +47,7 @@ class CoverView @JvmOverloads constructor(
 
     private val coverPlaceholder = findViewById<FrameLayout>(R.id.cover_placeholder)
     private val momentContainer = findViewById<ConstraintLayout>(R.id.moment_container)
+    private val dateDownLoadWrapper = findViewById<ConstraintLayout>(R.id.view_cover_date_download_wrapper)
     private val momentDate = findViewById<TextView>(R.id.fragment_moment_date)
     private val momentProgressbar = findViewById<ProgressBar>(R.id.moment_progressbar)
     private val viewMomentDownloadIconWrapper =
@@ -114,23 +115,21 @@ class CoverView @JvmOverloads constructor(
     private fun setDate(coverViewDate: CoverViewDate?) {
         if (coverViewDate !== null) {
             if (BuildConfig.IS_LMD) {
-                momentDate.text = DateHelper.stringToMonthNameAndYearString(coverViewDate.dateString)
+                momentDate.text =
+                    DateHelper.stringToMonthNameAndYearString(coverViewDate.dateString)
             } else {
                 // All the items in the recyclerview grid should have the same width,
                 // thus we can simply check here which date to use, as it will be the same on all views.
                 val useShortDate =
                     width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
 
-                momentDate.apply {
-                    text = coverViewDate.dateStringShort
-                        ?.takeIf { useShortDate }
-                        ?: coverViewDate.dateString
-
-                    visibility = View.VISIBLE
-                }
+                momentDate.text = coverViewDate.dateStringShort
+                    ?.takeIf { useShortDate }
+                    ?: coverViewDate.dateString
             }
+            dateDownLoadWrapper.visibility = View.VISIBLE
         } else {
-            momentDate.visibility = View.GONE
+            dateDownLoadWrapper.visibility = View.GONE
         }
     }
 

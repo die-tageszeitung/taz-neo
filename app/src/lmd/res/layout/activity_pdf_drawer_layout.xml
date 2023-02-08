@@ -19,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <de.taz.app.android.ui.drawer.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"

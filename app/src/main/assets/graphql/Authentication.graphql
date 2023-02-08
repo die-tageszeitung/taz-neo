@@ -22,7 +22,8 @@ query AuthenticationQuery(
         customerType
         authInfo {
             status
-            message
+            message,
+            loginWeek
         }
     }
 }

@@ -22,7 +22,8 @@
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
         <item name="android:scrollbarSize">5dp</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
-        <item name="bottomSheetStyle">@style/AppTheme.BottomSheetMenuTheme</item>
+        <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
+        <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
@@ -38,6 +39,19 @@
         <item name="backgroundInsetEnd">10dp</item>
         <item name="backgroundInsetTop">10dp</item>
         <item name="backgroundInsetBottom">10dp</item>
+    </style>
+
+    <style name="AppTheme.BottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="android:backgroundTint">@color/backgroundColor</item>
+        <item name="behavior_fitToContents">true</item>
+    </style>
+
+    <style name="AppTheme.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/AppTheme.BottomSheetStyle</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
+        <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
@@ -175,7 +189,7 @@
         <item name="android:layout_gravity">bottom</item>
         <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
-        <item name="itemIconTint">@color/bottom_nav_icon_color</item>
+        <item name="itemIconTint">@color/lightGrey</item>
         <item name="labelVisibilityMode">unlabeled</item>
     </style>
 
@@ -255,7 +269,7 @@
         <item name="android:textSize">23sp</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
-        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_bottom</item>
+        <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
     </style>
 
     <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
@@ -304,7 +318,9 @@
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">3sp</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="android:paddingBottom">4dp</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
+        <item name="android:paddingBottom">2dp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
@@ -315,6 +331,8 @@
         <item name="android:textSize">14.5sp</item>
         <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
@@ -330,7 +348,6 @@
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textSize">13.5sp</item>
-        <item name="android:paddingEnd">5dp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
@@ -385,25 +402,6 @@
         <item name="android:textColor">@color/link</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
-    </style>
-
-    <!-- Stuff to make the bottom sheet with round top borders -->
-    <style name="BottomSheetShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeTopLeft">16dp</item>
-        <item name="cornerSizeTopRight">16dp</item>
-    </style>
-
-    <style name="BottomSheetModal" parent="Widget.Design.BottomSheet.Modal">
-        <item name="shapeAppearance">@style/BottomSheetShapeAppearance</item>
-        <item name="behavior_fitToContents">true</item>
-    </style>
-
-    <style name="AppTheme.BottomSheetMenuTheme" parent="Theme.Material3.DayNight.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="bottomSheetStyle">@style/BottomSheetModal</item>
-        <item name="android:backgroundTint">@color/backgroundColor</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
 </resources>

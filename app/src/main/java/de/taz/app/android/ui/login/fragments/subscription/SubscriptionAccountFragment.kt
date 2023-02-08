@@ -11,7 +11,9 @@ import androidx.annotation.StringRes
 import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import de.taz.app.android.*
+import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
@@ -20,10 +22,14 @@ import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.util.hideSoftInputKeyboard
-import java.util.regex.Pattern
+import de.taz.app.android.util.validation.EmailValidator
+import de.taz.app.android.util.validation.PasswordValidator
 
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment<FragmentSubscriptionAccountBinding>() {
+
+    private val passwordValidator = PasswordValidator()
+    private val emailValidator = EmailValidator()
 
     private var mailInvalid = false
     private var subscriptionInvalid = false
@@ -56,6 +62,10 @@ class SubscriptionAccountFragment :
 
         viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
             ifDoneNext()
+        }
+
+        viewBinding.backButton.setOnClickListener {
+            back()
         }
 
         viewBinding.fragmentSubscriptionAccountComment.setOnEditorActionListener(
@@ -177,9 +187,7 @@ class SubscriptionAccountFragment :
 
         if (!viewModel.validCredentials) {
             val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()
-            if (email.isNullOrBlank() || !Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
-                    .matches()
-            ) {
+            if (email.isNullOrBlank() || !emailValidator(email)) {
                 done = false
                 setEmailError(R.string.login_email_error_empty)
             } else {
@@ -204,7 +212,7 @@ class SubscriptionAccountFragment :
                             R.string.login_password_confirmation_error_match
                         )
                     }
-                    if (!Pattern.compile(PASSWORD_PATTERN).matcher(pw).matches()) {
+                    if (!passwordValidator(pw)) {
                         done = false
                         viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(
                             R.string.login_password_regex_error

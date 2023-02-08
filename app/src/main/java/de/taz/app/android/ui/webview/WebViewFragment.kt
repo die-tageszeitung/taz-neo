@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_TAP_TO_SCROLL_OFFSET
@@ -22,6 +24,7 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.monkey.observeDistinct
@@ -59,6 +62,7 @@ abstract class WebViewFragment<
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var viewerStateRepository: ViewerStateRepository
+    private lateinit var generalDataStore: GeneralDataStore
 
     private var isRendered = false
 
@@ -124,6 +128,7 @@ abstract class WebViewFragment<
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(requireContext().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -176,6 +181,16 @@ abstract class WebViewFragment<
         savedInstanceState?.apply {
             view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
         }
+
+        // Adjust padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                view.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
+                    ?.setPadding(0, extraPadding, 0, 0)
+            }
+        }
+
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")

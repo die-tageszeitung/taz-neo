@@ -20,7 +20,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
     suspend fun get(articleFileNames: List<String>): List<ArticleStub>
 
     @Query(
-        """SELECT * FROM Article
+        """SELECT Article.* FROM Article
             INNER JOIN SectionArticleJoin
             INNER JOIN IssueSectionJoin
         WHERE  SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName

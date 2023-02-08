@@ -77,6 +77,8 @@ abstract class IssueFeedAdapter(
 
     fun getPosition(date: Date): Int {
         return feed.publicationDates.getIndexOfDate(date)
+        // FIXME (johannes): there was a commit by eike to ignore negative results if the date is not found
+        //                   it returned 0 instead. we should check if that is a working error fallback
     }
 
     /**

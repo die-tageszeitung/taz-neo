@@ -42,4 +42,11 @@ abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment
         }
     }
 
+    protected fun back() {
+        requireActivity().supportFragmentManager.popBackStack()
+    }
+
+    protected fun finish() {
+        requireActivity().finish()
+    }
 }

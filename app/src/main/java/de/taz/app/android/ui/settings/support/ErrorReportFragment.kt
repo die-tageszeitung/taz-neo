@@ -11,10 +11,10 @@ import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.MAX_BYTES
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.appLocale
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.singletons.*
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -41,11 +41,10 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewBinding.coordinator.moveContentBeneathStatusBar()
 
         view.apply {
             viewBinding.settingsHeader.fragmentHeaderDefaultTitle.text =
-                getString(R.string.settings_header).lowercase(Locale.GERMAN)
+                getString(R.string.settings_header).lowercase(appLocale)
 
             lifecycleScope.launch {
                 // read email from settings

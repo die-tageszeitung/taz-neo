@@ -1,6 +1,7 @@
 package de.taz.app.android.ui
 
 import android.content.pm.ApplicationInfo
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -17,6 +18,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
@@ -45,6 +47,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
     private lateinit var contentService: ContentService
+    private lateinit var generalDataStore: GeneralDataStore
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
@@ -59,6 +62,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         storageService = StorageService.getInstance(requireContext().applicationContext)
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
         contentService = ContentService.getInstance(requireContext().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
 
         // supportFragmentManager recovers state by itself
         if (savedInstanceState == null) {
@@ -82,71 +86,67 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         if (BuildConfig.IS_LMD) {
             viewBinding.drawer.visibility = View.GONE
             viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
+        } else if (activity is BookmarkViewerActivity) {
+            // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
+            viewBinding.drawerLogo.visibility = View.GONE
         } else {
-            viewBinding.apply {
-                drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-                    drawerLayout.updateDrawerLogoBoundingBox(
-                        v.width,
-                        v.height
-                    )
+            setupDrawer()
+        }
+    }
+
+    private fun setupDrawer() {
+        viewBinding.apply {
+            drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+                drawerLayout.updateDrawerLogoBoundingBox(
+                    v.width,
+                    v.height
+                )
+            }
+
+            // Adjust extra padding when we have cutout display
+            viewLifecycleOwner.lifecycleScope.launch {
+                val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+                if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    navView.setPadding(0, extraPadding, 0, 0)
                 }
             }
-        }
 
-        if (BuildConfig.IS_LMD) {
-            viewBinding.drawer.visibility = View.GONE
-            viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
-        } else {
-            // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
-            if (activity is BookmarkViewerActivity) {
-                viewBinding.drawerLogo.visibility = View.GONE
-            } else {
-                viewBinding.apply {
-                    drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-                        drawerLayout.updateDrawerLogoBoundingBox(
-                            v.width,
-                            v.height
-                        )
-                    }
+            drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+                var opened = false
 
-                    drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-                        var opened = false
-
-                        override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                            (drawerView.parent as? View)?.let { parentView ->
-                                val drawerWidth =
-                                    drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
-                                if (parentView.width < drawerWidth) {
-                                    // translation needed for logo to be shown when drawer is too wide:
-                                    val offsetOnOpenDrawer =
-                                        slideOffset * (parentView.width - drawerWidth)
-                                    // translation needed when drawer is closed then:
-                                    val offsetOnClosedDrawer =
-                                        (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                                    drawerLogoWrapper.translationX =
-                                        offsetOnOpenDrawer + offsetOnClosedDrawer
-                                }
-                            }
-                        }
-
-                        override fun onDrawerOpened(drawerView: View) {
-                            opened = true
-                        }
-
-                        override fun onDrawerClosed(drawerView: View) {
-                            opened = false
-                        }
-
-                        override fun onDrawerStateChanged(newState: Int) {}
-                    })
-
-                    sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
-                        if (it) {
-                            drawerLayout.openDrawer(GravityCompat.START)
-                        } else {
-                            drawerLayout.closeDrawers()
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                    (drawerView.parent as? View)?.let { parentView ->
+                        val drawerWidth =
+                            drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
+                        if (parentView.width < drawerWidth) {
+                            // translation needed for logo to be shown when drawer is too wide:
+                            val offsetOnOpenDrawer =
+                                slideOffset * (parentView.width - drawerWidth)
+                            // translation needed when drawer is closed then:
+                            val offsetOnClosedDrawer =
+                                (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                            drawerLogoWrapper.translationX =
+                                offsetOnOpenDrawer + offsetOnClosedDrawer
                         }
                     }
+                }
+
+                override fun onDrawerOpened(drawerView: View) {
+                    opened = true
+                }
+
+                override fun onDrawerClosed(drawerView: View) {
+                    opened = false
+                }
+
+                override fun onDrawerStateChanged(newState: Int) {}
+            })
+
+            sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
+                if (it) {
+                    drawerLayout.openDrawer(GravityCompat.START)
+                } else {
+                    drawerLayout.closeDrawers()
                 }
             }
         }

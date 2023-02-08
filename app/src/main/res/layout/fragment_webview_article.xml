@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -49,7 +48,6 @@
             android:id="@+id/web_view_wrapper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/fragment_article_padding_top"
             android:paddingBottom="@dimen/fragment_article_padding_bottom">
 
 

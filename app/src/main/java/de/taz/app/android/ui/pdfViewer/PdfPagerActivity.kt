@@ -3,6 +3,7 @@ package de.taz.app.android.ui.pdfViewer
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
@@ -23,9 +24,12 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
@@ -36,6 +40,7 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -67,11 +72,15 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             }
     }
 
+    private val log by Log
+
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private val issueContentViewModel by viewModels<IssueViewerViewModel>()
 
     private lateinit var storageService: StorageService
     private lateinit var issuePublication: IssuePublicationWithPages
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var generalDataStore: GeneralDataStore
 
     // mutable instance state
     private var navButton: Image? = null
@@ -81,12 +90,15 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
     private val drawerLogo by lazy { viewBinding.drawerLogo }
     private val pdfDrawerLayout by lazy { viewBinding.pdfDrawerLayout }
     private val drawerLogoWrapper by lazy { viewBinding.drawerLogoWrapper }
+    private val navView by lazy { viewBinding.navView }
 
     // endregion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         storageService = StorageService.getInstance(applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
@@ -124,6 +136,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 R.id.activity_pdf_fragment_placeholder,
                 PdfPagerFragment()
             ).commit()
+        }
+
+        // Adjust extra padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == ORIENTATION_PORTRAIT) {
+                navView.setPadding(0, extraPadding, 0 ,0)
+            }
         }
 
         pdfDrawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
@@ -206,6 +226,14 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                         }
                         pdfPagerViewModel.linkEventIsConsumed()
                     }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                    KeepScreenOnHelper.toggleScreenOn(it, this@PdfPagerActivity)
+                }
             }
         }
     }

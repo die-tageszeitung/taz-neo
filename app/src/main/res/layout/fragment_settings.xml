@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
     android:background="@color/backgroundColor"
-    app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -53,7 +52,6 @@
                 style="@style/TextAppearance.Settings.Category"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="0dp"
                 android:text="@string/settings_category_account" />
 
             <include layout="@layout/settings_separator_view" />
@@ -105,6 +103,58 @@
                     android:layout_height="wrap_content"
                     android:text="@string/settings_account_logout" />
 
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_settings_account_reset_password_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/fragment_settings_account_reset_password"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_reset_password" />
+
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_settings_manage_account_online_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/fragment_settings_manage_account_online"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_manage_account_online"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:layout_width="@dimen/fragment_settings_icon_size"
+                        android:layout_height="0dp"
+                        android:contentDescription="@string/settings_manage_account_online"
+                        android:src="@drawable/ic_open_in_browser"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>
 
@@ -232,7 +282,8 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_text_night_mode" />
+                android:text="@string/settings_text_night_mode"
+                tools:checked="true"/>
 
             <include layout="@layout/settings_separator_view" />
 
@@ -397,6 +448,15 @@
 
                     <include layout="@layout/settings_separator_view" />
                 </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_experimental_article_reader_switch"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_experimental_article_reader" />
+
+                <include layout="@layout/settings_separator_view" />
 
                 <TextView
                     android:id="@+id/fragment_settings_reset_app"
