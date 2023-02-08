@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.util.Util
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -186,7 +187,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
                 generalDataStore.enableExperimentalArticleReader.asFlow().collect {
-                    isArticleReaderEnabled = it
+                    isArticleReaderEnabled = it || BuildConfig.IS_LMD
                     setupArticleAudioMenuItem()
                 }
             }

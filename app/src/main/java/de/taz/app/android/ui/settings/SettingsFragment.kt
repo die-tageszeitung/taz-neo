@@ -23,8 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.*
-import de.taz.app.android.BuildConfig.FLAVOR_graphql
-import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -218,7 +216,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
+            val graphQlFlavorString = if (BuildConfig.FLAVOR_graphql == "staging") {
                 "-staging"
             } else {
                 ""
@@ -247,15 +245,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            if (FLAVOR_source == "nonfree") {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
                     toggleNotificationsEnabled()
                 }
             }
 
-            fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
-                toggleExperimentalArticleReader(isChecked)
+            if (BuildConfig.IS_LMD) {
+                hideExperimentalArticleReaderSetting()
+            } else {
+                fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    toggleExperimentalArticleReader(isChecked)
+                }
             }
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
@@ -352,7 +354,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            if (FLAVOR_source == "nonfree") {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
                 checkNotificationsAllowed()
             }
         }
@@ -764,6 +766,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun toggleExperimentalArticleReader(enableArticleReader: Boolean) {
         viewModel.setExperimentalArticleReader(enableArticleReader)
+    }
+
+    // IS_LMD
+    private fun hideExperimentalArticleReaderSetting() {
+        viewBinding.fragmentSettingsExperimentalArticleReaderSwitchWrapper.visibility = View.GONE
     }
 
     private fun toggleExtendedContent() {
