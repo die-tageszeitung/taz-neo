@@ -12,6 +12,7 @@ import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
 import java.util.*
 
@@ -45,6 +46,8 @@ abstract class IssueFeedAdapter(
 
     abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate?
 
+    private val log by Log
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
@@ -76,9 +79,12 @@ abstract class IssueFeedAdapter(
     }
 
     fun getPosition(date: Date): Int {
-        return feed.publicationDates.getIndexOfDate(date)
-        // FIXME (johannes): there was a commit by eike to ignore negative results if the date is not found
-        //                   it returned 0 instead. we should check if that is a working error fallback
+        val position = feed.publicationDates.getIndexOfDate(date)
+        if (position < 0) {
+            log.warn("Could not find position of $date in current feed. Return 0 (home position) as a fallback.")
+            return 0
+        }
+        return position
     }
 
     /**
