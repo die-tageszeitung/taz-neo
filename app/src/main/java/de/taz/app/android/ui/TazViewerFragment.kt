@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
@@ -22,7 +21,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +41,9 @@ const val DRAWER_OVERLAP_OFFSET = -5F
 abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>(), BackFragment {
 
     abstract val fragmentClass: KClass<out Fragment>
+
+    // Set to false from the child class to disable the drawer e.g. for Bookmarks
+    protected open val enableDrawer: Boolean = true
 
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
@@ -83,14 +84,11 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (BuildConfig.IS_LMD) {
+        if (enableDrawer) {
+            setupDrawer()
+        } else {
             viewBinding.drawer.visibility = View.GONE
             viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
-        } else if (activity is BookmarkViewerActivity) {
-            // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
-            viewBinding.drawerLogo.visibility = View.GONE
-        } else {
-            setupDrawer()
         }
     }
 

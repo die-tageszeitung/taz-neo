@@ -64,6 +64,7 @@ class BookmarkViewerFragment : TazViewerFragment() {
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
 
     override val fragmentClass: KClass<out Fragment> = BookmarkPagerFragment::class
+    override val enableDrawer: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
