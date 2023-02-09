@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/pdf_drawer_loading_screen"
+        layout="@layout/include_loading_screen"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="invisible" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/drawer_margin_horizontal"
+            android:paddingTop="@dimen/drawer_margin_vertical"
+            android:paddingEnd="@dimen/drawer_margin_horizontal"
+            android:paddingBottom="@dimen/drawer_margin_vertical">
+
+            <LinearLayout
+                android:id="@+id/activity_pdf_drawer_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5"
+                    android:orientation="vertical">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
+                        app:cardBackgroundColor="@color/pdf_drawer_card_background"
+                        app:cardElevation="@dimen/moment_elevation">
+
+                        <ImageView
+                            android:id="@+id/activity_pdf_drawer_front_page"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:scaleType="fitXY"
+                            tools:ignore="ContentDescription"
+                            tools:layout_height="166dp"
+                            tools:layout_width="112dp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/activity_pdf_drawer_date"
+                    style="@style/TextAppearance.Drawer.Sections.Date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                    android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
+                    android:layout_weight="0.5"
+                    android:textColor="@color/fragment_drawer_date_text_color"
+                    android:textSize="@dimen/fragment_drawer_date_text_size"
+                    tools:text="weekday,\n DD.MM.JJJJ" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/activity_pdf_drawer_front_page_title"
+                style="@style/TextAppearance.Drawer.PDF.Sections"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
+                android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
+                android:textSize="@dimen/fragment_drawer_thumbnail_text_size"
+                tools:text="title of 1st page" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/navigation_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                tools:listitem="@layout/view_pdf_drawer_item"
+                tools:spanCount="2" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

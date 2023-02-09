@@ -42,44 +42,40 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.apply {
-            viewBinding.settingsHeader.fragmentHeaderDefaultTitle.text =
-                getString(R.string.settings_header).lowercase(appLocale)
+        viewBinding.settingsHeader.fragmentHeaderDefaultTitle.setText(R.string.settings_header)
 
-            lifecycleScope.launch {
-                // read email from settings
-                viewBinding.fragmentErrorReportEmail.setText(
-                    AuthHelper.getInstance(requireContext().applicationContext).email.get()
-                )
-            }
-
-            viewBinding.fragmentErrorReportUpload.setOnClickListener {
-                getImageFromGallery.launch("image/*")
-            }
-
-            viewBinding.fragmentErrorReportSendButton.setOnClickListener {
-                viewBinding.loadingScreen.root.visibility = View.VISIBLE
-                val email = viewBinding.fragmentErrorReportEmail.text.toString().trim()
-                val message = viewBinding.fragmentErrorReportMessage.text.toString().trim()
-                val lastAction = viewBinding.fragmentErrorReportLastAction.text.toString().trim()
-                val conditions = viewBinding.fragmentErrorReportConditions.text.toString().trim()
-
-                if (email.isNotEmpty()) {
-                    sendErrorReport(
-                        email,
-                        message,
-                        lastAction,
-                        conditions,
-                        uploadedFileName,
-                        base64String
-                    )
-                } else {
-                    viewBinding.fragmentErrorReportEmail.error = requireContext().getString(R.string.login_email_error_empty)
-                    viewBinding.loadingScreen.root.visibility = View.GONE
-                }
-            }
+        lifecycleScope.launch {
+            // read email from settings
+            viewBinding.fragmentErrorReportEmail.setText(
+                AuthHelper.getInstance(requireContext().applicationContext).email.get()
+            )
         }
 
+        viewBinding.fragmentErrorReportUpload.setOnClickListener {
+            getImageFromGallery.launch("image/*")
+        }
+
+        viewBinding.fragmentErrorReportSendButton.setOnClickListener {
+            viewBinding.loadingScreen.root.visibility = View.VISIBLE
+            val email = viewBinding.fragmentErrorReportEmail.text.toString().trim()
+            val message = viewBinding.fragmentErrorReportMessage.text.toString().trim()
+            val lastAction = viewBinding.fragmentErrorReportLastAction.text.toString().trim()
+            val conditions = viewBinding.fragmentErrorReportConditions.text.toString().trim()
+
+            if (email.isNotEmpty()) {
+                sendErrorReport(
+                    email,
+                    message,
+                    lastAction,
+                    conditions,
+                    uploadedFileName,
+                    base64String
+                )
+            } else {
+                viewBinding.fragmentErrorReportEmail.error = requireContext().getString(R.string.login_email_error_empty)
+                viewBinding.loadingScreen.root.visibility = View.GONE
+            }
+        }
     }
 
     private val getImageFromGallery =

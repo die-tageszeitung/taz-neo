@@ -3,7 +3,9 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
@@ -11,10 +13,10 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.util.Log
-import kotlinx.parcelize.Parcelize
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import io.sentry.Sentry
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
 private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"

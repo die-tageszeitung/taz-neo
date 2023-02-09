@@ -4,7 +4,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorError">@color/tazRed</item>
+        <item name="colorError">@color/error</item>
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
         <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
@@ -80,7 +80,7 @@
 
     <style name="SplashTheme" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splashBackground</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_simple</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
@@ -115,7 +115,7 @@
     </style>
 
     <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/drawer_pdf_sections_text</item>
     </style>
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
@@ -162,7 +162,7 @@
     </style>
 
     <style name="TextAppearance.Archive.NavigationEnd.ListItem" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/archive_navigation_end_list_item</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -229,14 +229,14 @@
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:paddingBottom">5dp</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
@@ -297,6 +297,19 @@
         <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
+    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
+        <item name="android:textSize" >@dimen/search_result_author_text_size</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
+    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">1</item>
@@ -320,6 +333,13 @@
         <item name="android:includeFontPadding">false</item>
         <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
         <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
+    </style>
+
+    <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
@@ -357,7 +377,7 @@
 
     <style name="TextAppearance.Login.Link" parent="TextAppearance.Fragment.Title">
         <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textAlignment">center</item>
         <item name="android:lineSpacingExtra">7dp</item>
         <item name="android:paddingTop">@dimen/fragment_login_text_padding_vertical</item>
@@ -379,7 +399,7 @@
     <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
         <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
         <item name="android:textAlignment">center</item>
-        <item name="android:textColor">@color/tazRed</item>
+        <item name="android:textColor">@color/link</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
     </style>

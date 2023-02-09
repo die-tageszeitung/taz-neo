@@ -8,13 +8,12 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.appLocale
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
@@ -48,7 +46,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         storageService = StorageService.getInstance(context.applicationContext)
         lifecycleScope.launch {
             feedFlow.value =
-                FeedRepository.getInstance(context.applicationContext).get(DISPLAYED_FEED)
+                FeedRepository.getInstance(context.applicationContext).get(BuildConfig.DISPLAYED_FEED)
         }
     }
 
@@ -73,11 +71,8 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             }
         }
 
-        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(
-                R.string.fragment_bookmarks_title
-            ).lowercase(appLocale)
-        }
+        view.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.fragment_bookmarks_title)
     }
 
     fun shareArticle(articleFileName: String) {
@@ -152,9 +147,18 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         }
 
         val formattedDate = if (publicationDate?.validity != null) {
+            // if we got validity date (eg wochentaz)
             DateHelper.dateToWeekTazNotation(publicationDate.date, publicationDate.validity)
         } else {
-            DateHelper.stringToLongLocalizedLowercaseString(article.issueDate)
+            if (BuildConfig.IS_LMD) {
+                // for LMd date should be "Ausgabe 10/2022"
+                resources.getString(
+                    R.string.fragment_header_custom_published_date,
+                    DateHelper.stringToMonthYearString(article.issueDate)
+                )
+            } else {
+                DateHelper.stringToLongLocalizedLowercaseString(article.issueDate)
+            }
         }
         return formattedDate ?: ""
     }

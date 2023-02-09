@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/list_item_pdf_page_toc_margin_bottom"
+    tools:context=".ui.pdfViewer.ArticleAdapter"
+    tools:showIn="@layout/list_item_pdf_page_with_content">
+
+    <TextView
+        android:id="@+id/article_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/appFontBold"
+        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit" />
+
+    <TextView
+        android:id="@+id/article_teaser"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/appFontAlternative"
+        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
+        app:layout_constraintEnd_toEndOf="@id/article_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/article_title"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." />
+
+    <TextView
+        android:id="@+id/article_authors"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:fontFamily="@font/appFontAlternativeItalic"
+        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        app:layout_constraintEnd_toEndOf="@id/article_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/article_teaser"
+        android:visibility="gone"
+        tools:visibility="visible"
+        tools:text="by Jane Doe, Max Mustermann" />
+
+    <ImageView
+        android:id="@+id/article_is_bookmarked"
+        android:layout_width="@dimen/list_item_pdf_page_toc_bookmark_icon_size"
+        android:layout_height="@dimen/list_item_pdf_page_toc_bookmark_icon_size"
+        android:src="@drawable/ic_bookmark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/article_title"
+        tools:ignore="contentDescription"
+        app:tint="@color/textColor" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

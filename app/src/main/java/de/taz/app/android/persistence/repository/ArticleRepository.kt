@@ -64,12 +64,16 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         // save authors
         articleToSave.authorList.forEachIndexed { index, author ->
-            author.imageAuthor?.let {
-                fileEntryRepository.save(it)
-                appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                    ArticleAuthorImageJoin(articleFileName, author.name, it.name, index)
+//            TODO(peter) Check if it's okay to not have an image of author
+            author.imageAuthor?.let { fileEntryRepository.save(it) }
+            appDatabase.articleAuthorImageJoinDao().insertOrReplace(
+                ArticleAuthorImageJoin(
+                    articleFileName,
+                    author.name,
+                    author.imageAuthor?.name,
+                    index
                 )
-            }
+            )
         }
 
         issueCache.invalidate(IssuePublication(article))
@@ -248,6 +252,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return getStubLiveData(articleName).map { it?.bookmarkedTime != null }
     }
 
+    fun getBookmarkedArticleStubsForIssue(issueKey: IssueKey): Flow<List<ArticleStub>> {
+        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
     suspend fun getIndexInSection(articleName: String): Int {
         return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
     }
@@ -380,5 +388,9 @@ class ArticleRepository private constructor(applicationContext: Context) :
     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int {
         return appDatabase.articleDao()
             .getDownloadedArticleImageReferenceCount(articleImageFileName)
+    }
+
+    fun hasAudioLiveData(articleFileName: String): LiveData<Boolean> {
+        return appDatabase.articleAudioFileJoinDao().hasAudioFile(articleFileName)
     }
 }

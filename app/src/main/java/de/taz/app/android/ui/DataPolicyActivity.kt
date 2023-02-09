@@ -132,7 +132,8 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
                 viewBinding.dataPolicyFullscreenContent.loadUrl(it)
             }
         } ?: run {
-            throw HTMLFileNotFoundException("Data policy html file ($dataPolicyPageName) not found in database")
+            log.error("Data policy html file ($dataPolicyPageName) not found in database")
+            viewBinding.dataPolicyAcceptButton.callOnClick()
         }
     }
 

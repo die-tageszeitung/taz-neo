@@ -4,11 +4,14 @@ import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.PasswordResetInfo
+import de.taz.app.android.api.models.SubscriptionResetStatus
+import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
@@ -174,7 +177,7 @@ class LoginViewModel @JvmOverloads constructor(
                         if (it) {
                             log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
                             getApplicationScope().launch {
-                                feedService.refreshFeed(DISPLAYED_FEED)
+                                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
                             }
                         }
                     }

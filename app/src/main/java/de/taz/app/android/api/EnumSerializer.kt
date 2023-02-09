@@ -1,5 +1,6 @@
 package de.taz.app.android.api
 
+import android.util.Log
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -32,6 +33,9 @@ abstract class EnumSerializer<T : Enum<T>>(
     }
 
     override fun deserialize(decoder: Decoder): T {
-        return revLookup[decoder.decodeString()] ?: defaultValue
+        return revLookup[decoder.decodeString()] ?: run {
+            Log.e("!!!", "!!!! was: ${decoder.decodeString()}")
+            defaultValue
+        }
     }
 }

@@ -2,8 +2,8 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
 import androidx.lifecycle.*
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
+import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -19,6 +19,11 @@ import kotlinx.coroutines.flow.*
 private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 private const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
+
+data class PageWithArticles(
+    val pagePdf: FileEntry,
+    val articles: List<Article>? = null
+)
 
 sealed class OpenLinkEvent {
     class ShowArticle(val issueKey: IssueKey, val displayableKey: String?) : OpenLinkEvent()
@@ -43,6 +48,8 @@ class PdfPagerViewModel(
     private var issuePublication: IssuePublicationWithPages? = null
 
     private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
+    val issueLiveData = issueFlow.filterNotNull().asLiveData()
+
     val issue: IssueWithPages?
         get() = issueFlow.value
 
@@ -176,8 +183,10 @@ class PdfPagerViewModel(
     }
 
     val navButton = MediatorLiveData<Image>().apply {
+        val defaultDrawerFileName =
+            getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
         viewModelScope.launch {
-            postValue(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME))
+            postValue(imageRepository.get(defaultDrawerFileName))
         }
     } as LiveData<Image>
 
@@ -275,5 +284,121 @@ class PdfPagerViewModel(
         maxRetries = maxRetries
     ) as IssueWithPages
 
-}
+    private val bookmarkedArticles: Flow<Set<String>> =
+        issueFlow.filterNotNull().flatMapLatest {
+            articleRepository
+                .getBookmarkedArticleStubsForIssue(IssueKey(it.issueKey))
+                .map { bookmarkedArticleStubs ->
+                    bookmarkedArticleStubs
+                        .map { articleStub -> articleStub.articleFileName }
+                        .toSet()
+                }
+        }
 
+    fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+        return bookmarkedArticles.map {
+            it.contains(article.key)
+        }
+    }
+
+    private val pdfPageTocFlow =
+        issueFlow.filterNotNull().map { issue ->
+            val sortedArticlesOfIssueMap =
+                issue.getArticles()
+                    .map { it.key }
+                    .withIndex()
+                    .associate { it.value to it.index }
+            if (issue.isDownloaded(application)) {
+                val pages = mutableListOf<PageWithArticles>()
+                issue.pageList.forEach { page ->
+                    val articlesOfPage = mutableListOf<Article>()
+                    page.frameList?.forEach { frame ->
+                        frame.link?.let { link ->
+                            if (link.startsWith("art") && link.endsWith(".html")) {
+                                val article = getArticleForFrame(frame)
+                                if (article != null) {
+                                    articlesOfPage.add(article)
+                                }
+                            }
+                        }
+                    }
+                    val sortedArticlesOfPage =
+                        articlesOfPage.sortedBy {
+                            sortedArticlesOfIssueMap.getOrDefault(
+                                it.key,
+                                Int.MAX_VALUE
+                            )
+                        }
+                    pages.add(
+                        PageWithArticles(
+                            pagePdf = requireNotNull(
+                                fileEntryRepository.get(page.pagePdf.name)
+                            ) {
+                                "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                            }, sortedArticlesOfPage
+                        )
+                    )
+                }
+                pages
+            } else {
+                null
+            }
+        }
+
+    /**
+     * Get [Article] of page [Frame].
+     *
+     * If no non-public article is found it tries to get the public article.
+     *
+     * @param frame - Frame to look for an article
+     * @return [Article]
+     */
+    private suspend fun getArticleForFrame(frame: Frame): Article? {
+        if (frame.link?.startsWith("art") == true && frame.link.endsWith(".html")) {
+            val article = articleRepository.get(frame.link)
+            if (article != null) {
+                return article
+            }
+
+            // If users are not logged in, only the ".public.html" articles are fetched.
+            // In the frame list of the first page, the non-public articles are listed
+            // with their names, which are not accessible for not logged-in users.
+            // To fix this, the ".public." sub string is added to the article link.
+            val publicArticleName = frame.link.replace(".html", ".public.html")
+            val publicArticle = articleRepository.get(publicArticleName)
+
+            if (publicArticle == null) {
+                val hint = "Could not get the public article for frame link ${frame.link}"
+                log.warn(hint)
+                Sentry.captureMessage(hint)
+            }
+            return publicArticle
+        }
+
+        return null
+    }
+
+
+    val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
+
+    fun toggleBookmark(article: Article) {
+        getApplicationScope().launch {
+            if (articleRepository.get(article.key)?.bookmarked == true) {
+                articleRepository.debookmarkArticle(article)
+            } else {
+                articleRepository.bookmarkArticle(article)
+            }
+        }
+    }
+
+
+    private val currentPageFlow = combine(
+        pdfPageListFlow.filterNotNull(),
+        _currentItem.asFlow()
+    ) { pdfPageList, currentItem ->
+        pdfPageList[currentItem]
+    }
+
+    val currentPage = currentPageFlow.filterNotNull().asLiveData()
+
+}

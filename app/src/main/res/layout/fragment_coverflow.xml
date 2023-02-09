@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/superDarkGrey"
+    android:background="@color/coverflow_background"
     android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.Guideline
@@ -37,14 +37,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_home_login"
-            android:textColor="@color/lightGrey" />
+            android:textColor="@color/coverflow_text_color" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:translationY="@dimen/fragment_cover_flow_arrow_translation_y"
             android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
-            android:src="@drawable/ic_arrow_right" />
+            android:src="@drawable/ic_arrow_right"
+            app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
 
     <com.factor.bouncy.BouncyRecyclerView
@@ -103,8 +104,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/lightGrey"
-                tools:src="@drawable/ic_file_download" />
+                app:tint="@color/coverflow_icon_tint"
+                tools:src="@drawable/ic_file_download"  />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,7 +118,8 @@
             app:layout_constraintDimensionRatio="1,1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
             <ImageView
                 android:layout_width="@dimen/text_appearance_archive_date_text_size"
@@ -128,7 +130,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/lightGrey" />
+                app:tint="@color/coverflow_icon_tint" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -162,6 +164,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/ic_arrow_down" />
+        app:srcCompat="@drawable/ic_arrow_down"
+        app:tint="@color/coverflow_icon_tint"
+        tools:srcCompat="@drawable/ic_arrow_down" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

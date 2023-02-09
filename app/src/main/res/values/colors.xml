@@ -1,29 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <color name="tazRed">#d50d2e</color>
-    <color name="white">#fff</color>
-    <color name="superSuperLightGrey">#F0F0F0</color>
-    <color name="superLightGrey">#E3E3E3</color>
-    <color name="lightGrey">#9C9C9C</color>
+    <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
+    <color name="black">#000</color>
     <color name="blue">#007AFF</color>
     <color name="green">#34C759</color>
     <color name="mediumLightGrey">#707070</color>
     <color name="darkGrey">#1C1C1E</color>
+    <color name="lightGrey">#9C9C9C</color>
     <color name="superDarkGrey">#121212</color>
-    <color name="black">#000</color>
+    <color name="superLightGrey">#E3E3E3</color>
+    <color name="superSuperLightGrey">#F0F0F0</color>
+    <color name="tazRed">#d50d2e</color>
+    <color name="red">#d50e2f</color>
+    <color name="white">#fff</color>
     <color name="yellow">#ff8</color>
     <color name="darkGreyEightyPercentOpacity">#CC242424</color>
 
-    <color name="colorPrimary">@color/tazRed</color>
-    <color name="colorPrimaryDark">@color/tazRed</color>
+    <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
+    <color name="dialog_try_pdf_text">@color/black</color>
+    <color name="bottom_sheet_text_color">@color/black</color>
+    <color name="navigation_bottom_highlight">@color/black</color>
+    <color name="textColor">@color/black</color>
     <color name="colorAccent">@color/tazRed</color>
-    <color name="deleteRed">#d50e2f</color>
+    <color name="critical_action">@color/red</color>
     <color name="linkColor">@color/blue</color>
 
-    <color name="backgroundColor">@color/white</color>
-    <color name="textColor">@color/black</color>
+    <color name="icon_active_filter">@color/blue</color>
+
+    <color name="button_cancel_background">@color/darkGrey</color>
+    <color name="cover_placeholder">@color/darkGrey</color>
+    <color name="navigation_bottom_background">@color/darkGrey</color>
+    <color name="navigation_drawer_pdf_background">@color/darkGrey</color>
+
+    <color name="fragment_bookmarks_delete_background">@color/red</color>
     <color name="textColorAccent">@color/lightGrey</color>
     <color name="textColorSection">@color/tazRed</color>
     <color name="buttonColor">@color/black</color>
@@ -35,28 +45,47 @@
     <color name="splashBackground">@color/tazRed</color>
 
     <color name="drawer_sections_item">@color/tazRed</color>
-    <color name="drawer_sections_date">@color/textColor</color>
-    <color name="drawer_sections_item_highlighted">@color/textColor</color>
+    <color name="drawer_sections_date">@color/black</color>
+    <color name="drawer_sections_item_highlighted">@color/black</color>
     <color name="pdf_drawer_sections_item">@color/lightGrey</color>
-    <color name="pdf_drawer_sections_item_highlighted">@color/white</color>
-    <color name="navigation_drawer_background">@color/white</color>
-    <color name="navigation_drawer_pdf_background">@color/darkGrey</color>
-
-    <color name="navigation_bottom_background">@color/darkGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
 
+    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+
+    <color name="coverflow_background">@color/superDarkGrey</color>
+    <color name="coverflow_text_color">@color/lightGrey</color>
+    <color name="coverflow_icon_tint">@color/lightGrey</color>
+
     <color name="fragment_archive_background">@color/superDarkGrey</color>
 
-    <color name="bottom_sheet_background">@color/white</color>
-    <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
-    <color name="bottom_sheet_text_color">@color/textColor</color>
+    <color name="activity_search_field_background_color">@color/superSuperLightGrey</color>
+    <color name="search_field_background_color">@color/superSuperLightGrey</color>
+
+    <color name="colorPrimary">@color/tazRed</color>
+    <color name="colorPrimaryDark">@color/tazRed</color>
+    <color name="error">@color/tazRed</color>
+    <color name="info_icon">@color/tazRed</color>
+    <color name="link">@color/tazRed</color>
 
     <color name="text_highlight_mark_color">@color/yellow</color>
     <color name="text_highlight_text_color">@color/black</color>
 
-    <color name="search_field_background_color">@color/superSuperLightGrey</color>
+    <color name="archive_navigation_end_list_item">@color/white</color>
+    <color name="backgroundColor">@color/white</color>
+    <color name="bottom_sheet_background">@color/white</color>
+    <color name="data_policy_background">@color/white</color>
+    <color name="drawer_pdf_sections_text">@color/white</color>
+    <color name="fragment_bookmarks_delete">@color/white</color>
+    <color name="fragment_drawer_date_text_color">@color/white</color>
+    <color name="navigation_drawer_background">@color/white</color>
+    <color name="pdf_drawer_card_background">@color/white</color>
+    <color name="pdf_drawer_item_card_background">@color/white</color>
+    <color name="pdf_drawer_sections_item_highlighted">@color/white</color>
+    <color name="web_view_background">@color/white</color>
+    <color name="welcome_text_background_tint">@color/white</color>
 
+    <color name="pdf_section_font">@android:color/black</color>
     <color name="scrollbar_color">@color/lightGrey</color>
 
     <color name="login_box_background">@color/superLightGrey</color>

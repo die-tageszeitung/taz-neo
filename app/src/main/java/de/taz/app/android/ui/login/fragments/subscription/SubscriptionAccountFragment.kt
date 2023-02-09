@@ -11,7 +11,9 @@ import androidx.annotation.StringRes
 import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import de.taz.app.android.*
+import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
@@ -227,7 +229,7 @@ class SubscriptionAccountFragment :
         if (!viewBinding.fragmentSubscriptionAccountTermsAndConditions.isChecked) {
             done = false
             viewBinding.fragmentSubscriptionAccountTermsAndConditions.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.tazRed)
+                ContextCompat.getColor(requireContext(), R.color.error)
             )
         }
         return done

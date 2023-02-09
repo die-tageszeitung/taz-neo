@@ -1,5 +1,7 @@
 package de.taz.app.android.ui.bookmarks
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -12,10 +14,18 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlin.reflect.KClass
 
+private const val KEY_SHOWN_ARTICLE = "KEY_SHOWN_ARTICLE"
+
 class BookmarkViewerActivity : AppCompatActivity() {
     companion object {
-        const val KEY_SHOWN_ARTICLE = "KEY_SHOWN_ARTICLE"
+        fun newIntent(
+            packageContext: Context,
+            articleKey: String? = null
+        ) = Intent(packageContext, BookmarkViewerActivity::class.java).apply {
+            putExtra(KEY_SHOWN_ARTICLE, articleKey)
+        }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +64,7 @@ class BookmarkViewerFragment : TazViewerFragment() {
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
 
     override val fragmentClass: KClass<out Fragment> = BookmarkPagerFragment::class
+    override val enableDrawer: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

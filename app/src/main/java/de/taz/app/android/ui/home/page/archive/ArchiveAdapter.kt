@@ -24,7 +24,6 @@ class ArchiveAdapter(
     ),
     observeDownloads = true
 ) {
-
     override fun formatDate(publicationDate: PublicationDate): CoverViewDate {
         return when {
             publicationDate.validity != null -> CoverViewDate(

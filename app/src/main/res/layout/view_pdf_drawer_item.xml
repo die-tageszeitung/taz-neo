@@ -13,7 +13,9 @@
         android:id="@+id/view_drawer_pdf_page_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="@color/pdf_drawer_item_card_background"
+        tools:layout_height="170dp"
+        tools:layout_width="114dp"
         app:cardElevation="@dimen/moment_elevation">
 
         <ImageView
@@ -22,6 +24,8 @@
             android:layout_height="wrap_content"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
+            tools:layout_height="170dp"
+            tools:layout_width="114dp"
             tools:ignore="ContentDescription" />
 
     </androidx.cardview.widget.CardView>
@@ -33,6 +37,8 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
         style="@style/TextAppearance.Drawer.PDF.Sections"
-        android:textSize="@dimen/fragment_drawer_thumbnail_text_size"/>
+        android:textSize="@dimen/fragment_drawer_thumbnail_text_size"
+        tools:text='Title of page'
+        tools:textColor='@color/pdf_drawer_sections_item'/>
 
 </LinearLayout>

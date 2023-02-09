@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
+    tools:context=".ui.pdfViewer.PdfPagerActivity"
     tools:openDrawer="start">
 
     <androidx.fragment.app.FragmentContainerView
@@ -26,10 +27,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <include
-            android:id="@+id/pdf_drawer_loading_screen"
-            layout="@layout/include_loading_screen" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -40,12 +37,12 @@
                 android:id="@+id/drawer_logo_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/drawer_logo_elevation"
-                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardUseCompatPadding="false"
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
+                app:cardElevation="@dimen/drawer_logo_elevation"
+                app:cardUseCompatPadding="false"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -57,83 +54,16 @@
                     android:clickable="true"
                     android:contentDescription="@string/navigation_drawer_open"
                     android:focusable="true"
-                    />
+                    tools:srcCompat="@drawable/ic_logo" />
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_view_drawer_body"
+            android:name="de.taz.app.android.ui.pdfViewer.DrawerBodyPdfPagesFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_drawer_body_pdf_pages" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:orientation="vertical"
-                android:paddingStart="@dimen/drawer_margin_horizontal"
-                android:paddingTop="@dimen/drawer_margin_vertical"
-                android:paddingEnd="@dimen/drawer_margin_horizontal"
-                android:paddingBottom="@dimen/drawer_margin_vertical">
-
-                <LinearLayout
-                    android:id="@+id/activity_pdf_drawer_header"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_weight="0.5"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <androidx.cardview.widget.CardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
-                            app:cardBackgroundColor="@color/white"
-                            app:cardElevation="@dimen/moment_elevation">
-
-                            <ImageView
-                                android:id="@+id/activity_pdf_drawer_front_page"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:scaleType="fitXY"
-                                tools:ignore="ContentDescription" />
-
-                        </androidx.cardview.widget.CardView>
-
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/activity_pdf_drawer_date"
-                        style="@style/TextAppearance.Drawer.Sections.Date"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom"
-                        android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                        android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
-                        android:layout_weight="0.5"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/fragment_drawer_date_text_size"/>
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/activity_pdf_drawer_front_page_title"
-                    style="@style/TextAppearance.Drawer.PDF.Sections"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
-                    android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                    android:layout_marginBottom="@dimen/fragment_drawer_thumbnail_margin"
-                    android:textSize="@dimen/fragment_drawer_thumbnail_text_size" />
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/navigation_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
     </de.taz.app.android.ui.drawer.NavigationView>
 </de.taz.app.android.ui.drawer.DrawerLayout>

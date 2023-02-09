@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LMd</string>
+    <string name="author_list">von %s</string>
+    <string name="search_input_hint">LMd Archiv durchsuchen</string>
+
+    <string name="login_username_hint">Abo-ID</string>
+    <string name="login_username_error_empty">Abo-ID darf nicht leer sein.</string>
+
+    <string name="fragment_bookmarks_title">Leseliste</string>
+
+    <string name="settings_header">Einstellungen</string>
+    <string name="settings_category_issue_management">Ausgabenverwaltung</string>
+    <string name="settings_category_text">Darstellung</string>
+    <string name="settings_category_account">Konto</string>
+    <string name="settings_category_support">Hilfe</string>
+    <string name="settings_category_legal">Rechtliches</string>
+    <string name="settings_category_extended">Erweitert</string>
+</resources>

@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import de.taz.app.android.DISPLAYED_FEED
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
@@ -19,7 +19,9 @@ import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
@@ -35,9 +37,14 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                    val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                    viewBinding.fabActionPdf.setImageResource(drawable)
+                if (BuildConfig.IS_LMD) {
+                    viewBinding.fabActionPdf.visibility = View.GONE
+                }
+                else {
+                    homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
+                        val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                        viewBinding.fabActionPdf.setImageResource(drawable)
+                    }
                 }
             }
         }
@@ -91,7 +98,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private suspend fun onRefresh() {
         try {
             val feedService = FeedService.getInstance(requireContext().applicationContext)
-            feedService.refreshFeed(DISPLAYED_FEED)
+            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
         } catch (e: ConnectivityException.NoInternetException) {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showNoConnectionToast()

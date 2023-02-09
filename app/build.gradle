@@ -153,6 +153,9 @@ android {
 
         buildConfigField "Boolean", "MANUAL_UPDATE", "false"
         buildConfigField "Boolean", "IS_NON_FREE", "false"
+        buildConfigField "Boolean", "IS_LMD", "false"
+        buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "false"
+        buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
 
         def ENV = System.getenv()
         def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
@@ -178,16 +181,6 @@ android {
     flavorDimensions "source", "owner", "graphql"
 
     productFlavors {
-        taz {
-            dimension "owner"
-            applicationId "de.taz.android.app"
-        }
-
-        lmd {
-            dimension "owner"
-            applicationId "de.monde_diplomatique.android.app"
-        }
-
         free {
             dimension "source"
             applicationIdSuffix ".free"
@@ -198,17 +191,44 @@ android {
             buildConfigField "Boolean", "IS_NON_FREE", "true"
         }
 
+        taz {
+            dimension "owner"
+            applicationId "de.taz.android.app"
+            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"taz.de/appGraphQl\""
+            buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
+        }
+
+        lmd {
+            dimension "owner"
+            applicationId "de.monde_diplomatique.android.app"
+            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
+            buildConfigField "Boolean", "IS_LMD", "true"
+            buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "true"
+            buildConfigField "String", "DISPLAYED_FEED", "\"LMd\""
+        }
+
         staging {
             applicationIdSuffix ".staging"
             dimension "graphql"
-            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://testdl.taz.de/appGraphQl\""
+            buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://testdl.\""
         }
 
         production {
             dimension "graphql"
-            buildConfigField "String", "GRAPHQL_ENDPOINT", "\"https://dl.taz.de/appGraphQl\""
+            buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://dl.\""
         }
 
+    }
+
+    // Adds only the resource folders nonfreeLmd [and freeLmd] to the the source sets of all possible
+    // build variants nonfreeLmdProductionDebug, nonfreeLmdProductionRelease, ...
+    // This does not add stuff like AndroidManifest.xml, etc.
+    sourceSets.all { sourceSet ->
+        if (sourceSet.name.toLowerCase().contains('nonfreelmd')) {
+            sourceSet.res.srcDirs += files("$projectDir/src/nonfreeLmd/res")
+        } else if (sourceSet.name.toLowerCase().contains('freelmd')) {
+            sourceSet.res.srcDirs += files("$projectDir/src/freeLmd/res")
+        }
     }
 
     signingConfigs {
@@ -351,7 +371,7 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
 
     implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation ("io.ktor:ktor-network-jvm:$ktor_version") {
+    implementation("io.ktor:ktor-network-jvm:$ktor_version") {
         because "We use io.ktor.network.sockets.SocketTimeoutException on ConnectivityException which is only defined on this module"
     }
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"

@@ -219,7 +219,7 @@ class CredentialsMissingFragment :
         if (!viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.isChecked) {
             done = false
             viewBinding.fragmentLoginMissingCredentialsTermsAndConditions.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.tazRed)
+                ContextCompat.getColor(requireContext(), R.color.error)
             )
         }
 

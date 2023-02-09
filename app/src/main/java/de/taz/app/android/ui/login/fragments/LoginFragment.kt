@@ -3,6 +3,7 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
@@ -79,6 +80,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         viewBinding.fragmentLoginPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(::login)
         )
+
+        if (BuildConfig.IS_LMD) {
+            hideSubscriptionBoxes()
+        }
     }
 
     private fun login() {
@@ -94,5 +99,12 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     private fun showUserNameError(@StringRes usernameErrorId: Int) {
         viewBinding.fragmentLoginUsernameLayout.error = getString(usernameErrorId)
+    }
+
+    private fun hideSubscriptionBoxes() {
+        viewBinding.fragmentLoginSeparatorLine.visibility = View.GONE
+        viewBinding.fragmentLoginTrialSubscriptionBox.visibility = View.GONE
+        viewBinding.fragmentLoginSwitchPrint2digiBox.visibility = View.GONE
+        viewBinding.fragmentLoginExtendPrintWithDigiBox.visibility = View.GONE
     }
 }

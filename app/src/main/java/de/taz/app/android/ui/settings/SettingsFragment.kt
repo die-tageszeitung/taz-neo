@@ -23,8 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.*
-import de.taz.app.android.BuildConfig.FLAVOR_graphql
-import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -81,11 +79,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(
-                R.string.settings
-            ).lowercase(appLocale)
-        }
+        view.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.settings_header)
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
@@ -218,7 +213,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
+            val graphQlFlavorString = if (BuildConfig.FLAVOR_graphql == "staging") {
                 "-staging"
             } else {
                 ""
@@ -239,19 +234,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setDownloadEnabled(isChecked)
             }
 
-            fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
-                setPdfDownloadEnabled(isChecked)
+            if (BuildConfig.IS_LMD) {
+                hideAutoPdfDownloadSwitch()
+            } else {
+                fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    setPdfDownloadEnabled(isChecked)
+                }
             }
 
-            if (FLAVOR_source == "nonfree") {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
                     toggleNotificationsEnabled()
                 }
             }
 
-            fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
-                toggleExperimentalArticleReader(isChecked)
+            if (BuildConfig.IS_LMD) {
+                hideExperimentalArticleReaderSetting()
+            } else {
+                fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    toggleExperimentalArticleReader(isChecked)
+                }
             }
 
             fragmentSettingsDeleteAllIssues.setOnClickListener {
@@ -348,7 +351,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            if (FLAVOR_source == "nonfree") {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
                 checkNotificationsAllowed()
             }
         }
@@ -393,6 +396,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun hideAutoPdfDownloadSwitch() {
+        viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
+        viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
+    }
+
     private suspend fun deleteAllIssuesWithProgressBar(
         dialogView: View
     ) = withContext(Dispatchers.Main) {
@@ -404,7 +412,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
 
-        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: DISPLAYED_FEED
+        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: BuildConfig.DISPLAYED_FEED
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
@@ -755,6 +763,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun toggleExperimentalArticleReader(enableArticleReader: Boolean) {
         viewModel.setExperimentalArticleReader(enableArticleReader)
+    }
+
+    // IS_LMD
+    private fun hideExperimentalArticleReaderSetting() {
+        viewBinding.fragmentSettingsExperimentalArticleReaderSwitchWrapper.visibility = View.GONE
     }
 
     private fun toggleExtendedContent() {

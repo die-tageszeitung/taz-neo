@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
@@ -208,6 +209,8 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         // set date text
         this.date.text = when {
+            BuildConfig.IS_LMD ->
+                DateHelper.dateToLocalizedMonthAndYearString(date)
             item != null && item.validity != null ->
                 DateHelper.dateToWeekNotation(
                     item.date,

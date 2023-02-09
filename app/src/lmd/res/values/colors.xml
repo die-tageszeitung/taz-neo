@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Internal color palette: Shouldn't be used outside of colors.xml -->
+    <!--    no color palette defined-->
+    <color name="transparentBlack">#33000000</color>
+    <color name="lightGrayishYellow">#F0F0ED</color>
+    <color name="red">#d50e2f</color>
+    <color name="lmdBlue">#3B88A7</color>
+
+    <!--    Colors with purpose name: Should be used outside of colors.xml -->
+    <color name="ic_launcher_background">@android:color/white</color>
+    <color name="splashBackground">@android:color/white</color>
+    <color name="ic_launcher_background_debug_stroke_color">@color/transparentBlack</color>
+    <color name="navigation_drawer_pdf_background">@color/lightGrayishYellow</color>
+    <color name="navigation_drawer_background">@color/lightGrayishYellow</color>
+    <color name="fragment_archive_background">@color/lightGrayishYellow</color>
+    <color name="coverflow_background">@color/lightGrayishYellow</color>
+    <color name="coverflow_text_color">@color/black</color>
+    <color name="coverflow_icon_tint">@color/black</color>
+
+    <color name="pdf_section_font">@android:color/black</color>
+
+    <color name="colorAccent">@color/lmdBlue</color>
+    <color name="textColorSection">@color/lmdBlue</color>
+    <color name="colorPrimary">@color/lmdBlue</color>
+    <color name="colorPrimaryDark">@color/lmdBlue</color>
+    <color name="drawer_sections_item">@color/lmdBlue</color>
+    <color name="info_icon">@color/lmdBlue</color>
+    <color name="link">@color/lmdBlue</color>
+
+    <color name="error">@color/red</color>
+</resources>

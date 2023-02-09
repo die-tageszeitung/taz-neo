@@ -11,6 +11,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_SEARCH_HELP
 import de.taz.app.android.api.ApiService
@@ -104,8 +105,17 @@ class SearchActivity :
             advancedSearchTimeslot.setOnClickListener {
                 showSearchTimeDialog()
             }
-            advancedSearchPublishedIn.setOnClickListener {
-                showPublishedInDialog()
+            if (BuildConfig.IS_LMD) {
+                // Restrict the publishedIn parameter to LMd by hiding the selection action ...
+                advancedSearchPublishedInWrapper.visibility = View.GONE
+                // ... and setting it manually to "Le monde Diplomatique"
+                viewModel.chosenPublishedIn.postValue(
+                    getString(R.string.search_advanced_radio_published_in_lmd)
+                )
+            } else {
+                advancedSearchPublishedIn.setOnClickListener {
+                    showPublishedInDialog()
+                }
             }
             advancedSearchSortBy.setOnClickListener {
                 showSortByDialog()

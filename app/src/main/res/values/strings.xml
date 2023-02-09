@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">die tageszeitung</string>
     <string name="accept_button">Akzeptieren</string>
     <string name="close_button">Schließen</string>
     <string name="cancel_button">Abbrechen</string>
@@ -83,7 +82,7 @@
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
-    <string name="fragment_bookmarks_title">Leseliste</string>
+    <string name="fragment_bookmarks_title">leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
@@ -160,7 +159,7 @@
     <string name="settings_dialog_cancellation_taz_id_title">Website zum Löschen Ihres Kontos aufrufen?</string>
     <string name="settings_dialog_cancellation_not_possible">Sie verwenden kein selbst erstelltes Konto. Sie können dieses Konto nicht löschen.\n\nBei weiteren Fragen wenden Sie sich bitte an den Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
     <string name="settings_dialog_cancellation_direct">Diese Aktion kann nicht rückgängig gemacht werden. Sie können keine weiteren Ausgaben herunterladen.</string>
-    <string name="settings_dialog_cancellation_try_later_offline_toast">Etwas unerwartetes ist passiert. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es später erneut.</string>"
+    <string name="settings_dialog_cancellation_try_later_offline_toast">Etwas unerwartetes ist passiert. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es später erneut.</string>
     <string name="settings_dialog_cancellation_already_canceled_title">Konto gelöscht</string>
     <string name="settings_dialog_cancellation_already_canceled_description">Ihr Konto wurde bereits zur Löschung vorgemerkt. Die Bearbeitung erfolgt normalerweise innerhalb eines Arbeitstages.\n\nWenn Ihr Konto endgültig gelöscht ist, werden Sie automatisch abgemeldet. Heruntergeladene Ausgaben können Sie weiterhin lesen.</string>
     <string name="settings_dialog_cancellation_open_website">Webseite öffnen</string>
@@ -382,8 +381,16 @@
     <string name="search_advanced_apply_filter">Filter anwenden</string>
     <string name="search_advanced_start_search">Suche starten</string>
     <string name="search_result_amount_found">%d von %d Treffer:</string>
-    <string name="search_result_amount_none_found">Es wurden leider keine Treffer geunden</string>
+    <string name="search_result_amount_none_found">Es wurden leider keine Treffer gefunden</string>
     <string name="search_advanced_help">hilfe</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="issue_title">Ausgabe %s</string>
+    <string name="table_of_content">Inhaltsverzeichnis</string>
+    <plurals name="pages">
+        <item quantity="one">Seite %s</item>
+        <item quantity="other">Seiten %s</item>
+    </plurals>
+    <string name="author_list">von %s</string>
 
     <string name="subscription_inquiry_switch_title">Ja! Ich möchte nur noch digital lesen.</string>
     <string name="subscription_inquiry_switch_description">Super! Auf in die Zukunft. Herzlichen Glückwunsch zu diesem Schritt. Um Sie einordnen zu können, brauchen wir ein paar Daten von Ihnen.\nWir kontaktieren Sie in den nächsten Tagen per Mail.</string>

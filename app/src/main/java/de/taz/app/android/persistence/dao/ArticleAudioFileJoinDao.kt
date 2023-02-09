@@ -1,5 +1,6 @@
 package de.taz.app.android.persistence.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.FileEntry
@@ -16,4 +17,7 @@ interface ArticleAudioFileJoinDao : BaseDao<ArticleAudioFileJoin> {
     """
     )
     suspend fun getAudioFileForArticle(articleFileName: String): FileEntry?
+
+    @Query("SELECT EXISTS(SELECT * FROM ArticleAudioFileJoin where articleFileName = :articleFileName)")
+    abstract fun hasAudioFile(articleFileName: String): LiveData<Boolean>
 }

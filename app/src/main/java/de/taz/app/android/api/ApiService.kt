@@ -182,6 +182,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun getAppInfo(): AppInfo = transformToConnectivityException {
         val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
+        log.error("!!! $productDto")
         if (productDto != null) {
             AppInfoMapper.from(productDto)
         } else {
@@ -211,8 +212,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getIssueByFeedAndDate(
-        feedName: String = "taz",
-        issueDate: Date = Date()
+        feedName: String,
+        issueDate: Date
     ): Issue {
         val tag = "getIssueByFeedAndDate"
         log.debug("$tag feedName: $feedName issueDate: $issueDate")
@@ -293,8 +294,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getIssuesByFeedAndDate(
-        feedName: String = "taz",
-        issueDate: Date = Date(),
+        feedName: String,
+        issueDate: Date,
         limit: Int = 2
     ): List<Issue> {
         val tag = "getIssuesByFeedAndDate"
@@ -320,8 +321,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getMomentByFeedAndDate(
-        feedName: String = "taz",
-        issueDate: Date = Date()
+        feedName: String,
+        issueDate: Date
     ): Moment? {
         val dateString = simpleDateFormat.format(issueDate)
         return transformToConnectivityException {
@@ -352,8 +353,8 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     @Throws(ConnectivityException::class)
     suspend fun getFrontPageByFeedAndDate(
-        feedName: String = "taz",
-        issueDate: Date = Date()
+        feedName: String,
+        issueDate: Date
     ): Pair<Page, IssueStatus>? {
         val dateString = simpleDateFormat.format(issueDate)
         return transformToConnectivityException {

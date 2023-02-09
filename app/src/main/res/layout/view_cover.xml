@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_archive_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -30,7 +31,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:backgroundTint="@color/darkGrey"
+            android:backgroundTint="@color/cover_placeholder"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +67,8 @@
             android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/view_moment_download_icon_wrapper" />
+            app:layout_constraintEnd_toStartOf="@id/view_moment_download_icon_wrapper"
+            tools:text="November 2023"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/view_moment_download_icon_wrapper"
@@ -87,7 +89,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/lightGrey" />
+                app:tint="@color/coverflow_icon_tint" />
 
             <ImageView
                 android:id="@+id/view_moment_download_finished"
@@ -100,7 +102,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/lightGrey" />
+                app:tint="@color/coverflow_icon_tint" />
 
             <ProgressBar
                 android:id="@+id/view_moment_downloading"

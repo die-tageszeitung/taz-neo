@@ -171,7 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_account_delete"
-                    android:textColor="@color/deleteRed" />
+                    android:textColor="@color/critical_action" />
 
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>
@@ -227,7 +227,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_auto_pdf_downloads_switch" />
 
-            <include layout="@layout/settings_separator_view" />
+            <include
+                android:id="@+id/fragment_settings_auto_download_switch_separator_line"
+                layout="@layout/settings_separator_view" />
 
             <include
                 android:id="@+id/fragment_settings_storage_location"
@@ -243,7 +245,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_delete_all_issues"
-                android:textColor="@color/deleteRed" />
+                android:textColor="@color/critical_action" />
 
             <include layout="@layout/settings_separator_view" />
             <!-- endregion -->
@@ -447,14 +449,21 @@
                     <include layout="@layout/settings_separator_view" />
                 </LinearLayout>
 
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/fragment_settings_experimental_article_reader_switch"
-                    style="@style/TextAppearance.Settings.Entry"
+                <LinearLayout
+                    android:id="@+id/fragment_settings_experimental_article_reader_switch_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_experimental_article_reader" />
+                    android:orientation="vertical">
 
-                <include layout="@layout/settings_separator_view" />
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fragment_settings_experimental_article_reader_switch"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_experimental_article_reader" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/fragment_settings_reset_app"
@@ -462,7 +471,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_reset_app"
-                    android:textColor="@color/deleteRed" />
+                    android:textColor="@color/critical_action" />
 
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>

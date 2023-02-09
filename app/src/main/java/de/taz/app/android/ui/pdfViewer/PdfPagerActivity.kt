@@ -19,22 +19,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.commit
 import androidx.lifecycle.*
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.Page
-import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -50,7 +44,6 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -91,18 +84,12 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
     // mutable instance state
     private var navButton: Image? = null
-    private var drawerAdapter: PdfDrawerRecyclerViewAdapter? = null
     private var drawerLogoWidth = 0f
 
     // region views
     private val drawerLogo by lazy { viewBinding.drawerLogo }
-    private val navigationRecyclerView by lazy { viewBinding.navigationRecyclerView }
     private val pdfDrawerLayout by lazy { viewBinding.pdfDrawerLayout }
     private val drawerLogoWrapper by lazy { viewBinding.drawerLogoWrapper }
-    private val pdfDrawerLoadingScreen by lazy { viewBinding.pdfDrawerLoadingScreen }
-    private val activityPdfDrawerFrontPage by lazy { viewBinding.activityPdfDrawerFrontPage }
-    private val activityPdfDrawerFrontPageTitle by lazy { viewBinding.activityPdfDrawerFrontPageTitle }
-    private val activityPdfDrawerDate by lazy { viewBinding.activityPdfDrawerDate }
     private val navView by lazy { viewBinding.navView }
 
     // endregion
@@ -140,32 +127,16 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             }
         }
 
+        drawerLogo.setOnClickListener {
+            pdfDrawerLayout.closeDrawer(GravityCompat.START)
+        }
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(
                 R.id.activity_pdf_fragment_placeholder,
                 PdfPagerFragment()
             ).commit()
         }
-
-        // Add Item Touch Listener
-        navigationRecyclerView.addOnItemTouchListener(
-            RecyclerTouchListener(
-                this@PdfPagerActivity,
-                fun(_: View, drawerPosition: Int) {
-                    log.debug("position clicked: $drawerPosition. pdf")
-                    // currentItem.value begins from 0 to n-1th pdf page
-                    // but in the drawer the front page is not part of the drawer list, that's why
-                    // it needs to be incremented by 1:
-                    val realPosition = drawerPosition + 1
-                    if (realPosition != pdfPagerViewModel.currentItem.value) {
-                        pdfPagerViewModel.updateCurrentItem(realPosition)
-                        drawerAdapter?.activePosition = drawerPosition
-                    }
-                    popArticlePagerFragmentIfOpen()
-                    pdfDrawerLayout.closeDrawers()
-                }
-            )
-        )
 
         // Adjust extra padding when we have cutout display
         lifecycleScope.launch {
@@ -209,9 +180,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
 
-        pdfPagerViewModel.pdfPageList.observe(this@PdfPagerActivity) {
-            initDrawerAdapterWithDelay(it)
-        }
 
         pdfPagerViewModel.hideDrawerLogo.observe(this@PdfPagerActivity) { toHide ->
             if (toHide
@@ -308,91 +276,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
 
     }
 
-    private fun initDrawerAdapterWithDelay(items: List<Page>) {
-        lifecycleScope.launch {
-            delay(DRAWER_INIT_DELAY_MS)
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                initDrawAdapter(items)
-            }
-        }
-    }
-
-    private fun initDrawAdapter(items: List<Page>) {
-        if (items.isNotEmpty()) {
-            // Setup a gridManager which takes 2 columns for panorama pages
-            val gridLayoutManager = GridLayoutManager(this@PdfPagerActivity, 2)
-            gridLayoutManager.spanSizeLookup = object : SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (items[position + 1].type == PageType.panorama) {
-                        2
-                    } else {
-                        1
-                    }
-                }
-            }
-
-            // Setup Recyclerview's Layout
-            navigationRecyclerView.apply {
-                layoutManager = gridLayoutManager
-                setHasFixedSize(false)
-            }
-
-            // Setup drawer header (front page and date)
-            Glide
-                .with(this@PdfPagerActivity)
-                .load(storageService.getAbsolutePath(items.first().pagePdf))
-                .into(activityPdfDrawerFrontPage)
-
-            activityPdfDrawerFrontPage.setOnClickListener {
-                val newPosition = 0
-                if (newPosition != pdfPagerViewModel.currentItem.value) {
-                    pdfPagerViewModel.updateCurrentItem(newPosition)
-                    drawerAdapter?.activePosition = newPosition
-                }
-                popArticlePagerFragmentIfOpen()
-                activityPdfDrawerFrontPageTitle.setTextColor(
-                    ContextCompat.getColor(
-                        this@PdfPagerActivity,
-                        R.color.pdf_drawer_sections_item_highlighted
-                    )
-                )
-                pdfDrawerLayout.closeDrawers()
-            }
-            activityPdfDrawerFrontPageTitle.apply {
-                text = items.first().title
-                setTextColor(
-                    ContextCompat.getColor(
-                        this@PdfPagerActivity,
-                        R.color.pdf_drawer_sections_item_highlighted
-                    )
-                )
-            }
-            activityPdfDrawerDate.text = setDrawerDate(issuePublication)
-
-            drawerAdapter =
-                PdfDrawerRecyclerViewAdapter(
-                    items.subList(1, items.size),
-                    Glide.with(this@PdfPagerActivity)
-                )
-
-            pdfPagerViewModel.currentItem.observe(this@PdfPagerActivity) { position ->
-                drawerAdapter?.activePosition = position - 1
-                if (position > 0) {
-                    log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
-                    activityPdfDrawerFrontPageTitle.setTextColor(
-                        ContextCompat.getColor(
-                            this@PdfPagerActivity,
-                            R.color.pdf_drawer_sections_item
-                        )
-                    )
-                }
-            }
-            navigationRecyclerView.adapter = drawerAdapter
-            hideLoadingScreen()
-        }
-
-    }
-
     private suspend fun showNavButton(navButton: Image) {
         if (this.navButton != navButton) {
             this.navButton = navButton
@@ -451,20 +334,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             pdfPagerViewModel.hideDrawerLogo.postValue(false)
     }
 
-    private fun hideLoadingScreen() {
-        this.runOnUiThread {
-            pdfDrawerLoadingScreen.root.apply {
-                animate()
-                    .alpha(0f)
-                    .withEndAction {
-                        this.visibility = View.GONE
-                    }
-                    .duration = LOADING_SCREEN_FADE_OUT_TIME
-            }
-        }
-    }
-
-    private fun popArticlePagerFragmentIfOpen() {
+    fun popArticlePagerFragmentIfOpen() {
         supportFragmentManager.popBackStack(
             ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
             POP_BACK_STACK_INCLUSIVE
@@ -475,18 +345,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         val articlePagerFragment =
             supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
         return articlePagerFragment != null
-    }
-
-    private fun setDrawerDate(issuePublicationWithPages: IssuePublicationWithPages): String? {
-        val issue = pdfPagerViewModel.issue
-        return if (issue?.isWeekend == true && !issue.validityDate.isNullOrBlank()) {
-            DateHelper.stringsToWeek2LineString(
-                issue.date,
-                issue.validityDate
-            )
-        } else {
-            DateHelper.stringToLongLocalized2LineString(issuePublicationWithPages.date)
-        }
     }
 
     override fun onResume() {

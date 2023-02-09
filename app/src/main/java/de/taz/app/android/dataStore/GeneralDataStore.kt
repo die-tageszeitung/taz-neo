@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.util.SingletonHolder
 
 // region old setting names
@@ -60,8 +61,12 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(DRAWER_SHOWN_COUNT), 0
     )
 
+    /* The lmd build variant has pdf as its default and only mode.
+       That's why the default value for the pdfMode entry depends on whether
+       we have the lmd variant or not.
+     */
     val pdfMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(PDF_MODE), false
+        dataStore, booleanPreferencesKey(PDF_MODE), BuildConfig.IS_LMD
     )
 
     val tryPdfDialogCount: DataStoreEntry<Int> = SimpleDataStoreEntry(

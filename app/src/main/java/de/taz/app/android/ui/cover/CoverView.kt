@@ -9,8 +9,10 @@ import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.monkey.getColorFromAttr
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.CoverViewDate
@@ -112,13 +114,16 @@ class CoverView @JvmOverloads constructor(
      */
     private fun setDate(coverViewDate: CoverViewDate?) {
         if (coverViewDate !== null) {
-            // All the items in the recyclerview grid should have the same width,
-            // thus we can simply check here which date to use, as it will be the same on all views.
-            val useShortDate =
-                width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
+            if (BuildConfig.IS_LMD) {
+                momentDate.text =
+                    DateHelper.stringToMonthNameAndYearString(coverViewDate.dateString)
+            } else {
+                // All the items in the recyclerview grid should have the same width,
+                // thus we can simply check here which date to use, as it will be the same on all views.
+                val useShortDate =
+                    width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
 
-            momentDate.apply {
-                text = coverViewDate.dateStringShort
+                momentDate.text = coverViewDate.dateStringShort
                     ?.takeIf { useShortDate }
                     ?: coverViewDate.dateString
             }

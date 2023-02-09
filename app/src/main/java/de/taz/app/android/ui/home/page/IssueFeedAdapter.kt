@@ -12,6 +12,8 @@ import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.getIndexOfDate
 import java.util.*
 
 enum class CoverType {
@@ -44,6 +46,8 @@ abstract class IssueFeedAdapter(
 
     abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate?
 
+    private val log by Log
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             LayoutInflater.from(fragment.context).inflate(
@@ -75,12 +79,12 @@ abstract class IssueFeedAdapter(
     }
 
     fun getPosition(date: Date): Int {
-        return feed.publicationDates.binarySearch { publicationDate ->
-            val cmp = publicationDate.date.compareTo(date)
-
-            // As the publication dates are sorted descending we have to revert the comparison
-            cmp * -1
-        }.coerceAtLeast(0)
+        val position = feed.publicationDates.getIndexOfDate(date)
+        if (position < 0) {
+            log.warn("Could not find position of $date in current feed. Return 0 (home position) as a fallback.")
+            return 0
+        }
+        return position
     }
 
     /**

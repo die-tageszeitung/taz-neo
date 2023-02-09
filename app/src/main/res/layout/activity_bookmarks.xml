@@ -12,7 +12,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
         app:layout_constraintTop_toTopOf="parent"
-        tools:showIn="@layout/activity_bookmarks" />
+        tools:layout="@layout/fragment_bookmarks" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bottom"

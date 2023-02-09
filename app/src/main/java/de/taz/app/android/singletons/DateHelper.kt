@@ -7,6 +7,14 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+
+enum class DateFormat {
+    None,
+    LongWithWeekDay,
+    LongWithoutWeekDay,
+    MonthNameAndYear,
+}
+
 enum class AppTimeZone {
     Default,
     Berlin
@@ -72,6 +80,27 @@ object DateHelper {
         return stringToDate(dateString)?.let { issueDate ->
             dateToLongLocalizedLowercaseString(issueDate)
         }
+    }
+
+    /**
+     * function to get the formatted date with month and year
+     * @param dateString - string of date in form of "yyyy-MM-dd"
+     * @return eg "01/2023"
+     */
+    fun stringToMonthYearString(dateString: String): String? {
+        if (dateString == "") return null
+        return SimpleDateFormat("yyyy-MM-dd", appLocale).parse(dateString)?.let { issueDate ->
+            dateToMonthYearString(issueDate)
+        }
+    }
+
+    /**
+     * returns eg "Dezember 2023"
+     */
+    fun dateToLocalizedMonthAndYearString(date: Date): String {
+        return SimpleDateFormat("MMMM yyyy", appLocale).format(
+            date
+        )
     }
 
 
@@ -215,6 +244,21 @@ object DateHelper {
         }
     }
 
+    /**
+     * @param [dateString] of kind "13.12.2022"
+     * @return localized month name and year, eg "Dezember 2023"
+     *
+     */
+    fun stringToMonthNameAndYearString(dateString: String): String? {
+        return try {
+            SimpleDateFormat("dd.MM.yyyy", appLocale).parse(dateString)?.let { issueDate ->
+                dateToLocalizedMonthAndYearString(issueDate)
+            }
+        } catch (e: ParseException) {
+            null
+        }
+    }
+
     fun dateToLowerCaseString(date: Date): String {
         return SimpleDateFormat("EEEE, d. MMMM yyyy", appLocale)
             .format(date)
@@ -225,6 +269,12 @@ object DateHelper {
         return stringToDate(dateString)?.let { issueDate ->
             return dateToLowerCaseString(issueDate)
         }
+    }
+
+    fun dateToMonthYearString(date: Date): String {
+        return SimpleDateFormat("MM/yyyy", Locale.GERMANY).format(
+            date
+        )
     }
 
     fun yesterday(): Date {

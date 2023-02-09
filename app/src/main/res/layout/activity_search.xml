@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
@@ -31,10 +32,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
         app:layout_constraintHeight_max="wrap"
-        app:layout_constraintVertical_bias="0"
         app:layout_constraintTop_toBottomOf="@id/expand_advanced_search_button"
-        app:layout_constraintBottom_toTopOf="@id/navigation_bottom">
+        app:layout_constraintVertical_bias="0">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -48,7 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/search_results_small_margin"
-                app:boxBackgroundColor="@color/search_field_background_color"
+                app:boxBackgroundColor="@color/activity_search_field_background_color"
                 app:endIconMode="clear_text"
                 app:hintEnabled="false">
 
@@ -67,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/search_results_small_margin"
-                app:boxBackgroundColor="@color/search_field_background_color"
+                app:boxBackgroundColor="@color/activity_search_field_background_color"
                 app:endIconMode="clear_text"
                 app:hintEnabled="false">
 
@@ -93,18 +94,26 @@
                 android:layout_height="wrap_content"
                 android:text="@string/search_advanced_radio_timeslot_any" />
 
-            <TextView
-                style="@style/TextAppearance.Search.Category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/search_advanced_published_in" />
-
-            <TextView
-                android:id="@+id/advanced_search_published_in"
-                style="@style/TextAppearance.Settings.Entry"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/advanced_search_published_in_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/search_advanced_radio_published_in_any" />
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/TextAppearance.Search.Category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_advanced_published_in" />
+
+                <TextView
+                    android:id="@+id/advanced_search_published_in"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_advanced_radio_published_in_any" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <TextView
                 style="@style/TextAppearance.Search.Category"
@@ -186,8 +195,8 @@
         android:id="@+id/barrier_separator_line"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
         app:barrierAllowsGoneWidgets="false"
+        app:barrierDirection="bottom"
         app:constraint_referenced_ids="expand_advanced_search_button, expandable_advanced_search" />
 
     <View
@@ -206,7 +215,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
-        app:layout_constraintTop_toBottomOf="@id/search_separator_line" />
+        app:layout_constraintTop_toBottomOf="@id/search_separator_line"
+        tools:listitem="@layout/fragment_search_result_item" />
 
     <ImageView
         android:id="@+id/search_description_icon"
@@ -229,7 +239,7 @@
         android:lineSpacingExtra="@dimen/search_description_text_line_spacing_extra"
         android:text="@string/search_description"
         android:textAlignment="center"
-        android:textColor="@color/lightGrey"
+        android:textColor="@color/textColorAccent"
         android:textSize="@dimen/search_description_text_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

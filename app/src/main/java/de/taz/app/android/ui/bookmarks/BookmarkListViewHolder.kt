@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.bookmarks
 
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
@@ -93,10 +92,8 @@ class BookmarkListViewHolder(
             }
 
             bookmarkBox?.setOnClickListener {
-                Intent(parent.context, BookmarkViewerActivity::class.java).apply {
-                    putExtra(BookmarkViewerActivity.KEY_SHOWN_ARTICLE, article.key)
-                    parent.context.startActivity(this)
-                }
+                val intent = BookmarkViewerActivity.newIntent(parent.context, article.key)
+                parent.context.startActivity(intent)
             }
 
             bookmarkShare.setOnClickListener {
