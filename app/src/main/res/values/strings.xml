@@ -80,7 +80,7 @@
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
-    <string name="fragment_bookmarks_title">Leseliste</string>
+    <string name="fragment_bookmarks_title">leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
