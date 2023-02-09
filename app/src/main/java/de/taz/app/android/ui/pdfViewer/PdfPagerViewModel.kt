@@ -315,8 +315,7 @@ class PdfPagerViewModel(
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
-                                // FIXME (johannes): this might be optimized by a "SELECT .. WHERE Article.articleFileName IN :articleFileNames" query
-                                val article = articleRepository.get(link)
+                                val article = getArticleForFrame(frame)
                                 if (article != null) {
                                     articlesOfPage.add(article)
                                 }
@@ -345,6 +344,40 @@ class PdfPagerViewModel(
                 null
             }
         }
+
+    /**
+     * Get [Article] of page [Frame].
+     *
+     * If no non-public article is found it tries to get the public article.
+     *
+     * @param frame - Frame to look for an article
+     * @return [Article]
+     */
+    private suspend fun getArticleForFrame(frame: Frame): Article? {
+        if (frame.link?.startsWith("art") == true && frame.link.endsWith(".html")) {
+            val article = articleRepository.get(frame.link)
+            if (article != null) {
+                return article
+            }
+
+            // If users are not logged in, only the ".public.html" articles are fetched.
+            // In the frame list of the first page, the non-public articles are listed
+            // with their names, which are not accessible for not logged-in users.
+            // To fix this, the ".public." sub string is added to the article link.
+            val publicArticleName = frame.link.replace(".html", ".public.html")
+            val publicArticle = articleRepository.get(publicArticleName)
+
+            if (publicArticle == null) {
+                val hint = "Could not get the public article for frame link ${frame.link}"
+                log.warn(hint)
+                Sentry.captureMessage(hint)
+            }
+            return publicArticle
+        }
+
+        return null
+    }
+
 
     val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
 

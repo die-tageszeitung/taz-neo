@@ -14,7 +14,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
-import de.taz.app.android.appLocale
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -29,7 +28,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
@@ -73,11 +71,8 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             }
         }
 
-        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(
-                R.string.fragment_bookmarks_title
-            ).lowercase(appLocale)
-        }
+        view.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.fragment_bookmarks_title)
     }
 
     fun shareArticle(articleFileName: String) {
