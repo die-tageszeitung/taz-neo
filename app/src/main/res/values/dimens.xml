@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
@@ -77,8 +77,8 @@
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
     <dimen name="fragment_settings_padding_top">3dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">29.5dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">8dp</dimen>
+    <dimen name="fragment_settings_category_padding_top">25dp</dimen>
+    <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
     <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
     <dimen name="fragment_settings_text_font_size">16sp</dimen>
     <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
@@ -86,6 +86,7 @@
     <dimen name="fragment_settings_min_height">40dp</dimen>
     <dimen name="fragment_settings_version_margin">20dp</dimen>
     <dimen name="fragment_settings_icon_size">25dp</dimen>
+    <dimen name="fragment_settings_plus_minus_width">100dp</dimen>
 
     <dimen name="settings_separator_view_line_height">1dp</dimen>
     <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
@@ -96,7 +97,7 @@
     <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
     <dimen name="fragment_header_dotted_line_height">5dp</dimen>
-    <dimen name="fragment_header_article_margin_bottom">16dp</dimen>
+    <dimen name="fragment_header_article_padding_bottom">11dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
     <dimen name="fragment_header_article_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_article_text_size">16sp</dimen>
@@ -104,12 +105,12 @@
     <dimen name="fragment_header_title_section_text_size">32sp</dimen>
     <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
-    <dimen name="fragment_webview_header_padding_top">35dp</dimen>
+    <dimen name="fragment_webview_header_padding_top">65dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
-    <dimen name="fragment_header_search_result_published_date_margin_top">5dp</dimen>
+    <dimen name="fragment_header_search_result_published_date_margin_top">6dp</dimen>
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
     <dimen name="fragment_archive_padding_top">22dp</dimen>
@@ -143,6 +144,7 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
     <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
 
+    <dimen name="fragment_bookmarks_list_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
     <dimen name="fragment_bookmarks_icons_vertical_margin">13.5dp</dimen>
     <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
@@ -151,6 +153,7 @@
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
+    <dimen name="fragment_bookmarks_grotesk_font_adjustment">0dp</dimen>
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_margin_top">8dp</dimen>
@@ -160,6 +163,9 @@
     <dimen name="fragment_bookmarks_issue_header_dotted_line_height">3dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">11dp</dimen>
 
+    <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
+    <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
+
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
     <dimen name="fragment_drawer_sections_item_text_size">22dp</dimen>
@@ -167,7 +173,6 @@
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">40dp</dimen>
-    <dimen name="fragment_article_padding_top">11dp</dimen>
 
     <dimen name="icon_size">24dp</dimen>
     <dimen name="ic_circle_size">12dp</dimen>
@@ -208,10 +213,10 @@
     <dimen name="search_result_author_line_spacing_extra">4sp</dimen>
     <dimen name="search_result_title_margin_top">14dp</dimen>
     <dimen name="search_result_snippet_text_size">15sp</dimen>
-    <dimen name="search_result_snippet_line_spacing_extra">0sp</dimen>
+    <dimen name="search_result_snippet_line_spacing_extra">21sp</dimen>
+    <dimen name="search_result_snippet_margin_top">5dp</dimen>
     <dimen name="search_result_small_text_size">14sp</dimen>
-    <dimen name="search_result_small_text_line_spacing_extra">7sp</dimen>
-    <dimen name="search_results_small_margin">7dp</dimen>
+    <dimen name="search_results_small_margin">4dp</dimen>
     <dimen name="search_advanced_category_padding_top">13dp</dimen>
     <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
     <dimen name="search_advanced_title_margin_bottom">-2dp</dimen>
@@ -235,10 +240,16 @@
     <dimen name="login_action_button_margin_vertical">7dp</dimen>
     <dimen name="login_description_input_margin">10dp</dimen>
 
-    <!--  dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
+    <dimen name="space_between_status_bar_and_content_applied_when_cutout">10dp</dimen>
+
+    <dimen name="article_section_divider_width">33dp</dimen>
+    <dimen name="article_section_divider_margin">0dp</dimen>
+
+    <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
     <dimen name="fragment_drawer_body_pdf_with_sections_current_page_title">14sp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">18sp</dimen>
     <dimen name="list_item_pdf_page_toc_text_size">16sp</dimen>
     <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
+    <!-- endregion -->
 
 </resources>

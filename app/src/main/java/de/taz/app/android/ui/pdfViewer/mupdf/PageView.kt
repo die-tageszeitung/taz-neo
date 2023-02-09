@@ -132,18 +132,6 @@ class PageView(
         }
     }
 
-//    fun releaseBitmaps() {
-//        reinit()
-//
-//        // recycle bitmaps before releasing them.
-//        entireBm?.recycle()
-//        entireBm = null
-//
-//
-//        if (patchBm != null) patchBm!!.recycle()
-//        patchBm = null
-//    }
-
     fun blank() {
         reinit()
         if (busyIndicator == null) {
@@ -183,7 +171,7 @@ class PageView(
 
         val muPDFCore = requireNotNull(this.muPDFCore)
         val pageSize = muPDFCore.getPageSize(0)
-        drawPage(pageSize)
+        drawPage(pageSize, "setPageWithoutSize")
         onPageSizeCalculated(pageSize)
     }
 
@@ -191,10 +179,10 @@ class PageView(
         if (!setPage(page)) {
             return
         }
-        drawPage(size)
+        drawPage(size, "")
     }
 
-    private fun drawPage(size: PointF) {
+    private fun drawPage(size: PointF, debugTag: String = "") {
         // Cancel pending render task
         cancelDrawEntireTask()
         isBlank = false
@@ -225,7 +213,8 @@ class PageView(
                 0,
                 0,
                 newSize.x,
-                newSize.y
+                newSize.y,
+                "drawPage/$debugTag (${page?.pagePdf?.name})",
             )
         ) {
             override fun onPreExecute() {
@@ -266,7 +255,7 @@ class PageView(
         requestLayout()
     }
 
-    fun getEntireBitmap(size: Point): Bitmap {
+    private fun getEntireBitmap(size: Point): Bitmap {
         val currentBm = entireBm
         if (currentBm != null && currentBm.width == size.x && currentBm.height == size.y) {
             return currentBm
@@ -356,13 +345,15 @@ class PageView(
                     getDrawPageTask(
                         patchBm, patchViewSize.x, patchViewSize.y,
                         patchArea.left, patchArea.top,
-                        patchArea.width(), patchArea.height()
+                        patchArea.width(), patchArea.height(),
+                        "updateHq($update) (${page?.pagePdf?.name})"
                     )
                 } else {
                     getUpdatePageTask(
                         patchBm, patchViewSize.x, patchViewSize.y,
                         patchArea.left, patchArea.top,
-                        patchArea.width(), patchArea.height()
+                        patchArea.width(), patchArea.height(),
+                        "updateHq($update) (${page?.pagePdf?.name})"
                     )
                 }
 
@@ -383,38 +374,6 @@ class PageView(
         }
     }
 
-    fun update() {
-        // Cancel pending render task
-        cancelDrawEntireTask()
-        cancelDrawPatchTask()
-
-        val entireBm = getEntireBitmap(minZoomSize)
-
-        // Render the page in the background
-        drawEntire = object : CancellableAsyncTask<Void?, Void?>(
-            getUpdatePageTask(
-                entireBm,
-                minZoomSize.x,
-                minZoomSize.y,
-                0,
-                0,
-                minZoomSize.x,
-                minZoomSize.y
-            )
-        ) {
-            override fun onPostExecute(result: Void?) {
-                entire.apply {
-                    setImageBitmap(entireBm)
-                    invalidate()
-                }
-            }
-        }
-            .apply {
-                execute()
-            }
-        updateHq(true)
-    }
-
     fun removeHq() {
         // Stop the drawing of the patch if still going
         cancelDrawPatchTask()
@@ -429,9 +388,10 @@ class PageView(
 
     private fun getDrawPageTask(
         bm: Bitmap, sizeX: Int, sizeY: Int,
-        patchX: Int, patchY: Int, patchWidth: Int, patchHeight: Int
+        patchX: Int, patchY: Int, patchWidth: Int, patchHeight: Int,
+        debugTag: String
     ): CancellableTaskDefinition<Void?, Void?> {
-        return object : MuPDFCancellableTaskDefinition<Void, Void>() {
+        return object : MuPDFCancellableTaskDefinition<Void, Void>(debugTag) {
             override fun doInBackground(cookie: Cookie, vararg params: Void): Void? {
                 // Workaround bug in Android Honeycomb 3.x, where the bitmap generation count
                 // is not incremented when drawing.
@@ -457,9 +417,10 @@ class PageView(
 
     private fun getUpdatePageTask(
         bm: Bitmap, sizeX: Int, sizeY: Int,
-        patchX: Int, patchY: Int, patchWidth: Int, patchHeight: Int
+        patchX: Int, patchY: Int, patchWidth: Int, patchHeight: Int,
+        debugTag: String
     ): CancellableTaskDefinition<Void?, Void?> {
-        return object : MuPDFCancellableTaskDefinition<Void, Void>() {
+        return object : MuPDFCancellableTaskDefinition<Void, Void>(debugTag) {
             override fun doInBackground(cookie: Cookie, vararg params: Void): Void? {
                 // Workaround bug in Android Honeycomb 3.x, where the bitmap generation count
                 // is not incremented when drawing.

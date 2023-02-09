@@ -17,7 +17,6 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -65,7 +64,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-        rootViewGroup?.moveContentBeneathStatusBar()
 
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
 

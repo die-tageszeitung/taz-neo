@@ -15,10 +15,12 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 
 // region setting keys
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
+private const val DISPLAY_CUTOUT_EXTRA_PADDING = "display_cutout_extra_padding"
 private const val FIRST_APP_START = "first_time_app_starts"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
+private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 
 // endregion
 
@@ -47,6 +49,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(DATA_POLICY_ACCEPTED), false
     )
 
+    val displayCutoutExtraPadding: DataStoreEntry<Int> = SimpleDataStoreEntry(
+        dataStore, intPreferencesKey(DISPLAY_CUTOUT_EXTRA_PADDING), 0
+    )
+
     val hasSeenWelcomeScreen: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(FIRST_APP_START), false
     )
@@ -67,4 +73,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(TRY_PDF_DIALOG_COUNT), 0
     )
 
+    val enableExperimentalArticleReader: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER), false
+    )
 }

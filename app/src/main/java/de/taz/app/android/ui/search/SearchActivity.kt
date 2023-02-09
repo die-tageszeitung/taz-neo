@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.search
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
@@ -18,6 +19,7 @@ import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.simpleDateFormat
@@ -44,6 +46,7 @@ class SearchActivity :
     private lateinit var apiService: ApiService
     private lateinit var searchResultListAdapter: SearchResultListAdapter
     private lateinit var toastHelper: ToastHelper
+    private lateinit var generalDataStore: GeneralDataStore
     private val log by Log
 
     private val viewModel by viewModels<SearchResultPagerViewModel>()
@@ -53,6 +56,7 @@ class SearchActivity :
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
@@ -133,6 +137,14 @@ class SearchActivity :
                     sorting = viewModel.sorting.value ?: Sorting.relevance
                 )
                 return@setOnClickListener
+            }
+
+            // Adjust extra padding when we have cutout display
+            lifecycleScope.launch {
+                val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+                if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                    root.setPadding(0, extraPadding, 0 ,0)
+                }
             }
         }
         viewModel.chosenTimeSlot.observeDistinct(this) {
@@ -318,6 +330,10 @@ class SearchActivity :
 
     // endregion
     // region UI update functions
+    fun updateRecyclerView(position: Int) {
+        viewBinding.searchResultList.scrollToPosition(position)
+    }
+
     private fun showLoadingScreen() {
         viewBinding.searchLoadingScreen.visibility = View.VISIBLE
     }

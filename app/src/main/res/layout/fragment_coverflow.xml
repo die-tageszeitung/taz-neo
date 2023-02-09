@@ -8,25 +8,18 @@
     android:fitsSystemWindows="true">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineStart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.1" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineEnd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.9" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guidelineTop"
+        android:id="@+id/guideline_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="@dimen/fragment_cover_flow_guideline_top" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="@dimen/fragment_cover_flow_guideline_end" />
 
     <LinearLayout
         android:id="@+id/home_login_button"
@@ -55,33 +48,27 @@
             app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_end="@dimen/fragment_cover_flow_guideline_end" />
-
     <com.factor.bouncy.BouncyRecyclerView
         android:id="@+id/fragment_cover_flow_grid"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toTopOf="@id/guideline_date"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top"
+        app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-        app:layout_constraintVertical_bias="0.6" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.4" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fragment_cover_flow_date_download_wrapper"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
         android:layout_gravity="center_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline_date">
+        app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid"
+        app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_to_archive">
 
         <TextView
             android:id="@+id/fragment_cover_flow_date"
@@ -94,7 +81,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@tools:sample/lorem"/>
+            tools:text="13.12.2023"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_coverflow_moment_download"
@@ -105,7 +92,8 @@
             app:layout_constraintDimensionRatio="1,1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
             <ImageView
                 android:layout_width="@dimen/text_appearance_archive_date_text_size"
@@ -116,7 +104,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/coverflow_icon_tint" />
+                app:tint="@color/coverflow_icon_tint"
+                tools:src="@drawable/ic_file_download"  />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

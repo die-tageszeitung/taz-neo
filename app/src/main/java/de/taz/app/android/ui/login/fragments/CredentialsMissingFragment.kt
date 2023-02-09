@@ -23,10 +23,14 @@ import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
-import java.util.regex.Pattern
+import de.taz.app.android.util.validation.EmailValidator
+import de.taz.app.android.util.validation.PasswordValidator
 
 class CredentialsMissingFragment :
     SubscriptionBaseFragment<FragmentLoginMissingCredentialsBinding>() {
+
+    private val passwordValidator = PasswordValidator()
+    private val emailValidator = EmailValidator()
 
     private var failed: Boolean = false
 
@@ -88,6 +92,8 @@ class CredentialsMissingFragment :
                 }
             )
         }
+
+        viewBinding.backButton.setOnClickListener { back() }
 
         if (viewModel.createNewAccount) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -177,7 +183,7 @@ class CredentialsMissingFragment :
             )
             done = false
         }
-        if (!Pattern.compile(PASSWORD_PATTERN).matcher(password).matches()
+        if (!passwordValidator(password)
             && viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.isVisible
         ) {
             viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setError(R.string.login_password_regex_error)
@@ -202,7 +208,7 @@ class CredentialsMissingFragment :
             )
             done = false
         } else {
-            if (!Pattern.compile(W3C_EMAIL_PATTERN).matcher(email).matches()) {
+            if (!emailValidator(email)) {
                 viewBinding.fragmentLoginMissingCredentialsEmailLayout.setError(
                     R.string.login_email_error_invalid
                 )

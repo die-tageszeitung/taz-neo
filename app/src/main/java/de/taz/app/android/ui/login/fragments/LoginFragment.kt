@@ -3,15 +3,11 @@ package de.taz.app.android.ui.login.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.util.hideSoftInputKeyboard
-import kotlinx.coroutines.launch
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
@@ -57,17 +53,9 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             login()
         }
 
-        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
-            viewModel.requestPasswordReset()
+        viewBinding.cancelButton.setOnClickListener {
+            finish()
         }
-
-        viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
-            showHelpDialog(R.string.fragment_login_help)
-        }
-
-        viewBinding.fragmentLoginPassword.setOnEditorActionListener(
-            OnEditorActionDoneListener(::login)
-        )
 
         viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
             viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim())
@@ -81,16 +69,21 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewModel.requestExtendPrintWithDigi()
         }
 
+        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
+            viewModel.requestPasswordReset()
+        }
+
+        viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
+            showHelpDialog(R.string.fragment_login_help)
+        }
+
+        viewBinding.fragmentLoginPassword.setOnEditorActionListener(
+            OnEditorActionDoneListener(::login)
+        )
+
         if (BuildConfig.IS_LMD) {
             hideSubscriptionBoxes()
         }
-    }
-
-    private fun hideSubscriptionBoxes() {
-        viewBinding.fragmentLoginSeparatorLine.visibility = View.GONE
-        viewBinding.fragmentLoginTrialSubscriptionBox.visibility = View.GONE
-        viewBinding.fragmentLoginSwitchPrint2digiBox.visibility = View.GONE
-        viewBinding.fragmentLoginExtendPrintWithDigiBox.visibility = View.GONE
     }
 
     private fun login() {
@@ -106,5 +99,12 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     private fun showUserNameError(@StringRes usernameErrorId: Int) {
         viewBinding.fragmentLoginUsernameLayout.error = getString(usernameErrorId)
+    }
+
+    private fun hideSubscriptionBoxes() {
+        viewBinding.fragmentLoginSeparatorLine.visibility = View.GONE
+        viewBinding.fragmentLoginTrialSubscriptionBox.visibility = View.GONE
+        viewBinding.fragmentLoginSwitchPrint2digiBox.visibility = View.GONE
+        viewBinding.fragmentLoginExtendPrintWithDigiBox.visibility = View.GONE
     }
 }

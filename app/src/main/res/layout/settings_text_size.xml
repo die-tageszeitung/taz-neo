@@ -11,16 +11,13 @@
         android:text="@string/settings_text_font_size"
         style="@style/TextAppearance.Settings.Entry"
         app:layout_constraintEnd_toStartOf="@id/settings_text_control"
-        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/settings_text_control"
-        android:layout_width="0dp"
+        android:layout_width="@dimen/fragment_settings_plus_minus_width"
         android:layout_height="0dp"
-        app:layout_constraintHorizontal_weight="2"
-        app:layout_constraintStart_toEndOf="@id/settings_text_size_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">

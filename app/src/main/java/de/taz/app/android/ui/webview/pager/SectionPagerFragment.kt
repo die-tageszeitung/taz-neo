@@ -4,15 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.moveContentBeneathStatusBar
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -34,7 +31,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
-            moveContentBeneathStatusBar()
         }
         setupViewPager()
 
@@ -101,6 +97,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
     override fun onResume() {
         super.onResume()
+        viewBinding.navigationBottomWebviewPager.visibility = View.VISIBLE
         requireActivity().setupBottomNavigation(
             viewBinding.navigationBottomWebviewPager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)

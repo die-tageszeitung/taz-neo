@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
@@ -72,9 +71,8 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             }
         }
 
-        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(R.string.fragment_bookmarks_title)
-        }
+        view.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.fragment_bookmarks_title)
     }
 
     fun shareArticle(articleFileName: String) {

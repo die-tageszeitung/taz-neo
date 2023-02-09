@@ -23,8 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.*
-import de.taz.app.android.BuildConfig.FLAVOR_graphql
-import de.taz.app.android.BuildConfig.FLAVOR_source
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -44,13 +42,14 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.fragments.PasswordRequestFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
+import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.regex.Pattern
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -65,6 +64,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
 
+    private val emailValidator = EmailValidator()
+
+    private var notificationsMustBeAllowedDialog: AlertDialog? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(requireContext().applicationContext)
@@ -76,9 +79,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(R.string.settings_header)
-        }
+        view.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.settings_header)
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
@@ -174,6 +176,23 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
             }
 
+            fragmentSettingsAccountResetPassword.setOnClickListener {
+                val fragment = PasswordRequestFragment.create(
+                    invalidId = false,
+                    invalidMail = false,
+                    showSubscriptionId = false
+                )
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_content_fragment_placeholder, fragment)
+                    .addToBackStack(fragment::class.java.name)
+                    .commit()
+            }
+
+            fragmentSettingsManageAccountOnline.setOnClickListener {
+                openProfileAccountOnline()
+            }
+
             fragmentSettingsAccountLogout.setOnClickListener {
                 fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
                 logout()
@@ -194,7 +213,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            val graphQlFlavorString = if (FLAVOR_graphql == "staging") {
+            val graphQlFlavorString = if (BuildConfig.FLAVOR_graphql == "staging") {
                 "-staging"
             } else {
                 ""
@@ -223,10 +242,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            if (FLAVOR_source == "nonfree") {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
-                fragmentSettingsNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
-                    setNotificationsEnabled(isChecked)
+                fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
+                    toggleNotificationsEnabled()
+                }
+            }
+
+            if (BuildConfig.IS_LMD) {
+                hideExperimentalArticleReaderSetting()
+            } else {
+                fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    toggleExperimentalArticleReader(isChecked)
                 }
             }
 
@@ -277,6 +304,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
             }
+            enableExperimentalArticleReader.observeDistinct(viewLifecycleOwner) { enabled ->
+                showEnableExperimentalArticleReaderToggle(enabled)
+            }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
                     toastHelper.showToast(R.string.settings_storage_migration_hint)
@@ -297,24 +327,40 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     AuthStatus.elapsed
                 )
             ) {
-                showLogoutButton()
+                showActionsWhenLoggedIn()
                 showElapsedIndication(authStatus == AuthStatus.elapsed)
             } else {
-                showManageAccountButton()
+                showLoginButton()
             }
         }
         authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
             viewBinding.fragmentSettingsAccountLogout.text =
                 getString(R.string.settings_account_logout, email)
+            val isValidEmail = emailValidator(email)
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            if ((Pattern.compile(W3C_EMAIL_PATTERN).matcher(email)
-                    .matches() || email.toIntOrNull() != null)
-            ) {
-                viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+            // TODO(eike) check whether to add check for token before checking for valid mail
+            if (isValidEmail || email.toIntOrNull() != null) {
+                showActionsWhenLoggedIn(isValidEmail)
             } else {
                 viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
             }
         }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            if (BuildConfig.FLAVOR_source == "nonfree") {
+                checkNotificationsAllowed()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        notificationsMustBeAllowedDialog?.dismiss()
+        notificationsMustBeAllowedDialog = null
     }
 
     private fun showDeleteAllIssuesDialog() {
@@ -578,21 +624,35 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showEnableExperimentalArticleReaderToggle(isEnabled: Boolean) {
+        viewBinding.fragmentSettingsExperimentalArticleReaderSwitch.apply {
+            isChecked = isEnabled
+        }
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
         )?.text = getString(R.string.percentage, textSize)
     }
 
-    private fun showLogoutButton() = viewBinding.apply {
-        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
-        fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-    }
-
-    private fun showManageAccountButton() = viewBinding.apply {
+    private fun showLoginButton() = viewBinding.apply {
         fragmentSettingsAccountLogoutWrapper.visibility = View.GONE
+        fragmentSettingsAccountResetPasswordWrapper.visibility = View.GONE
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.GONE
         fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
         fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
+    }
+
+    private fun showActionsWhenLoggedIn(isValidEmail: Boolean = false) = viewBinding.apply {
+        fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
+        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
+        fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+        // show reset password option only for when we have a valid mail:
+        if (isValidEmail) {
+            fragmentSettingsAccountResetPasswordWrapper.visibility = View.VISIBLE
+        }
     }
 
     private fun disableNightMode() {
@@ -660,23 +720,54 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
-    private fun setNotificationsEnabled(notificationsEnabled: Boolean) {
-        val permissionNotSet =
-            !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+    /**
+     * Called when the user clicked the notification toggle.
+     * Note that Android will still change the toggle button state itself,
+     * thus we have to reset the toggle state on errors manually.
+     */
+    private fun toggleNotificationsEnabled() {
+        lifecycleScope.launch {
+            val areSystemNotificationsAllowed =
+                NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+            val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
+            val enableAppNotifications = !areAppNotificationsEnabled
 
-        // Check if android allow the app to display notifications:
-        if (notificationsEnabled && permissionNotSet) {
-            showNotificationsMustBeAllowedDialog()
-            showNotificationsEnabledToggle(false)
-        } else {
-            lifecycleScope.launch {
-                val result = viewModel.setNotificationsEnabled(notificationsEnabled)
-                if (result != notificationsEnabled) {
+            // Check if android allow the app to display notifications:
+            if (enableAppNotifications && !areSystemNotificationsAllowed) {
+                showNotificationsMustBeAllowedDialog()
+                showNotificationsEnabledToggle(false)
+            } else {
+                val result = viewModel.setNotificationsEnabled(enableAppNotifications)
+                if (result != enableAppNotifications) {
                     showNotificationsChangeErrorToast()
                     showNotificationsEnabledToggle(result)
                 }
             }
         }
+    }
+
+    /**
+     * Checks if the system notifications are allowed and shows a popup if we have set the inapp
+     * notifications to true but the app is not allowed to receive notifications from the android side.
+     * Note: this won't change the state of in app notification setting and wont try to call the server
+     */
+    private suspend fun checkNotificationsAllowed() {
+        val areSystemNotificationsAllowed =
+            NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+        val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
+
+        if (areAppNotificationsEnabled && !areSystemNotificationsAllowed) {
+            showNotificationsMustBeAllowedDialog()
+        }
+    }
+
+    private fun toggleExperimentalArticleReader(enableArticleReader: Boolean) {
+        viewModel.setExperimentalArticleReader(enableArticleReader)
+    }
+
+    // IS_LMD
+    private fun hideExperimentalArticleReaderSetting() {
+        viewBinding.fragmentSettingsExperimentalArticleReaderSwitchWrapper.visibility = View.GONE
     }
 
     private fun toggleExtendedContent() {
@@ -693,16 +784,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showNotificationsMustBeAllowedDialog() {
         context?.let {
-            MaterialAlertDialogBuilder(it)
-                .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
-                .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
-                    openAndroidNotificationSettings()
-                }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                    (dialog as AlertDialog).hide()
-                }
-                .create()
-                .show()
+            notificationsMustBeAllowedDialog?.dismiss()
+            notificationsMustBeAllowedDialog =
+                MaterialAlertDialogBuilder(it)
+                    .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
+                    .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
+                        (dialog as AlertDialog).hide()
+                        openAndroidNotificationSettings()
+                    }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                        (dialog as AlertDialog).hide()
+                    }
+                    .create()
+                    .apply {
+                        show()
+                    }
         }
     }
 
@@ -730,6 +825,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun logout() = requireActivity().lifecycleScope.launch {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
+        authHelper.email.set("")
         authHelper.status.set(AuthStatus.notValid)
     }
 
@@ -742,6 +838,26 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
                 .build()
                 .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+        } catch (e: ActivityNotFoundException) {
+            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+            toastHelper.showToast(R.string.toast_unknown_error)
+        }
+    }
+
+    private fun openProfileAccountOnline() {
+        val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
+        try {
+            CustomTabsIntent.Builder()
+                .setDefaultColorSchemeParams(
+                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
+                )
+                .build()
+                .apply {
+                    launchUrl(
+                        requireContext(),
+                        Uri.parse("https://portal.taz.de/user/login")
+                    )
+                }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)

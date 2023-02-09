@@ -45,7 +45,7 @@ def versionNameToCode = { name ->
     def semverCore = versionParts[0]
 
     def preReleaseIdentifierParts = []
-    if (versionParts.length >= 2) {
+    if (versionParts.size() >= 2) {
         def preReleaseIdentifier = versionParts[1]
         preReleaseIdentifierParts = preReleaseIdentifier.split('\\.')
     }
@@ -56,7 +56,7 @@ def versionNameToCode = { name ->
     def preReleaseTypeNumber = 9
     def preReleaseVersion = 0
 
-    if (preReleaseIdentifierParts.length >= 2) {
+    if (preReleaseIdentifierParts.size() >= 2) {
         def (preReleaseType, preReleaseVersionParsed) = preReleaseIdentifierParts
         preReleaseVersionParsed = Integer.parseInt(preReleaseVersionParsed)
         preReleaseVersion = preReleaseVersionParsed

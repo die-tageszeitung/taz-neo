@@ -3,11 +3,14 @@
     <dimen name="fragment_drawer_date_margin_bottom">-3dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_vertical">5dp</dimen>
     <dimen name="search_advanced_title_margin_bottom">-15dp</dimen>
-    <dimen name="search_result_author_margin_top">-10dp</dimen>
-    <dimen name="search_result_snippet_line_spacing_extra">6sp</dimen>
+    <dimen name="search_result_author_margin_top">-15dp</dimen>
+    <dimen name="search_result_snippet_margin_top">-5dp</dimen>
 
     <dimen name="fragment_settings_padding_top">5dp</dimen>
-    <dimen name="fragment_settings_category_padding_bottom">0dp</dimen>
+    <dimen name="fragment_settings_category_margin_bottom">-8dp</dimen>
 
     <dimen name="button_custom_padding_to_center_aktiv_grotesk_font">10dp</dimen>
+
+    <dimen name="fragment_bookmarks_top_margin">16dp</dimen>
+    <dimen name="fragment_bookmarks_grotesk_font_adjustment">2dp</dimen>
 </resources>

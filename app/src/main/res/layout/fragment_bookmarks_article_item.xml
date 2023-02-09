@@ -92,14 +92,14 @@
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title"
-                    tools:text="Langer teaser Text, der beschreibt was in dem Artikel behandelt wird oder so ähnlich. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden." />
+                    tools:text="Langer teaser Text, der beschreibt was in dem Artikel behandelt wird oder so ähnlich. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden.. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden. . Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden." />
 
                 <TextView
                     android:id="@+id/fragment_bookmark_author"
                     style="@style/TextAppearance.Bookmarks.Entry.Author"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_teaser"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_read_minutes"
                     app:layout_constraintHorizontal_bias="0"
                     app:layout_constraintHorizontal_chainStyle="packed"
@@ -107,14 +107,22 @@
                     app:layout_constraintWidth_max="wrap"
                     tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen" />
 
+                <!-- If there is no author the fragment_bookmark_author textview is not shown and
+                     we can't really align on it's baseline. To prevent the read minutes from collapsing
+                     into the teaser we add the layout_goneMarginBaseline with the same size as the
+                     fragment_bookmark_author textview to endup nearly in the same place -->
                 <TextView
                     android:id="@+id/fragment_bookmark_read_minutes"
                     style="@style/TextAppearance.Bookmarks.Entry.ReadMinutes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/fragment_bookmarks_article_item_read_minutes_margin_start"
+                    android:layout_marginEnd="@dimen/fragment_bookmarks_article_item_read_minutes_margin_end"
                     app:layout_constraintBaseline_toBaselineOf="@id/fragment_bookmark_author"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toEndOf="@id/fragment_bookmark_author"
+                    app:layout_goneMarginBaseline="13.5sp"
+                    app:layout_goneMarginStart="0dp"
                     tools:text="3 min" />
 
                 <ImageView

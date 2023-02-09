@@ -28,6 +28,7 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     private lateinit var authHelper: AuthHelper
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
+    private val emailValidator = EmailValidator()
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: IssuePublication? = null
@@ -143,19 +145,8 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onResume() {
         super.onResume()
         viewModel.currentDate.observe(this) { updateUIForCurrentDate() }
-        viewBinding.apply {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (authHelper.isLoggedIn()) {
-                    homeLoginButton.visibility = View.GONE
-                } else {
-                    homeLoginButton.visibility = View.VISIBLE
-                    homeLoginButton.setOnClickListener {
-                        activity?.startActivity(
-                            Intent(activity, LoginActivity::class.java)
-                        )
-                    }
-                }
-            }
+        authHelper.email.asLiveData().observeDistinct(this) {
+            determineWhetherToShowLoginButton(it)
         }
     }
 
@@ -187,6 +178,8 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
 
+        // if we have position 0 we are on teh actual issue, so set the home icon to filled:
+        getHomeFragment().setHomeIconFilled(nextPosition == 0)
 
         val item = adapter.getItem(nextPosition)
         if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
@@ -281,6 +274,28 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
     // endregion
 
+    /**
+     * Hide the homeLoginButton if user is logged in or if we got a valid email
+     * and user is waiting for confirmation mail
+     */
+    private fun determineWhetherToShowLoginButton(email: String) {
+        val isValidEmail = emailValidator(email)
+        viewBinding.apply {
+            lifecycleScope.launch(Dispatchers.Main) {
+                if (isValidEmail || authHelper.isLoggedIn()) {
+                    homeLoginButton.visibility = View.GONE
+                } else {
+                    homeLoginButton.visibility = View.VISIBLE
+                    homeLoginButton.setOnClickListener {
+                        activity?.startActivity(
+                            Intent(activity, LoginActivity::class.java)
+                        )
+                    }
+                }
+
+            }
+        }
+    }
 
     fun setTextAlpha(alpha: Float) {
         dateDownloadWrapper.alpha = alpha

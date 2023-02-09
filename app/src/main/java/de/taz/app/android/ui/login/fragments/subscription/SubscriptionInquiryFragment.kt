@@ -60,6 +60,10 @@ abstract class SubscriptionInquiryFragment :
                 validateAndSubmitForm()
             }
 
+            cancelButton.setOnClickListener {
+                requireActivity().supportFragmentManager.popBackStack()
+            }
+
             nestedScrollView.setOnTouchListener(object :
                 View.OnTouchListener {
                 @SuppressLint("ClickableViewAccessibility")

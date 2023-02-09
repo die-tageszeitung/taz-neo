@@ -6,14 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    app:statusBarBackground="@android:color/transparent"
     tools:context="de.taz.app.android.ui.search.SearchActivity">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/webview_pager_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true" />
+        android:layout_height="match_parent" />
 
     <include
         android:id="@+id/loading_screen"

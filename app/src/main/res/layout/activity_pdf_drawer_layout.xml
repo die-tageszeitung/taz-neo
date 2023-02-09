@@ -7,8 +7,8 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:openDrawer="start"
-    tools:context=".ui.pdfViewer.PdfPagerActivity">
+    tools:context=".ui.pdfViewer.PdfPagerActivity"
+    tools:openDrawer="start">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_pdf_fragment_placeholder"
@@ -17,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <de.taz.app.android.ui.drawer.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
@@ -36,12 +37,12 @@
                 android:id="@+id/drawer_logo_wrapper"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardElevation="@dimen/drawer_logo_elevation"
-                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardUseCompatPadding="false"
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
+                app:cardElevation="@dimen/drawer_logo_elevation"
+                app:cardUseCompatPadding="false"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
