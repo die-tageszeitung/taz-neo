@@ -77,9 +77,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(
-                R.string.settings
-            ).lowercase(Locale.getDefault())
+            text = context.getString(R.string.settings_header)
         }
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }

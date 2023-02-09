@@ -73,9 +73,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         }
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)?.apply {
-            text = context.getString(
-                R.string.fragment_bookmarks_title
-            ).lowercase(Locale.getDefault())
+            text = context.getString(R.string.fragment_bookmarks_title)
         }
     }
 

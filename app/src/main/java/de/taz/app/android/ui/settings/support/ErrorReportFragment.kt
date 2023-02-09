@@ -45,7 +45,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
         view.apply {
             viewBinding.settingsHeader.fragmentHeaderDefaultTitle.text =
-                getString(R.string.settings_header).lowercase(Locale.GERMAN)
+                getString(R.string.settings_header)
 
             lifecycleScope.launch {
                 // read email from settings
