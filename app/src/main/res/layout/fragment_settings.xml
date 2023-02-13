@@ -60,7 +60,8 @@
                 android:id="@+id/fragment_settings_account_manage_account_wrapper"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/fragment_settings_account_manage_account"
@@ -94,14 +95,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/fragment_settings_account_logout"
                     style="@style/TextAppearance.Settings.Entry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_account_logout" />
+                    android:text="@string/settings_account_logout"
+                    tools:text="Abmelden (user@taz.de)" />
 
                 <include layout="@layout/settings_separator_view" />
             </LinearLayout>
@@ -111,7 +114,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/fragment_settings_account_reset_password"
@@ -163,7 +167,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <TextView
                     android:id="@+id/fragment_settings_account_delete"
@@ -206,8 +211,8 @@
                 style="@style/TextAppearance.Settings.Entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:checked="true"
-                android:text="@string/settings_auto_downloads_switch" />
+                android:text="@string/settings_auto_downloads_switch"
+                tools:checked="true" />
 
             <include layout="@layout/settings_separator_view" />
 

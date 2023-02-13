@@ -176,41 +176,43 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
             }
 
-            fragmentSettingsAccountResetPassword.setOnClickListener {
-                val fragment = PasswordRequestFragment.create(
-                    invalidId = false,
-                    invalidMail = false,
-                    showSubscriptionId = false
-                )
+            if (!BuildConfig.IS_LMD) {
+                fragmentSettingsAccountResetPassword.setOnClickListener {
+                    val fragment = PasswordRequestFragment.create(
+                        invalidId = false,
+                        invalidMail = false,
+                        showSubscriptionId = false
+                    )
 
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_content_fragment_placeholder, fragment)
-                    .addToBackStack(fragment::class.java.name)
-                    .commit()
-            }
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(R.id.main_content_fragment_placeholder, fragment)
+                        .addToBackStack(fragment::class.java.name)
+                        .commit()
+                }
 
-            fragmentSettingsManageAccountOnline.setOnClickListener {
-                openProfileAccountOnline()
+                fragmentSettingsManageAccountOnline.setOnClickListener {
+                    openProfileAccountOnline()
+                }
+
+                fragmentSettingsAccountDelete.setOnClickListener {
+                    lifecycleScope.launch {
+                        try {
+                            val result = apiService.cancellation()
+                            if (result != null) {
+                                showCancellationDialog(result)
+                            }
+                        } catch (e: ConnectivityException) {
+                            toastHelper.showToast(
+                                resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                            )
+                        }
+                    }
+                }
             }
 
             fragmentSettingsAccountLogout.setOnClickListener {
                 fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
                 logout()
-            }
-
-            fragmentSettingsAccountDelete.setOnClickListener {
-                lifecycleScope.launch {
-                    try {
-                        val result = apiService.cancellation()
-                        if (result != null) {
-                            showCancellationDialog(result)
-                        }
-                    } catch (e: ConnectivityException) {
-                        toastHelper.showToast(
-                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
-                        )
-                    }
-                }
             }
 
             val graphQlFlavorString = if (BuildConfig.FLAVOR_graphql == "staging") {
@@ -646,13 +648,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showActionsWhenLoggedIn(isValidEmail: Boolean = false) = viewBinding.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
-        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
-        fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
-        // show reset password option only for when we have a valid mail:
-        if (isValidEmail) {
-            fragmentSettingsAccountResetPasswordWrapper.visibility = View.VISIBLE
+        if (!BuildConfig.IS_LMD) {
+            fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
+            fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+            // show reset password option only for when we have a valid mail:
+            if (isValidEmail) {
+                fragmentSettingsAccountResetPasswordWrapper.visibility = View.VISIBLE
+            }
         }
+        fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
     }
 
     private fun disableNightMode() {
