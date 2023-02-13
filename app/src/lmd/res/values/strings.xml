@@ -16,4 +16,6 @@
     <string name="settings_category_support">Hilfe</string>
     <string name="settings_category_legal">Rechtliches</string>
     <string name="settings_category_extended">Erweitert</string>
+
+    <string name="fragment_login_help">Geben Sie bitte Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort ein.</string>
 </resources>

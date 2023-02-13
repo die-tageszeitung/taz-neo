@@ -69,8 +69,12 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewModel.requestExtendPrintWithDigi()
         }
 
-        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
-            viewModel.requestPasswordReset()
+        if (BuildConfig.IS_LMD) {
+            viewBinding.fragmentLoginMissingSubscriptionForgotPassword.visibility = View.GONE
+        } else {
+            viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
+                viewModel.requestPasswordReset()
+            }
         }
 
         viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
