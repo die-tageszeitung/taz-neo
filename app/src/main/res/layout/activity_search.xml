@@ -34,7 +34,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
         app:layout_constraintHeight_max="wrap"
-        app:layout_constraintTop_toBottomOf="@id/expand_advanced_search_button"
+        app:layout_constraintTop_toBottomOf="@id/advanced_search_title"
         app:layout_constraintVertical_bias="0">
 
         <LinearLayout
