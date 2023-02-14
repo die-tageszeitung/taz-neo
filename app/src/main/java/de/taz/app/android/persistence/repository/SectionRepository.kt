@@ -7,7 +7,6 @@ import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.cache.IssueInMemoryCache
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
@@ -22,7 +21,6 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
-    private val issueCache = IssueInMemoryCache.getInstance(Unit)
 
     suspend fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
@@ -42,13 +40,10 @@ class SectionRepository private constructor(applicationContext: Context) :
             .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
-
-        issueCache.invalidateByDate(section.issueDate)
     }
 
     suspend fun update(sectionStub: SectionStub) {
         appDatabase.sectionDao().update(sectionStub)
-        issueCache.invalidateByDate(sectionStub.issueDate)
     }
 
     suspend fun getStub(sectionFileName: String): SectionStub? {
@@ -167,8 +162,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         } catch (e: SQLiteConstraintException) {
             // do not delete still used
         }
-
-        issueCache.invalidateByDate(section.issueDate)
     }
 
     suspend fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
