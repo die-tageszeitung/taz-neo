@@ -22,6 +22,7 @@ class ErrorReportActivity : ViewBindingActivity<ActivityErrorReportBinding>() {
         super.onDestroy()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
         super.onBackPressed()

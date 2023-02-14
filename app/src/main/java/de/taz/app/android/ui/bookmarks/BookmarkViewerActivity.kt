@@ -47,6 +47,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
         setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)

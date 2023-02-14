@@ -77,6 +77,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         applicationScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
         done()

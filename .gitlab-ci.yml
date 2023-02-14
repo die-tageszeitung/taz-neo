@@ -61,7 +61,7 @@ lint:
   extends: .prepareEnv
   interruptible: true
   script:
-    - ./gradlew --no-daemon --console=plain lintNonFreeTazProductionDebug lintNonfreeTazProductionRelease
+    - ./gradlew --no-daemon --console=plain lintNonfreeTazProductionDebug
 
 unitTests:
   stage: test
@@ -99,12 +99,11 @@ assembleAllFlavors:
   extends: .prepareEnv
   interruptible: true
   script:
-    - ./gradlew --console=plain assembleNonfreeTazProductionDebug
-    - ./gradlew --console=plain assembleNonfreeTazProductionRelease
+    - ./gradlew --console=plain assembleNonfreeTazProductionDebug assembleNonfreeTazProductionRelease
     - ./gradlew --console=plain assembleFreeTazProductionDebug
-    - ./gradlew --console=plain assembleFreeTazStagingDebug
-    - ./gradlew --console=plain assembleFreeTazProductionManualUpdateRelease
-    - ./gradlew --console=plain assembleFreeTazProductionUnminifiedRelease
+                                assembleFreeTazStagingDebug
+                                assembleFreeTazProductionManualUpdateRelease
+                                assembleFreeTazProductionUnminifiedRelease
   artifacts:
     paths:
       - app/build/outputs/
