@@ -89,24 +89,6 @@ data class Article(
     }
 
     /**
-     * Copy this article with the updated metadata from the provided article stub.
-     */
-    fun copyWithMetadata(articleStub: ArticleStub): Article {
-        require(key == articleStub.key) { "Metadata may only be updated for the same article"}
-        return copy(
-            title = articleStub.title,
-            teaser = articleStub.teaser,
-            onlineLink = articleStub.onlineLink,
-            pageNameList = articleStub.pageNameList,
-            bookmarkedTime = articleStub.bookmarkedTime,
-            articleType = articleStub.articleType,
-            position = articleStub.position,
-            percentage = articleStub.percentage,
-            dateDownload = articleStub.dateDownload
-        )
-    }
-
-    /**
      * If articles file name contains "public" we assume the corresponding issue has [IssueStatus.public]
      * otherwise we assume an issue with status [IssueStatus.regular]
      */
