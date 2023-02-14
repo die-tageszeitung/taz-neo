@@ -468,6 +468,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (loadingScreen.visibility == View.VISIBLE) {
             hideLoadingScreen()

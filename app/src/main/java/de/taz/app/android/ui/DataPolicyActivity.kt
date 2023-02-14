@@ -78,6 +78,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
 
             dataPolicyFullscreenContent.apply {
                 webViewClient = object : WebViewClient() {
+                    @Deprecated("Deprecated in Java")
                     override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                         try {

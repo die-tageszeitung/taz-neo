@@ -75,6 +75,7 @@ class IssueViewerActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         val fragment =
             supportFragmentManager.fragments.firstOrNull { it is IssueViewerWrapperFragment } as BackFragment

@@ -1,16 +1,27 @@
 plugins {
-    id "com.android.application"
-    id "com.github.triplet.play" version "3.7.0"
-    id "io.sentry.android.gradle" version "2.1.5"
+    id 'com.android.application'
+    id 'com.github.triplet.play' version '3.7.0'
+    id 'io.sentry.android.gradle' version '3.4.2'
+    id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlinx-serialization'
+
+    // FIXME (johannes): kapt is still required for glide as its ksp support is not working for
+    //                   as expected. Tested on glide version 4.14.2
+    //                   Note: ksp is promised to be faster then kapt while handling annotations during build
+    id 'kotlin-kapt'
 }
 
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-parcelize'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlinx-serialization'
+// WARNING: this will apply the Google Services plugin based on the gradle command,
+// so we must never call any assembleNonfree... together with any assembleFree... task
+def taskNames = getGradle().getStartParameter().getTaskNames()
+if (taskNames.any { it.contains('Nonfree')}) {
+    if (taskNames.any { it.contains('Free') }) {
+        throw new GradleException('Free and Nonfree build tasks must not be mixed')
+    }
 
-
-if (getGradle().getStartParameter().getTaskRequests().toString().toLowerCase().contains("nonfree")) {
+    println 'Applying Google Services Plugin'
     apply plugin: 'com.google.gms.google-services'
 }
 
@@ -135,13 +146,9 @@ android {
 
         testInstrumentationRunnerArguments clearPackageData: 'true'
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.schemaLocation": "$projectDir/schemas".toString(),
-                        "room.incremental"   : "true"
-                ]
-            }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas".toString())
+            arg("room.incremental", "true")
         }
 
         testOptions {
@@ -301,15 +308,12 @@ android {
 
         }
     }
-
     packagingOptions {
-        pickFirst "META-INF/AL2.0"
-        pickFirst "META-INF/LGPL2.1"
-
-        pickFirst 'win32-x86/attach_hotspot_windows.dll'
-        pickFirst 'win32-x86-64/attach_hotspot_windows.dll'
-        pickFirst 'META-INF/licenses/ASM'
+        resources {
+            pickFirsts += ['META-INF/AL2.0', 'META-INF/LGPL2.1', 'win32-x86/attach_hotspot_windows.dll', 'win32-x86-64/attach_hotspot_windows.dll', 'META-INF/licenses/ASM']
+        }
     }
+
     lint {
         lintConfig file('lint.xml')
     }
@@ -317,35 +321,36 @@ android {
 
 dependencies {
     def coroutines_version = '1.6.4'
-    def glide_version = '4.13.2'
-    def ktor_version = '2.0.3'
+    def glide_version = '4.14.2'
+    def ktor_version = '2.2.3'
     def lifecycle_version = '2.5.1'
     def mockito_version = '4.6.1'
     def powermock_version = '2.0.9'
-    def room_version = '2.4.3'
-    def work_version = '2.7.1'
+    def room_version = '2.5.0'
+    def work_version = '2.8.0'
     def exoplayer_version = '2.18.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation 'androidx.core:core-splashscreen:1.0.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.3.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.4.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.collection:collection-ktx:1.2.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    implementation 'androidx.fragment:fragment-ktx:1.5.4'
+    implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'com.github.valkriaine:Bouncy:2.3'
 
     implementation "com.github.bumptech.glide:glide:$glide_version"
+    // FIXME (johannes): use ksp once it works. see comment above
     kapt "com.github.bumptech.glide:compiler:$glide_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -359,12 +364,12 @@ dependencies {
 
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
-    implementation 'androidx.browser:browser:1.4.0'
+    implementation 'androidx.browser:browser:1.5.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     testImplementation "androidx.room:room-testing:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
@@ -381,7 +386,7 @@ dependencies {
 
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
-    implementation 'com.google.android.material:material:1.7.0-rc01'
+    implementation 'com.google.android.material:material:1.8.0'
 
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
@@ -429,15 +434,15 @@ dependencies {
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
 
     // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.5.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test:rules:1.5.0'
     androidTestUtil 'androidx.test:orchestrator:1.4.2'
 
 
     // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
 
-    def espressoVersion = '3.5.0'
+    def espressoVersion = '3.5.1'
     // Espresso dependencies
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
@@ -456,7 +461,7 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.1.0'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.1.1'
 
     // add Java 8+ API desugaring support
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'

@@ -17,6 +17,7 @@ class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
         )
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         bottomNavigationBack()
     }

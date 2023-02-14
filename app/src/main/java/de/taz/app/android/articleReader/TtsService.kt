@@ -199,6 +199,7 @@ class TtsService(private val applicationContext: Context) {
             }
         }
 
+        @Deprecated("Deprecated in Java")
         override fun onError(utteranceId: String) {
             log.error("Error playing utterance with id: $utteranceId")
         }

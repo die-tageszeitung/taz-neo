@@ -181,6 +181,7 @@ class SearchActivity :
         )
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         val searchResultPagerFragment =
             supportFragmentManager.fragments.firstOrNull { it is SearchResultPagerFragment } as? SearchResultPagerFragment

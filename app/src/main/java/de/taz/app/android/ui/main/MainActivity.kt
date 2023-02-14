@@ -166,6 +166,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private var doubleBackToExitPressedOnce = false
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         val homeFragment =
             supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
