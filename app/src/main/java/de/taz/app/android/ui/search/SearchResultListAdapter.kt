@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.singletons.DateHelper
@@ -92,7 +93,11 @@ class SearchResultListAdapter(
 
         // Parse the date correctly, as it is given as a string but needs to be shown in different way
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
-        val dateString = date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
+        val dateString = if (BuildConfig.IS_LMD) {
+            "Ausgabe ${ date?.let { DateHelper.dateToMonthYearString(it) }}" ?: ""
+        } else {
+            date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
+        }
 
         // get the author(s) from the article
         val authorList = searchResultItem.authorList.map { it.name }
@@ -116,7 +121,13 @@ class SearchResultListAdapter(
             setHighLightedText(holder.snippetTextView, text, highLightColor)
         }
         holder.dateTextView.text = dateString
-        holder.sectionTextView.text = searchResultItem.sectionTitle
+
+        if (BuildConfig.IS_LMD) {
+            holder.sectionTextView.text = ""
+        }
+        else {
+            holder.sectionTextView.text = searchResultItem.sectionTitle
+        }
 
         holder.bind(position)
     }
