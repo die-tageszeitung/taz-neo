@@ -60,7 +60,7 @@ sdk.dir=/home/me/Android/Sdk
 ```
 Android Studio usually takes care of this if used.
 
-Also be aware that this will produce an unsigned release. For signing during build please place a `keystore.properties` in project root providing information about the signing configuration:
+Also be aware that this will produce an unsigned release. For signing during build please place a `tazkeystore.properties` in project root providing information about the signing configuration:
 ```
 keystorePath=keystore.jks
 keyAlias=keyAlias
@@ -85,4 +85,13 @@ The build script will possibly throw an error or generate garbage versions if th
 git tag -a 1.2 # ✗
 git tag -a 1.1.1-alpha-1 # ✗
 git tag -a testtag # ✗
+```
+
+### LMd Variant
+
+The LMd Release release process follows the taz, but it is only triggered for tags prefixed with `lmd-`, such as:
+
+```
+git tag -a lmd-1.1.0 # ✓
+git tag -a lmd-1.1.1-alpha.1 # ✓
 ```
