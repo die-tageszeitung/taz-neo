@@ -30,39 +30,46 @@ Configuration by following ENV variables:
 
 #### Secret Bundle
 
-`SECRET_BUNDLE_BASE64`
-
 The secret bundle contains all non public secret files needed to build the app.
-It consists of a base64 encoded `.tar` file with following structure.
-Please ensure to encode the tar without whitespace i.e. `$ base64 -w0 secret-bundle.tar`
+It is stored on our nextcloud and the containing folder be accessed by using the `BUNDLE_DIR_SHARETOKEN_AND_PASS` defined in the gitlab CI/CD variables
+The secret bundle **shall not be modified** but a new version should be created and referenced from `.gitlab-ci.yml` by setting the `BUNDLE_VERSION` correctly.
+
+The bundle has to be named `bundle-$VERSION.tar` with the following structure:
 
 ```
-`secret-bundle.tar`
-|- keystore.properties
-|- play-publish.json
-|- keystore.jks
+`bundle-001.tar`
+|- lmdkeystore.properties
+|- lmdkeystore.jks
+|- lmd-play-publish.json
 |- sentry.properties
+|- tazkeystore.properties
+|- tazkeystore.jks
+|- taz-play-publish.json
 |- app/
     |- src/
         |- nonfree/taz/
             |- google-services.json
 ```
 
-* `keystore.properties` defines the keystorePath and the keyAlias. I.e.:
+
+* `taz-play-publish.json` and `lmd-play-publish.json` is used by [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher)
+to publish the app to the play store.
+
+* `tazkeystore.properties` and `lmdkeystore.properties` ` defines the keystorePath and the keyAlias. I.e.:
 ```
 keystorePath=keystore.jks
 keyAlias=keyAlias
 ```
 
-* `play-publish.json` is used by [Gradle Play Publisher](https://github.com/Triple-T/gradle-play-publisher)
-to publish the app to the play store.
-
-* `keystore.jks` is the provided keystore. Must match the path provided in `keystore.properties`.
+* `tazkeystore.properties` and `lmdkeystore.properties`  is the provided keystore. Must match the path provided in `*keystore.properties`.
 
 * `app/src/googleTaz/google-services.json` is used for notifications etc.
 
-* `sentry.properties` is used to define which [sentry](https://sentry.io) server is used. It's also present in version control but without the auth.token property that is needed to upload proguard mappings for the release builds. For unminified builds this is not necessary
-Find documentation [here](https://docs.sentry.io/clients/java/config/)
+* `sentry.properties` is used during build time to upload debug symbols of new releases.
+   It is **not** used for sending events during the apps runtime.
+   This is defined by the `dsn` option set in `SentryProvider.kt`.
+
+   Find documentation [here](https://docs.sentry.io/clients/java/config/)
 
 #### Android Keystore
 
@@ -71,3 +78,12 @@ Credentials are additionally set as ENV variables:
 
 `ANDROID_KEYSTORE_KEY_PASSWORD`
 `ANDROID_KEYSTORE_PASSWORD`
+`ANDROID_LMD_KEYSTORE_KEY_PASSWORD`
+`ANDROID_LMD_KEYSTORE_PASSWORD`
+
+
+### Local Release Builds
+
+To be able to build a local release app you have to provide some `signingConfig` via the `tazkeystore.properties` and `lmdkeystore.properties` files. 
+For testing you can simply copy the `debugkeystore.properties` over. But be aware that such builds shall not be sent out for testing to anyone.
+Rather use the builds from the CI in these cases.

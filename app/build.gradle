@@ -25,103 +25,17 @@ if (taskNames.any { it.contains('Nonfree')}) {
     apply plugin: 'com.google.gms.google-services'
 }
 
-def keyStoreAvailable = false
+// Version names and codes will be derived from the git tags.
+// See VersionHelper class and README for more information
+import de.taz.android.VersionHelper
+def tazVersionName = VersionHelper.INSTANCE.getTazVersionName()
+def tazVersionCode = VersionHelper.INSTANCE.getTazVersionCode()
+def lmdVersionName = VersionHelper.INSTANCE.getLmdVersionName()
+def lmdVersionCode = VersionHelper.INSTANCE.getLmdVersionCode()
 
-file("../keystore.properties").with { propFile ->
-    if (propFile.canRead()) {
-        keyStoreAvailable = true
-        println("Using keystore.properties file to sign APK")
-    }
-}
+logger.quiet("Taz versionName: $tazVersionName versionCode: $tazVersionCode")
+logger.quiet("Lmd versionName: $lmdVersionName versionCode: $lmdVersionCode")
 
-
-// Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
-// The configuration is part of the secret bundle downloaded by the gitlab ci pipeline.
-// The plugin provides the publishNonfreeTazProductionReleaseBundle gradle task called from the ci
-play {
-    track.set('internal')
-    serviceAccountCredentials.set(file('../play-publish.json'))
-}
-
-
-def versionNameToCode = { name ->
-    def majorDigits = 2
-    def minorDigits = 2
-    def patchDigits = 2
-    def preReleaseTypeDigits = 1
-    def preReleaseVersionDigits = 2
-
-
-    def versionParts = name.split('-')
-    def semverCore = versionParts[0]
-
-    def preReleaseIdentifierParts = []
-    if (versionParts.size() >= 2) {
-        def preReleaseIdentifier = versionParts[1]
-        preReleaseIdentifierParts = preReleaseIdentifier.split('\\.')
-    }
-
-    def (major, minor, patch) = semverCore.split("\\.").collect { item -> Integer.parseInt(item) }
-
-    // 9 is reserved for releases without pre-release identifier
-    def preReleaseTypeNumber = 9
-    def preReleaseVersion = 0
-
-    if (preReleaseIdentifierParts.size() >= 2) {
-        def (preReleaseType, preReleaseVersionParsed) = preReleaseIdentifierParts
-        preReleaseVersionParsed = Integer.parseInt(preReleaseVersionParsed)
-        preReleaseVersion = preReleaseVersionParsed
-        switch (preReleaseType) {
-            case "alpha":
-                preReleaseTypeNumber = 1
-                break
-            case "beta":
-                preReleaseTypeNumber = 2
-                break
-            case "rc":
-                preReleaseTypeNumber = 3
-                break
-            default:
-                throw Exception("Pre Release type need to be one of each 'alpha', 'beta' or 'rc'")
-        }
-    }
-    return Integer.parseInt(
-            major.toString().padLeft(majorDigits, '0') +
-                    minor.toString().padLeft(minorDigits, '0') +
-                    patch.toString().padLeft(patchDigits, '0') +
-                    preReleaseTypeNumber.toString().padLeft(preReleaseTypeDigits, '0') +
-                    preReleaseVersion.toString().padLeft(preReleaseVersionDigits, '0')
-    )
-}
-
-def getVersionName = { ->
-    def ENV = System.getenv()
-    def ignoreDirty = ENV['VERSION_IGNORES_DIRTY_TREE']
-    def proc
-    if (ignoreDirty) {
-        proc = 'git describe --tags'.execute()
-    } else {
-        proc = 'git describe --tags --dirty'.execute()
-    }
-    proc.waitFor()
-    def versionName = proc.text.trim()
-    return versionName
-}
-
-def getVersionCode = { ->
-    try {
-        def versionName = getVersionName()
-        def code = versionNameToCode(versionName)
-        println "This build has versionCode: $code (versionName: $versionName)"
-        return code
-    } catch (e) {
-        logger.warn(
-                "Unable to determine versionCode from ${getVersionName()}, which is determined by the last git tag. " +
-                        "Refer to the README to learn about a proper version format")
-        e.printStackTrace()
-        return 1
-    }
-}
 
 android {
     namespace 'de.taz.app.android'
@@ -135,15 +49,11 @@ android {
         applicationId "de.taz.app.android"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode getVersionCode()
-        versionName getVersionName()
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-
         // The following argument makes the Android Test Orchestrator run its
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
-
         testInstrumentationRunnerArguments clearPackageData: 'true'
 
         ksp {
@@ -184,6 +94,37 @@ android {
         freeCompilerArgs += "-opt-in=kotlinx.serialization.ExperimentalSerializationApi"
     }
 
+    // Define separate signingConfigs.
+    // If the .properties file is not found the config will be invalid and fail on build,
+    // but it still can be referenced by name as signingConfigs.taz and the gradle file remains valid.
+    signingConfigs {
+        taz {
+            file("../tazkeystore.properties").with { propFile ->
+                if (propFile.exists()) {
+                    def properties = new Properties()
+                    properties.load(new FileInputStream(propFile))
+                    storeFile file('../' + properties['keystorePath'])
+                    storePassword properties['keystorePassword']
+                    keyAlias properties['keyAlias']
+                    keyPassword properties['keyPassword']
+                }
+            }
+        }
+
+        lmd {
+            file("../lmdkeystore.properties").with { propFile ->
+                if (propFile.exists()) {
+                    def properties = new Properties()
+                    properties.load(new FileInputStream(propFile))
+                    storeFile file('../' + properties['keystorePath'])
+                    storePassword properties['keystorePassword']
+                    keyAlias properties['keyAlias']
+                    keyPassword properties['keyPassword']
+                }
+            }
+        }
+    }
+
 
     flavorDimensions "source", "owner", "graphql"
 
@@ -201,17 +142,29 @@ android {
         taz {
             dimension "owner"
             applicationId "de.taz.android.app"
+            versionCode tazVersionCode
+            versionName tazVersionName
+
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"taz.de/appGraphQl\""
             buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
+            // Set the default signingConfig for taz flavors.
+            // Might be overwritten by buildTypes directives.
+            signingConfig signingConfigs.taz
         }
 
         lmd {
             dimension "owner"
             applicationId "de.monde_diplomatique.android.app"
+            versionCode lmdVersionCode
+            versionName lmdVersionName
+
             buildConfigField "String", "GRAPHQL_ENDPOINT", "\"monde-diplomatique.de/appGraphQl\""
             buildConfigField "Boolean", "IS_LMD", "true"
             buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "true"
             buildConfigField "String", "DISPLAYED_FEED", "\"LMd\""
+            // Set the default signingConfig for lmd flavors.
+            // Might be overwritten by buildTypes directives.
+            signingConfig signingConfigs.lmd
         }
 
         staging {
@@ -224,7 +177,6 @@ android {
             dimension "graphql"
             buildConfigField "String", "GRAPHQL_ENDPOINT_PREFIX", "\"https://dl.\""
         }
-
     }
 
     // Adds only the resource folders nonfreeLmd [and freeLmd] to the the source sets of all possible
@@ -238,64 +190,42 @@ android {
         }
     }
 
-    signingConfigs {
-        if (keyStoreAvailable) {
-            keyStoreProperties {
-                file("../keystore.properties").with { propFile ->
-                    def properties = new Properties()
-                    properties.load(new FileInputStream(propFile))
-                    storeFile file('../' + properties['keystorePath'])
-                    storePassword properties['keystorePassword']
-                    keyAlias properties['keyAlias']
-                    keyPassword properties['keyPassword']
-                }
-            }
-        }
-    }
-
     buildTypes {
 
         debug {
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
-
             debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            // Use the default debug signing config provided by Android
+            // This will overwrite any signingConfig setting from the productFlavors, as the
+            // buildTypes directives have higher priority.
+            signingConfig signingConfigs.debug
         }
         release {
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Uses the signingConfig defined in productFlavors
         }
         leakCanary {
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
-
             debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig debug.signingConfig
             matchingFallbacks = ['debug', 'release']
+            // Use the default debug signing config provided by Android
+            signingConfig signingConfigs.debug
         }
         unminifiedRelease {
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
             minifyEnabled false
             matchingFallbacks = ['release']
+            // Use the default debug signing config provided by Android
+            signingConfig signingConfigs.debug
         }
         manualUpdateRelease {
             buildConfigField "Boolean", "MANUAL_UPDATE", "true"
-            if (keyStoreAvailable) {
-                signingConfig signingConfigs.keyStoreProperties
-            }
             minifyEnabled false
             matchingFallbacks = ['release']
+            // Uses the signingConfig defined in productFlavors
         }
     }
 
@@ -303,11 +233,29 @@ android {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
-    playConfigs {
-        register("nonfreeTazProductionRelease") {
+    // Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
+    // The configuration is part of the secret bundle downloaded by the gitlab ci pipeline.
+    // The plugin provides the publishNonfreeTazProductionReleaseBundle gradle task called from the ci
+    play {
+        // Disable play publishing for all builds by default. Some specific release variants are enabled below.
+        enabled.set(false)
+    }
 
+    playConfigs {
+        nonfreeTazProductionRelease {
+            enabled.set(true)
+            track.set('internal')
+            serviceAccountCredentials.set(file('../taz-play-publish.json'))
+        }
+
+        nonfreeLmdProductionRelease {
+            enabled.set(true)
+            track.set('internal')
+            // FIXME (johannes): we are currently using the same service account for taz and lmd. See https://gitlab.alt.coop/taz/taz-app/-/issues/195
+            serviceAccountCredentials.set(file('../taz-play-publish.json'))
         }
     }
+
     packagingOptions {
         resources {
             pickFirsts += ['META-INF/AL2.0', 'META-INF/LGPL2.1', 'win32-x86/attach_hotspot_windows.dll', 'win32-x86-64/attach_hotspot_windows.dll', 'META-INF/licenses/ASM']
@@ -475,7 +423,6 @@ sentry {
 }
 
 
-println "ATTENTION: Test build detected: kotlin classes annotated with @Mockable and its methods are opened"
 
 apply plugin: 'kotlin-allopen'
 allOpen {
@@ -485,11 +432,9 @@ allOpen {
 
 task generateStaticVersionInBuildGradle {
     doLast {
-        println "Injecting build static build version to enable mainfest parsing (for f-droid)"
+        println "Injecting build static build version to enable manifest parsing (for f-droid)"
         def scriptPath = buildscript.sourceFile.parentFile
-        def versionCode = getVersionCode()
-        def versionName = getVersionName()
-        def injectVersions = "$scriptPath/inject_static_version.sh $versionName $versionCode $buildscript.sourceFile.path".execute()
+        def injectVersions = "$scriptPath/inject_static_version.sh $tazVersionName $tazVersionCode $lmdVersionName $lmdVersionCode $buildscript.sourceFile.path".execute()
         injectVersions.waitForProcessOutput(System.out, System.err)
     }
 }

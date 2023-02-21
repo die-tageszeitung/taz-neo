@@ -7,6 +7,7 @@ variables:
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
+  BUNDLE_VERSION: "001"
 
 stages:
   - prepare
@@ -37,14 +38,16 @@ stages:
       policy: pull
 
   before_script:
-    # Download and extract non-free fonts used by the app
-    - curl -u "${BUNDLE_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav" -o bundle.tar
+    # Download and extract non-free fonts and secret configuration used by the app
+    - curl -u "${BUNDLE_DIR_SHARETOKEN_AND_PASS}" "https://cloud.alt.coop/public.php/webdav/bundle-${BUNDLE_VERSION}.tar" -o bundle.tar
     - sudo tar --same-owner -xf bundle.tar
     - sudo chown -R circleci:circleci .
 
     # Setup the keystore from the CI secret variables
-    - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> keystore.properties
-    - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> keystore.properties
+    - echo "keystorePassword=${ANDROID_KEYSTORE_PASSWORD/\\/\\\\}" >> tazkeystore.properties
+    - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> tazkeystore.properties
+    - echo "keystorePassword=${ANDROID_LMD_KEYSTORE_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
+    - echo "keyPassword=${ANDROID_LMD_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
 
 buildMupdf:
   stage: prepare
@@ -94,12 +97,13 @@ integrationTests:
     - merge_requests
     - master
 
-assembleAllFlavors:
+assembleAllTazFlavors:
   stage: build
   extends: .prepareEnv
   interruptible: true
   script:
-    - ./gradlew --console=plain assembleNonfreeTazProductionDebug assembleNonfreeTazProductionRelease
+    - ./gradlew --console=plain assembleNonfreeTazProductionDebug
+                                assembleNonfreeTazProductionRelease
     - ./gradlew --console=plain assembleFreeTazProductionDebug
                                 assembleFreeTazStagingDebug
                                 assembleFreeTazProductionManualUpdateRelease
@@ -108,8 +112,24 @@ assembleAllFlavors:
     paths:
       - app/build/outputs/
 
-publishNextcloud:
+assembleAllLmdFlavors:
+  stage: build
+  extends: .prepareEnv
+  interruptible: true
+  script:
+    - ./gradlew --console=plain assembleNonfreeLmdProductionDebug
+                                assembleNonfreeLmdProductionRelease
+    - ./gradlew --console=plain assembleFreeLmdProductionDebug
+                                assembleFreeLmdProductionManualUpdateRelease
+                                assembleFreeLmdProductionUnminifiedRelease
+  artifacts:
+    paths:
+      - app/build/outputs/
+
+publishTazNextcloud:
   stage: publish
+  dependencies:
+    - assembleAllTazFlavors
   variables:
     RELEASE_FOLDER: releases/${CI_COMMIT_TAG}
     NONFREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-production-debug.apk
@@ -127,15 +147,50 @@ publishNextcloud:
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazProduction/unminifiedRelease/app-free-taz-production-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazProduction/manualUpdateRelease/app-free-taz-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - ./scripts/publish-to-app-runde.sh
-  only:
-    - tags
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~ /lmd-.*/
 
-publishGooglePlay:
+publishTazGooglePlay:
   stage: publish
   extends: .prepareEnv
   dependencies: [] # Do not use any artifacts from the previous build stage in this job
   script:
     - ./gradlew --no-daemon --console=plain publishNonfreeTazProductionReleaseBundle
-  only:
-    - tags
-  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~ /lmd-.*/
+      when: manual
+
+
+publishLmdNextcloud:
+  stage: publish
+  dependencies:
+    - assembleAllLmdFlavors
+  variables:
+    RELEASE_FOLDER: releases_lmd/${CI_COMMIT_TAG}
+    NONFREE_DEBUG_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-nonfree-lmd-production-debug.apk
+    NONFREE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-nonfree-lmd-production-release.apk
+    FREE_DEBUG_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-debug.apk
+    FREE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-unminifiedRelease.apk
+    FREE_MANUAL_UPDATE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-manualUpdateRelease.apk
+  script:
+      - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_FOLDER}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeLmdProduction/debug/app-nonfree-lmd-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeLmdProduction/release/app-nonfree-lmd-production-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/debug/app-free-lmd-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/unminifiedRelease/app-free-lmd-production-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/manualUpdateRelease/app-free-lmd-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      # FIXME (johannes): Automatic mails are not enabled for LMd Releases yet. See https://redmine.hal.taz.de/issues/15120
+      #- ./scripts/publish-to-app-runde.sh
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /lmd-.*/
+
+publishLmdGooglePlay:
+  stage: publish
+  extends: .prepareEnv
+  dependencies: [] # Do not use any artifacts from the previous build stage in this job
+  script:
+    - echo "Would do something"
+    - ./gradlew --no-daemon --console=plain publishNonfreeLmdProductionReleaseBundle
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /lmd-.*/
+      when: manual
