@@ -36,7 +36,9 @@ class SectionDividerTransformer(
 
     init {
         (viewPager.parent as? ViewGroup)?.let { parent ->
-            parent.addView(divider, dividerWidth.toInt(), MATCH_PARENT)
+            val viewPagerPosition = parent.indexOfChild(viewPager)
+            val layoutParams = ViewGroup.LayoutParams(dividerWidth.toInt(), MATCH_PARENT)
+            parent.addView(divider, viewPagerPosition + 1, layoutParams)
         }
     }
 
