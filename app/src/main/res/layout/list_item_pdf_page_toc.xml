@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/list_item_pdf_page_toc_margin_bottom"
     tools:context=".ui.pdfViewer.ArticleAdapter"
     tools:showIn="@layout/list_item_pdf_page_with_content">
 
@@ -14,6 +13,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/appFontBold"
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/appFontAlternative"
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         app:layout_constraintEnd_toEndOf="@id/article_title"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,6 +41,8 @@
         android:textStyle="italic"
         android:fontFamily="@font/appFontAlternativeItalic"
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"
+        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
+        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         app:layout_constraintEnd_toEndOf="@id/article_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_teaser"
@@ -55,7 +58,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/article_title"
         tools:ignore="contentDescription"
-        app:tint="@color/textColor" />
+        app:tint="@color/drawer_bookmark_icon_tint" />
 
+
+    <View
+        android:id="@+id/article_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_item_pdf_page_toc_divider_height"
+        android:layout_marginVertical="@dimen/list_item_pdf_page_toc_divider_margin_vertical"
+        android:visibility="gone"
+        android:background="@color/pdf_section_font"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/article_authors" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -100,4 +100,6 @@
     <color name="read_minutes">@color/lightGrey</color>
 
     <color name="article_section_divider_color">@color/black</color>
+
+    <color name="drawer_bookmark_icon_tint">@color/lightGrey</color>
 </resources>

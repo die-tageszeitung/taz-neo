@@ -12,6 +12,9 @@ import de.taz.app.android.ui.pdfViewer.ArticleAdapter
 import de.taz.app.android.ui.pdfViewer.PageWithArticles
 import kotlinx.coroutines.flow.Flow
 
+private const val TYPE_PAGE_BETWEEN = 0
+private const val TYPE_PAGE_LAST = 1
+
 /**
  * Creates ViewHolders for item views that will bind data for the preview of a page and the table of content of this
  * page.
@@ -35,6 +38,7 @@ class PageWithArticlesAdapter(
         val onPageCLick: (position: Int) -> Unit,
         val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
         val onArticleBookmarkClick: (article: Article) -> Unit,
+        private val showDivider: Boolean
     ) :
         RecyclerView.ViewHolder(view) {
 
@@ -43,6 +47,7 @@ class PageWithArticlesAdapter(
         private val pagePreviewImage: ImageView = itemView.findViewById(R.id.preview_page_image)
         private val pageTocRecyclerView: RecyclerView =
             itemView.findViewById(R.id.toc_recycler_view)
+        private val pageDivider: View = itemView.findViewById(R.id.page_divider)
 
         /**
          * Bind data that should be displayed in the item view.
@@ -70,6 +75,10 @@ class PageWithArticlesAdapter(
                     articleBookmarkStateFlowCreator
                 )
             }
+
+            if (showDivider) {
+                pageDivider.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -79,7 +88,13 @@ class PageWithArticlesAdapter(
     ): PageWithArticlesHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item_pdf_page_with_content, parent, false)
-        return PageWithArticlesHolder(view, onPageCLick, onArticleClick, onArticleBookmarkClick)
+        return PageWithArticlesHolder(
+            view,
+            onPageCLick,
+            onArticleClick,
+            onArticleBookmarkClick,
+            showDivider = viewType == TYPE_PAGE_BETWEEN
+        )
     }
 
     override fun getItemCount() = pages.size
@@ -90,6 +105,14 @@ class PageWithArticlesAdapter(
     ) {
         val pdfPage = pages[position]
         holder.bind(pdfPage)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (position == itemCount - 1) {
+            TYPE_PAGE_LAST
+        } else {
+            TYPE_PAGE_BETWEEN
+        }
     }
 
 }

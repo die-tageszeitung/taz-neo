@@ -14,7 +14,7 @@
         android:id="@+id/preview_page_card"
         android:layout_width="@dimen/list_item_pdf_page_with_content_card_width"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fragment_drawer_thumbnail_margin"
+        android:layout_marginEnd="@dimen/list_item_pdf_page_with_content_thumbnail_margin_end"
         app:cardBackgroundColor="@color/pdf_drawer_card_background"
         app:cardElevation="@dimen/moment_elevation"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,8 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="ContentDescription"
-            tools:layout_height="111dp"
-            tools:layout_width="75dp"
+            tools:layout_height="@dimen/list_item_pdf_page_with_content_card_height"
+            tools:layout_width="@dimen/list_item_pdf_page_with_content_card_width"
             tools:src="@tools:sample/backgrounds/scenic" />
 
 
@@ -42,5 +42,25 @@
         app:layout_constraintTop_toTopOf="@id/preview_page_card"
         tools:listitem="@layout/list_item_pdf_page_toc"
         tools:itemCount="2"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/page_content_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="toc_recycler_view, preview_page_card" />
+
+    <View
+        android:id="@+id/page_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_item_pdf_page_with_content_divider_height"
+        android:layout_marginTop="@dimen/list_item_pdf_page_with_content_divider_margin_top"
+        android:background="@color/pdf_section_font"
+        android:paddingBottom="@dimen/list_item_pdf_page_with_content_divider_padding_bottom"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page_content_barrier"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

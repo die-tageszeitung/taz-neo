@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
+private const val TYPE_ARTICLE_BETWEEN = 0
+private const val TYPE_ARTICLE_LAST = 1
 
 /**
  * Create ViewHolders for item views that will bind data of an article.
@@ -30,6 +32,7 @@ class ArticleAdapter(
     inner class ArticleHolder(
         view: View,
         private val onArticleClick: (article: Article) -> Unit,
+        private val showDivider: Boolean
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
         override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
@@ -40,6 +43,7 @@ class ArticleAdapter(
         private val articleAuthors: TextView = itemView.findViewById(R.id.article_authors)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
+        private val articleDivider: View = itemView.findViewById(R.id.article_divider)
 
         /**
          * Bind data that should be displayed in the item view.
@@ -68,6 +72,10 @@ class ArticleAdapter(
                 articleAuthors.visibility = View.GONE
             }
 
+            if (showDivider) {
+                articleDivider.visibility = View.VISIBLE
+            }
+
             itemView.setOnClickListener {
                 onArticleClick(article)
             }
@@ -93,7 +101,7 @@ class ArticleAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item_pdf_page_toc, parent, false)
-        return ArticleHolder(view, onArticleClick)
+        return ArticleHolder(view, onArticleClick, showDivider = viewType == TYPE_ARTICLE_BETWEEN)
     }
 
     override fun getItemCount() = articles.size
@@ -107,5 +115,12 @@ class ArticleAdapter(
     override fun onViewRecycled(holder: ArticleHolder) {
         super.onViewRecycled(holder)
         holder.coroutineContext.cancelChildren()
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (position == itemCount - 1) {
+            return TYPE_ARTICLE_LAST
+        }
+        return TYPE_ARTICLE_BETWEEN
     }
 }
