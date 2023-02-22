@@ -33,6 +33,7 @@
                 android:layout_marginStart="0dp"
                 android:layout_marginBottom="10dp"
                 app:cardBackgroundColor="@color/pdf_drawer_card_background"
+                app:cardCornerRadius="@dimen/fragment_drawer_body_pdf_with_sections_preview_corners"
                 app:cardElevation="@dimen/moment_elevation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
