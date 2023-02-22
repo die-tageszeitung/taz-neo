@@ -9,7 +9,7 @@ set -o xtrace
 # Use the AAPT from the default Android build tools as defined on the android-docker build image
 AAPT_BIN="$BUILD_TOOLS_ROOT/aapt"
 
-RECENT_TAG=$(git describe --abbrev=0)
+RECENT_TAG=$(git describe --abbrev=0 --exclude="lmd-*")
 RELEASE_MESSAGE=$(git tag -l --format='%(contents)' "$RECENT_TAG")
 APP_VERSION=$CI_COMMIT_TAG
 APP_VERSION_CODE=$($AAPT_BIN dump badging app/build/outputs/apk/freeTazProduction/manualUpdateRelease/app-free-taz-production-manualUpdateRelease.apk | grep "package:" | sed -e "s/.*versionCode='//" -e "s/' .*//")
