@@ -13,6 +13,15 @@ import java.io.InputStreamReader
  *   "gffc6a8321" the latest commit prefixed with "g" for git.
  * - If there are some uncommitted changes it might also be
  *   "1.6.1-187-gffc6a8321-dirty"
+ *
+ *   The pattern of the version code will look something like this:
+ *   "MMmmPPTtt" where
+ *      M - major version
+ *      m - minor version
+ *      P - patch version
+ *      T - Type of pre-release
+ *      t - Version of pre-release
+ *      (Be aware since it's an int leading zeros are removed)
  */
 object VersionHelper {
 
