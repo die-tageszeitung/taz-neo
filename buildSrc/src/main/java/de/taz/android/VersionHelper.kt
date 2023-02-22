@@ -23,7 +23,7 @@ object VersionHelper {
         """(\d+)\.(\d+)\.(\d+)-(rc|alpha|beta)\.(\d+)"""
 
     private const val DEBUG_RELEASE_VERSION_PATTERN =
-        """(\d+)\.(\d+)\.(\d+)-\d+-g[0-9a-fA-F]+(-dirty)?"""
+        """(\d+)\.(\d+)\.(\d+)(-(rc|alpha|beta)\.(\d+))?-\d+-g[0-9a-fA-F]+(-dirty)?"""
 
     private const val MINOR_DIGITS = 2
     private const val PATCH_DIGITS = 2
