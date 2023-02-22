@@ -57,6 +57,8 @@
         android:src="@drawable/ic_bookmark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/article_title"
+        app:layout_constraintStart_toEndOf="@+id/article_title"
+        android:layout_marginStart="@dimen/list_item_pdf_page_toc_bookmark_icon_left_margin"
         tools:ignore="contentDescription"
         app:tint="@color/drawer_bookmark_icon_tint" />
 
@@ -68,6 +70,7 @@
         android:layout_marginVertical="@dimen/list_item_pdf_page_toc_divider_margin_vertical"
         android:visibility="gone"
         android:background="@color/pdf_section_font"
+        tools:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_authors" />
