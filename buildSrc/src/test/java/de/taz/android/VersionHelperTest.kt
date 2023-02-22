@@ -79,6 +79,16 @@ class VersionHelperTest {
     }
 
 
+    @Test
+    fun `taz debug dirty tag with pre releases is parsed and padded correctly`() {
+        val versionHelper = VersionHelper
+        val gitTag = "1.6.1-alpha.1-2-g1dca14e6e"
+
+        val result = versionHelper.gitTagToVersionCode(gitTag)
+
+        assertEquals(10601900, result)
+    }
+
 
     // region: exceeding allowed digit tests
     @Test
