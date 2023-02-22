@@ -31,12 +31,19 @@
     <dimen name="fragment_drawer_separator_margin_top">4dp</dimen>
 
     <dimen name="list_item_pdf_page_with_content_padding">8dp</dimen>
-    <dimen name="list_item_pdf_page_with_content_card_width">75dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_card_width">62dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_card_height">92dp</dimen>
     <dimen name="list_item_pdf_page_with_content_toc_margin_start">14dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_divider_height">0.5dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_divider_margin_top">15dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_divider_padding_bottom">20dp</dimen>
+    <dimen name="list_item_pdf_page_with_content_thumbnail_margin_end">5dp</dimen>
 
 
     <dimen name="list_item_pdf_page_toc_margin_bottom">20dp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_size">22dp</dimen>
+    <dimen name="list_item_pdf_page_toc_divider_height">0.5dp</dimen>
+    <dimen name="list_item_pdf_page_toc_divider_margin_vertical">20dp</dimen>
 
     <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_x">-5dp</dimen>
