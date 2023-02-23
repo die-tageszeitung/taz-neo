@@ -33,7 +33,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val downloadAdditionallyPdf: LiveData<Boolean>
     private val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
     val notificationsEnabledLivedata: LiveData<Boolean>
-    val enableExperimentalArticleReader: LiveData<Boolean>
 
     val storageLocationLiveData: LiveData<StorageLocation>
     val storedIssueNumberLiveData: LiveData<Int>
@@ -65,8 +64,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         downloadAdditionallyDialogDoNotShowAgain =
             downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
-
-        enableExperimentalArticleReader = generalDataStore.enableExperimentalArticleReader.asLiveData()
     }
 
     fun increaseKeepIssueNumber() {
@@ -185,12 +182,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setKeepScreenOn(value: Boolean) {
         viewModelScope.launch {
             tazApiCssDataStore.keepScreenOn.set(value)
-        }
-    }
-
-    fun setExperimentalArticleReader(value: Boolean) {
-        viewModelScope.launch {
-            generalDataStore.enableExperimentalArticleReader.set(value)
         }
     }
 

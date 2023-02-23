@@ -17,7 +17,4 @@ interface ArticleAudioFileJoinDao : BaseDao<ArticleAudioFileJoin> {
     """
     )
     suspend fun getAudioFileForArticle(articleFileName: String): FileEntry?
-
-    @Query("SELECT EXISTS(SELECT * FROM ArticleAudioFileJoin where articleFileName = :articleFileName)")
-    abstract fun hasAudioFile(articleFileName: String): LiveData<Boolean>
 }

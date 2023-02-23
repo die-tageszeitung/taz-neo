@@ -454,22 +454,6 @@
                     <include layout="@layout/settings_separator_view" />
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/fragment_settings_experimental_article_reader_switch_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/fragment_settings_experimental_article_reader_switch"
-                        style="@style/TextAppearance.Settings.Entry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_experimental_article_reader" />
-
-                    <include layout="@layout/settings_separator_view" />
-                </LinearLayout>
-
                 <TextView
                     android:id="@+id/fragment_settings_reset_app"
                     style="@style/TextAppearance.Settings.Entry"
