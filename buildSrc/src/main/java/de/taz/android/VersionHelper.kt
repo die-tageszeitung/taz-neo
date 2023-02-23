@@ -31,8 +31,8 @@ object VersionHelper {
     private const val PRE_RELEASE_VERSION_PATTERN =
         """(\d+)\.(\d+)\.(\d+)-(rc|alpha|beta)\.(\d+)"""
 
-    private const val DEBUG_RELEASE_VERSION_PATTERN =
-        """(\d+)\.(\d+)\.(\d+)(-(rc|alpha|beta)\.(\d+))?-\d+-g[0-9a-fA-F]+(-dirty)?"""
+    private const val DEVELOP_RELEASE_VERSION_PATTERN =
+        """(\d+)\.(\d+)\.(\d+)(-(rc|alpha|beta)\.(\d+))?((-\d+-g[0-9a-fA-F]+(-dirty)?)|(-dirty))"""
 
     private const val MINOR_DIGITS = 2
     private const val PATCH_DIGITS = 2
@@ -43,11 +43,11 @@ object VersionHelper {
     private const val PRE_RELEASE_TYPE_BETA = 2
     private const val PRE_RELEASE_TYPE_RC = 3
     private const val PRE_RELEASE_TYPE_RELEASE = 9
-    private const val PRE_RELEASE_TYPE_DEBUG = 9
+    private const val PRE_RELEASE_TYPE_DEVELOP = 9
 
     private val releaseRegex = RELEASE_VERSION_PATTERN.toRegex()
     private val preReleaseRegex = PRE_RELEASE_VERSION_PATTERN.toRegex()
-    private val debugReleaseRegex = DEBUG_RELEASE_VERSION_PATTERN.toRegex()
+    private val developReleaseRegex = DEVELOP_RELEASE_VERSION_PATTERN.toRegex()
 
 
     fun getTazVersionCode(): Int {
@@ -130,13 +130,13 @@ object VersionHelper {
         return makeVersionCode(major, minor, patch, preReleaseType, preReleaseVersion)
     }
 
-    private fun makeDebugReleaseVersionCode(matchResult: MatchResult): Int {
+    private fun makeDevelopReleaseVersionCode(matchResult: MatchResult): Int {
         val (major, minor, patch) = getSemverVersion(matchResult)
         return makeVersionCode(
             major,
             minor,
             patch,
-            PRE_RELEASE_TYPE_DEBUG,
+            PRE_RELEASE_TYPE_DEVELOP,
             preReleaseVersion = 0
         )
     }
@@ -144,11 +144,11 @@ object VersionHelper {
     fun gitTagToVersionCode(gitTag: String): Int {
         val releaseMatch = releaseRegex.matchEntire(gitTag)
         val preReleaseMatch = preReleaseRegex.matchEntire(gitTag)
-        val debugReleaseMatch = debugReleaseRegex.matchEntire(gitTag)
+        val developReleaseMatch = developReleaseRegex.matchEntire(gitTag)
         return when {
             releaseMatch != null -> makeReleaseVersionCode(releaseMatch)
             preReleaseMatch != null -> makePreReleaseVersionCode(preReleaseMatch)
-            debugReleaseMatch != null -> makeDebugReleaseVersionCode(debugReleaseMatch)
+            developReleaseMatch != null -> makeDevelopReleaseVersionCode(developReleaseMatch)
             else -> error(
                 "Unable to determine versionCode from $gitTag, which is determined by the last git tag.\n" +
                         "Refer to the README to learn about a proper version format"
