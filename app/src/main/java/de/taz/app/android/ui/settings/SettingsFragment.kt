@@ -251,14 +251,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
-            if (BuildConfig.IS_LMD) {
-                hideExperimentalArticleReaderSetting()
-            } else {
-                fragmentSettingsExperimentalArticleReaderSwitch.setOnCheckedChangeListener { _, isChecked ->
-                    toggleExperimentalArticleReader(isChecked)
-                }
-            }
-
             fragmentSettingsDeleteAllIssues.setOnClickListener {
                 showDeleteAllIssuesDialog()
             }
@@ -305,9 +297,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
-            }
-            enableExperimentalArticleReader.observeDistinct(viewLifecycleOwner) { enabled ->
-                showEnableExperimentalArticleReaderToggle(enabled)
             }
             storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -626,12 +615,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun showEnableExperimentalArticleReaderToggle(isEnabled: Boolean) {
-        viewBinding.fragmentSettingsExperimentalArticleReaderSwitch.apply {
-            isChecked = isEnabled
-        }
-    }
-
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -763,15 +746,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (areAppNotificationsEnabled && !areSystemNotificationsAllowed) {
             showNotificationsMustBeAllowedDialog()
         }
-    }
-
-    private fun toggleExperimentalArticleReader(enableArticleReader: Boolean) {
-        viewModel.setExperimentalArticleReader(enableArticleReader)
-    }
-
-    // IS_LMD
-    private fun hideExperimentalArticleReaderSetting() {
-        viewBinding.fragmentSettingsExperimentalArticleReaderSwitchWrapper.visibility = View.GONE
     }
 
     private fun toggleExtendedContent() {

@@ -37,8 +37,4 @@ interface ArticleOperations {
             getSectionStub(applicationContext)?.getIssueStub(applicationContext)
         }
     }
-
-    fun hasAudio(applicationContext: Context): LiveData<Boolean> {
-        return ArticleRepository.getInstance(applicationContext).hasAudioLiveData(this.key)
-    }
 }

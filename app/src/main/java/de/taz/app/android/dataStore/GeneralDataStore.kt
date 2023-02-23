@@ -73,7 +73,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, intPreferencesKey(TRY_PDF_DIALOG_COUNT), 0
     )
 
-    val enableExperimentalArticleReader: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER), false
-    )
+    suspend fun clearRemovedEntries() {
+        dataStore.edit {
+            // This functionality was removed with version 1.7.0
+            it.remove(booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER))
+        }
+    }
 }

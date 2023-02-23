@@ -102,6 +102,7 @@ class SplashActivity : StartupActivity() {
             // Thus it will not be canceled when the `SplashActivity` finishes
             applicationScope.launch {
                 checkForNewestIssue(feedService, toastHelper)
+                generalDataStore.clearRemovedEntries()
             }
 
             val currentStorageLocation = storageDataStore.storageLocation.get()
