@@ -316,34 +316,47 @@ class PdfPagerViewModel(
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
                                 val article = getArticleForFrame(frame)
-                                if (article != null) {
+                                if (article != null && !isArticleListed(article, pages)) {
                                     articlesOfPage.add(article)
                                 }
                             }
                         }
                     }
-                    val sortedArticlesOfPage =
-                        articlesOfPage.sortedBy {
-                            sortedArticlesOfIssueMap.getOrDefault(
-                                it.key,
-                                Int.MAX_VALUE
+                    // Add pages only if articles are starting on it
+                    if (articlesOfPage.isNotEmpty()){
+                        val sortedArticlesOfPage =
+                            articlesOfPage.sortedBy {
+                                sortedArticlesOfIssueMap.getOrDefault(
+                                    it.key,
+                                    Int.MAX_VALUE
+                                )
+                            }
+                        pages.add(
+                            PageWithArticles(
+                                pagePdf = requireNotNull(
+                                    fileEntryRepository.get(page.pagePdf.name)
+                                ) {
+                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                                }, sortedArticlesOfPage
                             )
-                        }
-                    pages.add(
-                        PageWithArticles(
-                            pagePdf = requireNotNull(
-                                fileEntryRepository.get(page.pagePdf.name)
-                            ) {
-                                "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                            }, sortedArticlesOfPage
                         )
-                    )
+                    }
                 }
                 pages
             } else {
                 null
             }
         }
+
+    /**
+     * Check if [article] is listed on one of the [pages].
+     *
+     * @param article Article to check for
+     * @param pages pages with articles
+     */
+    private fun isArticleListed(article: Article, pages: List<PageWithArticles>): Boolean {
+        return pages.any { page -> page.articles?.any { it.key == article.key } == true }
+    }
 
     /**
      * Get [Article] of page [Frame].
