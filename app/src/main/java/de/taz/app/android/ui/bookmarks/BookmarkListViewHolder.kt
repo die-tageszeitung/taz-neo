@@ -14,7 +14,8 @@ import java.io.File
 
 class BookmarkListViewHolder(
     private val bookmarksFragment: BookmarkListFragment,
-    val parent: ViewGroup
+    parent: ViewGroup,
+    private val removeBookmarkWithUndo: (View, Int) -> Unit
 ) :
     RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(
@@ -33,8 +34,6 @@ class BookmarkListViewHolder(
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
-    private val bookmarksAdapter = BookmarkListAdapter(bookmarksFragment, bookmarksFragment.applicationScope)
-    private var bookmarks: List<BookmarkListItem> = emptyList<BookmarkListItem.Item>()
 
     init {
         bookmarkBox = itemView.findViewById(R.id.fragment_bookmark)
@@ -53,7 +52,7 @@ class BookmarkListViewHolder(
             bookmarkTeaser?.text = article.teaser
 
             if (article.readMinutes != null) {
-                bookmarkReadMinutes?.text = parent.context.getString(
+                bookmarkReadMinutes?.text = itemView.context.getString(
                     R.string.read_minutes,
                     article.readMinutes
                 )
@@ -92,8 +91,8 @@ class BookmarkListViewHolder(
             }
 
             bookmarkBox?.setOnClickListener {
-                val intent = BookmarkViewerActivity.newIntent(parent.context, article.key)
-                parent.context.startActivity(intent)
+                val intent = BookmarkViewerActivity.newIntent(itemView.context, article.key)
+                itemView.context.startActivity(intent)
             }
 
             bookmarkShare.setOnClickListener {
@@ -101,17 +100,12 @@ class BookmarkListViewHolder(
             }
 
             bookmarkDelete.setOnClickListener {
-                bookmarksAdapter.removeBookmarkWithUndo(
-                    this,
-                    bindingAdapterPosition,
-                    bookmarks
+                removeBookmarkWithUndo(
+                    this.itemView,
+                    bindingAdapterPosition
                 )
             }
         }
-    }
-
-    fun setBookmarks(bookmarks: List<BookmarkListItem>) {
-        this.bookmarks = bookmarks
     }
 
 }
