@@ -9,7 +9,6 @@ interface AppInfoDao : BaseDao<AppInfo> {
     @Query("SELECT * FROM AppInfo LIMIT 1")
     suspend fun get(): AppInfo?
 
-
     @Query("SELECT COUNT(*) FROM AppInfo")
     suspend fun count(): Int
 

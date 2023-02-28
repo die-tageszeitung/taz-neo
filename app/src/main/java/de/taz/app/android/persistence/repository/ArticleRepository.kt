@@ -87,14 +87,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().getLiveData(articleName)
     }
 
-    fun getLiveData(articleName: String): LiveData<Article?> {
-        return appDatabase.articleDao().getLiveData(articleName).switchMap { articleStub ->
-            liveData {
-                emit(articleStub?.let { articleStubToArticle(it) })
-            }
-        }
-    }
-
     suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
         if (articleStub?.bookmarkedTime != null) {
@@ -321,13 +313,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 }
             }
         }
-    }
-
-    suspend fun isDownloadedLiveData(articleOperations: ArticleOperations) =
-        isDownloadedLiveData(articleOperations.key)
-
-    suspend fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean> {
-        return appDatabase.articleDao().isDownloadedLiveData(articleFileName)
     }
 
     suspend fun getArticleStubListForIssue(

@@ -206,8 +206,8 @@ class DownloadObserver constructor(
     private fun startObserverForDatabaseIssueChanges(issueKey: IssueKey) {
         stopIssueChangesObserverJob()
         issueChangesObserverJob = fragment.lifecycleScope.launch(Dispatchers.Default) {
-            issueRepository.getStubLiveData(issueKey.feedName, issueKey.date, issueKey.status)
-                .asFlow().collect {
+            issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status)
+                .collect {
                     if (!isIssueStubDownloaded(it)) {
                         // Eagerly set the issue download status to LOADING if the issue is no longer
                         // downloaded (for the [currentMinIssueStatus]) but a related tag is already

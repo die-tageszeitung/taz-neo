@@ -1,6 +1,5 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
@@ -12,9 +11,6 @@ interface SectionDao : BaseDao<SectionStub> {
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
     suspend fun get(sectionFileName: String): SectionStub
-
-    @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    fun getLiveData(sectionFileName: String): LiveData<SectionStub?>
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
@@ -58,9 +54,6 @@ interface SectionDao : BaseDao<SectionStub> {
     """
     )
     suspend fun getNext(sectionFileName: String): SectionStub?
-
-    @Query("SELECT EXISTS(SELECT * FROM Section WHERE sectionFileName == :sectionFileName AND dateDownload IS NOT NULL)")
-    fun isDownloadedLiveData(sectionFileName: String): LiveData<Boolean>
 
     @Query("SELECT dateDownload FROM Section WHERE sectionFileName == :sectionFileName")
     suspend fun getDownloadDate(sectionFileName: String): Date?
