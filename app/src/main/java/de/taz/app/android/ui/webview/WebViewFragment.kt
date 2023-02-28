@@ -268,9 +268,9 @@ abstract class WebViewFragment<
                         ?.setExpanded(true, false)
                 }
                 hideLoadingScreen()
+                addPaddingBottomIfNecessary()
             }
         }
-        addPaddingBottomIfNecessary()
     }
 
     override fun onPageFinishedLoading() {
@@ -344,11 +344,11 @@ abstract class WebViewFragment<
         val collapsingToolBarHeight = this.resources.getDimensionPixelSize(R.dimen.fragment_header_default_height)
         val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5*collapsingToolBarHeight
 
-        if (abs(difference) < spaceNeededThatTheToolBarCanCollapse) {
+        if (difference < spaceNeededThatTheToolBarCanCollapse) {
             val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
             log.debug("Add paddingBottom to allow the tool bar to collapse")
             scrollView?.updatePadding(
-                0,0,0, navBottomHeight
+                0,0,0, spaceNeededThatTheToolBarCanCollapse.toInt()
             )
         }
     }
