@@ -102,4 +102,6 @@
     <color name="article_section_divider_color">@color/black</color>
 
     <color name="drawer_bookmark_icon_tint">@color/lightGrey</color>
+
+    <color name="fragment_settings_value_text">@color/colorAccent</color>
 </resources>

@@ -260,13 +260,13 @@
     </style>
 
     <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/fragment_settings_value_text</item>
         <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
     </style>
 
     <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">23sp</item>
+        <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
         <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
