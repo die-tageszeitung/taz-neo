@@ -409,22 +409,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         deletionProgress.progress = 0
         deletionProgress.max = downloadedIssueStubList.size
         deletionProgressText.visibility = View.VISIBLE
-        deletionProgressText.text = getString(
-            R.string.settings_delete_progress_text,
-            counter,
-            deletionProgress.max
-        )
+        deletionProgressText.text = getString(R.string.settings_delete_progress_text)
 
         for (issueStub in downloadedIssueStubList) {
             try {
                 contentService.deleteIssue(issueStub.issueKey)
                 counter++
                 deletionProgress.progress = counter
-                deletionProgressText.text = getString(
-                    R.string.settings_delete_progress_text,
-                    counter,
-                    deletionProgress.max
-                )
             } catch (e: CacheOperationFailedException) {
                 val hint = "Error while deleting ${issueStub.issueKey}"
                 log.error(hint)
