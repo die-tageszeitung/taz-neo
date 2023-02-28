@@ -60,10 +60,6 @@ class FileEntryRepository private constructor(
         return appDatabase.fileEntryDao().getDownloadedExceptStorageLocation(storageLocation)
     }
 
-    suspend fun getLiveData(fileEntryName: String): LiveData<FileEntry?> {
-        return appDatabase.fileEntryDao().getLiveDataByName(fileEntryName)
-    }
-
     suspend fun getList(fileEntryNames: List<String>): List<FileEntry> {
         return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }

@@ -1,6 +1,5 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.PageStub
@@ -11,14 +10,8 @@ interface PageDao : BaseDao<PageStub> {
     @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
     suspend fun get(fileName: String): PageStub?
 
-    @Query("SELECT Page.* FROM Page WHERE Page.pdfFileName == :fileName LIMIT 1")
-    fun getLiveData(fileName: String): LiveData<PageStub?>
-
     @Query("SELECT dateDownload FROM Page WHERE pdfFileName == :fileName")
     suspend fun getDownloadDate(fileName: String): Date?
-
-    @Query("SELECT EXISTS (SELECT * FROM Page WHERE pdfFileName == :fileName AND dateDownload IS NOT NULL)")
-    fun isDownloadedLiveData(fileName: String): LiveData<Boolean>
 
     @Query("""
         DELETE FROM FileEntry

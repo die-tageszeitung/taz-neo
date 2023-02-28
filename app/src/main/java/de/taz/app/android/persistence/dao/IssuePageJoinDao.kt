@@ -24,16 +24,6 @@ interface IssuePageJoinDao : BaseDao<IssuePageJoin> {
     suspend fun getFrontPageForIssue(feedName: String, date: String, status: IssueStatus): PageStub?
 
     @Query(
-        """SELECT Page.* FROM Page INNER JOIN IssuePageJoin 
-        ON Page.pdfFileName = IssuePageJoin.pageKey 
-        WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName
-            AND IssuePageJoin.issueStatus == :status
-        ORDER BY IssuePageJoin.`index` ASC
-        """
-    )
-    suspend fun getPagesForIssue(feedName: String, date: String, status: IssueStatus): List<PageStub>
-
-    @Query(
         """SELECT Page.pdfFileName FROM Page INNER JOIN IssuePageJoin 
         ON Page.pdfFileName = IssuePageJoin.pageKey 
         WHERE  IssuePageJoin.issueDate == :date AND IssuePageJoin.issueFeedName == :feedName

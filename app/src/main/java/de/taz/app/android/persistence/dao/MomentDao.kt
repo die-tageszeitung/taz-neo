@@ -1,6 +1,5 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -24,23 +23,6 @@ interface MomentDao: BaseDao<MomentStub> {
         issueDate: String,
         issueStatus: IssueStatus
     ): Date?
-
-    @Query(
-        """
-        SELECT Moment.* From Moment
-        WHERE Moment.issueStatus == :issueStatus
-            AND Moment.issueFeedName == :issueFeedName
-            AND Moment.issueDate == :issueDate
-                    """
-    )
-    fun getLiveData(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): LiveData<MomentStub?>
-
-    fun getLiveData(issueOperations: IssueOperations) =
-        getLiveData(issueOperations.feedName, issueOperations.date, issueOperations.status)
 
     @Query(
         """

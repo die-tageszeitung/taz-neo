@@ -121,10 +121,4 @@ class PageRepository private constructor(applicationContext: Context) :
     suspend fun setDownloadDate(page: Page, date: Date?) {
         update(PageStub(page).copy(dateDownload = date))
     }
-
-    suspend fun isDownloadedLiveData(page: Page) = isDownloadedLiveData(page.pagePdf.name)
-
-    suspend fun isDownloadedLiveData(fileName: String): LiveData<Boolean> {
-        return appDatabase.pageDao().isDownloadedLiveData(fileName)
-    }
 }

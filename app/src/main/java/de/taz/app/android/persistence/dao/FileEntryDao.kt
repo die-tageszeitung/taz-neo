@@ -1,6 +1,5 @@
 package de.taz.app.android.persistence.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -12,9 +11,6 @@ interface FileEntryDao : BaseDao<FileEntry> {
 
     @Query("SELECT * FROM FileEntry WHERE name == :name")
     suspend fun getByName(name: String): FileEntry?
-
-    @Query("SELECT * FROM FileEntry WHERE name == :name")
-    fun getLiveDataByName(name: String): LiveData<FileEntry?>
 
     @Query("SELECT dateDownload FROM FileEntry WHERE name == :name")
     suspend fun getDownloadDate(name: String): Date?

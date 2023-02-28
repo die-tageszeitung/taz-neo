@@ -30,9 +30,6 @@ interface IssueDao : BaseDao<IssueStub> {
         status: IssueStatus
     ): IssueStub?
 
-    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :fromDate) AND feedName IN (:feedNames) AND status == :status  ORDER BY date DESC LIMIT :limit")
-    suspend fun getIssuesFromDateByFeed(fromDate: String, feedNames: List<String>, status: IssueStatus, limit: Int): List<IssueStub>
-
     @Query("SELECT lastDisplayableName FROM Issue WHERE strftime('%s', date) = strftime('%s', :fromDate) AND feedName = :feedName AND status == :status")
     suspend fun getLastDisplayable(feedName: String, fromDate: String, status: IssueStatus): String?
 
@@ -43,26 +40,17 @@ interface IssueDao : BaseDao<IssueStub> {
     suspend fun getLatestRegularByDate(date: String): IssueStub?
 
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
-    fun getByFeedDateAndStatusLiveData(
+    fun getByFeedDateAndStatusFlow(
         feedName: String,
         date: String,
         status: IssueStatus
-    ): LiveData<IssueStub?>
+    ): Flow<IssueStub?>
 
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     suspend fun getLatest(): IssueStub?
 
     @Query("SELECT * FROM Issue WHERE Issue.status == :status AND Issue.feedName == :feedName ORDER BY date DESC LIMIT 1")
     suspend fun getLatestByFeedAndStatus(status: IssueStatus, feedName: String): IssueStub?
-
-    @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
-    fun getLatestLiveData(): LiveData<IssueStub?>
-
-    @Query("SELECT * FROM Issue ORDER BY date DESC")
-    fun getAllLiveData(): LiveData<List<IssueStub>>
-
-    @Query("SELECT * FROM Issue WHERE Issue.status != \"public\" ORDER BY date DESC")
-    fun getAllLiveDataExceptPublic(): LiveData<List<IssueStub>?>
 
     @Query("SELECT * FROM Issue ORDER BY date DESC")
     suspend fun getAllIssueStubs(): List<IssueStub>
@@ -72,13 +60,6 @@ interface IssueDao : BaseDao<IssueStub> {
 
     @Query("SELECT * FROM Issue WHERE status IN (\"public\", \"demo\") ORDER BY date DESC")
     suspend fun getAllPublicAndDemoIssueStubs(): List<IssueStub>
-
-
-    @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date")
-    fun getByFeedAndDateLiveData(
-        feedName: String,
-        date: String
-    ): LiveData<List<IssueStub>>
 
     /**
      * We exclude the last viewed issue from deletion, otherwise we might end up deleting an issue
@@ -97,13 +78,6 @@ interface IssueDao : BaseDao<IssueStub> {
 
     @Query("SELECT COUNT(date) FROM Issue WHERE dateDownload IS NOT NULL")
     fun getDownloadedIssuesCountFlow(): Flow<Int>
-
-    @Query("SELECT EXISTS (SELECT * FROM Issue WHERE dateDownload IS NOT NULL AND feedName == :feedName AND date == :date AND status == :status)")
-    fun isDownloadedLiveData(
-        feedName: String,
-        date: String,
-        status: IssueStatus
-    ): LiveData<Boolean>
 
     @Query(
         """
@@ -130,37 +104,6 @@ interface IssueDao : BaseDao<IssueStub> {
     """
     )
     suspend fun getStubForSectionImageName(imageName: String): IssueStub?
-
-    @Query(
-        """
-            SELECT Issue.* FROM Issue WHERE Issue.feedName == :feedName AND Issue.date == :date AND Issue.dateDownload IS NOT NULL
-        """
-    )
-    suspend fun getDownloadedIssuesForDayAndFeed(
-        feedName: String,
-        date: String
-    ): List<IssueStub>
-
-
-    @Query("SELECT * FROM Issue WHERE Issue.feedName IN (:feedNames) AND strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT :limit")
-    suspend fun getIssueStubsByFeedsAndDate(
-        feedNames: List<String>,
-        date: String,
-        limit: Int
-    ): List<IssueStub>
-
-    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT :limit")
-    suspend fun getIssueStubsByDate(
-        date: String,
-        limit: Int
-    ): List<IssueStub>
-
-    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) AND status = :status ORDER BY date DESC LIMIT :limit")
-    suspend fun getIssueStubsByDateAndStatus(
-        date: String,
-        status: IssueStatus,
-        limit: Int
-    ): List<IssueStub>
 
     @Query("SELECT dateDownload FROM Issue WHERE date = :date AND feedName = :feedName AND status = :status")
     suspend fun getDownloadDate(

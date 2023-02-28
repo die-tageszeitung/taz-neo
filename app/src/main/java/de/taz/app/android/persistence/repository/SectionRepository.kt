@@ -50,10 +50,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionDao().get(sectionFileName)
     }
 
-    fun getStubLiveData(sectionFileName: String): LiveData<SectionStub?> {
-        return appDatabase.sectionDao().getLiveData(sectionFileName)
-    }
-
     suspend fun get(sectionFileName: String): Section? {
         return getStub(sectionFileName)?.let {
             sectionStubToSection(it)
@@ -162,10 +158,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         } catch (e: SQLiteConstraintException) {
             // do not delete still used
         }
-    }
-
-    suspend fun isDownloadedLiveData(sectionOperations: SectionOperations): LiveData<Boolean> {
-        return appDatabase.sectionDao().isDownloadedLiveData(sectionOperations.key)
     }
 
     suspend fun setDownloadDate(sectionStub: SectionStub, date: Date?) {

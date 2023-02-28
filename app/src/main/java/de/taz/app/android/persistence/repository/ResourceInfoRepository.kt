@@ -83,14 +83,6 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
     }
 
-    suspend fun getLiveData(): LiveData<ResourceInfo?> {
-        return Transformations.map(appDatabase.resourceInfoDao().getLiveData()) {
-            runBlocking {
-                it?.let { resourceInfoStubToResourceInfo(it) }
-            }
-        }
-    }
-
     suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
@@ -128,8 +120,4 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return update(ResourceInfoStub(resourceInfo).copy(dateDownload = date))
     }
 
-
-    suspend fun isDownloadedLiveData(resourceVersion: Int): LiveData<Boolean> {
-        return appDatabase.resourceInfoDao().isDownloadedLiveData(resourceVersion)
-    }
 }

@@ -40,27 +40,6 @@ interface ArticleDao : BaseDao<ArticleStub> {
     )
     suspend fun getSectionArticleListByArticle(articleFileName: String): List<ArticleStub>
 
-    @Query(
-        """SELECT Article.* FROM Article
-        INNER JOIN SectionArticleJoin as Name
-        INNER JOIN SectionArticleJoin as SAJ
-        INNER JOIN IssueSectionJoin as ISJConstraint
-        INNER JOIN IssueSectionJoin
-            ON Article.articleFileName == SAJ.articleFileName
-        WHERE Name.articleFileName == :articleFileName
-            AND ISJConstraint.sectionFileName == Name.sectionFileName
-            AND SAJ.sectionFileName == IssueSectionJoin.sectionFileName
-            AND ISJConstraint.issueStatus == IssueSectionJoin.issueStatus
-            AND ISJConstraint.issueFeedName == IssueSectionJoin.issueFeedName
-            AND ISJConstraint.issueDate == IssueSectionJoin.issueDate
-            ORDER BY IssueSectionJoin.`index` ASC , SAJ.`index` ASC
-    """
-    )
-    suspend fun getIssueArticleListByArticle(articleFileName: String): List<ArticleStub>
-
-    @Query("SELECT EXISTS (SELECT * FROM Article WHERE articleFileName == :articleFileName AND dateDownload IS NOT NULL)")
-    fun isDownloadedLiveData(articleFileName: String): LiveData<Boolean>
-
     @Query("SELECT dateDownload FROM Article WHERE articleFileName == :articleFileName")
     suspend fun getDownloadStatus(articleFileName: String): Date?
 

@@ -12,16 +12,6 @@ import de.taz.app.android.persistence.join.IssueSectionJoin
 interface IssueSectionJoinDao : BaseDao<IssueSectionJoin> {
 
     @Query(
-        """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
-        ON IssueSectionJoin.sectionFileName == Section.sectionFileName
-        WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName
-            AND IssueSectionJoin.issueStatus == :status
-        ORDER BY IssueSectionJoin.`index` ASC
-        """
-    )
-    suspend fun getSectionsForIssue(feedName: String, date: String, status: IssueStatus): List<SectionStub>
-
-    @Query(
         """SELECT Section.sectionFileName FROM Section INNER JOIN IssueSectionJoin
         ON IssueSectionJoin.sectionFileName == Section.sectionFileName
         WHERE  IssueSectionJoin.issueDate == :date AND IssueSectionJoin.issueFeedName == :feedName 

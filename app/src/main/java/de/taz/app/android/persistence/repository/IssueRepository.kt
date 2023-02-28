@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
-import androidx.lifecycle.LiveData
 import androidx.room.withTransaction
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -159,13 +158,13 @@ class IssueRepository private constructor(applicationContext: Context) :
             .getByFeedDateAndStatus(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    suspend fun getStubLiveData(
+    fun getStubFlow(
         issueFeedName: String,
         issueDate: String,
         issueStatus: IssueStatus
-    ): LiveData<IssueStub?> {
+    ): Flow<IssueStub?> {
         return appDatabase.issueDao()
-            .getByFeedDateAndStatusLiveData(issueFeedName, issueDate, issueStatus)
+            .getByFeedDateAndStatusFlow(issueFeedName, issueDate, issueStatus)
     }
 
     suspend fun getLatestIssueStub(): IssueStub? {
@@ -456,13 +455,6 @@ class IssueRepository private constructor(applicationContext: Context) :
 
     suspend fun getAllPublicAndDemoIssueStubs(): List<IssueStub> {
         return appDatabase.issueDao().getAllPublicAndDemoIssueStubs()
-    }
-
-    suspend fun getByFeedAndDateLiveData(
-        feedName: String,
-        date: String
-    ): LiveData<List<IssueStub>> {
-        return appDatabase.issueDao().getByFeedAndDateLiveData(feedName, date)
     }
 
     suspend fun getMostValuableIssueStubForPublication(
