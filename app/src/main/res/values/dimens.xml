@@ -86,6 +86,7 @@
     <dimen name="fragment_settings_padding_top">3dp</dimen>
     <dimen name="fragment_settings_category_padding_top">25dp</dimen>
     <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
+    <dimen name="fragment_settings_category_font_size">23sp</dimen>
     <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
     <dimen name="fragment_settings_text_font_size">16sp</dimen>
     <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>

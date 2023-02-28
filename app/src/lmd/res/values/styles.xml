@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
+        <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
+    </style>
+</resources>
