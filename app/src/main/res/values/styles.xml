@@ -237,7 +237,7 @@
 
     <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/coverflow_text_color</item>
-        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
+        <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 

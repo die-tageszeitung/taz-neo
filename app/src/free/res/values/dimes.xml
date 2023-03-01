@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="fragment_archive_moment_date_padding_top">5dp</dimen>
+    <dimen name="fragment_archive_moment_date_padding_bottom">5dp</dimen>
+</resources>

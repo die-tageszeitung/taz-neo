@@ -76,7 +76,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="@dimen/fragment_archive_moment_date_padding_vertical"
+            android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
+            android:paddingBottom="@dimen/fragment_archive_moment_date_padding_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -96,8 +97,8 @@
             tools:visibility="visible">
 
             <ImageView
-                android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                android:layout_height="@dimen/text_appearance_archive_date_text_size"
+                android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
+                android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
                 android:contentDescription="@string/settings_download_issue"
                 android:src="@drawable/ic_file_download"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -122,8 +123,8 @@
             tools:visibility="visible">
 
             <ImageView
-                android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                android:layout_height="@dimen/text_appearance_archive_date_text_size"
+                android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
+                android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
                 android:contentDescription="@string/settings_download_issue"
                 android:src="@drawable/ic_done"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -145,8 +146,8 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ProgressBar
-                android:layout_width="@dimen/text_appearance_archive_date_text_size"
-                android:layout_height="@dimen/text_appearance_archive_date_text_size"
+                android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
+                android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

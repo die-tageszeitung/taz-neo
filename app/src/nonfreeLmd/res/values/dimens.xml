@@ -3,4 +3,5 @@
     <dimen name="search_result_author_margin_top">0dp</dimen>
     <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
     <dimen name="fragment_settings_category_font_size">20sp</dimen>
+    <dimen name="fragment_archive_moment_date_padding_bottom">5dp</dimen>
 </resources>
