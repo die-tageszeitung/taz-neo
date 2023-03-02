@@ -98,7 +98,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="@dimen/fragment_drawer_separator_line_height"
+            android:layout_height="@dimen/fragment_drawer_body_pdf_with_sections_divider_height"
             android:layout_marginTop="@dimen/fragment_drawer_separator_margin_top"
             android:background="@color/pdf_section_font" />
 
@@ -110,6 +110,7 @@
                 android:id="@+id/navigation_page_article_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:paddingVertical="@dimen/fragment_drawer_body_pdf_with_sections_divider_padding"
                 tools:listitem="@layout/list_item_pdf_page_with_content" />
 
         </androidx.core.widget.NestedScrollView>
