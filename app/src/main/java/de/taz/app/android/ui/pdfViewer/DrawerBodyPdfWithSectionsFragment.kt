@@ -47,7 +47,7 @@ class DrawerBodyPdfWithSectionsFragment :
         adapter =
             PageWithArticlesAdapter(
                 emptyList(),
-                { position -> handlePageClick(position) },
+                { pageName -> handlePageClick(pageName) },
                 { pagePosition, article -> handleArticleClick(pagePosition, article) },
                 { article -> handleArticleBookmarkClick(article) },
                 pdfPagerViewModel::createArticleBookmarkStateFlow
@@ -81,23 +81,31 @@ class DrawerBodyPdfWithSectionsFragment :
             }
         }
 
-        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage.setOnClickListener{
-            pdfPagerViewModel.currentItem.value?.let { item -> handlePageClick(item) }
+        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage.setOnClickListener {
+            goToCurrentPage()
         }
 
-        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.setOnClickListener{
-            pdfPagerViewModel.currentItem.value?.let { item -> handlePageClick(item) }
+        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.setOnClickListener {
+            goToCurrentPage()
+        }
+    }
+
+    private fun goToCurrentPage() {
+        pdfPagerViewModel.currentItem.value?.let { position ->
+            activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
+            pdfPagerViewModel.updateCurrentItem(position)
+            popArticlePagerFragmentIfOpen()
         }
     }
 
     /**
-     * Handle the event when an page on [position] is clicked.
+     * Handle the event when an page with [pageName] is clicked.
      *
-     * @param position Position of page in page stream.
+     * @param pageName: Filename of the page
      */
-    private fun handlePageClick(position: Int) {
+    private fun handlePageClick(pageName: String) {
         activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
-        pdfPagerViewModel.updateCurrentItem(position)
+        pdfPagerViewModel.goToPdfPage(pageName)
         popArticlePagerFragmentIfOpen()
     }
 
@@ -152,7 +160,7 @@ class DrawerBodyPdfWithSectionsFragment :
     private fun updateToc(pages: List<PageWithArticles>) {
         adapter = PageWithArticlesAdapter(
             pages,
-            { position -> handlePageClick(position) },
+            { pageName -> handlePageClick(pageName) },
             { pagePosition, article -> handleArticleClick(pagePosition, article) },
             { article -> handleArticleBookmarkClick(article) },
             pdfPagerViewModel::createArticleBookmarkStateFlow

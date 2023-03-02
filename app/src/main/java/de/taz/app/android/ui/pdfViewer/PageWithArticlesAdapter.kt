@@ -26,7 +26,7 @@ private const val TYPE_PAGE_LAST = 1
  */
 class PageWithArticlesAdapter(
     var pages: List<PageWithArticles>,
-    private val onPageCLick: (position: Int) -> Unit,
+    private val onPageCLick: (pageName: String) -> Unit,
     private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
     private val onArticleBookmarkClick: (article: Article) -> Unit,
     private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
@@ -35,7 +35,7 @@ class PageWithArticlesAdapter(
 
     inner class PageWithArticlesHolder(
         view: View,
-        val onPageCLick: (position: Int) -> Unit,
+        val onPageCLick: (pageNamet: String) -> Unit,
         val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
         val onArticleBookmarkClick: (article: Article) -> Unit,
         private val showDivider: Boolean
@@ -64,7 +64,7 @@ class PageWithArticlesAdapter(
                         storageService.getAbsolutePath(it.pagePdf)
                     }).into(pagePreviewImage)
             pagePreviewImage.setOnClickListener {
-                onPageCLick(absoluteAdapterPosition)
+                onPageCLick(page.pagePdf.name)
             }
             pageTocRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
             pageTocRecyclerView.adapter = this.page.articles?.let {
