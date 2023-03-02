@@ -15,6 +15,7 @@ class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.
     enum class Option {
         LOGIN,
         REGISTER,
+        FORGOT_PASSWORD,
         PRINT_TO_DIGI,
         EXTEND_PRINT
     }

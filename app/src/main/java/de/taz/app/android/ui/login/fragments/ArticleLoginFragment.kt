@@ -102,6 +102,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             cancelButton.setOnClickListener {
                 hideAllViews()
             }
+
+            forgotPassword.setOnClickListener {
+                forgotPassword()
+            }
         }
     }
 
@@ -110,6 +114,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
     private fun login() = startLoginActivity(LoginContract.Option.LOGIN)
     private fun register() = startLoginActivity(LoginContract.Option.REGISTER)
+    private fun forgotPassword() = startLoginActivity(LoginContract.Option.FORGOT_PASSWORD)
     private fun switchPrintToDigi() = startLoginActivity(LoginContract.Option.PRINT_TO_DIGI)
     private fun extendPrintWithDigi() = startLoginActivity(LoginContract.Option.EXTEND_PRINT)
 

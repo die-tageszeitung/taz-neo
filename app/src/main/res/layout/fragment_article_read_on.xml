@@ -69,6 +69,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/read_on_password_layout"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+        <TextView
+            android:id="@+id/forgot_password"
+            style="@style/TextAppearance.Login.Text.Link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/login_forgot_password"
+            app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
