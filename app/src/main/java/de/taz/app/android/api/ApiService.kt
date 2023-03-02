@@ -182,7 +182,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
      */
     suspend fun getAppInfo(): AppInfo = transformToConnectivityException {
         val productDto = graphQlClient.query(QueryType.AppInfo).data?.product
-        log.error("!!! $productDto")
         if (productDto != null) {
             AppInfoMapper.from(productDto)
         } else {
