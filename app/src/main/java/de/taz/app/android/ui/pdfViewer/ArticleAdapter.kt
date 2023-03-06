@@ -80,8 +80,13 @@ class ArticleAdapter(
                 onArticleClick(article)
             }
 
-            articleIsBookmarked.setOnClickListener {
-                onArticleBookmarkClick(article)
+            if (article.isImprint()){
+                articleIsBookmarked.visibility = View.GONE
+            } else {
+                articleIsBookmarked.visibility = View.VISIBLE
+                articleIsBookmarked.setOnClickListener {
+                    onArticleBookmarkClick(article)
+                }
             }
 
             val articleBookmarkFlow = articleBookmarkStateFlowCreator(article)
