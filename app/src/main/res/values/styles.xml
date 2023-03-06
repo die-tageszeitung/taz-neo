@@ -24,6 +24,7 @@
         <item name="colorOnPrimary">@color/backgroundColor</item>
         <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
         <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
+        <item name="android:autofilledHighlight" tools:ignore="NewApi">@color/colorAutofillBackground</item>
     </style>
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>

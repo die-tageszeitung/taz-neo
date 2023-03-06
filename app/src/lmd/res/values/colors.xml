@@ -6,6 +6,9 @@
     <color name="lightGrayishYellow">#F0F0ED</color>
     <color name="red">#d50e2f</color>
     <color name="lmdBlue">#3B88A7</color>
+    <!-- Prepending 16 to hexcode results in 10% transparency in colors
+    see also https://stackoverflow.com/questions/15852122/hex-transparency-in-colors -->
+    <color name="lmdBlue10Percent">#163B88A7</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
     <color name="ic_launcher_background">@android:color/white</color>
@@ -27,6 +30,8 @@
     <color name="drawer_sections_item">@color/lmdBlue</color>
     <color name="info_icon">@color/lmdBlue</color>
     <color name="link">@color/lmdBlue</color>
+    <color name="colorAutofillBackground">@color/lmdBlue10Percent</color>
+
 
     <color name="error">@color/red</color>
 </resources>
