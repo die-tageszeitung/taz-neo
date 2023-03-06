@@ -26,6 +26,7 @@ import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -50,6 +51,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
 
@@ -63,7 +65,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var player: ExoPlayer? = null
 
     private var bottomBehavior: Behavior<View>? = null
-    private var isArticleReaderEnabled: Boolean = false
 
     private var sectionDividerTransformer: SectionDividerTransformer? = null
 
@@ -86,6 +87,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
     }
@@ -249,8 +251,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 )
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData =
-                    nextStub.isBookmarkedLiveData(requireContext().applicationContext)
+                isBookmarkedLiveData = bookmarkRepository.getBookmarkStateFlow(nextStub).asLiveData()
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
                 articleBottomActionBarNavigationHelper.setArticleAudioVisibility(nextStub.hasAudio)
@@ -321,11 +322,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private fun toggleBookmark(articleStub: ArticleStub) {
         applicationScope.launch {
-            if (isBookmarkedLiveData?.value == true) {
-                articleRepository.debookmarkArticle(articleStub)
-            } else {
-                articleRepository.bookmarkArticle(articleStub)
-            }
+            bookmarkRepository.toggleBookmark(articleStub)
         }
     }
 

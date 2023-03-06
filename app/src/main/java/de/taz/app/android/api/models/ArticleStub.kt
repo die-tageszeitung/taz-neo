@@ -51,3 +51,12 @@ data class ArticleStub(
     override val key: String = articleFileName
 
 }
+
+/**
+ * Used to update bookmark states with partial updates.
+ * See https://developer.android.com/reference/androidx/room/Update
+ */
+data class ArticleStubBookmarkTime(
+    val articleFileName: String,
+    val bookmarkedTime: Date?,
+)
