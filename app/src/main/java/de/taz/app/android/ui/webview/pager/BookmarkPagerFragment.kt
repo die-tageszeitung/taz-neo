@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -20,6 +22,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -35,6 +38,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
+    private lateinit var bookmarkRepository: BookmarkRepository
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
         articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
@@ -75,6 +79,11 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -106,20 +115,16 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         articlePagerAdapter.registerAdapterDataObserver(object :
             RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
-                lifecycleScope.launchWhenResumed {
-                    articlePagerAdapter.getArticleStub(
-                        viewBinding.webviewPagerViewpager.currentItem
-                    )?.let {
-                        rebindBottomNavigation(
-                            it
-                        )
-                    }
+                articlePagerAdapter.getArticleStub(
+                    viewBinding.webviewPagerViewpager.currentItem
+                )?.let {
+                    rebindBottomNavigation(it)
                 }
             }
         })
     }
 
-    private suspend fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
+    private fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
         articleBottomActionBarNavigationHelper.setShareIconVisibility(
@@ -127,7 +132,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             articleToBindTo.key
         )
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-        isBookmarkedLiveData = articleToBindTo.isBookmarkedLiveData(requireContext().applicationContext)
+        isBookmarkedLiveData = bookmarkRepository.getBookmarkStateFlow(articleToBindTo).asLiveData()
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
 
     }
@@ -142,9 +147,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             val articleStub = articlePagerAdapter.getArticleStub(position)
             articleStub?.let {
                 viewModel.articleFileNameLiveData.value = it.articleFileName
-                lifecycleScope.launchWhenResumed {
-                    rebindBottomNavigation(it)
-                }
+                rebindBottomNavigation(it)
             }
         }
     }

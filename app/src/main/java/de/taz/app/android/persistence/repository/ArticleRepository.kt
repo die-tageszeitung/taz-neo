@@ -3,11 +3,8 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
@@ -182,43 +179,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
         )
     }
 
-
-    suspend fun bookmarkArticle(article: Article) {
-        bookmarkArticle(article.key)
-    }
-
-    suspend fun bookmarkArticle(articleStub: ArticleStub) {
-        bookmarkArticle(articleStub.articleFileName)
-    }
-
-    suspend fun bookmarkArticle(articleName: String) {
-        val currentDate = Date()
-        getStub(articleName)?.copy(bookmarkedTime = currentDate)?.let {
-            appDatabase.articleDao().update(it)
-        }
-    }
-
-    suspend fun setBookmarkedTime(articleName: String, date: Date) {
-        getStub(articleName)?.copy(bookmarkedTime = date)?.let {
-            appDatabase.articleDao().update(it)
-        }
-    }
-
-    suspend fun debookmarkArticle(article: Article) {
-        debookmarkArticle(article.key)
-    }
-
-    suspend fun debookmarkArticle(articleStub: ArticleStub) {
-        debookmarkArticle(articleStub.articleFileName)
-    }
-
-    suspend fun debookmarkArticle(articleName: String) {
-        log.debug("removed bookmark from article $articleName")
-        getStub(articleName)?.copy(bookmarkedTime = null)?.let {
-            appDatabase.articleDao().update(it)
-        }
-    }
-
     fun getBookmarkedArticlesFlow(): Flow<List<Article>> =
         appDatabase.articleDao().getBookmarkedArticlesFlow().map { articles ->
             articles.map { articleStubToArticle(it) }
@@ -226,18 +186,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     suspend fun getBookmarkedArticleStubs(): List<ArticleStub> {
         return appDatabase.articleDao().getBookmarkedArticlesFlow().first()
-    }
-
-    fun getBookmarkedArticleStubsFlow(): Flow<List<ArticleStub>> {
-        return appDatabase.articleDao().getBookmarkedArticlesFlow()
-    }
-
-    fun isBookmarkedLiveData(articleName: String): LiveData<Boolean> {
-        return getStubLiveData(articleName).map { it?.bookmarkedTime != null }
-    }
-
-    fun getBookmarkedArticleStubsForIssue(issueKey: IssueKey): Flow<List<ArticleStub>> {
-        return appDatabase.articleDao().getBookmarkedArticleStubsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
     suspend fun getIndexInSection(articleName: String): Int {

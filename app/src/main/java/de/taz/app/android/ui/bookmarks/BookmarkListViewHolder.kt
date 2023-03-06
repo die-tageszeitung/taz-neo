@@ -9,12 +9,13 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.StorageService
 import java.io.File
 
 class BookmarkListViewHolder(
-    private val bookmarksFragment: BookmarkListFragment,
     parent: ViewGroup,
+    private val shareArticle: (Article) -> Unit,
     private val removeBookmarkWithUndo: (View, Int) -> Unit
 ) :
     RecyclerView.ViewHolder(
@@ -96,7 +97,7 @@ class BookmarkListViewHolder(
             }
 
             bookmarkShare.setOnClickListener {
-                bookmarksFragment.shareArticle(article.key)
+                shareArticle(article)
             }
 
             bookmarkDelete.setOnClickListener {

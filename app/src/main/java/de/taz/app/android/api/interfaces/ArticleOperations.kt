@@ -21,11 +21,6 @@ interface ArticleOperations {
         return ArticleRepository.getInstance(applicationContext).getIndexInSection(this.key)
     }
 
-    suspend fun isBookmarkedLiveData(applicationContext: Context): LiveData<Boolean> {
-        return ArticleRepository.getInstance(applicationContext).isBookmarkedLiveData(this.key)
-    }
-
-
     fun isImprint(): Boolean {
         return articleType == ArticleType.IMPRINT
     }

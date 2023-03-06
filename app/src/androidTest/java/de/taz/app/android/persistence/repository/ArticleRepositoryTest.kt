@@ -23,6 +23,7 @@ class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var bookmarkRepository: BookmarkRepository
 
     private val issue = TestDataUtil.getIssue()
     private val article = issue.sectionList.first().articleList.first()
@@ -42,6 +43,9 @@ class ArticleRepositoryTest {
 
         sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
+
+        bookmarkRepository = BookmarkRepository.getInstance(context)
+        bookmarkRepository.appDatabase = db
     }
 
     @After
@@ -99,7 +103,7 @@ class ArticleRepositoryTest {
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
 
-        articleRepository.bookmarkArticle(fromDB!!)
+        bookmarkRepository.bookmarkArticle(fromDB!!)
         val fromDBNew = articleRepository.get(article.articleHtml.name)
         articleRepository.deleteArticle(fromDBNew!!)
         assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))

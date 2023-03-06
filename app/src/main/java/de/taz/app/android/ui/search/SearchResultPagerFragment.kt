@@ -24,6 +24,7 @@ import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -49,9 +50,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
-    private var articleRepository: ArticleRepository? = null
-    private var apiService: ApiService? = null
-    private var contentService: ContentService? = null
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var apiService: ApiService
+    private lateinit var contentService: ContentService
 
     // region views
     private val webViewPager: ViewPager2
@@ -65,6 +67,16 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        apiService = ApiService.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -83,9 +95,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         setupViewPager()
 
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        apiService = ApiService.getInstance(requireContext().applicationContext)
-        contentService = ContentService.getInstance(requireContext().applicationContext)
         val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
         fontSizeLiveData.observeDistinct(this) {
             reloadAfterCssChange()
@@ -179,17 +188,18 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun toggleBookmark(articleFileName: String, date: Date?) {
         applicationScope.launch {
-            articleRepository?.get(articleFileName)?.let { article ->
-                if (article.bookmarked) {
-                    articleRepository?.debookmarkArticle(article)
-                } else {
-                    articleRepository?.bookmarkArticle(article)
+            val articleStub = articleRepository.getStub(articleFileName)
+
+            when {
+                articleStub != null -> bookmarkRepository.toggleBookmark(articleStub)
+                articleStub == null && date != null -> {
+                    // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
+                    articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
+                    // no articleStub so probably article not downloaded, so download it:
+                    downloadArticleAndSetBookmark(articleFileName, date)
                 }
-            } ?: date?.let {
-                // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
-                articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
-                // no articleStub so probably article not downloaded, so download it:
-                downloadArticleAndSetBookmark(articleFileName, it)
+                // This is an unexpected case with the date being null. We simply have to ignore this
+                else -> Unit
             }
         }
     }
@@ -205,14 +215,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         datePublished: Date
     ) {
         try {
-            val issueMetadata = apiService?.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
-            issueMetadata?.let { issue ->
-                contentService?.downloadMetadata(issue, maxRetries = 5)
-                articleRepository?.get(articleFileName)?.let {
-                    contentService?.downloadToCache(it)
-                    articleRepository?.bookmarkArticle(it)
-                }
-            }
+            val issueMetadata = apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
+            contentService.downloadMetadata(issueMetadata, maxRetries = 5)
+            val article = requireNotNull(articleRepository.get(articleFileName))
+            contentService.downloadToCache(article)
+            bookmarkRepository.bookmarkArticle(article)
         } catch (e: Exception) {
             val hint = "Error while trying to download a full article because of a bookmark request"
             log.error(hint, e)
@@ -259,11 +266,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private fun reloadAfterCssChange() {
         // draw every view again
         webViewPager.adapter?.notifyDataSetChanged()
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
 
     override fun onDestroyView() {

@@ -9,23 +9,21 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
-import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 private const val TYPE_HEADER = 0
 private const val TYPE_ITEM = 1
 
 
 class BookmarkListAdapter(
-    private val bookmarksFragment: BookmarkListFragment,
-    private val applicationScope: CoroutineScope
+    private val shareArticle: (Article) -> Unit,
+    private val bookmarkArticle: (Article) -> Unit,
+    private val debookmarkArticle: (Article) -> Unit
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val articleRepository =  ArticleRepository.getInstance(bookmarksFragment.requireContext().applicationContext)
     private var groupedBookmarks: List<BookmarkListItem> = emptyList()
     private val log by Log
 
@@ -42,15 +40,11 @@ class BookmarkListAdapter(
     }
 
     private fun restoreBookmark(item: BookmarkListItem.Item) {
-        applicationScope.launch {
-            articleRepository.bookmarkArticle(item.bookmark)
-        }
+        bookmarkArticle(item.bookmark)
     }
 
     private fun removeBookmark(item: BookmarkListItem.Item) {
-        applicationScope.launch {
-            articleRepository.debookmarkArticle(item.bookmark)
-        }
+        debookmarkArticle(item.bookmark)
     }
 
     fun removeBookmarkWithUndo(
@@ -94,7 +88,7 @@ class BookmarkListAdapter(
 
         return when (viewType) {
             TYPE_HEADER -> IssueOfBookmarkViewHolder(parent)
-            TYPE_ITEM -> BookmarkListViewHolder(bookmarksFragment, parent, ::removeBookmarkWithUndo)
+            TYPE_ITEM -> BookmarkListViewHolder(parent, shareArticle, ::removeBookmarkWithUndo)
             else -> error("Unknown viewType: $viewType")
         }
     }
