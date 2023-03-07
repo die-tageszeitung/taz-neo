@@ -54,11 +54,14 @@ class BookmarkRepository(
         stateChangeFlow.emit(Unit)
     }
 
-    fun toggleBookmarkAsync(articleFileName: String): Deferred<Unit> {
+    fun toggleBookmarkAsync(articleFileName: String): Deferred<Boolean> {
         return coroutineScope.async { toggleBookmark(articleFileName) }
     }
 
-    suspend fun toggleBookmark(articleFileName: String) {
+    /**
+     * Return [Boolean] new bookmark status of the article
+     */
+    suspend fun toggleBookmark(articleFileName: String): Boolean {
         val wasBookmarked: Boolean
         changeMutex.withLock {
             wasBookmarked = state.remove(articleFileName)
@@ -74,6 +77,7 @@ class BookmarkRepository(
             setArticleBookmark(articleFileName, Date())
         }
         triggerStateFlowUpdate()
+        return !wasBookmarked
     }
 
     fun addBookmarkAsync(articleFileName: String): Deferred<Unit> {

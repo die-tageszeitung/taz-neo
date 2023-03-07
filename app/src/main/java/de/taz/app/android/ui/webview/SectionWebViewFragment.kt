@@ -30,6 +30,7 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.*
 import kotlin.math.ceil
@@ -49,6 +50,7 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var storageService: StorageService
+    private lateinit var toastHelper: ToastHelper
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
@@ -91,6 +93,7 @@ class SectionWebViewFragment : WebViewFragment<
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
+        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
@@ -268,9 +271,11 @@ class SectionWebViewFragment : WebViewFragment<
         val articleFileName = issueViewerViewModel.findArticleFileName(articleName)
         if (articleFileName != null) {
             if (isBookmarked) {
-                bookmarkRepository.addBookmark(articleFileName)
+                bookmarkRepository.addBookmarkAsync(articleFileName).await()
+                toastHelper.showToast(R.string.toast_article_bookmarked)
             } else {
-                bookmarkRepository.removeBookmark(articleFileName)
+                bookmarkRepository.removeBookmarkAsync(articleFileName).await()
+                toastHelper.showToast(R.string.toast_article_debookmarked)
             }
         } else {
             log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")

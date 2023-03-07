@@ -54,6 +54,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
+    private lateinit var toastHelper: ToastHelper
 
     // region views
     private val webViewPager: ViewPager2
@@ -75,6 +76,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         apiService = ApiService.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
     }
 
 
@@ -191,10 +193,19 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             val articleStub = articleRepository.getStub(articleFileName)
 
             when {
-                articleStub != null -> bookmarkRepository.toggleBookmark(articleStub.articleFileName)
+                articleStub != null -> {
+                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+                    if (isBookmarked) {
+                        toastHelper.showToast(R.string.toast_article_bookmarked)
+                    }
+                    else {
+                        toastHelper.showToast(R.string.toast_article_debookmarked)
+                    }
+                }
                 articleStub == null && date != null -> {
                     // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
                     articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
+                    toastHelper.showToast(R.string.toast_article_bookmarked)
                     // no articleStub so probably article not downloaded, so download it:
                     downloadArticleAndSetBookmark(articleFileName, date)
                 }

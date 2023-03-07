@@ -46,7 +46,6 @@ class PdfPagerViewModel(
     private val articleRepository = ArticleRepository.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
-    private val bookmarkRepository = BookmarkRepository.getInstance(application)
 
     private var issuePublication: IssuePublicationWithPages? = null
 
@@ -379,15 +378,6 @@ class PdfPagerViewModel(
 
 
     val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
-
-    fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
-        return bookmarkRepository.createBookmarkStateFlow(article.key)
-    }
-
-    fun toggleBookmark(article: Article) {
-        bookmarkRepository.toggleBookmarkAsync(article.key)
-    }
-
 
     private val currentPageFlow = combine(
         pdfPageListFlow.filterNotNull(),
