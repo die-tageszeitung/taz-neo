@@ -582,7 +582,7 @@ class LoginViewModel @JvmOverloads constructor(
                 null,
                 PasswordResetInfo.error,
                 PasswordResetInfo.mailError -> {
-                    toastHelper.showToast(R.string.something_went_wrong_try_later)
+                    toastHelper.showToast(R.string.something_went_wrong_try_later, long = true)
                     status.postValue(LoginViewModelState.PASSWORD_REQUEST)
                 }
             }
