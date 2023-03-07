@@ -324,7 +324,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun toggleBookmark(articleStub: ArticleStub) {
-        bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName)
+        lifecycleScope.launch {
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+            if (isBookmarked) {
+                toastHelper.showToast(R.string.toast_article_bookmarked)
+            }
+            else {
+                toastHelper.showToast(R.string.toast_article_debookmarked)
+            }
+        }
     }
 
     fun share() {

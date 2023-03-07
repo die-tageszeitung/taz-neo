@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
 import PageWithArticlesAdapter
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.drawerlayout.widget.DrawerLayout
@@ -15,12 +16,15 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 /**
@@ -36,13 +40,21 @@ class DrawerBodyPdfWithSectionsFragment :
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private lateinit var adapter: PageWithArticlesAdapter
+    private lateinit var toastHelper: ToastHelper
+    private lateinit var bookmarkRepository: BookmarkRepository
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+    }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
 
         adapter =
             PageWithArticlesAdapter(
@@ -50,7 +62,7 @@ class DrawerBodyPdfWithSectionsFragment :
                 { pageName -> handlePageClick(pageName) },
                 { pagePosition, article -> handleArticleClick(pagePosition, article) },
                 { article -> handleArticleBookmarkClick(article) },
-                pdfPagerViewModel::createArticleBookmarkStateFlow
+                ::createArticleBookmarkStateFlow
             )
 
         viewBinding.navigationPageArticleRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -145,9 +157,20 @@ class DrawerBodyPdfWithSectionsFragment :
         toggleBookmark(article)
     }
 
+    private fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+        return bookmarkRepository.createBookmarkStateFlow(article.key)
+    }
 
     private fun toggleBookmark(article: Article) {
-        pdfPagerViewModel.toggleBookmark(article)
+        lifecycleScope.launch {
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article.key).await()
+            if (isBookmarked) {
+                toastHelper.showToast(R.string.toast_article_bookmarked)
+            }
+            else {
+                toastHelper.showToast(R.string.toast_article_debookmarked)
+            }
+        }
     }
 
     /**
@@ -163,7 +186,7 @@ class DrawerBodyPdfWithSectionsFragment :
             { pageName -> handlePageClick(pageName) },
             { pagePosition, article -> handleArticleClick(pagePosition, article) },
             { article -> handleArticleBookmarkClick(article) },
-            pdfPagerViewModel::createArticleBookmarkStateFlow
+            ::createArticleBookmarkStateFlow
         )
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter
         hideLoadingScreen()
