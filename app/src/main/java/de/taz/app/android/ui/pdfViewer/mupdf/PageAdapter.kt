@@ -29,8 +29,7 @@ class PageAdapter(
     }
 
     fun releaseBitmaps() {
-        //  recycle and release the shared bitmap.
-        sharedHqBm?.recycle()
+        // release the shared bitmap and wait for the GC to recycle it
         sharedHqBm = null
     }
 

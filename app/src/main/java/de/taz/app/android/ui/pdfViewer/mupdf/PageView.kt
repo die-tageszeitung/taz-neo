@@ -260,7 +260,6 @@ class PageView(
         if (currentBm != null && currentBm.width == size.x && currentBm.height == size.y) {
             return currentBm
         } else {
-            entireBm?.recycle()
             val newBm = Bitmap.createBitmap(size.x, size.y, Bitmap.Config.ARGB_8888)
             entireBm = newBm
             return newBm
