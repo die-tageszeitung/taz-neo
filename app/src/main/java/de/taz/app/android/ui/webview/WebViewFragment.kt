@@ -310,7 +310,7 @@ abstract class WebViewFragment<
 
     private suspend fun ensureDownloadedAndShow() {
         viewModel.displayable?.let { displayable ->
-            log.info("Displayable is $displayable")
+            log.info("Displayable is ${displayable.key}")
             try {
                 contentService.downloadToCache(displayable, priority = DownloadPriority.High)
                 val displayableFile = fileEntryRepository.get(displayable.key)

@@ -94,11 +94,8 @@ class AppWebView @JvmOverloads constructor(
      * to the corresponding shared preferences
      */
     suspend fun injectCss() = withContext(Dispatchers.Main) {
-        log.debug("Injecting css")
-
         val cssString = TazApiCssHelper.getInstance(context.applicationContext).generateCssString()
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
-        log.debug("Injected css: $cssString")
         callTazApi("injectCss", encoded)
     }
 
@@ -124,9 +121,6 @@ class AppWebView @JvmOverloads constructor(
         encoding: String?,
         failUrl: String?
     ) {
-        log.debug(
-            "loadDataWithBaseURL: baseUrl: $baseUrl, mimeType: $mimeType, encoding: $encoding, failUrl: $failUrl\n data: $data"
-        )
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl)
     }
 

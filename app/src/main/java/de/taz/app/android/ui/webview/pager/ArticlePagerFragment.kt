@@ -102,7 +102,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 articleStubsWithSectionKey.map { it.articleStub.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
             ) {
-                log.debug("New set of articles: ${articleStubsWithSectionKey.map { it.articleStub.key }}")
                 viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubsWithSectionKey, this)
                 issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
             }
