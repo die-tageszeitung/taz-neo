@@ -198,8 +198,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
 
             val sections = sectionRepository.getSectionStubsForIssue(issueStub.issueKey)
-
-            log.debug("SectionDrawer sets new sections: $sections")
             sectionListAdapter.sectionList = sections
 
             if (issueStub.isWeekend) {
