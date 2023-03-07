@@ -114,6 +114,30 @@ var tazApi = (function() {
             parent.appendChild(style);
         }
 
+        /**
+        * Load the Bookmarks for the current Section.
+        * setupBookmarksCallback(articleNames) is called with an array of the names of all
+        * bookmarked articles (without the .html suffix).
+        */
+        function getBookmarks(setupBookmarksCallback) {
+            // Find all articles names listed on the current section
+            // this is necessary for title sections where the graphql does *not* return all articles
+            var articleNames = [];
+            var bookmarkStars = document.getElementsByClassName("bookmarkStar");
+            for (var i = 0; i < bookmarkStars.length; i++) {
+                articleNames.push(bookmarkStars[i].id);
+            }
+
+            var bookmarkedArticleNamesJson = ANDROIDAPI.getBookmarkedArticleNames(JSON.stringify(articleNames));
+
+            var bookmarkedArticleNames = JSON.parse(bookmarkedArticleNamesJson);
+            setupBookmarksCallback(bookmarkedArticleNames);
+        }
+
+        function setBookmark(articleName, isBookmarked, showNotification) {
+            ANDROIDAPI.setBookmark(articleName, isBookmarked, showNotification)
+        }
+
 		return {
 			getConfiguration : getConfiguration,
 			setConfiguration : setConfiguration,
@@ -122,7 +146,9 @@ var tazApi = (function() {
 			previousArticle : previousArticle,
 			openUrl : openUrl,
 			injectCss: injectCss,
-			openImage : openImage
+			openImage : openImage,
+			getBookmarks: getBookmarks,
+			setBookmark: setBookmark,
 		};
 	}());
 }());

@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -51,8 +50,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onResume() {
         super.onResume()
         viewModel.bookmarkedArticleStubsLiveData.observeDistinct(this) {
-            log.debug("Set new stubs $it")
-
             articlePagerAdapter.articleStubs = it
             viewBinding.loadingScreen.root.visibility = View.GONE
             tryScrollToArticle()
@@ -132,7 +129,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             articleToBindTo.key
         )
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-        isBookmarkedLiveData = bookmarkRepository.getBookmarkStateFlow(articleToBindTo).asLiveData()
+        isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(articleToBindTo.articleFileName).asLiveData()
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
 
     }
@@ -244,7 +241,9 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
         override fun createFragment(position: Int): Fragment {
             val article = articleStubs[position]
-            return ArticleWebViewFragment.newInstance(article.articleFileName)
+            val pagerPosition = position + 1
+            val pagerTotal = articleStubs.size
+            return ArticleWebViewFragment.newInstance(article.articleFileName, pagerPosition, pagerTotal)
         }
 
         override fun getItemId(position: Int): Long {

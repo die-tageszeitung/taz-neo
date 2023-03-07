@@ -29,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 class ArticleWebViewFragment : WebViewFragment<
         Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
         >() {
@@ -48,9 +47,15 @@ class ArticleWebViewFragment : WebViewFragment<
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
-        fun newInstance(articleFileName: String): ArticleWebViewFragment {
+        private const val PAGER_POSITION = "PAGER_POSITION"
+        private const val PAGER_TOTAL = "PAGER_TOTAL"
+        fun newInstance(articleFileName: String, pagerPosition: Int? = null, pagerTotal: Int? = null): ArticleWebViewFragment {
             val args = Bundle()
             args.putString(ARTICLE_FILE_NAME, articleFileName)
+
+            pagerPosition?.let { args.putInt(PAGER_POSITION, it) }
+            pagerTotal?.let { args.putInt(PAGER_TOTAL, it) }
+
             return ArticleWebViewFragment().apply {
                 arguments = args
             }
@@ -219,14 +224,14 @@ class ArticleWebViewFragment : WebViewFragment<
             }
         viewBinding.root.findViewById<ImageView>(R.id.drawer_logo)?.visibility = View.GONE
 
-        val total = articleRepository.getBookmarkedArticleStubs().size
-        val index = articleRepository.getBookmarkedArticleStubs().indexOf(ArticleStub(article))
+        val position = arguments?.getInt(PAGER_POSITION, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
+        val total = arguments?.getInt(PAGER_TOTAL, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
 
         viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_custom)
             ?.apply {
                 visibility = View.VISIBLE
                 findViewById<TextView>(R.id.index_indicator).text = activity?.getString(
-                    R.string.fragment_header_custom_index_indicator, index + 1, total
+                    R.string.fragment_header_custom_index_indicator, position, total
                 )
                 findViewById<TextView>(R.id.section_title).text =
                     article.getSectionStub(requireContext().applicationContext)?.title

@@ -13,9 +13,10 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlin.time.Duration
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
@@ -45,7 +46,7 @@ class PdfPagerViewModel(
     private val articleRepository = ArticleRepository.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val imageRepository = ImageRepository.getInstance(application)
-    private val bookmarkedRepository = BookmarkRepository.getInstance(application)
+    private val bookmarkRepository = BookmarkRepository.getInstance(application)
 
     private var issuePublication: IssuePublicationWithPages? = null
 
@@ -286,28 +287,6 @@ class PdfPagerViewModel(
         maxRetries = maxRetries
     ) as IssueWithPages
 
-    private val bookmarkedArticles: Flow<Set<String>> =
-        issueFlow
-            .filterNotNull()
-            .flatMapLatest {
-                bookmarkedRepository
-                    .getBookmarkedArticleFileNamesFlow(IssueKey(it.issueKey))
-                    .map { bookmarkedArticleFileNames ->
-                        bookmarkedArticleFileNames.toSet()
-                    }
-            }
-            .shareIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(replayExpiration = Duration.ZERO),
-                1
-            )
-
-    fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
-        return bookmarkedArticles.map {
-            it.contains(article.key)
-        }
-    }
-
     private val pdfPageTocFlow =
         issueFlow.filterNotNull().map { issue ->
             val sortedArticlesOfIssueMap =
@@ -401,10 +380,12 @@ class PdfPagerViewModel(
 
     val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
 
+    fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+        return bookmarkRepository.createBookmarkStateFlow(article.key)
+    }
+
     fun toggleBookmark(article: Article) {
-        getApplicationScope().launch {
-            bookmarkedRepository.toggleBookmark(article)
-        }
+        bookmarkRepository.toggleBookmarkAsync(article.key)
     }
 
 

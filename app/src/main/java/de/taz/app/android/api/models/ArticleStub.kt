@@ -56,7 +56,7 @@ data class ArticleStub(
  * Used to update bookmark states with partial updates.
  * See https://developer.android.com/reference/androidx/room/Update
  */
-data class ArticleStubBookmarkTime(
+data class ArticleBookmarkTime(
     val articleFileName: String,
     val bookmarkedTime: Date?,
 )

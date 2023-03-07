@@ -103,7 +103,7 @@ class ArticleRepositoryTest {
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
 
-        bookmarkRepository.bookmarkArticle(fromDB!!)
+        bookmarkRepository.addBookmark(fromDB!!.key)
         val fromDBNew = articleRepository.get(article.articleHtml.name)
         articleRepository.deleteArticle(fromDBNew!!)
         assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))

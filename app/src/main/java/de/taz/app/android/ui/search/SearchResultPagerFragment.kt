@@ -191,7 +191,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             val articleStub = articleRepository.getStub(articleFileName)
 
             when {
-                articleStub != null -> bookmarkRepository.toggleBookmark(articleStub)
+                articleStub != null -> bookmarkRepository.toggleBookmark(articleStub.articleFileName)
                 articleStub == null && date != null -> {
                     // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
                     articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
@@ -219,7 +219,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             contentService.downloadMetadata(issueMetadata, maxRetries = 5)
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
-            bookmarkRepository.bookmarkArticle(article)
+            bookmarkRepository.addBookmark(article.key)
         } catch (e: Exception) {
             val hint = "Error while trying to download a full article because of a bookmark request"
             log.error(hint, e)

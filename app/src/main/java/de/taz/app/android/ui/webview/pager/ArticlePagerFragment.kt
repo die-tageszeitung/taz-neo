@@ -10,7 +10,10 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -251,7 +254,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 )
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-                isBookmarkedLiveData = bookmarkRepository.getBookmarkStateFlow(nextStub).asLiveData()
+                isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(nextStub.articleFileName).asLiveData()
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
                 articleBottomActionBarNavigationHelper.setArticleAudioVisibility(nextStub.hasAudio)
@@ -321,9 +324,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     private fun toggleBookmark(articleStub: ArticleStub) {
-        applicationScope.launch {
-            bookmarkRepository.toggleBookmark(articleStub)
-        }
+        bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName)
     }
 
     fun share() {

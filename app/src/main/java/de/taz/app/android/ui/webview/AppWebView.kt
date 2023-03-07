@@ -7,6 +7,8 @@ import android.util.AttributeSet
 import android.util.Base64
 import android.view.MotionEvent
 import android.webkit.WebView
+import androidx.annotation.MainThread
+import androidx.annotation.UiThread
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.util.Log
@@ -97,7 +99,22 @@ class AppWebView @JvmOverloads constructor(
         val cssString = TazApiCssHelper.getInstance(context.applicationContext).generateCssString()
         val encoded = Base64.encodeToString(cssString.toByteArray(), Base64.NO_WRAP)
         log.debug("Injected css: $cssString")
-        evaluateJavascript("(function() {tazApi.injectCss(\"$encoded\");})()", null)
+        callTazApi("injectCss", encoded)
+    }
+
+    @UiThread
+    fun callTazApi(functionName: String, vararg arguments: Any) {
+        val argumentsString = arguments
+            .map { argument ->
+                when (argument) {
+                    is Number -> argument.toString()
+                    is Boolean -> if (argument) "true" else "false"
+                    is String -> "\"$argument\""
+                    else -> throw IllegalArgumentException("Only string, numbers and booleans are supported for tazApiJs calls")
+                }
+            }
+            .joinToString(",")
+        evaluateJavascript("(function(){tazApi.$functionName($argumentsString);})()", null)
     }
 
     override fun loadDataWithBaseURL(

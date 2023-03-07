@@ -4,10 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Update
+import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.ArticleStubBookmarkTime
 import de.taz.app.android.api.models.IssueStatus
-import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
@@ -85,41 +84,14 @@ interface ArticleDao : BaseDao<ArticleStub> {
             AND Article.bookmarkedTime IS NOT NULL
          ORDER BY Article.issueDate DESC, IssueSectionJoin.`index` ASC"""
     )
-    fun getBookmarkedArticlesFlow(): Flow<List<ArticleStub>>
+    suspend fun getBookmarkedArticles(): List<ArticleStub>
 
-    @Query(
-        """SELECT Article.articleFileName FROM Article
-        INNER JOIN SectionArticleJoin
-        INNER JOIN IssueSectionJoin
-        WHERE IssueSectionJoin.issueFeedName == :issueFeedName
-            AND IssueSectionJoin.issueDate == :issueDate
-            AND IssueSectionJoin.issueStatus == :issueStatus
-            AND SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
-            AND Article.articleFileName == SectionArticleJoin.articleFileName
-            AND Article.bookmarkedTime IS NOT NULL 
-        ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
-    """
-    )
-    fun getBookmarkedArticleFileNamesForIssue(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): Flow<List<String>>
-
-    @Query(
-        """SELECT Article.articleFileName FROM Article 
-            WHERE Article.bookmarkedTime IS NOT NULL 
-              AND Article.articleFileName IN (:selectedArticleFileNames)"""
-    )
-    suspend fun getBookmarkedArticleFileNamesForSelection(selectedArticleFileNames: List<String>): List<String>
-
-    @Query("""SELECT Article.articleFileName, Article.bookmarkedTime 
-                FROM Article 
-               WHERE Article.articleFileName == :articleFileName LIMIT 1""")
-    fun getArticleBookmarkTimeFlow(articleFileName: String): Flow<ArticleStubBookmarkTime>
+    @Query("""SELECT Article.articleFileName, Article.bookmarkedTime
+                FROM Article""")
+    suspend fun getBookmarkedArticleBookmarks(): List<ArticleBookmarkTime>
 
     @Update(entity = ArticleStub::class)
-    suspend fun updateBookmarkedTime(articleStubBookmarkTime: ArticleStubBookmarkTime)
+    suspend fun updateBookmarkedTime(articleBookmarkTime: ArticleBookmarkTime)
 
     // endregion Bookmarks
 }

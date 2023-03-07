@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.annotation.UiThread
 import androidx.core.os.bundleOf
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
@@ -23,14 +24,14 @@ import de.taz.app.android.R
 import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import de.taz.app.android.util.ArticleName
+import kotlinx.coroutines.*
 import kotlin.math.ceil
 
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
@@ -46,6 +47,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     private lateinit var sectionRepository: SectionRepository
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var storageService: StorageService
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
@@ -87,6 +89,7 @@ class SectionWebViewFragment : WebViewFragment<
 
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
@@ -214,5 +217,69 @@ class SectionWebViewFragment : WebViewFragment<
             width =
                 point.x - drawerLogoWidth - parentView.marginRight - marginLeft - marginRight - paddingInPixel
         }
+    }
+
+
+    override fun onDestroyView() {
+        bookmarkJob?.cancel()
+        super.onDestroyView()
+    }
+
+    private var bookmarkJob: Job? = null
+
+    private fun setupBookmarkStateFlows(articleFileNames: List<String>) {
+        // Create a new coroutine scope to listen to bookmark changes
+        // When the bookmarkJob is canceled all coroutines launched from associated scope will be canceled, too
+        val newBookmarkJob = Job()
+        bookmarkJob?.cancel()
+        bookmarkJob = newBookmarkJob
+        val bookmarkScope = CoroutineScope(Dispatchers.Default + newBookmarkJob)
+
+        bookmarkJob?.isActive
+
+        // Create a coroutine for each article listening for its bookmark changes
+        articleFileNames.forEach { articleFileName ->
+            bookmarkScope.launch {
+                bookmarkRepository.createBookmarkStateFlow(articleFileName).collect {
+                    withContext(Dispatchers.Main) {
+                        setWebViewBookmarkState(articleFileName, it)
+                    }
+                }
+            }
+        }
+    }
+
+
+    override suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> {
+        val articleFileNames = articleNamesInWebView.mapNotNull { issueViewerViewModel.findArticleFileName(it) }
+
+        setupBookmarkStateFlows(articleFileNames)
+
+        return bookmarkRepository.filterIsBookmarked(articleFileNames).map {
+            ArticleName.fromArticleFileName(it)
+        }
+    }
+
+    override suspend fun onSetBookmark(
+        articleName: String,
+        isBookmarked: Boolean,
+        showNotification: Boolean
+    ) {
+        val articleFileName = issueViewerViewModel.findArticleFileName(articleName)
+        if (articleFileName != null) {
+            if (isBookmarked) {
+                bookmarkRepository.addBookmark(articleFileName)
+            } else {
+                bookmarkRepository.removeBookmark(articleFileName)
+            }
+        } else {
+            log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")
+        }
+    }
+
+    @UiThread
+    private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
+        val articleName = ArticleName.fromArticleFileName(articleFileName)
+        webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
     }
 }

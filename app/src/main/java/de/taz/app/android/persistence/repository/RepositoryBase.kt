@@ -6,7 +6,7 @@ import de.taz.app.android.persistence.AppDatabase
 
 abstract class RepositoryBase constructor(applicationContext: Context) {
 
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     var appDatabase = AppDatabase.getInstance(applicationContext)
 
 
