@@ -39,7 +39,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.*
-import kotlin.math.abs
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
@@ -72,7 +71,7 @@ abstract class WebViewFragment<
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
-    private val webView: AppWebView
+    protected val webView: AppWebView
         get() = viewBinding.root.findViewById(R.id.web_view)
 
     private fun reloadAfterCssChange() {
@@ -251,6 +250,17 @@ abstract class WebViewFragment<
     }
 
     abstract fun setHeader(displayable: DISPLAYABLE)
+
+    /**
+     * Setup the handling for the bookmarks in the current webview.
+     * It must return a list of all bookmarked Article names to be used for the initial state.
+     *
+     * Return a List of bookmarked Article names (without the .html suffix) for the current webview.
+     * The context is usually a Section - otherwise the behavior is not defined.
+     */
+    open suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> = emptyList()
+    open suspend fun onSetBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) = Unit
+
 
     open fun onPageRendered() {
         isRendered = true

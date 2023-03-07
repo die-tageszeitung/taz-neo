@@ -12,6 +12,7 @@ import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
+import de.taz.app.android.util.ArticleName
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -176,4 +177,18 @@ class IssueViewerViewModel(
 
     val elapsedSubscription = authHelper.status.asFlow()
     val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
+
+
+    fun findArticleFileName(articleName: String): String? {
+        val articleFileName = articleListLiveData.value?.find {
+            ArticleName.fromArticleFileName(it.articleStub.articleFileName) == articleName
+        }?.articleStub?.articleFileName
+
+        if (articleFileName == null) {
+            val knownArticleFileNames = articleListLiveData.value?.joinToString { it.articleStub.articleFileName }
+            log.warn("Could not find articleFileName for articleName=$articleName in $knownArticleFileNames")
+        }
+        return articleFileName
+    }
+
 }

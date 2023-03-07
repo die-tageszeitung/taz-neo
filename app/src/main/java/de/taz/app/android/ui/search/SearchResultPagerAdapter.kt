@@ -80,8 +80,8 @@ class SearchResultPagerAdapter(
             visibility = View.VISIBLE
             findViewById<TextView>(R.id.index_indicator).text = fragment.requireActivity().getString(
                 R.string.fragment_header_custom_index_indicator,
-                position + 1,
-                total
+                (position + 1).toString(),
+                total.toString()
             )
             findViewById<TextView>(R.id.section_title).text = searchResultItem.sectionTitle ?: ""
             findViewById<TextView>(R.id.published_date).text =  fragment.requireActivity().getString(

@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
@@ -11,9 +10,6 @@ import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import java.util.*
 
 @Mockable
@@ -177,15 +173,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.percentage,
             articleStub.dateDownload
         )
-    }
-
-    fun getBookmarkedArticlesFlow(): Flow<List<Article>> =
-        appDatabase.articleDao().getBookmarkedArticlesFlow().map { articles ->
-            articles.map { articleStubToArticle(it) }
-        }
-
-    suspend fun getBookmarkedArticleStubs(): List<ArticleStub> {
-        return appDatabase.articleDao().getBookmarkedArticlesFlow().first()
     }
 
     suspend fun getIndexInSection(articleName: String): Int {

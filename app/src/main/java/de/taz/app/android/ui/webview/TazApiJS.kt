@@ -16,8 +16,12 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
+import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -142,5 +146,30 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         webViewFragment.requireActivity().startActivity(
             intent
         )
+    }
+
+    /**
+     * @return Array of article names encoded as JSON
+     */
+    @JavascriptInterface
+    fun getBookmarkedArticleNames(articleNamesJson: String): String {
+        val articleNames: List<String> = try {
+            Json.decodeFromString(articleNamesJson)
+        } catch (e: IllegalArgumentException) {
+            log.warn("Could not decode articleNames passed from JS: $articleNamesJson", e)
+            emptyList()
+        }
+
+        val bookmarkedArticleNames = runBlocking {
+            webViewFragment.setupBookmarkHandling(articleNames)
+        }
+        return Json.encodeToString(bookmarkedArticleNames)
+    }
+
+    @JavascriptInterface
+    fun setBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) {
+        runBlocking {
+            webViewFragment.onSetBookmark(articleName, isBookmarked, showNotification)
+        }
     }
 }

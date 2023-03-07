@@ -9,14 +9,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.R
+import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.login.LoginViewModelState
@@ -71,7 +70,6 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     )
 
     private val contentService by lazy { ContentService.getInstance(applicationContext) }
-    private val articleRepository by lazy { ArticleRepository.getInstance(applicationContext) }
     private val bookmarkRepository by lazy { BookmarkRepository.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     private val firebaseHelper by lazy { FirebaseHelper.getInstance(applicationContext) }
@@ -154,7 +152,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun transformBookmarks() {
-        articleRepository.getBookmarkedArticleStubs().forEach { articleStub ->
+        bookmarkRepository.getBookmarkedArticleStubs().forEach { articleStub ->
             getArticleIssue(articleStub)
         }
         bookmarkRepository.migratePublicBookmarks()
