@@ -21,6 +21,7 @@ import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
+import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import de.taz.app.android.util.validation.PasswordValidator
@@ -50,7 +51,10 @@ class SubscriptionAccountFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
-        viewBinding.fragmentSubscriptionAccountEmail.setText(viewModel.username)
+        viewBinding.fragmentSubscriptionAccountEmail.apply {
+            addAllLowercaseFilter()
+            setText(viewModel.username)
+        }
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
 
         drawLayout()

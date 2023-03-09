@@ -1,13 +1,19 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.view.View
+import com.google.android.material.textfield.TextInputEditText
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.validation.EmailValidator
+
 
 class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPasswordBinding>() {
 
@@ -34,13 +40,16 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginForgotPasswordUsername.setText(
-            if (showSubscriptionId) {
-                viewModel.subscriptionId?.toString()
-            } else {
-                viewModel.username ?: viewModel.subscriptionId?.toString()
-            }
-        )
+        viewBinding.fragmentLoginForgotPasswordUsername.apply {
+            setText(
+                if (showSubscriptionId) {
+                    viewModel.subscriptionId?.toString()
+                } else {
+                    viewModel.username ?: viewModel.subscriptionId?.toString()
+                }
+            )
+            addAllLowercaseFilter()
+        }
 
         if (invalidId) {
             viewBinding.fragmentLoginForgotPasswordUsername.setText(viewModel.subscriptionId?.toString())
