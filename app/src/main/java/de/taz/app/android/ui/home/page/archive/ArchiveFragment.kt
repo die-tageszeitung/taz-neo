@@ -70,9 +70,4 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
     }
-
-    override fun onDestroyView() {
-        grid.adapter = null
-        super.onDestroyView()
-    }
 }

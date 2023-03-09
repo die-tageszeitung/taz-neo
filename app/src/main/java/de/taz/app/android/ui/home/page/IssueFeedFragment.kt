@@ -6,10 +6,8 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.content.FeedService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -19,9 +17,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -51,33 +47,6 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     override val viewModel: IssueFeedViewModel by activityViewModels()
 
     protected var adapter: IssueFeedAdapter? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // get feed and propagate it to the viewModel
-        lifecycleScope.launch {
-            val feedService = FeedService.getInstance(requireContext().applicationContext)
-
-            // Get the latest feed and propagate it if it is valid.
-            // Otherwise (null feed) show a warning to the user.
-            // Warning: This will re-try to request the feed from the api indefinitely in case of connection failures.
-            feedService
-                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED, retryOnFailure = true)
-                .distinctUntilChanged()
-                .collect {
-                    if (it != null) {
-                        viewModel.setFeed(it)
-                    } else {
-                        val message =
-                            "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
-                        log.error(message)
-                        Sentry.captureMessage(message)
-                        toastHelper.showSomethingWentWrongToast()
-                    }
-                }
-        }
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

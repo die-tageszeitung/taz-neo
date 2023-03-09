@@ -40,7 +40,7 @@ class FeedService(applicationContext: Context) {
     @Deprecated("Caller should not care about retries")
     fun getFeedFlowByName(name: String, retryOnFailure: Boolean): Flow<Feed?> {
         return feedRepository.getFlow(name)
-            .distinctUntilChanged()
+            .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
             .map {
                 // Refresh (download) the latest feed if it is currently missing (feed being null)
                 // and emit the download result
