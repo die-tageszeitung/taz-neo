@@ -65,7 +65,7 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
         )
 
         viewBinding.fragmentLoginForgotPasswordCancelButton.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+           back()
         }
     }
 

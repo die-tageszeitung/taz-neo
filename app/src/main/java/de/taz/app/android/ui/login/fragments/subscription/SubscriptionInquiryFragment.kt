@@ -11,9 +11,9 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.variables.SubscriptionFormDataType
-import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
@@ -32,12 +32,11 @@ class SubscriptionSwitchPrint2DigiFragment : SubscriptionInquiryFragment() {
 }
 
 abstract class SubscriptionInquiryFragment :
-    BaseMainFragment<FragmentSubscriptionInquiryFormBinding>() {
+    LoginBaseFragment<FragmentSubscriptionInquiryFormBinding>() {
 
     protected abstract val titleStringRes: Int
     protected abstract val descriptionStringRes: Int
     protected abstract val inquiryType: SubscriptionFormDataType
-
     private val log by Log
 
     private lateinit var apiService: ApiService
@@ -61,7 +60,7 @@ abstract class SubscriptionInquiryFragment :
             }
 
             cancelButton.setOnClickListener {
-                requireActivity().supportFragmentManager.popBackStack()
+                back()
             }
 
             nestedScrollView.setOnTouchListener(object :
