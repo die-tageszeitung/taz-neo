@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
@@ -86,7 +87,11 @@ class SearchResultPagerAdapter(
             findViewById<TextView>(R.id.section_title).text = searchResultItem.sectionTitle ?: ""
             findViewById<TextView>(R.id.published_date).text =  fragment.requireActivity().getString(
                 R.string.fragment_header_custom_published_date,
-                DateHelper.stringToMediumLocalizedString(searchResultItem.date)
+                if (BuildConfig.IS_LMD){
+                    DateHelper.stringToLocalizedMonthAndYearString(searchResultItem.date)
+                } else {
+                    DateHelper.stringToMediumLocalizedString(searchResultItem.date)
+                }
             )
         }
     }

@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
@@ -242,15 +243,18 @@ class ArticleWebViewFragment : WebViewFragment<
     }
 
     private fun determineDateString(article: Article, issueStub: IssueStub?): String {
-        val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
-        val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
-
-        val formattedDate = if (fromDate != null && toDate != null) {
-            DateHelper.dateToMediumRangeString(fromDate, toDate)
+        if (BuildConfig.IS_LMD) {
+            return DateHelper.stringToLocalizedMonthAndYearString(article.issueDate) ?: ""
         } else {
-            DateHelper.stringToMediumLocalizedString(article.issueDate)
+            val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
+            val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
+
+            return if (fromDate != null && toDate != null) {
+                DateHelper.dateToMediumRangeString(fromDate, toDate)
+            } else {
+                DateHelper.stringToMediumLocalizedString(article.issueDate) ?: ""
+            }
         }
-        return formattedDate ?: ""
     }
 }
 

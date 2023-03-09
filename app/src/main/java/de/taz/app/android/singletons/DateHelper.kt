@@ -279,18 +279,14 @@ object DateHelper {
     }
 
     /**
-     * @param [dateString] of kind "13.12.2022"
-     * @return localized month name and year, eg "Dezember 2023"
+     * Parse [dateString] and returns a date string in format of "Dezember 2023".
      *
+     * @param dateString A parsable date string, e.g.  "13.12.2022", "2023-02-09"
+     * @return localized month name and year, eg "Dezember 2023"
      */
-    fun stringToMonthNameAndYearString(dateString: String): String? {
-        return try {
-            SimpleDateFormat("dd.MM.yyyy", appLocale).parse(dateString)?.let { issueDate ->
-                dateToLocalizedMonthAndYearString(issueDate)
-            }
-        } catch (e: ParseException) {
-            null
-        }
+    fun stringToLocalizedMonthAndYearString(dateString: String): String? {
+        if (dateString.isBlank()) return null
+        return stringToDate(dateString)?.let { date -> dateToLocalizedMonthAndYearString(date) }
     }
 
     fun dateToLowerCaseString(date: Date): String {
