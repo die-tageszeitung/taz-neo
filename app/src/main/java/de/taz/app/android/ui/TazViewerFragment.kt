@@ -100,6 +100,10 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     v.height
                 )
             }
+            // Somehow this is only applied on opened drawers :shrug:
+            drawerLogo.setOnClickListener {
+                drawerLayout.closeDrawers()
+            }
 
             // Adjust extra padding when we have cutout display
             viewLifecycleOwner.lifecycleScope.launch {
@@ -162,6 +166,28 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         }
     }
 
+    /**
+     * This calculation takes also part in onDrawerSlide.
+     * When the fragment is resumed the additional translation needs to be re-applied.
+     * This happens here.
+     */
+    private fun translateDrawerLogo(logoWidth: Float) {
+        val drawerWidth = resources.getDimension(R.dimen.drawer_width)
+        // Only apply translation if drawer has width match_parent
+        // (at the moment this is not the case for sw600 devices)
+        if (drawerWidth == resources.getDimension(R.dimen.custom_match_parent)) {
+            val drawerMargin =
+                resources.getDimension(R.dimen.fragment_drawer_margin_end) / resources.displayMetrics.density
+            val translationX =
+                resources.getDimension(R.dimen.drawer_logo_translation_x) / resources.displayMetrics.density
+            val newTranslationInDp = logoWidth + drawerMargin + translationX
+
+            viewBinding.apply {
+                drawerLogoWrapper.translationX = -newTranslationInDp
+            }
+        }
+    }
+
     private suspend fun showNavButton(navButton: Image) {
         val navButtonPath = storageService.getAbsolutePath(navButton)
         if (this.navButton != navButton && navButtonPath != null) {
@@ -200,6 +226,10 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     drawerLogo.layoutParams.width = logicalWidth.toInt()
                     drawerLogo.layoutParams.height = logicalHeight.toInt()
                     drawerLayout.requestLayout()
+
+                    if (drawerLayout.isOpen) {
+                        translateDrawerLogo(logicalWidth)
+                    }
                 }
             }
         }

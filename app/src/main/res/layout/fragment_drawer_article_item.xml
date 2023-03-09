@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- layerType="software" is necessary because on some whack devices the dotted lines morph into a solid line-->
+    <ImageView
+        android:id="@+id/separator_line"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/fragment_bookmarks_issue_header_dotted_line_height"
+        android:layerType="software"
+        android:src="@drawable/dotted_line_bookmarks"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/fragment_section_drawer_padding_top"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/article_wrapper"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_wrapper"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/fragment_drawer_article_title"
+                style="@style/TextAppearance.Bookmarks.Entry.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Im Sinne der Anklage" />
+
+            <TextView
+                android:id="@+id/fragment_drawer_article_teaser"
+                style="@style/TextAppearance.Bookmarks.Entry.Teaser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_vertical"
+                android:layout_marginEnd="@dimen/fragment_drawer_teaser_margin_end"
+                tools:text="@tools:sample/lorem/random" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/fragment_drawer_article_author_and_read_minutes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/article_wrapper"
+            app:layout_constraintVertical_bias="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_wrapper"
+            tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/image_and_bookmark_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/fragment_drawer_article_image"
+                android:layout_width="@dimen/fragment_bookmarks_thumbnail_size"
+                android:layout_height="@dimen/fragment_bookmarks_thumbnail_size"
+                android:layout_marginTop="@dimen/fragment_section_drawer_article_image_top_margin"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription"
+                tools:src="@tools:sample/avatars" />
+
+            <ImageView
+                android:id="@+id/fragment_drawer_article_bookmark_icon"
+                android:layout_width="@dimen/drawer_bookmarks_icon_size"
+                android:layout_height="@dimen/drawer_bookmarks_icon_size"
+                android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+                android:contentDescription="@string/fragment_bookmark"
+                android:padding="@dimen/fragment_bookmarks_icon_padding"
+                android:src="@drawable/ic_bookmark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_article_image"
+                app:tint="@color/textColorAccent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

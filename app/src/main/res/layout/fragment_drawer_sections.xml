@@ -12,25 +12,50 @@
         android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingStart="@dimen/drawer_margin_horizontal"
+        android:paddingStart="@dimen/fragment_drawer_padding_start"
         android:paddingTop="@dimen/drawer_margin_vertical"
-        android:paddingEnd="@dimen/drawer_margin_horizontal"
+        android:paddingEnd="@dimen/fragment_drawer_padding_end"
         android:paddingBottom="@dimen/drawer_margin_vertical">
 
-        <de.taz.app.android.ui.cover.CoverView
-            android:id="@+id/fragment_drawer_sections_moment"
-            android:layout_width="@dimen/fragment_drawer_moment_width"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
-            android:clipChildren="false"
-            app:do_not_show_download_icon="true" />
+            android:clipChildren="false">
 
-        <TextView
-            android:id="@+id/fragment_drawer_sections_date"
-            style="@style/TextAppearance.Drawer.Sections.Date"
-            android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <de.taz.app.android.ui.cover.CoverView
+                android:id="@+id/fragment_drawer_sections_moment"
+                android:layout_width="@dimen/fragment_drawer_moment_width"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
+                android:clipChildren="false"
+                app:do_not_show_download_icon="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/fragment_drawer_sections_date"
+                style="@style/TextAppearance.Drawer.Sections.Date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/fragment_drawer_date_margin_start"
+                app:layout_constraintStart_toEndOf="@id/fragment_drawer_sections_moment"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="freitag,\n13.12.22" />
+
+            <TextView
+                android:id="@+id/fragment_drawer_toggle_all_sections"
+                style="@style/TextAppearance.Drawer.Sections.Toggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_drawer_sections_expand_all"
+                android:textAlignment="viewEnd"
+                android:visibility="gone"
+                app:layout_constraintBaseline_toBottomOf="@id/fragment_drawer_sections_moment"
+                app:layout_constraintStart_toEndOf="@id/fragment_drawer_sections_moment"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:visibility="visible"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fragment_drawer_sections_list"
@@ -38,7 +63,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/drawer_margin_top"
             android:nestedScrollingEnabled="false"
-            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
+            tools:listitem="@layout/fragment_drawer_sections_item" />
 
         <View
             android:id="@+id/separator_line_imprint_top"
@@ -48,28 +74,35 @@
             android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_drawer_sections_imprint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipChildren="false"
-            android:minHeight="@dimen/fragment_drawer_sections_item_height">
+            android:minHeight="@dimen/fragment_drawer_sections_item_height"
+            android:visibility="gone">
 
-            <de.taz.app.android.util.NoPaddingTextView
-                android:id="@+id/fragment_drawer_sections_imprint"
+            <TextView
+                android:id="@+id/fragment_drawer_sections_imprint_text_view"
                 style="@style/TextAppearance.Drawer.Sections"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/imprint"
-                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/fragment_drawer_section_collapse_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:contentDescription="@string/fragment_drawer_sections_collapse_icon_description"
+                android:rotation="270"
+                android:src="@drawable/ic_toggle_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <View
-            android:id="@+id/separator_line_imprint_bottom"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/fragment_drawer_separator_line_height"
-            android:background="@color/textColor"
-            android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

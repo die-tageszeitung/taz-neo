@@ -17,15 +17,23 @@
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">28dp</dimen>
-    <dimen name="drawer_section_list_width">250dp</dimen>
-    <dimen name="drawer_width">290dp</dimen>
+    <dimen name="drawer_width">@dimen/custom_match_parent</dimen>
 
+    <dimen name="fragment_drawer_padding_start">18dp</dimen>
+    <dimen name="fragment_drawer_padding_end">14dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
     <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
     <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
+    <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
+    <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
+    <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
+    <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
+    <dimen name="fragment_section_drawer_article_image_top_margin">3dp</dimen>
+    <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
+    <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_separator_margin_top">4dp</dimen>
@@ -45,8 +53,6 @@
     <dimen name="drawer_logo_margin_top">49dp</dimen>
     <dimen name="drawer_logo_translation_x">-5dp</dimen>
     <dimen name="drawer_logo_translation_y">40dp</dimen>
-    <dimen name="drawer_logo_default_width">287dp</dimen>
-    <dimen name="drawer_logo_default_height">126dp</dimen>
     <dimen name="drawer_logo_elevation">5dp</dimen>
     <dimen name="drawer_logo_corner_radius">0dp</dimen>
 
@@ -158,7 +164,10 @@
     <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
+    <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
+    <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
+    <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
     <dimen name="fragment_bookmarks_grotesk_font_adjustment">0dp</dimen>
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
@@ -174,8 +183,10 @@
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">22dp</dimen>
+    <dimen name="fragment_drawer_sections_item_text_size">18sp</dimen>
+    <dimen name="fragment_drawer_article_item_text_size">18dp</dimen>
     <dimen name="fragment_drawer_separator_line_height">0.25dp</dimen>
+    <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
     <dimen name="fragment_article_padding_bottom">40dp</dimen>

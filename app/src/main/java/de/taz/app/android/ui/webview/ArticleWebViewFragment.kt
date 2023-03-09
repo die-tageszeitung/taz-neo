@@ -11,9 +11,9 @@ import android.widget.TextView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
+import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
+import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
-import de.taz.app.android.WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -192,7 +192,7 @@ class ArticleWebViewFragment : WebViewFragment<
 
     private suspend fun applyWeekendTypefaces() {
         val weekendTypefaceFileEntry =
-            fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
+            fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
         val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
         weekendTypefaceFile?.let {
             fontHelper
@@ -203,7 +203,7 @@ class ArticleWebViewFragment : WebViewFragment<
                 }
         }
         val weekendTypefaceFileEntryRegular =
-            fileEntryRepository.get(WEEKEND_TYPEFACE_REGULAR_RESOURCE_FILE_NAME)
+            fileEntryRepository.get(KNILE_REGULAR_RESOURCE_FILE_NAME)
         val weekendTypefaceFileRegular =
             weekendTypefaceFileEntryRegular?.let(storageService::getFile)
         weekendTypefaceFileRegular?.let {
