@@ -10,19 +10,16 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.util.Util
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+import de.taz.app.android.ARTICLE_READER_AUDIO_BACK_SKIP_MS
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
@@ -45,10 +42,6 @@ import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
 
-    companion object {
-        private const val ARTICLE_READER_AUDIO_BACK_SKIP_MS = 15000L
-    }
-
     private val log by Log
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
@@ -65,27 +58,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
-    private var player: ExoPlayer? = null
-
-    private var bottomBehavior: Behavior<View>? = null
-
     private var sectionDividerTransformer: SectionDividerTransformer? = null
-
-    private fun initializePlayer() {
-        if (player == null) {
-            player = ExoPlayer.Builder(requireContext().applicationContext)
-                .setSeekBackIncrementMs(ARTICLE_READER_AUDIO_BACK_SKIP_MS)
-                .build()
-            viewBinding.playerController.player = player
-        }
-    }
-
-    private fun releasePlayer() {
-        player?.release()
-        player = null
-        viewBinding.playerController.player = null
-    }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -142,7 +115,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         if (Util.SDK_INT <= Build.VERSION_CODES.M) {
             stopMediaPlayer()
             releasePlayer()
-            setArticleAudioMenuItem(isPlaying = false)
         }
     }
 
@@ -183,7 +155,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         if (Util.SDK_INT > Build.VERSION_CODES.M) {
             stopMediaPlayer()
             releasePlayer()
-            setArticleAudioMenuItem(isPlaying = false)
         }
     }
 
@@ -240,7 +211,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
                 // if we are showing another article we will stop the player and hide the controls
                 stopMediaPlayer()
-                setArticleAudioMenuItem(isPlaying = false)
             }
             lastPage = position
 
@@ -256,6 +226,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(nextStub.articleFileName).asLiveData()
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
 
+                // show the player button only for articles with audio
                 articleBottomActionBarNavigationHelper.setArticleAudioVisibility(nextStub.hasAudio)
             }
         }
@@ -273,7 +244,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onBackPressed(): Boolean {
         stopMediaPlayer()
-        setArticleAudioMenuItem(isPlaying = false)
 
         // FIXME (johannes): please check about the usefulness of the following logic
         return if (hasBeenSwiped) {
@@ -398,6 +368,43 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())?.articleStub
     }
 
+    override fun onDestroyView() {
+        viewBinding.webviewPagerViewpager.adapter = null
+        if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
+            // On device orientation changes the Fragments Activity is already destroyed when we reach the `onDestroyView()` method.
+            // Thus we cant initialize a ViewModel instance from `onDestroyView()`.
+            // As the by `activityViewModels()` is called lazily and not being used before, the ViewModel can not be initialized.
+            // To prevent the app from crashing in this case we check explicitly that the Activity has not been destroyed yet.
+            if (!this.requireActivity().isDestroyed)
+                pdfPagerViewModel.hideDrawerLogo.postValue(true)
+        }
+        stopMediaPlayer()
+        releasePlayer()
+        sectionDividerTransformer = null
+        super.onDestroyView()
+    }
+
+    // region audioplayer
+    // FIXME (johannes): this is mostly shared 1:1 between ArticlePagerFragment and BookmarkPagerFragment
+
+    private var player: ExoPlayer? = null
+    private var bottomBehavior: Behavior<View>? = null
+
+    private fun initializePlayer() {
+        if (player == null) {
+            player = ExoPlayer.Builder(requireContext().applicationContext)
+                .setSeekBackIncrementMs(ARTICLE_READER_AUDIO_BACK_SKIP_MS)
+                .build()
+            viewBinding.playerController.player = player
+        }
+    }
+
+    private fun releasePlayer() {
+        player?.release()
+        player = null
+        viewBinding.playerController.player = null
+    }
+
     private fun onAudioAction() {
         val articleStub = getCurrentArticleStub()
         if (articleStub == null) {
@@ -408,43 +415,45 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             if (player?.isPlaying == true) {
                 stopMediaPlayer()
             } else {
-                playAudioOfArticle()
+                playAudioOfArticle(articleStub)
             }
         }
     }
 
-    private fun setArticleAudioMenuItem(isPlaying: Boolean) {
-        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(isPlaying)
-    }
-
-    private suspend fun getCurrentArticleAudioFile(): FileEntry? {
-        return getCurrentArticleStub()?.articleFileName?.let { articleStub ->
-            articleRepository.get(articleStub)
-        }?.audioFile
-    }
-
-    private fun playAudioOfArticle() {
-        fixToolbar()
-        showPlayerController()
-        viewBinding.playerController.findViewById<TextView>(R.id.title).apply {
-            text = getCurrentArticleStub()?.title
+    private fun playAudioOfArticle(articleStub: ArticleStub) {
+        if (!articleStub.hasAudio) {
+            return
         }
-        if (getCurrentArticleStub()?.hasAudio == true) {
-            lifecycleScope.launch {
-                getCurrentArticleAudioFile()?.let { audioFile ->
-                    // FIXME (johannes): i feel like we should use the StoragePathService.determinBaseUrl instead, but i am not sure yet how it works
-                    val baseUrl =
-                        getCurrentArticleStub()?.getIssueStub(requireContext().applicationContext)?.baseUrl
-                    player?.also {
-                        val mediaItem = MediaItem.fromUri("$baseUrl/${audioFile.name}")
-                        it.setMediaItem(mediaItem)
-                        it.prepare()
-                        it.play()
-                    }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val article = articleRepository.get(articleStub.articleFileName)
+            val audioFile = article?.audioFile
+            val issueStub = articleStub.getIssueStub(requireContext().applicationContext)
+            val currentPlayer = player
+
+            if (article != null && audioFile != null && issueStub != null && currentPlayer != null) {
+                fixToolbar()
+                showPlayerController()
+                viewBinding.playerController.findViewById<TextView>(R.id.title).apply {
+                    text = articleStub.title
                 }
+
+                val mediaItem = MediaItem.fromUri("${issueStub.baseUrl}/${audioFile.name}")
+                currentPlayer.apply {
+                    setMediaItem(mediaItem)
+                    prepare()
+                    play()
+                }
+                setArticleAudioMenuItem(isPlaying = true)
             }
-            setArticleAudioMenuItem(isPlaying = true)
         }
+    }
+
+    private fun stopMediaPlayer() {
+        releaseToolbar()
+        hidePlayerController()
+        player?.stop()
+        setArticleAudioMenuItem(isPlaying = false)
     }
 
     private fun showPlayerController() {
@@ -458,16 +467,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         )
     }
 
-    private fun stopMediaPlayer() {
-        releaseToolbar()
-        hidePlayerController()
-        player?.stop()
-        setArticleAudioMenuItem(isPlaying = false)
-    }
-
     private fun hidePlayerController() {
         viewBinding.playerController.visibility = View.GONE
         viewBinding.webviewPagerViewpager.setPadding(0, 0, 0, 0)
+    }
+
+    private fun setArticleAudioMenuItem(isPlaying: Boolean) {
+        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(isPlaying)
     }
 
     private fun fixToolbar() {
@@ -488,20 +494,5 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    override fun onDestroyView() {
-        viewBinding.webviewPagerViewpager.adapter = null
-        if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-            // On device orientation changes the Fragments Activity is already destroyed when we reach the onDestroyView method.
-            // Thus we cant initialize a ViewModel instance from onDestroyView.
-            // As the `by activityViewModels()` is called lazily and not being used before, the ViewModel can not be initialized.
-            // To prevent the app from crashing in this case we check explicitly that the Activity has not been destroyed yet.
-            if (!this.requireActivity().isDestroyed)
-                pdfPagerViewModel.hideDrawerLogo.postValue(true)
-        }
-        stopMediaPlayer()
-        releasePlayer()
-        setArticleAudioMenuItem(isPlaying = false)
-        sectionDividerTransformer = null
-        super.onDestroyView()
-    }
+    // endregion
 }
