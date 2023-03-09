@@ -26,7 +26,6 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -168,9 +167,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     IssuePublication(issueKey)
                 ) as Issue
             currentIssueStub = IssueStub(issueStub)
-            viewBinding.fragmentDrawerSectionsMoment.setOnClickListener {
-                finishAndShowIssue(IssuePublication(currentIssueStub.issueKey))
-            }
 
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
@@ -241,9 +237,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         }
     }
 
-    private fun finishAndShowIssue(issuePublication: IssuePublication) =
-        MainActivity.start(requireActivity(), issuePublication = issuePublication)
-
     private suspend fun showMoment(momentPublication: MomentPublication?) =
         withContext(Dispatchers.Main) {
             if (momentPublication == null) {
@@ -267,9 +260,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {
-                            finishAndShowIssue(
-                                IssuePublication(coverPublication)
-                            )
+                            requireActivity().finish()
                         }
                     },
                     observeDownload = false

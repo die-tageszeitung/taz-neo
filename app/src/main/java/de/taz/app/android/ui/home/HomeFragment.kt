@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.home
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -11,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.databinding.FragmentHomeBinding
@@ -19,8 +21,10 @@ import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -30,7 +34,41 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     var onHome: Boolean = true
     private var refreshJob: Job? = null
 
+    private lateinit var feedService: FeedService
+    private lateinit var toastHelper: ToastHelper
+
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        feedService = FeedService.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // get feed and propagate it to the viewModel
+        lifecycleScope.launch {
+            // Get the latest feed and propagate it if it is valid.
+            // Otherwise (null feed) show a warning to the user.
+            // Warning: This will re-try to request the feed from the api indefinitely in case of connection failures.
+            feedService
+                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED, retryOnFailure = true)
+                .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
+                .collect {
+                    if (it != null) {
+                        homePageViewModel.setFeed(it)
+                    } else {
+                        val message =
+                            "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
+                        log.error(message)
+                        Sentry.captureMessage(message)
+                        toastHelper.showSomethingWentWrongToast()
+                    }
+                }
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
