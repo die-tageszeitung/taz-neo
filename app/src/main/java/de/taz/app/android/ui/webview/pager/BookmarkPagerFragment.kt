@@ -2,9 +2,12 @@ package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
@@ -14,6 +17,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.util.Util
+import de.taz.app.android.ARTICLE_READER_AUDIO_BACK_SKIP_MS
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -21,6 +28,7 @@ import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
@@ -37,6 +45,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
+    private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
@@ -46,6 +55,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override val viewModel: BookmarkPagerViewModel by activityViewModels()
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -74,11 +89,18 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 }
             }
         }
+
+        if (Util.SDK_INT <= Build.VERSION_CODES.M) {
+            initializePlayer()
+        }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+    override fun onPause() {
+        super.onPause()
+        if (Util.SDK_INT <= Build.VERSION_CODES.M) {
+            stopMediaPlayer()
+            releasePlayer()
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,6 +119,22 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override fun onStart() {
         super.onStart()
         setupViewPager()
+        // Android API level 24 (M) supports multiple windows.
+        // So app can be visible but not active in split window mode.
+        // Therefore we need to initialize the exo player in onStart (instead of onResume):
+        // split window mode>
+        if (Util.SDK_INT > Build.VERSION_CODES.M) {
+            initializePlayer()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // On Android with split screen support, the player needs to be released in onStop:
+        if (Util.SDK_INT > Build.VERSION_CODES.M) {
+            stopMediaPlayer()
+            releasePlayer()
+        }
     }
 
 
@@ -146,6 +184,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
             }
+
+            // if we are showing another article we will stop the player and hide the controls
+            stopMediaPlayer()
+            // show the player button only for articles with audio
+            val hasAudio = articleStub?.hasAudio == true
+            articleBottomActionBarNavigationHelper.setArticleAudioVisibility(hasAudio)
         }
     }
 
@@ -165,6 +209,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
             }
+
+            R.id.bottom_navigation_action_audio -> onAudioAction()
         }
     }
 
@@ -265,7 +311,121 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override fun onDestroyView() {
         viewBinding.webviewPagerViewpager.adapter = null
+        stopMediaPlayer()
+        releasePlayer()
         super.onDestroyView()
     }
+
+    // region audioplayer
+    // FIXME (johannes): this is mostly shared 1:1 between ArticlePagerFragment and BookmarkPagerFragment
+
+    private var player: ExoPlayer? = null
+    private var bottomBehavior: CoordinatorLayout.Behavior<View>? = null
+
+    private fun initializePlayer() {
+        if (player == null) {
+            player = ExoPlayer.Builder(requireContext().applicationContext)
+                .setSeekBackIncrementMs(ARTICLE_READER_AUDIO_BACK_SKIP_MS)
+                .build()
+            viewBinding.playerController.player = player
+        }
+    }
+
+    private fun releasePlayer() {
+        player?.release()
+        player = null
+        viewBinding.playerController.player = null
+    }
+
+    private fun onAudioAction() {
+        val articleStub = getCurrentlyDisplayedArticleStub()
+        if (articleStub == null) {
+            return
+        }
+
+        if (articleStub.hasAudio) {
+            if (player?.isPlaying == true) {
+                stopMediaPlayer()
+            } else {
+                playAudioOfArticle(articleStub)
+            }
+        }
+    }
+
+    private fun playAudioOfArticle(articleStub: ArticleStub) {
+        if (!articleStub.hasAudio) {
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val article = articleRepository.get(articleStub.articleFileName)
+            val audioFile = article?.audioFile
+            val issueStub = articleStub.getIssueStub(requireContext().applicationContext)
+            val currentPlayer = player
+
+            if (article != null && audioFile != null && issueStub != null && currentPlayer != null) {
+                fixToolbar()
+                showPlayerController()
+                viewBinding.playerController.findViewById<TextView>(R.id.title).apply {
+                    text = articleStub.title
+                }
+
+                val mediaItem = MediaItem.fromUri("${issueStub.baseUrl}/${audioFile.name}")
+                currentPlayer.apply {
+                    setMediaItem(mediaItem)
+                    prepare()
+                    play()
+                }
+                setArticleAudioMenuItem(isPlaying = true)
+            }
+        }
+    }
+
+    private fun stopMediaPlayer() {
+        releaseToolbar()
+        hidePlayerController()
+        player?.stop()
+        setArticleAudioMenuItem(isPlaying = false)
+    }
+
+    private fun showPlayerController() {
+        val navAndPlayerHeight =
+            this.resources.getDimensionPixelSize(R.dimen.nav_bottom_height) + this.resources.getDimensionPixelSize(
+                R.dimen.audio_player_bottom_height
+            )
+        viewBinding.playerController.visibility = View.VISIBLE
+        viewBinding.webviewPagerViewpager.setPadding(
+            0, 0, 0, navAndPlayerHeight
+        )
+    }
+
+    private fun hidePlayerController() {
+        viewBinding.playerController.visibility = View.GONE
+        viewBinding.webviewPagerViewpager.setPadding(0, 0, 0, 0)
+    }
+
+    private fun setArticleAudioMenuItem(isPlaying: Boolean) {
+        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(isPlaying)
+    }
+
+    private fun fixToolbar() {
+        val params =
+            viewBinding.navigationBottomLayout.layoutParams as CoordinatorLayout.LayoutParams
+        bottomBehavior = params.behavior
+        params.behavior = null
+    }
+
+    private fun releaseToolbar() {
+        // Restore the previous bottom behavior.
+        // The variable bottomBehavior will be null if we never called fixToolbar,
+        // or if the bottomBehavior was already null before.
+        if (bottomBehavior != null) {
+            val params =
+                viewBinding.navigationBottomLayout.layoutParams as CoordinatorLayout.LayoutParams
+            params.behavior = bottomBehavior
+        }
+    }
+
+    // endregion
 
 }
