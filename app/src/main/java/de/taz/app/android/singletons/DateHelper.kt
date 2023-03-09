@@ -179,6 +179,21 @@ object DateHelper {
                     .lowercase(appLocale)
             }
     }
+    /**
+     * function to get a two lines string from a given dateString
+     * @param dateString - String holding the date which will be reformatted
+     * @return the [String] of date in a two line format: "EEEE,<br>> d.M.yyyy", eg:
+     *    samstag,
+     *    13.3.21
+     */
+    fun stringToLongLocalized2LineShortString(dateString: String): String? {
+        return stringToDate(dateString)
+            ?.let { issueDate ->
+                SimpleDateFormat("EEEE,\n d.M.yy", appLocale)
+                    .format(issueDate)
+                    .lowercase(appLocale)
+            }
+    }
 
     /**
      * function to get a two lines string from 2 given date strings
@@ -196,6 +211,25 @@ object DateHelper {
         }
         val formattedToDate = realToDate?.let {
             SimpleDateFormat("d.M.yyyy", appLocale).format(it)
+        }
+        return "woche,\n$formattedFromDate – $formattedToDate"
+    }
+    /**
+     * function to get a two lines string from 2 given date strings
+     * @param fromDate - String holding the "from" date
+     * @param toDate - String holding the "until" date
+     * @return the [String] of date in a two line format: "EEEE,<br>> d.M.yyyy", eg:
+     *    woche,
+     *    29.1. – 5.2.23
+     */
+    fun stringsToWeek2LineShortString(fromDate: String, toDate: String): String? {
+        val realFromDate = stringToDate(fromDate)
+        val realToDate = stringToDate(toDate)
+        val formattedFromDate = realFromDate?.let {
+            SimpleDateFormat("d.M.", appLocale).format(it)
+        }
+        val formattedToDate = realToDate?.let {
+            SimpleDateFormat("d.M.yy", appLocale).format(it)
         }
         return "woche,\n$formattedFromDate – $formattedToDate"
     }

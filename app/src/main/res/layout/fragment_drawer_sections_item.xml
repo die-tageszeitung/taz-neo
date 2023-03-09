@@ -14,11 +14,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:id="@+id/section_title_wrapper"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/fragment_drawer_sections_item_height"
-        app:layout_constraintStart_toStartOf="parent"
         android:clipChildren="false"
+        android:minHeight="@dimen/fragment_drawer_sections_item_height"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/section_toggle_wrapper"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_line">
 
         <de.taz.app.android.util.NoPaddingTextView
@@ -26,9 +29,37 @@
             style="@style/TextAppearance.Drawer.Sections"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment" />
+            tools:context="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
+            tools:text="gefahrengebiet" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
+        android:id="@+id/section_toggle_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- layerType="software" is necessary because on some whack devices the dotted lines morph into a solid line-->
+        <ImageView
+            android:id="@+id/dotted_separator"
+            android:layout_width="@dimen/fragment_drawer_dotted_separator_width"
+            android:layout_height="match_parent"
+            android:layerType="software"
+            android:rotation="90"
+            android:src="@drawable/dotted_line_bookmarks"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/fragment_drawer_section_collapse_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/fragment_drawer_sections_collapse_icon_description"
+            android:src="@drawable/ic_toggle_arrow" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

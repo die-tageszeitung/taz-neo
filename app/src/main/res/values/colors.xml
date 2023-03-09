@@ -38,7 +38,7 @@
 
     <color name="fragment_bookmarks_delete_background">@color/red</color>
     <color name="textColorAccent">@color/lightGrey</color>
-    <color name="textColorSection">@color/tazRed</color>
+    <color name="textColorSection">@color/black</color>
     <color name="buttonColor">@color/black</color>
     <color name="buttonTextColor">@color/white</color>
 
@@ -50,6 +50,7 @@
     <color name="drawer_sections_item">@color/tazRed</color>
     <color name="drawer_sections_date">@color/black</color>
     <color name="drawer_sections_item_highlighted">@color/black</color>
+    <color name="drawer_sections_toggle">@color/lightGrey</color>
     <color name="pdf_drawer_sections_item">@color/lightGrey</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
     <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>

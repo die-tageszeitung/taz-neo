@@ -84,6 +84,7 @@
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
+    <string name="fragment_bookmark">zu Leseliste hinzufügen</string>
     <string name="fragment_bookmarks_title">leseliste</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
@@ -415,4 +416,8 @@
     <string name="subscription_genitive">Abos</string>
     <string name="trial_subscription">Probeabo</string>
     <string name="trial_subscription_genitive">Probeabos</string>
+
+    <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
+    <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
+    <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
 </resources>

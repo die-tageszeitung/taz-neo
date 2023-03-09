@@ -20,8 +20,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -124,7 +124,7 @@ class SectionWebViewFragment : WebViewFragment<
                 if (isWeekend || (isWochentaz && !isFirst)) {
                     val weekendTypeface = withContext(Dispatchers.IO) {
                         val weekendTypefaceFileEntry =
-                            fileEntryRepository.get(WEEKEND_TYPEFACE_BOLD_RESOURCE_FILE_NAME)
+                            fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
                         val weekendTypefaceFile =
                             weekendTypefaceFileEntry?.let(storageService::getFile)
                         weekendTypefaceFile?.let {

@@ -97,19 +97,35 @@
         <item name="android:fontFamily">@font/appFontBold</item>
     </style>
 
+    <style name="TextAppearance.Drawer.Sections.Toggle" parent="TextAppearance.Fragment.Title">
+        <item name="android:textColor">@color/drawer_sections_toggle</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+    </style>
+
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
         <item name="android:textColor">@color/drawer_sections_date</item>
-        <item name="android:textSize" tools:ignore="SpUsage">15dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:textStyle">normal</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.Fragment.Title">
         <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize" tools:ignore="SpUsage">
-            @dimen/fragment_drawer_sections_item_text_size
-        </item>
+        <item name="android:textSize">@dimen/fragment_drawer_sections_item_text_size</item>
         <item name="android:textColor">@color/textColorSection</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:lineSpacingExtra">-3dp</item>
+    </style>
+
+    <style name="TextAppearance.Drawer.Article" parent="TextAppearance.Fragment.Title">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize" tools:ignore="SpUsage">
+            @dimen/fragment_drawer_article_item_text_size
+        </item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">2</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:lineSpacingExtra">0dp</item>
@@ -313,8 +329,6 @@
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">3sp</item>
@@ -346,8 +360,6 @@
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:ellipsize">end</item>
         <item name="android:textSize">13.5sp</item>
     </style>
 
