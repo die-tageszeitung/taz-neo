@@ -7,6 +7,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
@@ -32,9 +33,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginUsername.setText(
-            viewModel.username ?: viewModel.subscriptionId?.toString()
-        )
+        viewBinding.fragmentLoginUsername.apply {
+            setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+            addAllLowercaseFilter()
+        }
 
         viewModel.password?.let {
             viewBinding.fragmentLoginPassword.setText(it)

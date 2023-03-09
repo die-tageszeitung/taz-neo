@@ -15,6 +15,7 @@ import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
@@ -71,6 +72,8 @@ abstract class SubscriptionInquiryFragment :
                     return false
                 }
             })
+
+            email.addAllLowercaseFilter()
         }
     }
 

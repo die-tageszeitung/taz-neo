@@ -22,6 +22,7 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
+import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import de.taz.app.android.util.validation.PasswordValidator
@@ -67,7 +68,10 @@ class CredentialsMissingFragment :
             movementMethod = LinkMovementMethod.getInstance()
         }
 
-        viewBinding.fragmentLoginMissingCredentialsEmail.setText(viewModel.username)
+        viewBinding.fragmentLoginMissingCredentialsEmail.apply {
+            setText(viewModel.username)
+            addAllLowercaseFilter()
+        }
         viewBinding.fragmentLoginMissingCredentialsFirstName.setText(viewModel.firstName)
         viewBinding.fragmentLoginMissingCredentialsSurname.setText(viewModel.surName)
 
