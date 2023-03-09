@@ -4,11 +4,13 @@ import android.app.Application
 import androidx.lifecycle.*
 import de.taz.app.android.R
 import de.taz.app.android.api.variables.SearchFilter
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.persistence.repository.ArticleRepository
-import kotlinx.coroutines.Dispatchers
+import de.taz.app.android.persistence.repository.BookmarkRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 
 private const val RELOAD_BEFORE_LAST = 5
 private const val MIN_PUB_DATE = "1986-09-01" // first taz publication online available
@@ -16,6 +18,8 @@ private const val MIN_PUB_DATE = "1986-09-01" // first taz publication online av
 class SearchResultPagerViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
+
+    private val bookmarkRepository = BookmarkRepository.getInstance(application.applicationContext)
 
     val chosenTimeSlot: MutableLiveData<String> =
         MutableLiveData(application.getString(R.string.search_advanced_radio_timeslot_any))
@@ -42,18 +46,16 @@ class SearchResultPagerViewModel(
         get() = articleFileNameLiveData.value
         set(value) { articleFileNameLiveData.value = value }
 
-    private val articleLiveData: LiveData<ArticleStub?> = articleFileNameLiveData.switchMap {
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (it != null) {
-                emitSource(articleRepository.getStubLiveData(it))
-            } else {
-                emit(null)
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val isBookmarkedFlow = articleFileNameLiveData.asFlow().flatMapLatest { articleFileName ->
+        if (articleFileName != null) {
+            bookmarkRepository.createBookmarkStateFlow(articleFileName)
+        } else {
+            emptyFlow<Boolean>()
         }
     }
 
-    val isBookmarkedLiveData: LiveData<Boolean> =
-        articleLiveData.map { article -> isBookmarked(article) }
+    val isBookmarkedLiveData: LiveData<Boolean> = isBookmarkedFlow.asLiveData()
 
     fun checkIfLoadMore(lastVisible: Int): Boolean {
         val rangeInWhereToLoadMore =
@@ -62,10 +64,5 @@ class SearchResultPagerViewModel(
         return rangeInWhereToLoadMore in 1..lastVisible
                 && currentlyLoadingMore.value == false
                 && searchResultListSize < totalFound
-    }
-
-    private fun isBookmarked(articleStub: ArticleStub?): Boolean {
-        return if (articleStub == null) false
-        else articleStub.bookmarkedTime != null
     }
 }
