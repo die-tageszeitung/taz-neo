@@ -36,6 +36,9 @@ def lmdVersionCode = VersionHelper.INSTANCE.getLmdVersionCode()
 logger.quiet("Taz versionName: $tazVersionName versionCode: $tazVersionCode")
 logger.quiet("Lmd versionName: $lmdVersionName versionCode: $lmdVersionCode")
 
+// Required for publishing DRAFTs Bundles to the LMd project
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+
 android {
     namespace 'de.taz.app.android'
     compileSdkVersion 33
@@ -252,6 +255,10 @@ android {
             track.set('internal')
             // FIXME (johannes): we are currently using the same service account for taz and lmd. See https://gitlab.alt.coop/taz/taz-app/-/issues/195
             serviceAccountCredentials.set(file('../taz-play-publish.json'))
+            // FIXME (johannes): As long as the Google Play LMd Project is still a draft we must publish bundles as draft, too.
+            //                   This must be changed once the LMd Project setup is finished on Google Play
+            // Remember to remove the "import com.github.triplet.gradle.androidpublisher.ReleaseStatus" above, too
+            releaseStatus.set(ReleaseStatus.DRAFT)
         }
     }
 
