@@ -44,7 +44,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private val log by Log
 
     private lateinit var sectionListAdapter: SectionListAdapter
-    private lateinit var completeList: MutableList<SectionDrawerItem>
+    private lateinit var completeList: List<SectionDrawerItem>
 
     private lateinit var fontHelper: FontHelper
     private lateinit var issueRepository: IssueRepository
@@ -230,7 +230,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 R.string.fragment_drawer_sections_expand_all
             )
         } else {
-            sectionListAdapter.sectionDrawerItemList = completeList
+            sectionListAdapter.sectionDrawerItemList = completeList.toMutableList()
             viewBinding.fragmentDrawerToggleAllSections.setText(
                 R.string.fragment_drawer_sections_collapse_all
             )
