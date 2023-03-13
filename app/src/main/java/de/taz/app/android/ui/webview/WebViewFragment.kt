@@ -8,8 +8,10 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
@@ -357,9 +359,18 @@ abstract class WebViewFragment<
         if (difference < spaceNeededThatTheToolBarCanCollapse) {
             val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
             log.debug("Add paddingBottom to allow the tool bar to collapse")
-            scrollView?.updatePadding(
-                0,0,0, spaceNeededThatTheToolBarCanCollapse.toInt()
-            )
+
+            val readOnContainerView = view?.findViewById<FragmentContainerView>(R.id.fragment_article_bottom_fragment_placeholder)
+            if (readOnContainerView?.isVisible == true) {
+                readOnContainerView.updatePadding(
+                    0,0,0, spaceNeededThatTheToolBarCanCollapse.toInt()
+                )
+            } else {
+                scrollView?.updatePadding(
+                    0, 0, 0, spaceNeededThatTheToolBarCanCollapse.toInt()
+                )
+            }
+
         }
     }
 }
