@@ -19,7 +19,9 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.*
@@ -51,6 +53,7 @@ import de.taz.app.android.util.getStorageLocationCaption
 import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import java.util.*
 
 @Suppress("UNUSED")
@@ -65,6 +68,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
 
     private val emailValidator = EmailValidator()
@@ -78,6 +82,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
         feedService = FeedService.getInstance(context.applicationContext)
     }
 
@@ -313,34 +318,37 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 view.findViewById<TextView>(R.id.settings_storage_location_value).text =
                     storageLocationString
             }
-        }
-
-        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-        authHelper.status.asLiveData().observeDistinct(viewLifecycleOwner) { authStatus ->
-            if (authStatus in arrayOf(
-                    AuthStatus.valid,
-                    AuthStatus.elapsed
-                )
-            ) {
-                showActionsWhenLoggedIn()
-                showElapsedIndication(authStatus == AuthStatus.elapsed)
-            } else {
-                showLoginButton()
-            }
-        }
-        authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) { email ->
-            viewBinding.fragmentSettingsAccountLogout.text =
-                getString(R.string.settings_account_logout, email)
-            val isValidEmail = emailValidator(email)
-            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            // TODO(eike) check whether to add check for token before checking for valid mail
-            if (isValidEmail || email.toIntOrNull() != null) {
-                showActionsWhenLoggedIn(isValidEmail)
-            } else {
-                viewBinding.fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
+            elapsedString.observe(viewLifecycleOwner) {
+                setElapsedString(it)
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val authStatusFlow: Flow<AuthStatus> = authHelper.status.asFlow()
+                val authEmailFlow: Flow<String> = authHelper.email.asFlow()
+
+                combine(authStatusFlow, authEmailFlow) { authStatus, email -> authStatus to email  }
+                    .distinctUntilChanged()
+                    .collect { (authStatus, email) ->
+                        val isLoggedIn = authStatus in arrayOf(AuthStatus.valid, AuthStatus.elapsed)
+                        val isElapsed = authStatus == AuthStatus.elapsed
+                        val isValidEmail = emailValidator(email)
+                        val isAboId = email.toIntOrNull() != null
+
+                        // Show the views for logged in also when we have a valid email, s
+                        // this happens when a user creates a Probeabo with a new account and the email verification is pending
+                        if (isLoggedIn || isValidEmail) {
+                            viewBinding.fragmentSettingsAccountLogout.text =
+                                getString(R.string.settings_account_logout, email)
+                            showActionsWhenLoggedIn(isValidEmail, isAboId)
+                        } else {
+                            showLoginButton()
+                        }
+                        showElapsedIndication(isElapsed)
+                    }
+            }
+        }
     }
 
     override fun onResume() {
@@ -549,19 +557,20 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showElapsedIndication(elapsed: Boolean) {
         if (elapsed) {
-            viewModel.elapsedString.observe(viewLifecycleOwner) { elapsedOn ->
-                val elapsedOnText = HtmlCompat.fromHtml(
-                    elapsedOn?.let {
-                        getString(R.string.settings_account_elapsed_on, it)
-                    } ?: getString(R.string.settings_account_elapsed),
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                )
-                viewBinding.fragmentSettingsAccountElapsed.text = elapsedOnText
-            }
             viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.VISIBLE
         } else {
             viewBinding.fragmentSettingsAccountElapsedWrapper.visibility = View.GONE
         }
+    }
+
+    private fun setElapsedString(elapsedOn: String?) {
+        val elapsedOnText = HtmlCompat.fromHtml(
+            elapsedOn?.let {
+                getString(R.string.settings_account_elapsed_on, it)
+            } ?: getString(R.string.settings_account_elapsed),
+            HtmlCompat.FROM_HTML_MODE_LEGACY
+        )
+        viewBinding.fragmentSettingsAccountElapsed.text = elapsedOnText
     }
 
     private fun showTextJustification(justified: Boolean) {
@@ -624,15 +633,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
     }
 
-    private fun showActionsWhenLoggedIn(isValidEmail: Boolean = false) = viewBinding.apply {
+    private fun showActionsWhenLoggedIn(
+        isValidEmail: Boolean = false,
+        isAboId: Boolean = false
+    ) = viewBinding.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
         if (!BuildConfig.IS_LMD) {
             fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
-            fragmentSettingsAccountDeleteWrapper.visibility = View.VISIBLE
+            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+            fragmentSettingsAccountDeleteWrapper.visibility =
+                if (isValidEmail || isAboId) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
             // show reset password option only for when we have a valid mail:
-            if (isValidEmail) {
-                fragmentSettingsAccountResetPasswordWrapper.visibility = View.VISIBLE
-            }
+            fragmentSettingsAccountResetPasswordWrapper.visibility =
+                if (isValidEmail) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
         }
         fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
     }
@@ -796,7 +817,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
 
     private fun logout() = requireActivity().lifecycleScope.launch {
-        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
         authHelper.token.set("")
         authHelper.email.set("")
         authHelper.status.set(AuthStatus.notValid)
