@@ -31,8 +31,10 @@ import de.taz.app.android.api.models.CancellationInfo
 import de.taz.app.android.api.models.CancellationStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
@@ -63,6 +65,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var issueRepository: IssueRepository
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var feedService: FeedService
 
     private val emailValidator = EmailValidator()
 
@@ -70,11 +73,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        apiService = ApiService.getInstance(requireContext().applicationContext)
-        contentService = ContentService.getInstance(requireContext().applicationContext)
-        issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        apiService = ApiService.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        feedService = FeedService.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -796,6 +800,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         authHelper.token.set("")
         authHelper.email.set("")
         authHelper.status.set(AuthStatus.notValid)
+        getApplicationScope().launch {
+            // Refresh the feed in the background to show all public issues again ifwhen the user was logged in as a wochentaz user
+            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+        }
     }
 
     private fun openFAQ() {

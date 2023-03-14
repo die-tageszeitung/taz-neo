@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
@@ -69,6 +70,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         applicationContext.authDataStore
     )
 
+    // Use lazy to break an infinite getInstance loop
     private val contentService by lazy { ContentService.getInstance(applicationContext) }
     private val bookmarkRepository by lazy { BookmarkRepository.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
