@@ -24,7 +24,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/separator_line">
 
-        <de.taz.app.android.util.NoPaddingTextView
+        <TextView
             android:id="@+id/fragment_drawer_section_title"
             style="@style/TextAppearance.Drawer.Sections"
             android:layout_width="match_parent"
