@@ -77,6 +77,14 @@
             android:layout_height="wrap_content"
             android:text="@string/login_forgot_password"
             app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
+        <TextView
+            android:id="@+id/show_help"
+            style="@style/TextAppearance.Login.Text.Link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/help"
+            app:layout_constraintTop_toBottomOf="@id/forgot_password" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
