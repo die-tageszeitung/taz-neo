@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/fragment_archive_background">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -58,6 +59,7 @@
         android:paddingTop="@dimen/fragment_archive_padding_top"
         android:splitMotionEvents="true"
         android:stretchMode="columnWidth"
+        tools:listitem="@layout/fragment_archive_item"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
