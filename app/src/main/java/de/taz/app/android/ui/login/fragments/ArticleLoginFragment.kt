@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
@@ -64,6 +65,9 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                     }
                 }
             }
+        }
+        viewBinding.showHelp.setOnClickListener {
+            showHelpDialog()
         }
     }
 
@@ -256,6 +260,18 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             readOnSwitchPrint2digiBox.visibility = View.GONE
             readOnExtendPrintWithDigiBox.visibility = View.GONE
             readOnElapsedGroup.visibility = View.GONE
+        }
+    }
+    private fun showHelpDialog() {
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setMessage(R.string.fragment_login_help)
+                .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+
+            dialog.show()
         }
     }
 }
