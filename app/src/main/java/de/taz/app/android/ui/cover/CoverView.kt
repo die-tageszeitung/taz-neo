@@ -114,19 +114,14 @@ class CoverView @JvmOverloads constructor(
      */
     private fun setDate(coverViewDate: CoverViewDate?) {
         if (coverViewDate !== null) {
-            if (BuildConfig.IS_LMD) {
-                momentDate.text =
-                    DateHelper.stringToLocalizedMonthAndYearString(coverViewDate.dateString)
-            } else {
-                // All the items in the recyclerview grid should have the same width,
-                // thus we can simply check here which date to use, as it will be the same on all views.
-                val useShortDate =
-                    width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
+            // All the items in the recyclerview grid should have the same width,
+            // thus we can simply check here which date to use, as it will be the same on all views.
+            val useShortDate =
+                width < context.resources.getDimension(R.dimen.fragment_cover_flow_min_width_long_date)
 
-                momentDate.text = coverViewDate.dateStringShort
-                    ?.takeIf { useShortDate }
-                    ?: coverViewDate.dateString
-            }
+            momentDate.text = coverViewDate.dateStringShort
+                ?.takeIf { useShortDate }
+                ?: coverViewDate.dateString
             dateDownLoadWrapper.visibility = View.VISIBLE
         } else {
             dateDownLoadWrapper.visibility = View.GONE

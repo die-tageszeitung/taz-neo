@@ -281,7 +281,7 @@ object DateHelper {
     /**
      * Parse [dateString] and returns a date string in format of "Dezember 2023".
      *
-     * @param dateString A parsable date string, e.g.  "13.12.2022", "2023-02-09"
+     * @param dateString A parsable date string, like "Jan 12 00:00:00 GMT+01:00 2023".
      * @return localized month name and year, eg "Dezember 2023"
      */
     fun stringToLocalizedMonthAndYearString(dateString: String): String? {
