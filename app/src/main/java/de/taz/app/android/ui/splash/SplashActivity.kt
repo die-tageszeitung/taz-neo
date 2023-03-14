@@ -35,7 +35,6 @@ import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -61,8 +60,12 @@ class SplashActivity : StartupActivity() {
 
     private var showSplashScreen = true
 
+    private var splashStartMs = 0L
+    private var initComplete = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        splashStartMs = System.currentTimeMillis()
 
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { showSplashScreen }
@@ -77,12 +80,11 @@ class SplashActivity : StartupActivity() {
         issueRepository = IssueRepository.getInstance(application)
         feedService = FeedService.getInstance(application)
 
+
         lifecycleScope.launch {
-            coroutineScope {
-                checkAppVersion()
-                generateNotificationChannels()
-                verifyStorageLocation()
-            }
+            checkAppVersion()
+            generateNotificationChannels()
+            verifyStorageLocation()
 
             try {
                 ensureAppInfo()
@@ -97,6 +99,7 @@ class SplashActivity : StartupActivity() {
                 Sentry.captureException(e)
                 return@launch
             }
+            initComplete = true
 
             // Start checking for new issues on a Job launched in the background on the applicationScope.
             // Thus it will not be canceled when the `SplashActivity` finishes
@@ -130,6 +133,17 @@ class SplashActivity : StartupActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        // Log if the user closed the SplashActivity Screen before it was initialized completely.
+        // There is a good chance that this was due to her waiting for the activity for too long,
+        // probably because of slow internet
+        if (!initComplete) {
+            log.warn("SplashActivity stopped after ${System.currentTimeMillis() - splashStartMs}ms")
+            Sentry.captureMessage("SplashActivity was closed before the initialization was complete")
+        }
+    }
+
     override fun onAttachedToWindow() {
         // Since Android sdk 28 there is a notch/cut-out support
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -160,6 +174,7 @@ class SplashActivity : StartupActivity() {
 
     private suspend fun initFeed() {
         try {
+            log.debug("Start initializing feed")
             // First try to get the latest feed. This will refresh the feed automatically if it has
             // not been fetched yet.
             val feed = feedService.getFeedFlowByName(BuildConfig.DISPLAYED_FEED).first()
@@ -173,6 +188,7 @@ class SplashActivity : StartupActivity() {
             if (!hasPublicationDate) {
                 feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
             }
+            log.debug("Finished initializing feed")
 
         } catch (e: ConnectivityException) {
             throw InitializationException("Could not retrieve feed during first start")
@@ -192,6 +208,7 @@ class SplashActivity : StartupActivity() {
                 forceExecution = true,
                 maxRetries = MAX_RETRIES_ON_STARTUP
             )
+            log.debug("AppInfo was maybe downloaded and persisted in ensureAppInfo()")
         } catch (exception: CacheOperationFailedException) {
             throw InitializationException("Retrieving AppInfo failed: $exception")
         }
@@ -207,6 +224,8 @@ class SplashActivity : StartupActivity() {
                 allowCache = false,
                 maxRetries = MAX_RETRIES_ON_STARTUP
             ) as AppInfo
+            log.debug("AppInfo was downloaded and persisted in checkAppVersion()")
+
             if (BuildConfig.MANUAL_UPDATE && appInfo.androidVersion > BuildConfig.VERSION_CODE) {
                 NotificationHelper.getInstance(applicationContext).showNotification(
                     R.string.notification_new_version_title,
@@ -409,9 +428,11 @@ class SplashActivity : StartupActivity() {
             log.debug("Created tazApi.css")
         }
         try {
+            log.debug("Start downloading ResourceInfo")
             contentService.downloadToCache(
                 ResourceInfoKey(-1)
             )
+            log.debug("Finished downloading ResourceInfo")
         } catch (e: CacheOperationFailedException) {
             val hint = "Error while trying to download resource info on startup"
             log.warn(hint)
