@@ -44,7 +44,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private val log by Log
 
     private lateinit var sectionListAdapter: SectionListAdapter
-    private lateinit var completeList: List<SectionDrawerItem>
 
     private lateinit var fontHelper: FontHelper
     private lateinit var issueRepository: IssueRepository
@@ -133,10 +132,10 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
         lifecycleScope.launch {
-            sectionListAdapter.allOpened.collect {allOpened ->
+            sectionListAdapter.allOpened.collect { allOpened ->
                 if (allOpened) {
                     viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_collapse_all)
-                }  else {
+                } else {
                     viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_expand_all)
                 }
             }
@@ -186,11 +185,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     )
                 }
             }
-            completeList = groupedList
-            sectionListAdapter.completeList.addAll(completeList)
-            sectionListAdapter.sectionDrawerItemList =
-                // init the adapter with only the sections
-                sectionStubs.map { SectionDrawerItem.Header(it) }.toMutableList()
+
+            sectionListAdapter.completeList = groupedList
 
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
@@ -207,33 +203,12 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             viewBinding.fragmentDrawerToggleAllSections.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
-                    toggleAllSections(sectionListAdapter.sectionDrawerItemList)
+                    sectionListAdapter.toggleAllSections()
                 }
             }
         } catch (e: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
-        }
-    }
-
-    /**
-     * Expand all articles of the section list OR collapse them all.
-     * Depends on the size compared to the [completeList].
-     * We set the text of the button only here.
-     */
-    private fun toggleAllSections(openedList: MutableList<SectionDrawerItem>) {
-        if (completeList.size == openedList.size) {
-            val collapsedList = completeList.filter { it is SectionDrawerItem.Header }
-                .toMutableList()
-            sectionListAdapter.sectionDrawerItemList = collapsedList
-            viewBinding.fragmentDrawerToggleAllSections.setText(
-                R.string.fragment_drawer_sections_expand_all
-            )
-        } else {
-            sectionListAdapter.sectionDrawerItemList = completeList.toMutableList()
-            viewBinding.fragmentDrawerToggleAllSections.setText(
-                R.string.fragment_drawer_sections_collapse_all
-            )
         }
     }
 
