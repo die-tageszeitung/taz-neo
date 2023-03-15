@@ -167,6 +167,7 @@
     <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
     <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
+    <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
     <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
     <dimen name="fragment_bookmarks_grotesk_font_adjustment">0dp</dimen>
 
