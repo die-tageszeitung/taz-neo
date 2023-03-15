@@ -122,9 +122,7 @@
 
     <style name="TextAppearance.Drawer.Article" parent="TextAppearance.Fragment.Title">
         <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize" tools:ignore="SpUsage">
-            @dimen/fragment_drawer_article_item_text_size
-        </item>
+        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">2</item>
         <item name="android:includeFontPadding">false</item>
@@ -334,7 +332,7 @@
         <item name="android:lineSpacingExtra">3sp</item>
         <item name="android:includeFontPadding">false</item>
         <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
+        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
         <item name="android:paddingBottom">2dp</item>
     </style>
 
@@ -347,7 +345,30 @@
         <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
         <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/fragment_bookmarks_grotesk_font_adjustment</item>
+        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
+    </style>
+
+    <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
+        <item name="android:paddingBottom">2dp</item>
+    </style>
+
+    <style name="TextAppearance.Drawer.Sections.Article.Teaser" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:maxLines">3</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
+        <item name="android:lineSpacingExtra">3.75sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
+        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
