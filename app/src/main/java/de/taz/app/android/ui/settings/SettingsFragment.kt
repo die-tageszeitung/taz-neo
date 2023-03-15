@@ -92,7 +92,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             ?.setText(R.string.settings_header)
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
-            fragmentSettingsFaq.setOnClickListener { openFAQ() }
             fragmentSettingsAccountManageAccount.setOnClickListener {
                 activity?.startActivityForResult(
                     Intent(activity, LoginActivity::class.java),
@@ -247,10 +246,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             if (BuildConfig.IS_LMD) {
                 hideAutoPdfDownloadSwitch()
+                hideFaq()
             } else {
                 fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
                     setPdfDownloadEnabled(isChecked)
                 }
+                fragmentSettingsFaq.setOnClickListener { openFAQ() }
             }
 
             if (BuildConfig.FLAVOR_source == "nonfree") {
@@ -402,6 +403,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun hideAutoPdfDownloadSwitch() {
         viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
         viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
+    }
+
+    private fun hideFaq() {
+        viewBinding.fragmentSettingsFaq.visibility = View.GONE
+        viewBinding.fragmentSettingsFaqSeparatorLine.root.visibility = View.GONE
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
