@@ -19,14 +19,19 @@ class SectionListAdapter(
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var allOpened =  MutableStateFlow(false)
-    var allClosed =  MutableStateFlow(true)
-    var completeList: MutableList<SectionDrawerItem> = mutableListOf()
-    var sectionDrawerItemList: MutableList<SectionDrawerItem> = mutableListOf()
+    val allOpened = MutableStateFlow(false)
+    var completeList: List<SectionDrawerItem> = emptyList()
         set(value) {
             field = value
-            notifyDataSetChanged()
+            // init the adapter with only the unexpanded sections
+            collapseAllSections()
+        }
+
+    private var sectionDrawerItemList: MutableList<SectionDrawerItem> = mutableListOf()
+        set(value) {
+            field = value
             updateAllOpenedOrClosed()
+            notifyDataSetChanged()
         }
 
     var typeface: Typeface? = null
@@ -141,24 +146,39 @@ class SectionListAdapter(
 
     /**
      * This function compares the [sectionDrawerItemList] with the [completeList] to determine and
-     * set the values [allOpened] and [allClosed] accordingly.
+     * set the values [allOpened] accordingly.
      */
     private fun updateAllOpenedOrClosed() {
         allOpened.value = sectionDrawerItemList.size == completeList.size
-        val onlySectionsList = completeList.filterIsInstance<SectionDrawerItem.Header>()
-        allClosed.value = sectionDrawerItemList.size == onlySectionsList.size
+    }
+
+    fun toggleAllSections() {
         if (allOpened.value) {
-            sectionDrawerItemList.map {
-                if (it is SectionDrawerItem.Header) {
-                    it.isExpanded = true
-                }
-            }
-        } else if (allClosed.value) {
-            sectionDrawerItemList.map {
-                if (it is SectionDrawerItem.Header) {
-                    it.isExpanded = false
-                }
-            }
+            // close all
+            collapseAllSections()
+        } else {
+            // show all
+            expandAllSections()
         }
+    }
+
+    private fun collapseAllSections() {
+        sectionDrawerItemList = completeList
+            .mapNotNull {
+                when (it) {
+                    is SectionDrawerItem.Header -> it.copy(isExpanded = false)
+                    is SectionDrawerItem.Item -> null
+                }
+            }.toMutableList()
+    }
+
+    private fun expandAllSections() {
+        sectionDrawerItemList = completeList
+            .map {
+                when (it) {
+                    is SectionDrawerItem.Header -> it.copy(isExpanded = true)
+                    is SectionDrawerItem.Item -> it
+                }
+            }.toMutableList()
     }
 }
