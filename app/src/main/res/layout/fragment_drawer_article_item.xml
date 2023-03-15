@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_wrapper"
+            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_barrier"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -55,44 +55,44 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_barrier"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/article_wrapper"
             app:layout_constraintVertical_bias="1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_wrapper"
-            tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen" />
+            tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen 13 min" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/image_and_bookmark_wrapper"
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/image_and_bookmark_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:barrierDirection="start"
+            app:constraint_referenced_ids="fragment_drawer_article_image,fragment_drawer_article_bookmark_icon" />
+
+        <ImageView
+            android:id="@+id/fragment_drawer_article_image"
+            android:layout_width="@dimen/fragment_bookmarks_thumbnail_size"
+            android:layout_height="@dimen/fragment_bookmarks_thumbnail_size"
+            android:layout_marginTop="@dimen/fragment_section_drawer_article_image_top_margin"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/article_wrapper"
+            tools:ignore="ContentDescription"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:id="@+id/fragment_drawer_article_bookmark_icon"
+            android:layout_width="@dimen/drawer_bookmarks_icon_size"
+            android:layout_height="@dimen/drawer_bookmarks_icon_size"
+            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:contentDescription="@string/fragment_bookmark"
+            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:src="@drawable/ic_bookmark"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <ImageView
-                android:id="@+id/fragment_drawer_article_image"
-                android:layout_width="@dimen/fragment_bookmarks_thumbnail_size"
-                android:layout_height="@dimen/fragment_bookmarks_thumbnail_size"
-                android:layout_marginTop="@dimen/fragment_section_drawer_article_image_top_margin"
-                android:adjustViewBounds="true"
-                android:scaleType="centerCrop"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription"
-                tools:src="@tools:sample/avatars" />
-
-            <ImageView
-                android:id="@+id/fragment_drawer_article_bookmark_icon"
-                android:layout_width="@dimen/drawer_bookmarks_icon_size"
-                android:layout_height="@dimen/drawer_bookmarks_icon_size"
-                android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
-                android:contentDescription="@string/fragment_bookmark"
-                android:padding="@dimen/fragment_bookmarks_icon_padding"
-                android:src="@drawable/ic_bookmark"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_article_image"
-                app:tint="@color/textColorAccent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_drawer_article_image"
+            app:layout_constraintVertical_bias="1"
+            app:tint="@color/textColorAccent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
