@@ -353,7 +353,9 @@
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <include layout="@layout/settings_separator_view" />
+            <include
+                android:id="@+id/fragment_settings_faq_separator_line"
+                layout="@layout/settings_separator_view" />
 
             <TextView
                 android:id="@+id/fragment_settings_support_report_bug"
