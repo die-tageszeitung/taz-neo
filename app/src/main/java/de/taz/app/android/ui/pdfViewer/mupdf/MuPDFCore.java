@@ -14,6 +14,9 @@ import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
 
+import de.taz.app.android.util.Log;
+import io.sentry.Sentry;
+
 public class MuPDFCore {
     private int resolution;
     private Document doc;
@@ -142,8 +145,26 @@ public class MuPDFCore {
 
         AndroidDrawDevice dev = new AndroidDrawDevice(bm, patchX, patchY);
         displayList.run(dev, ctm, cookie);
-        dev.close();
-        dev.destroy();
+        try {
+            // Closing the device often throws a RuntimeException with the error:
+            // "items left on stack in draw device: X"
+            // https://sentry.taz.de/organizations/sentry/issues/4895
+            // In this case we still want to try to destroy the device to free its memory,
+            // and we don't want the app to crash.
+            dev.close();
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            if (message != null && message.startsWith("items left on stack in draw device:")) {
+                String hint = "MuPDFCore crashed on close()";
+                Log log = new Log(MuPDFCore.class.getName());
+                log.error(hint, e);
+                Sentry.captureException(e, hint);
+            } else {
+                throw e;
+            }
+        } finally {
+            dev.destroy();
+        }
     }
 
     public synchronized void updatePage(Bitmap bm, int pageNum,
