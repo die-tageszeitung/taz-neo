@@ -2,14 +2,12 @@ package de.taz.app.android.ui.drawer.sectionList
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
@@ -20,7 +18,6 @@ import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
 import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.home.page.CoverViewActionListener
@@ -45,7 +42,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private lateinit var sectionListAdapter: SectionListAdapter
 
-    private lateinit var fontHelper: FontHelper
     private lateinit var issueRepository: IssueRepository
     private lateinit var contentService: ContentService
     private lateinit var momentRepository: MomentRepository
@@ -56,8 +52,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private lateinit var storageService: StorageService
 
-    private var knileLightTypeFace: Typeface? = null
-
     private var momentBinder: MomentViewBinding? = null
 
     private lateinit var currentIssueStub: IssueStub
@@ -65,7 +59,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     override fun onAttach(context: Context) {
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
-        fontHelper = FontHelper.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
@@ -84,18 +77,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 ::handleArticleBookmarkClick,
                 bookmarkRepository::createBookmarkStateFlow
             )
-        lifecycleScope.launch(Dispatchers.IO) {
-            val knileTypeFaceFileEntry =
-                fileEntryRepository.get(KNILE_REGULAR_RESOURCE_FILE_NAME)
-            knileLightTypeFace =
-                knileTypeFaceFileEntry?.let {
-                    storageService.getFile(it)?.let { file -> fontHelper.getTypeFace(file) }
-                }
-            withContext(Dispatchers.Main) {
-                sectionListAdapter.typeface = knileLightTypeFace
-            }
-        }
-
     }
 
     override fun onResume() {
@@ -140,8 +121,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 }
             }
         }
-
-        viewBinding.fragmentDrawerSectionsImprintTextView.typeface = knileLightTypeFace
         viewBinding.fragmentDrawerSectionsImprint.setOnClickListener {
             lifecycleScope.launch {
                 showImprint()

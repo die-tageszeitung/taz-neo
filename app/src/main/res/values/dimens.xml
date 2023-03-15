@@ -32,6 +32,7 @@
     <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
     <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
     <dimen name="fragment_section_drawer_article_image_top_margin">3dp</dimen>
+    <dimen name="fragment_drawer_section_title_padding_top">0dp</dimen>
     <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
@@ -169,7 +170,7 @@
     <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
     <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
     <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
-    <dimen name="fragment_bookmarks_grotesk_font_adjustment">0dp</dimen>
+    <dimen name="grotesk_font_adjustment">0dp</dimen>
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_margin_top">8dp</dimen>
@@ -184,9 +185,9 @@
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">18sp</dimen>
-    <dimen name="fragment_drawer_article_item_text_size">18dp</dimen>
-    <dimen name="fragment_drawer_separator_line_height">0.25dp</dimen>
+    <dimen name="fragment_drawer_sections_item_text_size">20sp</dimen>
+    <dimen name="fragment_drawer_article_item_text_size">15sp</dimen>
+    <dimen name="fragment_drawer_separator_line_height">0.5dp</dimen>
     <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>

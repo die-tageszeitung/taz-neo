@@ -38,29 +38,22 @@ class ArticleItemViewHolder(
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
 
-    private var titleTextView: TextView? = null
-    private var teaserTextView: TextView? = null
-    private var authorAndReadMinutesTextView: TextView? = null
-    private var articleImageView: ImageView? = null
-    private var bookmarkIconImageView: ImageView? = null
-    private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
+    private var titleTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_title)
+    private var teaserTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_teaser)
+    private var authorAndReadMinutesTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
+    private var articleImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_image)
+    private var bookmarkIconImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_bookmark_icon)
 
-    init {
-        titleTextView = itemView.findViewById(R.id.fragment_drawer_article_title)
-        teaserTextView = itemView.findViewById(R.id.fragment_drawer_article_teaser)
-        authorAndReadMinutesTextView = itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
-        articleImageView = itemView.findViewById(R.id.fragment_drawer_article_image)
-        bookmarkIconImageView = itemView.findViewById(R.id.fragment_drawer_article_bookmark_icon)
-    }
+    private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
 
     fun bind(sectionDrawerItem: SectionDrawerItem.Item) {
         val article = sectionDrawerItem.article
-        titleTextView?.text = article.title
+        titleTextView.text = article.title
 
         if (article.teaser.isNullOrBlank()) {
-            teaserTextView?.visibility = View.GONE
+            teaserTextView.visibility = View.GONE
         } else {
-            teaserTextView?.text = article.teaser
+            teaserTextView.text = article.teaser
         }
 
         // get the author(s) from the article
@@ -80,12 +73,12 @@ class ArticleItemViewHolder(
         }
         val twoStyledSpannable = constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-        authorAndReadMinutesTextView?.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+        authorAndReadMinutesTextView.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
 
         if (article.imageList.isNotEmpty()) {
             fileHelper.getAbsolutePath(article.imageList.first())?.let {
                 if (File(it).exists()) {
-                    articleImageView?.let { imageView ->
+                    articleImageView.let { imageView ->
                         Glide.with(itemView.context.applicationContext)
                             .load(it)
                             .apply(RequestOptions().override(imageView.width, imageView.height))
@@ -94,10 +87,10 @@ class ArticleItemViewHolder(
                 }
             }
         } else {
-            articleImageView?.setImageBitmap(null)
-            articleImageView?.visibility = View.GONE
+            articleImageView.setImageBitmap(null)
+            articleImageView.visibility = View.GONE
         }
-        bookmarkIconImageView?.setOnClickListener {
+        bookmarkIconImageView.setOnClickListener {
             onBookmarkClick(article)
         }
         itemView.setOnClickListener {
@@ -107,31 +100,75 @@ class ArticleItemViewHolder(
         launch {
             getBookmarkStateFlow(article.key).collect {isBookmarked ->
                 if (isBookmarked) {
-                    bookmarkIconImageView?.setImageResource(R.drawable.ic_bookmark_filled)
+                    bookmarkIconImageView.setImageResource(R.drawable.ic_bookmark_filled)
                 } else {
-                    bookmarkIconImageView?.setImageResource(R.drawable.ic_bookmark)
+                    bookmarkIconImageView.setImageResource(R.drawable.ic_bookmark)
                 }
             }
         }
     }
 
     private fun constructAuthorsAndReadMinutesSpannable(authors: String, readMinutes: String): SpannableString {
+        val authorsAndReadMinutesString: String
+        val authorSpanStart: Int
+        val authorSpanEnd: Int
+        val readMinutesSpanStart: Int
+        val readMinutesSpanEnd: Int
 
-        val authorsAndReadMinutesString = "$authors $readMinutes"
+        when {
+            readMinutes.isBlank() && authors.isBlank() -> {
+                authorsAndReadMinutesString = ""
+                authorSpanStart = 0
+                authorSpanEnd = 0
+                readMinutesSpanStart = 0
+                readMinutesSpanEnd = 0
+            }
+            readMinutes.isBlank() -> {
+                authorsAndReadMinutesString = authors
+                authorSpanStart = 0
+                authorSpanEnd = authors.length
+                readMinutesSpanStart = 0
+                readMinutesSpanEnd = 0
+            }
+            authors.isBlank() -> {
+                authorsAndReadMinutesString = readMinutes
+                authorSpanStart = 0
+                authorSpanEnd = 0
+                readMinutesSpanStart = 0
+                readMinutesSpanEnd = readMinutes.length
+            }
+            else -> {
+                authorsAndReadMinutesString = "$authors $readMinutes"
+                authorSpanStart = 0
+                authorSpanEnd = authors.length
+                readMinutesSpanStart = authorSpanEnd + 1
+                readMinutesSpanEnd = readMinutesSpanStart + readMinutes.length
+            }
+        }
+
         val text = SpannableString(authorsAndReadMinutesString)
 
-        text.setSpan(
-            TextAppearanceSpan(itemView.context, R.style.TextAppearance_Bookmarks_Entry_Author),
-            0,
-            authors.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        text.setSpan(
-            TextAppearanceSpan(itemView.context, R.style.TextAppearance_Bookmarks_Entry_ReadMinutes),
-            authors.length+1,
-            authorsAndReadMinutesString.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        if (authorSpanStart < authorSpanEnd) {
+            text.setSpan(
+                TextAppearanceSpan(itemView.context, R.style.TextAppearance_Bookmarks_Entry_Author),
+                0,
+                authors.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        if (readMinutesSpanStart < readMinutesSpanEnd) {
+            text.setSpan(
+                TextAppearanceSpan(
+                    itemView.context,
+                    R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                ),
+                readMinutesSpanStart,
+                readMinutesSpanEnd,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
         return text
     }
 }

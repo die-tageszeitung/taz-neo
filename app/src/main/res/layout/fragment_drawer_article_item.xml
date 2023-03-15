@@ -34,17 +34,16 @@
 
             <TextView
                 android:id="@+id/fragment_drawer_article_title"
-                style="@style/TextAppearance.Bookmarks.Entry.Title"
+                style="@style/TextAppearance.Drawer.Sections.Article.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Im Sinne der Anklage" />
 
             <TextView
                 android:id="@+id/fragment_drawer_article_teaser"
-                style="@style/TextAppearance.Bookmarks.Entry.Teaser"
+                style="@style/TextAppearance.Drawer.Sections.Article.Teaser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_vertical"
                 android:layout_marginEnd="@dimen/fragment_drawer_teaser_margin_end"
                 tools:text="@tools:sample/lorem/random" />
         </LinearLayout>

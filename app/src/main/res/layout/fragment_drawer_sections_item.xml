@@ -16,9 +16,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/section_title_wrapper"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/fragment_drawer_sections_item_height"
         android:clipChildren="false"
-        android:minHeight="@dimen/fragment_drawer_sections_item_height"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/section_toggle_wrapper"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,6 +28,7 @@
             style="@style/TextAppearance.Drawer.Sections"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/fragment_drawer_section_title_padding_top"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
