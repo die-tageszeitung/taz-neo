@@ -251,6 +251,8 @@
     <!--    special dimens -->
     <!--    dimen equals to match_parent (see https://stackoverflow.com/questions/16478808/value-equals-to-match-parent-or-fill-parent-in-dimens-xml) -->
     <dimen name="custom_match_parent">-1px</dimen>
+    <!-- dimen especially for use with constraint layout, see also https://developer.android.com/reference/androidx/constraintlayout/widget/ConstraintLayout#dimensions-constraints -->
+    <dimen name="match_constraint">0dp</dimen>
 
     <dimen name="bottom_sheet_round_padding_top">18dp</dimen>
     <dimen name="bottom_sheet_round_padding_horizontal">18dp</dimen>
@@ -266,8 +268,10 @@
     <dimen name="article_section_divider_margin">0dp</dimen>
 
     <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
+    <dimen name="fragment_drawer_body_pdf_with_sections_current_page_title_margin_start">10dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_current_page_title">14sp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">18sp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_margin_bottom">10dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_padding">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_height">0.5dp</dimen>

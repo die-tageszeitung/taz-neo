@@ -3,5 +3,6 @@
     <item name="appFontRegular" format="reference" type="font">@font/roboto_regular</item>
     <item name="appFontBold" format="reference" type="font">@font/roboto_bold</item>
     <item name="appFontAlternative" format="reference" type="font">@font/charis_sil_regular</item>
-    <item name="appFontAlternativeItalic" format="reference" type="font">@font/charis_sil_regular</item>
+    <!--the explicitly defined font is required due to a problem with `textStyle` see https://stackoverflow.com/a/54033946 -->
+    <item name="appFontAlternativeItalic" format="reference" type="font">@font/charis_sil_italic</item>
 </resources>
