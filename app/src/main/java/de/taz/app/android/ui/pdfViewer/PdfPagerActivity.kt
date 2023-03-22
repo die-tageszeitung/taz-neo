@@ -56,6 +56,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
 
         private const val LOGO_PEAK = 8
+        private const val LOGO_PEAK_CLICK_PADDING = 30
         private const val HIDE_LOGO_DELAY_MS = 200L
         private const val LOGO_ANIMATION_DURATION_MS = 300L
         private const val ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME =
@@ -243,9 +244,12 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
             val transX = -drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
             drawerLogoWrapper.animate()
                 .withEndAction {
+                    // add additional area where clicks are handled to open the drawer
+                    val widthWhereToHandleLogoClick =
+                        (LOGO_PEAK + LOGO_PEAK_CLICK_PADDING) * resources.displayMetrics.density
                     pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                        (LOGO_PEAK * resources.displayMetrics.density).toInt(),
-                        drawerLogoWrapper.height
+                        width = widthWhereToHandleLogoClick.toInt(),
+                        height = drawerLogoWrapper.height
                     )
                 }
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
