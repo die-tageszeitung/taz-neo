@@ -64,11 +64,11 @@ class SplashActivity : StartupActivity() {
     private var initComplete = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         splashStartMs = System.currentTimeMillis()
-
-        val splashScreen = installSplashScreen()
-        splashScreen.setKeepOnScreenCondition { showSplashScreen }
+        installSplashScreen().apply {
+            setKeepOnScreenCondition { showSplashScreen }
+        }
+        super.onCreate(savedInstanceState)
 
         authHelper = AuthHelper.getInstance(application)
         toastHelper = ToastHelper.getInstance(application)
@@ -142,6 +142,16 @@ class SplashActivity : StartupActivity() {
             log.warn("SplashActivity stopped after ${System.currentTimeMillis() - splashStartMs}ms")
             Sentry.captureMessage("SplashActivity was closed before the initialization was complete")
         }
+    }
+
+    override fun onDestroy() {
+        // Ensure that the SplashScreen.setKeepOnScreenCondition is set to false, to prevent a bug
+        // on LineageOS occurring on a cold App start. Somehow the SplashActivity will be started
+        // twice. Although the first instance is finished immediately it does remain on screen
+        // blocking the the second instance that would be showing the ConnectionErrorDialog as long
+        // as the setKeepOnScreenCondition is true.
+        showSplashScreen = false
+        super.onDestroy()
     }
 
     override fun onAttachedToWindow() {
