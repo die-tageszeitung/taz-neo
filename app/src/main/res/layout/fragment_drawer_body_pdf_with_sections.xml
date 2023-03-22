@@ -37,6 +37,7 @@
                 android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_image"
                 android:layout_width="@dimen/fragment_drawer_thumbnail_image_width"
                 android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
                 tools:ignore="ContentDescription"
                 tools:layout_height="166dp"
                 tools:layout_width="112dp"
