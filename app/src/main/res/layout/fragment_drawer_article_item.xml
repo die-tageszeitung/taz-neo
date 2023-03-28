@@ -37,6 +37,7 @@
                 style="@style/TextAppearance.Drawer.Sections.Article.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/fragment_drawer_title_margin_end"
                 tools:text="Im Sinne der Anklage" />
 
             <TextView
