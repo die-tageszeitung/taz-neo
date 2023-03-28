@@ -27,22 +27,21 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
-import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 private const val MAX_RETRIES_ON_STARTUP = 3
+private const val DOWNLOAD_TASKS_TIMEOUT_MS = 2_000L
 
 class SplashActivity : StartupActivity() {
 
@@ -57,6 +56,9 @@ class SplashActivity : StartupActivity() {
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
     private lateinit var feedService: FeedService
+    private lateinit var appInfoRepository: AppInfoRepository
+    private lateinit var feedRepository: FeedRepository
+    private lateinit var resourceInfoRepository: ResourceInfoRepository
 
     private var showSplashScreen = true
 
@@ -79,57 +81,12 @@ class SplashActivity : StartupActivity() {
         generalDataStore = GeneralDataStore.getInstance(application)
         issueRepository = IssueRepository.getInstance(application)
         feedService = FeedService.getInstance(application)
-
+        appInfoRepository = AppInfoRepository.getInstance(application)
+        feedRepository = FeedRepository.getInstance(application)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(application)
 
         lifecycleScope.launch {
-            checkAppVersion()
-            generateNotificationChannels()
-            verifyStorageLocation()
-
-            try {
-                ensureAppInfo()
-                initResources()
-                initFeed()
-            } catch (e: InitializationException) {
-                log.error("Error while initializing")
-                e.printStackTrace()
-                // hide splash screen so dialog can be shown
-                showSplashScreen = false
-                showConnectionErrorDialog()
-                Sentry.captureException(e)
-                return@launch
-            }
-            initComplete = true
-
-            // Start checking for new issues on a Job launched in the background on the applicationScope.
-            // Thus it will not be canceled when the `SplashActivity` finishes
-            applicationScope.launch {
-                checkForNewestIssue(feedService, toastHelper)
-                generalDataStore.clearRemovedEntries()
-            }
-
-            val currentStorageLocation = storageDataStore.storageLocation.get()
-
-            val unmigratedFiles =
-                fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
-            val filesWithBadStorage =
-                fileEntryRepository.getExceptStorageLocation(
-                    listOf(StorageLocation.NOT_STORED, currentStorageLocation)
-                )
-
-
-            val publicIssuesNeedDeletion =
-                (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
-                        && authHelper.getMinStatus() == IssueStatus.regular)
-            // Explicitly selectable storage migration, if there is any file to migrate start migration activity
-            if (unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion) {
-                Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
-                    startActivity(this)
-                }
-            } else {
-                startActualApp()
-            }
-            finish()
+            initialize()
         }
     }
 
@@ -174,17 +131,81 @@ class SplashActivity : StartupActivity() {
         super.onAttachedToWindow()
     }
 
+    private suspend fun initialize() {
+        log.verbose("Start initialize")
+
+        // Run the general initialization logic that is required to start the App.
+        // These steps must run before the download tasks may be started
+        generateNotificationChannels()
+        verifyStorageLocation()
+        initResources()
+
+        // Create async coroutines for all init tasks that might require network for downloads.
+        // The [Deferred]s can be awaited with a timeout if the network is very slow.
+        // Starting them async has the advantage of possible parallelization.
+        // And it is required to be able to use a timeout, as for some reason CacheOperation.execute
+        // is using a NonCancellable CoroutineContext.
+        // Note that the async Coroutines will continue even when this Activity is closed due to
+        // them being NonCancellable
+        val downloadTasks = listOf(
+            lifecycleScope.async {
+                // Note that both of these are using [ContentService] with the same tag and
+                // will be serialized internally by the download manager:
+                // thus there is no advantage in starting them on separate coroutines
+                checkAppVersion()
+                ensureAppInfo()
+            },
+            lifecycleScope.async {
+                downloadResourceFiles()
+            },
+            lifecycleScope.async {
+                initFeed()
+            }
+        )
+
+        // First we'll try to await the download tasks with a timeout, if we hit the timeout we will
+        // check if all the required offline data is ready and start the main app.
+        try {
+            withTimeout(DOWNLOAD_TASKS_TIMEOUT_MS) {
+                downloadTasks.awaitAll()
+            }
+
+        } catch (e: InitializationException) {
+            handleInitializationException(e)
+            return
+
+        } catch (e: TimeoutCancellationException) {
+            log.debug("Initialization download tasks took longer than ${DOWNLOAD_TASKS_TIMEOUT_MS}ms")
+            if (isOfflineReady()) {
+                log.debug("Offline data is ready - skip waiting for downloads and start App immediately")
+                finishOnInitCompleteAndContinue()
+                return
+            }
+        }
+
+        // Otherwise, if the offline data is not ready, we continue waiting for the download tasks.
+        // If they have already finished, this second await call will return immediately.
+        try {
+            downloadTasks.awaitAll()
+        } catch (e: InitializationException) {
+            handleInitializationException(e)
+            return
+        }
+        finishOnInitCompleteAndContinue()
+    }
+
     private suspend fun verifyStorageLocation() {
         // if the configured storage is set to external, but no external device is mounted we need to reset it
         // likely this happened because the user ejected the sd card
         if (storageDataStore.storageLocation.get() == StorageLocation.EXTERNAL && storageService.getExternalFilesDir() == null) {
+            log.debug("StorageLocation moved to internal")
             storageDataStore.storageLocation.set(StorageLocation.INTERNAL)
         }
     }
 
     private suspend fun initFeed() {
         try {
-            log.debug("Start initializing feed")
+            log.verbose("Start initializing feed")
             // First try to get the latest feed. This will refresh the feed automatically if it has
             // not been fetched yet.
             val feed = feedService.getFeedFlowByName(BuildConfig.DISPLAYED_FEED).first()
@@ -198,37 +219,21 @@ class SplashActivity : StartupActivity() {
             if (!hasPublicationDate) {
                 feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
             }
-            log.debug("Finished initializing feed")
+            log.verbose("Finished initializing feed")
 
         } catch (e: ConnectivityException) {
-            throw InitializationException("Could not retrieve feed during first start")
+            throw InitializationException("Could not retrieve feed during first start", e)
         }
     }
 
     /**
-     * download AppInfo and persist it
-     */
-    private suspend fun ensureAppInfo() {
-        try {
-            // This call might be duplicated by the AppVersion check which is not allowing cache.
-            // To make this call not fail due to a connectivity exception if there indeed is a
-            // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
-            contentService.downloadMetadata(
-                AppInfoKey(),
-                forceExecution = true,
-                maxRetries = MAX_RETRIES_ON_STARTUP
-            )
-            log.debug("AppInfo was maybe downloaded and persisted in ensureAppInfo()")
-        } catch (exception: CacheOperationFailedException) {
-            throw InitializationException("Retrieving AppInfo failed: $exception")
-        }
-    }
-
-    /**
-     * download AppInfo and persist it
+     * Try downloading the latest AppInfo and check if a newer App Version is available.
+     * Any errors will be ignored.
      */
     private suspend fun checkAppVersion() {
         try {
+            log.verbose("Start checking AppVersion")
+
             val appInfo = contentService.downloadMetadata(
                 AppInfoKey(),
                 allowCache = false,
@@ -250,9 +255,50 @@ class SplashActivity : StartupActivity() {
                 )
             }
         } catch (e: Exception) {
-            log.warn("Start up check for new version failed because no internet available")
+            log.warn("Start up check for new version failed", e)
         }
     }
+
+    /**
+     * Ensure that a AppInfo does exist in cache.
+     * If there is none cached yet, it is tried to download it.
+     * Errors will be catched and rethrown as [InitializationException]
+     */
+    private suspend fun ensureAppInfo() {
+        try {
+            log.verbose("Start ensureAppInfo()")
+            // This call might be duplicated by the AppVersion check which is not allowing cache.
+            // To make this call not fail due to a connectivity exception if there indeed is a
+            // cached AppInfo we need to force execute it and not listen on the same call as in checkAppVersion
+            contentService.downloadMetadata(
+                AppInfoKey(),
+                forceExecution = true,
+                maxRetries = MAX_RETRIES_ON_STARTUP
+            )
+            log.verbose("AppInfo is available in cache (maybe downloaded) in ensureAppInfo()")
+
+        } catch (exception: CacheOperationFailedException) {
+            throw InitializationException("Retrieving AppInfo failed", exception)
+        }
+    }
+
+
+    /**
+     * download resources, save to db and download necessary files
+     */
+    private suspend fun downloadResourceFiles() {
+        try {
+            log.verbose("Start downloading ResourceInfo")
+            contentService.downloadToCache(
+                ResourceInfoKey(-1)
+            )
+            log.verbose("Finished downloading ResourceInfo")
+        } catch (e: CacheOperationFailedException) {
+            throw InitializationException("ResourceInfo download failed on startup", e)
+        }
+    }
+
+
 
     private fun downloadFromServerIntent(): Intent {
         return Intent(Intent(Intent.ACTION_VIEW)).setData(
@@ -262,11 +308,9 @@ class SplashActivity : StartupActivity() {
         )
     }
 
-    /**
-     * download resources, save to db and download necessary files
-     */
+
     private suspend fun initResources() {
-        log.info("initializing resources")
+        log.verbose("Initialize resource files on the file storage")
 
         val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
         val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
@@ -325,7 +369,7 @@ class SplashActivity : StartupActivity() {
                     sha256 = storageService.getSHA256(navButtonFile),
                 )
             )
-            log.debug("Created $DEFAULT_NAV_DRAWER_FILE_NAME")
+            log.verbose("Created $DEFAULT_NAV_DRAWER_FILE_NAME")
         }
         // create imageStub
         val imageStub =
@@ -386,7 +430,7 @@ class SplashActivity : StartupActivity() {
                     sha256 = storageService.getSHA256(tazApiJSFile)
                 )
             )
-            log.debug("Created/updated tazApi.js")
+            log.verbose("Created/updated tazApi.js")
         }
 
         var tazApiCSSFileEntry =
@@ -435,19 +479,9 @@ class SplashActivity : StartupActivity() {
                     sha256 = storageService.getSHA256(tazApiCSSFile),
                 )
             )
-            log.debug("Created tazApi.css")
+            log.verbose("Created tazApi.css")
         }
-        try {
-            log.debug("Start downloading ResourceInfo")
-            contentService.downloadToCache(
-                ResourceInfoKey(-1)
-            )
-            log.debug("Finished downloading ResourceInfo")
-        } catch (e: CacheOperationFailedException) {
-            val hint = "Error while trying to download resource info on startup"
-            log.warn(hint)
-            Sentry.captureException(e, hint)
-        }
+        log.verbose("Finished initializing resources")
     }
 
     private fun generateNotificationChannels() {
@@ -467,7 +501,6 @@ class SplashActivity : StartupActivity() {
                 NotificationManager.IMPORTANCE_HIGH
             )
         }
-
     }
 
     @TargetApi(26)
@@ -502,6 +535,88 @@ class SplashActivity : StartupActivity() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
+
+    /**
+     * Handle initialization errors by showing a error dialog
+     */
+    private fun handleInitializationException(e: InitializationException) {
+        log.error("Error while initializing")
+        e.printStackTrace()
+        // hide splash screen so dialog can be shown
+        showSplashScreen = false
+        showConnectionErrorDialog()
+        Sentry.captureException(e)
+    }
+
+    /**
+     * To be called if the initialization is complete and the the app ready to be started.
+     * Will finish the SplashActivity, start background tasks and continue to the next Activity
+     */
+    private suspend fun finishOnInitCompleteAndContinue() {
+        initComplete = true
+        startBackgroundTasks()
+
+        // Explicitly selectable storage migration, if there is any file to migrate start migration activity
+        if (areMigrationsRequired()) {
+            Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
+                startActivity(this)
+            }
+        } else {
+            startActualApp()
+        }
+
+        finish()
+    }
+
+    /**
+     * Start background tasks on a Job launched in the background on the applicationScope, thus it
+     * will not be canceled when the [SplashActivity] finishes.
+     */
+    private fun startBackgroundTasks() {
+        applicationScope.launch {
+            checkForNewestIssue(feedService, toastHelper)
+            generalDataStore.clearRemovedEntries()
+        }
+    }
+
+
+    /**
+     * Returns true if some migrations are pending, due to leftover public artifacts
+     * or when the app data should be moved from/to the SD card.
+     */
+    private suspend fun areMigrationsRequired(): Boolean {
+        val currentStorageLocation = storageDataStore.storageLocation.get()
+
+        val unmigratedFiles =
+            fileEntryRepository.getDownloadedExceptStorageLocation(currentStorageLocation)
+        val filesWithBadStorage =
+            fileEntryRepository.getExceptStorageLocation(
+                listOf(StorageLocation.NOT_STORED, currentStorageLocation)
+            )
+
+
+        val publicIssuesNeedDeletion =
+            (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
+                    && authHelper.getMinStatus() == IssueStatus.regular)
+
+        return unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion
+    }
+
+    /**
+     * Returns true if all the required data to start the App offline is ready.
+     * Short circuits around any network delays that might be hit when using the [ContentService]
+     */
+    private suspend fun isOfflineReady(): Boolean {
+        val latestAppInfo = appInfoRepository.get()
+        val latestFeed = feedRepository.get(BuildConfig.DISPLAYED_FEED)
+        val latestResourceInfo = resourceInfoRepository.getNewest()
+
+        return latestAppInfo != null
+                && latestFeed != null && latestFeed.publicationDates.isNotEmpty()
+                && latestResourceInfo != null && latestResourceInfo.dateDownload != null
+    }
+
+
 }
 
 class InitializationException(message: String, override val cause: Throwable? = null) :
