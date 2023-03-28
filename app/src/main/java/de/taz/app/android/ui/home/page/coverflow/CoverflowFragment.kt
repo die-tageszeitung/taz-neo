@@ -91,7 +91,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         toArchive.setOnClickListener { getHomeFragment().showArchive() }
         date.setOnClickListener { openDatePicker() }
 
-        viewModel.feed.observeDistinct(this) { feed ->
+        viewModel.feed.observe(viewLifecycleOwner) { feed ->
             // Store current adapter state before setting some new one
             val prevMomentDate = viewModel.currentDate.value
             val prevHomeMomentDate = adapter?.getItem(0)?.date
@@ -139,15 +139,11 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
             currentlyFocusedDate = null
             updateUIForCurrentDate()
         }
-        grid.addOnScrollListener(onScrollListener)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.currentDate.observe(this) { updateUIForCurrentDate() }
-        authHelper.email.asLiveData().observeDistinct(this) {
+        viewModel.currentDate.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
+        authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) {
             determineWhetherToShowLoginButton(it)
         }
+        grid.addOnScrollListener(onScrollListener)
     }
 
     override fun onDestroyView() {

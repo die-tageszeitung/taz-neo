@@ -31,7 +31,9 @@ class IssueFeedViewModel(
     }
 
     fun setFeed(feed: Feed) {
-        mutableFeedLiveData.value = feed
+        if (!Feed.equalsShallow(mutableFeedLiveData.value, feed)) {
+            mutableFeedLiveData.value = feed
+        }
     }
 
     private val mutableFeedLiveData = MutableLiveData<Feed>()

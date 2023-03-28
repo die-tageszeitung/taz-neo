@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.BuildConfig
@@ -73,17 +71,13 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                if (BuildConfig.IS_LMD) {
-                    viewBinding.fabActionPdf.visibility = View.GONE
-                }
-                else {
-                    homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                        val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                        viewBinding.fabActionPdf.setImageResource(drawable)
-                    }
-                }
+        if (BuildConfig.IS_LMD) {
+            viewBinding.fabActionPdf.visibility = View.GONE
+        }
+        else {
+            homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
+                val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                viewBinding.fabActionPdf.setImageResource(drawable)
             }
         }
 
