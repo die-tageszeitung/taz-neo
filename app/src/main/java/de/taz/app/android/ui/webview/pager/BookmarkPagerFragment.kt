@@ -64,32 +64,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override fun onResume() {
         super.onResume()
-        viewModel.bookmarkedArticleStubsLiveData.observeDistinct(this) {
-            articlePagerAdapter.articleStubs = it
-            viewBinding.loadingScreen.root.visibility = View.GONE
-            tryScrollToArticle()
-        }
-
-        viewModel.articleFileNameLiveData.observeDistinct(this) {
-            tryScrollToArticle()
-        }
-
-        // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
-        issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this) {
-            if (it != null) {
-                requireActivity().apply {
-                    startActivity(
-                        IssueViewerActivity.newIntent(
-                            this,
-                            IssuePublication(it.issueKey),
-                            it.displayableKey
-                        )
-                    )
-                    finish()
-                }
-            }
-        }
-
         if (Util.SDK_INT <= Build.VERSION_CODES.M) {
             initializePlayer()
         }
@@ -113,6 +87,32 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
+        }
+
+        viewModel.bookmarkedArticleStubsLiveData.observeDistinct(viewLifecycleOwner) {
+            articlePagerAdapter.articleStubs = it
+            viewBinding.loadingScreen.root.visibility = View.GONE
+            tryScrollToArticle()
+        }
+
+        viewModel.articleFileNameLiveData.observeDistinct(viewLifecycleOwner) {
+            tryScrollToArticle()
+        }
+
+        // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
+        issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
+            if (it != null) {
+                requireActivity().apply {
+                    startActivity(
+                        IssueViewerActivity.newIntent(
+                            this,
+                            IssuePublication(it.issueKey),
+                            it.displayableKey
+                        )
+                    )
+                    finish()
+                }
+            }
         }
     }
 

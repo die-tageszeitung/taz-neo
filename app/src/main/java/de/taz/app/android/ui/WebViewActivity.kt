@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.base.ViewBindingActivity
@@ -37,9 +34,6 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
 
     private lateinit var storageService: StorageService
     private var resourceInfoRepository: ResourceInfoRepository? = null
-
-    private var downloadedObserver: Observer<Boolean>? = null
-    private var isDownloadedLiveData: LiveData<Boolean>? = null
 
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
@@ -98,14 +92,5 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         this.runOnUiThread {
             viewBinding.webViewLoadingScreen.root.animate().alpha(0f).duration = LOADING_SCREEN_FADE_OUT_TIME
         }
-    }
-
-    override fun onDestroy() {
-        isDownloadedLiveData?.let { liveData ->
-            downloadedObserver?.let { observer ->
-                Transformations.distinctUntilChanged(liveData).removeObserver(observer)
-            }
-        }
-        super.onDestroy()
     }
 }

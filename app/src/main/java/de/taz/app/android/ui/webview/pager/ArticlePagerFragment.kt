@@ -10,7 +10,10 @@ import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -70,41 +73,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onResume() {
         super.onResume()
-        issueContentViewModel.articleListLiveData.observeDistinct(this.viewLifecycleOwner) { articleStubsWithSectionKey ->
-            if (
-                articleStubsWithSectionKey.map { it.articleStub.key } !=
-                (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
-            ) {
-                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubsWithSectionKey, this)
-                issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
-            }
-        }
-
-        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
-            if (it != null) {
-                tryScrollToArticle(it)
-            }
-        }
-
-
-        issueContentViewModel.activeDisplayMode.observeDistinct(this) {
-            // reset swiped flag on navigating away from article pager
-            if (it != IssueContentDisplayMode.Article) {
-                hasBeenSwiped = false
-            }
-        }
-        issueContentViewModel.goNextArticle.observeDistinct(this) {
-            if (it) {
-                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
-                issueContentViewModel.goNextArticle.value = false
-            }
-        }
-        issueContentViewModel.goPreviousArticle.observeDistinct(this) {
-            if (it) {
-                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
-                issueContentViewModel.goPreviousArticle.value = false
-            }
-        }
         if (Util.SDK_INT <= Build.VERSION_CODES.M) {
             initializePlayer()
         }
@@ -135,6 +103,42 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
         sectionDividerTransformer =
             SectionDividerTransformer(viewBinding.webviewPagerViewpager)
+
+        issueContentViewModel.articleListLiveData.observeDistinct(viewLifecycleOwner) { articleStubsWithSectionKey ->
+            if (
+                articleStubsWithSectionKey.map { it.articleStub.key } !=
+                (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+            ) {
+                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubsWithSectionKey, this)
+                issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
+            }
+        }
+
+        issueContentViewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
+            if (it != null) {
+                tryScrollToArticle(it)
+            }
+        }
+
+
+        issueContentViewModel.activeDisplayMode.observeDistinct(viewLifecycleOwner) {
+            // reset swiped flag on navigating away from article pager
+            if (it != IssueContentDisplayMode.Article) {
+                hasBeenSwiped = false
+            }
+        }
+        issueContentViewModel.goNextArticle.observeDistinct(viewLifecycleOwner) {
+            if (it) {
+                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
+                issueContentViewModel.goNextArticle.value = false
+            }
+        }
+        issueContentViewModel.goPreviousArticle.observeDistinct(viewLifecycleOwner) {
+            if (it) {
+                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
+                issueContentViewModel.goPreviousArticle.value = false
+            }
+        }
     }
 
     override fun onStart() {

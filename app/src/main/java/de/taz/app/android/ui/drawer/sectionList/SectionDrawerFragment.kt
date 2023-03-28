@@ -5,7 +5,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
@@ -15,7 +18,6 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
@@ -29,6 +31,8 @@ import de.taz.app.android.util.runIfNotNull
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 
 /**
  * Fragment used to display the list of sections in the navigation Drawer
@@ -79,31 +83,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             )
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Either the issueContentViewModel can change the content of this drawer ...
-        issueContentViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) { issueKeyWithDisplayable ->
-            issueKeyWithDisplayable?.let {
-                lifecycleScope.launchWhenResumed {
-                    log.debug("Set issue issueKey from IssueContent")
-                    if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
-                        showIssue(it.issueKey)
-                    }
-                }
-            }
-        }
-
-        // or the bookmarkpager
-        bookmarkPagerViewModel.currentIssueAndArticleLiveData.observeDistinct(this.viewLifecycleOwner) { (issueStub, _) ->
-            lifecycleScope.launchWhenResumed {
-                log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
-                if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
-                    showIssue(issueStub.issueKey)
-                }
-            }
-        }
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -124,6 +103,32 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         viewBinding.fragmentDrawerSectionsImprint.setOnClickListener {
             lifecycleScope.launch {
                 showImprint()
+            }
+        }
+
+        // Either the issueContentViewModel can change the content of this drawer ...
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                    .distinctUntilChanged().filterNotNull().collect {
+                        log.debug("Set issue issueKey from IssueContent")
+                        if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
+                            showIssue(it.issueKey)
+                        }
+                    }
+            }
+        }
+
+        // or the bookmarkpager
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
+                    .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
+                        log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
+                        if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
+                            showIssue(issueStub.issueKey)
+                        }
+                    }
             }
         }
     }

@@ -2,9 +2,10 @@ package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.*
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -22,6 +23,8 @@ import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 /**
  * Show an Issue with sections and articles in their respective pager fragments
@@ -49,6 +52,15 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
 
     private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
+        imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
+        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
@@ -59,42 +71,33 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
-        imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
-        tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.activeDisplayMode.observeDistinct(this.viewLifecycleOwner) {
+        viewModel.activeDisplayMode.observeDistinct(viewLifecycleOwner) {
             setDisplayMode(it)
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                    KeepScreenOnHelper.toggleScreenOn(it, activity)
+                }
+            }
+        }
 
-        // This block is to expand the drawer on the first time using this activity to alert the user of the side drawer
         lifecycleScope.launchWhenResumed {
             val timesDrawerShown = generalDataStore.drawerShownCount.get()
             if (sectionDrawerViewModel.drawerOpen.value == false && timesDrawerShown < DRAWER_SHOW_NUMBER) {
                 delay(500)
                 sectionDrawerViewModel.drawerOpen.value = true
-                viewModel.issueKeyAndDisplayableKeyLiveData.observe(
-                    this@IssueViewerFragment
-                ) { issueWithDisplayable ->
-                    if (issueWithDisplayable == null) return@observe
-                    lifecycleScope.launch {
-                        delay(1500)
-                        sectionDrawerViewModel.drawerOpen.value = false
-                        generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
-                    }
-
-                }
-            }
-            tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                KeepScreenOnHelper.toggleScreenOn(it, activity)
+                // Wait for the issue to be set on the ViewModel
+                viewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                    .filterNotNull()
+                    .first()
+                delay(1500)
+                sectionDrawerViewModel.drawerOpen.value = false
+                generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
             }
         }
     }
