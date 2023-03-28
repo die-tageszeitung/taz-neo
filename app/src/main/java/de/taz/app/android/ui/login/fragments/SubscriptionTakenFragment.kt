@@ -18,5 +18,9 @@ class SubscriptionTakenFragment: LoginBaseFragment<FragmentLoginSubscriptionTake
         viewBinding.fragmentLoginSubscriptionTakenEmail.setOnClickListener {
             writeEmail()
         }
+
+        viewBinding.cancelButton.setOnClickListener {
+            finish()
+        }
     }
 }

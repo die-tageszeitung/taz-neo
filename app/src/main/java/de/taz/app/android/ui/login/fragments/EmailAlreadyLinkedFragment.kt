@@ -20,6 +20,9 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment<FragmentLoginEmailAlreadyTa
         viewBinding.fragmentLoginEmailAlreadyTakenContactEmail.setOnClickListener {
             writeEmail()
         }
+        viewBinding.cancelButton.setOnClickListener {
+            finish()
+        }
     }
 
 }
