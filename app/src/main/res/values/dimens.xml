@@ -28,6 +28,7 @@
     <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
+    <dimen name="fragment_drawer_title_margin_end">10dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
     <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
     <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
