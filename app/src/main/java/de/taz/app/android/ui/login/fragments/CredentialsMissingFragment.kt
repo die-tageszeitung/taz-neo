@@ -98,6 +98,7 @@ class CredentialsMissingFragment :
         }
 
         viewBinding.backButton.setOnClickListener { back() }
+        viewBinding.cancelButton.setOnClickListener { finish() }
 
         if (viewModel.createNewAccount) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

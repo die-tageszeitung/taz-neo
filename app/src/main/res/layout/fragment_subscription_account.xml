@@ -139,6 +139,18 @@
             android:textAlignment="center"
             app:layout_constraintTop_toBottomOf="@id/back_button" />
 
+        <Button
+            android:id="@+id/cancel_button"
+            style="@style/AppTheme.ButtonStyle.Outlined"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            app:layout_constraintWidth_max="@dimen/button_max_width"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_forgot_password_text"
+            android:text="@string/cancel_button" />
+
         <TextView
             android:id="@+id/fragment_subscription_order_note"
             style="@style/TextAppearance.Login.Text.Link"
@@ -146,7 +158,7 @@
             android:layout_height="wrap_content"
             android:text="@string/order_note_text"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_forgot_password_text" />
+            app:layout_constraintTop_toBottomOf="@id/cancel_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
