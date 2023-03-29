@@ -20,7 +20,8 @@ private const val TYPE_ITEM = 1
 class BookmarkListAdapter(
     private val shareArticle: (Article) -> Unit,
     private val bookmarkArticle: (Article) -> Unit,
-    private val debookmarkArticle: (Article) -> Unit
+    private val debookmarkArticle: (Article) -> Unit,
+    private val goToIssueInCoverFlow: (String) -> Unit,
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -87,7 +88,7 @@ class BookmarkListAdapter(
     ): RecyclerView.ViewHolder {
 
         return when (viewType) {
-            TYPE_HEADER -> IssueOfBookmarkViewHolder(parent)
+            TYPE_HEADER -> IssueOfBookmarkViewHolder(parent, goToIssueInCoverFlow)
             TYPE_ITEM -> BookmarkListViewHolder(parent, shareArticle, ::removeBookmarkWithUndo)
             else -> error("Unknown viewType: $viewType")
         }
