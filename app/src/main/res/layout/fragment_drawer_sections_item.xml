@@ -59,6 +59,7 @@
             android:id="@+id/fragment_drawer_section_collapse_icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/fragment_section_drawer_bookmark_padding_horizontal"
             android:contentDescription="@string/fragment_drawer_sections_collapse_icon_description"
             android:src="@drawable/ic_toggle_arrow" />
     </LinearLayout>
