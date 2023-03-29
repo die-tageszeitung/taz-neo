@@ -108,8 +108,13 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 hideAllViews()
             }
 
-            forgotPassword.setOnClickListener {
-                forgotPassword()
+
+            if (BuildConfig.IS_LMD){
+                forgotPassword.visibility = View.GONE
+            } else {
+                forgotPassword.setOnClickListener {
+                    forgotPassword()
+                }
             }
 
             readOnUsername.addAllLowercaseFilter()
