@@ -18,9 +18,11 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +54,13 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        recycleAdapter = recycleAdapter ?: BookmarkListAdapter(::shareArticle, bookmarkPagerViewModel::bookmarkArticle, bookmarkPagerViewModel::debookmarkArticle)
+        recycleAdapter = recycleAdapter
+            ?: BookmarkListAdapter(
+                ::shareArticle,
+                bookmarkPagerViewModel::bookmarkArticle,
+                bookmarkPagerViewModel::debookmarkArticle,
+                ::goToIssueInCoverFlow,
+            )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,7 +83,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             ?.setText(R.string.fragment_bookmarks_title)
     }
 
-    fun shareArticle(article: Article) {
+    private fun shareArticle(article: Article) {
         lifecycleScope.launch {
             article.onlineLink?.let { url ->
                 val sendIntent: Intent = Intent().apply {
@@ -89,6 +97,14 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
                     startActivity(shareIntent)
                 }
             } ?: showSharingNotPossibleDialog()
+        }
+    }
+
+    private fun goToIssueInCoverFlow(dateString: String) {
+        lifecycleScope.launch {
+            val feed = feedFlow.filterNotNull().first()
+            val issuePublication = IssuePublication(feed.name, dateString)
+            MainActivity.start(requireContext(), Intent.FLAG_ACTIVITY_REORDER_TO_FRONT, issuePublication)
         }
     }
 
@@ -107,9 +123,9 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         for (bookmark in bookmarks) {
             if (bookmark.issueDate != lastIssueDate) {
                 val momentImageUri = determineMomentImageUri(bookmark)
-                val dateString = determineDateString(bookmark)
+                val localizedDateString = determineDateString(bookmark)
                 groupedBookmarks.add(
-                    BookmarkListItem.Header(momentImageUri, dateString)
+                    BookmarkListItem.Header(momentImageUri, localizedDateString, bookmark.issueDate)
                 )
                 lastIssueDate = bookmark.issueDate
             }
