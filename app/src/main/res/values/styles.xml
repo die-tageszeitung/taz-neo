@@ -116,7 +116,8 @@
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">@dimen/fragment_drawer_sections_item_text_size</item>
         <item name="android:textColor">@color/textColorSection</item>
-        <item name="android:maxLines">2</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
         <item name="android:lineSpacingExtra">-3dp</item>
     </style>
 

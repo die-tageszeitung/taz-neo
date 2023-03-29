@@ -32,7 +32,9 @@
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
     <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
     <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
+    <dimen name="fragment_section_drawer_padding_bottom">4dp</dimen>
     <dimen name="fragment_section_drawer_article_image_top_margin">3dp</dimen>
+    <dimen name="fragment_section_drawer_bookmark_padding_horizontal">3dp</dimen>
     <dimen name="fragment_drawer_section_title_padding_top">0dp</dimen>
     <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
