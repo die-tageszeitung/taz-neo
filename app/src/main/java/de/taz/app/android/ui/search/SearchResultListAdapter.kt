@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,25 +19,38 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.singletons.DateHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 class SearchResultListAdapter(
-    private var searchResultList: List<SearchHit>
+    private var searchResultList: List<SearchHit>,
+    private val onBookmarkClick: (String, Date?) -> Unit,
+    private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
     class SearchResultListViewHolder(
-        val view: View
-    ) : RecyclerView.ViewHolder(view) {
+        val view: View,
+        private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
+    ) : RecyclerView.ViewHolder(view), CoroutineScope {
+
+        override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+
         private var searchResultItem: ConstraintLayout = view.findViewById(R.id.search_result_item)
         var titleTextView: TextView = view.findViewById(R.id.search_result_title)
         var authorTextView: TextView = view.findViewById(R.id.search_result_author)
         var snippetTextView: TextView = view.findViewById(R.id.search_result_snippet)
         var dateTextView: TextView = view.findViewById(R.id.search_result_date)
         var sectionTextView: TextView = view.findViewById(R.id.search_result_section)
+        var bookmarkIcon: ImageView = view.findViewById(R.id.search_result_bookmark_item)
 
-        fun bind(position: Int) {
+        fun bind(position: Int, searchHit: SearchHit) {
             searchResultItem.setOnClickListener {
                 val fragment = SearchResultPagerFragment.newInstance(position)
                 val activity: AppCompatActivity = view.context as AppCompatActivity
@@ -48,6 +62,15 @@ class SearchResultListAdapter(
                     .addToBackStack(null)
                     .commit()
             }
+            launch {
+                getBookmarkStateFlow(searchHit.articleFileName).collect {isBookmarked ->
+                    if (isBookmarked) {
+                        bookmarkIcon.setImageResource(R.drawable.ic_bookmark_filled)
+                    } else {
+                        bookmarkIcon.setImageResource(R.drawable.ic_bookmark)
+                    }
+                }
+            }
         }
     }
 
@@ -57,7 +80,7 @@ class SearchResultListAdapter(
     ): SearchResultListViewHolder {
         val searchResultItem = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_search_result_item, parent, false)
-        return SearchResultListViewHolder(searchResultItem)
+        return SearchResultListViewHolder(searchResultItem, getBookmarkStateFlow)
     }
 
     override fun onBindViewHolder(
@@ -94,7 +117,7 @@ class SearchResultListAdapter(
         // Parse the date correctly, as it is given as a string but needs to be shown in different way
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
         val dateString = if (BuildConfig.IS_LMD) {
-            "Ausgabe ${ date?.let { DateHelper.dateToMonthYearString(it) }}" ?: ""
+            "Ausgabe ${ date?.let { DateHelper.dateToMonthYearString(it) }}"
         } else {
             date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
         }
@@ -128,8 +151,16 @@ class SearchResultListAdapter(
         else {
             holder.sectionTextView.text = searchResultItem.sectionTitle
         }
+        holder.bookmarkIcon.setOnClickListener {
+            // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
+            holder.bookmarkIcon.setImageResource(R.drawable.ic_bookmark_filled)
+            onBookmarkClick(
+                searchResultItem.articleFileName,
+                DateHelper.stringToDate(searchResultItem.date)
+            )
+        }
 
-        holder.bind(position)
+        holder.bind(position, searchResultItem)
     }
 
     override fun getItemCount() = searchResultList.size
