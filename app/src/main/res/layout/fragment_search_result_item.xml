@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
+    android:layout_marginTop="@dimen/search_result_item_margin_top"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/search_result_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/search_result_title_margin_top"
         android:fontFamily="@font/appFontBold"
         android:lineSpacingExtra="@dimen/search_result_title_line_spacing_extra"
         android:textSize="@dimen/search_result_title_text_size"
@@ -65,6 +65,18 @@
         app:layout_constraintStart_toEndOf="@id/search_result_date"
         app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
         tools:text="politik" />
+
+    <ImageView
+        android:id="@+id/search_result_bookmark_item"
+        android:layout_width="@dimen/search_result_bookmark_icon_size"
+        android:layout_height="@dimen/search_result_bookmark_icon_size"
+        android:layout_marginEnd="@dimen/search_result_bookmark_icon_margin_end"
+        android:contentDescription="@string/fragment_bookmark"
+        android:padding="@dimen/search_result_bookmark_icon_padding"
+        android:src="@drawable/ic_bookmark"
+        app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/textColorAccent" />
 
     <View
         android:layout_width="match_parent"

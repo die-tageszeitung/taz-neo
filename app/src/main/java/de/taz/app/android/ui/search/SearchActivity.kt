@@ -15,13 +15,16 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_SEARCH_HELP
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Sorting
+import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.observeDistinct
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -31,6 +34,7 @@ import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
+import io.sentry.Sentry
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -44,9 +48,12 @@ class SearchActivity :
     private var lastVisiblePosition = 0
 
     private lateinit var apiService: ApiService
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var contentService: ContentService
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var searchResultListAdapter: SearchResultListAdapter
     private lateinit var toastHelper: ToastHelper
-    private lateinit var generalDataStore: GeneralDataStore
     private val log by Log
 
     private val viewModel by viewModels<SearchResultPagerViewModel>()
@@ -55,8 +62,11 @@ class SearchActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         apiService = ApiService.getInstance(this)
-        toastHelper = ToastHelper.getInstance(applicationContext)
+        articleRepository = ArticleRepository.getInstance(applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
@@ -95,6 +105,11 @@ class SearchActivity :
             }
             searchText.doOnTextChanged { _, _, _, _ ->
                 searchInput.error = null
+            }
+            searchText.setOnFocusChangeListener { _, isFocused ->
+                if (isFocused) {
+                    searchCancelButton.visibility = View.VISIBLE
+                }
             }
             searchHelp.setOnClickListener {
                 showHelp()
@@ -292,7 +307,12 @@ class SearchActivity :
 
     private fun initRecyclerView() {
         viewBinding.apply {
-            searchResultListAdapter = SearchResultListAdapter(searchResultItemsList)
+            searchResultListAdapter =
+                SearchResultListAdapter(
+                    searchResultItemsList,
+                    ::toggleBookmark,
+                    bookmarkRepository::createBookmarkStateFlow,
+                )
             val llm = LinearLayoutManager(applicationContext)
             searchResultList.apply {
                 layoutManager = llm
@@ -344,7 +364,9 @@ class SearchActivity :
     }
 
     private fun clearRecyclerView() {
+        val size = searchResultItemsList.size
         searchResultItemsList.clear()
+        viewBinding.searchResultList.adapter?.notifyItemRangeRemoved(0, size)
         viewModel.searchResultsLiveData.postValue(emptyList())
         viewModel.sessionId = null
     }
@@ -384,6 +406,7 @@ class SearchActivity :
             searchAuthor.editText?.text?.clear()
             searchTitle.editText?.text?.clear()
             expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
+            searchCancelButton.visibility = View.GONE
         }
     }
 
@@ -550,7 +573,55 @@ class SearchActivity :
                 viewModel.pubDateFrom.postValue(null)
             }
         }
+    }
 
+    private fun toggleBookmark(articleFileName: String, date: Date?) {
+        applicationScope.launch {
+            val articleStub = articleRepository.getStub(articleFileName)
+
+            when {
+                articleStub != null -> {
+                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+                    if (isBookmarked) {
+                        toastHelper.showToast(R.string.toast_article_bookmarked)
+                    }
+                    else {
+                        toastHelper.showToast(R.string.toast_article_debookmarked)
+                    }
+                }
+                date != null -> {
+                    toastHelper.showToast(R.string.toast_article_bookmarked)
+                    // no articleStub so probably article not downloaded, so download it:
+                    downloadArticleAndSetBookmark(articleFileName, date)
+                }
+                // This is an unexpected case with the date being null. We simply have to ignore this
+                else -> Unit
+            }
+        }
+    }
+
+    /**
+     * Bookmarks articles "outside" an issue (eg in the search result list)
+     * then downloads the corresponding metadata
+     * downloads the article and
+     * finally bookmarks the article.
+     */
+    private suspend fun downloadArticleAndSetBookmark(
+        articleFileName: String,
+        datePublished: Date
+    ) {
+        try {
+            val issueMetadata = apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
+            contentService.downloadMetadata(issueMetadata, maxRetries = 5)
+            val article = requireNotNull(articleRepository.get(articleFileName))
+            contentService.downloadToCache(article)
+            bookmarkRepository.addBookmark(article.key)
+        } catch (e: Exception) {
+            val hint = "Error while trying to download a full article because of a bookmark request"
+            log.error(hint, e)
+            Sentry.captureException(e, hint)
+            toastHelper.showToast(R.string.toast_problem_bookmarking_article, long = true)
+        }
     }
     // endregion
 }

@@ -220,10 +220,10 @@
     <dimen name="search_separator_line_margin">20dp</dimen>
     <dimen name="search_cancel_button_margin_top">57dp</dimen>
     <dimen name="search_input_field_margin_top">50dp</dimen>
-    <dimen name="search_input_field_extended_margin_top">10dp</dimen>
     <dimen name="search_input_field_margin_horizontally">18dp</dimen>
     <dimen name="search_input_field_corner_radius">30dp</dimen>
-    <dimen name="search_icon_size">24dp</dimen>
+    <dimen name="search_icon_size">38dp</dimen>
+    <dimen name="search_icon_padding_vertical">7dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
     <dimen name="search_description_text_line_spacing_extra">5sp</dimen>
     <dimen name="search_description_icon_size">48dp</dimen>
@@ -232,7 +232,10 @@
     <dimen name="search_result_author_margin_top">0dp</dimen>
     <dimen name="search_result_author_text_size">17sp</dimen>
     <dimen name="search_result_author_line_spacing_extra">4sp</dimen>
-    <dimen name="search_result_title_margin_top">14dp</dimen>
+    <dimen name="search_result_item_margin_top">17dp</dimen>
+    <dimen name="search_result_bookmark_icon_size">43dp</dimen>
+    <dimen name="search_result_bookmark_icon_margin_end">-10dp</dimen>
+    <dimen name="search_result_bookmark_icon_padding">9dp</dimen>
     <dimen name="search_result_snippet_text_size">15sp</dimen>
     <dimen name="search_result_snippet_line_spacing_extra">21sp</dimen>
     <dimen name="search_result_snippet_margin_top">5dp</dimen>
