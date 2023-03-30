@@ -81,7 +81,7 @@
             android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
-            tools:text="Ausgabe 07/2021" />
+            tools:text="März 2023" />
 
         <View
             android:id="@+id/fragment_drawer_body_pdf_with_sections_separator_line"
