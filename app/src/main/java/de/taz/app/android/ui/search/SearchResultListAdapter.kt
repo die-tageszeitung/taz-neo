@@ -117,7 +117,7 @@ class SearchResultListAdapter(
         // Parse the date correctly, as it is given as a string but needs to be shown in different way
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.GERMAN).parse(searchResultItem.date)
         val dateString = if (BuildConfig.IS_LMD) {
-            "Ausgabe ${ date?.let { DateHelper.dateToMonthYearString(it) }}"
+            "Ausgabe ${ date?.let { DateHelper.dateToLocalizedMonthAndYearString(it) }}"
         } else {
             date?.let { DateHelper.dateToMediumLocalizedString(it) } ?: ""
         }

@@ -166,10 +166,10 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             DateHelper.dateToWeekTazNotation(publicationDate.date, publicationDate.validity)
         } else {
             if (BuildConfig.IS_LMD) {
-                // for LMd date should be "Ausgabe 10/2022"
+                // for LMd date should be "Ausgabe November 2023"
                 resources.getString(
                     R.string.fragment_header_custom_published_date,
-                    DateHelper.stringToMonthYearString(article.issueDate)
+                    DateHelper.stringToLocalizedMonthAndYearString(article.issueDate)
                 )
             } else {
                 DateHelper.stringToLongLocalizedLowercaseString(article.issueDate)
