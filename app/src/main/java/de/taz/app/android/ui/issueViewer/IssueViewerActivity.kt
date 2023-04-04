@@ -9,7 +9,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
@@ -17,6 +16,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -44,7 +44,7 @@ import kotlin.reflect.KClass
  * activity gets an activityResult and will restart with the new issue.
  *
  */
-class IssueViewerActivity : AppCompatActivity() {
+class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
@@ -94,6 +94,11 @@ class IssueViewerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
+    }
+
+    override fun onLogInSuccessful(articleName: String) {
+        finish()
+        startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
     }
 
 }
