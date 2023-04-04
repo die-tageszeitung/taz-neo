@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -42,6 +43,7 @@ import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
+import de.taz.app.android.ui.SuccessfulLoginAction
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -50,10 +52,11 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
+class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), SuccessfulLoginAction {
 
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
 
         private const val LOGO_PEAK = 8
         private const val LOGO_PEAK_CLICK_PADDING = 30
@@ -67,13 +70,18 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
         // The drawer initialization will be delayed, so that the main pdf rendering has some time to finish
         private const val DRAWER_INIT_DELAY_MS = 10L
 
-        fun newIntent(packageContext: Context, issuePublication: IssuePublicationWithPages) =
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublicationWithPages,
+            displayableKey: String? = null
+        ) =
             Intent(packageContext, PdfPagerActivity::class.java).apply {
                 putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+                displayableKey?.let {
+                    putExtra(KEY_DISPLAYABLE, it)
+                }
             }
     }
-
-    private val log by Log
 
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private val issueContentViewModel by viewModels<IssueViewerViewModel>()
@@ -137,6 +145,23 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 R.id.activity_pdf_fragment_placeholder,
                 PdfPagerFragment()
             ).commit()
+        }
+
+        val displayableKey: String? = intent?.getStringExtra(KEY_DISPLAYABLE)
+        if (displayableKey != null) {
+            intent.removeExtra(KEY_DISPLAYABLE)
+            val issueObserver = object : Observer<IssueWithPages> {
+                override fun onChanged(issueWithPages: IssueWithPages?) {
+                    if (issueWithPages != null) {
+                        val issueKey = IssueKey(issueWithPages.issueKey)
+                        lifecycleScope.launch {
+                            showArticle(issueKey, displayableKey)
+                        }
+                        pdfPagerViewModel.issueLiveData.removeObserver(this)
+                    }
+                }
+            }
+            pdfPagerViewModel.issueLiveData.observe(this, issueObserver)
         }
 
         // Adjust extra padding when we have cutout display
@@ -237,6 +262,12 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>() {
                 }
             }
         }
+    }
+
+    override fun onLogInSuccessful(articleName: String) {
+        //Reload activity
+        finish()
+        startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
     }
 
     private fun hideDrawerLogoWithDelay() {

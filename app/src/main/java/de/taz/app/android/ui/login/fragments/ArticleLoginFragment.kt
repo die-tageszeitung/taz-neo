@@ -15,9 +15,11 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.*
+import de.taz.app.android.util.Log
 import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
@@ -25,9 +27,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import io.sentry.Sentry
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
+
+    private val log by Log
 
     private var articleFileName: String? = null
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
@@ -148,23 +153,17 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
      */
     override fun onActivityResult(result: LoginContract.Output) {
         if (result.success && result.articleFileName != null) {
-            var parentFragment = parentFragment
-            while (parentFragment !is IssueViewerWrapperFragment) {
-                parentFragment = requireNotNull(parentFragment?.parentFragment) {
-                    "ArticleLoginFragment can only be used in a IssueViewer2Fragment hierarchy"
-                }
+            val successfulLoginActionActivity = activity as? SuccessfulLoginAction
+            if (successfulLoginActionActivity != null) {
+                successfulLoginActionActivity.onLogInSuccessful(result.articleFileName)
             }
-
-            val issueViewerWrapperFragment: IssueViewerWrapperFragment = parentFragment
-
-            issueViewerWrapperFragment.parentFragmentManager.apply {
-                beginTransaction().replace(
-                    android.R.id.content,
-                    IssueViewerWrapperFragment.newInstance(
-                        issueViewerWrapperFragment.issuePublication,
-                        result.articleFileName
-                    )
-                ).commit()
+            else {
+                var hint = "Expected this activity to be SuccessfulLoginAction."
+                if (activity != null) {
+                    hint += " But it is ${activity!!::class.java.name}"
+                }
+                log.warn(hint)
+                Sentry.captureMessage(hint)
             }
         }
     }
