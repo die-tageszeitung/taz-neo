@@ -20,6 +20,7 @@ import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
@@ -40,6 +41,7 @@ class ArticleWebViewFragment : WebViewFragment<
 
     private lateinit var articleFileName: String
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var pageRepository: PageRepository
     private lateinit var issueRepository: IssueRepository
     private lateinit var fontHelper: FontHelper
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -66,6 +68,7 @@ class ArticleWebViewFragment : WebViewFragment<
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        pageRepository = PageRepository.getInstance(requireContext().applicationContext)
         issueRepository = IssueRepository.getInstance(requireContext().applicationContext)
         fontHelper = FontHelper.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
@@ -98,16 +101,25 @@ class ArticleWebViewFragment : WebViewFragment<
     }
 
     private suspend fun setRegularHeader(displayable: Article, issueStub: IssueStub?) {
-        val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
-        val count = ArticleRepository.getInstance(
-            requireContext().applicationContext
-        ).getSectionArticleStubListByArticleName(
-            displayable.key
-        ).size
-
-        // only the imprint should have no section
         val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
-        setHeaderForSection(index, count, sectionStub)
+        // only the imprint should have no section
+        if (sectionStub?.title == null) {
+            setHeaderForImprint()
+        } else if (BuildConfig.IS_LMD) {
+            val firstPage = displayable.pageNameList.firstOrNull()
+            if (firstPage !== null) {
+                val pagina = pageRepository.getStub(firstPage)?.pagina
+                setHeaderWithPage(pagina)
+            } else {
+                hideHeaderWithPage()
+            }
+        } else {
+            val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
+            val count = articleRepository.getSectionArticleStubListByArticleName(
+                displayable.key
+            ).size
+            setHeaderForSection(index, count, sectionStub)
+        }
 
         issueStub?.apply {
             if (isWeekend) {
@@ -116,17 +128,36 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
+    private fun setHeaderForImprint() {
+        view?.findViewById<TextView>(R.id.section)?.text = getString(R.string.imprint)
+    }
+
     private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub?) {
-        val title = sectionStub?.title ?: getString(R.string.imprint)
         lifecycleScope.launch(Dispatchers.Main) {
-            view?.findViewById<TextView>(R.id.section)?.text = title
+            view?.findViewById<TextView>(R.id.section)?.text = sectionStub?.title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
-                R.string.fragment_header_article, index, count
+                R.string.fragment_header_article_index_section_count, index, count
             )
             view?.findViewById<TextView>(R.id.section)?.setOnClickListener {
                 goBackToSection(sectionStub)
             }
         }
+    }
+
+    private fun setHeaderWithPage(pagina: String?) {
+        val sectionTextView = view?.findViewById<TextView>(R.id.section)
+        val articleNumTextView = view?.findViewById<TextView>(R.id.article_num)
+        sectionTextView?.visibility = View.GONE
+        articleNumTextView?.text = getString(
+            R.string.fragment_header_article_pagina, pagina
+        )
+    }
+
+    private fun hideHeaderWithPage() {
+        val sectionTextView = view?.findViewById<TextView>(R.id.section)
+        val articleNumTextView = view?.findViewById<TextView>(R.id.article_num)
+        sectionTextView?.visibility = View.GONE
+        articleNumTextView?.visibility = View.GONE
     }
 
     private fun goBackToSection(sectionStub: SectionStub?) = lifecycleScope.launch {
