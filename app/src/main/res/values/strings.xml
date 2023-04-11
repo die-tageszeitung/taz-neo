@@ -170,7 +170,7 @@
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
 
-    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die taz-App aktivieren. Wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
+    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die taz-App aktivieren. Auch wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
     <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
     <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 
@@ -351,7 +351,7 @@
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
-    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht eingeloggt.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die ersten Seiten der Ausgaben angucken."</string>
+    <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht angemeldet.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die erste Seite der betreffenden Ausgabe anschauen."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
     <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach einfach unter taz.de/abo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>

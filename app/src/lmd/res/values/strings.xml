@@ -16,6 +16,7 @@
     <string name="settings_category_support">Hilfe</string>
     <string name="settings_category_legal">Rechtliches</string>
     <string name="settings_category_extended">Erweitert</string>
+    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die LMd-App aktivieren. Auch wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
 
     <string name="search_advanced">Erweiterte suche</string>
     <string name="search_advanced_timeslot">Zeitraum</string>
