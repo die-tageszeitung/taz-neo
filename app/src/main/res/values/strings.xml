@@ -56,7 +56,8 @@
 
     <string name="fragment_default_header_title">die tageszeitung</string>
     <string name="fragment_default_week_header_title">wochentaz</string>
-    <string name="fragment_header_article">%1$d/%2$d</string>
+    <string name="fragment_header_article_index_section_count">%1$d/%2$d</string>
+    <string name="fragment_header_article_pagina">Seite %s</string>
     <string name="fragment_header_custom_index_indicator">%1$s von %2$s</string>
     <string name="fragment_header_custom_published_date">Ausgabe %s</string>
 
