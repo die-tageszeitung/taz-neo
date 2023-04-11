@@ -4,6 +4,7 @@
     <!--    no color palette defined-->
     <color name="transparentBlack">#33000000</color>
     <color name="lightGrayishYellow">#F0F0ED</color>
+    <color name="timberwolfGray">#D9D9D3</color>
     <color name="red">#d50e2f</color>
     <color name="lmdBlue">#3B88A7</color>
     <!-- Prepending 16 to hexcode results in 10% transparency in colors
@@ -16,8 +17,8 @@
     <color name="ic_launcher_background_debug_stroke_color">@color/transparentBlack</color>
     <color name="navigation_drawer_pdf_background">@color/lightGrayishYellow</color>
     <color name="navigation_drawer_background">@color/lightGrayishYellow</color>
-    <color name="fragment_archive_background">@color/lightGrayishYellow</color>
-    <color name="coverflow_background">@color/lightGrayishYellow</color>
+    <color name="fragment_archive_background">@color/timberwolfGray</color>
+    <color name="coverflow_background">@color/timberwolfGray</color>
     <color name="coverflow_text_color">@color/black</color>
     <color name="coverflow_icon_tint">@color/black</color>
 
