@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
@@ -17,7 +18,6 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
@@ -251,7 +251,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
-        viewModel.noInternet.observeDistinct(this) {
+        viewModel.noInternet.distinctUntilChanged().observe(this) {
             if (it) {
                 toastHelper.showNoConnectionToast()
             }

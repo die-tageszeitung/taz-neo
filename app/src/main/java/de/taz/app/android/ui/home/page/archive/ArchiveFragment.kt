@@ -10,7 +10,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentArchiveBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.launch

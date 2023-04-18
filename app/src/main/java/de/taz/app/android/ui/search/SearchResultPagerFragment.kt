@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -21,7 +22,6 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -97,10 +97,12 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         setupViewPager()
 
-        val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
-        fontSizeLiveData.observeDistinct(this) {
-            reloadAfterCssChange()
-        }
+        tazApiCssDataStore.fontSize
+            .asLiveData()
+            .distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                reloadAfterCssChange()
+            }
 
         viewModel.isBookmarkedLiveData.observe(
             viewLifecycleOwner,

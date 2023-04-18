@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
 import androidx.core.view.size
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +23,6 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
@@ -162,23 +162,23 @@ class SearchActivity :
                 }
             }
         }
-        viewModel.chosenTimeSlot.observeDistinct(this) {
+        viewModel.chosenTimeSlot.distinctUntilChanged().observe(this) {
             mapTimeSlot(it)
         }
-        viewModel.chosenPublishedIn.observeDistinct(this) {
+        viewModel.chosenPublishedIn.distinctUntilChanged().observe(this) {
             viewModel.searchFilter.postValue(mapSearchFilter(it))
         }
-        viewModel.chosenSortBy.observeDistinct(this) {
+        viewModel.chosenSortBy.distinctUntilChanged().observe(this) {
             viewModel.sorting.postValue(mapSortingFilter(it))
         }
-        viewModel.pubDateFrom.observeDistinct(this) { from ->
+        viewModel.pubDateFrom.distinctUntilChanged().observe(this) { from ->
             if (from != null) {
                 if (viewModel.pubDateUntil.value != null) {
                     updateCustomTimeSlot(from, viewModel.pubDateUntil.value)
                 }
             }
         }
-        viewModel.pubDateUntil.observeDistinct(this) { until ->
+        viewModel.pubDateUntil.distinctUntilChanged().observe(this) { until ->
             if (until != null) {
                 if (viewModel.pubDateFrom.value != null) {
                     updateCustomTimeSlot(viewModel.pubDateFrom.value, until)

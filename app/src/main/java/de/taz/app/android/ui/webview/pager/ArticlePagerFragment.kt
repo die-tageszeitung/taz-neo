@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.exoplayer2.ExoPlayer
@@ -26,7 +27,6 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -104,7 +104,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         sectionDividerTransformer =
             SectionDividerTransformer(viewBinding.webviewPagerViewpager)
 
-        issueContentViewModel.articleListLiveData.observeDistinct(viewLifecycleOwner) { articleStubsWithSectionKey ->
+        issueContentViewModel.articleListLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { articleStubsWithSectionKey ->
             if (
                 articleStubsWithSectionKey.map { it.articleStub.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
@@ -114,26 +114,26 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             }
         }
 
-        issueContentViewModel.displayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
+        issueContentViewModel.displayableKeyLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it != null) {
                 tryScrollToArticle(it)
             }
         }
 
 
-        issueContentViewModel.activeDisplayMode.observeDistinct(viewLifecycleOwner) {
+        issueContentViewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
             // reset swiped flag on navigating away from article pager
             if (it != IssueContentDisplayMode.Article) {
                 hasBeenSwiped = false
             }
         }
-        issueContentViewModel.goNextArticle.observeDistinct(viewLifecycleOwner) {
+        issueContentViewModel.goNextArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it) {
                 viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
                 issueContentViewModel.goNextArticle.value = false
             }
         }
-        issueContentViewModel.goPreviousArticle.observeDistinct(viewLifecycleOwner) {
+        issueContentViewModel.goPreviousArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it) {
                 viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
                 issueContentViewModel.goPreviousArticle.value = false

@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
@@ -34,7 +34,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         }
         setupViewPager()
 
-        issueContentViewModel.sectionListLiveData.observeDistinct(this.viewLifecycleOwner) { sectionStubs ->
+        issueContentViewModel.sectionListLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) { sectionStubs ->
             if (
                 sectionStubs.map { it.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
@@ -46,7 +46,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             }
         }
 
-        issueContentViewModel.displayableKeyLiveData.observeDistinct(this.viewLifecycleOwner) {
+        issueContentViewModel.displayableKeyLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) {
             tryScrollToSection()
         }
     }
