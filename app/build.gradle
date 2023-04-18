@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'com.github.triplet.play' version '3.7.0'
-    id 'io.sentry.android.gradle' version '3.4.2'
+    id 'io.sentry.android.gradle' version '3.4.3'
     id 'com.google.devtools.ksp' version '1.8.0-1.0.9'
     id 'kotlin-android'
     id 'kotlin-parcelize'
@@ -270,12 +270,12 @@ dependencies {
     def coroutines_version = '1.6.4'
     def glide_version = '4.14.2'
     def ktor_version = '2.2.3'
-    def lifecycle_version = '2.5.1'
+    def lifecycle_version = '2.6.1'
     def mockito_version = '4.6.1'
     def powermock_version = '2.0.9'
-    def room_version = '2.5.0'
-    def work_version = '2.8.0'
-    def exoplayer_version = '2.18.2'
+    def room_version = '2.5.1'
+    def work_version = '2.8.1'
+    def exoplayer_version = '2.18.5'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -291,9 +291,9 @@ dependencies {
     implementation 'androidx.collection:collection-ktx:1.2.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    implementation 'androidx.fragment:fragment-ktx:1.5.5'
+    implementation 'androidx.fragment:fragment-ktx:1.5.6'
 
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.0'
     implementation 'com.github.valkriaine:Bouncy:2.3'
 
     implementation "com.github.bumptech.glide:glide:$glide_version"
@@ -361,7 +361,7 @@ dependencies {
     // testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testImplementation 'androidx.arch.core:core-testing:2.1.0'
+    testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-inline:$mockito_version"
@@ -378,7 +378,7 @@ dependencies {
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.5.0'
-    androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     // AndroidJUnitRunner and JUnit Rules
     androidTestImplementation 'androidx.test:runner:1.5.2'
@@ -408,10 +408,10 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.9.1'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.1.1'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.1.2'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
 }
 
 sentry {
