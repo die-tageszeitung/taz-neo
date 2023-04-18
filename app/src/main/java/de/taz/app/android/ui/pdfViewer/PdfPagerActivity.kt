@@ -150,7 +150,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         val displayableKey: String? = intent?.getStringExtra(KEY_DISPLAYABLE)
         if (displayableKey != null) {
             intent.removeExtra(KEY_DISPLAYABLE)
-            val issueObserver = object : Observer<IssueWithPages> {
+            val issueObserver = object : Observer<IssueWithPages?> {
                 override fun onChanged(issueWithPages: IssueWithPages?) {
                     if (issueWithPages != null) {
                         val issueKey = IssueKey(issueWithPages.issueKey)

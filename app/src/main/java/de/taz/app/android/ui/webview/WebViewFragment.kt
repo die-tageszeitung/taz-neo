@@ -13,6 +13,7 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
 import androidx.viewbinding.ViewBinding
@@ -29,7 +30,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
@@ -135,9 +135,10 @@ abstract class WebViewFragment<
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.displayableLiveData.observeDistinct(this) { displayable ->
-            if (displayable == null) return@observeDistinct
-            setHeader(displayable)
+        viewModel.displayableLiveData.distinctUntilChanged().observe(this) { displayable ->
+            if (displayable != null) {
+                setHeader(displayable)
+            }
         }
         viewModel.nightModeLiveData.observe(this@WebViewFragment) {
             reloadAfterCssChange()
@@ -163,13 +164,14 @@ abstract class WebViewFragment<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayableLiveData.observeDistinct(this.viewLifecycleOwner) {
-            if (it == null) return@observeDistinct
-            log.debug("Received a new displayable ${it.key}")
-            lifecycleScope.launch {
-                currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
-                configureWebView()
-                ensureDownloadedAndShow()
+        viewModel.displayableLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) {
+            if (it != null) {
+                log.debug("Received a new displayable ${it.key}")
+                lifecycleScope.launch {
+                    currentIssueKey = it.getIssueStub(requireContext().applicationContext)?.issueKey
+                    configureWebView()
+                    ensureDownloadedAndShow()
+                }
             }
         }
 

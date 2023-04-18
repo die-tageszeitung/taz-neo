@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
@@ -15,7 +16,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -140,7 +140,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
             updateUIForCurrentDate()
         }
         viewModel.currentDate.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
-        authHelper.email.asLiveData().observeDistinct(viewLifecycleOwner) {
+        authHelper.email.asLiveData().distinctUntilChanged().observe(viewLifecycleOwner) {
             determineWhetherToShowLoginButton(it)
         }
         grid.addOnScrollListener(onScrollListener)

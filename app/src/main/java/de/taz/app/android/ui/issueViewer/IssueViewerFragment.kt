@@ -74,7 +74,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.activeDisplayMode.observeDistinct(viewLifecycleOwner) {
+        viewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
             setDisplayMode(it)
         }
 

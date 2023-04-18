@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -26,7 +27,6 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -89,18 +89,18 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
         }
 
-        viewModel.bookmarkedArticleStubsLiveData.observeDistinct(viewLifecycleOwner) {
+        viewModel.bookmarkedArticleStubsLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             articlePagerAdapter.articleStubs = it
             viewBinding.loadingScreen.root.visibility = View.GONE
             tryScrollToArticle()
         }
 
-        viewModel.articleFileNameLiveData.observeDistinct(viewLifecycleOwner) {
+        viewModel.articleFileNameLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             tryScrollToArticle()
         }
 
         // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
-        issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.observeDistinct(viewLifecycleOwner) {
+        issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it != null) {
                 requireActivity().apply {
                     startActivity(

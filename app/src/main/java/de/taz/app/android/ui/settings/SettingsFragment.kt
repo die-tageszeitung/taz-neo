@@ -20,6 +20,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -37,7 +38,6 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.getApplicationScope
-import de.taz.app.android.monkey.observeDistinct
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
@@ -276,39 +276,39 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
 
         viewModel.apply {
-            fontSizeLiveData.observeDistinct(viewLifecycleOwner) { textSize ->
+            fontSizeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { textSize ->
                 textSize.toIntOrNull()?.let { textSizeInt ->
                     showFontSize(textSizeInt)
                 }
             }
-            textJustificationLiveData.observeDistinct(viewLifecycleOwner) { justified ->
+            textJustificationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { justified ->
                 showTextJustification(justified)
             }
-            nightModeLiveData.observeDistinct(viewLifecycleOwner) { nightMode ->
+            nightModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
             }
-            tapToScrollLiveData.observeDistinct(viewLifecycleOwner) { enabled ->
+            tapToScrollLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
                 showTapToScroll(enabled)
             }
-            keepScreenOnLiveData.observeDistinct(viewLifecycleOwner) { screenOn ->
+            keepScreenOnLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { screenOn ->
                 showKeepScreenOn(screenOn)
             }
-            storedIssueNumberLiveData.observeDistinct(viewLifecycleOwner) { storedIssueNumber ->
+            storedIssueNumberLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
             }
-            downloadOnlyWifiLiveData.observeDistinct(viewLifecycleOwner) { onlyWifi ->
+            downloadOnlyWifiLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { onlyWifi ->
                 showOnlyWifi(onlyWifi)
             }
-            downloadAutomaticallyLiveData.observeDistinct(viewLifecycleOwner) { downloadsEnabled ->
+            downloadAutomaticallyLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { downloadsEnabled ->
                 showDownloadsEnabled(downloadsEnabled)
             }
-            downloadAdditionallyPdf.observeDistinct(viewLifecycleOwner) { additionallyEnabled ->
+            downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
-            notificationsEnabledLivedata.observeDistinct(viewLifecycleOwner) { notificationsEnabled ->
+            notificationsEnabledLivedata.distinctUntilChanged().observe(viewLifecycleOwner) { notificationsEnabled ->
                 showNotificationsEnabledToggle(notificationsEnabled)
             }
-            storageLocationLiveData.observeDistinct(viewLifecycleOwner) { storageLocation ->
+            storageLocationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
                     toastHelper.showToast(R.string.settings_storage_migration_hint)
                 }
