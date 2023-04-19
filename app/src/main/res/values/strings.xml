@@ -16,6 +16,7 @@
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
     <string name="toast_article_bookmarked">Der Artikel wurde in ihrer Leseliste gespeichert.</string>
     <string name="toast_article_debookmarked">Der Artikel wurde aus ihrer Leseliste entfernt.</string>
+    <string name="toast_imporint_not_possibile_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>

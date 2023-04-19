@@ -280,8 +280,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
-                getCurrentArticleStub()?.let {
-                    toggleBookmark(it)
+                getCurrentArticleStub()?.let { articleStub ->
+                    if (articleStub.isImprint()) {
+                        toastHelper.showToast(R.string.toast_imporint_not_possibile_to_bookmark)
+                    } else {
+                        toggleBookmark(articleStub)
+                    }
                 }
             }
 

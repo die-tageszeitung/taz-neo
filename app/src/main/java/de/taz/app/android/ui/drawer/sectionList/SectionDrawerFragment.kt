@@ -27,7 +27,6 @@ import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.runIfNotNull
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -100,11 +99,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 }
             }
         }
-        viewBinding.fragmentDrawerSectionsImprint.setOnClickListener {
-            lifecycleScope.launch {
-                showImprint()
-            }
-        }
 
         // Either the issueContentViewModel can change the content of this drawer ...
         lifecycleScope.launch {
@@ -175,10 +169,13 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
-                val isImprint = issueRepository.getImprint(issueStub.issueKey) != null
-                if (isImprint) {
+                val imprint = issueRepository.getImprint(issueStub.issueKey)
+                if (imprint != null) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE
+                    setOnClickListener {
+                        showImprint(issueKey, imprint.key)
+                    }
                 } else {
                     visibility = View.GONE
                     viewBinding.separatorLineImprintTop.visibility = View.GONE
@@ -231,17 +228,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             }
         }
 
-
-    private fun showImprint() {
-        runIfNotNull(
-            issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-            issueContentViewModel.imprintArticleLiveData.value?.key
-        ) { issueKey, displayKey ->
-            lifecycleScope.launch {
-                issueContentViewModel.setDisplayable(issueKey, displayKey)
-            }
-            viewModel.drawerOpen.postValue(false)
+    private fun showImprint(issueKey: IssueKey, displayableKey: String) {
+        lifecycleScope.launch {
+            issueContentViewModel.setDisplayable(issueKey, displayableKey)
         }
+        viewModel.drawerOpen.postValue(false)
     }
 
 
