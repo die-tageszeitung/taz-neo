@@ -3,7 +3,6 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
@@ -164,16 +163,6 @@ class IssueViewerViewModel(
                 }
             }
         }
-
-    val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
-        addSource(issueKeyLiveData) {
-            it?.let {
-                viewModelScope.launch {
-                    postValue(issueRepository.getImprint(it))
-                }
-            }
-        }
-    }
 
     val elapsedSubscription = authHelper.status.asFlow()
     val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()

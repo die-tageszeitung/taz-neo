@@ -39,9 +39,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
-import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import de.taz.app.android.ui.SuccessfulLoginAction
 import io.sentry.Sentry
@@ -405,7 +403,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
     private fun showImprint(issueKeyWithDisplayableKey: IssueKeyWithDisplayableKey) {
         issueContentViewModel.setDisplayable(issueKeyWithDisplayableKey)
-        showArticlePagerFragment(ImprintWebViewFragment())
+        showArticlePagerFragment(ArticlePagerFragment())
     }
 
     private fun showArticlePagerFragment(fragment: Fragment) {

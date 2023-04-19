@@ -255,11 +255,17 @@ class ArticleRepository private constructor(applicationContext: Context) :
     ): List<ArticleStubWithSectionKey> {
         val articleStubList = appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        val sectionArticleJoinList = appDatabase.sectionArticleJoinDao().getSectionArticleJoinsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        val articleSectionMap = sectionArticleJoinList.associate { it.articleFileName to it.sectionFileName }
+        val imprintStub =
+            appDatabase.articleDao().getImprintArticleStubForIssue(issueKey.feedName, issueKey.date)
+        val articleStubListWithImprint = articleStubList + imprintStub
 
-        return articleStubList.map {
-            val sectionKey = requireNotNull(articleSectionMap[it.articleFileName])
+        val sectionArticleJoinList = appDatabase.sectionArticleJoinDao()
+            .getSectionArticleJoinsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+        val articleSectionMap =
+            sectionArticleJoinList.associate { it.articleFileName to it.sectionFileName }
+
+        return articleStubListWithImprint.map {
+            val sectionKey = articleSectionMap[it.articleFileName]
             ArticleStubWithSectionKey(it, sectionKey)
         }
     }

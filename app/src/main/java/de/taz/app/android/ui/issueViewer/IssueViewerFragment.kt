@@ -17,7 +17,6 @@ import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
-import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
@@ -33,7 +32,6 @@ import kotlinx.coroutines.flow.first
  *
  * [sectionPagerFragment] is used to show the sections of the issue
  * [articlePagerFragment] is used to show the articles of the issue
- * [imprintFragment] is used to show the imprint
  * [loaderFragment] shows the initial loading screen
  *
  */
@@ -66,7 +64,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
         if (savedInstanceState == null) {
             addFragment(SectionPagerFragment())
             addFragment(ArticlePagerFragment())
-            addFragment(ImprintWebViewFragment())
             addFragment(IssueLoaderFragment())
         }
     }
@@ -108,9 +105,8 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
             transaction.hide(it)
         }
         val fragmentClassToShow = when (displayMode) {
-            IssueContentDisplayMode.Article -> ArticlePagerFragment::class.java
+            IssueContentDisplayMode.Article, IssueContentDisplayMode.Imprint -> ArticlePagerFragment::class.java
             IssueContentDisplayMode.Section -> SectionPagerFragment::class.java
-            IssueContentDisplayMode.Imprint -> ImprintWebViewFragment::class.java
             IssueContentDisplayMode.Loading -> IssueLoaderFragment::class.java
         }
         childFragmentManager.findFragmentByTag(fragmentClassToShow.toString())?.let {

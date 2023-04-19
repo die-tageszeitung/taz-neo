@@ -35,13 +35,11 @@ interface ArticleDao : BaseDao<ArticleStub> {
 
     @Query(
         """SELECT Article.* FROM Article
-        INNER JOIN SectionArticleJoin
-        INNER JOIN IssueSectionJoin
-        WHERE IssueSectionJoin.issueFeedName == :issueFeedName
-            AND IssueSectionJoin.issueDate == :issueDate
-            AND IssueSectionJoin.issueStatus == :issueStatus
-            AND SectionArticleJoin.sectionFileName == IssueSectionJoin.sectionFileName
-            AND Article.articleFileName == SectionArticleJoin.articleFileName
+        LEFT JOIN SectionArticleJoin ON Article.articleFileName = SectionArticleJoin.articleFileName 
+        LEFT JOIN IssueSectionJoin ON SectionArticleJoin.sectionFileName = IssueSectionJoin.sectionFileName
+        WHERE IssueSectionJoin.issueFeedName = :issueFeedName
+            AND IssueSectionJoin.issueDate = :issueDate
+            AND IssueSectionJoin.issueStatus = :issueStatus
         ORDER BY IssueSectionJoin.`index` ASC , SectionArticleJoin.`index` ASC
     """
     )
@@ -50,6 +48,18 @@ interface ArticleDao : BaseDao<ArticleStub> {
         issueDate: String,
         issueStatus: IssueStatus
     ): List<ArticleStub>
+
+    @Query(
+        """SELECT Article.* FROM Article
+        WHERE Article.articleType = 'IMPRINT'
+          AND Article.issueFeedName = :issueFeedName
+          AND Article.issueDate = :issueDate
+    """
+    )
+    suspend fun getImprintArticleStubForIssue(
+        issueFeedName: String,
+        issueDate: String
+    ): ArticleStub
 
     @Query(
         """

@@ -22,7 +22,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -126,8 +125,7 @@ class DrawerBodyPdfWithSectionsFragment :
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         lifecycleScope.launch {
             pdfPagerViewModel.hideDrawerLogo.postValue(false)
-            val fragment = if (article.isImprint() == true) ImprintWebViewFragment()
-            else ArticlePagerFragment()
+            val fragment = ArticlePagerFragment()
 
             requireActivity().supportFragmentManager.beginTransaction()
                 .add(
