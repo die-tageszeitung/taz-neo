@@ -9,12 +9,16 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.TazViewerFragment
@@ -97,10 +101,21 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
     }
 
     override fun onLogInSuccessful(articleName: String) {
-        finish()
-        startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
+        // Launch the Activity restarting logic from the application scope to prevent it from being
+        // accidentally canceled due the the activity being finished
+        getApplicationScope().launch {
+            // Restart the activity if this is *not* a Week/Wochentaz abo
+            val authHelper = AuthHelper.getInstance(applicationContext)
+            if (!authHelper.isLoginWeek.get()) {
+                finish()
+                startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
+            } else {
+                finish()
+                val toastHelper = ToastHelper.getInstance(applicationContext)
+                toastHelper.showToast(R.string.toast_login_week, long = true)
+            }
+        }
     }
-
 }
 
 /**

@@ -36,6 +36,7 @@
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
     <string name="toast_no_tts">Text-To-Speech ist auf diesem Gerät nicht verfügbar.\nBitte installieren Sie einen Text-To-Speech Service mit Unterstützung für deutsche Sprachausgabe.</string>
+    <string name="toast_login_week">Du hast dich mit einem wochentaz-Abo angemeldet. Werktägliche taz-Ausgaben werden mit diesem Abo nicht in der App angezeigt.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
 

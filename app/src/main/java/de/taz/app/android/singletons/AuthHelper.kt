@@ -13,7 +13,6 @@ import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
@@ -39,6 +38,7 @@ private const val PREFERENCES_AUTH_TOKEN = "token"
 private const val PREFERENCES_AUTH_ELAPSED_BUT_WAITING = "elapsed_but_waiting"
 private const val PREFERENCES_ELAPSED_FORM_ALREADY_SENT = "elapsed_form_already_sent"
 private const val PREFERENCES_AUTH_INFO_MESSAGE = "info_message"
+private const val PREFERENCES_AUTH_LOGIN_WEEK = "preferences_auth_login_week"
 // endregion
 
 
@@ -117,6 +117,11 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_TOKEN), ""
     )
 
+    /** True if the user is logged with a week/wochentaz abo */
+    val isLoginWeek = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(PREFERENCES_AUTH_LOGIN_WEEK), false
+    )
+
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
 
@@ -138,6 +143,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     AuthStatus.notValid -> {
                         elapsedButWaiting.set(false)
                         elapsedFormAlreadySent.set(false)
+                        isLoginWeek.set(false)
                         toastHelper.showToast(R.string.toast_logout_invalid)
                     }
                     AuthStatus.valid -> {

@@ -28,21 +28,23 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
+import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
+import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
-import de.taz.app.android.util.showIssueDownloadFailedDialog
-import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.showIssueDownloadFailedDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -264,9 +266,20 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     }
 
     override fun onLogInSuccessful(articleName: String) {
-        //Reload activity
-        finish()
-        startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
+        // Launch the Activity restarting logic from the application scope to prevent it from being
+        // accidentally canceled due the the activity being finished
+        getApplicationScope().launch {
+            // Restart the activity if this is *not* a Week/Wochentaz abo
+            val authHelper = AuthHelper.getInstance(applicationContext)
+            if (!authHelper.isLoginWeek.get()) {
+                finish()
+                startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
+            } else {
+                finish()
+                val toastHelper = ToastHelper.getInstance(applicationContext)
+                toastHelper.showToast(R.string.toast_login_week, long = true)
+            }
+        }
     }
 
     private fun hideDrawerLogoWithDelay() {
