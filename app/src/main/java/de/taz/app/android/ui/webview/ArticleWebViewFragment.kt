@@ -179,7 +179,7 @@ class ArticleWebViewFragment : WebViewFragment<
                 try {
                     val issueStub =
                         article.getIssueStub(requireContext().applicationContext)
-                    if (issueStub?.issueKey?.status == IssueStatus.public) {
+                    if (issueStub?.issueKey?.status == IssueStatus.public && !article.isImprint()) {
 
                         childFragmentManager.beginTransaction().replace(
                             R.id.fragment_article_bottom_fragment_placeholder,
