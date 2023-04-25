@@ -20,7 +20,13 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 
 class LoginViewModel @JvmOverloads constructor(
@@ -168,17 +174,19 @@ class LoginViewModel @JvmOverloads constructor(
             val authTokenInfo = apiService.authenticate(username, password)
             val token = authTokenInfo?.token
 
+            val isLoginWeek = authTokenInfo?.authInfo?.loginWeek ?: false
+            authHelper.isLoginWeek.set(isLoginWeek)
+
             when (authTokenInfo?.authInfo?.status) {
                 AuthStatus.valid -> {
                     authHelper.token.set(requireNotNull(token) { "valid login has token" })
                     authHelper.status.set(AuthStatus.valid)
                     authHelper.email.set(username)
-                    authTokenInfo.authInfo.loginWeek?.let {
-                        if (it) {
-                            log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
-                            getApplicationScope().launch {
-                                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
-                            }
+
+                    if (isLoginWeek) {
+                        log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
+                        getApplicationScope().launch {
+                            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
                         }
                     }
                     status.postValue(LoginViewModelState.DONE)
