@@ -174,9 +174,8 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                 } catch (e: CannotDetermineBaseUrlException) {
                     // FIXME (johannes): Workaround to #14367
                     // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
-                    val hint = "Could not determine baseurl for issue with publication $issuePublication"
-                    log.error(hint, e)
-                    Sentry.captureException(e, hint)
+                    log.warn("Could not determine baseurl for issue with publication $issuePublication", e)
+                    Sentry.captureException(e)
                 }
             }
             dismiss()

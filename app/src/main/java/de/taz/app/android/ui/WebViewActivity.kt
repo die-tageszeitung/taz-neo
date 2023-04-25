@@ -67,9 +67,8 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         try {
             showHtmlFile(htmlFile)
         } catch (e: HTMLFileNotFoundException) {
-            val hint = "Html file $htmlFile not found"
-            log.error(hint)
-            Sentry.captureException(e, hint)
+            log.warn("Html file $htmlFile not found", e)
+            Sentry.captureException(e)
             showFatalErrorDialog()
         }
     }

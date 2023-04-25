@@ -57,7 +57,7 @@ public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements 
 			String hint = "Render task failed [tag: " + debugTag + "]\n" +
 					"Exception will be ignored";
 			log.error(hint , e);
-			Sentry.captureException(e, hint);
+			Sentry.captureException(e);
 			return null;
 		}
 	}

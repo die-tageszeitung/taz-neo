@@ -141,8 +141,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
                             .filter { !it.authorFileName.isNullOrEmpty() }
                             .map { it.authorFileName!! }
                     }"
-            log.warn(hint)
-            Sentry.captureException(nfe, hint)
+            log.warn(hint, nfe)
+            Sentry.captureException(nfe)
             null
         }
 

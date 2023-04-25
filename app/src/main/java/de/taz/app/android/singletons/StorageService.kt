@@ -259,9 +259,8 @@ class StorageService private constructor(private val applicationContext: Context
                 try {
                     checksum?.let { it == getSHA256(file) } ?: true
                 } catch (e: FileNotFoundException) {
-                    val hint = "File not found during integrity check"
-                    log.error(hint)
-                    Sentry.captureException(e, hint)
+                    log.warn("File not found during integrity check", e)
+                    Sentry.captureException(e)
                     false
                 }
             } else {

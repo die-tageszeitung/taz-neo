@@ -435,10 +435,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 counter++
                 deletionProgress.progress = counter
             } catch (e: CacheOperationFailedException) {
-                val hint = "Error while deleting ${issueStub.issueKey}"
-                log.error(hint)
-                e.printStackTrace()
-                Sentry.captureException(e, hint)
+                log.warn("Error while deleting ${issueStub.issueKey}", e)
+                Sentry.captureException(e)
                 toastHelper.showSomethingWentWrongToast()
                 break
             }

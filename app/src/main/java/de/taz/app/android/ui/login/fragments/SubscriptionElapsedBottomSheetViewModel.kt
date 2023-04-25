@@ -83,9 +83,8 @@ class SubscriptionElapsedBottomSheetViewModel(
             showNoInternetError()
 
         } catch (e: Exception) {
-            val hint = "Could not submit subscriptionFormData"
-            log.debug(hint, e)
-            Sentry.captureException(e, hint)
+            log.warn("Could not submit subscriptionFormData", e)
+            Sentry.captureException(e)
             _uiStateFlow.emit(UIState.UnexpectedFailure)
         }
     }

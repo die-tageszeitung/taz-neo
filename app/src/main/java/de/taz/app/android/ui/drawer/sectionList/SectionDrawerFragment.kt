@@ -202,9 +202,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             val moment = try {
                 contentService.downloadMetadata(momentPublication) as Moment
             } catch (e: CacheOperationFailedException) {
-                val hint = "Cache miss and failed download for moment $momentPublication"
-                log.error(hint)
-                Sentry.captureException(e, hint)
+                log.warn("Cache miss and failed download for moment $momentPublication", e)
+                Sentry.captureException(e)
                 return@withContext
             }
             try {

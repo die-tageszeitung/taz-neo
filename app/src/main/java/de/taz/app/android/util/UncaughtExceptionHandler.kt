@@ -37,9 +37,8 @@ class UncaughtExceptionHandler(private val applicationContext: Context) :
     }
 
     private fun handleMappingException(e: Throwable) {
-        val hint = "Could not map a response from the API. User probably needs to update"
-        log.error(hint, e)
-        Sentry.captureException(e, hint)
+        log.warn("Could not map a response from the API. User probably needs to update", e)
+        Sentry.captureException(e)
         Toast.makeText(
             applicationContext, R.string.toast_error_mapping_update, Toast.LENGTH_LONG
         ).show()

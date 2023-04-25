@@ -90,9 +90,8 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         } catch (e: CacheOperationFailedException) {
             showConnectionErrorDialog()
         } catch (e: HTMLFileNotFoundException) {
-            val hint = "Html file for data policy not found"
-            log.error(hint)
-            Sentry.captureException(e, hint)
+            log.warn("Html file for data policy not found", e)
+            Sentry.captureException(e)
             showFatalErrorDialog()
         }
     }
