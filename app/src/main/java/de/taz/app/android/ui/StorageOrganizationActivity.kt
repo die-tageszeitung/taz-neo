@@ -207,9 +207,8 @@ class StorageOrganizationActivity : StartupActivity() {
             try {
                 contentService.deleteIssue(issueStub.issueKey)
             } catch (e: CacheOperationFailedException) {
-                val hint = "Issue deleting public issues during startup storage organization"
-                log.error(hint)
-                Sentry.captureException(e, hint)
+                log.warn("Issue deleting public issues during startup storage organization", e)
+                Sentry.captureException(e)
                 errors++
             }
             withContext(Dispatchers.Main) {

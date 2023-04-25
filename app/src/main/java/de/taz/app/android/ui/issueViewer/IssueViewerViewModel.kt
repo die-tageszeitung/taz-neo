@@ -107,10 +107,9 @@ class IssueViewerViewModel(
             } catch (e: CannotDetermineBaseUrlException) {
                 // FIXME (johannes): Workaround to #14367
                 // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
-                val hint = "Could not determine baseurl for issue with key $issueKey"
-                log.error(hint, e)
-                Sentry.captureException(e, hint)
                 issueLoadingFailedErrorFlow.emit(true)
+                log.warn("Could not determine baseurl for issue with key $issueKey", e)
+                Sentry.captureException(e)
             }
         }
     }

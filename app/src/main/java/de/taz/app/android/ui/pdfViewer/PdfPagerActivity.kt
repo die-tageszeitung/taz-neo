@@ -42,6 +42,7 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import de.taz.app.android.ui.SuccessfulLoginAction
+import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,6 +84,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private val issueContentViewModel by viewModels<IssueViewerViewModel>()
+    private val log by Log
 
     private lateinit var storageService: StorageService
     private lateinit var issuePublication: IssuePublicationWithPages
@@ -111,9 +113,8 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
                 ?: throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         } catch (e: ClassCastException) {
-            val hint =
-                "Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it"
-            Sentry.captureException(e, hint)
+            log.warn("Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it", e)
+            Sentry.captureException(e)
             IssuePublicationWithPages(
                 intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
             )

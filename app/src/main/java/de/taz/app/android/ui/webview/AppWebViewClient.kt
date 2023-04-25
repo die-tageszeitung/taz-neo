@@ -155,9 +155,8 @@ class AppWebViewClient(
         val inputStream = try {
             data.inputStream()
         } catch (e: Exception) {
-            val hint = "trying to open non-existent file $url (internal: $internalUrl)"
-            log.error(hint)
-            Sentry.captureException(e, hint)
+            log.warn("trying to open non-existent file $url (internal: $internalUrl)", e)
+            Sentry.captureException(e)
             return null
         }
 

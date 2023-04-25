@@ -234,9 +234,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             contentService.downloadToCache(article)
             bookmarkRepository.addBookmark(article.key)
         } catch (e: Exception) {
-            val hint = "Error while trying to download a full article because of a bookmark request"
-            log.error(hint, e)
-            Sentry.captureException(e, hint)
+            log.warn("Error while trying to download a full article because of a bookmark request", e)
+            Sentry.captureException(e)
             ToastHelper.getInstance(requireActivity().applicationContext)
                 .showToast(R.string.toast_problem_bookmarking_article, long = true)
         }

@@ -267,7 +267,8 @@ class DownloadObserver constructor(
                     maybeShowAutomaticDownloadDialog()
                 } catch (e: CacheOperationFailedException) {
                     fragment.requireActivity().showIssueDownloadFailedDialog(issuePublication)
-                    Sentry.captureException(e, "Download of Issue $issuePublication failed")
+                    log.warn("Download of Issue $issuePublication failed", e)
+                    Sentry.captureException(e)
                 }
             }
         }
@@ -358,9 +359,8 @@ class DownloadObserver constructor(
             // FIXME: maybe show the loading state immediately
             contentService.downloadIssuePublicationToCache(issuePublication)
         } catch (e: Exception) {
-            val hint = "Exception while downloading an issue publication from the download observer"
-            log.error(hint, e)
-            Sentry.captureException(e, hint)
+            log.warn("Exception while downloading an issue publication from the download observer", e)
+            Sentry.captureException(e)
         }
     }
 }

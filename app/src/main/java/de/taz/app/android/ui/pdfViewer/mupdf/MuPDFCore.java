@@ -155,10 +155,9 @@ public class MuPDFCore {
         } catch (RuntimeException e) {
             String message = e.getMessage();
             if (message != null && message.startsWith("items left on stack in draw device:")) {
-                String hint = "MuPDFCore crashed on close()";
                 Log log = new Log(MuPDFCore.class.getName());
-                log.error(hint, e);
-                Sentry.captureException(e, hint);
+                log.error("MuPDFCore crashed on close()", e);
+                Sentry.captureException(e);
             } else {
                 throw e;
             }

@@ -69,8 +69,8 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
                 }
             }
         } catch (e: FileNotFoundException) {
-            val hint = "Accessing ${file.name} threw $e"
-            Sentry.captureException(e, hint)
+            log.warn("Accessing ${file.name} threw $e", e)
+            Sentry.captureException(e)
             null
         }
     }

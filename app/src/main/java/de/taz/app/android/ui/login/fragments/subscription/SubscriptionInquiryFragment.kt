@@ -190,9 +190,8 @@ abstract class SubscriptionInquiryFragment :
                 showErrorToastAndResume(errorMessage)
 
             } catch (e: Exception) {
-                val hint = "Could not submit subscriptionFormData"
-                log.debug(hint, e)
-                Sentry.captureException(e, hint)
+                log.warn("Could not submit subscriptionFormData", e)
+                Sentry.captureException(e)
 
                 toastHelper.showToast(R.string.something_went_wrong_try_later)
                 finishParentLoginActivity()

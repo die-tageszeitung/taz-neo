@@ -166,10 +166,11 @@ class WrappedDownload(
                     } catch (e: Exception) {
                         errorCount++
                         notifyFailedItem(e)
-                        Sentry.captureException(
-                            e,
-                            "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}"
+                        log.warn(
+                            "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}",
+                            e
                         )
+                        Sentry.captureException(e)
                     }
                 }
             }.joinAll()

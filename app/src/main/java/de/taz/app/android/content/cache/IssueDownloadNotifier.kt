@@ -32,9 +32,8 @@ class IssueDownloadNotifier(
         try {
             notifyIssueDownloadStart()
         } catch (e: Exception) {
-            val hint = "Error while notifying download start for $issueKey"
-            Sentry.captureException(e, hint)
-            log.warn(hint)
+            log.warn("Error while notifying download start for $issueKey", e)
+            Sentry.captureException(e)
         }
     }
 
@@ -47,9 +46,8 @@ class IssueDownloadNotifier(
         try {
             notifyIssueDownloadStop()
         } catch (e: Exception) {
-            val hint = "Error while notifying download stop for $issueKey"
-            Sentry.captureException(e, hint)
-            log.warn(hint)
+            log.warn("Error while notifying download stop for $issueKey",e)
+            Sentry.captureException(e)
         }
     }
 
