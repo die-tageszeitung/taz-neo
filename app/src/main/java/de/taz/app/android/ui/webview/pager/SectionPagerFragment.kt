@@ -17,6 +17,7 @@ import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -34,7 +35,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         }
         setupViewPager()
 
-        issueContentViewModel.sectionListLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) { sectionStubs ->
+        issueContentViewModel.sectionListLiveData.observe(this.viewLifecycleOwner) { sectionStubs ->
             if (
                 sectionStubs.map { it.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
@@ -46,7 +47,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             }
         }
 
-        issueContentViewModel.displayableKeyLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) {
+        issueContentViewModel.displayableKeyLiveData.observe(this.viewLifecycleOwner) {
             tryScrollToSection()
         }
     }
@@ -61,10 +62,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
         override fun onPageSelected(position: Int) {
-            if (lastPage != null && lastPage != position) {
+            val sectionStubs = (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs
+            // if we are beyond last position we are the imprint
+            val isImprint = position == sectionStubs.size
+            if (lastPage != null && lastPage != position && !isImprint) {
                 runIfNotNull(
                     issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-                    (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs[position]
+                    sectionStubs[position]
                 ) { issueKey, displayable ->
                     if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
                         issueContentViewModel.setDisplayable(
@@ -108,12 +112,19 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
         FragmentStateAdapter(this@SectionPagerFragment) {
 
         override fun createFragment(position: Int): Fragment {
-            val sectionStub = sectionStubs[position]
-            val isFirstSection = position == 0
-            return SectionWebViewFragment.newInstance(sectionStub.sectionFileName, isFirstSection)
+            val isImprint = position == sectionStubs.size
+            val fragment = if (isImprint) {
+                ImprintWebViewFragment()
+            } else {
+                val sectionStub = sectionStubs[position]
+                val isFirstSection = position == 0
+                SectionWebViewFragment.newInstance(sectionStub.sectionFileName, isFirstSection)
+            }
+            return fragment
         }
 
-        override fun getItemCount(): Int = sectionStubs.size
+        // The imprint is added in addition to the sectionStubs - thus we have to add + 1
+        override fun getItemCount(): Int = sectionStubs.size + 1
     }
 
     private fun tryScrollToSection() {

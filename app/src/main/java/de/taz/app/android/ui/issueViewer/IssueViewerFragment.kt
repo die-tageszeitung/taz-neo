@@ -105,7 +105,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
             transaction.hide(it)
         }
         val fragmentClassToShow = when (displayMode) {
-            IssueContentDisplayMode.Article, IssueContentDisplayMode.Imprint -> ArticlePagerFragment::class.java
+            IssueContentDisplayMode.Article -> ArticlePagerFragment::class.java
             IssueContentDisplayMode.Section -> SectionPagerFragment::class.java
             IssueContentDisplayMode.Loading -> IssueLoaderFragment::class.java
         }

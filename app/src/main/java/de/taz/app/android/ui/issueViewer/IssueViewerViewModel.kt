@@ -3,6 +3,7 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.*
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
@@ -23,7 +24,7 @@ private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
-    Article, Section, Imprint, Loading
+    Article, Section, Loading
 }
 
 @Parcelize
@@ -126,10 +127,10 @@ class IssueViewerViewModel(
         savedStateHandle.getLiveData(KEY_DISPLAY_MODE, IssueContentDisplayMode.Loading)
 
     private val issueKeyLiveData: LiveData<IssueKey?> =
-        issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }
+        issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }.distinctUntilChanged()
 
     val displayableKeyLiveData: LiveData<String?> =
-        issueKeyAndDisplayableKeyLiveData.map { it?.displayableKey }
+        issueKeyAndDisplayableKeyLiveData.map { it?.displayableKey }.distinctUntilChanged()
 
     val articleListLiveData: LiveData<List<ArticleStubWithSectionKey>> =
         MediatorLiveData<List<ArticleStubWithSectionKey>>().apply {
@@ -162,6 +163,17 @@ class IssueViewerViewModel(
                 }
             }
         }
+
+    val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
+        addSource(issueKeyLiveData) {
+            it?.let {
+                viewModelScope.launch {
+                    postValue(issueRepository.getImprint(it))
+                }
+            }
+        }
+    }
+
 
     val elapsedSubscription = authHelper.status.asFlow()
     val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
