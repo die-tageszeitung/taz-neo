@@ -104,7 +104,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         sectionDividerTransformer =
             SectionDividerTransformer(viewBinding.webviewPagerViewpager)
 
-        issueContentViewModel.articleListLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { articleStubsWithSectionKey ->
+        issueContentViewModel.articleListLiveData.observe(viewLifecycleOwner) { articleStubsWithSectionKey ->
             if (
                 articleStubsWithSectionKey.map { it.articleStub.key } !=
                 (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
@@ -114,7 +114,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             }
         }
 
-        issueContentViewModel.displayableKeyLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
+        issueContentViewModel.displayableKeyLiveData.observe(viewLifecycleOwner) {
             if (it != null) {
                 tryScrollToArticle(it)
             }
