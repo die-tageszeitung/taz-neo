@@ -488,16 +488,18 @@ class SplashActivity : StartupActivity() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (BuildConfig.MANUAL_UPDATE) {
+                generateNotificationChannel(
+                    R.string.notification_channel_fcm_new_version_title,
+                    R.string.notification_channel_fcm_new_version_description,
+                    R.string.notification_channel_fcm_new_version_id,
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+            }
             generateNotificationChannel(
-                R.string.notification_channel_new_version,
-                R.string.notification_channel_new_version_description,
-                CHANNEL_ID_NEW_VERSION,
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            generateNotificationChannel(
-                R.string.notification_channel_fcm,
-                R.string.notification_channel_fcm_description,
-                R.string.notification_fcm_channel_id,
+                R.string.notification_channel_fcm_new_issue_arrived_title,
+                R.string.notification_channel_fcm_new_issue_arrived_description,
+                R.string.notification_channel_fcm_new_issue_arrived_id,
                 NotificationManager.IMPORTANCE_HIGH
             )
         }

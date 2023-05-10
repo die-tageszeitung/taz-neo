@@ -108,7 +108,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 notificationHelper.showNotification(
                     title,
                     body,
-                    applicationContext.getString(R.string.notification_fcm_channel_id)
+                    applicationContext.getString(R.string.notification_channel_fcm_new_issue_arrived_id)
                 )
             }
         }

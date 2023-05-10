@@ -6,8 +6,6 @@
     <string name="back_button">Zurück</string>
     <string name="close_okay">Alles klar</string>
 
-    <string name="notification_fcm_channel_id" translatable="false">FCM_NOTIFICATIONS</string>
-
     <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
     <string name="toast_no_email_client">Kein konfiguriertes E-Mail-Programm gefunden.</string>
@@ -139,7 +137,9 @@
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht immer mitladen</string>
-    <string name="settings_notifications">Benachrichtigungen erlauben</string>
+    <string name="settings_notifications">mitteilungen erlauben</string>
+    <string name="settings_notifications_caution_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> deaktiviert. Diese müssen aktiviert sein.</string>
+    <string name="settings_notifications_info_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> ebenfalls zu aktivieren. </string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s%s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
@@ -172,8 +172,6 @@
     <string name="settings_dialog_cancellation_delete_account">Konto löschen</string>
     <string name="settings_dialog_cancellation_something_wrong">Es ist ein unbekannter Fehler aufgetreten.\n\nBitte wenden Sie sich mit Ihrem Anliegen an unseren Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
 
-    <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die taz-App aktivieren. Auch wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
-    <string name="settings_dialog_notifications_must_be_enabled_positive_button">Einstellungen öffnen</string>
     <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 
     <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
@@ -197,14 +195,16 @@
     <string name="fragment_error_report_send_button">Abschicken</string>
     <string name="fragment_error_report_screenshot_thumbnail">hochgeladenes Screenshot</string>
 
-    <string name="notification_channel_new_version">Neue Version</string>
-    <string name="notification_channel_new_version_description">Nachrichten, falls eine neue Version da ist</string>
+    <string name="notification_channel_fcm_new_version_title">Neue Version</string>
+    <string name="notification_channel_fcm_new_version_description">Nachrichten, falls eine neue Version da ist</string>
+    <string name="notification_channel_fcm_new_version_id">FCM_CHANNEL_NEW_VERSION</string>
 
     <string name="notification_new_version_title">Neue Version verfügbar</string>
     <string name="notification_new_version_body">Hier klicken um sie herunterzuladen</string>
 
-    <string name="notification_channel_fcm">Eilmeldungen</string>
-    <string name="notification_channel_fcm_description">Eilmeldungen wie beispielsweise Wahlergebnisse</string>
+    <string name="notification_channel_fcm_new_issue_arrived_title">Neue Ausgabe</string>
+    <string name="notification_channel_fcm_new_issue_arrived_description">Benachrichtigen, falls eine neue Ausgabe verfügbar ist</string>
+    <string name="notification_channel_fcm_new_issue_arrived_id">FCM_CHANNEL_NEW_ISSUE_ARRIVED</string>
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>

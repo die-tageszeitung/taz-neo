@@ -10,6 +10,7 @@
     <color name="superDarkGrey">#121212</color>
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
+    <color name="lightRed">#FF1919</color>
     <color name="tazRed">#d50d2e</color>
     <!-- Prepending 16 to hexcode results in 10% transparency in colors
     see also https://stackoverflow.com/questions/15852122/hex-transparency-in-colors -->
@@ -26,7 +27,7 @@
     <color name="navigation_bottom_highlight">@color/black</color>
     <color name="textColor">@color/black</color>
     <color name="colorAccent">@color/tazRed</color>
-    <color name="critical_action">@color/red</color>
+    <color name="critical_action">@color/lightRed</color>
     <color name="linkColor">@color/blue</color>
 
     <color name="icon_active_filter">@color/blue</color>
