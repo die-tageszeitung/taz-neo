@@ -182,6 +182,63 @@
             </LinearLayout>
             <!-- endregion -->
 
+            <!-- region allow push notifications -->
+            <LinearLayout
+                android:id="@+id/fragment_settings_notifications_switch_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_notifications_switch"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/fragment_settings_category_switch_padding_bottom"
+                    android:text="@string/settings_notifications"
+                    app:trackTint="@color/material_switch_color_list"
+                    tools:checked="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/push_notifications_must_be_allowed_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="@dimen/fragment_settings_caution_icon_margin_end"
+                    android:src="@drawable/ic_caution"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notifications_caution_text"
+                    android:textColor="@color/critical_action" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/push_notifications_should_be_allowed_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notifications_info_text" />
+            </LinearLayout>
+            <!-- endregion -->
+
             <!-- region ausgabenverwaltung -->
             <TextView
                 android:id="@+id/fragment_settings_category_issue_management"
@@ -438,23 +495,6 @@
                 android:visibility="gone">
 
                 <include layout="@layout/settings_separator_view" />
-
-                <LinearLayout
-                    android:id="@+id/fragment_settings_notifications_switch_wrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/fragment_settings_notifications_switch"
-                        style="@style/TextAppearance.Settings.Entry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_notifications" />
-
-                    <include layout="@layout/settings_separator_view" />
-                </LinearLayout>
 
                 <TextView
                     android:id="@+id/fragment_settings_reset_app"

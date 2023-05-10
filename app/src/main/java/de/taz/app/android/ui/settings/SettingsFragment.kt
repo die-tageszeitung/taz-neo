@@ -73,8 +73,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private val emailValidator = EmailValidator()
 
-    private var notificationsMustBeAllowedDialog: AlertDialog? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -306,7 +304,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
             notificationsEnabledLivedata.distinctUntilChanged().observe(viewLifecycleOwner) { notificationsEnabled ->
-                showNotificationsEnabledToggle(notificationsEnabled)
+                updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
             }
             storageLocationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -359,12 +357,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 checkNotificationsAllowed()
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        notificationsMustBeAllowedDialog?.dismiss()
-        notificationsMustBeAllowedDialog = null
     }
 
     private fun showDeleteAllIssuesDialog() {
@@ -617,10 +609,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun showNotificationsEnabledToggle(notificationsEnabled: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_notifications_switch)?.apply {
-            isChecked = notificationsEnabled
-        }
+    private fun activateNotificationsToggle(notificationsActivated: Boolean) {
+        viewBinding.fragmentSettingsNotificationsSwitch.isEnabled = notificationsActivated
     }
 
     private fun showFontSize(textSize: Int) {
@@ -734,38 +724,24 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
      */
     private fun toggleNotificationsEnabled() {
         lifecycleScope.launch {
-            val areSystemNotificationsAllowed =
-                NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
             val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
-            val enableAppNotifications = !areAppNotificationsEnabled
+            val toggledNotification = !areAppNotificationsEnabled
 
-            // Check if android allow the app to display notifications:
-            if (enableAppNotifications && !areSystemNotificationsAllowed) {
-                showNotificationsMustBeAllowedDialog()
-                showNotificationsEnabledToggle(false)
-            } else {
-                val result = viewModel.setNotificationsEnabled(enableAppNotifications)
-                if (result != enableAppNotifications) {
-                    showNotificationsChangeErrorToast()
-                    showNotificationsEnabledToggle(result)
-                }
+            val result = viewModel.setNotificationsEnabled(!areAppNotificationsEnabled)
+
+            if (result != toggledNotification) {
+                showNotificationsChangeErrorToast()
             }
+            updateNotificationViews(result, systemNotificationsAllowed())
         }
     }
 
     /**
-     * Checks if the system notifications are allowed and shows a popup if we have set the inapp
-     * notifications to true but the app is not allowed to receive notifications from the android side.
-     * Note: this won't change the state of in app notification setting and wont try to call the server
+     * Checks if the system notifications are allowed by system
+     * and show depending on the viewmMdel's settings some layout.
      */
     private suspend fun checkNotificationsAllowed() {
-        val areSystemNotificationsAllowed =
-            NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
-        val areAppNotificationsEnabled = viewModel.getNotificationsEnabled()
-
-        if (areAppNotificationsEnabled && !areSystemNotificationsAllowed) {
-            showNotificationsMustBeAllowedDialog()
-        }
+        updateNotificationViews(viewModel.getNotificationsEnabled(), systemNotificationsAllowed())
     }
 
     private fun toggleExtendedContent() {
@@ -780,22 +756,61 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun showNotificationsMustBeAllowedDialog() {
-        context?.let {
-            notificationsMustBeAllowedDialog?.dismiss()
-            notificationsMustBeAllowedDialog =
-                MaterialAlertDialogBuilder(it)
-                    .setMessage(R.string.settings_dialog_notifications_must_be_enabled_title)
-                    .setPositiveButton(R.string.settings_dialog_notifications_must_be_enabled_positive_button) { dialog, _ ->
-                        (dialog as AlertDialog).hide()
-                        openAndroidNotificationSettings()
-                    }.setNegativeButton(R.string.cancel_button) { dialog, _ ->
-                        (dialog as AlertDialog).hide()
-                    }
-                    .create()
-                    .apply {
-                        show()
-                    }
+    private fun updateNotificationViews(notificationsEnabled: Boolean, systemNotificationsAllowed: Boolean) {
+        viewBinding.fragmentSettingsNotificationsSwitch.isChecked = notificationsEnabled
+        if (!systemNotificationsAllowed) {
+            if (notificationsEnabled) {
+                showNotificationsMustBeAllowedLayout(show = true)
+            } else {
+                showNotificationsShouldBeAllowedLayout(show = true)
+            }
+        } else {
+            showNotificationsShouldBeAllowedLayout(show = false)
+            showNotificationsMustBeAllowedLayout(show = false)
+        }
+    }
+
+    /**
+     * Toggle text indicating that notifications must be allowed when they are enabled at the moment
+     */
+    private fun showNotificationsMustBeAllowedLayout(show: Boolean) {
+        if (show) {
+            showNotificationsShouldBeAllowedLayout(show = false)
+            viewBinding.pushNotificationsMustBeAllowedLayout.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    openAndroidNotificationSettings()
+                }
+            }
+            viewBinding.fragmentSettingsNotificationsSwitch.trackTintList =
+                ContextCompat.getColorStateList(
+                    requireContext(),
+                    R.color.material_switch_disabled_color_list
+                )
+        } else {
+            viewBinding.fragmentSettingsNotificationsSwitch.trackTintList =
+                ContextCompat.getColorStateList(
+                    requireContext(),
+                    R.color.material_switch_color_list
+                )
+            viewBinding.pushNotificationsMustBeAllowedLayout.visibility = View.GONE
+        }
+    }
+
+    /**
+     * Toggle text indicating that notifications hall be allowed when they are disabled at the moment
+     */
+    private fun showNotificationsShouldBeAllowedLayout(show: Boolean) {
+        if (show) {
+            showNotificationsMustBeAllowedLayout(show = false)
+            viewBinding.pushNotificationsShouldBeAllowedLayout.apply {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    openAndroidNotificationSettings()
+                }
+            }
+        } else {
+            viewBinding.pushNotificationsShouldBeAllowedLayout.visibility = View.GONE
         }
     }
 
@@ -880,4 +895,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             toastHelper.showToast(R.string.toast_unknown_error)
         }
     }
+
+    private fun systemNotificationsAllowed() =
+        NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
 }

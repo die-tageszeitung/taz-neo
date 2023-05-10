@@ -11,7 +11,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
@@ -40,7 +39,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
     private val downloadDataStore = DownloadDataStore.getInstance(application)
     private val storageDataStore = StorageDataStore.getInstance(application)
-    private val generalDataStore = GeneralDataStore.getInstance(application)
     private val apiService = ApiService.getInstance(application)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application)
 
@@ -123,7 +121,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     suspend fun getNotificationsEnabled(): Boolean = downloadDataStore.notificationsEnabled.get()
-
 
     fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
         viewModelScope.launch {
