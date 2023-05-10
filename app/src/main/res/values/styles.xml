@@ -288,6 +288,15 @@
         <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
     </style>
 
+    <style name="TextAppearance.Settings.Category.Switch" parent="TextAppearance.Settings.Category">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="trackTint">@color/material_switch_color_list</item>
+    </style>
+
     <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/search_advanced_text_size</item>
@@ -437,6 +446,14 @@
         <item name="android:textColor">@color/link</item>
         <item name="android:textStyle">bold</item>
         <item name="android:paddingBottom">@dimen/fragment_login_text_link_padding_bottom</item>
+    </style>
+
+    <style name="TextAppearance.BottomSheet" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
 </resources>

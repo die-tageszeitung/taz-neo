@@ -310,6 +310,13 @@ object DateHelper {
         return cal.time
     }
 
+    fun lastTenDays(): Date {
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.DAY_OF_YEAR, -10)
+        return cal.time
+    }
+
     fun lastYear(): Date {
         val cal = Calendar.getInstance()
         cal.time = Date()

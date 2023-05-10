@@ -21,6 +21,8 @@ private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
+private const val ALLOW_NOTIFICATIONS_DO_NOT_SHOW_AGAIN = "allow_notifications_do_not_show_again"
+private const val ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN = "allow_notifications_last_time_shown"
 
 // endregion
 
@@ -71,6 +73,14 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val tryPdfDialogCount: DataStoreEntry<Int> = SimpleDataStoreEntry(
         dataStore, intPreferencesKey(TRY_PDF_DIALOG_COUNT), 0
+    )
+
+    val allowNotificationsDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(ALLOW_NOTIFICATIONS_DO_NOT_SHOW_AGAIN), false
+    )
+
+    val allowNotificationsLastTimeShown: DataStoreEntry<String> = SimpleDataStoreEntry(
+        dataStore, stringPreferencesKey(ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN), "2022-12-13"
     )
 
     suspend fun clearRemovedEntries() {

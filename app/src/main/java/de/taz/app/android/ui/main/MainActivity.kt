@@ -8,6 +8,7 @@ import android.os.Looper
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
@@ -15,15 +16,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.bottomSheet.AllowNotificationsBottomSheetFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -54,6 +59,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private lateinit var authHelper: AuthHelper
 
+    private val downloadDataStore by lazy { DownloadDataStore.getInstance(application) }
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
 
@@ -68,13 +74,24 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
                 val isPdfMode = generalDataStore.pdfMode.get()
                 val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
+                val allowNotificationsDoNotShowAgain = generalDataStore.allowNotificationsDoNotShowAgain.get()
+                val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
+                val allowNotificationsShownLastMonth =
+                    DateHelper.stringToDate(allowNotificationsLastTimeShown)?.let { lastShown ->
+                        lastShown > DateHelper.lastTenDays()
+                    } ?: false
 
                 val elapsedBottomSheetConditions =
                     authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
+
+                val allowNotificationsBottomSheetConditions =
+                    !checkNotificationsAllowed() && !allowNotificationsDoNotShowAgain && !allowNotificationsShownLastMonth && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
+
                 when {
                     elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
                     isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
                     !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
+                    allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
                     else -> Unit // do nothing else
                 }
             }
@@ -165,6 +182,13 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         )
     }
 
+    private fun showAllowNotificationsBottomSheet() {
+        AllowNotificationsBottomSheetFragment().show(
+            supportFragmentManager,
+            "showSubscriptionElapsed"
+        )
+    }
+
     private var doubleBackToExitPressedOnce = false
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -187,5 +211,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         } else {
             showHome()
         }
+    }
+
+    private suspend fun checkNotificationsAllowed(): Boolean {
+        val systemAllows = NotificationManagerCompat.from(this).areNotificationsEnabled()
+        val appAllows = downloadDataStore.notificationsEnabled.get()
+        return systemAllows && appAllows
     }
 }
