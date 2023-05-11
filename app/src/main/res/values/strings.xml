@@ -85,7 +85,7 @@
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
-    <string name="fragment_bottom_sheet_notifications_title">Immer Bescheid wissen!</string>
+    <string name="fragment_bottom_sheet_notifications_title">Bock auf Bescheidwissen?</string>
     <string name="fragment_bottom_sheet_notifications_description">Willkommen zurück! Wir haben etwas Brandneues für Sie: Bleiben Sie auf dem Laufendem mit Benachrichtigungen.\n\nSie möchten auch in Zukunft keine Ausgabe mehr verpassen? Schalten Sie die Mitteilungen an und verpassen Sie nichts.</string>
     <string name="fragment_bottom_sheet_notifications_yes">Ja, Mitteillungen einschalten</string>
     <string name="fragment_bottom_sheet_notifications_not_now">Jetzt nicht</string>
