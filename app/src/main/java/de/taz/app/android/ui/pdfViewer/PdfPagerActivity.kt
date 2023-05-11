@@ -21,6 +21,10 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+import de.taz.app.android.HIDE_LOGO_DELAY_MS
+import de.taz.app.android.LOGO_ANIMATION_DURATION_MS
+import de.taz.app.android.LOGO_PEAK
+import de.taz.app.android.LOGO_PEAK_CLICK_PADDING
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
@@ -59,10 +63,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
 
-        private const val LOGO_PEAK = 8
-        private const val LOGO_PEAK_CLICK_PADDING = 30
-        private const val HIDE_LOGO_DELAY_MS = 200L
-        private const val LOGO_ANIMATION_DURATION_MS = 300L
         private const val ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME =
             "ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME"
         private const val SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG =
@@ -298,9 +298,8 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(HIDE_LOGO_DELAY_MS)
                 .translationX(transX)
-                .interpolator = AccelerateDecelerateInterpolator()
+                .setInterpolator(AccelerateDecelerateInterpolator())
         }
-
     }
 
     private fun showDrawerLogo(hideAgainFlag: Boolean = true) {
@@ -318,9 +317,8 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(0L)
                 .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
-                .interpolator = AccelerateDecelerateInterpolator()
+                .setInterpolator(AccelerateDecelerateInterpolator())
         }
-
     }
 
     private suspend fun showNavButton(navButton: Image) {
