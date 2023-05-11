@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable(with = SectionTypeDtoEnumSerializer::class)
 enum class SectionTypeDto {
     articles,
+    advertisement,
     UNKNOWN
 }
 

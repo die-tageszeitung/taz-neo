@@ -120,13 +120,13 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     (drawerView.parent as? View)?.let { parentView ->
                         val drawerWidth =
                             drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
-                        if (parentView.width < drawerWidth) {
+                        if (parentView.width < drawerWidth && !sectionDrawerViewModel.onAdvertisement) {
                             // translation needed for logo to be shown when drawer is too wide:
                             val offsetOnOpenDrawer =
                                 slideOffset * (parentView.width - drawerWidth)
                             // translation needed when drawer is closed then:
                             val offsetOnClosedDrawer =
-                                (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
+                                (1 - slideOffset) * resources.displayMetrics.density
                             drawerLogoWrapper.translationX =
                                 offsetOnOpenDrawer + offsetOnClosedDrawer
                         }
