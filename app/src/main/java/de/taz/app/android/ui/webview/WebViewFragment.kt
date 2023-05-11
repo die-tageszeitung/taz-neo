@@ -231,6 +231,15 @@ abstract class WebViewFragment<
      */
     private fun scrollBy(scrollHeight: Int) {
         view?.let {
+            val navBarHeight = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.let {
+                if (it.visibility == View.VISIBLE) {
+                    it.height - it.translationY.toInt()
+                } else {
+                    0
+                }
+            } ?: 0
+            var offset = navBarHeight
+
             val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
             // if on bottom and tap on right side go to next article
             if (!scrollView.canScrollVertically(1) && scrollHeight > 0) {
@@ -241,14 +250,19 @@ abstract class WebViewFragment<
                 issueViewerViewModel.goPreviousArticle.postValue(true)
             } else {
                 lifecycleScope.launch(Dispatchers.Main) {
+                    val appBarLayout = it.findViewById<AppBarLayout>(R.id.app_bar_layout)
+                    val isExpanded = appBarLayout?.height?.minus(appBarLayout.bottom) == 0
                     // hide app bar bar when scrolling down
                     if (scrollHeight > 0) {
-                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(false, true)
+                        if (isExpanded) {
+                            offset += appBarLayout.height
+                            appBarLayout?.setExpanded(false, true)
+                        }
                     } else {
-                        it.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, true)
+                        appBarLayout?.setExpanded(true, true)
                     }
+                    scrollView.smoothScrollBy(0, scrollHeight - offset)
                 }
-                scrollView.smoothScrollBy(0, scrollHeight)
             }
         }
     }
