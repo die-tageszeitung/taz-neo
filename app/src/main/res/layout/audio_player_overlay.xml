@@ -38,7 +38,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
-            android:layout_marginTop="@dimen/audioplayer_small_text_top_margin"
+            android:layout_marginTop="@dimen/audioplayer_small_title_margin_top"
+            android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
             android:ellipsize="end"
             android:maxLines="1"
             app:layout_constraintBottom_toTopOf="@id/audio_author"
@@ -53,6 +54,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
+            android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
             android:layout_marginBottom="@dimen/audioplayer_small_text_bottom_margin"
             android:ellipsize="end"
             android:maxLines="1"
@@ -183,6 +185,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/audioplayer_expanded_title_margin_top"
+            android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
             app:layout_constraintTop_toBottomOf="@id/expanded_audio_image"
             app:layout_goneMarginTop="0dp"
             tools:text="Hautfarbe rechtfertigt keine Kontrollschikanen" />
@@ -193,6 +196,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/audioplayer_expanded_author_margin_top"
+            android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
             app:layout_constraintTop_toBottomOf="@id/expanded_audio_title"
             tools:text="von Micha Bartsch" />
 

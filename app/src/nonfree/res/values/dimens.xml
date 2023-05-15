@@ -12,6 +12,8 @@
 
     <dimen name="button_custom_padding_to_center_aktiv_grotesk_font">10dp</dimen>
 
+    <dimen name="audioplayer_small_custom_padding_top_for_grotesk_font">1dp</dimen>
+
     <dimen name="fragment_bookmarks_top_margin">16dp</dimen>
     <dimen name="grotesk_font_adjustment">2dp</dimen>
 </resources>
