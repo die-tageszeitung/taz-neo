@@ -28,6 +28,7 @@ import de.taz.app.android.LOGO_PEAK_CLICK_PADDING
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -87,6 +88,9 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private val issueContentViewModel by viewModels<IssueViewerViewModel>()
     private val log by Log
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     private lateinit var storageService: StorageService
     private lateinit var issuePublication: IssuePublicationWithPages

@@ -6,8 +6,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityWebviewBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
@@ -52,6 +54,11 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+
+        // The AudioPlayer shall stop when we show full screen info views
+        AudioPlayerService.getInstance(applicationContext).apply {
+            dismissPlayer()
+        }
 
         viewBinding.apply {
             webViewButton.setOnClickListener {

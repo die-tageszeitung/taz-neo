@@ -16,8 +16,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.PriceInfo
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.*
@@ -64,7 +66,10 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
 
-
+        // The AudioPlayer shall stop when a users logs in (or registers)
+        AudioPlayerService.getInstance(applicationContext).apply {
+            dismissPlayer()
+        }
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
 
         viewBinding.navigationBottom.apply {

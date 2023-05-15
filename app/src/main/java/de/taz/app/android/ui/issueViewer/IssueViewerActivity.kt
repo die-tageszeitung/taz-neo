@@ -13,6 +13,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
@@ -64,6 +65,9 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
             }
         }
     }
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -3,23 +3,22 @@ package de.taz.app.android.ui.main
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.webkit.WebView
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
 import de.taz.app.android.annotation.Mockable
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -62,6 +61,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private val downloadDataStore by lazy { DownloadDataStore.getInstance(application) }
     private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

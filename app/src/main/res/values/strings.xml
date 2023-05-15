@@ -428,4 +428,9 @@
     <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
     <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
+
+    <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
+    <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
+    <string name="audioplayer_author_template">von %s</string>
+    <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
 </resources>

@@ -19,6 +19,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.api.variables.SearchFilter
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -57,6 +58,9 @@ class SearchActivity :
     private val log by Log
 
     private val viewModel by viewModels<SearchResultPagerViewModel>()
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     // region Activity functions
     override fun onCreate(savedInstanceState: Bundle?) {

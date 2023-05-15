@@ -8,13 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-enum class DateFormat {
-    None,
-    LongWithWeekDay,
-    LongWithoutWeekDay,
-    MonthNameAndYear,
-}
-
 enum class AppTimeZone {
     Default,
     Berlin
@@ -287,6 +280,13 @@ object DateHelper {
         return stringToDate(dateString)?.let { issueDate ->
             return dateToLowerCaseString(issueDate)
         }
+    }
+
+    fun millisecondsToMinuteString(milliseconds: Long): String {
+        val seconds = milliseconds / 1000L
+        val minutes = seconds.div(60L)
+        val remainingSeconds = seconds.mod(60L)
+        return "%02d:%02d".format(minutes, remainingSeconds)
     }
 
     fun yesterday(): Date {

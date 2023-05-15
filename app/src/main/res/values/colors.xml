@@ -110,4 +110,13 @@
 
     <color name="fragment_settings_value_text">@color/colorAccent</color>
     <color name="colorAutofillBackground">@color/tazRed10Percent</color>
+
+    <color name="audio_player_overlay_background">@color/darkGrey</color>
+    <color name="audio_player_controls_color">@color/lightGrey</color>
+    <color name="audio_player_small_progress_unplayed_color">#494949</color>
+    <color name="audio_player_small_progress_played_color">@color/lightGrey</color>
+    <color name="audio_player_expanded_progress_unplayed_color">#363636</color>
+    <color name="audio_player_expanded_progress_played_color">@color/white</color>
+    <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
+
 </resources>

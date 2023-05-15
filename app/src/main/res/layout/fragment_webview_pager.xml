@@ -56,20 +56,4 @@
         android:layout_gravity="bottom"
         android:visibility="gone" />
 
-    <com.google.android.exoplayer2.ui.StyledPlayerControlView
-        android:id="@+id/player_controller"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/audio_player_bottom_height"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="@dimen/nav_bottom_height"
-        android:visibility="gone"
-        app:buffered_color="@color/icon_tint"
-        app:controller_layout_id="@layout/article_audio_player_exo_control_view"
-        app:played_color="@color/icon_tint"
-        app:scrubber_color="@color/icon_tint"
-        app:scrubber_enabled_size="16dp"
-        app:show_rewind_button="true"
-        app:show_timeout="0"
-        tools:visibility="visible" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

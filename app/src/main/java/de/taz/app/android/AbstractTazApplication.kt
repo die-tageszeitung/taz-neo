@@ -1,9 +1,12 @@
 package de.taz.app.android
 
+import android.app.Activity
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import androidx.fragment.app.Fragment
 import com.facebook.stetho.Stetho
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
@@ -12,8 +15,12 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.UncaughtExceptionHandler
 import io.sentry.Sentry
 import io.sentry.protocol.User
-import kotlinx.coroutines.*
-import java.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
 abstract class AbstractTazApplication : Application() {
     private val log by Log
@@ -24,7 +31,7 @@ abstract class AbstractTazApplication : Application() {
     // a fragment or activity is finished
     val applicationScope = CoroutineScope(SupervisorJob())
 
-    // Global flag used to ensure that the elapsed popup is only shown once across all Fragments/Activites
+    // Global flag used to ensure that the elapsed popup is only shown once across all Fragments/Activities
     var elapsedPopupAlreadyShown = false
 
     override fun onCreate() {
@@ -84,3 +91,7 @@ abstract class AbstractTazApplication : Application() {
         Sentry.setUser(user)
     }
 }
+
+
+fun Activity.getTazApplication(): AbstractTazApplication = application as AbstractTazApplication
+fun Fragment.getTazApplication(): AbstractTazApplication = requireActivity().getTazApplication()
