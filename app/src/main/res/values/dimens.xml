@@ -261,7 +261,8 @@
     <dimen name="audioplayer_small_article_image_size">32dp</dimen>
     <dimen name="audioplayer_small_vertical_padding">1dp</dimen>
     <dimen name="audioplayer_small_horizontal_margin">8dp</dimen>
-    <dimen name="audioplayer_small_text_top_margin">6dp</dimen>
+    <dimen name="audioplayer_small_title_margin_top">6dp</dimen>
+    <dimen name="audioplayer_small_custom_padding_top_for_grotesk_font">0dp</dimen>
     <dimen name="audioplayer_small_text_bottom_margin">2dp</dimen>
     <dimen name="audioplayer_small_progress_indicator_size">35dp</dimen>
     <dimen name="audioplayer_small_progress_indicator_thickness">1.5dp</dimen>
