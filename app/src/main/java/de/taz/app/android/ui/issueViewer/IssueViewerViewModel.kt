@@ -2,14 +2,25 @@ package de.taz.app.android.ui.issueViewer
 
 import android.app.Application
 import android.os.Parcelable
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.util.ArticleName
@@ -47,6 +58,7 @@ class IssueViewerViewModel(
     val issueLoadingFailedErrorFlow = MutableStateFlow(false)
     val currentDisplayable: String?
         get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
+
 
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?, immediate: Boolean = false) {

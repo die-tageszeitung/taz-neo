@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
@@ -26,6 +27,8 @@ class BookmarkViewerActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

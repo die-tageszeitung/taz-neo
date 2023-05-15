@@ -7,6 +7,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
+import androidx.core.view.isVisible
 import kotlin.math.max
 import kotlin.math.min
 
@@ -24,8 +25,21 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
         interpolator = DecelerateInterpolator()
         duration = ANIMATION_DURATION_MS
     }
-    private var isInitialized = false
     private var translationOnScrollStart = 0f
+
+    fun initialize(view: View) {
+        view.translationY = 0f
+        view.isVisible = true
+    }
+
+    fun expand(view: View, animate: Boolean) {
+        offsetAnimator.cancel()
+        if (animate) {
+            animateBarVisibility(view, true)
+        } else {
+            view.translationY = 0f
+        }
+    }
 
     override fun onStartNestedScroll(
         coordinatorLayout: CoordinatorLayout,
@@ -39,9 +53,8 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
             return false
         }
 
-        if (!isInitialized) {
-            initializeBottomNavigationView(child)
-            isInitialized = true
+        if (!child.isVisible) {
+            initialize(child)
         }
         offsetAnimator.cancel()
         translationOnScrollStart = child.translationY
@@ -82,7 +95,7 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
     ) {
         super.onNestedPreScroll(coordinatorLayout, child, target, dx, dy, consumed, type)
 
-        if (isInitialized) {
+        if (child.isVisible) {
             child.translationY = max(0f, min(child.height.toFloat(), child.translationY + dy))
         }
     }
@@ -112,11 +125,5 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
             setFloatValues(currentTranslation, targetTranslation)
             start()
         }
-    }
-
-    private fun initializeBottomNavigationView(view: View) {
-        // Make the view visible but hide it, by moving it out of the bottom of the screen via translation of its full height
-        view.translationY = view.height.toFloat()
-        view.visibility = View.VISIBLE
     }
 }

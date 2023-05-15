@@ -4,7 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="nav_bottom_height">52dp</dimen>
-    <dimen name="audio_player_bottom_height">58dp</dimen>
     <!-- overriding android dimens: -->
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
@@ -257,6 +256,35 @@
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 
 
+    <!-- region audioplayer overlay -->
+    <dimen name="audioplayer_small_overlay_margin">9dp</dimen>
+    <dimen name="audioplayer_small_article_image_size">32dp</dimen>
+    <dimen name="audioplayer_small_vertical_padding">1dp</dimen>
+    <dimen name="audioplayer_small_horizontal_margin">8dp</dimen>
+    <dimen name="audioplayer_small_text_top_margin">6dp</dimen>
+    <dimen name="audioplayer_small_text_bottom_margin">2dp</dimen>
+    <dimen name="audioplayer_small_progress_indicator_size">35dp</dimen>
+    <dimen name="audioplayer_small_progress_indicator_thickness">1.5dp</dimen>
+    <dimen name="audioplayer_small_action_icon_size">19dp</dimen>
+    <dimen name="audioplayer_small_close_icon_size">21dp</dimen>
+
+
+    <dimen name="audioplayer_action_icon_size">50dp</dimen>
+    <dimen name="audioplayer_expanded_container_padding">18dp</dimen>
+    <dimen name="audioplayer_expanded_image_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_image_max_height">350dp</dimen>
+    <dimen name="audioplayer_expanded_title_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_author_margin_top">7dp</dimen>
+    <dimen name="audioplayer_expanded_progress_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_progress_scrubber_size">12dp</dimen>
+    <dimen name="audioplayer_expanded_progress_bar_height">3dp</dimen>
+    <dimen name="audioplayer_expanded_seek_action_size">32dp</dimen>
+    <dimen name="audioplayer_expanded_play_action_size">34dp</dimen>
+    <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>
+    <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
+
+    <!-- endregion -->
+
     <!--    special dimens -->
     <!--    dimen equals to match_parent (see https://stackoverflow.com/questions/16478808/value-equals-to-match-parent-or-fill-parent-in-dimens-xml) -->
     <dimen name="custom_match_parent">-1px</dimen>
@@ -290,5 +318,4 @@
     <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <!-- endregion -->
-
 </resources>

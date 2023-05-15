@@ -40,7 +40,12 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
 
@@ -92,29 +97,10 @@ abstract class WebViewFragment<
             saveScrollPositionJob = lifecycleScope.launch {
                 oldJob?.cancelAndJoin()
                 delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
-                val bottomNavigationViewLayout = try {
-                    // we need to offset the scroll position by the bottom navigation as it might be expanded
-                    withContext(Dispatchers.Main) {
-                        parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
-                    }
-                } catch (e: NullPointerException) {
-                    // view might be cleaned up in meantime,
-                    // then skip the exception and don't do anything
-                    return@launch
-                }
-                val bottomOffset = bottomNavigationViewLayout?.let {
-                    if (it.visibility == View.VISIBLE) {
-                        it.height - it.translationY.toInt()
-                    } else {
-                        0
-                    }
-                } ?: 0
-
-                val offsetPosition = scrollPosition - bottomOffset
-                viewModel.scrollPosition = offsetPosition
+                viewModel.scrollPosition = scrollPosition
                 viewerStateRepository.save(
                     it.key,
-                    offsetPosition
+                    scrollPosition
                 )
             }
         }

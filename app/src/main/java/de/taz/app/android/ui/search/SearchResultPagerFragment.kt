@@ -35,7 +35,7 @@ import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelpe
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
 
 private const val RESTORATION_POSITION = "RESTORATION_POSITION"
 private const val INITIAL_POSITION = "INITIAL_POSITION"
@@ -67,7 +67,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-    private lateinit var articleBottomActionBarNavigationHelper: ArticleBottomActionBarNavigationHelper
+    private val articleBottomActionBarNavigationHelper =
+        ArticleBottomActionBarNavigationHelper(::onBottomNavigationItemClicked)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -83,10 +84,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        articleBottomActionBarNavigationHelper = ArticleBottomActionBarNavigationHelper(
-            viewBinding.navigationBottom,
-            onClickHandler = ::onBottomNavigationItemClicked
-        )
+        articleBottomActionBarNavigationHelper
+            .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
 
         loadingScreen.visibility = View.GONE
 
@@ -139,12 +138,18 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             if (viewModel.checkIfLoadMore(position)) {
                 (activity as SearchActivity).loadMore()
             }
-            // show the share icon always when in public article
-            // OR when an onLink link is provided
-            articleBottomActionBarNavigationHelper.setShareIconVisibility(
-                currentSearchHit?.onlineLink,
-                currentSearchHit?.articleFileName
-            )
+
+            articleBottomActionBarNavigationHelper.apply {
+                // show the share icon always when in public article
+                // OR when an onLink link is provided
+                setShareIconVisibility(
+                    currentSearchHit?.onlineLink,
+                    currentSearchHit?.articleFileName
+                )
+
+                // ensure the action bar is showing when the article changes
+                expand(true)
+            }
         }
     }
 
@@ -282,6 +287,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onDestroyView() {
         webViewPager.adapter = null
+        articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
     }
 

@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySettingsBinding
 import de.taz.app.android.singletons.AuthHelper
@@ -16,6 +17,9 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     private lateinit var authHelper: AuthHelper
 

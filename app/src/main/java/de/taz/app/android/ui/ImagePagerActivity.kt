@@ -11,6 +11,7 @@ import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageResolution
+import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityImagePagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -24,6 +25,9 @@ import kotlinx.coroutines.runBlocking
 
 
 class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
+
+    @Suppress("unused")
+    private val audioPlayerViewController = AudioPlayerViewController(this)
 
     private lateinit var viewPager2: ViewPager2
     private lateinit var tabLayout: TabLayout
