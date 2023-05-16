@@ -392,7 +392,7 @@ class AudioPlayerViewController(
 
                 root.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = playerWidth
-                    height = 40
+                    height = WRAP_CONTENT
                     gravity = Gravity.BOTTOM or Gravity.END
                     bottomMargin = bottomNavHeightPx + marginPx
                     marginStart = marginPx
