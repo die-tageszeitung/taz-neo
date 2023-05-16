@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:animateLayoutChanges="false"
-        android:background="@drawable/audioplayer_background_mini_round_corners"
+        android:background="@drawable/audioplayer_background_rounded"
         android:paddingVertical="@dimen/audioplayer_small_vertical_padding"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
