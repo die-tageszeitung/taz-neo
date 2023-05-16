@@ -205,7 +205,7 @@
         <androidx.media3.ui.DefaultTimeBar
             android:id="@+id/expanded_progress"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/audioplayer_expanded_progress_touch_target_height"
             android:layout_marginTop="@dimen/audioplayer_expanded_progress_margin_top"
             app:bar_height="@dimen/audioplayer_expanded_progress_bar_height"
             app:layout_constraintTop_toBottomOf="@id/expanded_audio_author"
@@ -213,6 +213,7 @@
             app:scrubber_color="@color/audio_player_expanded_progress_scrubber_color"
             app:scrubber_dragged_size="@dimen/audioplayer_expanded_progress_scrubber_size"
             app:scrubber_enabled_size="@dimen/audioplayer_expanded_progress_scrubber_size"
+            app:touch_target_height="@dimen/audioplayer_expanded_progress_touch_target_height"
             app:unplayed_color="@color/audio_player_expanded_progress_unplayed_color" />
 
         <TextView
