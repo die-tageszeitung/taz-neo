@@ -16,7 +16,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
 import de.taz.app.android.R
-import de.taz.app.android.databinding.AudioPlayerOverlayBinding
+import de.taz.app.android.audioPlayer.DisplayMode.*
+import de.taz.app.android.databinding.AudioplayerOverlayBinding
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
@@ -31,6 +32,13 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 private const val CIRCULAR_PROGRESS_TICKS = 1000L
+
+private enum class DisplayMode {
+    DISPLAY_MODE_MOBILE,
+    DISPLAY_MODE_MOBILE_EXPANDED,
+    DISPLAY_MODE_TABLET,
+    DISPLAY_MODE_TABLET_EXPANDED
+}
 
 /**
  * Controller to be attached to each activity that shall show the audio player overlay.
@@ -70,15 +78,17 @@ class AudioPlayerViewController(
     private lateinit var toastHelper: ToastHelper
 
     // null, unless the player is already attached to the activities views
-    private var playerOverlayBinding: AudioPlayerOverlayBinding? = null
+    private var playerOverlayBinding: AudioplayerOverlayBinding? = null
     private var boundArticleAudio: ArticleAudio? = null
     private var boundArticleHasImage: Boolean = false
+    private var isTabletMode: Boolean = false
 
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
         storageService = StorageService.getInstance(activity.applicationContext)
         toastHelper = ToastHelper.getInstance(activity.applicationContext)
         // FIXME (johannes): Re-consider adding the player views here if it prevents flickering during Activity changes
+        isTabletMode = activity.resources.getBoolean(R.bool.isTablet)
     }
 
     private fun onStart() {
@@ -111,7 +121,7 @@ class AudioPlayerViewController(
 
     private fun onPlayerUiChange(
         uiState: UiState,
-        binding: AudioPlayerOverlayBinding
+        binding: AudioplayerOverlayBinding
     ) {
         when (uiState) {
             is UiState.Error -> {
@@ -156,7 +166,7 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioPlayerOverlayBinding.bindArticleAudio(articleAudio: ArticleAudio) {
+    private fun AudioplayerOverlayBinding.bindArticleAudio(articleAudio: ArticleAudio) {
         val article = articleAudio.article
         if (boundArticleAudio?.article?.key != articleAudio.article.key) {
             val articleTitle = article.title ?: article.key
@@ -230,15 +240,15 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioPlayerOverlayBinding.showOverlay() {
+    private fun AudioplayerOverlayBinding.showOverlay() {
         root.isVisible = true
     }
 
-    private fun AudioPlayerOverlayBinding.hideOverlay() {
+    private fun AudioplayerOverlayBinding.hideOverlay() {
         root.isVisible = false
     }
 
-    private fun AudioPlayerOverlayBinding.showLoadingState() {
+    private fun AudioplayerOverlayBinding.showLoadingState() {
         positionPlayerViews(isExpanded = false)
         showOverlay()
         smallPlayer.isVisible = true
@@ -246,7 +256,7 @@ class AudioPlayerViewController(
         setSmallPlayerViewVisibility(isLoading = true)
     }
 
-    private fun AudioPlayerOverlayBinding.showSmallPlayer(isPlaying: Boolean) {
+    private fun AudioplayerOverlayBinding.showSmallPlayer(isPlaying: Boolean) {
         positionPlayerViews(isExpanded = false)
         showOverlay()
         smallPlayer.isVisible = true
@@ -261,7 +271,7 @@ class AudioPlayerViewController(
         audioActionButtonImage.setImageResource(imageResourceId)
     }
 
-    private fun AudioPlayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {
+    private fun AudioplayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {
         val isShowingPlayer = !isLoading
         audioImage.isVisible = isShowingPlayer && boundArticleHasImage
         audioTitle.isVisible = isShowingPlayer
@@ -277,7 +287,7 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioPlayerOverlayBinding.showExpandedPlayer(isPlaying: Boolean) {
+    private fun AudioplayerOverlayBinding.showExpandedPlayer(isPlaying: Boolean) {
         positionPlayerViews(isExpanded = true)
         showOverlay()
         smallPlayer.isVisible = false
@@ -297,22 +307,25 @@ class AudioPlayerViewController(
             val rootView = activity.getRootView()
             playerOverlayBinding.hideOverlay()
             addPlayerOverlay(rootView, playerOverlayBinding)
-            playerOverlayBinding.positionPlayerViews(isExpanded = false)
 
-            setupProgressBars(playerOverlayBinding)
-            setupUserInteractionHandlers(playerOverlayBinding)
+            playerOverlayBinding.apply {
+                positionPlayerViews(isExpanded = false)
+                setupPlayerBackground()
+                setupProgressBars()
+                setupUserInteractionHandlers()
+            }
 
             this.playerOverlayBinding = playerOverlayBinding
         }
         playerOverlayBinding?.bringToFront()
     }
 
-    private fun createPlayerOverlay(): AudioPlayerOverlayBinding {
+    private fun createPlayerOverlay(): AudioplayerOverlayBinding {
         val layoutInflater = activity.layoutInflater
-        return AudioPlayerOverlayBinding.inflate(layoutInflater)
+        return AudioplayerOverlayBinding.inflate(layoutInflater)
     }
 
-    private fun addPlayerOverlay(rootView: FrameLayout, binding: AudioPlayerOverlayBinding) {
+    private fun addPlayerOverlay(rootView: FrameLayout, binding: AudioplayerOverlayBinding) {
         // Let the overlay take the whole screen, but position the player controls
         // FIXME (johannes): not working with animateions yet
         val overlayLayoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
@@ -322,26 +335,78 @@ class AudioPlayerViewController(
         )
     }
 
-    private fun AudioPlayerOverlayBinding.positionPlayerViews(isExpanded: Boolean) {
-        if (isExpanded) {
-            root.updateLayoutParams<FrameLayout.LayoutParams> {
-                width = MATCH_PARENT
-                height = WRAP_CONTENT
-                gravity = Gravity.BOTTOM
-                bottomMargin = 0
-                marginStart = 0
-                marginEnd = 0
-            }
+    private fun AudioplayerOverlayBinding.setupPlayerBackground() {
+        if (isTabletMode) {
+            expandedPlayer.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded)
         } else {
-            val bottomNavHeightPx = activity.resources.getDimension(R.dimen.nav_bottom_height).toInt()
-            val marginPx = activity.resources.getDimension(R.dimen.audioplayer_small_overlay_margin).toInt()
-            root.updateLayoutParams<FrameLayout.LayoutParams> {
-                width = MATCH_PARENT
-                height = WRAP_CONTENT
-                gravity = Gravity.BOTTOM
-                bottomMargin = bottomNavHeightPx + marginPx
-                marginStart = marginPx
-                marginEnd = marginPx
+            expandedPlayer.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded_top)
+        }
+    }
+
+    private fun AudioplayerOverlayBinding.positionPlayerViews(isExpanded: Boolean) {
+        val resources = activity.resources
+        when (getDisplayMode(isExpanded)) {
+            DISPLAY_MODE_MOBILE -> {
+                val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
+                val marginPx =
+                    resources.getDimension(R.dimen.audioplayer_small_overlay_margin).toInt()
+
+
+                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                    width = MATCH_PARENT
+                    height = WRAP_CONTENT
+                    gravity = Gravity.BOTTOM
+                    bottomMargin = bottomNavHeightPx + marginPx
+                    marginStart = marginPx
+                    marginEnd = marginPx
+                }
+            }
+
+            DISPLAY_MODE_MOBILE_EXPANDED -> {
+                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                    width = MATCH_PARENT
+                    height = WRAP_CONTENT
+                    gravity = Gravity.BOTTOM
+                    bottomMargin = 0
+                    marginStart = 0
+                    marginEnd = 0
+                }
+            }
+
+            DISPLAY_MODE_TABLET -> {
+                val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
+                val marginPx =
+                    resources.getDimension(R.dimen.audioplayer_tablet_overlay_margin).toInt()
+                val playerWidth = resources.getDimension(R.dimen.audioplayer_tablet_width).toInt()
+
+                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                    width = playerWidth
+                    height = 40
+                    gravity = Gravity.BOTTOM or Gravity.END
+                    bottomMargin = bottomNavHeightPx + marginPx
+                    marginStart = marginPx
+                    marginEnd = marginPx
+                }
+            }
+
+            DISPLAY_MODE_TABLET_EXPANDED -> {
+                val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
+                val marginPx =
+                    resources.getDimension(R.dimen.audioplayer_tablet_overlay_margin).toInt()
+                val playerWidth = resources.getDimension(R.dimen.audioplayer_tablet_width).toInt()
+                // FIXME (johannes): this will make the container too big and add some weird animations on closing
+                //   i am pretty sure that i missed something on the measurements but i would come back to it later
+                val playerHeight =
+                    resources.getDimension(R.dimen.audioplayer_tablet_max_height).toInt()
+
+                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                    width = playerWidth
+                    height = playerHeight
+                    gravity = Gravity.BOTTOM or Gravity.END
+                    bottomMargin = bottomNavHeightPx + marginPx
+                    marginStart = marginPx
+                    marginEnd = marginPx
+                }
             }
         }
 
@@ -357,14 +422,14 @@ class AudioPlayerViewController(
         // ...
     }
 
-    private fun setupProgressBars(binding: AudioPlayerOverlayBinding) {
-        binding.audioProgress.apply {
+    private fun AudioplayerOverlayBinding.setupProgressBars() {
+        audioProgress.apply {
             max = CIRCULAR_PROGRESS_TICKS.toInt()
             progress = 0
             isIndeterminate = false
         }
 
-        binding.expandedProgress.apply {
+        expandedProgress.apply {
             // Expand the progress bar over its natural width, so that the start and end of the line
             // aligns to the start/end of the parent. Note that the scrubber will overlapp
             val scrubberSize =
@@ -378,29 +443,27 @@ class AudioPlayerViewController(
     }
 
 
-    private fun setupUserInteractionHandlers(binding: AudioPlayerOverlayBinding) {
-        binding.apply {
-            closeButton.setOnClickListener { audioPlayerService.dismissPlayer() }
+    private fun AudioplayerOverlayBinding.setupUserInteractionHandlers() {
+        closeButton.setOnClickListener { audioPlayerService.dismissPlayer() }
 
-            audioActionButton.setOnClickListener { toggleAudioPlaying() }
+        audioActionButton.setOnClickListener { toggleAudioPlaying() }
 
-            expandedCloseButton.setOnClickListener { audioPlayerService.setPlayerExpanded(expanded = false) }
+        expandedCloseButton.setOnClickListener { audioPlayerService.setPlayerExpanded(expanded = false) }
 
-            expandedAudioAction.setOnClickListener { toggleAudioPlaying() }
-            expandedForwardAction.setOnClickListener { audioPlayerService.seekForward() }
-            expandedRewindAction.setOnClickListener { audioPlayerService.seekBackward() }
+        expandedAudioAction.setOnClickListener { toggleAudioPlaying() }
+        expandedForwardAction.setOnClickListener { audioPlayerService.seekForward() }
+        expandedRewindAction.setOnClickListener { audioPlayerService.seekBackward() }
 
-            expandedAudioTitle.setOnClickListener { openIssue() }
-            expandedAudioAuthor.setOnClickListener { openIssue() }
-            expandedAudioImage.setOnClickListener { openIssue() }
+        expandedAudioTitle.setOnClickListener { openIssue() }
+        expandedAudioAuthor.setOnClickListener { openIssue() }
+        expandedAudioImage.setOnClickListener { openIssue() }
 
-            expandedProgress.addListener(onScrubListener)
+        expandedProgress.addListener(onScrubListener)
 
-            // FIXME: this is not working yet - probably needs a background
-//            root.setOnClickListener {
-//                // Catch all clicks on the overlay view to prevent overlayed items from being clicked
-//            }
-        }
+        // FIXME: this is not working yet - probably needs a background
+        // root.setOnClickListener {
+        //   // Catch all clicks on the overlay view to prevent overlayed items from being clicked
+        // }
     }
 
     private val onScrubListener = object : OnScrubListener {
@@ -444,7 +507,7 @@ class AudioPlayerViewController(
     }
 
     // Optimized bring to front method
-    private fun AudioPlayerOverlayBinding.bringToFront() {
+    private fun AudioplayerOverlayBinding.bringToFront() {
         val parent = root.parent
         if (parent is ViewGroup) {
             val lastViewIndex = parent.childCount - 1
@@ -455,6 +518,13 @@ class AudioPlayerViewController(
         } else {
             root.parent.bringChildToFront(root)
         }
+    }
+
+    private fun getDisplayMode(isExpanded: Boolean): DisplayMode = when {
+        isTabletMode && isExpanded -> DISPLAY_MODE_TABLET_EXPANDED
+        isTabletMode && !isExpanded -> DISPLAY_MODE_TABLET
+        isExpanded -> DISPLAY_MODE_MOBILE_EXPANDED
+        else -> DISPLAY_MODE_MOBILE
     }
     // endregion helpers
 }
