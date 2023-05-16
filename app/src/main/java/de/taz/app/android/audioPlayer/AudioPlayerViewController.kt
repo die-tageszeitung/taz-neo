@@ -471,10 +471,9 @@ class AudioPlayerViewController(
 
         expandedProgress.addListener(onScrubListener)
 
-        // FIXME: this is not working yet - probably needs a background
-        // root.setOnClickListener {
-        //   // Catch all clicks on the overlay view to prevent overlayed items from being clicked
-        // }
+        expandedPlayer.setOnClickListener {
+            // Catch all clicks on the overlay view to prevent overlaying items from being clicked
+        }
     }
 
     private val onScrubListener = object : OnScrubListener {
