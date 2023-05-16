@@ -363,7 +363,7 @@ class AudioPlayerViewController(
                     resources.getDimension(R.dimen.audioplayer_small_overlay_margin).toInt()
 
 
-                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = MATCH_PARENT
                     height = WRAP_CONTENT
                     gravity = Gravity.BOTTOM
@@ -374,7 +374,7 @@ class AudioPlayerViewController(
             }
 
             DISPLAY_MODE_MOBILE_EXPANDED -> {
-                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = MATCH_PARENT
                     height = WRAP_CONTENT
                     gravity = Gravity.BOTTOM
@@ -390,7 +390,7 @@ class AudioPlayerViewController(
                     resources.getDimension(R.dimen.audioplayer_tablet_overlay_margin).toInt()
                 val playerWidth = resources.getDimension(R.dimen.audioplayer_tablet_width).toInt()
 
-                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = playerWidth
                     height = WRAP_CONTENT
                     gravity = Gravity.BOTTOM or Gravity.END
@@ -410,7 +410,7 @@ class AudioPlayerViewController(
                 val playerHeight =
                     resources.getDimension(R.dimen.audioplayer_tablet_max_height).toInt()
 
-                root.updateLayoutParams<FrameLayout.LayoutParams> {
+                audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = playerWidth
                     height = playerHeight
                     gravity = Gravity.BOTTOM or Gravity.END
@@ -420,17 +420,6 @@ class AudioPlayerViewController(
                 }
             }
         }
-
-        // FIXME (johannes): i would prefer to animate the players themselves, and keep the framelayout unchanged,
-        // but that doesnt work well - it shows animations when changing something within the controls
-        // We Should probably add custom animations
-        // smallPlayer.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-        //     gravity = Gravity.BOTTOM
-        //     bottomMargin = bottomNavHeightPx + marginPx
-        //     marginStart = marginPx
-        //     marginEnd = marginPx
-        // }
-        // ...
     }
 
     private fun AudioplayerOverlayBinding.setupProgressBars() {
