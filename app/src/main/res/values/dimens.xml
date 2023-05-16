@@ -268,11 +268,14 @@
     <dimen name="audioplayer_small_progress_indicator_thickness">1.5dp</dimen>
     <dimen name="audioplayer_small_action_icon_size">19dp</dimen>
     <dimen name="audioplayer_small_close_icon_size">21dp</dimen>
+    <dimen name="audioplayer_small_play_icon_left_offset">2dp</dimen>
 
 
     <dimen name="audioplayer_action_icon_size">50dp</dimen>
     <dimen name="audioplayer_expanded_container_padding">18dp</dimen>
-    <dimen name="audioplayer_expanded_image_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_close_margin_top">10dp</dimen>
+    <dimen name="audioplayer_expanded_close_margin_end">6dp</dimen>
+    <dimen name="audioplayer_expanded_image_margin_top">10dp</dimen>
     <dimen name="audioplayer_expanded_image_max_height">350dp</dimen>
     <dimen name="audioplayer_expanded_title_margin_top">18dp</dimen>
     <dimen name="audioplayer_expanded_author_margin_top">7dp</dimen>
