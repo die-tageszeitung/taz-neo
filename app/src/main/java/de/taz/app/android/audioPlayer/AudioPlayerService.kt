@@ -325,7 +325,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun prepareAudio(controller: MediaController, articleAudio: ArticleAudio) {
         log.verbose("Preparing Audio: ${articleAudio.article.key}")
         val article = articleAudio.article
-        val authors = article.authorList.mapNotNull { it.name }.joinToString(", ")
+        val authorList = article.authorList.distinct()
+        val authors = authorList.mapNotNull { it.name }.joinToString(", ")
 
         val articleImage = article.imageList.firstOrNull()
         val articleImageUriString = articleImage?.let { storageService.getFileUri(it) }
