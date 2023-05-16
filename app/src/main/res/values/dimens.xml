@@ -257,6 +257,8 @@
 
 
     <!-- region audioplayer overlay -->
+    <dimen name="audioplayer_elevation">3dp</dimen>
+
     <dimen name="audioplayer_small_overlay_margin">9dp</dimen>
     <dimen name="audioplayer_small_article_image_size">32dp</dimen>
     <dimen name="audioplayer_small_vertical_padding">1dp</dimen>
@@ -269,7 +271,6 @@
     <dimen name="audioplayer_small_action_icon_size">19dp</dimen>
     <dimen name="audioplayer_small_close_icon_size">21dp</dimen>
     <dimen name="audioplayer_small_play_icon_left_offset">2dp</dimen>
-
 
     <dimen name="audioplayer_action_icon_size">50dp</dimen>
     <dimen name="audioplayer_expanded_container_padding">18dp</dimen>
@@ -293,7 +294,6 @@
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_max_height">500dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>
-
     <!-- endregion -->
 
     <!--    special dimens -->
