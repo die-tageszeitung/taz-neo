@@ -263,12 +263,23 @@ class AudioPlayerViewController(
         expandedPlayer.isVisible = false
         setSmallPlayerViewVisibility(isLoading = false)
 
-        val imageResourceId = if (isPlaying) {
-            R.drawable.ic_pause_outline
+        val imageResourceId: Int
+        val imageLeftMarginPx: Int
+        if (isPlaying) {
+            imageResourceId = R.drawable.ic_pause_outline
+            imageLeftMarginPx = 0
         } else {
-            R.drawable.ic_play_outline
+            imageResourceId = R.drawable.ic_play_outline
+            imageLeftMarginPx = activity.resources
+                .getDimension(R.dimen.audioplayer_small_play_icon_left_offset)
+                .toInt()
         }
-        audioActionButtonImage.setImageResource(imageResourceId)
+        audioActionButtonImage.apply {
+            setImageResource(imageResourceId)
+            updateLayoutParams<FrameLayout.LayoutParams> {
+                leftMargin = imageLeftMarginPx
+            }
+        }
     }
 
     private fun AudioplayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {

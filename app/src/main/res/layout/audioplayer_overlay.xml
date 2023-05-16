@@ -92,6 +92,7 @@
                 android:layout_width="@dimen/audioplayer_small_action_icon_size"
                 android:layout_height="@dimen/audioplayer_small_action_icon_size"
                 android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/audioplayer_small_play_icon_left_offset"
                 android:contentDescription="@string/media3_controls_play_description"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_play_outline"
@@ -147,16 +148,17 @@
         android:animateLayoutChanges="false"
         android:background="@drawable/audioplayer_background_expanded_rounded_top"
         android:clipToPadding="false"
-        android:padding="@dimen/audioplayer_expanded_container_padding"
+        android:paddingHorizontal="@dimen/audioplayer_expanded_container_padding"
+        android:paddingBottom="@dimen/audioplayer_expanded_container_padding"
         android:visibility="gone"
         tools:visibility="gone">
 
-
-        <!-- FIXME: use better suitable image with less internal padding -->
         <ImageView
             android:id="@+id/expanded_close_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/audioplayer_expanded_close_margin_top"
+            android:layout_marginEnd="@dimen/audioplayer_expanded_close_margin_end"
             android:contentDescription="@string/close_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -187,7 +189,7 @@
             android:layout_marginTop="@dimen/audioplayer_expanded_title_margin_top"
             android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
             app:layout_constraintTop_toBottomOf="@id/expanded_audio_image"
-            app:layout_goneMarginTop="0dp"
+            app:layout_goneMarginTop="@dimen/audioplayer_expanded_image_margin_top"
             tools:text="Hautfarbe rechtfertigt keine Kontrollschikanen" />
 
         <TextView

@@ -29,12 +29,12 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/fragment_archive_to_cover_flow"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:contentDescription="@string/fragment_archive_to_cover_flow"
                         android:paddingBottom="@dimen/fragment_cover_flow_to_archive_padding"
                         android:rotation="180"
