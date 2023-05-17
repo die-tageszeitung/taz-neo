@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -44,8 +45,6 @@ private enum class DisplayMode {
  * Controller to be attached to each activity that shall show the audio player overlay.
  * It adds the controller views as the last children of the activities root view and controls
  * its visibility and layout in response to the [UiState] emitted from  [AudioPlayerService].
- *
- * FIXME: work in progress
  */
 @OptIn(androidx.media3.common.util.UnstableApi::class)
 class AudioPlayerViewController(
@@ -123,6 +122,7 @@ class AudioPlayerViewController(
         uiState: UiState,
         binding: AudioplayerOverlayBinding
     ) {
+        disableBackHandling()
         when (uiState) {
             is UiState.Error -> {
                 if (uiState.articleAudio != null) {
@@ -150,6 +150,7 @@ class AudioPlayerViewController(
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
                     showExpandedPlayer(isPlaying = false)
+                    enableBackHandling()
                 } else {
                     showSmallPlayer(isPlaying = false)
                 }
@@ -159,6 +160,7 @@ class AudioPlayerViewController(
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
                     showExpandedPlayer(isPlaying = true)
+                    enableBackHandling()
                 } else {
                     showSmallPlayer(isPlaying = true)
                 }
@@ -462,8 +464,9 @@ class AudioPlayerViewController(
     }
 
     private fun openIssue() {
-        // FIXME: only set to non expanded if we are not in some kind of tablet mode
-        audioPlayerService.setPlayerExpanded(expanded = false)
+        // Collapse the player only if we are in the mobile mode. Keep it open in tablet mode.
+        val expanded = isTabletMode
+        audioPlayerService.setPlayerExpanded(expanded)
         boundArticleAudio?.let { currentArticleAudio ->
 
             val intent = IssueViewerActivity.newIntent(
@@ -478,6 +481,45 @@ class AudioPlayerViewController(
             activity.startActivity(intent)
         }
     }
+
+    // region back handling
+    private val onBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+           audioPlayerService.setPlayerExpanded(false)
+        }
+    }
+
+    private fun enableBackHandling() {
+        if (!isTabletMode && !onBackPressedCallback.isEnabled) {
+            activity.onBackPressedDispatcher.addCallback(onBackPressedCallback)
+            onBackPressedCallback.isEnabled = true
+        }
+    }
+
+    private fun disableBackHandling() {
+        onBackPressedCallback.apply {
+            remove()
+            isEnabled = false
+        }
+    }
+
+    /**
+     * Explicitly handle a back action from  [AppCompatActivity.onBackPressed] if the Activity
+     * uses some custom logic there. This function should be called first before any other handling.
+     * Note that it is not required to call this function if no custom [AppCompatActivity.onBackPressed]
+     * is used as [AudioPlayerViewController] registers its own [OnBackPressedCallback] which will be used
+     * by default by [AppCompatActivity].
+     */
+    @Deprecated("Activity.OnBackPressed is deprecated. We should move all our back logic to use onBackPressedDispatchers")
+    fun onBackPressed(): Boolean {
+        return if (onBackPressedCallback.isEnabled) {
+            onBackPressedCallback.handleOnBackPressed()
+            true
+        } else {
+            false
+        }
+    }
+    // endregion
 
     // region helpers
     private fun AppCompatActivity.getRootView(): FrameLayout {

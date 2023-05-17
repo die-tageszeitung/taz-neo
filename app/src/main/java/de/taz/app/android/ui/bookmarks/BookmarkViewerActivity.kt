@@ -52,6 +52,10 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (audioPlayerViewController.onBackPressed()) {
+            return
+        }
+
         super.onBackPressed()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
     }

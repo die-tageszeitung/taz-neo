@@ -202,6 +202,10 @@ class SearchActivity :
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (audioPlayerViewController.onBackPressed()) {
+            return
+        }
+
         val searchResultPagerFragment =
             supportFragmentManager.fragments.firstOrNull { it is SearchResultPagerFragment } as? SearchResultPagerFragment
 

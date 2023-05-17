@@ -44,6 +44,10 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (audioPlayerViewController.onBackPressed()) {
+            return
+        }
+
         if (supportFragmentManager.backStackEntryCount > 0) {
             supportFragmentManager.popBackStack()
         } else {

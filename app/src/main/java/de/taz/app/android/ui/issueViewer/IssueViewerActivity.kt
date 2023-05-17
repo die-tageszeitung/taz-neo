@@ -85,11 +85,16 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (audioPlayerViewController.onBackPressed()) {
+            return
+        }
+
         val fragment =
             supportFragmentManager.fragments.firstOrNull { it is IssueViewerWrapperFragment } as BackFragment
         if (fragment.onBackPressed()) {
             return
         }
+
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
         super.onBackPressed()
     }
