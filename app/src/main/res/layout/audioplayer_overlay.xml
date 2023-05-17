@@ -62,6 +62,7 @@
                 app:layout_constraintEnd_toStartOf="@id/audio_action_button"
                 app:layout_constraintStart_toEndOf="@id/audio_image"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
                 tools:text="Hautfarbe rechtfertigt keine Kontrollschikanen" />
 
             <TextView
@@ -70,6 +71,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
+                android:layout_marginTop="@dimen/audioplayer_small_author_top_margin"
                 android:layout_marginBottom="@dimen/audioplayer_small_text_bottom_margin"
                 android:ellipsize="end"
                 android:maxLines="1"
@@ -93,13 +95,12 @@
 
                 <com.google.android.material.progressindicator.CircularProgressIndicator
                     android:id="@+id/audio_progress"
-                    android:layout_width="@dimen/audioplayer_small_progress_indicator_size"
-                    android:layout_height="@dimen/audioplayer_small_progress_indicator_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    app:indicatorSize="@dimen/audioplayer_small_progress_indicator_size"
                     app:indicatorColor="@color/audio_player_small_progress_played_color"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/close_button"
-                    app:layout_constraintTop_toTopOf="parent"
+                    app:indicatorInset="1dp"
                     app:trackColor="@color/audio_player_small_progress_unplayed_color"
                     app:trackThickness="@dimen/audioplayer_small_progress_indicator_thickness" />
 
