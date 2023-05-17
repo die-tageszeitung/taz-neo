@@ -494,10 +494,19 @@ class AudioPlayerViewController(
         }
     }
 
+    /**
+     * Try to bring the player overlay to the front.
+     * This might be necessary if some Fragment is added directly to the android.R.id.content view.
+     */
+    // FIXME (johannes): consider windows and the decor view again for adding the player
+    fun bringOverlayToFront() {
+        playerOverlayBinding?.bringToFront()
+    }
+
     // region back handling
     private val onBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-           audioPlayerService.setPlayerExpanded(false)
+            audioPlayerService.setPlayerExpanded(false)
         }
     }
 
