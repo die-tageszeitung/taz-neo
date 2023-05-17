@@ -8,6 +8,7 @@ import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.api.models.ResourceInfoKey
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -52,6 +53,11 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
+
+        // The AudioPlayer shall stop when we show full screen info views
+        AudioPlayerService.getInstance(applicationContext).apply {
+            dismissPlayer()
+        }
 
         viewBinding.apply {
             buttonClose.setOnClickListener {
