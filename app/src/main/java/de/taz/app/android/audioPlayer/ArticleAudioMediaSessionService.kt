@@ -1,11 +1,14 @@
 package de.taz.app.android.audioPlayer
 
+import android.app.PendingIntent
+import android.content.Intent
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 
 /**
@@ -21,7 +24,17 @@ class ArticleAudioMediaSessionService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         val player = ExoPlayer.Builder(this).build()
-        mediaSession = MediaSession.Builder(this, player).setCallback(mediaSessionCallback).build()
+
+        val pendingIntent = PendingIntent.getActivity(
+            applicationContext,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        mediaSession = MediaSession.Builder(this, player)
+            .setSessionActivity(pendingIntent)
+            .setCallback(mediaSessionCallback).build()
     }
 
     override fun onDestroy() {
