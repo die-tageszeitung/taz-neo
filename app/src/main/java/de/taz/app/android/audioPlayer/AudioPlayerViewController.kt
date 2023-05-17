@@ -159,9 +159,11 @@ class AudioPlayerViewController(
             is UiState.Playing -> binding.apply {
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
+                    enableCollapseOnTouchOutsideForMobile()
                     showExpandedPlayer(isPlaying = true)
                     enableBackHandling()
                 } else {
+                    disableCollapseOnTouchOutsideForMobile()
                     showSmallPlayer(isPlaying = true)
                 }
             }
@@ -294,7 +296,9 @@ class AudioPlayerViewController(
         loadingMessage.isVisible = isLoading
 
         if (isShowingPlayer) {
-            smallPlayer.setOnClickListener { audioPlayerService.setPlayerExpanded(expanded = true) }
+            smallPlayer.setOnClickListener {
+                audioPlayerService.setPlayerExpanded(expanded = true)
+            }
         } else {
             smallPlayer.setOnClickListener(null)
         }
@@ -445,6 +449,14 @@ class AudioPlayerViewController(
         expandedPlayer.setOnClickListener {
             // Catch all clicks on the overlay view to prevent overlaying items from being clicked
         }
+
+
+        if (!isTabletMode) {
+            touchOutside.setOnClickListener {
+                touchOutside.isVisible = false
+                audioPlayerService.setPlayerExpanded(expanded = false)
+            }
+        }
     }
 
     private val onScrubListener = object : OnScrubListener {
@@ -546,6 +558,17 @@ class AudioPlayerViewController(
         isTabletMode && !isExpanded -> DISPLAY_MODE_TABLET
         isExpanded -> DISPLAY_MODE_MOBILE_EXPANDED
         else -> DISPLAY_MODE_MOBILE
+    }
+
+    /*
+     * On mobile show frame layout in background which minimizes the player on click:
+     */
+    private fun AudioplayerOverlayBinding.enableCollapseOnTouchOutsideForMobile() {
+        if (!isTabletMode) touchOutside.isVisible = true
+    }
+
+    private fun AudioplayerOverlayBinding.disableCollapseOnTouchOutsideForMobile() {
+        if (!isTabletMode) touchOutside.isVisible = false
     }
     // endregion helpers
 }
