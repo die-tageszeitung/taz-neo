@@ -408,6 +408,10 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        if (audioPlayerViewController.onBackPressed()) {
+            return
+        }
+
         super.onBackPressed()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
     }
