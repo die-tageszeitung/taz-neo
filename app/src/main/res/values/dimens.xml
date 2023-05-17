@@ -292,7 +292,6 @@
     <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
-    <dimen name="audioplayer_tablet_max_height">500dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>
     <!-- endregion -->
 

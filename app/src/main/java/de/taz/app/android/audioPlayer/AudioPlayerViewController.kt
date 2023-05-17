@@ -384,7 +384,7 @@ class AudioPlayerViewController(
                 }
             }
 
-            DISPLAY_MODE_TABLET -> {
+            DISPLAY_MODE_TABLET, DISPLAY_MODE_TABLET_EXPANDED -> {
                 val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
                 val marginPx =
                     resources.getDimension(R.dimen.audioplayer_tablet_overlay_margin).toInt()
@@ -393,26 +393,6 @@ class AudioPlayerViewController(
                 audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = playerWidth
                     height = WRAP_CONTENT
-                    gravity = Gravity.BOTTOM or Gravity.END
-                    bottomMargin = bottomNavHeightPx + marginPx
-                    marginStart = marginPx
-                    marginEnd = marginPx
-                }
-            }
-
-            DISPLAY_MODE_TABLET_EXPANDED -> {
-                val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
-                val marginPx =
-                    resources.getDimension(R.dimen.audioplayer_tablet_overlay_margin).toInt()
-                val playerWidth = resources.getDimension(R.dimen.audioplayer_tablet_width).toInt()
-                // FIXME (johannes): this will make the container too big and add some weird animations on closing
-                //   i am pretty sure that i missed something on the measurements but i would come back to it later
-                val playerHeight =
-                    resources.getDimension(R.dimen.audioplayer_tablet_max_height).toInt()
-
-                audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
-                    width = playerWidth
-                    height = playerHeight
                     gravity = Gravity.BOTTOM or Gravity.END
                     bottomMargin = bottomNavHeightPx + marginPx
                     marginStart = marginPx
