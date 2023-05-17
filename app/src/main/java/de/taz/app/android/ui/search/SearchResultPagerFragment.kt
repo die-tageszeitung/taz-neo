@@ -107,6 +107,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             viewLifecycleOwner,
             isBookmarkedObserver
         )
+
+        bringAudioPlayerOverlayToFront()
     }
 
     private fun setupViewPager() {
@@ -294,5 +296,17 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(RESTORATION_POSITION, webViewPager.currentItem)
         super.onSaveInstanceState(outState)
+    }
+
+    /**
+     * Try to bring the audio player on the parent activity to the front.
+     * This is required because this Fragment is added to android.R.id.content view and will
+     * be in front of the AudioPlayer because it was added later.
+     */
+    // FIXME (johannes): Consider to add the [SearchResultPagerFragment] to a container defined by the app, or using windows for the overlay.
+    private fun bringAudioPlayerOverlayToFront() {
+        (activity as? SearchActivity)?.let { searchActivity ->
+            searchActivity.bringAudioPlayerOverlayToFront()
+        }
     }
 }

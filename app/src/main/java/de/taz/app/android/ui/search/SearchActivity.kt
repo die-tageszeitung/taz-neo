@@ -631,4 +631,12 @@ class SearchActivity :
         }
     }
     // endregion
+
+    /**
+     * Try to bring the audio player to the front.
+     */
+    // FIXME (johannes): Consider to add the [SearchResultPagerFragment] to a container defined by the app, or using windows for the overlay.
+    fun bringAudioPlayerOverlayToFront() {
+        audioPlayerViewController.bringOverlayToFront()
+    }
 }
