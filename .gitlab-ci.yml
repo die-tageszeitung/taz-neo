@@ -104,9 +104,9 @@ assembleAllTazFlavors:
   script:
     - ./gradlew --console=plain assembleNonfreeTazProductionDebug
                                 assembleNonfreeTazProductionRelease
+                                assembleNonfreeTazProductionManualUpdateRelease
     - ./gradlew --console=plain assembleFreeTazProductionDebug
                                 assembleFreeTazStagingDebug
-                                assembleFreeTazProductionManualUpdateRelease
                                 assembleFreeTazProductionUnminifiedRelease
   artifacts:
     paths:
@@ -119,8 +119,8 @@ assembleAllLmdFlavors:
   script:
     - ./gradlew --console=plain assembleNonfreeLmdProductionDebug
                                 assembleNonfreeLmdProductionRelease
+                                assembleNonfreeLmdProductionManualUpdateRelease
     - ./gradlew --console=plain assembleFreeLmdProductionDebug
-                                assembleFreeLmdProductionManualUpdateRelease
                                 assembleFreeLmdProductionUnminifiedRelease
   artifacts:
     paths:
@@ -137,7 +137,7 @@ publishTazNextcloud:
     FREE_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-production-debug.apk
     FREE_STAGING_DEBUG_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-staging-debug.apk
     FREE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-production-unminifiedRelease.apk
-    FREE_MANUAL_UPDATE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-free-taz-production-manualUpdateRelease.apk
+    NONFREE_MANUAL_UPDATE_RELEASE_APK_PATH: releases/${CI_COMMIT_TAG}/app-nonfree-taz-production-manualUpdateRelease.apk
   script:
     - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_FOLDER}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTazProduction/debug/app-nonfree-taz-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
@@ -145,7 +145,7 @@ publishTazNextcloud:
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazProduction/debug/app-free-taz-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_STAGING_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazStaging/debug/app-free-taz-staging-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazProduction/unminifiedRelease/app-free-taz-production-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeTazProduction/manualUpdateRelease/app-free-taz-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+    - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeTazProduction/manualUpdateRelease/app-nonfree-taz-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
     - ./scripts/publish-to-app-runde.sh
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG !~ /lmd-.*/
@@ -171,14 +171,14 @@ publishLmdNextcloud:
     NONFREE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-nonfree-lmd-production-release.apk
     FREE_DEBUG_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-debug.apk
     FREE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-unminifiedRelease.apk
-    FREE_MANUAL_UPDATE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-free-lmd-production-manualUpdateRelease.apk
+    NONFREE_MANUAL_UPDATE_RELEASE_APK_PATH: releases_lmd/${CI_COMMIT_TAG}/app-nonfree-lmd-production-manualUpdateRelease.apk
   script:
       - curl -X MKCOL "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${RELEASE_FOLDER}" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
       - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeLmdProduction/debug/app-nonfree-lmd-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
       - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeLmdProduction/release/app-nonfree-lmd-production-release.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
       - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_DEBUG_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/debug/app-free-lmd-production-debug.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
       - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/unminifiedRelease/app-free-lmd-production-unminifiedRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
-      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${FREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/freeLmdProduction/manualUpdateRelease/app-free-lmd-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
+      - curl -X PUT "${NEXTCLOUD_RELEASE_URL}/remote.php/webdav/${NONFREE_MANUAL_UPDATE_RELEASE_APK_PATH}" --data-binary @"app/build/outputs/apk/nonfreeLmdProduction/manualUpdateRelease/app-nonfree-lmd-production-manualUpdateRelease.apk" -u ${NEXTCLOUD_RELEASE_USER}:${NEXTCLOUD_RELEASE_PASSWORD}
       # FIXME (johannes): Automatic mails are not enabled for LMd Releases yet. See https://redmine.hal.taz.de/issues/15120
       #- ./scripts/publish-to-app-runde.sh
   rules:

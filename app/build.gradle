@@ -221,10 +221,24 @@ android {
             signingConfig signingConfigs.debug
         }
         manualUpdateRelease {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             buildConfigField "Boolean", "MANUAL_UPDATE", "true"
-            minifyEnabled false
             matchingFallbacks = ['release']
             // Uses the signingConfig defined in productFlavors
+        }
+    }
+
+    // Ignore unused variants to make the Build Variant selector in the IDE a little bit cleaner
+    variantFilter { variant ->
+        def flavorNames = variant.flavors*.name
+        def buildType = variant.buildType.name.toString()
+        if (buildType == "manualUpdateRelease" && flavorNames.contains("free")
+                || buildType == "manualUpdateRelease" && flavorNames.contains("staging")
+                || buildType == "unminifiedRelease" && flavorNames.contains("nonfree")
+                || buildType == "unminifiedRelease" && flavorNames.contains("staging")
+                || buildType == "leakCanary") {
+            variant.setIgnore(true)
         }
     }
 
