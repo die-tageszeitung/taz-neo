@@ -29,7 +29,7 @@ class ArchiveAdapter(
         return when {
             BuildConfig.IS_LMD -> CoverViewDate(
                 DateHelper.dateToLocalizedMonthAndYearString(publicationDate.date),
-                DateHelper.dateToLocalizedMonthAndYearString(publicationDate.date)
+                DateHelper.dateToShortLocalizedMonthAndYearString(publicationDate.date)
             )
             publicationDate.validity != null -> CoverViewDate(
                 DateHelper.dateToMediumRangeString(publicationDate.date, publicationDate.validity),

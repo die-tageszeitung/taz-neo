@@ -86,6 +86,19 @@ object DateHelper {
 
 
     /**
+     * Return shorten date string, with month and shortened year.
+     *
+     * @param date
+     * @return e.g.: "Dezember '23"
+     */
+    fun dateToShortLocalizedMonthAndYearString(date: Date): String {
+        return SimpleDateFormat("MMMM ''yy", appLocale).format(
+            date
+        )
+    }
+
+
+    /**
      * Returns e.g. "23.8.2022"
      */
     fun dateToMediumLocalizedString(date: Date): String {
