@@ -24,4 +24,6 @@
     <string name="search_advanced_help">Hilfe</string>
 
     <string name="fragment_login_help">Geben Sie bitte Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort ein.</string>
+
+    <string name="faq_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
 </resources>

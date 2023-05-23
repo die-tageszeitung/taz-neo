@@ -244,13 +244,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             if (BuildConfig.IS_LMD) {
                 hideAutoPdfDownloadSwitch()
-                hideFaq()
             } else {
                 fragmentSettingsAutoPdfDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
                     setPdfDownloadEnabled(isChecked)
                 }
-                fragmentSettingsFaq.setOnClickListener { openFAQ() }
             }
+
+            fragmentSettingsFaq.setOnClickListener { openFAQ() }
 
             if (BuildConfig.FLAVOR_source == "nonfree") {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
@@ -395,11 +395,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun hideAutoPdfDownloadSwitch() {
         viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
         viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
-    }
-
-    private fun hideFaq() {
-        viewBinding.fragmentSettingsFaq.visibility = View.GONE
-        viewBinding.fragmentSettingsFaqSeparatorLine.root.visibility = View.GONE
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
@@ -849,12 +844,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun openFAQ() {
         val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
         try {
+            val faqUri = Uri.parse(getString(R.string.faq_link))
             CustomTabsIntent.Builder()
                 .setDefaultColorSchemeParams(
                     CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                 )
                 .build()
-                .apply { launchUrl(requireContext(), Uri.parse("https://blogs.taz.de/app-faq/")) }
+                .apply { launchUrl(requireContext(), faqUri) }
         } catch (e: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
