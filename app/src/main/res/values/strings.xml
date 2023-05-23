@@ -433,4 +433,6 @@
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
     <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
+
+    <string name="faq_link" translatable="false">https://dl.taz.de/faq</string>
 </resources>
