@@ -12,8 +12,8 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_problem_bookmarking_article">Der Artikel konnte nicht zu den Lesezeichen hinzugefügt werden. Bitte versuchen Sie es erneut.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
-    <string name="toast_article_bookmarked">Der Artikel wurde in ihrer Leseliste gespeichert.</string>
-    <string name="toast_article_debookmarked">Der Artikel wurde aus ihrer Leseliste entfernt.</string>
+    <string name="toast_article_bookmarked">Der Artikel wurde in Ihrer Leseliste gespeichert.</string>
+    <string name="toast_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
     <string name="toast_imporint_not_possibile_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
@@ -25,7 +25,7 @@
     <string name="popup_login_elapsed_message_to_short">Ihre Nachricht ist zu kurz!</string>
     <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
-    <string name="toast_login_with_email">Bitte loggen Sie sich mit ihrer E-Mail-Adresse ein.</string>
+    <string name="toast_login_with_email">Bitte loggen Sie sich mit Ihrer E-Mail-Adresse ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
@@ -187,12 +187,12 @@
     <string name="settings_delete_all_issues_deleted">Alle Ausgaben erfolgreich gelöscht</string>
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
-    <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie ihre Internetverbindung</string>
+    <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie Ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
     <string name="fragment_error_report_email_title">Ihre E-Mail-Adresse</string>
     <string name="fragment_error_report_message_title">Ihre Nachricht</string>
-    <string name="fragment_error_report_message_hint">Beschreiben Sie ihr Problem hier.</string>
+    <string name="fragment_error_report_message_hint">Beschreiben Sie Ihr Problem hier.</string>
     <string name="fragment_error_report_last_action_title">Letzte Interaktion</string>
     <string name="fragment_error_report_last_action_hint">Was war das letzte was Sie getan haben, als das Problem aufgetreten ist?</string>
     <string name="fragment_error_report_conditions_title">Zustand</string>
@@ -322,11 +322,11 @@
     <string name="fragment_login_success_login_back_settings">Zurück zu den Einstellungen</string>
     <string name="fragment_login_success_login_back_coverflow">Zurück zu den Ausgaben</string>
 
-    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit ihrer E-Mail-Adresse verknüpft.</string>
+    <string name="fragment_login_missing_subscription_header">Bisher ist kein Abo mit Ihrer E-Mail-Adresse verknüpft.</string>
     <string name="fragment_login_missing_subscription_connect_subscription">Mit Abo verknüpfen</string>
     <string name="fragment_login_missing_subscription_test_subscription">Abo abschließen</string>
 
-    <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben ein neues taz-Konto für Sie angelegt und mit Ihren Daten verknüpft. Bitte öffnen Sie ihr Mail-Postfach und bestätigen Sie Ihre Mail-Adresse. Sobald dies geschehen ist können Sie die neue taz-App nutzen.</string>
+    <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben ein neues taz-Konto für Sie angelegt und mit Ihren Daten verknüpft. Bitte öffnen Sie Ihr Mail-Postfach und bestätigen Sie Ihre Mail-Adresse. Sobald dies geschehen ist können Sie die neue taz-App nutzen.</string>
     <string name="fragment_login_confirm_email_elapsed_header">Danke für Ihre Registrierung! Sobald sie von unserer Abo-Verwaltung freigeschaltet sind erhalten Sie eine eMail, und können dann spätestens ab 19:00 Uhr wieder auf die aktuellen Ausgaben zugreifen.</string>
 
     <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
@@ -358,7 +358,7 @@
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
-    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
+    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie Ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht angemeldet.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die erste Seite der betreffenden Ausgabe anschauen."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
