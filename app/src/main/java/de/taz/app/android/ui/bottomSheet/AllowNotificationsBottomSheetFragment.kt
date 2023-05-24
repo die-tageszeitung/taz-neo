@@ -53,8 +53,8 @@ class AllowNotificationsBottomSheetFragment :
         viewBinding.fragmentBottomSheetNotificationsYes.setOnClickListener {
             lifecycleScope.launch {
                 tryToSetNotificationsEnabled()
+                dismiss()
             }
-            dismiss()
         }
         viewBinding.fragmentBottomSheetNotificationsNotNow.setOnClickListener {
             dismiss()
@@ -62,8 +62,8 @@ class AllowNotificationsBottomSheetFragment :
         viewBinding.fragmentBottomSheetNotificationsNo.setOnClickListener {
             lifecycleScope.launch {
                 generalDataStore.allowNotificationsDoNotShowAgain.set(true)
+                dismiss()
             }
-            dismiss()
         }
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
