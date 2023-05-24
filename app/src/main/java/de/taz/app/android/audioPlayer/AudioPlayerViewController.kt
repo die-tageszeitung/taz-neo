@@ -149,6 +149,7 @@ class AudioPlayerViewController(
             is UiState.Paused -> binding.apply {
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
+                    enableCollapseOnTouchOutsideForMobile()
                     showExpandedPlayer(isPlaying = false)
                     enableBackHandling()
                 } else {
