@@ -73,6 +73,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private val emailValidator = EmailValidator()
 
+    private val pushNotificationsFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree")
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -251,8 +253,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
-
-            if (BuildConfig.FLAVOR_source == "nonfree") {
+            if (pushNotificationsFeatureEnabled) {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
                     toggleNotificationsEnabled()
@@ -303,8 +304,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
             }
-            notificationsEnabledLivedata.distinctUntilChanged().observe(viewLifecycleOwner) { notificationsEnabled ->
-                updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
+            if (pushNotificationsFeatureEnabled) {
+                notificationsEnabledLivedata.distinctUntilChanged()
+                    .observe(viewLifecycleOwner) { notificationsEnabled ->
+                        updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
+                    }
             }
             storageLocationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storageLocation ->
                 if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
@@ -352,8 +356,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch {
-            if (BuildConfig.FLAVOR_source == "nonfree") {
+        if (pushNotificationsFeatureEnabled) {
+            lifecycleScope.launch {
                 checkNotificationsAllowed()
             }
         }
