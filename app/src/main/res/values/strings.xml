@@ -180,7 +180,7 @@
 
     <string name="settings_dialog_notification_change_error_toast">Die Einstellung für die Benachrichtigungen konnte nicht gespeichert werden. Bitte stellen Sie sicher, dass eine Internetverbindung besteht.</string>
 
-    <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert\n\nAuf Geräten die eine externe Partition integriert haben kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
+    <string name="settings_storage_external_unavailable_hint">Der externe Speicher ist nur verfügbar, wenn eines dieser Kriterien zutrifft:\n\n1. Ihr Gerät teilt den Flash-Speicher in eine interne und externe Partition;\n2. Sie haben eine SD-Karte als "internen" Telefonspeicher formatiert.\n\nAuf Geräten, die eine externe Partition integriert haben, kann die SD-Karte nicht als Speichermedium für die taz-App genutzt werden.</string>
     <string name="settings_delete_all_issues_for_sure">Sind Sie sicher?</string>
     <string name="settings_delete_all_issues_for_sure_detail">Es werden alle heruntergeladenen Ausgaben gelöscht. Die Lesezeichen bleiben erhalten. Der Vorgang kann einige Sekunden dauern.</string>
     <string name="settings_delete_progress_text">Ausgaben werden gelöscht</string>
