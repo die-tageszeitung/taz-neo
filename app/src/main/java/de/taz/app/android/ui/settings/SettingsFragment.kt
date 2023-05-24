@@ -840,8 +840,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         authHelper.isLoginWeek.set(false)
         authHelper.status.set(AuthStatus.notValid)
         getApplicationScope().launch {
-            // Refresh the feed in the background to show all public issues again ifwhen the user was logged in as a wochentaz user
-            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+            // Refresh the feed in the background to show all public issues again when the user was logged in as a wochentaz user
+            try {
+                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+            } catch (e: ConnectivityException) {
+                log.error("Could not refresh the feed after logout", e)
+            }
         }
     }
 

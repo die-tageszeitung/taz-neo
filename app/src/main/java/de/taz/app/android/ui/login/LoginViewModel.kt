@@ -186,7 +186,11 @@ class LoginViewModel @JvmOverloads constructor(
                     if (isLoginWeek) {
                         log.debug("We got a login with 'loginWeek = true'. Refreshing feed")
                         getApplicationScope().launch {
-                            feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+                            try {
+                                feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+                            } catch (e: ConnectivityException) {
+                                log.error("Could not refresh the feed after wochentaz login", e)
+                            }
                         }
                     }
                     status.postValue(LoginViewModelState.DONE)
