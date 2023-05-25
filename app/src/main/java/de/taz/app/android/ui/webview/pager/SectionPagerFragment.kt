@@ -218,20 +218,26 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private fun showDrawerLogo() {
         activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
             val drawerLogoWidth = it.width
-            activity?.findViewById<CardView>(R.id.drawer_logo_wrapper)?.let { drawerLogoWrapper ->
-                activity?.findViewById<DrawerLayout>(R.id.drawer_layout)?.let { drawerLayout ->
-                    drawerLogoWrapper.animate()
-                        .withEndAction {
-                            drawerLayout.updateDrawerLogoBoundingBox(
-                                drawerLogoWidth,
-                                drawerLogoWrapper.height
-                            )
-                        }
-                        .setDuration(LOGO_ANIMATION_DURATION_MS)
-                        .setStartDelay(0L)
-                        .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
-                        .setInterpolator(AccelerateDecelerateInterpolator())
-                }
+            // only coninue if the imageView has some width
+            // (otherwise we would update the draweLogoBoundingBox with a width of 0)
+            if (drawerLogoWidth > 0) {
+                activity?.findViewById<CardView>(R.id.drawer_logo_wrapper)
+                    ?.let { drawerLogoWrapper ->
+                        activity?.findViewById<DrawerLayout>(R.id.drawer_layout)
+                            ?.let { drawerLayout ->
+                                drawerLogoWrapper.animate()
+                                    .withEndAction {
+                                        drawerLayout.updateDrawerLogoBoundingBox(
+                                            drawerLogoWidth,
+                                            drawerLogoWrapper.height
+                                        )
+                                    }
+                                    .setDuration(LOGO_ANIMATION_DURATION_MS)
+                                    .setStartDelay(0L)
+                                    .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
+                                    .setInterpolator(AccelerateDecelerateInterpolator())
+                            }
+                    }
             }
         }
     }
