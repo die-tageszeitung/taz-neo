@@ -176,7 +176,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
      * On advertisements we hide the drawer logo.
      */
     private fun hideLogoIfNecessary(position: Int) {
-        val sectionStub = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.get(position)
+        val sectionStub = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(position)
         val isAdvertisement = sectionStub?.type == SectionType.advertisement
 
         if (isAdvertisement) {
