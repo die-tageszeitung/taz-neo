@@ -126,7 +126,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                                 slideOffset * (parentView.width - drawerWidth)
                             // translation needed when drawer is closed then:
                             val offsetOnClosedDrawer =
-                                (1 - slideOffset) * resources.displayMetrics.density
+                                (1 - slideOffset) * DRAWER_OVERLAP_OFFSET  * resources.displayMetrics.density
                             drawerLogoWrapper.translationX =
                                 offsetOnOpenDrawer + offsetOnClosedDrawer
                         }
