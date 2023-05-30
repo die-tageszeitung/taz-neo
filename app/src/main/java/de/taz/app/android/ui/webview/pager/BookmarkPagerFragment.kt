@@ -70,6 +70,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupViewPager()
 
         articleBottomActionBarNavigationHelper
             .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
@@ -131,11 +132,6 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setupViewPager()
     }
 
     private fun setupViewPager() {
