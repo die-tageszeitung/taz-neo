@@ -8,22 +8,22 @@ import com.factor.bouncy.BouncyRecyclerView
 
 class CoverFlowLinearLayoutManager(
     context: Context,
-    private val bouncyRecyclerView: BouncyRecyclerView
+    private val recyclerView: RecyclerView
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
 
     override fun getPaddingLeft(): Int = getPadding()
 
     override fun getPaddingRight(): Int = getPadding()
 
-    private fun getPadding() = bouncyRecyclerView.children.firstOrNull()?.let {
+    private fun getPadding() = recyclerView.children.firstOrNull()?.let {
         if (it.measuredWidth > 0) {
-            return bouncyRecyclerView.width / 2 - it.measuredWidth / 2
+            return recyclerView.width / 2 - it.measuredWidth / 2
         } else 0
     } ?: 0
 
     override fun onLayoutCompleted(state: RecyclerView.State?) {
         super.onLayoutCompleted(state)
-        ZoomPageTransformer.adjustViewSizes(bouncyRecyclerView)
+        ZoomPageTransformer.adjustViewSizes(recyclerView)
     }
 
 }

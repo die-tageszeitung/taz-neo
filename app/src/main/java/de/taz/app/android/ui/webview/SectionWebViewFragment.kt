@@ -285,6 +285,13 @@ class SectionWebViewFragment : WebViewFragment<
     @UiThread
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
         val articleName = ArticleName.fromArticleFileName(articleFileName)
-        webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
+        try {
+            webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
+        } catch (npe: NullPointerException) {
+            // It is possible that setWebViewBookmarkState() is called from a coroutine when the
+            // fragments view is already destroyed or not ready yet. In this case the `webView`
+            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
+            // thus we catch and ignore this exception.
+        }
     }
 }

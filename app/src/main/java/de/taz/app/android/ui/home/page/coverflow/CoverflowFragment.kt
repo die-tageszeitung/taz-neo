@@ -6,10 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
@@ -69,14 +67,10 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
-                    // redraw all visible views
-                    viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
-                    updateUIForCurrentDate(forceStartDownloadObserver = true)
-                }
-            }
+        viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
+            // redraw all visible views
+            viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+            updateUIForCurrentDate(forceStartDownloadObserver = true)
         }
 
         grid.layoutManager =
