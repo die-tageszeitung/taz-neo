@@ -1,16 +1,20 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.launch
 
 /**
  * The PdfPagerFragment uses a [ReaderView] to render the [PdfPagerViewModel.pdfPageList]
@@ -18,15 +22,20 @@ import de.taz.app.android.util.Log
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
-
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private val log by Log
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pdfPageList ->
             if (pdfPageList.isNotEmpty()) {
-                viewBinding.readerview.apply {
+                viewBinding.readerView.apply {
                     adapter = PageAdapter(context, pdfPageList)
                     setOnCoordinatesClickedListener(onCoordinatesClickedListener)
                     setOnPageChangeCallback {
@@ -42,8 +51,8 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
             // only update currentItem if it has not been swiped
-            if (viewBinding.readerview.displayedViewIndex != position) {
-                viewBinding.readerview.displayedViewIndex = position
+            if (viewBinding.readerView.displayedViewIndex != position) {
+                viewBinding.readerView.displayedViewIndex = position
             }
         }
     }
@@ -55,6 +64,12 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         if (frame != null) {
             frame.link?.let {
                 pdfPagerViewModel.onFrameLinkClicked(it)
+            }
+        } else {
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (tazApiCssDataStore.tapToScroll.get()) {
+                    handleTapToScroll(x)
+                }
             }
         }
     }
@@ -77,5 +92,13 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             }
         }
         pdfPagerViewModel.hideDrawerLogo.postValue(true)
+    }
+
+    private fun handleTapToScroll(x: Float) {
+        if (x < 0.25f) {
+            viewBinding.readerView.moveToPrevious()
+        } else if (x > 0.75f) {
+            viewBinding.readerView.moveToNext()
+        }
     }
 }

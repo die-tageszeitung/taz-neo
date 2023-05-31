@@ -10,7 +10,7 @@
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
-        android:id="@+id/readerview"
+        android:id="@+id/reader_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/navigation_bottom_pdf"
