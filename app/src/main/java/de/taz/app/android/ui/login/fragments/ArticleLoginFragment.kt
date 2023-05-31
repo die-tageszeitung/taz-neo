@@ -18,16 +18,20 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.*
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.FormInvalidMessageLength
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.Init
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.Sent
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.SubmissionError
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.UnexpectedFailure
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import io.sentry.Sentry
 
 class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
     ActivityResultCallback<LoginContract.Output> {
@@ -59,8 +63,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
         setupInteractionHandlers()
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 elapsedViewModel.isElapsedFlow.collect { isElapsed ->
                     if (isElapsed) {
                         startElapsedHandling()
@@ -181,7 +185,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private fun startElapsedHandling() {
         elapsedFlowJob?.cancel()
         elapsedFlowJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 elapsedViewModel.uiStateFlow.collect {
                     when (it) {
                         Init -> showElapsedUi()

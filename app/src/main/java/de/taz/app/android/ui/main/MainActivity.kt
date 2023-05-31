@@ -70,7 +70,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         authHelper = AuthHelper.getInstance(applicationContext)
 
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
                 val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
                 val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown

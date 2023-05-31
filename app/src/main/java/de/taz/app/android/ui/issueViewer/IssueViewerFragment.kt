@@ -75,8 +75,8 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
             setDisplayMode(it)
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 tazApiCssDataStore.keepScreenOn.asFlow().collect {
                     KeepScreenOnHelper.toggleScreenOn(it, activity)
                 }

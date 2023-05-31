@@ -2,9 +2,16 @@ package de.taz.app.android.api.mappers
 
 import android.util.Log
 import de.taz.app.android.api.dto.CustomerTypeDto
-import de.taz.app.android.api.dto.CustomerTypeDto.*
+import de.taz.app.android.api.dto.CustomerTypeDto.UNKNOWN
+import de.taz.app.android.api.dto.CustomerTypeDto.combo
+import de.taz.app.android.api.dto.CustomerTypeDto.deliveryBreaker
+import de.taz.app.android.api.dto.CustomerTypeDto.demo
+import de.taz.app.android.api.dto.CustomerTypeDto.digital
+import de.taz.app.android.api.dto.CustomerTypeDto.employees
+import de.taz.app.android.api.dto.CustomerTypeDto.promotion
+import de.taz.app.android.api.dto.CustomerTypeDto.revocation
+import de.taz.app.android.api.dto.CustomerTypeDto.sample
 import de.taz.app.android.api.models.CustomerType
-import io.sentry.Sentry
 
 object CustomerTypeMapper {
     fun from(customerTypeDto: CustomerTypeDto): CustomerType =
@@ -20,7 +27,6 @@ object CustomerTypeMapper {
             UNKNOWN -> {
                 val hint = "Encountered UNKNOWN CustomerTypeDtp, falling back to CustomerType.unknown"
                 Log.w(CustomerTypeMapper::class.java.name, hint)
-                Sentry.captureMessage(hint)
                 CustomerType.unknown
             }
         }
