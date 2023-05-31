@@ -766,15 +766,11 @@ public class ReaderView
             float docX = e.getX() - pageView.getLeft();
             float docY = e.getY() - pageView.getTop();
 
-            // Only handle taps that are within the pdf document. There might be some outside
-            // because the pdf document does not have to fill the full/ reader view.
-            if (docX >= 0f && docY >= 0f) {
-                float docRatioX = docX / pageView.getWidth();
-                float docRatioY = docY / pageView.getHeight();
+            float docRatioX = docX / pageView.getWidth();
+            float docRatioY = docY / pageView.getHeight();
 
-                Page page = pageView.getPage();
-                mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY);
-            }
+            Page page = pageView.getPage();
+            mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY);
         }
         return true;
     }
