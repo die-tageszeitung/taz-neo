@@ -71,8 +71,8 @@ class SubscriptionElapsedBottomSheetFragment :
 
         (dialog as BottomSheetDialog).behavior.doNotFlattenCorners()
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiStateFlow.collectLatest {
                     when (it) {
                         UIState.UnexpectedFailure -> {

@@ -122,8 +122,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     audioPlayerViewModel.isActiveAudio.collect {
                         articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
@@ -209,7 +209,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             }
             lastPage = position
 
-            lifecycleScope.launchWhenResumed {
+            viewLifecycleOwner.lifecycleScope.launch {
                 // show the share icon always when in public issues (as it shows a popup that the user should log in)
                 // OR when an onLink link is provided
                 articleBottomActionBarNavigationHelper.setShareIconVisibility(
@@ -222,8 +222,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     bookmarkRepository.createBookmarkStateFlow(nextStub.articleFileName)
                         .asLiveData()
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
-
-
             }
 
             audioPlayerViewModel.setIsVisibleArticle(nextStub)

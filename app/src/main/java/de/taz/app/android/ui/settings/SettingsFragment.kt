@@ -327,7 +327,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val authStatusFlow: Flow<AuthStatus> = authHelper.status.asFlow()
                 val authEmailFlow: Flow<String> = authHelper.email.asFlow()
 

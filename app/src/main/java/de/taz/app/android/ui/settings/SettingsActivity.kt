@@ -28,7 +28,7 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
         authHelper = AuthHelper.getInstance(applicationContext)
 
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 checkIfSubscriptionElapsed()
             }
         }

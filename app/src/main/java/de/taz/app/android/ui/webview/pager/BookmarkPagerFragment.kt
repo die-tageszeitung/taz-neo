@@ -106,8 +106,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
 
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     audioPlayerViewModel.isActiveAudio.collect {
                         articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)

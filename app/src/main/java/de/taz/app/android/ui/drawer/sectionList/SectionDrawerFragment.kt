@@ -90,39 +90,40 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             adapter = sectionListAdapter
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
-        lifecycleScope.launch {
-            sectionListAdapter.allOpened.collect { allOpened ->
-                if (allOpened) {
-                    viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_collapse_all)
-                } else {
-                    viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_expand_all)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    sectionListAdapter.allOpened.collect { allOpened ->
+                        if (allOpened) {
+                            viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_collapse_all)
+                        } else {
+                            viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_expand_all)
+                        }
+                    }
                 }
-            }
-        }
 
-        // Either the issueContentViewModel can change the content of this drawer ...
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                    .distinctUntilChanged().filterNotNull().collect {
-                        log.debug("Set issue issueKey from IssueContent")
-                        if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
-                            showIssue(it.issueKey)
+                // Either the issueContentViewModel can change the content of this drawer ...
+                launch {
+                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
+                        .distinctUntilChanged().filterNotNull().collect {
+                            log.debug("Set issue issueKey from IssueContent")
+                            if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
+                                showIssue(it.issueKey)
+                            }
                         }
-                    }
-            }
-        }
+                }
 
-        // or the bookmarkpager
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
-                    .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
-                        log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
-                        if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
-                            showIssue(issueStub.issueKey)
+                // or the bookmarkpager
+                launch {
+                    bookmarkPagerViewModel.currentIssueAndArticleLiveData.asFlow()
+                        .distinctUntilChanged().filterNotNull().collect { (issueStub, _) ->
+                            log.debug("Set issue ${issueStub.issueKey} from BookmarkPager")
+                            if (issueStub.issueKey == bookmarkPagerViewModel.currentIssue?.issueKey) {
+                                showIssue(issueStub.issueKey)
+                            }
                         }
-                    }
+                }
             }
         }
     }

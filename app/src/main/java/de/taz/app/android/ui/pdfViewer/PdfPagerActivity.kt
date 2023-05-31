@@ -230,40 +230,48 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             )
         }
 
-        // show bottom sheet  if  user's subscription is elapsed and the issue status is public
         lifecycleScope.launch {
-            pdfPagerViewModel.showSubscriptionElapsedFlow
-                .distinctUntilChanged()
-                .filter { it }.collect {
-                // Do not show th the bottom sheet if it is already shown
-                // (maybe because the activity was re-recreated and it was restored from the bundle)
-                if (supportFragmentManager.findFragmentByTag(SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG) == null) {
-                    SubscriptionElapsedBottomSheetFragment().show(supportFragmentManager, SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG)
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                pdfPagerViewModel.openLinkEventFlow.filterNotNull()
-                    .collect {
-                        when (it) {
-                            is OpenLinkEvent.OpenExternal ->
-                                openExternally(it.link)
-                            is OpenLinkEvent.ShowImprint ->
-                                showImprint(it.issueKeyWithDisplayableKey)
-                            is OpenLinkEvent.ShowArticle ->
-                                showArticle(it.issueKey, it.displayableKey)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // show bottom sheet  if  user's subscription is elapsed and the issue status is public
+                launch {
+                    pdfPagerViewModel.showSubscriptionElapsedFlow
+                        .distinctUntilChanged()
+                        .filter { it }.collect {
+                            // Do not show th the bottom sheet if it is already shown
+                            // (maybe because the activity was re-recreated and it was restored from the bundle)
+                            if (supportFragmentManager.findFragmentByTag(
+                                    SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
+                                ) == null
+                            ) {
+                                SubscriptionElapsedBottomSheetFragment().show(
+                                    supportFragmentManager,
+                                    SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
+                                )
+                            }
                         }
-                        pdfPagerViewModel.linkEventIsConsumed()
-                    }
-            }
-        }
+                }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                    KeepScreenOnHelper.toggleScreenOn(it, this@PdfPagerActivity)
+                launch {
+                    pdfPagerViewModel.openLinkEventFlow.filterNotNull()
+                        .collect {
+                            when (it) {
+                                is OpenLinkEvent.OpenExternal ->
+                                    openExternally(it.link)
+
+                                is OpenLinkEvent.ShowImprint ->
+                                    showImprint(it.issueKeyWithDisplayableKey)
+
+                                is OpenLinkEvent.ShowArticle ->
+                                    showArticle(it.issueKey, it.displayableKey)
+                            }
+                            pdfPagerViewModel.linkEventIsConsumed()
+                        }
+                }
+
+                launch {
+                    tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                        KeepScreenOnHelper.toggleScreenOn(it, this@PdfPagerActivity)
+                    }
                 }
             }
         }
