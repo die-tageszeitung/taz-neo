@@ -8,9 +8,11 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.BuildConfig
@@ -34,6 +36,8 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -66,9 +70,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private var initialPosition = RecyclerView.NO_POSITION
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
+    private val searchResultViewModel by activityViewModels<SearchResultViewModel>()
+
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private val articleBottomActionBarNavigationHelper =
         ArticleBottomActionBarNavigationHelper(::onBottomNavigationItemClicked)
+
+    private var searchResultPagerAdapter: SearchResultPagerAdapter? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -109,22 +117,43 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         )
 
         bringAudioPlayerOverlayToFront()
+
+        viewModel.searchResultsLiveData.observe(viewLifecycleOwner) { updatedSearchResults ->
+            searchResultViewModel.mapFromSearchResultPagerViewModel(
+                viewModel.sessionId,
+                updatedSearchResults,
+                viewModel.totalFound
+            )
+        }
+
+        // Wait for the loaded result being ready before jumping to the initial position
+        viewLifecycleOwner.lifecycleScope.launch {
+            val loadedCount = searchResultViewModel.loadedSearchResults.filter { it > 0 }.first()
+            if (initialPosition < loadedCount) {
+                searchResultPagerAdapter?.updateLoadedCount(loadedCount)
+                log.verbose("setting currentItem to initialPosition $initialPosition")
+                webViewPager.setCurrentItem(initialPosition, false)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                searchResultViewModel.loadedSearchResults.collect {
+                    searchResultPagerAdapter?.updateLoadedCount(it)
+                }
+            }
+        }
+
     }
 
     private fun setupViewPager() {
+        searchResultPagerAdapter =
+            SearchResultPagerAdapter(this)
         webViewPager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
-            if (adapter == null) {
-                adapter = SearchResultPagerAdapter(
-                    this@SearchResultPagerFragment,
-                    viewModel.totalFound,
-                    viewModel.searchResultsLiveData.value ?: emptyList()
-                )
-                log.verbose("setting currentItem to initialPosition $initialPosition")
-                setCurrentItem(initialPosition, false)
-            }
+            adapter = searchResultPagerAdapter
         }
     }
 

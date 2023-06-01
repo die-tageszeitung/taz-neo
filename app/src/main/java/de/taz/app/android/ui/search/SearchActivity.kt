@@ -8,6 +8,8 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
 import androidx.core.view.size
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+import androidx.fragment.app.commit
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +31,7 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
@@ -41,9 +44,11 @@ import java.util.*
 
 
 private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
+private const val SEARCH_RESULT_PAGER_BACKSTACK_NAME = "search_result_pager"
 
 class SearchActivity :
-    ViewBindingActivity<ActivitySearchBinding>() {
+    ViewBindingActivity<ActivitySearchBinding>(),
+    SuccessfulLoginAction {
 
     private val searchResultItemsList = mutableListOf<SearchHit>()
     private var lastVisiblePosition = 0
@@ -320,6 +325,7 @@ class SearchActivity :
                     searchResultItemsList,
                     ::toggleBookmark,
                     bookmarkRepository::createBookmarkStateFlow,
+                    ::onSearchResultClick,
                 )
             val llm = LinearLayoutManager(applicationContext)
             searchResultList.apply {
@@ -502,6 +508,7 @@ class SearchActivity :
         }
     }
     // endregion
+
     // region dialog functions
     private fun showSearchTimeDialog() {
         AdvancedTimeslotDialogFragment().show(
@@ -527,6 +534,22 @@ class SearchActivity :
     private fun showHelp() {
         val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_SEARCH_HELP)
         startActivity(intent)
+    }
+
+    override fun onLogInSuccessful(articleName: String) {
+        // Close the result pager
+        supportFragmentManager.popBackStack(SEARCH_RESULT_PAGER_BACKSTACK_NAME, POP_BACK_STACK_INCLUSIVE)
+        // Re-start the search
+        advancedSearch(
+            searchText = viewModel.searchText.value.toString(),
+            title = viewModel.searchTitle.value.toString(),
+            author = viewModel.searchAuthor.value.toString(),
+            pubDateFrom = viewModel.pubDateFrom.value,
+            pubDateUntil = viewModel.pubDateUntil.value,
+            searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
+            sorting = viewModel.sorting.value ?: Sorting.relevance,
+            showLoadingScreen = true
+        )
     }
 
     // endregion
@@ -631,6 +654,14 @@ class SearchActivity :
         }
     }
     // endregion
+
+    private fun onSearchResultClick(position: Int) {
+        val fragment = SearchResultPagerFragment.newInstance(position)
+        supportFragmentManager.commit {
+            add(android.R.id.content, fragment)
+            addToBackStack(SEARCH_RESULT_PAGER_BACKSTACK_NAME)
+        }
+    }
 
     /**
      * Try to bring the audio player to the front.
