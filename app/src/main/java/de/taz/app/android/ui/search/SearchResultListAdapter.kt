@@ -32,12 +32,14 @@ class SearchResultListAdapter(
     private var searchResultList: List<SearchHit>,
     private val onBookmarkClick: (String, Date?) -> Unit,
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
+    private val onSearchResultClick: (Int) -> Unit,
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
 
     class SearchResultListViewHolder(
         val view: View,
         private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
+        private val onSearchResultClick: (Int) -> Unit,
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
         override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
@@ -52,15 +54,7 @@ class SearchResultListAdapter(
 
         fun bind(position: Int, searchHit: SearchHit) {
             searchResultItem.setOnClickListener {
-                val fragment = SearchResultPagerFragment.newInstance(position)
-                val activity: AppCompatActivity = view.context as AppCompatActivity
-                activity.supportFragmentManager.beginTransaction()
-                    .add(
-                        android.R.id.content,
-                        fragment
-                    )
-                    .addToBackStack(null)
-                    .commit()
+                onSearchResultClick(position)
             }
             launch {
                 getBookmarkStateFlow(searchHit.articleFileName).collect {isBookmarked ->
@@ -80,7 +74,7 @@ class SearchResultListAdapter(
     ): SearchResultListViewHolder {
         val searchResultItem = LayoutInflater.from(parent.context)
             .inflate(R.layout.fragment_search_result_item, parent, false)
-        return SearchResultListViewHolder(searchResultItem, getBookmarkStateFlow)
+        return SearchResultListViewHolder(searchResultItem, getBookmarkStateFlow, onSearchResultClick)
     }
 
     override fun onBindViewHolder(
