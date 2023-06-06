@@ -94,9 +94,12 @@ class SplashActivity : StartupActivity() {
         super.onStop()
         // Log if the user closed the SplashActivity Screen before it was initialized completely.
         // There is a good chance that this was due to her waiting for the activity for too long,
-        // probably because of slow internet
-        if (!initComplete) {
-            log.warn("SplashActivity stopped after ${System.currentTimeMillis() - splashStartMs}ms")
+        // probably because of slow internet.
+        // As Android sometimes seem to start the activity without doing any work in the initialize
+        // couroutine we are only tracking times that take longer then 1s to sentry.
+        val splashTimeMs = System.currentTimeMillis() - splashStartMs
+        if (!initComplete && splashTimeMs > 1_000) {
+            log.warn("SplashActivity stopped after ${splashTimeMs}ms")
             Sentry.captureMessage("SplashActivity was closed before the initialization was complete")
         }
     }
