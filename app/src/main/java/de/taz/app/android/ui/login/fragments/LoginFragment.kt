@@ -7,7 +7,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
@@ -35,7 +34,6 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
         viewBinding.fragmentLoginUsername.apply {
             setText(viewModel.username ?: viewModel.subscriptionId?.toString())
-            addAllLowercaseFilter()
         }
 
         viewModel.password?.let {
@@ -60,7 +58,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         }
 
         viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
-            viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim())
+            viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
         }
 
         viewBinding.fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
@@ -93,7 +91,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
     }
 
     private fun login() {
-        val username = viewBinding.fragmentLoginUsername.text.toString().trim()
+        val username = viewBinding.fragmentLoginUsername.text.toString().trim().lowercase()
         val password = viewBinding.fragmentLoginPassword.text.toString()
         viewModel.login(username, password)
         hideSoftInputKeyboard()

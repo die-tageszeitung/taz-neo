@@ -10,7 +10,9 @@ import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import de.taz.app.android.*
+import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentLoginMissingCredentialsBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
@@ -22,7 +24,6 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
-import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import de.taz.app.android.util.validation.PasswordValidator
@@ -70,7 +71,6 @@ class CredentialsMissingFragment :
 
         viewBinding.fragmentLoginMissingCredentialsEmail.apply {
             setText(viewModel.username)
-            addAllLowercaseFilter()
         }
         viewBinding.fragmentLoginMissingCredentialsFirstName.setText(viewModel.firstName)
         viewBinding.fragmentLoginMissingCredentialsSurname.setText(viewModel.surName)
@@ -171,7 +171,7 @@ class CredentialsMissingFragment :
     }
 
     override fun done(): Boolean {
-        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim()
+        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim().lowercase()
         val password = viewBinding.fragmentLoginMissingCredentialsPassword.text.toString()
 
         val passwordConfirm =

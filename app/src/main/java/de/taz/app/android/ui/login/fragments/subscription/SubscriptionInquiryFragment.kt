@@ -15,7 +15,6 @@ import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
@@ -72,8 +71,6 @@ abstract class SubscriptionInquiryFragment :
                     return false
                 }
             })
-
-            email.addAllLowercaseFilter()
         }
     }
 
@@ -81,7 +78,7 @@ abstract class SubscriptionInquiryFragment :
         showLoadingState()
 
         // Get the trimmed data from the ViewBinding
-        val email = viewBinding.email.text?.trim()?.toString() ?: ""
+        val email = viewBinding.email.text?.trim()?.toString()?.lowercase() ?: ""
         val subscriptionIdString = viewBinding.subscriptionId.text?.trim()?.toString() ?: ""
         val surname = viewBinding.surname.text?.trim()?.toString() ?: ""
         val firstname = viewBinding.firstName.text?.trim()?.toString() ?: ""
