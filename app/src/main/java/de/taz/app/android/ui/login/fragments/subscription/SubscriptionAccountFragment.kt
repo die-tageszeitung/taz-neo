@@ -21,7 +21,6 @@ import de.taz.app.android.monkey.setError
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
-import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import de.taz.app.android.util.validation.PasswordValidator
@@ -52,7 +51,6 @@ class SubscriptionAccountFragment :
 
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
         viewBinding.fragmentSubscriptionAccountEmail.apply {
-            addAllLowercaseFilter()
             setText(viewModel.username)
         }
         viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
@@ -194,7 +192,7 @@ class SubscriptionAccountFragment :
         var done = true
 
         if (!viewModel.validCredentials) {
-            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()
+            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()
             if (email.isNullOrBlank() || !emailValidator(email)) {
                 done = false
                 setEmailError(R.string.login_email_error_empty)

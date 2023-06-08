@@ -20,7 +20,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.*
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.addAllLowercaseFilter
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -121,12 +120,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                     forgotPassword()
                 }
             }
-
-            readOnUsername.addAllLowercaseFilter()
         }
     }
 
-    private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim()
+    private fun getUsername(): String = viewBinding.readOnUsername.text.toString().trim().lowercase()
     private fun getPassword(): String = viewBinding.readOnPassword.text.toString()
 
     private fun login() = startLoginActivity(LoginContract.Option.LOGIN)
