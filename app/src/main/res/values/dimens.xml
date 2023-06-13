@@ -47,6 +47,8 @@
     <dimen name="list_item_pdf_page_with_content_toc_margin_start">14dp</dimen>
     <dimen name="list_item_pdf_page_with_content_divider_margin_top">15dp</dimen>
     <dimen name="list_item_pdf_page_with_content_thumbnail_margin_end">5dp</dimen>
+    <!--Sum of: list_item_pdf_page_with_content_card_width + list_item_pdf_page_with_content_thumbnail_margin_end + list_item_pdf_page_with_content_toc_margin_start-->
+    <dimen name="list_item_pdf_page_with_content_imprint_margin_start">81dp</dimen>
 
 
     <dimen name="list_item_pdf_page_toc_margin_bottom">20dp</dimen>

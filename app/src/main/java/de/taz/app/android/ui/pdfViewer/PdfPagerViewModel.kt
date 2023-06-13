@@ -240,6 +240,7 @@ class PdfPagerViewModel(
             _openLinkEventFlow.value = when {
                 article != null && article.isImprint() ->
                     OpenLinkEvent.ShowImprint(IssueKeyWithDisplayableKey(issueKey, article.key))
+
                 else -> OpenLinkEvent.ShowArticle(issueKey, article?.key)
             }
         }
@@ -286,7 +287,7 @@ class PdfPagerViewModel(
         maxRetries = maxRetries
     ) as IssueWithPages
 
-    private val pdfPageTocFlow =
+    private val itemsToCFlow =
         issueFlow.filterNotNull().map { issue ->
             val sortedArticlesOfIssueMap =
                 issue.getArticles()
@@ -294,21 +295,30 @@ class PdfPagerViewModel(
                     .withIndex()
                     .associate { it.value to it.index }
             if (issue.isDownloaded(application)) {
-                val pages = mutableListOf<PageWithArticles>()
+                val pages = mutableListOf<PageWithArticlesListItem>()
+                var imprint: Article? = null
                 issue.pageList.forEach { page ->
                     val articlesOfPage = mutableListOf<Article>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
                                 val article = getArticleForFrame(frame)
-                                if (article != null && !isArticleListed(article, pages)) {
-                                    articlesOfPage.add(article)
+                                if (article != null && !isArticleListed(
+                                        article,
+                                        pages as List<PageWithArticlesListItem>
+                                    )
+                                ) {
+                                    if (article.isImprint()) {
+                                        imprint = article
+                                    } else {
+                                        articlesOfPage.add(article)
+                                    }
                                 }
                             }
                         }
                     }
                     // Add pages only if articles are starting on it
-                    if (articlesOfPage.isNotEmpty()){
+                    if (articlesOfPage.isNotEmpty()) {
                         val sortedArticlesOfPage =
                             articlesOfPage.sortedBy {
                                 sortedArticlesOfIssueMap.getOrDefault(
@@ -317,16 +327,19 @@ class PdfPagerViewModel(
                                 )
                             }
                         pages.add(
-                            PageWithArticles(
-                                pagePdf = requireNotNull(
-                                    fileEntryRepository.get(page.pagePdf.name)
-                                ) {
-                                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                                }, sortedArticlesOfPage
+                            PageWithArticlesListItem.Page(
+                                PageWithArticles(
+                                    pagePdf = requireNotNull(
+                                        fileEntryRepository.get(page.pagePdf.name)
+                                    ) {
+                                        "Refreshing pagePdf fileEntry failed as fileEntry was null"
+                                    }, sortedArticlesOfPage
+                                )
                             )
                         )
                     }
                 }
+                imprint?.let { pages.add(PageWithArticlesListItem.Imprint(it)) }
                 pages
             } else {
                 null
@@ -334,13 +347,18 @@ class PdfPagerViewModel(
         }
 
     /**
-     * Check if [article] is listed on one of the [pages].
+     * Check if [article] is listed on one of the [itemsToC].
      *
      * @param article Article to check for
-     * @param pages pages with articles
+     * @param itemsToC items of ToC either Page or Imprint
      */
-    private fun isArticleListed(article: Article, pages: List<PageWithArticles>): Boolean {
-        return pages.any { page -> page.articles?.any { it.key == article.key } == true }
+    private fun isArticleListed(
+        article: Article,
+        itemsToC: List<PageWithArticlesListItem>
+    ): Boolean {
+        return itemsToC.any { item ->
+            item is PageWithArticlesListItem.Page &&
+                    item.page.articles?.any { it.key == article.key } == true }
     }
 
     /**
@@ -377,7 +395,7 @@ class PdfPagerViewModel(
     }
 
 
-    val pdfPageToC = pdfPageTocFlow.filterNotNull().asLiveData()
+    val itemsToC = itemsToCFlow.filterNotNull().asLiveData()
 
     private val currentPageFlow = combine(
         pdfPageListFlow.filterNotNull(),

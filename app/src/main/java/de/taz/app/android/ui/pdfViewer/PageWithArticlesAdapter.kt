@@ -2,18 +2,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.pdfViewer.ArticleAdapter
 import de.taz.app.android.ui.pdfViewer.PageWithArticles
+import de.taz.app.android.ui.pdfViewer.PageWithArticlesListItem
 import kotlinx.coroutines.flow.Flow
 
-private const val TYPE_PAGE_BETWEEN = 0
-private const val TYPE_PAGE_LAST = 1
+private const val TYPE_PAGE = 0
+private const val TYPE_IMPRINT = 1
 
 /**
  * Creates ViewHolders for item views that will bind data for the preview of a page and the table of content of this
@@ -25,24 +28,23 @@ private const val TYPE_PAGE_LAST = 1
  * table of content.
  */
 class PageWithArticlesAdapter(
-    var pages: List<PageWithArticles>,
+    val pages: List<PageWithArticlesListItem>,
     private val onPageCLick: (pageName: String) -> Unit,
     private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
     private val onArticleBookmarkClick: (article: Article) -> Unit,
     private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
 ) :
-    RecyclerView.Adapter<PageWithArticlesAdapter.PageWithArticlesHolder>() {
+    RecyclerView.Adapter<ViewHolder>() {
 
-    inner class PageWithArticlesHolder(
+    private class PageWithArticlesHolder(
         view: View,
-        val onPageCLick: (pageNamet: String) -> Unit,
-        val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
-        val onArticleBookmarkClick: (article: Article) -> Unit,
+        private val onPageCLick: (pageName: String) -> Unit,
+        private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
+        private val onArticleBookmarkClick: (article: Article) -> Unit,
+        private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
         private val showDivider: Boolean
     ) :
-        RecyclerView.ViewHolder(view) {
-
-        private lateinit var page: PageWithArticles
+        ViewHolder(view) {
 
         private val pagePreviewImage: ImageView = itemView.findViewById(R.id.preview_page_image)
         private val pageTocRecyclerView: RecyclerView =
@@ -55,19 +57,16 @@ class PageWithArticlesAdapter(
          * @param page Page with articles (TOC) to be displayed.
          */
         fun bind(page: PageWithArticles) {
-            this.page = page
             val storageService = StorageService.getInstance(itemView.context)
             Glide
                 .with(itemView)
-                .load(page
-                    ?.let {
-                        storageService.getAbsolutePath(it.pagePdf)
-                    }).into(pagePreviewImage)
+                .load(storageService.getAbsolutePath(page.pagePdf))
+                .into(pagePreviewImage)
             pagePreviewImage.setOnClickListener {
                 onPageCLick(page.pagePdf.name)
             }
             pageTocRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
-            pageTocRecyclerView.adapter = this.page.articles?.let {
+            pageTocRecyclerView.adapter = page.articles?.let {
                 ArticleAdapter(
                     it,
                     { article -> onArticleClick(absoluteAdapterPosition, article) },
@@ -82,36 +81,66 @@ class PageWithArticlesAdapter(
         }
     }
 
+    private class ImprintHolder(
+        view: View,
+        private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
+    ) : ViewHolder(view) {
+
+        private val imprintTitle: TextView = itemView.findViewById(R.id.imprint_title)
+
+        fun bind(imprint: Article) {
+            imprintTitle.text = imprint.title
+            itemView.setOnClickListener {
+                onArticleClick(absoluteAdapterPosition, imprint)
+            }
+        }
+    }
+
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): PageWithArticlesHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item_pdf_page_with_content, parent, false)
-        return PageWithArticlesHolder(
-            view,
-            onPageCLick,
-            onArticleClick,
-            onArticleBookmarkClick,
-            showDivider = viewType == TYPE_PAGE_BETWEEN
-        )
+    ): ViewHolder {
+        return when (viewType) {
+            TYPE_PAGE -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.list_item_pdf_page_with_content, parent, false)
+                PageWithArticlesHolder(
+                    view,
+                    onPageCLick,
+                    onArticleClick,
+                    onArticleBookmarkClick,
+                    articleBookmarkStateFlowCreator,
+                    showDivider = true
+                )
+            }
+            TYPE_IMPRINT -> {
+                val view = LayoutInflater.from(parent.context)
+                    .inflate(R.layout.list_item_pdf_page_imprint, parent, false)
+                ImprintHolder(view, onArticleClick)
+            }
+            else -> error("Unknown viewType type: $viewType")
+        }
     }
 
     override fun getItemCount() = pages.size
 
     override fun onBindViewHolder(
-        holder: PageWithArticlesHolder,
+        holder: ViewHolder,
         position: Int
     ) {
-        val pdfPage = pages[position]
-        holder.bind(pdfPage)
+        val listItem = pages[position]
+        when(holder.itemViewType) {
+            TYPE_PAGE -> (holder as PageWithArticlesHolder).bind((listItem as PageWithArticlesListItem.Page).page)
+            TYPE_IMPRINT -> (holder as ImprintHolder).bind((listItem as PageWithArticlesListItem.Imprint).imprint)
+            else -> error("Unknown ViewHolder type: ${holder::class.java.simpleName}")
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == itemCount - 1) {
-            TYPE_PAGE_LAST
-        } else {
-            TYPE_PAGE_BETWEEN
+        return when (pages[position]) {
+            is PageWithArticlesListItem.Page -> TYPE_PAGE
+            is PageWithArticlesListItem.Imprint -> TYPE_IMPRINT
         }
     }
 
