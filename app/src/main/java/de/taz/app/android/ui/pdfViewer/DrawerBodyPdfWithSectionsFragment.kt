@@ -79,11 +79,11 @@ class DrawerBodyPdfWithSectionsFragment :
         }
 
 
-        pdfPagerViewModel.pdfPageToC.observe(
+        pdfPagerViewModel.itemsToC.observe(
             viewLifecycleOwner
-        ) { pages ->
-            pages?.let {
-                updateToc(pages)
+        ) { items ->
+            items?.let {
+                updateToc(items)
             }
         }
 
@@ -171,11 +171,11 @@ class DrawerBodyPdfWithSectionsFragment :
      *
      * This will update the shown pages and their articles listed on each page.
      *
-     * @param pages List of pages and articles on each page
+     * @param items List of pages and articles on each page
      */
-    private fun updateToc(pages: List<PageWithArticles>) {
+    private fun updateToc(items: List<PageWithArticlesListItem>) {
         adapter = PageWithArticlesAdapter(
-            pages,
+            items,
             { pageName -> handlePageClick(pageName) },
             { pagePosition, article -> handleArticleClick(pagePosition, article) },
             { article -> handleArticleBookmarkClick(article) },
