@@ -5,14 +5,19 @@ import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityErrorReportBinding
 import de.taz.app.android.getTazApplication
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 
 class ErrorReportActivity : ViewBindingActivity<ActivityErrorReportBinding>() {
 
+    private lateinit var tracker: Tracker
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tracker = getTazApplication().tracker
+
         // The AudioPlayer shall stop when the users wants to report an error
         AudioPlayerService.getInstance(applicationContext).apply {
             dismissPlayer()
@@ -35,6 +40,7 @@ class ErrorReportActivity : ViewBindingActivity<ActivityErrorReportBinding>() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         setBottomNavigationBackActivity(null, BottomNavigationItem.Settings)
         super.onBackPressed()
     }

@@ -1,15 +1,20 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.hideSoftInputKeyboard
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
+
+    private lateinit var tracker: Tracker
 
     @StringRes
     private var usernameErrorId: Int? = null
@@ -27,6 +32,11 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
                 it.passwordErrorId = passwordErrorId
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,22 +60,27 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         }
 
         viewBinding.fragmentLoginLoginButton.setOnClickListener {
+            tracker.trackLoginFormSubmitTappedEvent()
             login()
         }
 
         viewBinding.cancelButton.setOnClickListener {
+            tracker.trackCancelTappedEvent()
             finish()
         }
 
         viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
+            tracker.trackSubscriptionTrialTappedEvent()
             viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
         }
 
         viewBinding.fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
+            tracker.trackSubscriptionSwitchTappedEvent()
             viewModel.requestSwitchPrint2Digi()
         }
 
         viewBinding.fragmentLoginExtendPrintWithDigiBoxButton.setOnClickListener {
+            tracker.trackSubscriptionExtendTappedEvent()
             viewModel.requestExtendPrintWithDigi()
         }
 
@@ -73,16 +88,20 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewBinding.fragmentLoginMissingSubscriptionForgotPassword.visibility = View.GONE
         } else {
             viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
+                tracker.trackForgotPasswordTappedEvent()
                 viewModel.requestPasswordReset()
             }
         }
 
         viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
+            tracker.trackLoginHelpTappedEvent()
             showHelpDialog(R.string.fragment_login_help)
         }
 
         viewBinding.fragmentLoginPassword.setOnEditorActionListener(
-            OnEditorActionDoneListener(::login)
+            OnEditorActionDoneListener {
+                login()
+            }
         )
 
         if (BuildConfig.IS_LMD) {

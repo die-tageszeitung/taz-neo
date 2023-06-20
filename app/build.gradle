@@ -378,6 +378,9 @@ dependencies {
     implementation "androidx.media3:media3-session:$media3_version"
     implementation "androidx.media3:media3-ui:$media3_version"
 
+    // Matomo tracking
+    nonfreeImplementation 'com.github.matomo-org:matomo-sdk-android:4.1.4'
+
     // testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"

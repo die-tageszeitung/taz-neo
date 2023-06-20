@@ -16,8 +16,8 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
-import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log

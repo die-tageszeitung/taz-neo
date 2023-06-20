@@ -26,11 +26,13 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -60,6 +62,7 @@ class SearchActivity :
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var searchResultListAdapter: SearchResultListAdapter
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
     private val log by Log
 
     private val viewModel by viewModels<SearchResultPagerViewModel>()
@@ -76,6 +79,7 @@ class SearchActivity :
         contentService = ContentService.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
@@ -198,7 +202,7 @@ class SearchActivity :
 
     override fun onResume() {
         super.onResume()
-
+        tracker.trackSearchScreen()
         setupBottomNavigation(
             viewBinding.navigationBottom,
             BottomNavigationItem.Search
@@ -207,6 +211,7 @@ class SearchActivity :
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

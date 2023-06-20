@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -14,12 +15,14 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
@@ -37,6 +40,8 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var tracker: Tracker
+
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
     private val emailValidator = EmailValidator()
@@ -62,6 +67,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
         authHelper = AuthHelper.getInstance(requireContext().applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,6 +77,13 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
             // redraw all visible views
             viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
             updateUIForCurrentDate(forceStartDownloadObserver = true)
+
+            // Track a new screen if the PDF mode changes when the Fragment is already resumed.
+            // This is necessary in addition to the tracking in onResume because that is not called
+            // when we only update the UI.
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                tracker.trackCoverflowScreen(it)
+            }
         }
 
         grid.layoutManager =
@@ -138,6 +151,11 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
             determineWhetherToShowLoginButton(it)
         }
         grid.addOnScrollListener(onScrollListener)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackCoverflowScreen(viewModel.pdfModeLiveData.value ?: false)
     }
 
     override fun onDestroyView() {

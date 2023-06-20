@@ -37,8 +37,6 @@ import kotlinx.coroutines.withContext
 abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     BaseViewModelFragment<IssueFeedViewModel, VIEW_BINDING>() {
 
-    private val log by Log
-
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
 

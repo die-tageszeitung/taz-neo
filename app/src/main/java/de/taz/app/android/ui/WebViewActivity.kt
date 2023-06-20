@@ -14,6 +14,7 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showFatalErrorDialog
@@ -35,10 +36,10 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
 
 
     private lateinit var storageService: StorageService
-    private var resourceInfoRepository: ResourceInfoRepository? = null
-
+    private lateinit var resourceInfoRepository: ResourceInfoRepository
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     private val log by Log
 
@@ -54,6 +55,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
 
         // The AudioPlayer shall stop when we show full screen info views
         AudioPlayerService.getInstance(applicationContext).apply {
@@ -78,6 +80,17 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
             Sentry.captureException(e)
             showFatalErrorDialog()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackWebViewScreen(htmlFile)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        tracker.trackSystemNavigationBackEvent()
     }
 
     private fun showHtmlFile(htmlFileKey: String) {

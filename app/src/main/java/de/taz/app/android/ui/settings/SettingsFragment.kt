@@ -42,6 +42,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -70,6 +71,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
+    private lateinit var tracker: Tracker
 
     private val emailValidator = EmailValidator()
 
@@ -84,6 +86,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         feedService = FeedService.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -361,6 +364,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 checkNotificationsAllowed()
             }
         }
+        tracker.trackSettingsScreen()
     }
 
     private fun showDeleteAllIssuesDialog() {

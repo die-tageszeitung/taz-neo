@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -8,15 +9,19 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentSubscriptionAddressBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 
 const val MAX_NAME_LENGTH = 24
 
 class SubscriptionAddressFragment :
     SubscriptionBaseFragment<FragmentSubscriptionAddressBinding>() {
+
+    private lateinit var tracker: Tracker
+
     var cityInvalid: Boolean = false
     var countryInvalid: Boolean = false
     var postcodeInvalid: Boolean = false
@@ -51,6 +56,11 @@ class SubscriptionAddressFragment :
             fragment.surnameInvalid = surnameInvalid
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -92,14 +102,17 @@ class SubscriptionAddressFragment :
             )
 
             fragmentSubscriptionAddressProceed.setOnClickListener {
+                tracker.trackContinueTappedEvent()
                 ifDoneNext()
             }
 
             backButton.setOnClickListener {
+                tracker.trackBackTappedEvent()
                 back()
             }
 
             cancelButton.setOnClickListener {
+                tracker.trackCancelTappedEvent()
                 finish()
             }
 
@@ -134,6 +147,11 @@ class SubscriptionAddressFragment :
                 fragmentSubscriptionAddressPostcodeLayout.setError(R.string.subscription_field_invalid)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionPersonalDataFormScreen()
     }
 
     override fun done(): Boolean {
@@ -184,6 +202,9 @@ class SubscriptionAddressFragment :
                 postCode = fragmentSubscriptionAddressPostcode.text.toString()
                 phone = fragmentSubscriptionAddressPhone.text.toString()
             }
+        }
+        if (!done) {
+            tracker.trackSubscriptionFormValidationErrorEvent()
         }
         return done
     }

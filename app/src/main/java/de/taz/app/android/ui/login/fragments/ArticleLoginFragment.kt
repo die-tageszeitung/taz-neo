@@ -13,8 +13,10 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
@@ -41,6 +43,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var activityResultLauncher: ActivityResultLauncher<LoginContract.Input>
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     companion object {
         fun create(articleFileName: String): ArticleLoginFragment {
@@ -54,6 +57,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         super.onCreate(savedInstanceState)
         activityResultLauncher = registerForActivityResult(LoginContract(), this)
         toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
+        tracker = getTazApplication().tracker
     }
 
 
@@ -74,55 +78,61 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 }
             }
         }
-        viewBinding.showHelp.setOnClickListener {
-            showHelpDialog()
-        }
     }
 
     private fun setupInteractionHandlers() {
         viewBinding.apply {
             // Set listeners on all buttons - even if they are not not shown in case of elapsed
             readOnLoginButton.setOnClickListener {
+                tracker.trackLoginFormSubmitTappedEvent()
                 login()
             }
 
             readOnPassword.setOnEditorActionListener(
-                OnEditorActionDoneListener(::login)
+                OnEditorActionDoneListener{
+                    login()
+                }
             )
 
             readOnTrialSubscriptionBoxButton.setOnClickListener {
-                register()
-            }
-
-            readOnTrialSubscriptionBoxButton.setOnClickListener {
+                tracker.trackSubscriptionTrialTappedEvent()
                 register()
             }
 
             readOnSwitchPrint2digiBoxButton.setOnClickListener {
+                tracker.trackSubscriptionSwitchTappedEvent()
                 switchPrintToDigi()
             }
 
             readOnExtendPrintWithDigiBoxButton.setOnClickListener {
+                tracker.trackSubscriptionExtendTappedEvent()
                 extendPrintWithDigi()
             }
 
             // Elapsed form send button
             sendButton.setOnClickListener {
+                // FIXME (johannes): Add tracking events for the integrated elapsed form
                 onSubmitElapsedForm()
             }
             
             // Elapsed form cancel button
             cancelButton.setOnClickListener {
+                // FIXME (johannes): Add tracking events for the integrated elapsed form
                 hideAllViews()
             }
-
 
             if (BuildConfig.IS_LMD){
                 forgotPassword.visibility = View.GONE
             } else {
                 forgotPassword.setOnClickListener {
+                    tracker.trackForgotPasswordTappedEvent()
                     forgotPassword()
                 }
+            }
+
+            showHelp.setOnClickListener {
+                tracker.trackLoginHelpTappedEvent()
+                showHelpDialog()
             }
         }
     }

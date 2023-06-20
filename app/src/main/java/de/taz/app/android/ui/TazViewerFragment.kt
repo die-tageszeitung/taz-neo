@@ -22,9 +22,9 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerState
+import de.taz.app.android.ui.drawer.DrawerViewController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

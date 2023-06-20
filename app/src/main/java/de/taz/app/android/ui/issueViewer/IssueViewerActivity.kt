@@ -16,10 +16,12 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.TazViewerFragment
@@ -68,9 +70,11 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
 
     @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
+    private lateinit var tracker: Tracker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        tracker = getTazApplication().tracker
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(
@@ -85,6 +89,7 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

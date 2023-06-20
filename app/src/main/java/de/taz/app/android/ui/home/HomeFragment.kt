@@ -14,9 +14,11 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.databinding.FragmentHomeBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -24,7 +26,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
 
 class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     val log by Log
@@ -34,6 +36,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     private val homePageViewModel: IssueFeedViewModel by activityViewModels()
 
@@ -41,6 +44,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onAttach(context)
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,6 +126,8 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
 
             fabActionPdf.setOnClickListener {
+                val switchToPdfMode = !homePageViewModel.getPdfMode()
+                tracker.trackTogglePdfModeTappedEvent(switchToPdfMode)
                 homePageViewModel.togglePdfMode()
             }
         }

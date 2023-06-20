@@ -5,12 +5,15 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.facebook.stetho.Stetho
-import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.UncaughtExceptionHandler
 import io.sentry.Sentry
@@ -26,6 +29,8 @@ abstract class AbstractTazApplication : Application() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private var _tracker: Tracker? = null
+    lateinit var tracker: Tracker
 
     // use this scope if you want to run code which should not terminate if the lifecycle of
     // a fragment or activity is finished
@@ -67,9 +72,23 @@ abstract class AbstractTazApplication : Application() {
             )
         }
 
+        setupTracker()
+
         FirebaseHelper.getInstance(this)
         NightModeHelper.getInstance(this)
         IssueCountHelper.getInstance(this)
+    }
+
+    override fun onLowMemory() {
+        _tracker?.dispatch()
+        super.onLowMemory()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        when (level) {
+            TRIM_MEMORY_UI_HIDDEN, TRIM_MEMORY_COMPLETE -> _tracker?.dispatch()
+        }
+        super.onTrimMemory(level)
     }
 
     private suspend fun generateInstallationId() {
@@ -90,6 +109,33 @@ abstract class AbstractTazApplication : Application() {
         user.id = authHelper.installationId.get()
         Sentry.setUser(user)
     }
+
+
+    // region tracking
+    protected abstract fun initializeTracker(): Tracker
+
+    private fun setupTracker() {
+        _tracker = initializeTracker()
+        tracker = requireNotNull(_tracker)
+
+        // FIXME (johannes): store opt-in in our settings and enable/disable accordingly
+        tracker.enable()
+
+        ProcessLifecycleOwner.get().lifecycle.addObserver(trackerLifecycleObserver)
+
+        // Track this download (only tracks once)
+        tracker.trackDownload(BuildConfig.VERSION_NAME)
+    }
+
+    private val trackerLifecycleObserver = object : DefaultLifecycleObserver {
+        override fun onStop(owner: LifecycleOwner) {
+            _tracker?.apply {
+                trackAppIsBackgroundedEvent()
+                dispatch()
+            }
+        }
+    }
+    // endregion
 }
 
 

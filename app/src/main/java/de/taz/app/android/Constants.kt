@@ -1,7 +1,7 @@
 package de.taz.app.android
 
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 

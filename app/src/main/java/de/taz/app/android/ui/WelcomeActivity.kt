@@ -14,9 +14,11 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityWelcomeBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
@@ -36,7 +38,9 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
-    private var resourceInfoRepository: ResourceInfoRepository? = null
+    private lateinit var resourceInfoRepository: ResourceInfoRepository
+    private lateinit var tracker: Tracker
+
     private var startHomeActivity = false
 
     private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
@@ -53,6 +57,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
 
         // The AudioPlayer shall stop when we show full screen info views
         AudioPlayerService.getInstance(applicationContext).apply {
@@ -79,12 +84,19 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Track as if this would be a regular webview
+        tracker.trackWebViewScreen(welcomeSlidesHtmlFile)
+    }
+
     private fun setFirstTimeStart() {
         applicationScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
         done()
     }

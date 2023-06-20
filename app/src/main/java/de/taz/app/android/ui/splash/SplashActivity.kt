@@ -96,7 +96,7 @@ class SplashActivity : StartupActivity() {
         // There is a good chance that this was due to her waiting for the activity for too long,
         // probably because of slow internet.
         // As Android sometimes seem to start the activity without doing any work in the initialize
-        // couroutine we are only tracking times that take longer then 1s to sentry.
+        // coroutine we are only tracking times that take longer then 1s to sentry.
         val splashTimeMs = System.currentTimeMillis() - splashStartMs
         if (!initComplete && splashTimeMs > 1_000) {
             log.warn("SplashActivity stopped after ${splashTimeMs}ms")

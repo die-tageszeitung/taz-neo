@@ -30,6 +30,7 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -37,9 +38,10 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
-import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
@@ -93,6 +95,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     private lateinit var issuePublication: IssuePublicationWithPages
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tracker: Tracker
     private lateinit var drawerViewController: DrawerViewController
 
     // mutable instance state
@@ -111,6 +114,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         storageService = StorageService.getInstance(applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
         drawerViewController = DrawerViewController(
             this,
             pdfDrawerLayout,
@@ -348,6 +352,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }
