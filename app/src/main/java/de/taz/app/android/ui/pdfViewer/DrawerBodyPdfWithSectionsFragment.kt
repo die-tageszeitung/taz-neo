@@ -68,7 +68,7 @@ class DrawerBodyPdfWithSectionsFragment :
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter
 
         pdfPagerViewModel.currentPage.observe(viewLifecycleOwner) {
-            pdfPagerViewModel.currentItem.value?.let { _ ->
+            pdfPagerViewModel.currentItem.value?.let {
                 refreshCurrentPage()
             }
         }
@@ -124,7 +124,6 @@ class DrawerBodyPdfWithSectionsFragment :
     private fun handleArticleClick(pagePosition: Int, article: Article) {
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         lifecycleScope.launch {
-            pdfPagerViewModel.hideDrawerLogo.postValue(false)
             val fragment = ArticlePagerFragment()
 
             requireActivity().supportFragmentManager.beginTransaction()

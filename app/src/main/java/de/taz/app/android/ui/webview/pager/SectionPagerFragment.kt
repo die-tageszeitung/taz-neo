@@ -2,27 +2,17 @@ package de.taz.app.android.ui.webview.pager
 
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.ImageView
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.distinctUntilChanged
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import de.taz.app.android.HIDE_LOGO_DELAY_MS
-import de.taz.app.android.LOGO_ANIMATION_DURATION_MS
-import de.taz.app.android.LOGO_PEAK
-import de.taz.app.android.LOGO_PEAK_CLICK_PADDING
-import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
-import de.taz.app.android.ui.drawer.DrawerLayout
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -37,7 +27,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val log by Log
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
-    private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -149,7 +139,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             getSupposedPagerPosition()?.let {
                 if (it >= 0 && it != getCurrentPagerPosition()) {
                     viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
-                    hideLogoIfNecessary(it)
                 }
             }
             issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
@@ -178,67 +167,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private fun hideLogoIfNecessary(position: Int) {
         val sectionStub = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(position)
         val isAdvertisement = sectionStub?.type == SectionType.advertisement
-
         if (isAdvertisement) {
-            hideDrawerLogoWithDelay()
-            sectionDrawerViewModel.onAdvertisement = true
+            drawerAndLogoViewModel.hideLogo()
         } else {
-            showDrawerLogo()
-            sectionDrawerViewModel.onAdvertisement = false
-        }
-    }
-
-
-    private fun hideDrawerLogoWithDelay() {
-        activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
-            val drawerLogoWidth = it.width
-            activity?.findViewById<CardView>(R.id.drawer_logo_wrapper)?.let { drawerLogoWrapper ->
-                activity?.findViewById<DrawerLayout>(R.id.drawer_layout)?.let { drawerLayout ->
-                    val transX =
-                        -drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
-                    drawerLogoWrapper.animate()
-                        .withEndAction {
-                            // add additional area where clicks are handled to open the drawer
-                            val widthWhereToHandleLogoClick =
-                                (LOGO_PEAK + LOGO_PEAK_CLICK_PADDING) * resources.displayMetrics.density
-                            drawerLayout.updateDrawerLogoBoundingBox(
-                                width = widthWhereToHandleLogoClick.toInt(),
-                                height = drawerLogoWrapper.height
-                            )
-                        }
-                        .setDuration(LOGO_ANIMATION_DURATION_MS)
-                        .setStartDelay(HIDE_LOGO_DELAY_MS)
-                        .translationX(transX)
-                        .setInterpolator(AccelerateDecelerateInterpolator())
-                }
-            }
-        }
-    }
-
-    private fun showDrawerLogo() {
-        activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
-            val drawerLogoWidth = it.width
-            // only coninue if the imageView has some width
-            // (otherwise we would update the draweLogoBoundingBox with a width of 0)
-            if (drawerLogoWidth > 0) {
-                activity?.findViewById<CardView>(R.id.drawer_logo_wrapper)
-                    ?.let { drawerLogoWrapper ->
-                        activity?.findViewById<DrawerLayout>(R.id.drawer_layout)
-                            ?.let { drawerLayout ->
-                                drawerLogoWrapper.animate()
-                                    .withEndAction {
-                                        drawerLayout.updateDrawerLogoBoundingBox(
-                                            drawerLogoWidth,
-                                            drawerLogoWrapper.height
-                                        )
-                                    }
-                                    .setDuration(LOGO_ANIMATION_DURATION_MS)
-                                    .setStartDelay(0L)
-                                    .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
-                                    .setInterpolator(AccelerateDecelerateInterpolator())
-                            }
-                    }
-            }
+            drawerAndLogoViewModel.showLogo()
         }
     }
 }

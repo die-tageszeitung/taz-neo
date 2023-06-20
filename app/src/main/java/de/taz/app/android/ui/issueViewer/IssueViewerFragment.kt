@@ -16,7 +16,8 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.drawer.DrawerState
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
@@ -48,7 +49,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
-    private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -85,15 +86,16 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
 
         lifecycleScope.launchWhenResumed {
             val timesDrawerShown = generalDataStore.drawerShownCount.get()
-            if (sectionDrawerViewModel.drawerOpen.value == false && timesDrawerShown < DRAWER_SHOW_NUMBER) {
+            val isDrawerClosed = drawerAndLogoViewModel.drawerState.value is DrawerState.Closed
+            if (isDrawerClosed && timesDrawerShown < DRAWER_SHOW_NUMBER) {
                 delay(500)
-                sectionDrawerViewModel.drawerOpen.value = true
+                drawerAndLogoViewModel.openDrawer()
                 // Wait for the issue to be set on the ViewModel
                 viewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
                     .filterNotNull()
                     .first()
                 delay(1500)
-                sectionDrawerViewModel.drawerOpen.value = false
+                drawerAndLogoViewModel.closeDrawer()
                 generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
             }
         }

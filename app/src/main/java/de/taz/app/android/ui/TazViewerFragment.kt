@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.webkit.WebView
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
@@ -21,14 +22,14 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.drawer.sectionList.SectionDrawerViewModel
+import de.taz.app.android.ui.drawer.DrawerViewController
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.drawer.DrawerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
-
-const val DRAWER_OVERLAP_OFFSET = -5F
 
 /**
  * Abstract base class for
@@ -49,11 +50,12 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private lateinit var imageRepository: ImageRepository
     private lateinit var contentService: ContentService
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var drawerViewController: DrawerViewController
 
     private var navButton: Image? = null
     private var navButtonAlpha = 255f
 
-    private val sectionDrawerViewModel: SectionDrawerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var viewerFragment: Fragment? = null
 
@@ -83,7 +85,13 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        drawerViewController = DrawerViewController(
+            requireContext(),
+            viewBinding.drawerLayout,
+            viewBinding.drawerLogoWrapper,
+            viewBinding.navView,
+            drawerAndLogoViewModel::setLogoHiddenState
+        )
         if (enableDrawer) {
             setupDrawer()
         } else {
@@ -114,41 +122,33 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
             }
 
             drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-                var opened = false
-
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                    (drawerView.parent as? View)?.let { parentView ->
-                        val drawerWidth =
-                            drawerView.width + (drawerLayout.drawerLogoBoundingBox?.width() ?: 0)
-                        if (parentView.width < drawerWidth && !sectionDrawerViewModel.onAdvertisement) {
-                            // translation needed for logo to be shown when drawer is too wide:
-                            val offsetOnOpenDrawer =
-                                slideOffset * (parentView.width - drawerWidth)
-                            // translation needed when drawer is closed then:
-                            val offsetOnClosedDrawer =
-                                (1 - slideOffset) * DRAWER_OVERLAP_OFFSET  * resources.displayMetrics.density
-                            drawerLogoWrapper.translationX =
-                                offsetOnOpenDrawer + offsetOnClosedDrawer
-                        }
-                    }
+                    drawerViewController.handleOnDrawerSlider(slideOffset)
                 }
 
                 override fun onDrawerOpened(drawerView: View) {
-                    opened = true
+                    drawerAndLogoViewModel.openDrawer()
                 }
 
                 override fun onDrawerClosed(drawerView: View) {
-                    opened = false
+                    drawerAndLogoViewModel.closeDrawer()
                 }
 
                 override fun onDrawerStateChanged(newState: Int) {}
             })
+        }
 
-            sectionDrawerViewModel.drawerOpen.observe(viewLifecycleOwner) {
-                if (it) {
-                    drawerLayout.openDrawer(GravityCompat.START)
-                } else {
-                    drawerLayout.closeDrawers()
+        if (drawerAndLogoViewModel.isLogoHidden()) {
+            drawerAndLogoViewModel.hideLogo()
+        }
+
+        // assumes setupDrawer is called from onCreate
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    drawerAndLogoViewModel.drawerState.collect {
+                        drawerViewController.handleDrawerState(it)
+                    }
                 }
             }
         }
@@ -212,6 +212,8 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 resources.displayMetrics
             ) * scaleFactor
 
+            drawerViewController.drawerLogoWidth = logicalWidth.toInt()
+
             val logicalHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 imageDrawable.intrinsicHeight.toFloat(),
@@ -236,8 +238,8 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     }
 
     override fun onBackPressed(): Boolean {
-        if (sectionDrawerViewModel.drawerOpen.value == true) {
-            sectionDrawerViewModel.drawerOpen.value = false
+        if (drawerAndLogoViewModel.drawerState.value is DrawerState.Open) {
+            drawerAndLogoViewModel.closeDrawer()
             return true
         }
         return (viewerFragment as? BackFragment)?.onBackPressed() ?: false

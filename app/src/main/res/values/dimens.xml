@@ -60,6 +60,8 @@
     <dimen name="drawer_logo_translation_y">40dp</dimen>
     <dimen name="drawer_logo_elevation">5dp</dimen>
     <dimen name="drawer_logo_corner_radius">0dp</dimen>
+    <dimen name="drawer_logo_peak_when_hidden">8dp</dimen>
+    <dimen name="drawer_logo_peak__when_hidden_click_area">38dp</dimen>
 
     <dimen name="fragment_padding_horizontal">18dp</dimen>
 
