@@ -1,6 +1,7 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +14,16 @@ import com.google.android.material.radiobutton.MaterialRadioButton
 import de.taz.app.android.R
 import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.databinding.FragmentSubscriptionPriceBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 import kotlinx.coroutines.launch
 
 
 class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionPriceBinding>() {
+    private lateinit var tracker: Tracker
+
     private val priceInfoAdapter = PriceInfoAdapter()
     private var priceList = emptyList<PriceInfo>()
 
@@ -40,6 +45,11 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
         PriceInfo(resources.getString(R.string.trial_subscription_name), 0)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // get async so when user reconnects it automatically resolves
@@ -57,9 +67,20 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
             layoutManager = LinearLayoutManager(context)
         }
 
-        viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener { ifDoneNext() }
+        viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
+            tracker.trackContinueTappedEvent()
+            ifDoneNext()
+        }
 
-        viewBinding.backButton.setOnClickListener { back() }
+        viewBinding.backButton.setOnClickListener {
+            tracker.trackBackTappedEvent()
+            back()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionPriceScreen()
     }
 
     override fun done(): Boolean {
@@ -69,6 +90,10 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
             showPriceError()
         }
         viewModel.price = priceInfoAdapter.getSelectedPriceInfo().price
+
+        if (done) {
+            tracker.trackSubscriptionFormValidationErrorEvent()
+        }
         return done
     }
 

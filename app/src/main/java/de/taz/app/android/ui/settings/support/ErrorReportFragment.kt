@@ -13,8 +13,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.*
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
@@ -30,6 +32,8 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
     private lateinit var apiService: ApiService
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
+
     private var base64String: String? = null
     private var uploadedFileName: String? = null
     private val emailValidator = EmailValidator()
@@ -39,6 +43,12 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
         apiService = ApiService.getInstance(requireContext().applicationContext)
         authHelper = AuthHelper.getInstance(requireContext().applicationContext)
+        tracker = getTazApplication().tracker
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackErrorReportScreen()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

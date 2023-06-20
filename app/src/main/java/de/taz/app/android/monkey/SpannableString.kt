@@ -6,7 +6,7 @@ import android.text.style.ClickableSpan
 import android.view.View
 import kotlin.reflect.KFunction0
 
-fun SpannableString.onClick(text: String, function: KFunction0<Unit>) {
+fun SpannableString.onClick(text: String, function: () -> Unit) {
     val indexOf = indexOf(text)
     if (indexOf >= 0) {
         setSpan(object : ClickableSpan() {

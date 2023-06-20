@@ -1,20 +1,48 @@
 package de.taz.app.android.ui.pdfViewer
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Frame
+import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -56,7 +84,7 @@ class PdfPagerViewModel(
 
     private val pdfPageListFlow: SharedFlow<List<Page>?> = issueFlow
         .map(::pdfPageListMapper)
-        .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
+        .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 1)
     val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)

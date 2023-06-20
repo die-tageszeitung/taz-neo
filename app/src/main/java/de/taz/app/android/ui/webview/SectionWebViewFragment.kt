@@ -18,12 +18,15 @@ import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -31,12 +34,31 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.ArticleName
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.ceil
 
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<Section>(application, savedStateHandle)
+    WebViewViewModel<Section>(application, savedStateHandle) {
+
+    val sectionFlow = displayableLiveData.asFlow().filterNotNull()
+    val issueStubFlow = sectionFlow
+        .mapNotNull {
+            it.getIssueStub(application.applicationContext)
+        }
+        .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 1)
+
+}
 
 const val PADDING_RIGHT_OF_LOGO = 20
 
@@ -51,6 +73,7 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
@@ -80,6 +103,8 @@ class SectionWebViewFragment : WebViewFragment<
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
         lifecycleScope.launch {
+            // FIXME (johannes): this is loading the full section WITH all its articles and everything
+            //  within for EACH section pager fragment. This DOES have a performance impact
             viewModel.displayableLiveData.postValue(
                 sectionRepository.get(sectionFileName)
             )
@@ -94,92 +119,91 @@ class SectionWebViewFragment : WebViewFragment<
         bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun setHeader(displayable: Section) {
-        activity?.apply {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val issueStub = viewModel.issueStubFlow.first()
+            val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
+            val isWochentaz =  issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
-            lifecycleScope.launch(Dispatchers.Main) {
-                val issueStub = displayable.getIssueStub(requireContext().applicationContext)
-                val isWeekend = issueStub?.isWeekend == true && issueStub.validityDate.isNullOrBlank()
-                val isWochentaz =  issueStub?.isWeekend == true && !issueStub.validityDate.isNullOrBlank()
+            val toolbar =
+                view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
+            toolbar?.removeAllViews()
 
-                val toolbar =
-                    view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
-                toolbar?.removeAllViews()
+            // The first page of the weekend taz should not display the title but the date instead
+            val layout =
+                if (isWeekend && isFirst) {
+                    R.layout.fragment_webview_header_title_weekend_section
+                } else {
+                    R.layout.fragment_webview_header_section
+                }
 
-                // The first page of the weekend taz should not display the title but the date instead
-                val layout =
-                    if (isWeekend && isFirst) {
-                        R.layout.fragment_webview_header_title_weekend_section
-                    } else {
-                        R.layout.fragment_webview_header_section
-                    }
+            val headerView =
+                LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
+            val sectionTextView = headerView.findViewById<TextView>(R.id.section)
 
-                val headerView =
-                    LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
-                val sectionTextView = headerView.findViewById<TextView>(R.id.section)
-
-                // Change typeface (to Knile) if it is weekend issue but not on title section:
-                if (isWeekend || (isWochentaz && !isFirst)) {
-                    val weekendTypeface = withContext(Dispatchers.IO) {
-                        val weekendTypefaceFileEntry =
-                            fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
-                        val weekendTypefaceFile =
-                            weekendTypefaceFileEntry?.let(storageService::getFile)
-                        weekendTypefaceFile?.let {
-                            FontHelper.getInstance(requireContext().applicationContext)
-                                .getTypeFace(it)
-                        }
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        sectionTextView?.typeface =
-                            weekendTypeface
+            // Change typeface (to Knile) if it is weekend issue but not on title section:
+            if (isWeekend || (isWochentaz && !isFirst)) {
+                val weekendTypeface = withContext(Dispatchers.IO) {
+                    val weekendTypefaceFileEntry =
+                        fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
+                    val weekendTypefaceFile =
+                        weekendTypefaceFileEntry?.let(storageService::getFile)
+                    weekendTypefaceFile?.let {
+                        FontHelper.getInstance(requireContext().applicationContext)
+                            .getTypeFace(it)
                     }
                 }
 
-
-                sectionTextView?.text = displayable.getHeaderTitle()
-                DateHelper.stringToDate(displayable.issueDate)?.let { date ->
-                    headerView.findViewById<TextView>(R.id.issue_date)?.apply {
-                        text = when {
-                            isWeekend ->
-                                // Regular Weekend Issue
-                                DateHelper.dateToWeekendNotation(date)
-                            isWochentaz ->
-                                // Wochentaz Issue
-                                DateHelper.dateToWeekNotation(date, requireNotNull(issueStub?.validityDate))
-                            else ->
-                                DateHelper.dateToLowerCaseString(date)
-                        }
-                    }
-                }
-
-                // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
-                if (isFirst && (isWeekend || isWochentaz)) {
-                    val textPixelSize =
-                        resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
-                    val textSpSize =
-                        resources.getDimension(R.dimen.fragment_header_title_section_text_size)
-                    sectionTextView?.apply {
-                        setTextSize(COMPLEX_UNIT_SP, textSpSize)
-                        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
-                            this,
-                            TextViewCompat.getAutoSizeMinTextSize(this),
-                            textPixelSize,
-                            ceil(0.1 * resources.displayMetrics.density).toInt(),
-                            TypedValue.COMPLEX_UNIT_PX
-                        )
-                        translationY = resources.getDimension(R.dimen.fragment_header_section_title_y_translation)
-                    }
-                }
-
-                activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
-                    resizeHeaderSectionTitle(it.width)
+                withContext(Dispatchers.Main) {
+                    sectionTextView?.typeface =
+                        weekendTypeface
                 }
             }
+
+
+            sectionTextView?.text = displayable.getHeaderTitle()
+            DateHelper.stringToDate(displayable.issueDate)?.let { date ->
+                headerView.findViewById<TextView>(R.id.issue_date)?.apply {
+                    text = when {
+                        isWeekend ->
+                            // Regular Weekend Issue
+                            DateHelper.dateToWeekendNotation(date)
+                        isWochentaz ->
+                            // Wochentaz Issue
+                            DateHelper.dateToWeekNotation(date, requireNotNull(issueStub.validityDate))
+                        else ->
+                            DateHelper.dateToLowerCaseString(date)
+                    }
+                }
+            }
+
+            // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
+            if (isFirst && (isWeekend || isWochentaz)) {
+                val textPixelSize =
+                    resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
+                val textSpSize =
+                    resources.getDimension(R.dimen.fragment_header_title_section_text_size)
+                sectionTextView?.apply {
+                    setTextSize(COMPLEX_UNIT_SP, textSpSize)
+                    TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                        this,
+                        TextViewCompat.getAutoSizeMinTextSize(this),
+                        textPixelSize,
+                        ceil(0.1 * resources.displayMetrics.density).toInt(),
+                        TypedValue.COMPLEX_UNIT_PX
+                    )
+                    translationY = resources.getDimension(R.dimen.fragment_header_section_title_y_translation)
+                }
+            }
+
+            activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
+                resizeHeaderSectionTitle(it.width)
+            }
         }
+
     }
 
     override fun onResume() {
@@ -188,6 +212,11 @@ class SectionWebViewFragment : WebViewFragment<
             it.addOnLayoutChangeListener(resizeDrawerLogoListener)
         }
         super.onResume()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val issueStub = viewModel.issueStubFlow.first()
+            val section = viewModel.sectionFlow.first()
+            tracker.trackSectionScreen(issueStub.issueKey, section)
+        }
     }
 
     override fun onPause() {

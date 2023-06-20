@@ -1,17 +1,22 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentSubscriptionBankBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 import nl.garvelink.iban.IBAN
 
 class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBankBinding>() {
+
+    private lateinit var tracker: Tracker
 
     var accountHolderInvalid: Boolean = false
     var ibanEmpty: Boolean = false
@@ -34,6 +39,11 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,9 +58,15 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
             accountHolder?.let { viewBinding.fragmentSubscriptionBankAccountHolder.setText(it) }
         }
 
-        viewBinding.fragmentSubscriptionBankProceed.setOnClickListener { ifDoneNext() }
+        viewBinding.fragmentSubscriptionBankProceed.setOnClickListener {
+            tracker.trackContinueTappedEvent()
+            ifDoneNext()
+        }
 
-        viewBinding.backButton.setOnClickListener { back() }
+        viewBinding.backButton.setOnClickListener {
+            tracker.trackBackTappedEvent()
+            back()
+        }
 
         if (accountHolderInvalid) {
             setAccountHolderError(R.string.subscription_field_invalid)
@@ -67,6 +83,11 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
         if (ibanNoSepa) {
             setIbanError(R.string.iban_error_no_sepa)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionPaymentFormScreen()
     }
 
     override fun done(): Boolean {
@@ -92,6 +113,10 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
         }
         viewModel.iban = viewBinding.fragmentSubscriptionBankIban.text.toString()
         viewModel.accountHolder = viewBinding.fragmentSubscriptionBankAccountHolder.text.toString()
+
+        if (!done) {
+            tracker.trackSubscriptionFormValidationErrorEvent()
+        }
         return done
     }
 

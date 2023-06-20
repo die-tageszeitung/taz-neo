@@ -11,12 +11,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -24,11 +25,13 @@ import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -48,6 +51,8 @@ class ArticleWebViewFragment : WebViewFragment<
     private lateinit var fontHelper: FontHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
+    private lateinit var tracker: Tracker
+
     private var isBookmarkViewerActivity = false
     private var currentAppBarOffset = 0
     private var isTabletLandscapeMode = false
@@ -77,13 +82,15 @@ class ArticleWebViewFragment : WebViewFragment<
         fontHelper = FontHelper.getInstance(requireContext().applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
         storageService = StorageService.getInstance(requireContext().applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         lifecycleScope.launch {
-            withContext(Dispatchers.Main) { viewModel }
+            // FIXME (johannes): this is loading the full Article with all its FileEntries, Authors etc
+            //  within for EACH article pager fragment. This DOES have a performance impact
             articleRepository.get(articleFileName)?.let {
                 viewModel.displayableLiveData.postValue(
                     it
@@ -94,22 +101,19 @@ class ArticleWebViewFragment : WebViewFragment<
     }
 
     override fun setHeader(displayable: Article) {
-        lifecycleScope.launch {
-            val issueStub = issueRepository.getIssueStubForArticle(displayable.key)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val issueStub = viewModel.issueStubFlow.first()
             if (isBookmarkViewerActivity) {
-                setBookmarkHeader(displayable, issueStub)
+                val sectionStub = viewModel.sectionStubFlow.first()
+                setBookmarkHeader(displayable, sectionStub, issueStub)
             } else {
                 setRegularHeader(displayable, issueStub)
             }
         }
     }
 
-    private suspend fun setRegularHeader(displayable: Article, issueStub: IssueStub?) {
-        val sectionStub = displayable.getSectionStub(requireContext().applicationContext)
-        // only the imprint should have no section
-        if (sectionStub?.title == null) {
-            setHeaderForImprint()
-        } else if (BuildConfig.IS_LMD) {
+    private suspend fun setRegularHeader(displayable: Article, issueStub: IssueStub) {
+        if (BuildConfig.IS_LMD) {
             val firstPage = displayable.pageNameList.firstOrNull()
             if (firstPage !== null) {
                 val pagina = pageRepository.getStub(firstPage)?.pagina
@@ -118,6 +122,7 @@ class ArticleWebViewFragment : WebViewFragment<
                 hideHeaderWithPage()
             }
         } else {
+            val sectionStub = viewModel.sectionStubFlow.first()
             val index = displayable.getIndexInSection(requireContext().applicationContext) ?: 0
             val count = articleRepository.getSectionArticleStubListByArticleName(
                 displayable.key
@@ -125,20 +130,14 @@ class ArticleWebViewFragment : WebViewFragment<
             setHeaderForSection(index, count, sectionStub)
         }
 
-        issueStub?.apply {
-            if (isWeekend) {
-                applyWeekendTypefaces()
-            }
+        if (issueStub.isWeekend) {
+            applyWeekendTypefaces()
         }
     }
 
-    private fun setHeaderForImprint() {
-        view?.findViewById<TextView>(R.id.section)?.text = getString(R.string.imprint)
-    }
-
-    private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub?) {
+    private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub) {
         lifecycleScope.launch(Dispatchers.Main) {
-            view?.findViewById<TextView>(R.id.section)?.text = sectionStub?.title
+            view?.findViewById<TextView>(R.id.section)?.text = sectionStub.title
             view?.findViewById<TextView>(R.id.article_num)?.text = getString(
                 R.string.fragment_header_article_index_section_count, index, count
             )
@@ -225,6 +224,14 @@ class ArticleWebViewFragment : WebViewFragment<
 
     override fun onResume() {
         super.onResume()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val article = viewModel.articleFlow.first()
+            val sectionStub = viewModel.sectionStubFlow.first()
+            val issueStub = viewModel.issueStubFlow.first()
+            tracker.trackArticleScreen(issueStub.issueKey, sectionStub, article)
+        }
+
         if (isTabletLandscapeMode) {
             drawerAndLogoViewModel.showLogo()
         } else {
@@ -287,7 +294,7 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
-    private suspend fun setBookmarkHeader(article: Article, issueStub: IssueStub?) {
+    private fun setBookmarkHeader(article: Article, sectionStub: SectionStub, issueStub: IssueStub) {
         val position = arguments?.getInt(PAGER_POSITION, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
         val total = arguments?.getInt(PAGER_TOTAL, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
 
@@ -296,7 +303,7 @@ class ArticleWebViewFragment : WebViewFragment<
             indexIndicator.text = activity?.getString(
                 R.string.fragment_header_custom_index_indicator, position, total
             )
-            sectionTitle.text = article.getSectionStub(requireContext().applicationContext)?.title
+            sectionTitle.text = sectionStub.title
             publishedDate.text = activity?.getString(
                 R.string.fragment_header_custom_published_date,
                 determineDateString(article, issueStub)
@@ -307,12 +314,12 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
-    private fun determineDateString(article: Article, issueStub: IssueStub?): String {
+    private fun determineDateString(article: Article, issueStub: IssueStub): String {
         if (BuildConfig.IS_LMD) {
             return DateHelper.stringToLocalizedMonthAndYearString(article.issueDate) ?: ""
         } else {
-            val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
-            val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
+            val fromDate = DateHelper.stringToDate(issueStub.date)
+            val toDate = issueStub.validityDate?.let { DateHelper.stringToDate(it) }
 
             return if (fromDate != null && toDate != null) {
                 DateHelper.dateToMediumRangeString(fromDate, toDate)

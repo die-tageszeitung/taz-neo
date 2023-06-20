@@ -23,10 +23,12 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.AllowNotificationsBottomSheetFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -57,10 +59,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var downloadDataStore: DownloadDataStore
+    private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var toastHelper: ToastHelper
 
-    private val downloadDataStore by lazy { DownloadDataStore.getInstance(application) }
-    private val generalDataStore by lazy { GeneralDataStore.getInstance(application) }
-    private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
+    private lateinit var tracker: Tracker
 
     @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
@@ -68,6 +71,10 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         authHelper = AuthHelper.getInstance(applicationContext)
+        downloadDataStore = DownloadDataStore.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -194,6 +201,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private var doubleBackToExitPressedOnce = false
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

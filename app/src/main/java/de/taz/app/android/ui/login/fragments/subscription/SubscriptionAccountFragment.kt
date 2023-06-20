@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -15,9 +16,11 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
 import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.DataPolicyActivity
 import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
@@ -27,6 +30,8 @@ import de.taz.app.android.util.validation.PasswordValidator
 
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment<FragmentSubscriptionAccountBinding>() {
+
+    private lateinit var tracker: Tracker
 
     private val passwordValidator = PasswordValidator()
     private val emailValidator = EmailValidator()
@@ -46,6 +51,11 @@ class SubscriptionAccountFragment :
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -58,19 +68,25 @@ class SubscriptionAccountFragment :
         drawLayout()
 
         viewBinding.fragmentSubscriptionAccountSwitchNewAccount.setOnClickListener {
+            // if we are currently in the create new account mode the login action text is shown
+            val showLogin = viewModel.createNewAccount
+            tracker.trackSubscriptionLoginCreateAccountSwitchTappedEvent(showLogin)
             viewModel.createNewAccount = !viewModel.createNewAccount
             drawLayout()
         }
 
         viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
+            tracker.trackSubmitTappedEvent()
             ifDoneNext()
         }
 
         viewBinding.backButton.setOnClickListener {
+            tracker.trackBackTappedEvent()
             back()
         }
 
         viewBinding.cancelButton.setOnClickListener {
+            tracker.trackCancelTappedEvent()
             finish()
         }
 
@@ -79,29 +95,31 @@ class SubscriptionAccountFragment :
         )
 
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
+            tracker.trackForgotPasswordTappedEvent()
             done()
             viewModel.requestPasswordReset()
         }
 
         viewBinding.fragmentSubscriptionOrderNote.setOnClickListener {
+            tracker.trackSubscriptionHelpTappedEvent()
             showHelpDialog(R.string.order_note_text_detail)
         }
 
         viewBinding.fragmentSubscriptionAccountTermsAndConditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
-            spannableString.onClick(
-                resources.getString(R.string.terms_and_conditions_terms),
-                ::showTermsAndConditions
-            )
-            spannableString.onClick(
-                resources.getString(R.string.terms_and_conditions_data_policy),
-                ::showDataPolicy
-            )
-            spannableString.onClick(
-                resources.getString(R.string.terms_and_conditions_revocation),
-                ::showRevocation
-            )
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms)) {
+                tracker.trackSubscriptionTermsTappedEvent()
+                showTermsAndConditions()
+            }
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy)) {
+                tracker.trackSubscriptionPrivacyPolicyTappedEvent()
+                showDataPolicy()
+            }
+            spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation)) {
+                tracker.trackSubscriptionRevocationTappedEvent()
+                showRevocation()
+            }
 
             text = spannableString
 
@@ -116,6 +134,11 @@ class SubscriptionAccountFragment :
             setEmailError(R.string.login_email_error_recheck)
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionAccountLoginFormScreen()
     }
 
     private fun drawLayout() {
@@ -237,6 +260,10 @@ class SubscriptionAccountFragment :
             viewBinding.fragmentSubscriptionAccountTermsAndConditions.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.error)
             )
+        }
+
+        if (!done) {
+            tracker.trackSubscriptionFormValidationErrorEvent()
         }
         return done
     }

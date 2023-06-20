@@ -12,7 +12,9 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
@@ -23,17 +25,28 @@ class SubscriptionExtendPrintPlusDigiFragment : SubscriptionInquiryFragment() {
     override val titleStringRes: Int = R.string.subscription_inquiry_extend_title
     override val descriptionStringRes: Int = R.string.subscription_inquiry_extend_description
     override val inquiryType: SubscriptionFormDataType =  SubscriptionFormDataType.printPlusDigi
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionExtendFormScreen()
+    }
 }
 
 class SubscriptionSwitchPrint2DigiFragment : SubscriptionInquiryFragment() {
     override val titleStringRes: Int = R.string.subscription_inquiry_switch_title
     override val descriptionStringRes: Int = R.string.subscription_inquiry_switch_description
     override val inquiryType: SubscriptionFormDataType =  SubscriptionFormDataType.print2Digi
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionSwitchFormScreen()
+    }
 }
 
 abstract class SubscriptionInquiryFragment :
     LoginBaseFragment<FragmentSubscriptionInquiryFormBinding>() {
 
+    protected lateinit var tracker: Tracker
     protected abstract val titleStringRes: Int
     protected abstract val descriptionStringRes: Int
     protected abstract val inquiryType: SubscriptionFormDataType
@@ -46,6 +59,7 @@ abstract class SubscriptionInquiryFragment :
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -56,10 +70,12 @@ abstract class SubscriptionInquiryFragment :
             description.setText(descriptionStringRes)
 
             sendButton.setOnClickListener {
+                tracker.trackSubmitTappedEvent()
                 validateAndSubmitForm()
             }
 
             cancelButton.setOnClickListener {
+                tracker.trackCancelTappedEvent()
                 back()
             }
 
@@ -138,6 +154,7 @@ abstract class SubscriptionInquiryFragment :
                 message
             )
         } else {
+            tracker.trackSubscriptionFormSubmitEvent()
             hideLoadingState()
         }
     }
@@ -153,6 +170,7 @@ abstract class SubscriptionInquiryFragment :
         addressCountry: String?,
         message: String?
     ) {
+        tracker.trackSubscriptionFormSubmitEvent()
         lifecycleScope.launch {
             try {
                 val response = apiService.subscriptionFormData(

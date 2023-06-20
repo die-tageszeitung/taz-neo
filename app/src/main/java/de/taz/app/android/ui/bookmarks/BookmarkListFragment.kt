@@ -16,12 +16,14 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,19 +35,22 @@ import kotlinx.coroutines.withContext
 
 class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
-    private var recycleAdapter: BookmarkListAdapter? = null
-    private var articleRepository: ArticleRepository? = null
-    private var momentRepository: MomentRepository? = null
-    private var storageService: StorageService? = null
-    private val feedFlow: MutableStateFlow<Feed?> = MutableStateFlow(null)
-
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
+
+    private lateinit var articleRepository: ArticleRepository
+    private lateinit var momentRepository: MomentRepository
+    private lateinit var storageService: StorageService
+    private lateinit var tracker: Tracker
+
+    private var recycleAdapter: BookmarkListAdapter? = null
+    private val feedFlow: MutableStateFlow<Feed?> = MutableStateFlow(null)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
         lifecycleScope.launch {
             feedFlow.value =
                 FeedRepository.getInstance(context.applicationContext).get(BuildConfig.DISPLAYED_FEED)
@@ -81,6 +86,11 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
         view.findViewById<TextView>(R.id.fragment_header_default_title)
             ?.setText(R.string.fragment_bookmarks_title)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackBookmarkListScreen()
     }
 
     private fun shareArticle(article: Article) {

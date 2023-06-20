@@ -22,6 +22,7 @@ import de.taz.app.android.databinding.ActivityLoginBinding
 import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.*
 import de.taz.app.android.ui.login.fragments.subscription.*
 import de.taz.app.android.ui.main.MAIN_EXTRA_ARTICLE
@@ -57,6 +58,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     private val loadingScreen by lazy { viewBinding.loadingScreen.root }
 
@@ -65,6 +67,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
         authHelper = AuthHelper.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        tracker = getTazApplication().tracker
 
         // The AudioPlayer shall stop when a users logs in (or registers)
         AudioPlayerService.getInstance(applicationContext).apply {
@@ -271,6 +274,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             viewBinding.navigationBottom,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Settings)
         )
+        tracker.trackLoginScreen()
     }
 
     override fun onDestroy() {
@@ -282,7 +286,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         @StringRes usernameErrorId: Int? = null,
         @StringRes passwordErrorId: Int? = null
     ) {
-        log.debug("showLoginForm")
+        log.verbose("showLoginForm")
         showFragment(
             LoginFragment.create(
                 usernameErrorId = usernameErrorId,
@@ -292,43 +296,43 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun hideLoadingScreen() = runOnUiThread {
-        log.debug("hideLoadingScreen")
+        log.verbose("hideLoadingScreen")
         loadingScreen.visibility = View.GONE
     }
 
     private fun showLoadingScreen() = runOnUiThread {
-        log.debug("showLoadingScreen")
+        log.verbose("showLoadingScreen")
         loadingScreen.visibility = View.VISIBLE
     }
 
     private fun showConfirmEmail() {
-        log.debug("showConfirmEmail")
+        log.verbose("showConfirmEmail")
         showFragment(ConfirmEmailFragment())
     }
 
     private fun showEmailAlreadyLinked() {
-        log.debug("showEmailLinked")
+        log.verbose("showEmailLinked")
         showFragment(EmailAlreadyLinkedFragment())
     }
 
     private fun showSubscriptionAlreadyLinked() {
-        log.debug("showSubscriptionAlreadyLinked")
+        log.verbose("showSubscriptionAlreadyLinked")
         showFragment(SubscriptionAlreadyLinkedFragment())
     }
 
     private fun showSubscriptionMissing(invalidId: Boolean = false) {
-        log.debug("showSubscriptionMissing")
+        log.verbose("showSubscriptionMissing")
         viewModel.validCredentials = true
         showFragment(SubscriptionMissingFragment.create(invalidId))
     }
 
     private fun showSubscriptionTaken() {
-        log.debug("showSubscriptionTaken")
+        log.verbose("showSubscriptionTaken")
         showFragment(SubscriptionTakenFragment())
     }
 
     private fun showMissingCredentials(failed: Boolean = false) {
-        log.debug("showMissingCredentials - failed: $failed")
+        log.verbose("showMissingCredentials - failed: $failed")
         showFragment(
             CredentialsMissingFragment.create(
                 failed = failed
@@ -337,7 +341,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showCredentialsInvalid() {
-        log.debug("showCredentialsInvalid")
+        log.verbose("showCredentialsInvalid")
         toastHelper.showToast(R.string.login_error_unknown_credentials)
         showFragment(
             LoginFragment.create(
@@ -349,7 +353,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
     private fun showSubscriptionPossibilities(priceInvalid: Boolean = false) {
-        log.debug("showLoginRequestTestSubscription")
+        log.verbose("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
         lifecycleScope.launch {
             // if on non free flavor it is not allowed to buy stuff from the app,
@@ -377,14 +381,14 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showSwitchPrint2DigiForm() {
-        log.debug("showPrint2DigiForm")
+        log.verbose("showPrint2DigiForm")
         showFragment(
             SubscriptionSwitchPrint2DigiFragment()
         )
     }
 
     private fun showExtendPrintWithDigiForm() {
-        log.debug("showPrintPlusDigiForm")
+        log.verbose("showPrintPlusDigiForm")
         showFragment(
             SubscriptionExtendPrintPlusDigiFragment()
         )
@@ -408,7 +412,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showRegistrationSuccessful() {
-        log.debug("showLoginRegistrationSuccessful")
+        log.verbose("showLoginRegistrationSuccessful")
         showFragment(RegistrationSuccessfulFragment())
     }
 
@@ -417,7 +421,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         invalidId: Boolean = false,
         invalidMail: Boolean = false
     ) {
-        log.debug("showPasswordRequest")
+        log.verbose("showPasswordRequest")
         showFragment(
             PasswordRequestFragment.create(
                 invalidId = invalidId,
@@ -428,22 +432,22 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showPasswordMailSent() {
-        log.debug("showPasswordMailSent")
+        log.verbose("showPasswordMailSent")
         showFragment(PasswordEmailSentFragment())
     }
 
     private fun showPasswordRequestNoMail() {
-        log.debug("showPasswordRequestNoMail")
+        log.verbose("showPasswordRequestNoMail")
         showFragment(PasswordRequestNoMailFragment())
     }
 
     private fun showNamesMissing() {
-        log.debug("showNamesMissing")
+        log.verbose("showNamesMissing")
         showFragment(NamesMissingFragment())
     }
 
     fun done() {
-        log.debug("done")
+        log.verbose("done")
         showLoadingScreen()
         lifecycleScope.launch(Dispatchers.Main) {
             val data = Intent()
@@ -476,6 +480,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        tracker.trackSystemNavigationBackEvent()
         if (loadingScreen.visibility == View.VISIBLE) {
             hideLoadingScreen()
         } else {
@@ -500,7 +505,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         surnameEmpty: Boolean = false,
         surnameInvalid: Boolean = false
     ) {
-        log.debug("showSubscriptionAddress")
+        log.verbose("showSubscriptionAddress")
         showFragment(
             SubscriptionAddressFragment.newInstance(
                 nameTooLong = nameTooLong,
@@ -520,7 +525,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         mailInvalid: Boolean = false,
         subscriptionInvalid: Boolean = false
     ) {
-        log.debug("showSubscriptionAccount")
+        log.verbose("showSubscriptionAccount")
         showFragment(
             SubscriptionAccountFragment.newInstance(
                 mailInvalid = mailInvalid,
@@ -535,7 +540,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         ibanInvalid: Boolean = false,
         ibanNoSepa: Boolean = false
     ) {
-        log.debug("showSubscriptionBank")
+        log.verbose("showSubscriptionBank")
         showFragment(
             SubscriptionBankFragment.newInstance(
                 accountHolderInvalid = accountHolderInvalid,

@@ -38,12 +38,10 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var toastHelper: ToastHelper
+    private lateinit var generalDataStore: GeneralDataStore
+    // Note: we are not doing any tracking here, as users won't have had the chance to accept the data policy before
 
     private var finishOnClose = false
-
-    private val generalDataStore by lazy {
-        GeneralDataStore.getInstance(applicationContext)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +51,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
         viewBinding.apply {
             dataPolicyAcceptButton.setOnClickListener {
