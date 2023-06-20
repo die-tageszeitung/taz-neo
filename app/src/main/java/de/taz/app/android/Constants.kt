@@ -22,9 +22,6 @@ const val WEBVIEW_TAP_TO_SCROLL_OFFSET = 350
 const val KNILE_SEMIBOLD_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
 const val KNILE_REGULAR_RESOURCE_FILE_NAME = "knile-regular-webfont.woff"
 const val COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE = 15
-const val ARTICLE_READER_AUDIO_BACK_SKIP_MS = 15000L
-const val LOGO_PEAK = 8
-const val LOGO_PEAK_CLICK_PADDING = 30
 const val HIDE_LOGO_DELAY_MS = 200L
 const val LOGO_ANIMATION_DURATION_MS = 300L
 

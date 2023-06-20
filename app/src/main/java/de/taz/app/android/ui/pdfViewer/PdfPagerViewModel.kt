@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 
 private const val DEFAULT_NUMBER_OF_PAGES = 29
 private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
-private const val KEY_HIDE_DRAWER = "KEY_HIDE_DRAWER"
 
 data class PageWithArticles(
     val pagePdf: FileEntry,
@@ -59,8 +58,6 @@ class PdfPagerViewModel(
         .map(::pdfPageListMapper)
         .shareIn(viewModelScope, SharingStarted.Eagerly, 1)
     val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
-
-    val hideDrawerLogo = savedStateHandle.getLiveData(KEY_HIDE_DRAWER, false)
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
 
@@ -226,7 +223,6 @@ class PdfPagerViewModel(
 
     private fun showArticle(link: String) {
         viewModelScope.launch(Dispatchers.Main) {
-            hideDrawerLogo.value = false
             val article = getCorrectArticle(link)
 
             val issueKeyWithPages = issueFlow.value?.issueKey

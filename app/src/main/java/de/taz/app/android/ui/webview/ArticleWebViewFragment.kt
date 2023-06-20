@@ -6,11 +6,11 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.BuildConfig
@@ -25,6 +25,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.bookmarks.BookmarkViewerActivity
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,7 @@ class ArticleWebViewFragment : WebViewFragment<
         >() {
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
@@ -47,6 +49,8 @@ class ArticleWebViewFragment : WebViewFragment<
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
     private var isBookmarkViewerActivity = false
+    private var currentAppBarOffset = 0
+    private var isTabletLandscapeMode = false
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -197,6 +201,41 @@ class ArticleWebViewFragment : WebViewFragment<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         hideKeyboardOnAllViewsExceptEditText(view)
+
+        val isTabletMode = resources.getBoolean(R.bool.isTablet)
+        val isLandscape =
+            resources.displayMetrics.widthPixels > resources.displayMetrics.heightPixels
+        isTabletLandscapeMode = isTabletMode && isLandscape
+
+        // Map the offset of the app bar layout to the logo as it should
+        // (but not on tablets in landscape)
+        if (isTabletLandscapeMode) {
+            drawerAndLogoViewModel.showLogo()
+        } else {
+            viewBinding.appBarLayout.apply {
+                addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+                    currentAppBarOffset = verticalOffset
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        updateDrawerLogoByCurrentAppBarOffset()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isTabletLandscapeMode) {
+            drawerAndLogoViewModel.showLogo()
+        } else {
+            updateDrawerLogoByCurrentAppBarOffset()
+        }
+    }
+
+    private fun updateDrawerLogoByCurrentAppBarOffset() {
+        val percentToHide =
+            -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
+        drawerAndLogoViewModel.hideLogoByPercent(percentToHide.coerceIn(0f, 1f))
     }
 
     /**
@@ -249,28 +288,23 @@ class ArticleWebViewFragment : WebViewFragment<
     }
 
     private suspend fun setBookmarkHeader(article: Article, issueStub: IssueStub?) {
-        // hide the logo on bookmarks. CAREFUL: the drawer is still accessible
-        viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header)
-            ?.let {
-                it.visibility = View.GONE
-            }
-        viewBinding.root.findViewById<ImageView>(R.id.drawer_logo)?.visibility = View.GONE
-
         val position = arguments?.getInt(PAGER_POSITION, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
         val total = arguments?.getInt(PAGER_TOTAL, -1)?.takeIf { it >= 0 }?.toString() ?: "?"
 
-        viewBinding.collapsingToolbarLayout.findViewById<MaterialToolbar>(R.id.header_custom)
-            ?.apply {
-                visibility = View.VISIBLE
-                findViewById<TextView>(R.id.index_indicator).text = activity?.getString(
-                    R.string.fragment_header_custom_index_indicator, position, total
-                )
-                findViewById<TextView>(R.id.section_title).text =
-                    article.getSectionStub(requireContext().applicationContext)?.title
-                findViewById<TextView>(R.id.published_date).text = activity?.getString(
-                    R.string.fragment_header_custom_published_date, determineDateString(article, issueStub)
-                )
-            }
+        viewBinding.headerCustom.apply {
+            root.visibility = View.VISIBLE
+            indexIndicator.text = activity?.getString(
+                R.string.fragment_header_custom_index_indicator, position, total
+            )
+            sectionTitle.text = article.getSectionStub(requireContext().applicationContext)?.title
+            publishedDate.text = activity?.getString(
+                R.string.fragment_header_custom_published_date,
+                determineDateString(article, issueStub)
+            )
+        }
+        viewBinding.header.apply {
+            root.visibility = View.GONE
+        }
     }
 
     private fun determineDateString(article: Article, issueStub: IssueStub?): String {

@@ -8,12 +8,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.FrameLayout.LayoutParams
 import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
@@ -21,10 +22,6 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-import de.taz.app.android.HIDE_LOGO_DELAY_MS
-import de.taz.app.android.LOGO_ANIMATION_DURATION_MS
-import de.taz.app.android.LOGO_PEAK
-import de.taz.app.android.LOGO_PEAK_CLICK_PADDING
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
@@ -40,8 +37,9 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.DRAWER_OVERLAP_OFFSET
 import de.taz.app.android.ui.SuccessfulLoginAction
+import de.taz.app.android.ui.drawer.DrawerViewController
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
@@ -69,9 +67,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         private const val SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG =
             "SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG"
 
-        // The drawer initialization will be delayed, so that the main pdf rendering has some time to finish
-        private const val DRAWER_INIT_DELAY_MS = 10L
-
         fun newIntent(
             packageContext: Context,
             issuePublication: IssuePublicationWithPages,
@@ -87,6 +82,8 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
     private val pdfPagerViewModel by viewModels<PdfPagerViewModel>()
     private val issueContentViewModel by viewModels<IssueViewerViewModel>()
+    private val drawerAndLogoViewModel by viewModels<DrawerAndLogoViewModel>()
+
     private val log by Log
 
     @Suppress("unused")
@@ -96,10 +93,10 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     private lateinit var issuePublication: IssuePublicationWithPages
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var drawerViewController: DrawerViewController
 
     // mutable instance state
     private var navButton: Image? = null
-    private var drawerLogoWidth = 0f
 
     // region views
     private val drawerLogo by lazy { viewBinding.drawerLogo }
@@ -114,6 +111,13 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         storageService = StorageService.getInstance(applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        drawerViewController = DrawerViewController(
+            this,
+            pdfDrawerLayout,
+            drawerLogoWrapper,
+            navView,
+            drawerAndLogoViewModel::setLogoHiddenState
+        )
 
         issuePublication = try {
             intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)
@@ -179,49 +183,19 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
         pdfDrawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                drawerLogoWrapper.animate().cancel()
-                drawerLogoWrapper.translationX =
-                    resources.getDimension(R.dimen.drawer_logo_translation_x)
-                pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                    drawerLogoWrapper.width,
-                    drawerLogoWrapper.height
-                )
-                (drawerView.parent as? View)?.let { parentView ->
-                    val drawerWidth =
-                        drawerView.width + (pdfDrawerLayout.drawerLogoBoundingBox?.width()
-                            ?: 0)
-                    if (parentView.width < drawerWidth) {
-                        // translation needed for logo to be shown when drawer is too wide:
-                        val offsetOnOpenDrawer =
-                            slideOffset * (parentView.width - drawerWidth)
-                        // translation needed when drawer is closed then:
-                        val offsetOnClosedDrawer =
-                            (1 - slideOffset) * DRAWER_OVERLAP_OFFSET * resources.displayMetrics.density
-                        drawerLogoWrapper.translationX =
-                            offsetOnOpenDrawer + offsetOnClosedDrawer
-                    }
-                }
+                drawerViewController.handleOnDrawerSlider(slideOffset)
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                drawerAndLogoViewModel.openDrawer()
             }
 
             override fun onDrawerClosed(drawerView: View) {
-                pdfPagerViewModel.hideDrawerLogo.postValue(true)
+                drawerAndLogoViewModel.closeDrawer()
             }
 
-            override fun onDrawerOpened(drawerView: View) = Unit
             override fun onDrawerStateChanged(newState: Int) = Unit
         })
-
-
-        pdfPagerViewModel.hideDrawerLogo.observe(this@PdfPagerActivity) { toHide ->
-            if (toHide
-                && !isArticlePagerFragmentOpen()
-                && !pdfDrawerLayout.isDrawerOpen(GravityCompat.START)
-            ) {
-                hideDrawerLogoWithDelay()
-            } else {
-                showDrawerLogo()
-            }
-        }
 
         drawerLogoWrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             pdfDrawerLayout.updateDrawerLogoBoundingBox(
@@ -232,7 +206,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // show bottom sheet  if  user's subscription is elapsed and the issue status is public
+                // show bottom sheet if user's subscription is elapsed and the issue status is public
                 launch {
                     pdfPagerViewModel.showSubscriptionElapsedFlow
                         .distinctUntilChanged()
@@ -273,6 +247,20 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                         KeepScreenOnHelper.toggleScreenOn(it, this@PdfPagerActivity)
                     }
                 }
+
+                launch {
+                    drawerAndLogoViewModel.drawerState.collect {
+                        drawerViewController.handleDrawerState(it)
+                    }
+                }
+            }
+        }
+
+        supportFragmentManager.addOnBackStackChangedListener {
+            // When the articlePagerFragment is popped from the backstack via the back functionality
+            // the logo shall be hidden again
+            if (supportFragmentManager.backStackEntryCount == 0) {
+                drawerAndLogoViewModel.hideLogo()
             }
         }
     }
@@ -291,45 +279,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 val toastHelper = ToastHelper.getInstance(applicationContext)
                 toastHelper.showToast(R.string.toast_login_week, long = true)
             }
-        }
-    }
-
-    private fun hideDrawerLogoWithDelay() {
-        if (pdfPagerViewModel.hideDrawerLogo.value == true) {
-            val transX = -drawerLogoWidth + LOGO_PEAK * resources.displayMetrics.density
-            drawerLogoWrapper.animate()
-                .withEndAction {
-                    // add additional area where clicks are handled to open the drawer
-                    val widthWhereToHandleLogoClick =
-                        (LOGO_PEAK + LOGO_PEAK_CLICK_PADDING) * resources.displayMetrics.density
-                    pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                        width = widthWhereToHandleLogoClick.toInt(),
-                        height = drawerLogoWrapper.height
-                    )
-                }
-                .setDuration(LOGO_ANIMATION_DURATION_MS)
-                .setStartDelay(HIDE_LOGO_DELAY_MS)
-                .translationX(transX)
-                .setInterpolator(AccelerateDecelerateInterpolator())
-        }
-    }
-
-    private fun showDrawerLogo(hideAgainFlag: Boolean = true) {
-        if (pdfPagerViewModel.hideDrawerLogo.value == false) {
-            drawerLogoWrapper.animate()
-                .withEndAction {
-                    pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                        drawerLogoWidth.toInt(),
-                        drawerLogoWrapper.height
-                    )
-                    if (hideAgainFlag) {
-                        pdfPagerViewModel.hideDrawerLogo.postValue(true)
-                    }
-                }
-                .setDuration(LOGO_ANIMATION_DURATION_MS)
-                .setStartDelay(0L)
-                .translationX(resources.getDimension(R.dimen.drawer_logo_translation_x))
-                .setInterpolator(AccelerateDecelerateInterpolator())
         }
     }
 
@@ -356,7 +305,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 resources.displayMetrics
             ) * scaleFactor
 
-            drawerLogoWidth = logicalWidth
+            drawerViewController.drawerLogoWidth = logicalWidth.toInt()
             val logicalHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 imageDrawable.intrinsicHeight.toFloat(),
@@ -366,29 +315,19 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             withContext(Dispatchers.Main) {
                 drawerLogo.apply {
                     setImageDrawable(imageDrawable)
-                    layoutParams.width = logicalWidth.toInt()
-                    layoutParams.height = logicalHeight.toInt()
-                }
-                drawerLogoWrapper.apply {
-                    layoutParams.width = logicalWidth.toInt()
-                    layoutParams.height = logicalHeight.toInt()
-                    translationX =
-                        resources.getDimension(R.dimen.drawer_logo_translation_x)
-                    requestLayout()
+                    updateLayoutParams<LayoutParams> {
+                        width = logicalWidth.toInt()
+                        height = logicalHeight.toInt()
+                    }
                 }
                 pdfDrawerLayout.requestLayout()
             }
             // Update the clickable bounding box:
             pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                drawerLogoWidth.toInt(),
+                logicalWidth.toInt(),
                 drawerLogoWrapper.height
             )
-
         }
-        if (!pdfDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            pdfPagerViewModel.hideDrawerLogo.postValue(true)
-        } else
-            pdfPagerViewModel.hideDrawerLogo.postValue(false)
     }
 
     fun popArticlePagerFragmentIfOpen() {
@@ -397,13 +336,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             POP_BACK_STACK_INCLUSIVE
         )
     }
-
-    private fun isArticlePagerFragmentOpen(): Boolean {
-        val articlePagerFragment =
-            supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
-        return articlePagerFragment != null
-    }
-
     override fun onResume() {
         super.onResume()
         setBottomNavigationBackActivity(this, BottomNavigationItem.Home)

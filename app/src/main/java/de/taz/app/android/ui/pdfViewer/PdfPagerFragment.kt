@@ -9,6 +9,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
@@ -22,6 +23,8 @@ import kotlinx.coroutines.launch
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private val log by Log
 
@@ -82,6 +85,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         )
     }
 
+
     private fun hideLoadingScreen() {
         val pdfLoadingScreenRoot = viewBinding.pdfLoadingScreen.root
         pdfLoadingScreenRoot.animate().apply {
@@ -91,7 +95,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 pdfLoadingScreenRoot.visibility = View.GONE
             }
         }
-        pdfPagerViewModel.hideDrawerLogo.postValue(true)
+        drawerAndLogoViewModel.hideLogo()
     }
 
     private fun handleTapToScroll(x: Float) {

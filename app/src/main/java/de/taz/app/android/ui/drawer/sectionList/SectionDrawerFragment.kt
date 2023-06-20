@@ -22,6 +22,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -38,7 +39,7 @@ import kotlinx.coroutines.flow.filterNotNull
  */
 class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>() {
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
-    private val viewModel: SectionDrawerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
 
     private val log by Log
@@ -135,7 +136,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 clickedSection.key
             )
         }
-        viewModel.drawerOpen.postValue(false)
+        drawerAndLogoViewModel.closeDrawer()
     }
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
@@ -232,7 +233,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         lifecycleScope.launch {
             issueContentViewModel.setDisplayable(issueKey, displayableKey)
         }
-        viewModel.drawerOpen.postValue(false)
+        drawerAndLogoViewModel.closeDrawer()
     }
 
 
@@ -261,7 +262,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         log.debug("handleArticleClick on ${article.title}")
         lifecycleScope.launch {
             issueContentViewModel.setDisplayable(currentIssueStub.issueKey, article.key)
-            viewModel.drawerOpen.postValue(false)
+            drawerAndLogoViewModel.closeDrawer()
         }
     }
     private fun handleArticleBookmarkClick(article: Article) {

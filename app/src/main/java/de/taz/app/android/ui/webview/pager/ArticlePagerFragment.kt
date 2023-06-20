@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -15,6 +16,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -23,6 +25,7 @@ import de.taz.app.android.audioPlayer.AudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
+import de.taz.app.android.monkey.getRecyclerView
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -232,6 +235,23 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 // ensure the action bar is showing when the article changes
                 expand(true)
             }
+
+            // ensure the app bar of the webview is shown when article changes
+            val articleWebViewFragment = viewBinding
+                .webviewPagerViewpager
+                .getRecyclerView()
+                .layoutManager
+                ?.findViewByPosition(position)
+            val appBar = articleWebViewFragment?.findViewById<AppBarLayout>(R.id.app_bar_layout)
+            val scrollView = articleWebViewFragment?.findViewById<NestedScrollView>(R.id.nested_scroll_view)
+
+            if (appBar != null && scrollView != null) {
+                // Scroll the webview content by the height of the appBar to prevent the content from jumping when paging. By default the appBar moves the top of the content below itself when it is set to expanded programmatically
+                scrollView.scrollBy(0, appBar.height)
+                appBar.setExpanded(true, false)
+            }
+            //FIXME(eike): Still a quirk when at bottom, the content is scrolled up again,
+            // as the appBarLayout needs some space to expand
         }
 
         override fun onPageScrolled(
@@ -375,14 +395,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onDestroyView() {
         viewBinding.webviewPagerViewpager.adapter = null
-        if (this.tag == ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) {
-            // On device orientation changes the Fragments Activity is already destroyed when we reach the `onDestroyView()` method.
-            // Thus we cant initialize a ViewModel instance from `onDestroyView()`.
-            // As the by `activityViewModels()` is called lazily and not being used before, the ViewModel can not be initialized.
-            // To prevent the app from crashing in this case we check explicitly that the Activity has not been destroyed yet.
-            if (!this.requireActivity().isDestroyed)
-                pdfPagerViewModel.hideDrawerLogo.postValue(true)
-        }
         sectionDividerTransformer = null
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
