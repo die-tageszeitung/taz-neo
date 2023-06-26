@@ -73,16 +73,6 @@ class ArticleBottomActionBarNavigationHelper(
     }
 
     /**
-     * Determine the share icon visibility: Hence the article is public or the [onlineLink] is not null
-     * @param onlineLink String holding the link to be shared
-     * @param articleKey String holding the key of the article (or for search hit the filename)
-     * @return true if the share icon should be shown
-     */
-    private fun determineShareIconVisibility(onlineLink: String?, articleKey: String?): Boolean {
-        return articleKey != null && articleKey.endsWith("public.html") || onlineLink != null
-    }
-
-    /**
      * Set the share icon visibility: Hence the article is public or the [onlineLink] is not null
      * @param onlineLink String holding the link to be shared
      * @param articleKey String holding the key of the article (or for search hit the filename)
@@ -90,7 +80,7 @@ class ArticleBottomActionBarNavigationHelper(
     fun setShareIconVisibility(onlineLink: String?, articleKey: String?) {
         setVisibility(
             R.id.bottom_navigation_action_share,
-            determineShareIconVisibility(onlineLink, articleKey)
+            shouldShareIconBeVisible(onlineLink, articleKey)
         )
     }
 
@@ -153,6 +143,18 @@ class ArticleBottomActionBarNavigationHelper(
         if (coordinatorLayoutParams != null) {
             coordinatorLayoutParams.behavior = behavior
             layoutParams = coordinatorLayoutParams
+        }
+    }
+
+    companion object {
+        /**
+         * Determine the share icon visibility: Hence the article is public or the [onlineLink] is not null
+         * @param onlineLink String holding the link to be shared
+         * @param articleKey String holding the key of the article (or for search hit the filename)
+         * @return true if the share icon should be shown
+         */
+        fun shouldShareIconBeVisible(onlineLink: String?, articleKey: String?): Boolean {
+            return articleKey != null && articleKey.endsWith("public.html") || onlineLink != null
         }
     }
 }

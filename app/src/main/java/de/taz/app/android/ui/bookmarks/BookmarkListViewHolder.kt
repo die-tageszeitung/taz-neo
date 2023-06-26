@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import java.io.File
 
 class BookmarkListViewHolder(
@@ -96,8 +98,13 @@ class BookmarkListViewHolder(
                 itemView.context.startActivity(intent)
             }
 
-            bookmarkShare.setOnClickListener {
-                shareArticle(article)
+            if (ArticleBottomActionBarNavigationHelper.shouldShareIconBeVisible(article.onlineLink, article.key)) {
+                bookmarkShare.isVisible = true
+                bookmarkShare.setOnClickListener {
+                    shareArticle(article)
+                }
+            } else {
+                bookmarkShare.isVisible = false
             }
 
             bookmarkDelete.setOnClickListener {
@@ -108,5 +115,4 @@ class BookmarkListViewHolder(
             }
         }
     }
-
 }
