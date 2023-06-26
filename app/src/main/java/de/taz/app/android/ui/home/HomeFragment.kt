@@ -77,11 +77,19 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
         if (BuildConfig.IS_LMD) {
             viewBinding.fabActionPdf.visibility = View.GONE
-        }
-        else {
+        } else {
             homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
                 val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                viewBinding.fabActionPdf.setImageResource(drawable)
+                val contentDescription =
+                    if (pdfMode) {
+                        resources.getString(R.string.bottom_navigation_action_app_view)
+                    } else {
+                        resources.getString(R.string.bottom_navigation_action_pdf)
+                    }
+                viewBinding.fabActionPdf.apply {
+                    setImageResource(drawable)
+                    setContentDescription(contentDescription)
+                }
             }
         }
 

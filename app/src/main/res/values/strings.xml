@@ -52,6 +52,7 @@
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
     <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
+    <string name="bottom_navigation_action_app_view">mobile Ansicht</string>
     <string name="fragment_home_login">Anmelden</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
