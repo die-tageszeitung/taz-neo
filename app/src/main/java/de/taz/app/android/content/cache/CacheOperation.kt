@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Exception
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicInteger
 
 
 /**
@@ -74,14 +75,14 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
     private val totalItemCount
         get() = cacheItems.count()
 
-    private var successfulCount: Int = 0
-    protected var failedCount: Int = 0
+    private var successfulCount: AtomicInteger = AtomicInteger(0)
+    protected var failedCount: AtomicInteger = AtomicInteger(0)
 
     /**
      * Items that are either successful or failed
      */
     private val completedItemCount
-        get() = successfulCount + failedCount
+        get() = successfulCount.get() + failedCount.get()
 
     /**
      * Are all items complete? (Attention, for operations without items that is always true)
@@ -244,10 +245,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * Counts a successful item and emits an update indicating that
      */
     fun notifySuccessfulItem() {
-        successfulCount++
+        successfulCount.incrementAndGet()
         log.verbose(
             "Notifying a successful file in $tag.\n" +
-                    "Now $successfulCount/$failedCount/$completedItemCount succeeded of $totalItemCount"
+                    "Now ${successfulCount.get()}/${failedCount.get()}/$completedItemCount succeeded of $totalItemCount"
         )
         emitUpdate(
             CacheStateUpdate(
@@ -262,10 +263,10 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      * @param exception The exception that is the cause of this failed item
      */
     fun notifyFailedItem(exception: Exception) {
-        failedCount++
+        failedCount.incrementAndGet()
         log.verbose(
             "Notifying a failed file in $tag. with reason $exception \n" +
-                    "Now $successfulCount/$failedCount/$completedItemCount succeeded of $totalItemCount"
+                    "Now ${successfulCount.get()}/${failedCount.get()}/$completedItemCount succeeded of $totalItemCount"
         )
 
         emitUpdate(
@@ -281,11 +282,8 @@ abstract class CacheOperation<ITEM : CacheItem, RESULT>(
      *
      */
     fun checkIfItemsCompleteAndNotifyResult(result: RESULT) {
-        if (state.hasCompleted) {
-            return
-        }
         if (!state.hasCompleted && itemsComplete) {
-            if (failedCount == 0) {
+            if (failedCount.get() == 0) {
                 notifySuccess(result)
             } else {
                 notifyFailure(
