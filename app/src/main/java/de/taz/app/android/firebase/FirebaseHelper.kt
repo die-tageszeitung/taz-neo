@@ -24,18 +24,14 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
         CoroutineScope(Dispatchers.Default).launch { ensureTokenSent() }
     }
 
-    private suspend fun sendNotificationInfo(
-    ): Boolean {
-        val token = store.token.get()
-        val oldToken = store.oldToken.get()
-
-        return if (token.isNullOrBlank()) {
-            false
-        } else {
-            log.info("Sending notification info")
+    private suspend fun sendNotificationInfo(token: String, oldToken: String?): Boolean {
+        return try {
             apiService.retryOnConnectionFailure {
                 apiService.sendNotificationInfo(token, oldToken)
             }
+        } catch (e: ConnectivityException.NoInternetException) {
+            log.warn("Sending notification token failed because no internet available")
+            false
         }
     }
 
@@ -43,20 +39,23 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
      * function which will try to send the firebase token to the backend if it was not sent yet
      */
     suspend fun ensureTokenSent() {
-        try {
-            if (!store.tokenSent.get() && !store.token.get().isNullOrEmpty()) {
-                val sent = sendNotificationInfo()
-                store.tokenSent.set(sent)
-                log.debug("hasTokenBeenSent set to $sent")
+        val token = store.token.get()
+        if (token.isNullOrEmpty()) {
+            log.verbose("No Token has been set yet")
+            return
+        }
 
-                if (sent) {
-                    store.oldToken.set(null)
-                }
-            } else {
-                log.info("token already set")
-            }
-        } catch (e: ConnectivityException.NoInternetException) {
-            log.warn("Sending notification token failed because no internet available")
+        if (store.tokenSent.get()) {
+            log.verbose("Token has already been sent: $token")
+            return
+        }
+
+        val sent = sendNotificationInfo(token, store.oldToken.get())
+
+        // If the backend call is successful, the oldToken can be released
+        if (sent) {
+            store.tokenSent.set(true)
+            store.oldToken.set(null)
         }
     }
 
@@ -65,7 +64,14 @@ class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) c
      * @param newToken - the new token
      */
     fun updateToken(newToken: String) = CoroutineScope(Dispatchers.Default).launch {
-        store.oldToken.set(store.token.get())
+        // Store the current token as the oldToken and pass it to the server
+        // If there is already a pending oldToken (!=null) that has not been sent to the server,
+        // we have to keep that.
+        if (store.oldToken.get() == null) {
+            store.oldToken.set(store.token.get())
+        }
+        // Ensure that the newToken will be sent to the server
+        store.tokenSent.set(false)
         store.token.set(newToken)
         ensureTokenSent()
     }
