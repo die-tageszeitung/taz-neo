@@ -363,7 +363,7 @@
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht angemeldet.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die erste Seite der betreffenden Ausgabe anschauen."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>
-    <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach einfach unter taz.de/abo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>
+    <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach unter taz.de/abo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>
 
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>
