@@ -1,16 +1,21 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import de.taz.app.android.util.validation.EmailValidator
 
 
 class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPasswordBinding>() {
+
+    private lateinit var tracker: Tracker
 
     private val emailValidator = EmailValidator()
 
@@ -30,6 +35,11 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             fragment.showSubscriptionId = showSubscriptionId
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,6 +80,11 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
         viewBinding.fragmentLoginForgotPasswordCancelButton.setOnClickListener {
            back()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackForgotPasswordScreen()
     }
 
     override fun done(): Boolean {

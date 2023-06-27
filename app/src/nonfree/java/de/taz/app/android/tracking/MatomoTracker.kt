@@ -15,12 +15,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     private val matomo = Matomo.getInstance(applicationContext)
     private val matomoTracker = TrackerBuilder
         .createDefault("https://gazpacho.taz.de/matomo.php", 113)
-        //.setApplicationBaseUrl(??=)
         .build(matomo)
-        .apply {
-            //setDispatchGzipped()
-            //setDispatchInterval()
-        }
 
     override fun enable() {
         matomoTracker.isOptOut = false
@@ -40,13 +35,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun trackAppIsBackgroundedEvent() {
         TrackHelper.track()
-            .event("System", "Application Minimize")
-            .with(matomoTracker)
-    }
-
-    override fun trackSystemNavigationBackEvent() {
-        TrackHelper.track()
-            .event("System", "Navigation Back")
+            .event("Application", "Minimize")
             .with(matomoTracker)
     }
 
@@ -125,6 +114,12 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackForgotPasswordScreen() {
+        TrackHelper.track()
+            .screen("/forgot_password")
+            .title("Forgot Password")
+            .with(matomoTracker)
+    }
 
     override fun trackSubscriptionSwitchFormScreen() {
         TrackHelper.track()
@@ -182,130 +177,111 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackLoginHelpTappedEvent() {
+    override fun trackLoginHelpDialog() {
         TrackHelper.track()
-            .event("Interaction", "Help")
-            .name("Help Button Tapped")
+            .event("Dialog", "Login Help")
             .with(matomoTracker)
     }
 
-    override fun trackLoginFormSubmitTappedEvent() {
+    override fun trackSubscriptionHelpDialog() {
         TrackHelper.track()
-            .event("Interaction", "Submit")
-            .name("Login Button Tapped")
+            .event("Dialog", "Subscription Help")
             .with(matomoTracker)
     }
 
-    override fun trackForgotPasswordTappedEvent() {
+    override fun trackSubscriptionElapsedDialog() {
         TrackHelper.track()
-            .event("Interaction", "Forgot Password")
-            .name("Forgot Password Tapped")
+            .event("Dialog", "Subscription Elapsed")
             .with(matomoTracker)
     }
 
-    override fun trackCancelTappedEvent() {
+    override fun trackAllowNotificationsDialog() {
         TrackHelper.track()
-            .event("Interaction", "Cancel")
-            .name("Cancel Button Tapped")
+            .event("Dialog", "Allow Notifications Info")
             .with(matomoTracker)
     }
 
-    override fun trackContinueTappedEvent() {
+    override fun trackIssueActionsDialog() {
         TrackHelper.track()
-            .event("Interaction", "Continue")
-            .name("Continue Button Tapped")
+            .event("Dialog", "Issue Actions")
             .with(matomoTracker)
     }
 
-    override fun trackBackTappedEvent() {
+    override fun trackIssueDatePickerDialog() {
         TrackHelper.track()
-            .event("Interaction", "Back")
-            .name("Back Button Tapped")
+            .event("Dialog", "Issue Date Picker")
             .with(matomoTracker)
     }
 
-    override fun trackAgreeTappedEvent() {
+    override fun trackTextSettingsDialog() {
         TrackHelper.track()
-            .event("Interaction", "Agree")
-            .name("Agree Button Tapped")
+            .event("Dialog", "Text Settings")
             .with(matomoTracker)
     }
 
-    override fun trackSubmitTappedEvent() {
+    override fun trackSharingNotPossibleDialog() {
         TrackHelper.track()
-            .event("Interaction", "Submit")
-            .name("Submit Button Tapped")
+            .event("Dialog", "Sharing Not Possible")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionFormValidationErrorEvent() {
+    override fun trackAutomaticDownloadDialog() {
         TrackHelper.track()
-            .event("Form", "Validation Error")
-            .name("Subscription Form Input Validation Error")
+            .event("Dialog", "Automatic Download Choice")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionFormSubmitEvent() {
+    override fun trackPdfModeLoginHintDialog() {
         TrackHelper.track()
-            .event("Form", "Submit")
-            .name("Subscription Form Submit")
+            .event("Dialog", "PDF Mode Login Hint")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionTrialTappedEvent() {
+    override fun trackPdfModeSwitchHintDialog() {
         TrackHelper.track()
-            .event("Interaction", "Trial Subscription")
-            .name("Trial Subscription Tapped")
+            .event("Dialog", "PDF Mode Switch Hint")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionSwitchTappedEvent() {
+    override fun trackConnectionErrorDialog() {
         TrackHelper.track()
-            .event("Interaction", "Switch Subscription")
-            .name("Switch Subscription Tapped")
+            .event("Dialog", "Connection Error")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionExtendTappedEvent() {
+    override fun trackFatalErrorDialog() {
         TrackHelper.track()
-            .event("Interaction", "Extend Subscription")
-            .name("Extend Subscription Tapped")
+            .event("Dialog", "Fatal Error")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionTermsTappedEvent() {
+    override fun trackIssueDownloadErrorDialog() {
         TrackHelper.track()
-            .event("Interaction", "Show Terms")
-            .name("Show Terms Tapped")
+            .event("Dialog", "Issue Download Error")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionPrivacyPolicyTappedEvent() {
+    override fun trackSubscriptionInquirySubmittedEvent() {
         TrackHelper.track()
-            .event("Interaction", "Show Privacy Policy")
-            .name("Show Privacy Policy Tapped")
+            .event("Subscription", "Inquiry Submitted")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionRevocationTappedEvent() {
+    override fun trackSubscriptionInquiryFormValidationErrorEvent() {
         TrackHelper.track()
-            .event("Interaction", "Show Revocation")
-            .name("Show Revocation Terms Tapped")
+            .event("Subscription", "Inquiry Form Validation Error")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionHelpTappedEvent() {
+    override fun trackSubscriptionInquiryServerErrorEvent() {
         TrackHelper.track()
-            .event("Interaction", "Subscription Help")
-            .name("Show Subscription Help Tapped")
+            .event("Subscription", "Inquiry Server Error")
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionLoginCreateAccountSwitchTappedEvent(showLogin: Boolean) {
+    override fun trackSubscriptionInquiryNetworkErrorEvent() {
         TrackHelper.track()
-            .event("Interaction", "Toggle Login/Create Account")
-            .name("Toggle Login/Create Account Tapped")
-            .value(if (showLogin) 1f else 0f)
+            .event("Subscription", "Inquiry Network Error")
             .with(matomoTracker)
     }
 

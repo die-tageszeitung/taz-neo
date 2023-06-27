@@ -11,7 +11,6 @@ class NoOpTracker : Tracker {
     override fun dispatch() {}
     override fun trackDownload(version: String) {}
     override fun trackAppIsBackgroundedEvent() {}
-    override fun trackSystemNavigationBackEvent() {}
     override fun trackCoverflowScreen(pdfMode: Boolean) {}
     override fun trackArchiveScreen(pdfMode: Boolean) {}
     override fun trackBookmarkListScreen() {}
@@ -22,6 +21,7 @@ class NoOpTracker : Tracker {
     override fun trackErrorReportScreen() {}
     override fun trackWebViewScreen(htmlFile: String) {}
     override fun trackLoginScreen() {}
+    override fun trackForgotPasswordScreen() {}
     override fun trackSubscriptionSwitchFormScreen() {}
     override fun trackSubscriptionExtendFormScreen() {}
     override fun trackSubscriptionTrialInfoScreen() {}
@@ -30,23 +30,23 @@ class NoOpTracker : Tracker {
     override fun trackSubscriptionPersonalDataFormScreen() {}
     override fun trackSubscriptionPaymentFormScreen() {}
     override fun trackSubscriptionAccountLoginFormScreen() {}
-    override fun trackLoginHelpTappedEvent() {}
-    override fun trackLoginFormSubmitTappedEvent() {}
-    override fun trackForgotPasswordTappedEvent() {}
-    override fun trackCancelTappedEvent() {}
-    override fun trackContinueTappedEvent() {}
-    override fun trackBackTappedEvent() {}
-    override fun trackAgreeTappedEvent() {}
-    override fun trackSubmitTappedEvent() {}
-    override fun trackSubscriptionFormValidationErrorEvent() {}
-    override fun trackSubscriptionFormSubmitEvent() {}
-    override fun trackSubscriptionTrialTappedEvent() {}
-    override fun trackSubscriptionSwitchTappedEvent() {}
-    override fun trackSubscriptionExtendTappedEvent() {}
-    override fun trackSubscriptionTermsTappedEvent() {}
-    override fun trackSubscriptionPrivacyPolicyTappedEvent() {}
-    override fun trackSubscriptionRevocationTappedEvent() {}
-    override fun trackSubscriptionHelpTappedEvent() {}
-    override fun trackSubscriptionLoginCreateAccountSwitchTappedEvent(showLogin: Boolean) {}
+    override fun trackLoginHelpDialog() {}
+    override fun trackSubscriptionHelpDialog() {}
+    override fun trackSubscriptionElapsedDialog() {}
+    override fun trackAllowNotificationsDialog() {}
+    override fun trackIssueActionsDialog() {}
+    override fun trackIssueDatePickerDialog() {}
+    override fun trackTextSettingsDialog() {}
+    override fun trackSharingNotPossibleDialog() {}
+    override fun trackAutomaticDownloadDialog() {}
+    override fun trackPdfModeLoginHintDialog() {}
+    override fun trackPdfModeSwitchHintDialog() {}
+    override fun trackConnectionErrorDialog() {}
+    override fun trackFatalErrorDialog() {}
+    override fun trackIssueDownloadErrorDialog() {}
+    override fun trackSubscriptionInquirySubmittedEvent() {}
+    override fun trackSubscriptionInquiryFormValidationErrorEvent() {}
+    override fun trackSubscriptionInquiryServerErrorEvent() {}
+    override fun trackSubscriptionInquiryNetworkErrorEvent() {}
     override fun trackTogglePdfModeTappedEvent(switchToPdfMode: Boolean) {}
 }

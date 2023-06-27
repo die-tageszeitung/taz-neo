@@ -1,6 +1,5 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -11,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
 import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentLoginMissingCredentialsBinding
@@ -18,8 +18,6 @@ import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
-import de.taz.app.android.ui.DataPolicyActivity
-import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
@@ -248,9 +246,10 @@ class CredentialsMissingFragment :
     }
 
     private fun showDataPolicy() {
-        val intent = Intent(activity, DataPolicyActivity::class.java)
-        intent.putExtra(FINISH_ON_CLOSE, true)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
+            startActivity(intent)
+        }
     }
 
     private fun showRevocation() {

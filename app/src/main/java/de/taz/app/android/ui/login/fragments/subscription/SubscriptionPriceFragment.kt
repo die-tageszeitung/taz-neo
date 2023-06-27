@@ -68,12 +68,10 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
         }
 
         viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
-            tracker.trackContinueTappedEvent()
             ifDoneNext()
         }
 
         viewBinding.backButton.setOnClickListener {
-            tracker.trackBackTappedEvent()
             back()
         }
     }
@@ -92,7 +90,7 @@ class SubscriptionPriceFragment : SubscriptionBaseFragment<FragmentSubscriptionP
         viewModel.price = priceInfoAdapter.getSelectedPriceInfo().price
 
         if (done) {
-            tracker.trackSubscriptionFormValidationErrorEvent()
+            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
         }
         return done
     }

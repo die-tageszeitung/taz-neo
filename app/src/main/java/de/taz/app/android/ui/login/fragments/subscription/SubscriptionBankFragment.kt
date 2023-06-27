@@ -59,12 +59,10 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
         }
 
         viewBinding.fragmentSubscriptionBankProceed.setOnClickListener {
-            tracker.trackContinueTappedEvent()
             ifDoneNext()
         }
 
         viewBinding.backButton.setOnClickListener {
-            tracker.trackBackTappedEvent()
             back()
         }
 
@@ -115,7 +113,7 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
         viewModel.accountHolder = viewBinding.fragmentSubscriptionBankAccountHolder.text.toString()
 
         if (!done) {
-            tracker.trackSubscriptionFormValidationErrorEvent()
+            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
         }
         return done
     }

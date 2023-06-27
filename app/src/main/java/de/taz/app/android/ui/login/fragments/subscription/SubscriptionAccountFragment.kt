@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.login.fragments.subscription
 
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
@@ -13,6 +12,7 @@ import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
 import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
@@ -21,8 +21,6 @@ import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.DataPolicyActivity
-import de.taz.app.android.ui.FINISH_ON_CLOSE
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
@@ -68,25 +66,19 @@ class SubscriptionAccountFragment :
         drawLayout()
 
         viewBinding.fragmentSubscriptionAccountSwitchNewAccount.setOnClickListener {
-            // if we are currently in the create new account mode the login action text is shown
-            val showLogin = viewModel.createNewAccount
-            tracker.trackSubscriptionLoginCreateAccountSwitchTappedEvent(showLogin)
             viewModel.createNewAccount = !viewModel.createNewAccount
             drawLayout()
         }
 
         viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
-            tracker.trackSubmitTappedEvent()
             ifDoneNext()
         }
 
         viewBinding.backButton.setOnClickListener {
-            tracker.trackBackTappedEvent()
             back()
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            tracker.trackCancelTappedEvent()
             finish()
         }
 
@@ -95,29 +87,25 @@ class SubscriptionAccountFragment :
         )
 
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
-            tracker.trackForgotPasswordTappedEvent()
             done()
             viewModel.requestPasswordReset()
         }
 
         viewBinding.fragmentSubscriptionOrderNote.setOnClickListener {
-            tracker.trackSubscriptionHelpTappedEvent()
             showHelpDialog(R.string.order_note_text_detail)
+            tracker.trackSubscriptionHelpDialog()
         }
 
         viewBinding.fragmentSubscriptionAccountTermsAndConditions.apply {
             val spannableString = SpannableString(text?.toString() ?: "")
 
             spannableString.onClick(resources.getString(R.string.terms_and_conditions_terms)) {
-                tracker.trackSubscriptionTermsTappedEvent()
                 showTermsAndConditions()
             }
             spannableString.onClick(resources.getString(R.string.terms_and_conditions_data_policy)) {
-                tracker.trackSubscriptionPrivacyPolicyTappedEvent()
                 showDataPolicy()
             }
             spannableString.onClick(resources.getString(R.string.terms_and_conditions_revocation)) {
-                tracker.trackSubscriptionRevocationTappedEvent()
                 showRevocation()
             }
 
@@ -263,7 +251,7 @@ class SubscriptionAccountFragment :
         }
 
         if (!done) {
-            tracker.trackSubscriptionFormValidationErrorEvent()
+            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
         }
         return done
     }
@@ -284,9 +272,10 @@ class SubscriptionAccountFragment :
     }
 
     private fun showDataPolicy() {
-        val intent = Intent(activity, DataPolicyActivity::class.java)
-        intent.putExtra(FINISH_ON_CLOSE, true)
-        activity?.startActivity(intent)
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
+            startActivity(intent)
+        }
     }
 
     private fun showRevocation() {

@@ -359,7 +359,7 @@
 
     <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
-    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist keinem Abo zugeordnet. Bitte geben Sie Ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
+    <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist kein Abo zugeordnet. Bitte geben Sie Ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht angemeldet.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die erste Seite der betreffenden Ausgabe anschauen."</string>
 
     <string name="dialog_sharing_not_possible_title">Upps, teilen ist nur mit bezahltem Abo möglich.</string>

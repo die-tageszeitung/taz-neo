@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
@@ -27,12 +28,10 @@ import de.taz.app.android.util.showFatalErrorDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 
-const val FINISH_ON_CLOSE = "FINISH ON CLOSE"
-
 class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
 
     private val log by Log
-    private val dataPolicyPageName = "welcomeSlidesDataPolicy.html"
+    private val dataPolicyPageName = WEBVIEW_HTML_FILE_DATA_POLICY
 
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
@@ -41,11 +40,8 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
     private lateinit var generalDataStore: GeneralDataStore
     // Note: we are not doing any tracking here, as users won't have had the chance to accept the data policy before
 
-    private var finishOnClose = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        finishOnClose = intent.getBooleanExtra(FINISH_ON_CLOSE, false)
 
         storageService = StorageService.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
@@ -56,22 +52,18 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
         viewBinding.apply {
             dataPolicyAcceptButton.setOnClickListener {
                 acceptDataPolicy()
-                if (finishOnClose) {
-                    finish()
+                if (hasSeenWelcomeScreen()) {
+                    log.debug("start welcome activity")
+                    val intent = Intent(applicationContext, WelcomeActivity::class.java)
+                    intent.putExtra(START_HOME_ACTIVITY, true)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(Intent(intent))
                 } else {
-                    if (hasSeenWelcomeScreen()) {
-                        log.debug("start welcome activity")
-                        val intent = Intent(applicationContext, WelcomeActivity::class.java)
-                        intent.putExtra(START_HOME_ACTIVITY, true)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NO_ANIMATION or
-                                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(Intent(intent))
-                    } else {
-                        log.debug("start main activity")
-                        MainActivity.start(applicationContext, Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                    }
+                    log.debug("start main activity")
+                    MainActivity.start(applicationContext, Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 }
             }
 
@@ -97,6 +89,7 @@ class DataPolicyActivity : ViewBindingActivity<ActivityDataPolicyBinding>() {
             }
         }
     }
+
 
     private fun acceptDataPolicy() {
         applicationScope.launch {

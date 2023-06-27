@@ -102,17 +102,14 @@ class SubscriptionAddressFragment :
             )
 
             fragmentSubscriptionAddressProceed.setOnClickListener {
-                tracker.trackContinueTappedEvent()
                 ifDoneNext()
             }
 
             backButton.setOnClickListener {
-                tracker.trackBackTappedEvent()
                 back()
             }
 
             cancelButton.setOnClickListener {
-                tracker.trackCancelTappedEvent()
                 finish()
             }
 
@@ -204,7 +201,7 @@ class SubscriptionAddressFragment :
             }
         }
         if (!done) {
-            tracker.trackSubscriptionFormValidationErrorEvent()
+            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
         }
         return done
     }

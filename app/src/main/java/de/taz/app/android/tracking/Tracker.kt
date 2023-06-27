@@ -27,11 +27,6 @@ interface Tracker {
      */
     fun trackAppIsBackgroundedEvent()
 
-    /**
-     * Send an Event when the user navigates back with the system device buttons or some back gesture.
-     */
-    fun trackSystemNavigationBackEvent()
-
 
     fun trackCoverflowScreen(pdfMode: Boolean)
     fun trackArchiveScreen(pdfMode: Boolean)
@@ -45,9 +40,10 @@ interface Tracker {
         article: Article
     )
     fun trackErrorReportScreen()
-
     fun trackWebViewScreen(htmlFile: String)
+
     fun trackLoginScreen()
+    fun trackForgotPasswordScreen()
     fun trackSubscriptionSwitchFormScreen()
     fun trackSubscriptionExtendFormScreen()
     fun trackSubscriptionTrialInfoScreen()
@@ -57,27 +53,25 @@ interface Tracker {
     fun trackSubscriptionPaymentFormScreen()
     fun trackSubscriptionAccountLoginFormScreen()
 
-    fun trackLoginHelpTappedEvent()
-    fun trackLoginFormSubmitTappedEvent()
-    fun trackForgotPasswordTappedEvent()
+    fun trackLoginHelpDialog()
+    fun trackSubscriptionHelpDialog()
+    fun trackSubscriptionElapsedDialog()
+    fun trackAllowNotificationsDialog()
+    fun trackIssueActionsDialog()
+    fun trackIssueDatePickerDialog()
+    fun trackTextSettingsDialog()
+    fun trackSharingNotPossibleDialog()
+    fun trackAutomaticDownloadDialog()
+    fun trackPdfModeLoginHintDialog()
+    fun trackPdfModeSwitchHintDialog()
+    fun trackConnectionErrorDialog()
+    fun trackFatalErrorDialog()
+    fun trackIssueDownloadErrorDialog()
 
-    fun trackCancelTappedEvent()
-    fun trackContinueTappedEvent()
-    fun trackBackTappedEvent()
-    fun trackAgreeTappedEvent()
-    fun trackSubmitTappedEvent()
-
-    fun trackSubscriptionFormValidationErrorEvent()
-    fun trackSubscriptionFormSubmitEvent()
-
-    fun trackSubscriptionTrialTappedEvent()
-    fun trackSubscriptionSwitchTappedEvent()
-    fun trackSubscriptionExtendTappedEvent()
-    fun trackSubscriptionTermsTappedEvent()
-    fun trackSubscriptionPrivacyPolicyTappedEvent()
-    fun trackSubscriptionRevocationTappedEvent()
-    fun trackSubscriptionHelpTappedEvent()
-    fun trackSubscriptionLoginCreateAccountSwitchTappedEvent(showLogin: Boolean)
+    fun trackSubscriptionInquirySubmittedEvent()
+    fun trackSubscriptionInquiryFormValidationErrorEvent()
+    fun trackSubscriptionInquiryServerErrorEvent()
+    fun trackSubscriptionInquiryNetworkErrorEvent()
 
     fun trackTogglePdfModeTappedEvent(switchToPdfMode: Boolean)
 }

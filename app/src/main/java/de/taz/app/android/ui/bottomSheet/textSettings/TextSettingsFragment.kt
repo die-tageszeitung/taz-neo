@@ -1,14 +1,23 @@
 package de.taz.app.android.ui.bottomSheet.textSettings
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentBottomSheetTextSizeBinding
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.settings.SettingsActivity
 
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel, FragmentBottomSheetTextSizeBinding>() {
+
+    private lateinit var tracker: Tracker
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker.trackTextSettingsDialog()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

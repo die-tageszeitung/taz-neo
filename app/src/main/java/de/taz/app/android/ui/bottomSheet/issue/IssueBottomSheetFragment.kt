@@ -15,6 +15,7 @@ import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.simpleDateFormat
@@ -22,6 +23,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
@@ -47,6 +49,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
+    private lateinit var tracker: Tracker
 
     private val loadingScreen by lazy { view?.findViewById<View>(R.id.loading_screen) }
 
@@ -73,6 +76,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -187,6 +191,11 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         //this forces the sheet to appear at max height even on landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackIssueActionsDialog()
     }
 
     private suspend fun getIsDownloaded(): Boolean {

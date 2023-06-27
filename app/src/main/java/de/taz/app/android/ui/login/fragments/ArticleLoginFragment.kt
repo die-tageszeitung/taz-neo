@@ -84,7 +84,6 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
         viewBinding.apply {
             // Set listeners on all buttons - even if they are not not shown in case of elapsed
             readOnLoginButton.setOnClickListener {
-                tracker.trackLoginFormSubmitTappedEvent()
                 login()
             }
 
@@ -95,17 +94,14 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             )
 
             readOnTrialSubscriptionBoxButton.setOnClickListener {
-                tracker.trackSubscriptionTrialTappedEvent()
                 register()
             }
 
             readOnSwitchPrint2digiBoxButton.setOnClickListener {
-                tracker.trackSubscriptionSwitchTappedEvent()
                 switchPrintToDigi()
             }
 
             readOnExtendPrintWithDigiBoxButton.setOnClickListener {
-                tracker.trackSubscriptionExtendTappedEvent()
                 extendPrintWithDigi()
             }
 
@@ -125,13 +121,11 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 forgotPassword.visibility = View.GONE
             } else {
                 forgotPassword.setOnClickListener {
-                    tracker.trackForgotPasswordTappedEvent()
                     forgotPassword()
                 }
             }
 
             showHelp.setOnClickListener {
-                tracker.trackLoginHelpTappedEvent()
                 showHelpDialog()
             }
         }
@@ -287,6 +281,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 .create()
 
             dialog.show()
+            tracker.trackLoginHelpDialog()
         }
     }
 }
