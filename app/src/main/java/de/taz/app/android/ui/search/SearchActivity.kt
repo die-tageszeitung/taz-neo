@@ -211,7 +211,6 @@ class SearchActivity :
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

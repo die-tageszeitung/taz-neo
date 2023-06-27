@@ -60,27 +60,22 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         }
 
         viewBinding.fragmentLoginLoginButton.setOnClickListener {
-            tracker.trackLoginFormSubmitTappedEvent()
             login()
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            tracker.trackCancelTappedEvent()
             finish()
         }
 
         viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
-            tracker.trackSubscriptionTrialTappedEvent()
             viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
         }
 
         viewBinding.fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
-            tracker.trackSubscriptionSwitchTappedEvent()
             viewModel.requestSwitchPrint2Digi()
         }
 
         viewBinding.fragmentLoginExtendPrintWithDigiBoxButton.setOnClickListener {
-            tracker.trackSubscriptionExtendTappedEvent()
             viewModel.requestExtendPrintWithDigi()
         }
 
@@ -88,14 +83,13 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             viewBinding.fragmentLoginMissingSubscriptionForgotPassword.visibility = View.GONE
         } else {
             viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
-                tracker.trackForgotPasswordTappedEvent()
                 viewModel.requestPasswordReset()
             }
         }
 
         viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
-            tracker.trackLoginHelpTappedEvent()
             showHelpDialog(R.string.fragment_login_help)
+            tracker.trackLoginHelpDialog()
         }
 
         viewBinding.fragmentLoginPassword.setOnEditorActionListener(

@@ -14,8 +14,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.flow.collectLatest
@@ -27,6 +29,7 @@ class SubscriptionElapsedBottomSheetFragment :
 
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     override fun onStart() {
         super.onStart()
@@ -42,6 +45,7 @@ class SubscriptionElapsedBottomSheetFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -96,5 +100,10 @@ class SubscriptionElapsedBottomSheetFragment :
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackSubscriptionElapsedDialog()
     }
 }

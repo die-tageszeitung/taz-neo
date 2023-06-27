@@ -8,8 +8,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
-import de.taz.app.android.getTazApplication
-import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
@@ -31,13 +29,9 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
-    private lateinit var tracker: Tracker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        tracker = getTazApplication().tracker
-
         supportFragmentManager.beginTransaction().add(
             android.R.id.content,
             BookmarkViewerFragment.newInstance(
@@ -58,7 +52,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

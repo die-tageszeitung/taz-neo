@@ -13,8 +13,10 @@ import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentAllowNotificationsBottomSheetBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.ui.settings.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -25,6 +27,7 @@ class AllowNotificationsBottomSheetFragment :
 
     private val viewModel by viewModels<SettingsViewModel>()
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tracker: Tracker
 
     override fun onStart() {
         super.onStart()
@@ -40,6 +43,7 @@ class AllowNotificationsBottomSheetFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,6 +73,11 @@ class AllowNotificationsBottomSheetFragment :
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
         (dialog as BottomSheetDialog).behavior.doNotFlattenCorners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackAllowNotificationsDialog()
     }
 
     private suspend fun tryToSetNotificationsEnabled() {

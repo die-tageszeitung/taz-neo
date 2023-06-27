@@ -62,7 +62,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private lateinit var downloadDataStore: DownloadDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
-
     private lateinit var tracker: Tracker
 
     @Suppress("unused")
@@ -75,6 +74,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
         tracker = getTazApplication().tracker
+
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -142,6 +142,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             .create()
 
         loggedOutDialog?.show()
+        tracker.trackPdfModeLoginHintDialog()
     }
 
     private var tryPdfDialog: AlertDialog? = null
@@ -158,6 +159,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             .create()
 
         tryPdfDialog?.show()
+        tracker.trackPdfModeSwitchHintDialog()
         tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
             applicationScope.launch(Dispatchers.Main) {
                 generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
@@ -201,7 +203,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private var doubleBackToExitPressedOnce = false
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        tracker.trackSystemNavigationBackEvent()
         if (audioPlayerViewController.onBackPressed()) {
             return
         }

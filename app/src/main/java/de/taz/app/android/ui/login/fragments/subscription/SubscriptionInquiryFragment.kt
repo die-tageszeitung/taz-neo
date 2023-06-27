@@ -70,12 +70,10 @@ abstract class SubscriptionInquiryFragment :
             description.setText(descriptionStringRes)
 
             sendButton.setOnClickListener {
-                tracker.trackSubmitTappedEvent()
                 validateAndSubmitForm()
             }
 
             cancelButton.setOnClickListener {
-                tracker.trackCancelTappedEvent()
                 back()
             }
 
@@ -154,7 +152,7 @@ abstract class SubscriptionInquiryFragment :
                 message
             )
         } else {
-            tracker.trackSubscriptionFormSubmitEvent()
+            tracker.trackSubscriptionInquiryFormValidationErrorEvent()
             hideLoadingState()
         }
     }
@@ -170,7 +168,6 @@ abstract class SubscriptionInquiryFragment :
         addressCountry: String?,
         message: String?
     ) {
-        tracker.trackSubscriptionFormSubmitEvent()
         lifecycleScope.launch {
             try {
                 val response = apiService.subscriptionFormData(
@@ -192,17 +189,20 @@ abstract class SubscriptionInquiryFragment :
                         R.string.subscription_inquiry_send_success_toast,
                         long = true
                     )
+                    tracker.trackSubscriptionInquirySubmittedEvent()
                     finishParentLoginActivity()
 
                 } else {
                     // Ignore specific form field errors and simply show the message
                     val errorMessage = response.errorMessage ?: ""
                     showErrorToastAndResume(errorMessage)
+                    tracker.trackSubscriptionInquiryServerErrorEvent()
                 }
 
             } catch (e: ConnectivityException) {
                 val errorMessage = resources.getString(R.string.toast_no_internet)
                 showErrorToastAndResume(errorMessage)
+                tracker.trackSubscriptionInquiryNetworkErrorEvent()
 
             } catch (e: Exception) {
                 log.warn("Could not submit subscriptionFormData", e)

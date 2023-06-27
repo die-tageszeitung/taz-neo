@@ -17,8 +17,10 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
@@ -39,9 +41,11 @@ class DownloadObserver constructor(
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
     private val checkmarkIconView: View,
-    private val downloadProgressView: View
+    private val downloadProgressView: View,
+    private val tracker: Tracker = fragment.getTazApplication().tracker
 ) {
     private val log by Log
+
 
     private val contentService =
         ContentService.getInstance(fragment.requireContext().applicationContext)
@@ -333,6 +337,7 @@ class DownloadObserver constructor(
                         dialog.dismiss()
                     }.create()
             dialog.show()
+            tracker.trackAutomaticDownloadDialog()
         } else {
             startObserving()
             downloadIssuePublication(issuePublication)

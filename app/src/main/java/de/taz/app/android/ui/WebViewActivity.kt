@@ -87,12 +87,6 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         tracker.trackWebViewScreen(htmlFile)
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        super.onBackPressed()
-        tracker.trackSystemNavigationBackEvent()
-    }
-
     private fun showHtmlFile(htmlFileKey: String) {
         lifecycleScope.launch {
             fileEntryRepository.get(htmlFileKey)?.let {

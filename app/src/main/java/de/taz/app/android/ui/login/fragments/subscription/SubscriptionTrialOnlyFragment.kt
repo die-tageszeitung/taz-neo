@@ -38,17 +38,14 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
             viewBinding.fragmentSubscriptionAddressProceed.text =
                 getString(R.string.close_okay)
             viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
-                tracker.trackAgreeTappedEvent()
                 this.activity?.finish()
             }
         } else {
             viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
-                tracker.trackContinueTappedEvent()
                 ifDoneNext()
             }
         }
         viewBinding.cancelButton.setOnClickListener {
-            tracker.trackCancelTappedEvent()
             back()
         }
     }

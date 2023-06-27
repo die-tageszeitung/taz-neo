@@ -480,7 +480,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        tracker.trackSystemNavigationBackEvent()
         if (loadingScreen.visibility == View.VISIBLE) {
             hideLoadingScreen()
         } else {

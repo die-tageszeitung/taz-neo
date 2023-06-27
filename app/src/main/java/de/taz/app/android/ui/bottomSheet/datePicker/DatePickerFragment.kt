@@ -12,10 +12,12 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.*
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
@@ -31,6 +33,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
     private val log by Log
 
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     private lateinit var currentDate: Date
     private lateinit var feed: Feed
@@ -45,6 +48,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
             "CurrentDate must always be set when using DatePickerFragment"
         }
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = getTazApplication().tracker
     }
 
     override fun onStart() {
@@ -52,6 +56,11 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         //this forces the sheet to appear at max height even on landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackIssueDatePickerDialog()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

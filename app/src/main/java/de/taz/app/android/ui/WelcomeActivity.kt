@@ -96,7 +96,6 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        tracker.trackSystemNavigationBackEvent()
         // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
         done()
     }
