@@ -116,7 +116,7 @@ class ArticleWebViewFragment : WebViewFragment<
         if (BuildConfig.IS_LMD) {
             val firstPage = displayable.pageNameList.firstOrNull()
             if (firstPage !== null) {
-                val pagina = pageRepository.getStub(firstPage)?.pagina
+                val pagina = pageRepository.getStub(firstPage)?.pagina?.split('-')?.get(0)
                 setHeaderWithPage(pagina)
             } else {
                 hideHeaderWithPage()
