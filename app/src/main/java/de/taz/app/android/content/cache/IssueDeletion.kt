@@ -106,7 +106,7 @@ class IssueDeletion(
             }
         }
 
-        if (failedCount > 0) {
+        if (failedCount.get() > 0) {
             // If we encountered errors while deleting content skip deleting metadata, just indicate another failed item and throw exception
             notifyFailedItem(CacheOperationFailedException("Operation aborted due to previous errors"))
         } else {
