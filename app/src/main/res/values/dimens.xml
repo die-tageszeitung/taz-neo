@@ -195,6 +195,7 @@
 
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
+    <dimen name="fragment_bookmarks_article_item_read_minutes_line_height">18sp</dimen>
 
     <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
