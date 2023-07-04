@@ -2,9 +2,12 @@ package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -18,18 +21,26 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.MaterialToolbar
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewModel
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -45,7 +56,9 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     private lateinit var articlePagerAdapter: BookmarkPagerAdapter
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper
+    private lateinit var generalDataStore: GeneralDataStore
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
         articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
@@ -59,12 +72,15 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     override val viewModel: BookmarkPagerViewModel by activityViewModels()
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
     private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
 
@@ -86,7 +102,9 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
 
         viewModel.articleFileNameLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
-            tryScrollToArticle()
+            if (it != null) {
+                setHeader(it)
+            }
         }
 
         // Receiving a displayable on the issueViewerViewModel means user clicked on a section, so we'll open an actual issuecontentviewer instead this pager
@@ -130,6 +148,16 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                         audioPlayerViewModel.clearErrorMessage()
                     }
                 }
+            }
+        }
+        // show header
+        viewBinding.headerCustom.root.visibility = View.VISIBLE
+
+        // Adjust padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
             }
         }
     }
@@ -191,6 +219,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 // ensure the action bar is showing when the article changes
                 expand(true)
             }
+            // ensure the app bar of the webView is shown when article changes
+            expandAppBarIfCollapsed()
         }
     }
 
@@ -215,7 +245,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
     }
 
-    fun share() {
+    private fun share() {
         lifecycleScope.launch {
             getCurrentlyDisplayedArticleStub()?.let { articleStub ->
                 val url = articleStub.onlineLink
@@ -233,6 +263,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             viewModel.bookmarkedArticleStubsLiveData.value?.map { it.key }
                 ?.contains(articleFileName) == true
         ) {
+            setHeader(articleFileName)
             log.debug("I will now display $articleFileName")
             lifecycleScope.launchWhenResumed {
                 getSupposedPagerPosition()?.let {
@@ -315,4 +346,66 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
     }
+
+    private fun setHeader(displayableKey: String) {
+        lifecycleScope.launch {
+            val article = articleRepository.get(displayableKey)
+            article?.let { art ->
+                val issueStub = issueRepository.getIssueStubForArticle(art.key)
+
+                viewBinding.root.findViewById<MaterialToolbar>(R.id.header)
+                    ?.let {
+                        it.visibility = View.GONE
+                    }
+                viewBinding.root.findViewById<ImageView>(R.id.drawer_logo)?.visibility = View.GONE
+
+                val position =
+                    articlePagerAdapter.articleStubs.indexOf(getCurrentlyDisplayedArticleStub()) + 1
+                val total = articlePagerAdapter.itemCount
+
+                viewBinding.root.findViewById<MaterialToolbar>(R.id.header_custom)
+                    ?.apply {
+                        visibility = View.VISIBLE
+                        findViewById<TextView>(R.id.index_indicator).text = activity?.getString(
+                            R.string.fragment_header_custom_index_indicator, position, total
+                        )
+                        findViewById<TextView>(R.id.section_title).text =
+                            art.getSectionStub(requireContext().applicationContext)?.title
+                        findViewById<TextView>(R.id.published_date).text = activity?.getString(
+                            R.string.fragment_header_custom_published_date,
+                            determineDateString(art, issueStub)
+                        )
+                    }
+            }
+        }
+    }
+
+    private fun determineDateString(article: Article, issueStub: IssueStub?): String {
+        if (BuildConfig.IS_LMD) {
+            return DateHelper.stringToLocalizedMonthAndYearString(article.issueDate) ?: ""
+        } else {
+            val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
+            val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
+
+            return if (fromDate != null && toDate != null) {
+                DateHelper.dateToMediumRangeString(fromDate, toDate)
+            } else {
+                DateHelper.stringToMediumLocalizedString(article.issueDate) ?: ""
+            }
+        }
+    }
+
+    /**
+     * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
+     */
+    private fun expandAppBarIfCollapsed() {
+        val appBarFullyExpanded =
+            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+
+        if (!appBarFullyExpanded) {
+            viewBinding.appBarLayout.setExpanded(true, false)
+            drawerAndLogoViewModel.showLogo()
+        }
+    }
+
 }

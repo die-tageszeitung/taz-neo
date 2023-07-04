@@ -4,16 +4,13 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.ui.webview.AppWebChromeClient
@@ -65,7 +62,6 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
         this.searchResult = searchResult
 
         setupWebView()
-        setupSearchHeader()
     }
 
     private fun setupWebView() {
@@ -108,26 +104,6 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
         }
     }
 
-    private fun setupSearchHeader() {
-        val publishedDateString = if (BuildConfig.IS_LMD) {
-            DateHelper.stringToLocalizedMonthAndYearString(searchResult.date)
-        } else {
-            DateHelper.stringToMediumLocalizedString(searchResult.date)
-        }
-
-        viewBinding.header.root.isVisible = false
-        viewBinding.headerCustom.apply {
-            root.isVisible = true
-            indexIndicator.text = getString(
-                R.string.fragment_header_custom_index_indicator,
-                (position + 1).toString(),
-                viewModel.totalResults.toString()
-            )
-            sectionTitle.text = searchResult.sectionTitle ?: ""
-            publishedDate.text =
-                getString(R.string.fragment_header_custom_published_date, publishedDateString)
-        }
-    }
 
     private suspend fun addLoginFragmentIfRequired() {
         val showLoginFragment = searchResult.articleFileName.contains("public")

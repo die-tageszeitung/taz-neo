@@ -2,9 +2,11 @@ package de.taz.app.android.ui.search
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -15,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -22,6 +25,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.ContentService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -30,6 +34,7 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
@@ -59,6 +64,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var generalDataStore: GeneralDataStore
 
     // region views
     private val webViewPager: ViewPager2
@@ -71,6 +77,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     val viewModel by activityViewModels<SearchResultPagerViewModel>()
     private val searchResultViewModel by activityViewModels<SearchResultViewModel>()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private val articleBottomActionBarNavigationHelper =
@@ -86,6 +93,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         contentService = ContentService.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(requireActivity().applicationContext)
     }
 
 
@@ -144,6 +152,15 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             }
         }
 
+        getCurrentSearchHit()?.let { setHeader(it) }
+
+        // Adjust padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            }
+        }
     }
 
     private fun setupViewPager() {
@@ -164,6 +181,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             val currentSearchHit = getCurrentSearchHit()
+            getCurrentSearchHit()?.let { setHeader(it) }
             viewModel.articleFileName = currentSearchHit?.articleFileName
             super.onPageSelected(position)
             if (viewModel.checkIfLoadMore(position)) {
@@ -181,6 +199,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 // ensure the action bar is showing when the article changes
                 expand(true)
             }
+
+            // ensure the app bar of the webView is shown when article changes
+            expandAppBarIfCollapsed()
         }
     }
 
@@ -277,7 +298,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
-    fun share() {
+    private fun share() {
         lifecycleScope.launch {
             getCurrentSearchHit()?.let { hit ->
                 hit.onlineLink?.let {
@@ -338,4 +359,36 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             searchActivity.bringAudioPlayerOverlayToFront()
         }
     }
+
+    private fun setHeader(searchResult: SearchHit) {
+        val publishedDateString = if (BuildConfig.IS_LMD) {
+            DateHelper.stringToLocalizedMonthAndYearString(searchResult.date)
+        } else {
+            DateHelper.stringToMediumLocalizedString(searchResult.date)
+        }
+        viewBinding.root.findViewById<MaterialToolbar>(R.id.header_custom)?.apply {
+            findViewById<TextView>(R.id.index_indicator).text = getString(
+                R.string.fragment_header_custom_index_indicator,
+                getCurrentPagerPosition() + 1,
+                viewModel.totalFound
+            )
+            findViewById<TextView>(R.id.section_title).text = searchResult.sectionTitle ?: ""
+            findViewById<TextView>(R.id.published_date).text =
+                getString(R.string.fragment_header_custom_published_date, publishedDateString)
+        }
+    }
+
+    /**
+     * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
+     */
+    private fun expandAppBarIfCollapsed() {
+        val appBarFullyExpanded =
+            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+
+        if (!appBarFullyExpanded) {
+            viewBinding.appBarLayout.setExpanded(true, false)
+            drawerAndLogoViewModel.showLogo()
+        }
+    }
+
 }

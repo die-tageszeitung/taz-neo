@@ -85,7 +85,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         )
     }
 
-
     private fun hideLoadingScreen() {
         val pdfLoadingScreenRoot = viewBinding.pdfLoadingScreen.root
         pdfLoadingScreenRoot.animate().apply {
