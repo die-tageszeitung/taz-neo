@@ -199,6 +199,13 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     }
 
     private suspend fun getIsDownloaded(): Boolean {
-        return contentService.isPresent(issuePublication)
+        val isPdf = homeViewModel.getPdfMode()
+        val abstractIssuePublication = if (isPdf) {
+            IssuePublicationWithPages(issuePublication)
+        } else {
+            issuePublication
+        }
+
+        return contentService.isPresent(abstractIssuePublication)
     }
 }
