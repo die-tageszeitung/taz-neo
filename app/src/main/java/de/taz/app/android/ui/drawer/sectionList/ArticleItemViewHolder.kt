@@ -1,7 +1,10 @@
 package de.taz.app.android.ui.drawer.sectionList
 
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.LineHeightSpan
 import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.coroutines.CoroutineContext
+
 
 class ArticleItemViewHolder(
     parent: ViewGroup,
@@ -167,6 +171,18 @@ class ArticleItemViewHolder(
                 readMinutesSpanEnd,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val newLineHeight =
+                    itemView.context.applicationContext.resources.getDimensionPixelSize(
+                        R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
+                    )
+                text.setSpan(
+                    LineHeightSpan.Standard(newLineHeight),
+                    readMinutesSpanStart,
+                    readMinutesSpanEnd,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
 
         return text
