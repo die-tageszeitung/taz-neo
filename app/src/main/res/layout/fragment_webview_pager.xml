@@ -7,10 +7,40 @@
     android:layout_height="match_parent"
     android:background="@color/backgroundColor">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:expandedTitleGravity="top"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:scrimAnimationDuration="0">
+
+            <include
+                android:id="@+id/header"
+                layout="@layout/fragment_webview_header_article"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+            <include
+                android:id="@+id/header_custom"
+                layout="@layout/fragment_webview_header_custom"
+                android:visibility="gone" />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/webview_pager_viewpager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <include
         android:id="@+id/loading_screen"

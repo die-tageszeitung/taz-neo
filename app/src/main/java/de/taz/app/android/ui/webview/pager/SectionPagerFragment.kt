@@ -1,15 +1,19 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -22,12 +26,19 @@ import de.taz.app.android.ui.webview.ImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.launch
 
 class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val log by Log
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private lateinit var generalDataStore: GeneralDataStore
+
+    override fun onAttach(context: Context) {
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        super.onAttach(context)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -51,6 +62,14 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
         issueContentViewModel.displayableKeyLiveData.observe(this.viewLifecycleOwner) {
             tryScrollToSection()
+        }
+
+        // Adjust padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            }
         }
     }
 

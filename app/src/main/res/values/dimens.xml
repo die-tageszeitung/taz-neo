@@ -133,6 +133,11 @@
     <dimen name="fragment_header_search_result_published_date_margin_top">6dp</dimen>
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
+    <!-- The webView is below the appBar.
+    To have the loading screen of the articles' web view and the article pager on the same position,
+    we need to translate it upwards the amount of the appBarHeight:
+    (appBarHeight (107) is calculated by fragment_header_default_height and different paddings) -->
+    <dimen name="fragment_webview_translation_loading_screen">-107dp</dimen>
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_top">0dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_bottom">0dp</dimen>

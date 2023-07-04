@@ -2,10 +2,11 @@ package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.core.widget.NestedScrollView
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -16,22 +17,30 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
+import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
-import de.taz.app.android.monkey.getRecyclerView
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.singletons.FontHelper
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -39,8 +48,11 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
@@ -48,29 +60,43 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val log by Log
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
+    private lateinit var issueRepository: IssueRepository
+    private lateinit var pageRepository: PageRepository
+    private lateinit var fontHelper: FontHelper
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var storageService: StorageService
 
     private val articleBottomActionBarNavigationHelper =
         ArticleBottomActionBarNavigationHelper(::onBottomNavigationItemClicked)
 
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
+    private var isTabletLandscapeMode = false
+    private var currentAppBarOffset = 0
+    private var lockOffsetChangedListener = false
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
-    private var sectionDividerTransformer: SectionDividerTransformer? = null
+    private var sectionChangeHandler: SectionChangeHandler? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
+        issueRepository = IssueRepository.getInstance(requireActivity().applicationContext)
+        pageRepository = PageRepository.getInstance(requireActivity().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
         toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
+        fontHelper = FontHelper.getInstance(requireContext().applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(requireContext().applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,8 +112,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
         viewBinding.loadingScreen.root.visibility = View.GONE
 
-        sectionDividerTransformer =
-            SectionDividerTransformer(viewBinding.webviewPagerViewpager)
+        sectionChangeHandler =
+            SectionChangeHandler(viewBinding.webviewPagerViewpager, viewBinding.appBarLayout)
 
         issueContentViewModel.articleListLiveData.observe(viewLifecycleOwner) { articleStubsWithSectionKey ->
             if (
@@ -102,6 +128,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         issueContentViewModel.displayableKeyLiveData.observe(viewLifecycleOwner) {
             if (it != null) {
                 tryScrollToArticle(it)
+                setHeader(it)
             }
         }
 
@@ -151,7 +178,20 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
         }
+        setupHeader()
+    }
 
+    override fun onResume() {
+        super.onResume()
+        if (!isTabletLandscapeMode) {
+            updateDrawerLogoByCurrentAppBarOffset()
+        }
+    }
+
+    private fun updateDrawerLogoByCurrentAppBarOffset() {
+        val percentToHide =
+            -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
+        drawerAndLogoViewModel.hideLogoByPercent(percentToHide.coerceIn(0f, 1f))
     }
 
     override fun onStart() {
@@ -235,23 +275,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 // ensure the action bar is showing when the article changes
                 expand(true)
             }
-
-            // ensure the app bar of the webview is shown when article changes
-            val articleWebViewFragment = viewBinding
-                .webviewPagerViewpager
-                .getRecyclerView()
-                .layoutManager
-                ?.findViewByPosition(position)
-            val appBar = articleWebViewFragment?.findViewById<AppBarLayout>(R.id.app_bar_layout)
-            val scrollView = articleWebViewFragment?.findViewById<NestedScrollView>(R.id.nested_scroll_view)
-
-            if (appBar != null && scrollView != null) {
-                // Scroll the webview content by the height of the appBar to prevent the content from jumping when paging. By default the appBar moves the top of the content below itself when it is set to expanded programmatically
-                scrollView.scrollBy(0, appBar.height)
-                appBar.setExpanded(true, false)
-            }
-            //FIXME(eike): Still a quirk when at bottom, the content is scrolled up again,
-            // as the appBarLayout needs some space to expand
+            // ensure the app bar of the webView is shown when article changes
+            expandAppBarIfCollapsed()
         }
 
         override fun onPageScrolled(
@@ -259,9 +284,32 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             positionOffset: Float,
             positionOffsetPixels: Int
         ) {
-            sectionDividerTransformer?.onPageScrolled(
+            sectionChangeHandler?.onPageScrolled(
                 position, positionOffset, positionOffsetPixels
             )
+            // We don't want the offsetChangedListener of the appBar to be triggered when paging:
+            lockOffsetChangedListener = positionOffset > 0f && positionOffset < 1f
+        }
+
+        override fun onPageScrollStateChanged(state: Int) {
+            val activateScrollBar = state == ViewPager2.SCROLL_STATE_IDLE
+            lastPage?.let {
+                sectionChangeHandler?.activateScrollBar(it, activateScrollBar)
+            }
+            super.onPageScrollStateChanged(state)
+        }
+    }
+
+    /**
+     * Check if appBarLayout is fully expanded and if not then expand it and show the logo.
+     */
+    private fun expandAppBarIfCollapsed() {
+        val appBarFullyExpanded =
+            viewBinding.appBarLayout.height - viewBinding.appBarLayout.bottom == 0
+
+        if (!appBarFullyExpanded) {
+            viewBinding.appBarLayout.setExpanded(true, false)
+            drawerAndLogoViewModel.showLogo()
         }
     }
 
@@ -395,9 +443,156 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onDestroyView() {
         viewBinding.webviewPagerViewpager.adapter = null
-        sectionDividerTransformer = null
+        sectionChangeHandler = null
         articleBottomActionBarNavigationHelper.onDestroyView()
         super.onDestroyView()
     }
 
+    // region header functions
+    private fun setupHeader() {
+        viewBinding.header.root.visibility = View.VISIBLE
+        val isTabletMode = resources.getBoolean(R.bool.isTablet)
+        val isLandscape =
+            resources.displayMetrics.widthPixels > resources.displayMetrics.heightPixels
+        isTabletLandscapeMode = isTabletMode && isLandscape
+
+        // Map the offset of the app bar layout to the logo as it should
+        // (but not on tablets in landscape)
+        if (isTabletLandscapeMode) {
+            drawerAndLogoViewModel.showLogo()
+        } else {
+            viewBinding.appBarLayout.apply {
+                addOnOffsetChangedListener { _, verticalOffset ->
+                    if (!lockOffsetChangedListener) {
+                        currentAppBarOffset = verticalOffset
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                            updateDrawerLogoByCurrentAppBarOffset()
+                        }
+                    }
+                }
+            }
+        }
+
+        // Adjust padding when we have cutout display
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            }
+        }
+    }
+
+    private fun setHeader(displayableKey: String) {
+        lifecycleScope.launch {
+            val article = articleRepository.get(displayableKey)
+            article?.let { art ->
+                val issueStub = issueRepository.getIssueStubForArticle(art.key)
+                val sectionStub = art.getSectionStub(requireContext().applicationContext)
+                // only the imprint should have no section
+                if (sectionStub?.title == null) {
+                    setHeaderForImprint()
+                } else if (BuildConfig.IS_LMD) {
+                    val firstPage = art.pageNameList.firstOrNull()
+                    if (firstPage !== null) {
+                        val pagina = pageRepository.getStub(firstPage)?.pagina?.split('-')?.get(0)
+                        setHeaderWithPage(pagina)
+                    } else {
+                        hideHeaderWithPage()
+                    }
+                } else {
+                    val index = art.getIndexInSection(requireContext().applicationContext) ?: 0
+                    val count = articleRepository.getSectionArticleStubListByArticleName(
+                        art.key
+                    ).size
+                    setHeaderForSection(index, count, sectionStub)
+                }
+
+                issueStub?.apply {
+                    if (isWeekend) {
+                        applyWeekendTypefacesToHeader()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setHeaderForImprint() {
+        viewBinding.header.apply {
+            section.apply {
+                text = getString(R.string.imprint)
+                setOnClickListener(null)
+            }
+            articleNum.text = ""
+        }
+    }
+
+    private fun setHeaderForSection(index: Int, count: Int, sectionStub: SectionStub?) {
+        viewBinding.header.apply {
+            section.apply {
+                text = sectionStub?.title
+                setOnClickListener {
+                    goBackToSection(sectionStub)
+                }
+            }
+            articleNum.text = getString(
+                R.string.fragment_header_article_index_section_count, index, count
+            )
+        }
+    }
+
+    private fun setHeaderWithPage(pagina: String?) {
+        viewBinding.header.apply {
+            section.isVisible = false
+            articleNum.text = getString(
+                R.string.fragment_header_article_pagina, pagina
+            )
+        }
+    }
+
+    private fun hideHeaderWithPage() {
+        viewBinding.header.apply {
+            section.isVisible = false
+            articleNum.isVisible = false
+        }
+    }
+
+    private suspend fun applyWeekendTypefacesToHeader() {
+        val weekendTypefaceFileEntry =
+            fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
+        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
+        weekendTypefaceFile?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        viewBinding.header.section.typeface = typeface
+                    }
+                }
+        }
+        val weekendTypefaceFileEntryRegular =
+            fileEntryRepository.get(KNILE_REGULAR_RESOURCE_FILE_NAME)
+        val weekendTypefaceFileRegular =
+            weekendTypefaceFileEntryRegular?.let(storageService::getFile)
+        weekendTypefaceFileRegular?.let {
+            fontHelper
+                .getTypeFace(it)?.let { typeface ->
+                    withContext(Dispatchers.Main) {
+                        viewBinding.header.articleNum.typeface = typeface
+                    }
+                }
+        }
+    }
+    // endregion
+
+    private fun goBackToSection(sectionStub: SectionStub?) = lifecycleScope.launch {
+        sectionStub?.let {
+            issueRepository.getIssueStubForSection(sectionStub.sectionFileName)?.let { issueStub ->
+                lifecycleScope.launch {
+                    issueContentViewModel.setDisplayable(
+                        issueStub.issueKey,
+                        sectionStub.sectionFileName
+                    )
+                }
+            }
+        }
+    }
 }

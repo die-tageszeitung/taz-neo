@@ -4,18 +4,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.core.content.ContextCompat
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.monkey.getRecyclerView
 import de.taz.app.android.util.Log
 
 /**
+ * This class indicates a section change when paging inside the [ArticlePagerFragment]:
+ * 1. a block view is between articles of different sections
+ * 2. the header is translated so it looks like it is "exchanged".
+ *
  * This class has to be attached to a [ViewPager2] in onCreate/View
- * and must be set to null onDestroy/View to prevent memory leaks
+ * and must be set to null onDestroy/View to prevent memory leaks.
  */
-class SectionDividerTransformer(
+
+class SectionChangeHandler(
     viewPager: ViewPager2,
+    private val appBarLayout: AppBarLayout
 ) {
     private val log by Log
 
@@ -83,6 +91,32 @@ class SectionDividerTransformer(
                     borderOffsetFromParent + dividerCenterTranslationFromBorder - (divider.width / 2f)
                 visibility = View.VISIBLE
             }
+            // Add translation for the header on the right side or left side:
+            if (positionOffset < 0.5f) {
+                appBarLayout.translationX = -(recyclerView.width + dividerWidth) * positionOffset
+            } else {
+                appBarLayout.translationX =
+                    borderOffsetFromParent.toFloat() + dividerCenterTranslationFromBorder * nextTransformOffset
+            }
+        } else {
+            // remove the translationX if we are not in between sections:
+            appBarLayout.translationX = 0f
         }
+    }
+
+    fun activateScrollBar(position: Int, activate: Boolean = true) {
+        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
+
+        if (layoutManager == null) {
+            log.warn("Attached LinearLayoutManager is required.")
+            return
+        }
+        val previousView = layoutManager.findViewByPosition(position - 1)
+        val currentView = layoutManager.findViewByPosition(position)
+        val nextView = layoutManager.findViewByPosition(position + 1)
+
+        previousView?.findViewById<NestedScrollView>(R.id.nested_scroll_view)?.isVerticalScrollBarEnabled = activate
+        currentView?.findViewById<NestedScrollView>(R.id.nested_scroll_view)?.isVerticalScrollBarEnabled = activate
+        nextView?.findViewById<NestedScrollView>(R.id.nested_scroll_view)?.isVerticalScrollBarEnabled = activate
     }
 }
