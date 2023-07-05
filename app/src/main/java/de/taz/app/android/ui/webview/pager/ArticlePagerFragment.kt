@@ -316,32 +316,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     }
 
     override fun onBackPressed(): Boolean {
-        // FIXME (johannes): please check about the usefulness of the following logic
-        return if (hasBeenSwiped) {
-            lifecycleScope.launch { showSectionOrGoBack() }
+        val isImprint = getCurrentArticleStub()?.isImprint() ?: false
+        return if (isImprint) {
+            requireActivity().finish()
             true
         } else {
-            return false
+            false
         }
     }
-
-    private suspend fun showSectionOrGoBack(): Boolean {
-        return getCurrentArticleStub()?.let { articleStub ->
-            runIfNotNull(
-                issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
-                articleStub.getSectionStub(requireContext().applicationContext)
-            ) { issueKey, sectionStub ->
-                issueContentViewModel.setDisplayable(
-                    IssueKeyWithDisplayableKey(
-                        issueKey,
-                        sectionStub.key
-                    )
-                )
-                true
-            } ?: false
-        } ?: false
-    }
-
     private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
