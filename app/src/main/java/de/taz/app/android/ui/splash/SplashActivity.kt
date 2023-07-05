@@ -59,6 +59,7 @@ class SplashActivity : StartupActivity() {
     private lateinit var appInfoRepository: AppInfoRepository
     private lateinit var feedRepository: FeedRepository
     private lateinit var resourceInfoRepository: ResourceInfoRepository
+    private lateinit var nightModeHelper: NightModeHelper
 
     private var showSplashScreen = true
 
@@ -84,6 +85,7 @@ class SplashActivity : StartupActivity() {
         appInfoRepository = AppInfoRepository.getInstance(application)
         feedRepository = FeedRepository.getInstance(application)
         resourceInfoRepository = ResourceInfoRepository.getInstance(application)
+        nightModeHelper = NightModeHelper.getInstance(application)
 
         lifecycleScope.launch {
             initialize()
@@ -483,6 +485,7 @@ class SplashActivity : StartupActivity() {
                 )
             )
             log.verbose("Created tazApi.css")
+            nightModeHelper.notifyTazApiCSSFileReady()
         }
         log.verbose("Finished initializing resources")
     }

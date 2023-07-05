@@ -24,6 +24,10 @@ class NightModeHelper private constructor(private val applicationContext: Contex
         }
     }
 
+    suspend fun notifyTazApiCSSFileReady() {
+        generateCssOverride()
+    }
+
     private suspend fun generateCssOverride() = withContext(Dispatchers.IO) {
         val cssFileEntry =
             FileEntryRepository.getInstance(applicationContext).get("tazApi.css")
