@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.tracking.Tracker
@@ -39,7 +38,7 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

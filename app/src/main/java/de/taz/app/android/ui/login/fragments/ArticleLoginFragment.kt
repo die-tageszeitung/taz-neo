@@ -13,7 +13,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -56,8 +55,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityResultLauncher = registerForActivityResult(LoginContract(), this)
-        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
-        tracker = getTazApplication().tracker
+
+        val applicationContext = requireContext().applicationContext
+        toastHelper = ToastHelper.getInstance(applicationContext)
+        tracker = Tracker.getInstance(applicationContext)
     }
 
 

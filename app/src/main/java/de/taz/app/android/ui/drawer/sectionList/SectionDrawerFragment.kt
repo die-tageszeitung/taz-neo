@@ -22,6 +22,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewBinding
@@ -53,8 +54,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var toastHelper: ToastHelper
-
     private lateinit var storageService: StorageService
+    private lateinit var tracker: Tracker
 
     private var momentBinder: MomentViewBinding? = null
 
@@ -70,6 +71,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +79,10 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         sectionListAdapter =
             SectionListAdapter(
                 ::onSectionItemClickListener,
+                ::handleSectionToggle,
                 ::handleArticleClick,
                 ::handleArticleBookmarkClick,
-                bookmarkRepository::createBookmarkStateFlow
+                bookmarkRepository::createBookmarkStateFlow,
             )
     }
 
@@ -130,6 +133,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     }
 
     private fun onSectionItemClickListener(clickedSection: Section) {
+        tracker.trackDrawerTapSectionEvent()
         lifecycleScope.launch {
             issueContentViewModel.setDisplayable(
                 currentIssueStub.issueKey,
@@ -137,6 +141,10 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             )
         }
         drawerAndLogoViewModel.closeDrawer()
+    }
+
+    private fun handleSectionToggle() {
+        tracker.trackDrawerToggleSectionEvent()
     }
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
@@ -176,6 +184,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE
                     setOnClickListener {
+                        tracker.trackDrawerTapImprintEvent()
                         showImprint(issueKey, imprint.key)
                     }
                 } else {
@@ -186,6 +195,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             viewBinding.fragmentDrawerToggleAllSections.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
+                    tracker.trackDrawerToggleAllSectionsEvent()
                     sectionListAdapter.toggleAllSections()
                 }
             }
@@ -217,6 +227,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {
+                            tracker.trackDrawerTapMomentEvent()
                             requireActivity().finish()
                         }
                     },
@@ -259,16 +270,17 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
      * @param article Article that was clicked.
      */
     private fun handleArticleClick(article: Article) {
-        log.debug("handleArticleClick on ${article.title}")
+        tracker.trackDrawerTapArticleEvent()
         lifecycleScope.launch {
             issueContentViewModel.setDisplayable(currentIssueStub.issueKey, article.key)
             drawerAndLogoViewModel.closeDrawer()
         }
     }
+
     private fun handleArticleBookmarkClick(article: Article) {
-        log.debug("handleArticleBookmarkClick on ${article.title}")
+        tracker.trackDrawerTapBookmarkEvent()
         lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article.key).await()
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
             } else {

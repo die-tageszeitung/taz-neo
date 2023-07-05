@@ -30,7 +30,6 @@ abstract class AbstractTazApplication : Application() {
 
     private lateinit var authHelper: AuthHelper
     private var _tracker: Tracker? = null
-    lateinit var tracker: Tracker
 
     // use this scope if you want to run code which should not terminate if the lifecycle of
     // a fragment or activity is finished
@@ -112,19 +111,16 @@ abstract class AbstractTazApplication : Application() {
 
 
     // region tracking
-    protected abstract fun initializeTracker(): Tracker
-
     private fun setupTracker() {
-        _tracker = initializeTracker()
-        tracker = requireNotNull(_tracker)
+        _tracker = Tracker.getInstance(applicationContext)
 
         // FIXME (johannes): store opt-in in our settings and enable/disable accordingly
-        tracker.enable()
+        _tracker?.enable()
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(trackerLifecycleObserver)
 
         // Track this download (only tracks once)
-        tracker.trackDownload(BuildConfig.VERSION_NAME)
+        _tracker?.trackDownload(BuildConfig.VERSION_NAME)
     }
 
     private val trackerLifecycleObserver = object : DefaultLifecycleObserver {

@@ -2,21 +2,31 @@ package de.taz.app.android.tracking
 
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 
 class NoOpTracker : Tracker {
     override fun enable() {}
     override fun disable() {}
+    override fun startNewSession() {}
     override fun dispatch() {}
     override fun trackDownload(version: String) {}
     override fun trackAppIsBackgroundedEvent() {}
+    override fun trackUserAuthenticatedState() {}
+    override fun trackUserAnonymousState() {}
+    override fun trackUserLoginEvent() {}
+    override fun trackUserLogoutEvent() {}
+    override fun trackUserSubscriptionElapsedEvent() {}
+    override fun trackUserSubscriptionRenewedEvent() {}
     override fun trackCoverflowScreen(pdfMode: Boolean) {}
     override fun trackArchiveScreen(pdfMode: Boolean) {}
     override fun trackBookmarkListScreen() {}
     override fun trackSearchScreen() {}
     override fun trackSettingsScreen() {}
     override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {}
+    override fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String) {}
     override fun trackArticleScreen(issueKey: AbstractIssuePublication, sectionOperations: SectionOperations, article: Article) {}
     override fun trackErrorReportScreen() {}
     override fun trackWebViewScreen(htmlFile: String) {}
@@ -48,5 +58,23 @@ class NoOpTracker : Tracker {
     override fun trackSubscriptionInquiryFormValidationErrorEvent() {}
     override fun trackSubscriptionInquiryServerErrorEvent() {}
     override fun trackSubscriptionInquiryNetworkErrorEvent() {}
-    override fun trackTogglePdfModeTappedEvent(switchToPdfMode: Boolean) {}
+    override fun trackSubscriptionTrialConfirmedEvent() {}
+    override fun trackSwitchToPdfModeEvent() {}
+    override fun trackSwitchToMobileModeEvent() {}
+    override fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
+    override fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
+    override fun trackShareArticleEvent(article: Article) {}
+    override fun trackShareArticleEvent(articleStub: ArticleStub) {}
+    override fun trackShareSearchHitEvent(onlineLink: String) {}
+    override fun trackShareMomentEvent(issueKey: AbstractIssuePublication) {}
+    override fun trackDrawerOpenEvent(dragged: Boolean) {}
+    override fun trackDrawerTapPageEvent() {}
+    override fun trackDrawerTapSectionEvent() {}
+    override fun trackDrawerTapArticleEvent() {}
+    override fun trackDrawerTapImprintEvent() {}
+    override fun trackDrawerTapMomentEvent() {}
+    override fun trackDrawerTapBookmarkEvent() {}
+    override fun trackDrawerToggleAllSectionsEvent() {}
+    override fun trackDrawerToggleSectionEvent() {}
+    override fun trackAudioPlayerPlayArticleEvent(articleAudio: ArticleAudio) {}
 }

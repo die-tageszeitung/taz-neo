@@ -6,12 +6,9 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.AddBottomSheetDialog
 import de.taz.app.android.util.hideSoftInputKeyboard
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<VIEW_BINDING>() {
 
@@ -19,22 +16,20 @@ abstract class BaseMainFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment<
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
-    suspend fun showSharingNotPossibleDialog() {
-        withContext(Dispatchers.Main) {
-            context?.let {
-                val dialog = MaterialAlertDialogBuilder(it)
-                    .setTitle(getString(R.string.dialog_sharing_not_possible_title))
-                    .setMessage(getString(R.string.dialog_sharing_not_possible_message))
-                    .setPositiveButton(getString(R.string.close_okay)) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-                dialog.show()
-                tracker.trackSharingNotPossibleDialog()
-            }
+    protected fun showSharingNotPossibleDialog() {
+        context?.let {
+            val dialog = MaterialAlertDialogBuilder(it)
+                .setTitle(getString(R.string.dialog_sharing_not_possible_title))
+                .setMessage(getString(R.string.dialog_sharing_not_possible_message))
+                .setPositiveButton(getString(R.string.close_okay)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create()
+            dialog.show()
+            tracker.trackSharingNotPossibleDialog()
         }
     }
 

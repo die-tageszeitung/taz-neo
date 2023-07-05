@@ -1,11 +1,16 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +28,6 @@ class BookmarkPagerViewModel(
 ) : AndroidViewModel(application) {
 
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
-    private val articleRepository = ArticleRepository.getInstance(application.applicationContext)
     private val bookmarkRepository = BookmarkRepository.getInstance(application.applicationContext)
 
     val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
@@ -60,14 +64,14 @@ class BookmarkPagerViewModel(
         get() = currentIssueAndArticleLiveData.value?.first
 
     fun toggleBookmark(articleStub: ArticleStub) {
-        bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName)
+        bookmarkRepository.toggleBookmarkAsync(articleStub)
     }
 
     fun bookmarkArticle(article: Article) {
-        bookmarkRepository.addBookmarkAsync(article.key)
+        bookmarkRepository.addBookmarkAsync(article)
     }
 
     fun debookmarkArticle(article: Article) {
-        bookmarkRepository.removeBookmarkAsync(article.key)
+        bookmarkRepository.removeBookmarkAsync(article)
     }
 }

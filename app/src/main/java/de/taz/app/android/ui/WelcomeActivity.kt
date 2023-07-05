@@ -14,7 +14,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityWelcomeBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
@@ -57,7 +56,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(applicationContext)
 
         // The AudioPlayer shall stop when we show full screen info views
         AudioPlayerService.getInstance(applicationContext).apply {

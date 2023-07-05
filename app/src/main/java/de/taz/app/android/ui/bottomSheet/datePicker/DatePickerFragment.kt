@@ -12,7 +12,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
@@ -48,7 +47,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
             "CurrentDate must always be set when using DatePickerFragment"
         }
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onStart() {

@@ -18,8 +18,4 @@ class TazApplication : AbstractTazApplication() {
             }
         }
     }
-
-    override fun initializeTracker(): Tracker {
-        return NoOpTracker()
-    }
 }

@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +25,7 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,10 +49,17 @@ class DrawerBodyPdfPagesFragment : Fragment() {
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
 
     private lateinit var storageService: StorageService
+    private lateinit var tracker: Tracker
 
     companion object {
         // The drawer initialization will be delayed, so that the main pdf rendering has some time to finish
         private const val DRAWER_INIT_DELAY_MS = 10L
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        storageService = StorageService.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreateView(
@@ -58,8 +67,6 @@ class DrawerBodyPdfPagesFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-
         val view = inflater.inflate(R.layout.fragment_drawer_body_pdf_pages, container, false)
 
         frontPageImageView = view.findViewById(R.id.activity_pdf_drawer_front_page)
@@ -77,6 +84,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
             RecyclerTouchListener(
                 requireContext(),
                 fun(_: View, drawerPosition: Int) {
+                    tracker.trackDrawerTapPageEvent()
                     log.debug("position clicked: $drawerPosition. pdf")
                     // currentItem.value begins from 0 to n-1th pdf page
                     // but in the drawer the front page is not part of the drawer list, that's why
@@ -131,6 +139,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 .into(frontPageImageView)
 
             frontPageImageView.setOnClickListener {
+                tracker.trackDrawerTapPageEvent()
                 val newPosition = 0
                 if (newPosition != pdfPagerViewModel.currentItem.value) {
                     pdfPagerViewModel.updateCurrentItem(newPosition)

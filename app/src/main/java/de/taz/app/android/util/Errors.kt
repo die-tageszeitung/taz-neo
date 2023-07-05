@@ -3,9 +3,9 @@ package de.taz.app.android.util
 import android.app.Activity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.tracking.Tracker
 import io.sentry.Sentry
 
 fun <T> reportAndRethrowExceptions(block: () -> T): T {
@@ -27,7 +27,7 @@ fun Activity.showConnectionErrorDialog(onDismiss: () -> Unit = { finish() }) {
         .create()
 
     dialog.show()
-    getTazApplication().tracker.trackConnectionErrorDialog()
+    Tracker.getInstance(applicationContext).trackConnectionErrorDialog()
 }
 
 
@@ -40,7 +40,7 @@ fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
         }
         .create()
     dialog.show()
-    getTazApplication().tracker.trackFatalErrorDialog()
+    Tracker.getInstance(applicationContext).trackFatalErrorDialog()
 }
 
 fun Activity.showIssueDownloadFailedDialog(issuePublication: AbstractIssuePublication) {
@@ -57,5 +57,5 @@ fun Activity.showIssueDownloadFailedDialog(issuePublication: AbstractIssuePublic
         .create()
 
     dialog.show()
-    getTazApplication().tracker.trackIssueDownloadErrorDialog()
+    Tracker.getInstance(applicationContext).trackIssueDownloadErrorDialog()
 }

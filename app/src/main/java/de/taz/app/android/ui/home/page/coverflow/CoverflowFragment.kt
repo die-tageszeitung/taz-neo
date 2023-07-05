@@ -2,6 +2,7 @@ package de.taz.app.android.ui.home.page.coverflow
 
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -15,7 +16,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -59,6 +59,12 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val momentDownloading by lazy { viewBinding.fragmentCoverflowMomentDownloading }
     private val dateDownloadWrapper by lazy { viewBinding.fragmentCoverFlowDateDownloadWrapper }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
+    }
+
     // region lifecycle functions
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,8 +72,6 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-        tracker = getTazApplication().tracker
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

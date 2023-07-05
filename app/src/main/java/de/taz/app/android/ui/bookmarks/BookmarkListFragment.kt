@@ -16,7 +16,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentBookmarksBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -26,12 +25,10 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
@@ -50,7 +47,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
         lifecycleScope.launch {
             feedFlow.value =
                 FeedRepository.getInstance(context.applicationContext).get(BuildConfig.DISPLAYED_FEED)
@@ -94,20 +91,17 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     }
 
     private fun shareArticle(article: Article) {
-        lifecycleScope.launch {
-            article.onlineLink?.let { url ->
-                val sendIntent: Intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, url)
-                    putExtra(Intent.EXTRA_SUBJECT, article.title)
-                    type = "text/plain"
-                }
-                withContext(Dispatchers.Main) {
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    startActivity(shareIntent)
-                }
-            } ?: showSharingNotPossibleDialog()
-        }
+        article.onlineLink?.let { url ->
+            tracker.trackShareArticleEvent(article)
+            val sendIntent: Intent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, url)
+                putExtra(Intent.EXTRA_SUBJECT, article.title)
+                type = "text/plain"
+            }
+            val shareIntent = Intent.createChooser(sendIntent, null)
+            startActivity(shareIntent)
+        } ?: showSharingNotPossibleDialog()
     }
 
     private fun goToIssueInCoverFlow(dateString: String) {

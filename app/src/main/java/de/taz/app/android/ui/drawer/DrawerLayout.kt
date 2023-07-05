@@ -9,6 +9,7 @@ import android.view.View
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import de.taz.app.android.R
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 
 class DrawerLayout @JvmOverloads constructor(
@@ -16,6 +17,8 @@ class DrawerLayout @JvmOverloads constructor(
 ) : DrawerLayout(context, attributeSet, defStyle) {
 
     private val log by Log
+    private val tracker: Tracker = Tracker.getInstance(context.applicationContext)
+
     var drawerLogoBoundingBox: Rect? = null
 
     fun updateDrawerLogoBoundingBox(width: Int, height: Int) {
@@ -38,6 +41,7 @@ class DrawerLayout @JvmOverloads constructor(
                 if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
                     log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
                     openDrawer(GravityCompat.START)
+                    tracker.trackDrawerOpenEvent(dragged = false)
                     return true
                 }
             }
@@ -60,5 +64,35 @@ class DrawerLayout @JvmOverloads constructor(
         if (Build.VERSION.SDK_INT >= 29) {
             systemGestureExclusionRects = exclusionRectList
         }
+    }
+
+
+    // Setup drawer tracking
+    init {
+        addDrawerListener(object : DrawerListener {
+
+            private var isDragging = false
+
+            override fun onDrawerOpened(drawerView: View) {
+                if (isDragging) {
+                    tracker.trackDrawerOpenEvent(dragged = true)
+                }
+                isDragging = false
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                isDragging = false
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                when (newState) {
+                    STATE_DRAGGING -> isDragging = true
+                    STATE_IDLE -> isDragging = false
+                    STATE_SETTLING -> Unit
+                }
+            }
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) = Unit
+        })
     }
 }

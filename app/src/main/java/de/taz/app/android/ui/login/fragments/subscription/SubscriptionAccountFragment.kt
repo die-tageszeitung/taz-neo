@@ -16,7 +16,6 @@ import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
 import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
@@ -51,7 +50,7 @@ class SubscriptionAccountFragment :
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

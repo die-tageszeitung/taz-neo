@@ -9,13 +9,13 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import kotlinx.coroutines.guava.await
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -81,6 +82,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
+    private val tracker = Tracker.getInstance(applicationContext)
 
     // Central internal state of the Service
     private val state: MutableStateFlow<State> = MutableStateFlow(State.Init)
@@ -221,6 +223,16 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     )
                 }
                 _uiState.value = uiState
+            }
+        }
+
+        // Trigger tracking events from the default dispatcher
+        launch(Dispatchers.Default) {
+            state.collect {state ->
+                when(state) {
+                    is State.AudioPlaying -> tracker.trackAudioPlayerPlayArticleEvent(state.articleAudio)
+                    else -> Unit
+                }
             }
         }
     }

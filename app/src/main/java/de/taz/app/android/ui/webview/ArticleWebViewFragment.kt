@@ -12,9 +12,11 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ArticleWebViewFragment : WebViewFragment<
@@ -27,6 +29,7 @@ class ArticleWebViewFragment : WebViewFragment<
 
     private lateinit var articleFileName: String
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var tracker: Tracker
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -51,7 +54,8 @@ class ArticleWebViewFragment : WebViewFragment<
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +69,16 @@ class ArticleWebViewFragment : WebViewFragment<
                     it
                 )
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewLifecycleOwner.lifecycleScope.launch {
+            val article = viewModel.articleFlow.first()
+            val sectionStub = viewModel.sectionStubFlow.first()
+            val issueStub = viewModel.issueStubFlow.first()
+            tracker.trackArticleScreen(issueStub.issueKey, sectionStub, article)
         }
     }
 

@@ -26,7 +26,6 @@ import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -114,12 +113,12 @@ class SectionWebViewFragment : WebViewFragment<
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
-        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
-        tracker = getTazApplication().tracker
+        sectionRepository = SectionRepository.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
@@ -283,7 +282,9 @@ class SectionWebViewFragment : WebViewFragment<
 
 
     override suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> {
-        val articleFileNames = articleNamesInWebView.mapNotNull { issueViewerViewModel.findArticleFileName(it) }
+        val articleFileNames = articleNamesInWebView.mapNotNull {
+            issueViewerViewModel.findArticleStubByArticleName(it)?.articleFileName
+        }
 
         setupBookmarkStateFlows(articleFileNames)
 
@@ -297,13 +298,13 @@ class SectionWebViewFragment : WebViewFragment<
         isBookmarked: Boolean,
         showNotification: Boolean
     ) {
-        val articleFileName = issueViewerViewModel.findArticleFileName(articleName)
-        if (articleFileName != null) {
+        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
+        if (articleStub != null) {
             if (isBookmarked) {
-                bookmarkRepository.addBookmarkAsync(articleFileName).await()
+                bookmarkRepository.addBookmarkAsync(articleStub).await()
                 toastHelper.showToast(R.string.toast_article_bookmarked)
             } else {
-                bookmarkRepository.removeBookmarkAsync(articleFileName).await()
+                bookmarkRepository.removeBookmarkAsync(articleStub).await()
                 toastHelper.showToast(R.string.toast_article_debookmarked)
             }
         } else {

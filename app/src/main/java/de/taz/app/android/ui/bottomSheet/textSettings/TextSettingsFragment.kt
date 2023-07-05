@@ -16,7 +16,7 @@ class TextSettingsFragment :
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker.trackTextSettingsDialog()
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,6 +57,11 @@ class TextSettingsFragment :
         viewModel.observeFontSize(viewLifecycleOwner) { textSizePercentage ->
             setFontSizePercentage(textSizePercentage)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tracker.trackTextSettingsDialog()
     }
 
     private fun setNightMode(active: Boolean) {

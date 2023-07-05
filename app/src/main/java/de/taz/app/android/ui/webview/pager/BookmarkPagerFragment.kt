@@ -39,6 +39,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -58,6 +59,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var issueRepository: IssueRepository
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
     private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
@@ -80,6 +82,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
@@ -246,13 +249,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     }
 
     private fun share() {
-        lifecycleScope.launch {
-            getCurrentlyDisplayedArticleStub()?.let { articleStub ->
-                val url = articleStub.onlineLink
-                url?.let {
-                    shareArticle(url, articleStub.title)
-                } ?: showSharingNotPossibleDialog()
-            }
+        getCurrentlyDisplayedArticleStub()?.let { articleStub ->
+            val url = articleStub.onlineLink
+            url?.let {
+                tracker.trackShareArticleEvent(articleStub)
+                shareArticle(url, articleStub.title)
+            } ?: showSharingNotPossibleDialog()
         }
     }
 

@@ -38,6 +38,7 @@ import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -49,7 +50,6 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,6 +67,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
     private lateinit var issueRepository: IssueRepository
     private lateinit var pageRepository: PageRepository
     private lateinit var fontHelper: FontHelper
@@ -88,15 +89,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
-        issueRepository = IssueRepository.getInstance(requireActivity().applicationContext)
-        pageRepository = PageRepository.getInstance(requireActivity().applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
-        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
-        fontHelper = FontHelper.getInstance(requireContext().applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
+        articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
+        pageRepository = PageRepository.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
+        fontHelper = FontHelper.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -367,7 +369,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private fun toggleBookmark(articleStub: ArticleStub) {
         lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
             }
@@ -377,14 +379,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    fun share() {
-        lifecycleScope.launch {
-            getCurrentArticleStub()?.let { articleStub ->
-                val url = articleStub.onlineLink
-                url?.let {
-                    shareArticle(url, articleStub.title)
-                } ?: showSharingNotPossibleDialog()
-            }
+    private fun share() {
+        getCurrentArticleStub()?.let { articleStub ->
+            val url = articleStub.onlineLink
+            url?.let {
+                tracker.trackShareArticleEvent(articleStub)
+                shareArticle(url, articleStub.title)
+            } ?: showSharingNotPossibleDialog()
         }
     }
 

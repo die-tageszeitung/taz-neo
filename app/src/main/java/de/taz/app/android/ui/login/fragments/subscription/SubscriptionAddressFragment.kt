@@ -9,7 +9,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentSubscriptionAddressBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.tracking.Tracker
@@ -60,7 +59,7 @@ class SubscriptionAddressFragment :
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

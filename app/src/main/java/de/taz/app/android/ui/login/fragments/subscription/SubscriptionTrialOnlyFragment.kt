@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentSubscriptionTrialOnlyBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 
@@ -27,7 +26,7 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -3,19 +3,64 @@ package de.taz.app.android.tracking
 import android.content.Context
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.singletons.AuthHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.matomo.sdk.Matomo
+import org.matomo.sdk.QueryParams
+import org.matomo.sdk.TrackMe
 import org.matomo.sdk.TrackerBuilder
 import org.matomo.sdk.extra.TrackHelper
+import kotlin.coroutines.CoroutineContext
 
+// region: Event Categories
+private const val CATEGORY_APPLICATION = "Application"
+private const val CATEGORY_USER = "User"
+private const val CATEGORY_DIALOG = "Dialog"
+private const val CATEGORY_SUBSCRIPTION = "Subscription"
+private const val CATEGORY_APPMODE = "AppMode"
+private const val CATEGORY_BOOKMARKS = "Bookmarks"
+private const val CATEGORY_SHARE = "Share"
+private const val CATEGORY_DRAWER = "Drawer"
+private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
+// endregion
 
-class MatomoTracker(applicationContext: Context) : Tracker {
+class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+
+    val authHelper = AuthHelper.getInstance(applicationContext)
 
     private val matomo = Matomo.getInstance(applicationContext)
-    private val matomoTracker = TrackerBuilder
+    private val config = TrackerBuilder
         .createDefault("https://gazpacho.taz.de/matomo.php", 113)
-        .build(matomo)
+        .setApplicationBaseUrl("https://${applicationContext.packageName}/")
+    private val matomoTracker = SessionAwareTracker(matomo, config, ::onNewSession)
+
+    private fun onNewSession() {
+        launch {
+            when (authHelper.status.get()) {
+                AuthStatus.valid -> trackUserAuthenticatedState()
+                AuthStatus.elapsed -> {
+                    trackUserAuthenticatedState()
+                    trackUserSubscriptionElapsedEvent()
+                }
+
+                AuthStatus.notValid -> trackUserAnonymousState()
+
+                // These status won't occur as a result of an authentication - only during the login process itself.
+                // They won't ever be set to AuthHelper.status and can be ignored
+                AuthStatus.tazIdNotLinked, AuthStatus.alreadyLinked, AuthStatus.notValidMail -> Unit
+            }
+        }
+    }
 
     override fun enable() {
         matomoTracker.isOptOut = false
@@ -23,6 +68,10 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun disable() {
         matomoTracker.isOptOut = true
+    }
+
+    override fun startNewSession() {
+        matomoTracker.startNewSession()
     }
 
     override fun dispatch() {
@@ -35,18 +84,56 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun trackAppIsBackgroundedEvent() {
         TrackHelper.track()
-            .event("Application", "Minimize")
+            .event(CATEGORY_APPLICATION, "Minimize")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserAuthenticatedState() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "State Authenticated")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserAnonymousState() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "State Anonymous")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserLoginEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "Login")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserLogoutEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "Logout")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserSubscriptionElapsedEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "Subscription Elapsed")
+            .with(matomoTracker)
+    }
+
+    override fun trackUserSubscriptionRenewedEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_USER, "Subscription Renewed")
             .with(matomoTracker)
     }
 
     override fun trackCoverflowScreen(pdfMode: Boolean) {
-        val screenName = if (pdfMode) "/home/coverflow/pdf" else "/home/coverflow"
-        TrackHelper.track().screen(screenName).title("Coverflow").with(matomoTracker)
+        val screenName = if (pdfMode) "/home/coverflow/pdf" else "/home/coverflow/app"
+        val screenTitle = if (pdfMode) "Coverflow PDF" else "Coverflow App"
+        TrackHelper.track().screen(screenName).title(screenTitle).with(matomoTracker)
     }
 
     override fun trackArchiveScreen(pdfMode: Boolean) {
-        val screenName = if (pdfMode) "/home/archive/pdf" else "/home/archive"
-        TrackHelper.track().screen(screenName).title("Archive").with(matomoTracker)
+        val screenName = if (pdfMode) "/home/archive/pdf" else "/home/archive/app"
+        val screenTitle = if (pdfMode) "Archive PDF" else "Archive App"
+        TrackHelper.track().screen(screenName).title(screenTitle).with(matomoTracker)
     }
 
     override fun trackBookmarkListScreen() {
@@ -69,8 +156,12 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "section/${section.key}"
     }
 
-    private fun articlePath(article: Article): String {
-        return "article/${article.key}|${article.mediaSyncId}"
+    private fun articlePath(article: Article): String =
+        articlePath(article.key, article.mediaSyncId)
+
+    private fun articlePath(articleFileName: String, mediaSyncId: Int?): String {
+        val mediaSyncSuffix = mediaSyncId ?: ""
+        return "article/$articleFileName|$mediaSyncSuffix"
     }
 
     override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {
@@ -78,6 +169,14 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         TrackHelper.track()
             .screen(path)
             .title(section.getHeaderTitle())
+            .with(matomoTracker)
+    }
+
+    override fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String) {
+        val path = "/${issuePath(issueKey)}/pdf/$pagina"
+        TrackHelper.track()
+            .screen(path)
+            .title("PDF Page: $pagina")
             .with(matomoTracker)
     }
 
@@ -179,117 +278,275 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun trackLoginHelpDialog() {
         TrackHelper.track()
-            .event("Dialog", "Login Help")
+            .event(CATEGORY_DIALOG, "Login Help")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionHelpDialog() {
         TrackHelper.track()
-            .event("Dialog", "Subscription Help")
+            .event(CATEGORY_DIALOG, "Subscription Help")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionElapsedDialog() {
         TrackHelper.track()
-            .event("Dialog", "Subscription Elapsed")
+            .event(CATEGORY_DIALOG, "Subscription Elapsed")
             .with(matomoTracker)
     }
 
     override fun trackAllowNotificationsDialog() {
         TrackHelper.track()
-            .event("Dialog", "Allow Notifications Info")
+            .event(CATEGORY_DIALOG, "Allow Notifications Info")
             .with(matomoTracker)
     }
 
     override fun trackIssueActionsDialog() {
         TrackHelper.track()
-            .event("Dialog", "Issue Actions")
+            .event(CATEGORY_DIALOG, "Issue Actions")
             .with(matomoTracker)
     }
 
     override fun trackIssueDatePickerDialog() {
         TrackHelper.track()
-            .event("Dialog", "Issue Date Picker")
+            .event(CATEGORY_DIALOG, "Issue Date Picker")
             .with(matomoTracker)
     }
 
     override fun trackTextSettingsDialog() {
         TrackHelper.track()
-            .event("Dialog", "Text Settings")
+            .event(CATEGORY_DIALOG, "Text Settings")
             .with(matomoTracker)
     }
 
     override fun trackSharingNotPossibleDialog() {
         TrackHelper.track()
-            .event("Dialog", "Sharing Not Possible")
+            .event(CATEGORY_DIALOG, "Sharing Not Possible")
             .with(matomoTracker)
     }
 
     override fun trackAutomaticDownloadDialog() {
         TrackHelper.track()
-            .event("Dialog", "Automatic Download Choice")
+            .event(CATEGORY_DIALOG, "Automatic Download Choice")
             .with(matomoTracker)
     }
 
     override fun trackPdfModeLoginHintDialog() {
         TrackHelper.track()
-            .event("Dialog", "PDF Mode Login Hint")
+            .event(CATEGORY_DIALOG, "PDF Mode Login Hint")
             .with(matomoTracker)
     }
 
     override fun trackPdfModeSwitchHintDialog() {
         TrackHelper.track()
-            .event("Dialog", "PDF Mode Switch Hint")
+            .event(CATEGORY_DIALOG, "PDF Mode Switch Hint")
             .with(matomoTracker)
     }
 
     override fun trackConnectionErrorDialog() {
         TrackHelper.track()
-            .event("Dialog", "Connection Error")
+            .event(CATEGORY_DIALOG, "Connection Error")
             .with(matomoTracker)
     }
 
     override fun trackFatalErrorDialog() {
         TrackHelper.track()
-            .event("Dialog", "Fatal Error")
+            .event(CATEGORY_DIALOG, "Fatal Error")
             .with(matomoTracker)
     }
 
     override fun trackIssueDownloadErrorDialog() {
         TrackHelper.track()
-            .event("Dialog", "Issue Download Error")
+            .event(CATEGORY_DIALOG, "Issue Download Error")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionInquirySubmittedEvent() {
         TrackHelper.track()
-            .event("Subscription", "Inquiry Submitted")
+            .event(CATEGORY_SUBSCRIPTION, "Inquiry Submitted")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionInquiryFormValidationErrorEvent() {
         TrackHelper.track()
-            .event("Subscription", "Inquiry Form Validation Error")
+            .event(CATEGORY_SUBSCRIPTION, "Inquiry Form Validation Error")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionInquiryServerErrorEvent() {
         TrackHelper.track()
-            .event("Subscription", "Inquiry Server Error")
+            .event(CATEGORY_SUBSCRIPTION, "Inquiry Server Error")
             .with(matomoTracker)
     }
 
     override fun trackSubscriptionInquiryNetworkErrorEvent() {
         TrackHelper.track()
-            .event("Subscription", "Inquiry Network Error")
+            .event(CATEGORY_SUBSCRIPTION, "Inquiry Network Error")
             .with(matomoTracker)
     }
 
-    override fun trackTogglePdfModeTappedEvent(switchToPdfMode: Boolean) {
+    override fun trackSubscriptionTrialConfirmedEvent() {
         TrackHelper.track()
-            .event("Interaction", "Toggle PDF Mode")
-            .name("Toggle PDF Mode Button Tapped")
-            .value(if (switchToPdfMode) 1f else 0f)
+            .event(CATEGORY_SUBSCRIPTION, "Trial Confirmed")
             .with(matomoTracker)
+    }
+
+    override fun trackSwitchToPdfModeEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPMODE, "Switch to PDF Mode")
+            .with(matomoTracker)
+    }
+
+    override fun trackSwitchToMobileModeEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPMODE, "Switch to Mobile Mode")
+            .with(matomoTracker)
+    }
+
+    override fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_BOOKMARKS, "Add Article")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_BOOKMARKS, "Remove Article")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackShareArticleEvent(articleStub: ArticleStub) {
+        trackShareArticleEvent(articleStub.articleFileName, articleStub.mediaSyncId)
+    }
+
+    override fun trackShareArticleEvent(article: Article) {
+        trackShareArticleEvent(article.key, article.mediaSyncId)
+    }
+
+    private fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Share Article")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackShareSearchHitEvent(onlineLink: String) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Share Search Hit")
+            .name(onlineLink)
+            .with(matomoTracker)
+    }
+
+    override fun trackShareMomentEvent(issueKey: AbstractIssuePublication) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Issue Moment")
+            .name(issuePath(issueKey))
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerOpenEvent(dragged: Boolean) {
+        val eventName = if (dragged) "Dragging" else "Logo Tap"
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Open")
+            .name(eventName)
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapPageEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Page")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapSectionEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Section")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapArticleEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Article")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapImprintEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Imprint")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapMomentEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Moment")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerTapBookmarkEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Bookmark")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerToggleAllSectionsEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Toggle")
+            .name("Toggle all Sections")
+            .with(matomoTracker)
+    }
+
+    override fun trackDrawerToggleSectionEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Toggle")
+            .name("Toggle section")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerPlayArticleEvent(articleAudio: ArticleAudio) {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Play Article")
+            .name(articlePath(articleAudio.article.key, articleAudio.article.mediaSyncId))
+            .with(matomoTracker)
+    }
+
+}
+
+/**
+ * Wrapper around [org.matomo.sdk.Tracker] calling [onNewSession] when the first event of a new session is sent.
+ */
+private class SessionAwareTracker(
+    matomo: Matomo,
+    config: TrackerBuilder,
+    private val onNewSession: () -> Unit
+) : org.matomo.sdk.Tracker(matomo, config) {
+
+    companion object {
+        private const val MATOMO_TRUE_VALUE: String = "1"
+    }
+
+    init {
+        requireNotNull(config.applicationBaseUrl) { "TrackerBuilder must contain a valid applicationBaseUrl" }
+    }
+
+    // Circuit breaker to prevent from infinite recursion in case of onNewSession calling track() with another event
+    private var isInNewSessionHandling = false
+
+    override fun track(trackMe: TrackMe): org.matomo.sdk.Tracker {
+        super.track(trackMe)
+
+        val sessionStartParam: String? = trackMe.get(QueryParams.SESSION_START)
+        if (sessionStartParam == MATOMO_TRUE_VALUE && !isInNewSessionHandling) {
+            isInNewSessionHandling = true
+            onNewSession()
+            isInNewSessionHandling = false
+        }
+        return this
     }
 }

@@ -23,7 +23,6 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -73,7 +72,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         downloadDataStore = DownloadDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(applicationContext)
 
 
         lifecycleScope.launch {

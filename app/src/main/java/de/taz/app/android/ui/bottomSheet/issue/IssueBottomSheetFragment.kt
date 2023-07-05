@@ -15,7 +15,6 @@ import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -82,7 +81,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -143,6 +142,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                         putExtra(Intent.EXTRA_STREAM, imageUriNew)
                         type = "image/jpg"
                     }
+                    tracker.trackShareMomentEvent(issue.issueKey)
                     val shareIntent = Intent.createChooser(sendIntent, null)
                     view.context.startActivity(shareIntent)
                 }

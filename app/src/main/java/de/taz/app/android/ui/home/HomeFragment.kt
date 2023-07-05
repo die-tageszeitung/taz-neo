@@ -14,7 +14,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.databinding.FragmentHomeBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
@@ -44,7 +43,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onAttach(context)
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,8 +133,11 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
 
             fabActionPdf.setOnClickListener {
-                val switchToPdfMode = !homePageViewModel.getPdfMode()
-                tracker.trackTogglePdfModeTappedEvent(switchToPdfMode)
+                if (homePageViewModel.getPdfMode()) {
+                    tracker.trackSwitchToMobileModeEvent()
+                } else {
+                    tracker.trackSwitchToPdfModeEvent()
+                }
                 homePageViewModel.togglePdfMode()
             }
         }

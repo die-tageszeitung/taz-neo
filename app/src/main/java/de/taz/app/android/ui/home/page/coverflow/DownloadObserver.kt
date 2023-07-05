@@ -17,8 +17,11 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.getTazApplication
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
@@ -41,20 +44,16 @@ class DownloadObserver constructor(
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
     private val checkmarkIconView: View,
-    private val downloadProgressView: View,
-    private val tracker: Tracker = fragment.getTazApplication().tracker
+    private val downloadProgressView: View
 ) {
     private val log by Log
 
-
-    private val contentService =
-        ContentService.getInstance(fragment.requireContext().applicationContext)
-    private val downloadDataStore =
-        DownloadDataStore.getInstance(fragment.requireContext().applicationContext)
-    private val issueRepository =
-        IssueRepository.getInstance(fragment.requireContext().applicationContext)
-    private val authHelper =
-        AuthHelper.getInstance(fragment.requireContext().applicationContext)
+    private val applicationContext = fragment.requireContext().applicationContext
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
+    private val tracker = Tracker.getInstance(applicationContext)
 
     private val issueDownloadStatusFlow = MutableStateFlow(IssueDownloadStatus.PRESENT)
     private var issueDownloadStatusObserverJob: Job? = null

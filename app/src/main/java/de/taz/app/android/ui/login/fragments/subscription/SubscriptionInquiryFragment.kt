@@ -12,7 +12,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
@@ -59,7 +58,7 @@ abstract class SubscriptionInquiryFragment :
         super.onAttach(context)
         apiService = ApiService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

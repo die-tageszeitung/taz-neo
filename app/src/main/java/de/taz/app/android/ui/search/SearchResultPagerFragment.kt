@@ -33,6 +33,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -64,6 +65,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
     // region views
@@ -92,7 +94,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         apiService = ApiService.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
-        toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireActivity().applicationContext)
     }
 
@@ -253,7 +256,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
             when {
                 articleStub != null -> {
-                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
                         toastHelper.showToast(R.string.toast_article_bookmarked)
                     }
@@ -289,7 +292,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             contentService.downloadMetadata(issueMetadata, maxRetries = 5)
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
-            bookmarkRepository.addBookmark(article.key)
+            bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {
             log.warn("Error while trying to download a full article because of a bookmark request", e)
             Sentry.captureException(e)
@@ -299,12 +302,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun share() {
-        lifecycleScope.launch {
-            getCurrentSearchHit()?.let { hit ->
-                hit.onlineLink?.let {
-                    shareArticle(it, hit.title)
-                } ?: showSharingNotPossibleDialog()
-            }
+        getCurrentSearchHit()?.let { hit ->
+            hit.onlineLink?.let {
+                tracker.trackShareSearchHitEvent(it)
+                shareArticle(it, hit.title)
+            } ?: showSharingNotPossibleDialog()
         }
     }
 

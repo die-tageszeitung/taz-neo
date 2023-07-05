@@ -7,7 +7,6 @@ import androidx.annotation.StringRes
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.hideSoftInputKeyboard
@@ -36,7 +35,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
