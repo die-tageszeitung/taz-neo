@@ -9,6 +9,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
@@ -26,11 +27,13 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var tracker: Tracker
     private val log by Log
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,6 +46,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                     setOnCoordinatesClickedListener(onCoordinatesClickedListener)
                     setOnPageChangeCallback {
                         pdfPagerViewModel.updateCurrentItem(it)
+                        trackOnPageChange(it)
                     }
                     pdfPagerViewModel.currentItem.value?.let {
                         displayedViewIndex = it
@@ -53,6 +57,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
 
         pdfPagerViewModel.currentItem.observe(viewLifecycleOwner) { position ->
+            log.error("observed: $position vs ${viewBinding.readerView.displayedViewIndex}")
             // only update currentItem if it has not been swiped
             if (viewBinding.readerView.displayedViewIndex != position) {
                 viewBinding.readerView.displayedViewIndex = position
@@ -102,6 +107,19 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             viewBinding.readerView.moveToPrevious()
         } else if (x > 0.75f) {
             viewBinding.readerView.moveToNext()
+        }
+    }
+
+    private fun trackOnPageChange(position: Int) {
+        val issue = pdfPagerViewModel.issue
+        val page = issue?.pageList?.getOrNull(position)
+
+        if (issue != null && page != null) {
+            val pagina = page.pagina ?: (position + 1).toString()
+            tracker.trackPdfPageScreen(issue.issueKey, pagina)
+
+        } else {
+            log.warn("Could not get page for position=$position")
         }
     }
 }

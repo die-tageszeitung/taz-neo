@@ -14,7 +14,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -44,8 +43,8 @@ class SubscriptionElapsedBottomSheetFragment :
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
-        tracker = getTazApplication().tracker
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

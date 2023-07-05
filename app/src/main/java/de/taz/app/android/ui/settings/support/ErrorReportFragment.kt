@@ -13,15 +13,12 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
-import de.taz.app.android.getTazApplication
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.*
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.util.*
 
 @Suppress("UNUSED")
@@ -40,10 +37,10 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
-        apiService = ApiService.getInstance(requireContext().applicationContext)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-        tracker = getTazApplication().tracker
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
+        apiService = ApiService.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onResume() {

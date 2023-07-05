@@ -6,7 +6,6 @@ import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentSubscriptionBankBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.markRequired
 import de.taz.app.android.monkey.setError
@@ -41,7 +40,7 @@ class SubscriptionBankFragment : SubscriptionBaseFragment<FragmentSubscriptionBa
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

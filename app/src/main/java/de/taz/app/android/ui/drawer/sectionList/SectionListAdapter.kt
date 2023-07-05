@@ -14,9 +14,10 @@ private const val TYPE_ITEM = 1
 
 class SectionListAdapter(
     private val onSectionClickListener: (Section) -> Unit,
+    private val onToggleSection: () -> Unit,
     private val onArticleClick: (Article) -> Unit,
     private val onBookmarkClick: (Article) -> Unit,
-    private val getBookmarkStateFlow: (String) -> Flow<Boolean>
+    private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     val allOpened = MutableStateFlow(false)
@@ -93,6 +94,8 @@ class SectionListAdapter(
     }
 
     private fun toggleArticlesForSection(section: Section) {
+        onToggleSection()
+
         val index = indexOf(section.key)
 
         val indexOutOfBounds = index +1 >= sectionDrawerItemList.size

@@ -12,6 +12,7 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.NoOpTracker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -127,7 +128,8 @@ class LoginViewModelTest {
             authHelper = authHelper,
             toastHelper = toastHelper,
             feedService = feedService,
-            subscriptionPollHelper = subscriptionPollHelper
+            subscriptionPollHelper = subscriptionPollHelper,
+            tracker = NoOpTracker()
         ).apply { status.postValue(LoginViewModelState.INITIAL) }
     }
 

@@ -1,7 +1,5 @@
 package de.taz.app.android.persistence.repository
 
-import org.junit.Assert.*
-
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -11,11 +9,12 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import java.io.IOException
 import org.junit.After
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -103,7 +102,7 @@ class ArticleRepositoryTest {
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
 
-        bookmarkRepository.addBookmark(fromDB!!.key)
+        bookmarkRepository.addBookmark(fromDB!!)
         val fromDBNew = articleRepository.get(article.articleHtml.name)
         articleRepository.deleteArticle(fromDBNew!!)
         assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))

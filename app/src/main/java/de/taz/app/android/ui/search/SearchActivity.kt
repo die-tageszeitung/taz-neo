@@ -26,7 +26,6 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
@@ -79,7 +78,7 @@ class SearchActivity :
         contentService = ContentService.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(applicationContext)
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
@@ -616,7 +615,7 @@ class SearchActivity :
 
             when {
                 articleStub != null -> {
-                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub.articleFileName).await()
+                    val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
                         toastHelper.showToast(R.string.toast_article_bookmarked)
                     }
@@ -650,7 +649,7 @@ class SearchActivity :
             contentService.downloadMetadata(issueMetadata, maxRetries = 5)
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
-            bookmarkRepository.addBookmark(article.key)
+            bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {
             log.warn("Error while trying to download a full article because of a bookmark request", e)
             Sentry.captureException(e)

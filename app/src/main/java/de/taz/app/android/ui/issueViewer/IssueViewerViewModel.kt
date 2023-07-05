@@ -11,6 +11,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
@@ -191,16 +192,16 @@ class IssueViewerViewModel(
     val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
 
 
-    fun findArticleFileName(articleName: String): String? {
-        val articleFileName = articleListLiveData.value?.find {
+    fun findArticleStubByArticleName(articleName: String): ArticleStub? {
+        val articleStub = articleListLiveData.value?.find {
             ArticleName.fromArticleFileName(it.articleStub.articleFileName) == articleName
-        }?.articleStub?.articleFileName
+        }?.articleStub
 
-        if (articleFileName == null) {
+        if (articleStub == null) {
             val knownArticleFileNames = articleListLiveData.value?.joinToString { it.articleStub.articleFileName }
             log.warn("Could not find articleFileName for articleName=$articleName in $knownArticleFileNames")
         }
-        return articleFileName
+        return articleStub
     }
 
 }

@@ -66,13 +66,14 @@ class PdfPagerViewModel(
 ) : AndroidViewModel(application) {
     private val log by Log
 
-    private val authHelper = AuthHelper.getInstance(application)
+    private val authHelper = AuthHelper.getInstance(application.applicationContext)
     private val contentService: ContentService =
         ContentService.getInstance(application.applicationContext)
-    private val fileEntryRepository = FileEntryRepository.getInstance(application)
-    private val articleRepository = ArticleRepository.getInstance(application)
-    private val issueRepository = IssueRepository.getInstance(application)
-    private val imageRepository = ImageRepository.getInstance(application)
+    private val fileEntryRepository =
+        FileEntryRepository.getInstance(application.applicationContext)
+    private val articleRepository = ArticleRepository.getInstance(application.applicationContext)
+    private val issueRepository = IssueRepository.getInstance(application.applicationContext)
+    private val imageRepository = ImageRepository.getInstance(application.applicationContext)
 
     private var issuePublication: IssuePublicationWithPages? = null
 

@@ -18,11 +18,10 @@ import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.util.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 
 // region old setting names
@@ -61,7 +60,7 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
 class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
     dataStore: DataStore<Preferences>
-) {
+): CoroutineScope {
 
     companion object : SingletonHolder<AuthHelper, Context>(::AuthHelper)
 
@@ -70,11 +69,14 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         applicationContext.authDataStore
     )
 
+    override val coroutineContext = SupervisorJob() + Dispatchers.Default
+
     // Use lazy to break an infinite getInstance loop
     private val contentService by lazy { ContentService.getInstance(applicationContext) }
     private val bookmarkRepository by lazy { BookmarkRepository.getInstance(applicationContext) }
     private val toastHelper by lazy { ToastHelper.getInstance(applicationContext) }
     private val firebaseHelper by lazy { FirebaseHelper.getInstance(applicationContext) }
+    private val tracker by lazy { Tracker.getInstance(applicationContext) }
 
     /**
      * determines if a follow up registration was already triggered by the app via [LoginViewModelState.REGISTRATION_EMAIL]
@@ -126,7 +128,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
-    suspend fun isLoggedIn(): Boolean = status.get() == AuthStatus.valid || status.get() == AuthStatus.elapsed
+    suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
 
     suspend fun getMinStatus() =
         if (isValid()) IssueStatus.regular else IssueStatus.public
@@ -136,30 +138,55 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     init {
-        CoroutineScope(Dispatchers.Default).launch {
-            status.asFlow().distinctUntilChanged().drop(1).collect { authStatus ->
+        launch {
+            var prevAuthStatus: AuthStatus? = null
+            status.asFlow().collect { authStatus ->
                 log.debug("AuthStatus changed to $authStatus")
-                when (authStatus) {
-                    AuthStatus.notValid -> {
-                        elapsedButWaiting.set(false)
-                        elapsedFormAlreadySent.set(false)
-                        isLoginWeek.set(false)
-                        toastHelper.showToast(R.string.toast_logout_invalid)
-                    }
-                    AuthStatus.valid -> {
-                        elapsedButWaiting.set(false)
-                        elapsedFormAlreadySent.set(false)
-                        firebaseHelper.ensureTokenSent()
-                        transformBookmarks()
-                        isPolling.set(false)
-                    }
-                    else -> Unit
+                when {
+                    authStatus.isLoggedIn() && prevAuthStatus?.isAnonymous() == true -> onLogin(authStatus)
+                    authStatus.isAnonymous() && prevAuthStatus?.isLoggedIn() == true -> onLogout()
+                    authStatus == AuthStatus.valid && prevAuthStatus == AuthStatus.elapsed -> onSubscriptionRenewed()
+                    authStatus == AuthStatus.elapsed && prevAuthStatus == AuthStatus.valid -> onSubscriptionElapsed()
                 }
+                prevAuthStatus = authStatus
             }
         }
     }
 
+    private suspend fun onLogin(authStatus: AuthStatus) {
+        tracker.trackUserLoginEvent()
+        tracker.startNewSession()
+        firebaseHelper.ensureTokenSent()
+        isPolling.set(false)
+
+        if (authStatus == AuthStatus.valid) {
+            transformBookmarks()
+        }
+    }
+
+    private suspend fun onLogout() {
+        tracker.trackUserLogoutEvent()
+        tracker.startNewSession()
+        elapsedButWaiting.set(false)
+        elapsedFormAlreadySent.set(false)
+        isLoginWeek.set(false)
+        toastHelper.showToast(R.string.toast_logout_invalid)
+    }
+
+    private suspend fun onSubscriptionRenewed() {
+        tracker.trackUserSubscriptionRenewedEvent()
+        elapsedButWaiting.set(false)
+        elapsedFormAlreadySent.set(false)
+        transformBookmarks()
+    }
+
+    private suspend fun onSubscriptionElapsed() {
+        tracker.trackUserSubscriptionElapsedEvent()
+    }
+
     private suspend fun transformBookmarks() {
+        // Re-Download the bookmarks for the current AuthStatus - if the user logged the
+        // regular issues will be downloaded.
         bookmarkRepository.getBookmarkedArticleStubs().forEach { articleStub ->
             getArticleIssue(articleStub)
         }
@@ -174,4 +201,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             )
         ) as Issue
     }
+
+    private fun AuthStatus.isLoggedIn(): Boolean = (this == AuthStatus.valid || this == AuthStatus.elapsed)
+    private fun AuthStatus.isAnonymous(): Boolean = (this == AuthStatus.notValid)
 }

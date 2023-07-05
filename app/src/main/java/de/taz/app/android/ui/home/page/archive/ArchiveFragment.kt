@@ -9,7 +9,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentArchiveBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedFragment
@@ -27,7 +26,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        tracker = getTazApplication().tracker
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

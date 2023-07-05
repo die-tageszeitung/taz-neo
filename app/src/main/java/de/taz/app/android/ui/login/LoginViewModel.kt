@@ -17,6 +17,7 @@ import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import io.sentry.Sentry
@@ -38,7 +39,8 @@ class LoginViewModel @JvmOverloads constructor(
     // even if IDE says it is unused - it will be initialized with the view model starting observing:
     private val subscriptionPollHelper: SubscriptionPollHelper = SubscriptionPollHelper.getInstance(
         application
-    )
+    ),
+    private val tracker: Tracker = Tracker.getInstance(application.applicationContext)
 ) : AndroidViewModel(application), CoroutineScope {
 
     private val log by Log
@@ -314,6 +316,7 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.token.set(token)
                     authHelper.email.set(username)
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    tracker.trackSubscriptionTrialConfirmedEvent()
                 }
                 SubscriptionStatus.waitForMail -> {
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
@@ -466,6 +469,14 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.status.set(AuthStatus.valid)
                     authHelper.token.set(token)
                     authHelper.email.set(username ?: "")
+
+                    if (price == 0) {
+                        // There is currently no purchase option in the nonfree variant,
+                        // thus we can assume that the only way to reach the handlePoll() function
+                        // is due to a trial subscription (price = 0)
+                        tracker.trackSubscriptionTrialConfirmedEvent()
+                    }
+
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.elapsed -> {

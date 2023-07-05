@@ -21,6 +21,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,7 @@ class DrawerBodyPdfWithSectionsFragment :
     private lateinit var adapter: PageWithArticlesAdapter
     private lateinit var toastHelper: ToastHelper
     private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var tracker: Tracker
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -49,6 +51,7 @@ class DrawerBodyPdfWithSectionsFragment :
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
 
@@ -88,10 +91,12 @@ class DrawerBodyPdfWithSectionsFragment :
         }
 
         viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage.setOnClickListener {
+            tracker.trackDrawerTapPageEvent()
             goToCurrentPage()
         }
 
         viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.setOnClickListener {
+            tracker.trackDrawerTapPageEvent()
             goToCurrentPage()
         }
     }
@@ -110,6 +115,7 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param pageName: Filename of the page
      */
     private fun handlePageClick(pageName: String) {
+        tracker.trackDrawerTapPageEvent()
         activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
         pdfPagerViewModel.goToPdfPage(pageName)
         popArticlePagerFragmentIfOpen()
@@ -122,6 +128,7 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param article Article that was clicked.
      */
     private fun handleArticleClick(pagePosition: Int, article: Article) {
+        tracker.trackDrawerTapArticleEvent()
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         lifecycleScope.launch {
             val fragment = ArticlePagerFragment()
@@ -146,6 +153,7 @@ class DrawerBodyPdfWithSectionsFragment :
     }
 
     private fun handleArticleBookmarkClick(article: Article) {
+        tracker.trackDrawerTapBookmarkEvent()
         toggleBookmark(article)
     }
 
@@ -155,7 +163,7 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private fun toggleBookmark(article: Article) {
         lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article.key).await()
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
             }
