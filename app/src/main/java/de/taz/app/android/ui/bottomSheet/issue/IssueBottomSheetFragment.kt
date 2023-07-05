@@ -17,16 +17,22 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
 import de.taz.app.android.getTazApplication
 import de.taz.app.android.monkey.preventDismissal
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
+import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.showNoInternetDialog
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -101,14 +107,8 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueRead.setOnClickListener {
-            requireActivity().apply {
-                val intent =
-                    if (homeViewModel.getPdfMode()) {
-                        PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
-                    } else {
-                        IssueViewerActivity.newIntent(this, issuePublication)
-                    }
-                startActivity(intent)
+            applicationScope.launch {
+                handleIssueRead()
             }
             dismiss()
         }
@@ -178,7 +178,10 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                 } catch (e: CannotDetermineBaseUrlException) {
                     // FIXME (johannes): Workaround to #14367
                     // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
-                    log.warn("Could not determine baseurl for issue with publication $issuePublication", e)
+                    log.warn(
+                        "Could not determine baseurl for issue with publication $issuePublication",
+                        e
+                    )
                     Sentry.captureException(e)
                 }
             }
@@ -208,4 +211,27 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         return contentService.isPresent(abstractIssuePublication)
     }
+
+    /**
+     * Check if we are in pdf mode, if we got internet connection or if we already have downloaded
+     * the issue.
+     * Show a dialog if we have no internet connection and want to read an absent issue.
+     */
+    private suspend fun handleIssueRead() {
+        val isOnline = ConnectionStatusHelper.isOnline(requireContext())
+        requireActivity().apply {
+            val intent =
+                if (homeViewModel.getPdfMode()) {
+                    PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
+                } else {
+                    IssueViewerActivity.newIntent(this, issuePublication)
+                }
+            if (getIsDownloaded() || isOnline) {
+                startActivity(intent)
+            } else {
+                parentFragment?.showNoInternetDialog()
+            }
+        }
+    }
+
 }

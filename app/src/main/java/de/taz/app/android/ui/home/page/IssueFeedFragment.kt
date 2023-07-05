@@ -8,15 +8,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
-import de.taz.app.android.util.Log
+import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,6 +41,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
+    private lateinit var contentService: ContentService
 
     private var momentChangedListener: MomentChangedListener? = null
 
@@ -52,6 +55,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         // get or initialize the singletons
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        contentService = ContentService.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -85,16 +89,34 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
      * @param issuePublication the issue to be opened
      */
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
-        requireActivity().apply {
-            val intent = if (viewModel.pdfModeLiveData.value == true) {
-                PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
-            } else {
-                IssueViewerActivity.newIntent(this, IssuePublication(issuePublication))
+        val isPdf = viewModel.getPdfMode()
+        val isOnline = ConnectionStatusHelper.isOnline(requireContext())
+        lifecycleScope.launch {
+            requireActivity().apply {
+                val intent = if (isPdf) {
+                    PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
+                } else {
+                    IssueViewerActivity.newIntent(this, IssuePublication(issuePublication))
+                }
+                if (getIsDownloaded(issuePublication) || isOnline) {
+                    startActivity(intent)
+                } else {
+                    showNoInternetDialog()
+                }
             }
-            startActivity(intent)
         }
     }
 
+    private suspend fun getIsDownloaded(issuePublication: AbstractIssuePublication): Boolean {
+        val isPdf = viewModel.getPdfMode()
+        val abstractIssuePublication = if (isPdf) {
+            IssuePublicationWithPages(issuePublication)
+        } else {
+            issuePublication
+        }
+
+        return contentService.isPresent(abstractIssuePublication)
+    }
 
     override fun onDestroy() {
         super.onDestroy()
