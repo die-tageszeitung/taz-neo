@@ -206,8 +206,7 @@
                 android:id="@+id/push_notifications_must_be_allowed_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -236,6 +235,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_notifications_info_text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/push_notifications_allowed_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_notifications_allowed_by_system" />
             </LinearLayout>
             <!-- endregion -->
 
