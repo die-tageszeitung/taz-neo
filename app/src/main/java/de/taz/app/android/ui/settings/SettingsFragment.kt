@@ -612,10 +612,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun activateNotificationsToggle(notificationsActivated: Boolean) {
-        viewBinding.fragmentSettingsNotificationsSwitch.isEnabled = notificationsActivated
-    }
-
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -770,6 +766,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         } else {
             showNotificationsShouldBeAllowedLayout(show = false)
             showNotificationsMustBeAllowedLayout(show = false)
+            showNotificationsAllowedLayout(show = true)
         }
     }
 
@@ -779,6 +776,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showNotificationsMustBeAllowedLayout(show: Boolean) {
         if (show) {
             showNotificationsShouldBeAllowedLayout(show = false)
+            showNotificationsAllowedLayout(show = false)
             viewBinding.pushNotificationsMustBeAllowedLayout.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
@@ -806,6 +804,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showNotificationsShouldBeAllowedLayout(show: Boolean) {
         if (show) {
             showNotificationsMustBeAllowedLayout(show = false)
+            showNotificationsAllowedLayout(show = false)
             viewBinding.pushNotificationsShouldBeAllowedLayout.apply {
                 visibility = View.VISIBLE
                 setOnClickListener {
@@ -814,6 +813,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
         } else {
             viewBinding.pushNotificationsShouldBeAllowedLayout.visibility = View.GONE
+        }
+    }
+
+    /**
+     * Toggle text indicating that notifications are good to have
+     */
+    private fun showNotificationsAllowedLayout(show: Boolean) {
+        if (show) {
+            showNotificationsShouldBeAllowedLayout(show = false)
+            showNotificationsMustBeAllowedLayout(show = false)
+            viewBinding.pushNotificationsAllowedLayout.visibility = View.VISIBLE
+        } else {
+            viewBinding.pushNotificationsAllowedLayout.visibility = View.GONE
         }
     }
 
