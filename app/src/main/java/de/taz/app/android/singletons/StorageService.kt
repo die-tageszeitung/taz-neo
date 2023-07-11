@@ -234,12 +234,15 @@ class StorageService private constructor(private val applicationContext: Context
     }
 
     fun copyAssetFileToFile(path: String, file: File) {
-        val tazApiAssetReader = assetFileReader(path)
+        val assetInputStream = applicationContext.assets.open(path)
         file.parentFile?.mkdirs()
-        val fileWriter = file.writer()
-        tazApiAssetReader.copyTo(fileWriter)
-        tazApiAssetReader.close()
-        fileWriter.close()
+        val fileOutputStream = file.outputStream()
+        try {
+            assetInputStream.copyTo(fileOutputStream)
+        } finally {
+            assetInputStream.close()
+            fileOutputStream.close()
+        }
     }
 
     suspend fun getSHA256(file: File): String = withContext(Dispatchers.Default) {

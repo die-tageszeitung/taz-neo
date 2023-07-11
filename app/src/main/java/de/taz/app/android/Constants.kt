@@ -10,7 +10,6 @@ const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debu
 // UI
 const val DEFAULT_MOMENT_RATIO = "0.670219:1"
 const val DEFAULT_MOMENT_FILE = "noInternetMoment.png"
-const val DEFAULT_NAV_DRAWER_FILE_NAME = "navButton.taz.normal.png"
 const val SUBSCRIPTION_EMAIL_ADDRESS = "app@taz.de"
 const val WEBVIEW_DRAG_SENSITIVITY_FACTOR = 2
 const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"

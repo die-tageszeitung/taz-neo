@@ -11,6 +11,7 @@ import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.ui.splash.ResourceInitUtil
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NewIssuePollingScheduler
 import io.sentry.Sentry
@@ -47,6 +48,11 @@ class IssueDownloadWorkManagerWorker(
         }
 
         try {
+            // Ensure the default nav button exists, as it is required when saving a [Section] as part of an [Issue]
+            ResourceInitUtil(applicationContext).apply {
+                ensureDefaultNavButtonExists()
+            }
+
             // maybe get new issue
             val newestIssueKey =
                 feedService.refreshFeedAndGetIssueKeyIfNew(DISPLAYED_FEED)

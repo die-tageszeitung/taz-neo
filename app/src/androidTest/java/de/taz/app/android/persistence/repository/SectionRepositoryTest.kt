@@ -4,10 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.ui.splash.ResourceInitUtil
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -50,8 +50,9 @@ class SectionRepositoryTest {
         sectionRepository = SectionRepository.getInstance(context)
         sectionRepository.appDatabase = db
 
-        // initialize the DEFAULT NAV BUTTON:
-        fileEntryRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
+        ResourceInitUtil(context).apply {
+            ensureDefaultNavButtonExists()
+        }
     }
 
     @After

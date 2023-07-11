@@ -3,9 +3,8 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
-import de.taz.app.android.DEFAULT_NAV_DRAWER_FILE_NAME
+import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
@@ -21,6 +20,9 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+
+    private val defaultNavDrawerFileName =
+        applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
     suspend fun save(section: Section) {
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
@@ -92,7 +94,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
 
-        val navButton = requireNotNull(imageRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)) {
+        val navButton = requireNotNull(imageRepository.get(defaultNavDrawerFileName)) {
             "navigation button is essential for the app running"
         }
 
