@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
@@ -22,6 +21,10 @@ class ImageRepository private constructor(
 
     suspend fun save(images: List<Image>) {
         images.forEach { save(it) }
+    }
+
+    suspend fun saveOrReplace(imageStub: ImageStub) {
+        appDatabase.imageStubDao().insertOrReplace(imageStub)
     }
 
     suspend fun get(imageName: String): Image? {

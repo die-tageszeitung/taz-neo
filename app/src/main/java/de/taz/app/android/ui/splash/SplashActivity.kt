@@ -14,11 +14,7 @@ import androidx.annotation.StringRes
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.*
-import de.taz.app.android.BuildConfig
-import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
-import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
 import de.taz.app.android.base.StartupActivity
@@ -35,7 +31,6 @@ import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
-import java.io.File
 import java.util.*
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
@@ -59,7 +54,6 @@ class SplashActivity : StartupActivity() {
     private lateinit var appInfoRepository: AppInfoRepository
     private lateinit var feedRepository: FeedRepository
     private lateinit var resourceInfoRepository: ResourceInfoRepository
-    private lateinit var nightModeHelper: NightModeHelper
 
     private var showSplashScreen = true
 
@@ -73,19 +67,18 @@ class SplashActivity : StartupActivity() {
         }
         super.onCreate(savedInstanceState)
 
-        authHelper = AuthHelper.getInstance(application)
-        toastHelper = ToastHelper.getInstance(application)
-        fileEntryRepository = FileEntryRepository.getInstance(application)
-        storageService = StorageService.getInstance(application)
-        contentService = ContentService.getInstance(application)
-        storageDataStore = StorageDataStore.getInstance(application)
-        generalDataStore = GeneralDataStore.getInstance(application)
-        issueRepository = IssueRepository.getInstance(application)
-        feedService = FeedService.getInstance(application)
-        appInfoRepository = AppInfoRepository.getInstance(application)
-        feedRepository = FeedRepository.getInstance(application)
-        resourceInfoRepository = ResourceInfoRepository.getInstance(application)
-        nightModeHelper = NightModeHelper.getInstance(application)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        toastHelper = ToastHelper.getInstance(applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+        storageService = StorageService.getInstance(applicationContext)
+        contentService = ContentService.getInstance(applicationContext)
+        storageDataStore = StorageDataStore.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
+        issueRepository = IssueRepository.getInstance(applicationContext)
+        feedService = FeedService.getInstance(applicationContext)
+        appInfoRepository = AppInfoRepository.getInstance(applicationContext)
+        feedRepository = FeedRepository.getInstance(applicationContext)
+        resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
 
         lifecycleScope.launch {
             initialize()
@@ -313,179 +306,12 @@ class SplashActivity : StartupActivity() {
         )
     }
 
-
     private suspend fun initResources() {
         log.verbose("Initialize resource files on the file storage")
-
-        val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
-        val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
-
-        val currentStorageLocation = storageDataStore.storageLocation.get()
-        storageService.getAbsolutePath(
-            RESOURCE_FOLDER,
-            storageLocation = currentStorageLocation
-        )
-            ?.let(::File)?.mkdirs()
-
-        // region init default navigation drawer image
-        val existingNavButtonFileEntry = fileEntryRepository.get(DEFAULT_NAV_DRAWER_FILE_NAME)
-        var navButtonFileEntry =
-            if (existingNavButtonFileEntry != null && existingNavButtonFileEntry.storageLocation != StorageLocation.NOT_STORED) {
-                existingNavButtonFileEntry
-            } else {
-                val newFileEntry = FileEntry(
-                    name = DEFAULT_NAV_DRAWER_FILE_NAME,
-                    storageType = StorageType.resource,
-                    moTime = Date().time,
-                    sha256 = "",
-                    size = 0,
-                    folder = RESOURCE_FOLDER,
-                    dateDownload = null,
-                    path = "$RESOURCE_FOLDER/$DEFAULT_NAV_DRAWER_FILE_NAME",
-                    storageLocation = currentStorageLocation
-                )
-                val newFile = storageService.getFile(newFileEntry)
-                if (newFile?.exists() == true) {
-                    fileEntryRepository.saveOrReplace(
-                        newFileEntry.copy(
-                            dateDownload = Date(),
-                            size = newFile.length(),
-                            sha256 = storageService.getSHA256(newFile)
-                        )
-                    )
-                } else {
-                    fileEntryRepository.saveOrReplace(newFileEntry)
-                }
-            }
-        val navButtonFile = try {
-            storageService.getFile(navButtonFileEntry)
-        } catch (e: ExternalStorageNotAvailableException) {
-            // If card was ejected create new file
-            navButtonFileEntry =
-                fileEntryRepository.saveOrReplace(navButtonFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
-            storageService.getFile(navButtonFileEntry)
-        }
-        if (navButtonFile?.exists() == false) {
-            navButtonFile.createNewFile()
-            fileEntryRepository.saveOrReplace(
-                navButtonFileEntry.copy(
-                    dateDownload = Date(),
-                    size = navButtonFile.length(),
-                    sha256 = storageService.getSHA256(navButtonFile),
-                )
-            )
-            log.verbose("Created $DEFAULT_NAV_DRAWER_FILE_NAME")
-        }
-        // create imageStub
-        val imageStub =
-            ImageStub(DEFAULT_NAV_DRAWER_FILE_NAME, ImageType.button, 1f, ImageResolution.normal)
-        // save to image repository
-        ImageRepository.getInstance(applicationContext).save(
-            Image(navButtonFileEntry, imageStub)
-        )
-        // endregion
-
-        var tazApiJSFileEntry =
-            if (existingTazApiJSFileEntry != null && existingTazApiJSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
-                existingTazApiJSFileEntry
-            } else {
-                val newFileEntry = FileEntry(
-                    name = "tazApi.js",
-                    storageType = StorageType.resource,
-                    moTime = Date().time,
-                    sha256 = "",
-                    size = 0,
-                    folder = RESOURCE_FOLDER,
-                    dateDownload = null,
-                    path = "$RESOURCE_FOLDER/tazApi.js",
-                    storageLocation = currentStorageLocation
-                )
-                val newFile = storageService.getFile(newFileEntry)
-                if (newFile?.exists() == true) {
-                    fileEntryRepository.saveOrReplace(
-                        newFileEntry.copy(
-                            dateDownload = Date(),
-                            size = newFile.length(),
-                            sha256 = storageService.getSHA256(newFile)
-                        )
-                    )
-                } else {
-                    fileEntryRepository.saveOrReplace(newFileEntry)
-                }
-            }
-        val tazApiAssetPath = "js/tazApi.js"
-        val tazApiJSFile = try {
-            storageService.getFile(tazApiJSFileEntry)
-        } catch (e: ExternalStorageNotAvailableException) {
-            // If card was ejected create new file
-            tazApiJSFileEntry =
-                fileEntryRepository.saveOrReplace(tazApiJSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
-            storageService.getFile(tazApiJSFileEntry)
-        }
-        if (tazApiJSFile?.exists() == false || (tazApiJSFile != null && !storageService.assetFileSameContentAsFile(
-                tazApiAssetPath,
-                tazApiJSFile
-            ))
-        ) {
-            storageService.copyAssetFileToFile(tazApiAssetPath, tazApiJSFile)
-            fileEntryRepository.saveOrReplace(
-                tazApiJSFileEntry.copy(
-                    dateDownload = Date(),
-                    size = tazApiJSFile.length(),
-                    sha256 = storageService.getSHA256(tazApiJSFile)
-                )
-            )
-            log.verbose("Created/updated tazApi.js")
-        }
-
-        var tazApiCSSFileEntry =
-            if (existingTazApiCSSFileEntry != null && existingTazApiCSSFileEntry.storageLocation != StorageLocation.NOT_STORED) {
-                existingTazApiCSSFileEntry
-            } else {
-                val newFileEntry = FileEntry(
-                    name = "tazApi.css",
-                    storageType = StorageType.resource,
-                    moTime = Date().time,
-                    sha256 = "",
-                    size = 0,
-                    folder = RESOURCE_FOLDER,
-                    dateDownload = null,
-                    path = "$RESOURCE_FOLDER/tazApi.css",
-                    storageLocation = currentStorageLocation
-                )
-                val newFile = storageService.getFile(newFileEntry)
-                if (newFile?.exists() == true) {
-                    fileEntryRepository.saveOrReplace(
-                        newFileEntry.copy(
-                            dateDownload = Date(),
-                            size = newFile.length(),
-                            sha256 = storageService.getSHA256(newFile)
-                        )
-                    )
-                } else {
-                    fileEntryRepository.saveOrReplace(newFileEntry)
-                }
-            }
-
-        val tazApiCSSFile = try {
-            storageService.getFile(tazApiCSSFileEntry)
-        } catch (e: ExternalStorageNotAvailableException) {
-            // If card was ejected create new file
-            tazApiCSSFileEntry =
-                fileEntryRepository.saveOrReplace(tazApiCSSFileEntry.copy(storageLocation = StorageLocation.INTERNAL))
-            storageService.getFile(tazApiCSSFileEntry)
-        }
-        if (tazApiCSSFile?.exists() == false) {
-            tazApiCSSFile.createNewFile()
-            fileEntryRepository.saveOrReplace(
-                tazApiCSSFileEntry.copy(
-                    dateDownload = Date(),
-                    size = tazApiCSSFile.length(),
-                    sha256 = storageService.getSHA256(tazApiCSSFile),
-                )
-            )
-            log.verbose("Created tazApi.css")
-            nightModeHelper.notifyTazApiCSSFileReady()
+        ResourceInitUtil(applicationContext).apply {
+            ensureDefaultNavButtonExists()
+            ensureTazApiJsExists()
+            ensureTazApiCssExists()
         }
         log.verbose("Finished initializing resources")
     }
