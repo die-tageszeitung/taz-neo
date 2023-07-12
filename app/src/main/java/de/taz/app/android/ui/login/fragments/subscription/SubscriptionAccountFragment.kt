@@ -64,11 +64,6 @@ class SubscriptionAccountFragment :
 
         drawLayout()
 
-        viewBinding.fragmentSubscriptionAccountSwitchNewAccount.setOnClickListener {
-            viewModel.createNewAccount = !viewModel.createNewAccount
-            drawLayout()
-        }
-
         viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
             ifDoneNext()
         }
@@ -137,8 +132,6 @@ class SubscriptionAccountFragment :
 
         if (viewModel.createNewAccount) {
             viewBinding.fragmentSubscriptionAccountForgotPasswordText.visibility = View.GONE
-            viewBinding.fragmentSubscriptionAccountSwitchNewAccount.text =
-                getString(R.string.fragment_login_missing_credentials_switch_to_login)
             viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.VISIBLE
             viewBinding.fragmentSubscriptionAccountPassword.apply {
                 imeOptions = EditorInfo.IME_ACTION_NEXT
@@ -150,8 +143,6 @@ class SubscriptionAccountFragment :
             }
         } else {
             viewBinding.fragmentSubscriptionAccountForgotPasswordText.visibility = View.VISIBLE
-            viewBinding.fragmentSubscriptionAccountSwitchNewAccount.text =
-                getString(R.string.fragment_login_missing_credentials_switch_to_registration)
             viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 viewBinding.fragmentSubscriptionAccountEmail.setAutofillHints(HintConstants.AUTOFILL_HINT_EMAIL_ADDRESS)
@@ -186,7 +177,6 @@ class SubscriptionAccountFragment :
         }
 
         if (viewModel.validCredentials) {
-            viewBinding.fragmentSubscriptionAccountSwitchNewAccount.visibility = View.GONE
             viewBinding.fragmentSubscriptionAccountEmailLayout.visibility = View.GONE
             viewBinding.fragmentSubscriptionAccountPasswordLayout.visibility = View.GONE
             viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.visibility = View.GONE
