@@ -34,6 +34,7 @@ import io.sentry.Sentry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 /**
  * Fragment used to display the list of sections in the navigation Drawer
@@ -110,10 +111,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 // Either the issueContentViewModel can change the content of this drawer ...
                 launch {
                     issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                        .distinctUntilChanged().filterNotNull().collect {
+                        .distinctUntilChanged().filterNotNull()
+                        .collect { issueKeyWithDisplayableKey ->
                             log.debug("Set issue issueKey from IssueContent")
-                            if (!::currentIssueStub.isInitialized || it.issueKey != currentIssueStub.issueKey) {
-                                showIssue(it.issueKey)
+                            if (!::currentIssueStub.isInitialized || issueKeyWithDisplayableKey.issueKey != currentIssueStub.issueKey) {
+                                showIssue(issueKeyWithDisplayableKey.issueKey)
                             }
                         }
                 }
@@ -149,37 +151,23 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            val issueStub =
+            val issue =
                 contentService.downloadMetadata(
                     IssuePublication(issueKey)
                 ) as Issue
-            currentIssueStub = IssueStub(issueStub)
+            currentIssueStub = IssueStub(issue)
 
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
 
-            val sectionStubs = issueStub.sectionList
-
-            val groupedList: MutableList<SectionDrawerItem> = mutableListOf()
-
-            sectionStubs.forEach { section ->
-                groupedList.add(
-                    SectionDrawerItem.Header(section)
-                )
-                val articleStubs = section.articleList
-                articleStubs.forEach {
-                    groupedList.add(
-                        SectionDrawerItem.Item(it)
-                    )
-                }
-            }
-
-            sectionListAdapter.completeList = groupedList
+            sectionListAdapter.initWithList(
+                getSectionDrawerItemList(issue.sectionList)
+            )
 
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
-                val imprint = issueRepository.getImprint(issueStub.issueKey)
+                val imprint = issueRepository.getImprint(issueKey)
                 if (imprint != null) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE
@@ -199,6 +187,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     sectionListAdapter.toggleAllSections()
                 }
             }
+
+            if (issue.dateDownload == null) {
+                launchWaitForIssueDownloadComplete(issueKey)
+            }
+
         } catch (e: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
@@ -286,6 +279,38 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             } else {
                 toastHelper.showToast(R.string.toast_article_debookmarked)
             }
+        }
+    }
+
+    private fun getSectionDrawerItemList(sectionList: List<Section>): MutableList<SectionDrawerItem> {
+        val groupedList: MutableList<SectionDrawerItem> = mutableListOf()
+
+        sectionList.forEach { section ->
+            groupedList.add(
+                SectionDrawerItem.Header(section)
+            )
+            val articleStubs = section.articleList
+            articleStubs.forEach {
+                groupedList.add(
+                    SectionDrawerItem.Item(it)
+                )
+            }
+        }
+        return groupedList
+    }
+
+    private fun launchWaitForIssueDownloadComplete(issueKey: IssueKey) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val issueDownloadedForSure: IssueStub =
+                issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status)
+                    .filterNotNull()
+                    .first { it.dateDownload != null }
+
+            currentIssueStub = issueDownloadedForSure
+            val issue = issueRepository.getIssue(issueDownloadedForSure)
+            sectionListAdapter.updateListData(
+                getSectionDrawerItemList(issue.sectionList)
+            )
         }
     }
 }

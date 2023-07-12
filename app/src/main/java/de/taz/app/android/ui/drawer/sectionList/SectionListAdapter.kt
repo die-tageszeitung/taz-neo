@@ -21,12 +21,7 @@ class SectionListAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     val allOpened = MutableStateFlow(false)
-    var completeList: List<SectionDrawerItem> = emptyList()
-        set(value) {
-            field = value
-            // init the adapter with only the unexpanded sections
-            collapseAllSections()
-        }
+    private var completeList: List<SectionDrawerItem> = emptyList()
 
     private var sectionDrawerItemList: MutableList<SectionDrawerItem> = mutableListOf()
         set(value) {
@@ -40,6 +35,35 @@ class SectionListAdapter(
             field = value
             notifyDataSetChanged()
         }
+
+    fun initWithList(list: List<SectionDrawerItem>) {
+        completeList = list
+        // init the adapter with only the unexpanded sections
+        collapseAllSections()
+    }
+
+    /**
+     * Reset the [completeList] to the [newList] and
+     * update the [sectionDrawerItemList] to the new items of the [newList].
+     */
+    fun updateListData(newList: List<SectionDrawerItem>) {
+        completeList = newList
+        sectionDrawerItemList = newList.mapNotNull { sectionDrawerItem ->
+            when (sectionDrawerItem) {
+                is SectionDrawerItem.Header ->
+                    sectionDrawerItemList
+                        .filterIsInstance<SectionDrawerItem.Header>()
+                        .find { it.section.key == sectionDrawerItem.section.key }
+                        ?.copy(section = sectionDrawerItem.section)
+
+                is SectionDrawerItem.Item -> sectionDrawerItemList
+                    .filterIsInstance<SectionDrawerItem.Item>()
+                    .find { it.article.key == sectionDrawerItem.article.key }
+                    ?.let { sectionDrawerItem }
+            }
+        }.toMutableList()
+    }
+
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
