@@ -202,7 +202,7 @@ class SubscriptionAccountFragment :
         var done = true
 
         if (!viewModel.validCredentials) {
-            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()
+            val email = viewBinding.fragmentSubscriptionAccountEmail.text?.toString()?.lowercase()?.trim()
             if (email.isNullOrBlank() || !emailValidator(email)) {
                 done = false
                 setEmailError(R.string.login_email_error_empty)
