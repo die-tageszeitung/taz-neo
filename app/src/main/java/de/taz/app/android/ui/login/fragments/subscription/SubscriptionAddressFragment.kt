@@ -2,6 +2,7 @@ package de.taz.app.android.ui.login.fragments.subscription
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
@@ -13,6 +14,7 @@ import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
+
 
 const val MAX_NAME_LENGTH = 24
 
@@ -82,16 +84,6 @@ class SubscriptionAddressFragment :
             fragmentSubscriptionAddressCountry.setText(viewModel.country)
             fragmentSubscriptionAddressPostcode.setText(viewModel.postCode)
 
-            fragmentSubscriptionAddressFirstName.doAfterTextChanged { text ->
-                fragmentSubscriptionAddressSurnameLayout.counterMaxLength =
-                    (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
-            }
-
-            fragmentSubscriptionAddressSurname.doAfterTextChanged { text ->
-                fragmentSubscriptionAddressFirstNameLayout.counterMaxLength =
-                    (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
-            }
-
             fragmentSubscriptionAddressPhone.setOnEditorActionListener(
                 OnEditorActionDoneListener(::ifDoneNext)
             )
@@ -113,8 +105,7 @@ class SubscriptionAddressFragment :
             }
 
             if (nameTooLong) {
-                setFirstNameError(R.string.login_first_name_helper)
-                setSurnameError(R.string.login_surname_helper)
+                setNameTooLongError()
             }
 
             if (firstNameEmpty) {
@@ -159,6 +150,11 @@ class SubscriptionAddressFragment :
             }
             if (fragmentSubscriptionAddressSurname.text.isNullOrBlank()) {
                 setSurnameError(R.string.login_surname_error_empty)
+                done = false
+            }
+            val combinedName = fragmentSubscriptionAddressFirstName.text.toString() + fragmentSubscriptionAddressSurname.text.toString()
+            if (combinedName.length > MAX_NAME_LENGTH) {
+                setNameTooLongError()
                 done = false
             }
             if (fragmentSubscriptionAddressStreetLayout.isVisible
@@ -220,5 +216,10 @@ class SubscriptionAddressFragment :
 
     private fun setSurnameError(@StringRes stringRes: Int) {
         viewBinding.fragmentSubscriptionAddressSurnameLayout.setError(stringRes)
+    }
+
+    private fun setNameTooLongError() {
+        setFirstNameError(R.string.login_first_name_helper)
+        setSurnameError(R.string.login_surname_helper)
     }
 }
