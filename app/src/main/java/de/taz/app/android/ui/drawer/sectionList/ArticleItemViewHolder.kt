@@ -57,6 +57,7 @@ class ArticleItemViewHolder(
         if (article.teaser.isNullOrBlank()) {
             teaserTextView.visibility = View.GONE
         } else {
+            teaserTextView.visibility = View.VISIBLE
             teaserTextView.text = article.teaser
         }
 
@@ -82,6 +83,7 @@ class ArticleItemViewHolder(
         if (article.imageList.isNotEmpty()) {
             fileHelper.getAbsolutePath(article.imageList.first())?.let {
                 if (File(it).exists()) {
+                    articleImageView.visibility = View.VISIBLE
                     articleImageView.let { imageView ->
                         Glide.with(itemView.context.applicationContext)
                             .load(it)
