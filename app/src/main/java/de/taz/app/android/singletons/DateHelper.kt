@@ -120,34 +120,24 @@ object DateHelper {
 
     /**
      * function to get the formatted date for the wochentaz
+     * Date ranges from the same month will be shortened
      * @param date - Date of the issue
      * @param validityDate - Validity Date of the issue
      * @return eg "woche, 29.1. – 5.2.2023"
+     *         or "woche, 1. - 7.7.2023"
      */
     fun dateToWeekNotation(date: Date, validityDate: Date): String {
-        val fromDate = SimpleDateFormat("d.M.", appLocale).format(date)
-        val toDate = SimpleDateFormat("d.M.yyyy", appLocale).format(validityDate)
-        return "woche, $fromDate – $toDate"
+        val dateRange = dateToMediumRangeString(date, validityDate)
+        return "woche, $dateRange"
     }
 
     /**
      * function to get the formatted date for the wochentaz
-     * @param date - Date of the issue
-     * @param validityDate - Validity Date of the issue
-     * @return eg "wochentaz, 29.1. – 5.2.2023"
-     */
-    fun dateToWeekTazNotation(date: Date, validityDate: Date): String {
-        val fromDate = SimpleDateFormat("d.M.", appLocale).format(date)
-        val toDate = SimpleDateFormat("d.M.yyyy", appLocale).format(validityDate)
-        return "wochentaz, $fromDate – $toDate"
-    }
-
-
-    /**
-     * function to get the formatted date for the wochentaz
+     * Date ranges from the same month will be shortened
      * @param date - Date of the issue
      * @param validityDate - String (eg "2023-02-05") given by [IssueStub.validityDate]
      * @return eg "woche, 29.1. – 5.2.2023"
+     *         or "woche, 1. - 7.7.2023"
      */
     fun dateToWeekNotation(date: Date?, validityDate: String): String {
         val formattedToDate = stringToDate(validityDate)
@@ -156,6 +146,20 @@ object DateHelper {
         } else {
             ""
         }
+    }
+
+    /**
+     * function to get the formatted date for the wochentaz
+     * Date ranges from the same month will *not* be shortened
+     * @param date - Date of the issue
+     * @param validityDate - Validity Date of the issue
+     * @return eg "wochentaz, 29.1. – 5.2.2023"
+     *         or "woche, 1.7. - 7.7.2023"
+     */
+    fun dateToWeekTazNotation(date: Date, validityDate: Date): String {
+        val fromDate = SimpleDateFormat("d.M.", appLocale).format(date)
+        val toDate = SimpleDateFormat("d.M.yyyy", appLocale).format(validityDate)
+        return "wochentaz, $fromDate – $toDate"
     }
 
     /**
