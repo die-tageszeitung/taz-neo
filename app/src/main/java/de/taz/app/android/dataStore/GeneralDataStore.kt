@@ -20,10 +20,10 @@ private const val FIRST_APP_START = "first_time_app_starts"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
-private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val ALLOW_NOTIFICATIONS_DO_NOT_SHOW_AGAIN = "allow_notifications_do_not_show_again"
 private const val ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN = "allow_notifications_last_time_shown"
-
+// Deprecated/Removed setting keys
+private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 // endregion
 
 private val Context.generalDataStore: DataStore<Preferences> by preferencesDataStore(

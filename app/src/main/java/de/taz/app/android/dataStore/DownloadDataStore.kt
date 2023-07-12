@@ -17,7 +17,6 @@ private const val ONLY_WIFI = "download_only_wifi"
 private const val ENABLED = "download_enabled"
 private const val PDF_ADDITIONALLY = "download_pdf_additionally"
 private const val NOTIFICATIONS_ENABLED = "notifications_enabled"
-private const val NOTIFICATIONS_WANT_TO_BE_ENABLED = "notifications_want_to_be_enabled"
 private const val PDF_DIALOG_DO_NOT_SHOW_AGAIN = "download_pdf_dialog_do_not_show_again"
 // endregion
 
@@ -49,14 +48,7 @@ class DownloadDataStore private constructor(applicationContext: Context) {
         ), true
     )
 
-    val notificationsWantToBeEnabled = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(
-            NOTIFICATIONS_WANT_TO_BE_ENABLED
-        ), false
-    )
-
     val pdfDialogDoNotShowAgain = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(PDF_DIALOG_DO_NOT_SHOW_AGAIN), false)
 
     val onlyWifi = SimpleDataStoreEntry(dataStore, booleanPreferencesKey(ONLY_WIFI), true)
-
 }
