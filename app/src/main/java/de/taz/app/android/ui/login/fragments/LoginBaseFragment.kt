@@ -43,11 +43,7 @@ abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment
     }
 
     protected fun back() {
-        if (viewModel.backToArticle) {
-            finish()
-        } else {
-            requireActivity().supportFragmentManager.popBackStack()
-        }
+        requireActivity().supportFragmentManager.popBackStack()
     }
 
     protected fun finish() {
