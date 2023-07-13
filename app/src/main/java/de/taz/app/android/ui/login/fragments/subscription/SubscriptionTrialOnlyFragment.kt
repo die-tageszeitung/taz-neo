@@ -45,7 +45,12 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
             }
         }
         viewBinding.cancelButton.setOnClickListener {
-            back()
+            if (viewModel.backToArticle) {
+                // finish LoginActivity when coming from article
+                finish()
+            } else {
+                back()
+            }
         }
     }
 
