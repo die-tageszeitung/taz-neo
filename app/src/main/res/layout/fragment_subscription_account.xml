@@ -52,7 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_email_layout"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password"
@@ -69,7 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_password_layout"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password_confirm"
