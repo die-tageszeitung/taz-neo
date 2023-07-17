@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="de.taz.app.android.ui.WebViewActivity">
 
     <include
@@ -25,22 +26,22 @@
                 android:id="@+id/web_view_fullscreen_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/web_view_button"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/web_view_button"
-                android:layout_width="@dimen/activity_data_policy_button_width"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:text="@string/close_button"
-                android:textSize="@dimen/activity_data_policy_button_text_size"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/web_view_fullscreen_content" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:src="@drawable/ic_close"
+        android:layout_marginTop="@dimen/ic_close_button_margin_top"
+        android:layout_marginEnd="@dimen/ic_close_button_margin_end"
+        android:layout_gravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/button_close_text" />
 </FrameLayout>
 

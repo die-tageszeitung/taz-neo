@@ -31,7 +31,7 @@
                 android:src="@drawable/ic_close"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/dialog_try_pdf_figure_alt_text" />
+                android:contentDescription="@string/button_close_text" />
 
             <TextView
                 android:id="@+id/title"
