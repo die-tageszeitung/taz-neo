@@ -62,7 +62,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         }
 
         viewBinding.apply {
-            webViewButton.setOnClickListener {
+            buttonClose.setOnClickListener {
                 finish()
             }
 

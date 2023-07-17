@@ -347,7 +347,7 @@
 
     <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler:innen sind informiert.</string>
 
-    <string name="button_close_text">×</string>
+    <string name="button_close_text">Schließen</string>
 
     <string name="issue_not_found">Ausgabe nicht auffindbar.</string>
 

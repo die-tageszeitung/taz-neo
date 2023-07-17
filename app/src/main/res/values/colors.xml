@@ -10,6 +10,8 @@
     <color name="superDarkGrey">#121212</color>
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
+    <color name="anotherLightGrey">#E9E9EA</color>
+    <color name="anotherDarkGrey">#3C3C43</color>
     <color name="lightRed">#FF1919</color>
     <color name="tazRed">#d50d2e</color>
     <!-- Prepending 16 to hexcode results in 10% transparency in colors
@@ -119,4 +121,6 @@
     <color name="audio_player_expanded_progress_played_color">@color/white</color>
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
 
+    <color name="ic_close_button_foreground_color">@color/anotherDarkGrey</color>
+    <color name="ic_close_button_background_color">@color/anotherLightGrey</color>
 </resources>

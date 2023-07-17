@@ -32,20 +32,18 @@
                 android:layout_weight="1"
                 android:text="@string/popup_login_elapsed_header" />
 
-            <TextView
+            <ImageButton
                 android:id="@+id/button_close"
-                android:layout_width="@dimen/ic_close_button_size"
-                android:layout_height="@dimen/ic_close_button_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:src="@drawable/ic_close"
+                android:layout_marginTop="@dimen/ic_close_button_margin_top"
+                android:layout_marginEnd="@dimen/ic_close_button_margin_end"
                 android:layout_gravity="top|end"
-                android:layout_marginBottom="@dimen/ic_close_button_size"
-                android:background="@drawable/ic_circle"
-                android:backgroundTint="@color/backgroundColor"
-                android:elevation="@dimen/ic_close_button_elevation"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="@string/button_close_text"
-                android:textColor="@color/lightGrey"
-                android:textSize="@dimen/activity_welcome_button_text_size" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/button_close_text" />
         </LinearLayout>
 
         <TextView
