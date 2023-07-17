@@ -216,9 +216,10 @@
     <dimen name="ic_close_button_margin_top">60dp</dimen>
     <dimen name="ic_close_button_padding">6dp</dimen>
 
-    <dimen name="activity_data_policy_button_width">240sp</dimen>
+    <dimen name="activity_data_policy_button_width">240dp</dimen>
     <dimen name="activity_data_policy_button_text_size">17sp</dimen>
-    <dimen name="activity_data_policy_button_margin_bottom">40sp</dimen>
+    <dimen name="activity_data_policy_button_margin_bottom">40dp</dimen>
+    <dimen name="activity_data_policy_button_margin_horizontal">18dp</dimen>
 
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
 

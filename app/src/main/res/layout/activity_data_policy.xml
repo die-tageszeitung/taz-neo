@@ -31,11 +31,13 @@
 
             <Button
                 android:id="@+id/data_policy_accept_button"
-                android:layout_width="@dimen/activity_data_policy_button_width"
+                android:layout_width="0dp"
+                app:layout_constraintWidth_max="@dimen/button_max_width"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:text="@string/accept_button"
                 android:textSize="@dimen/activity_data_policy_button_text_size"
+                android:layout_marginHorizontal="@dimen/activity_data_policy_button_margin_horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/data_policy_fullscreen_content" />
