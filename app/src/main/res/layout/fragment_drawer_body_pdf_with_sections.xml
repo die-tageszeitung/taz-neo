@@ -13,12 +13,6 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:visibility="invisible" />
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint_layout"
         android:layout_width="wrap_content"
@@ -98,16 +92,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_current_page_toc_header" />
 
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/match_constraint"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_separator_line">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/navigation_page_article_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingVertical="@dimen/fragment_drawer_body_pdf_with_sections_divider_padding"
-                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_separator_line"
                 tools:listitem="@layout/list_item_pdf_page_with_content" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
 
-    </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
