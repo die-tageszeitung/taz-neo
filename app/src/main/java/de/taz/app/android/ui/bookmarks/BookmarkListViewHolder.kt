@@ -17,6 +17,7 @@ import java.io.File
 
 class BookmarkListViewHolder(
     parent: ViewGroup,
+    private val isSeparatorLineDotted: Boolean,
     private val shareArticle: (Article) -> Unit,
     private val removeBookmarkWithUndo: (View, Int) -> Unit
 ) :
@@ -36,6 +37,8 @@ class BookmarkListViewHolder(
     private var bookmarkImage: ImageView? = null
     private var bookmarkShare: ImageView
     private var bookmarkDelete: ImageView
+    private var bookmarkSeparatorLineDotted: ImageView
+    private var bookmarkSeparatorLineSolid: View
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
 
     init {
@@ -47,10 +50,16 @@ class BookmarkListViewHolder(
         bookmarkImage = itemView.findViewById(R.id.fragment_bookmark_image)
         bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share)
         bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete)
+        bookmarkSeparatorLineDotted = itemView.findViewById(R.id.fragment_bookmark_separator_line_dotted)
+        bookmarkSeparatorLineSolid = itemView.findViewById(R.id.fragment_bookmark_separator_line_solid)
     }
 
     fun bind(item: BookmarkListItem.Item) {
         item.bookmark.let { article ->
+            if (!isSeparatorLineDotted) {
+                bookmarkSeparatorLineDotted.visibility = View.GONE
+                bookmarkSeparatorLineSolid.visibility = View.VISIBLE
+            }
 
             bookmarkTeaser?.text = article.teaser
 

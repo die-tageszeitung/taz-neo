@@ -163,12 +163,25 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <ImageView
+            android:id="@+id/fragment_bookmark_separator_line_dotted"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/fragment_bookmarks_issue_header_dotted_line_height"
+            android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_dotted_line_margin_top"
+            android:src="@drawable/dotted_line_bookmarks"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginHorizontal="@dimen/fragment_padding_horizontal"
+            tools:ignore="ContentDescription" />
+
         <View
+            android:id="@+id/fragment_bookmark_separator_line_solid"
             android:layout_width="match_parent"
             android:layout_height="@dimen/fragment_drawer_separator_line_height"
             android:layout_marginHorizontal="@dimen/fragment_padding_horizontal"
+            android:visibility="gone"
             android:background="@color/textColor"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

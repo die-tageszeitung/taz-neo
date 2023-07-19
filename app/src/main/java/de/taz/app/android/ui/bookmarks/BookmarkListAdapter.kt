@@ -15,6 +15,7 @@ import io.sentry.Sentry
 
 private const val TYPE_HEADER = 0
 private const val TYPE_ITEM = 1
+private const val TYPE_ITEM_LAST_IN_ISSUE = 2
 
 
 class BookmarkListAdapter(
@@ -34,10 +35,20 @@ class BookmarkListAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (groupedBookmarks[position]) {
-            is BookmarkListItem.Header -> TYPE_HEADER
-            else -> TYPE_ITEM
+        val viewType: Int
+        val isHeader = groupedBookmarks[position] is BookmarkListItem.Header
+        val isLastItemInIssue = (position == groupedBookmarks.size - 1) ||
+                (groupedBookmarks[position] is BookmarkListItem.Item && groupedBookmarks[position + 1] is BookmarkListItem.Header)
+
+        viewType = if (isHeader) {
+            TYPE_HEADER
+        } else if (isLastItemInIssue) {
+            TYPE_ITEM_LAST_IN_ISSUE
+        } else {
+            TYPE_ITEM
         }
+
+        return viewType
     }
 
     private fun restoreBookmark(item: BookmarkListItem.Item) {
@@ -89,7 +100,8 @@ class BookmarkListAdapter(
 
         return when (viewType) {
             TYPE_HEADER -> IssueOfBookmarkViewHolder(parent, goToIssueInCoverFlow)
-            TYPE_ITEM -> BookmarkListViewHolder(parent, shareArticle, ::removeBookmarkWithUndo)
+            TYPE_ITEM -> BookmarkListViewHolder(parent, true, shareArticle, ::removeBookmarkWithUndo)
+            TYPE_ITEM_LAST_IN_ISSUE -> BookmarkListViewHolder(parent, false, shareArticle, ::removeBookmarkWithUndo)
             else -> error("Unknown viewType: $viewType")
         }
     }
