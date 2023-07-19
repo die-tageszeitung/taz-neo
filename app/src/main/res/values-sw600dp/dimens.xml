@@ -14,5 +14,5 @@
     <dimen name="fragment_webview_translation_loading_screen">-102dp</dimen>
     <dimen name="drawer_width">390dp</dimen>
     <dimen name="fragment_settings_plus_minus_width">150dp</dimen>
-    <dimen name="fragment_bookmarks_list_margin_top">20dp</dimen>
+    <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
 </resources>
