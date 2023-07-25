@@ -127,6 +127,12 @@ class SectionWebViewFragment : WebViewFragment<
             val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
             val isWochentaz =  issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
+            // Keep a copy of the current context while running this coroutine.
+            // This is necessary to prevent from a crash while calling requireContext() if the
+            // Fragment was already being destroyed.
+            // If there is no more context available we return from the coroutine immediately.
+            val context = this@SectionWebViewFragment.context ?: return@launch
+
             val toolbar =
                 view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
             toolbar?.removeAllViews()
@@ -139,8 +145,7 @@ class SectionWebViewFragment : WebViewFragment<
                     R.layout.fragment_webview_header_section
                 }
 
-            val headerView =
-                LayoutInflater.from(requireContext()).inflate(layout, toolbar, true)
+            val headerView = LayoutInflater.from(context).inflate(layout, toolbar, true)
             val sectionTextView = headerView.findViewById<TextView>(R.id.section)
 
             // Change typeface (to Knile) if it is weekend issue but not on title section:
@@ -151,7 +156,7 @@ class SectionWebViewFragment : WebViewFragment<
                     val weekendTypefaceFile =
                         weekendTypefaceFileEntry?.let(storageService::getFile)
                     weekendTypefaceFile?.let {
-                        FontHelper.getInstance(requireContext().applicationContext)
+                        FontHelper.getInstance(context.applicationContext)
                             .getTypeFace(it)
                     }
                 }

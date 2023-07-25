@@ -68,20 +68,26 @@ class ImprintWebViewFragment : WebViewFragment<
     }
 
     override fun setHeader(displayable: Article) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val title = getString(R.string.imprint)
             view?.findViewById<TextView>(R.id.section)?.apply {
                 text = title
             }
 
-            val issueStub = displayable.getIssueStub(requireContext().applicationContext)
+            // Keep a copy of the current context while running this coroutine.
+            // This is necessary to prevent from a crash while calling requireContext() if the
+            // Fragment was already being destroyed.
+            // If there is no more context available we return from the coroutine immediately.
+            val context = this@ImprintWebViewFragment.context ?: return@launch
+
+            val issueStub = displayable.getIssueStub(context.applicationContext)
             issueStub?.apply {
                 if (isWeekend) {
                     val weekendTypefaceFileEntry =
                         fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
                     val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
                     weekendTypefaceFile?.let {
-                        FontHelper.getInstance(requireContext().applicationContext)
+                        FontHelper.getInstance(context.applicationContext)
                             .getTypeFace(it)?.let { typeface ->
                                 withContext(Dispatchers.Main) {
                                     view?.findViewById<TextView>(R.id.section)?.typeface = typeface
