@@ -52,15 +52,18 @@ class BookmarkListViewHolder(
         bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete)
         bookmarkSeparatorLineDotted = itemView.findViewById(R.id.fragment_bookmark_separator_line_dotted)
         bookmarkSeparatorLineSolid = itemView.findViewById(R.id.fragment_bookmark_separator_line_solid)
+
+        if (!isSeparatorLineDotted) {
+            bookmarkSeparatorLineDotted.visibility = View.GONE
+            bookmarkSeparatorLineSolid.visibility = View.VISIBLE
+        } else {
+            bookmarkSeparatorLineDotted.visibility = View.VISIBLE
+            bookmarkSeparatorLineSolid.visibility = View.GONE
+        }
     }
 
     fun bind(item: BookmarkListItem.Item) {
         item.bookmark.let { article ->
-            if (!isSeparatorLineDotted) {
-                bookmarkSeparatorLineDotted.visibility = View.GONE
-                bookmarkSeparatorLineSolid.visibility = View.VISIBLE
-            }
-
             bookmarkTeaser?.text = article.teaser
 
             if (article.readMinutes != null) {
