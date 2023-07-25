@@ -1,6 +1,7 @@
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,6 +48,7 @@ class PageWithArticlesAdapter(
         ViewHolder(view) {
 
         private val pagePreviewImage: ImageView = itemView.findViewById(R.id.preview_page_image)
+        private val pagePreviewPagina: TextView = itemView.findViewById(R.id.preview_page_pagina)
         private val pageTocRecyclerView: RecyclerView =
             itemView.findViewById(R.id.toc_recycler_view)
         private val pageDivider: View = itemView.findViewById(R.id.page_divider)
@@ -65,6 +67,33 @@ class PageWithArticlesAdapter(
             pagePreviewImage.setOnClickListener {
                 onPageCLick(page.pagePdf.name)
             }
+
+            pagePreviewPagina.apply {
+                text = itemView.context.getString(
+                    R.string.fragment_header_article_pagina, page.pagina
+                )
+                //  We check if the text is ellipsized before it is actually drawn on the screen.
+                //  If so, we replace the text with a shorter version.
+                viewTreeObserver.addOnPreDrawListener(object :
+                    ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        val isEllipsized = layout.getEllipsisCount(0) > 0
+
+                        if (isEllipsized) {
+                            text = itemView.context.getString(
+                                R.string.fragment_header_article_pagina_short, page.pagina
+                            )
+                            requestLayout()
+                        }
+
+                        // Remove the listener after the check is done to prevent multiple calls.
+                        viewTreeObserver.removeOnPreDrawListener(this)
+
+                        return true
+                    }
+                })
+            }
+
             pageTocRecyclerView.layoutManager = LinearLayoutManager(itemView.context)
             pageTocRecyclerView.adapter = page.articles?.let {
                 ArticleAdapter(
@@ -114,11 +143,13 @@ class PageWithArticlesAdapter(
                     showDivider = true
                 )
             }
+
             TYPE_IMPRINT -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.list_item_pdf_page_imprint, parent, false)
                 ImprintHolder(view, onArticleClick)
             }
+
             else -> error("Unknown viewType type: $viewType")
         }
     }
@@ -130,7 +161,7 @@ class PageWithArticlesAdapter(
         position: Int
     ) {
         val listItem = pages[position]
-        when(holder.itemViewType) {
+        when (holder.itemViewType) {
             TYPE_PAGE -> (holder as PageWithArticlesHolder).bind((listItem as PageWithArticlesListItem.Page).page)
             TYPE_IMPRINT -> (holder as ImprintHolder).bind((listItem as PageWithArticlesListItem.Imprint).imprint)
             else -> error("Unknown ViewHolder type: ${holder::class.java.simpleName}")

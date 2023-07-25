@@ -10,7 +10,7 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/preview_page_card"
-        android:layout_width="@dimen/list_item_pdf_page_with_content_card_width"
+        android:layout_width="@dimen/fragment_drawer_card_width"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/list_item_pdf_page_with_content_thumbnail_margin_end"
         app:cardBackgroundColor="@color/pdf_drawer_card_background"
@@ -24,12 +24,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:ignore="ContentDescription"
-            tools:layout_height="@dimen/list_item_pdf_page_with_content_card_height"
-            tools:layout_width="@dimen/list_item_pdf_page_with_content_card_width"
+            tools:layout_height="@dimen/fragment_drawer_card_height"
+            tools:layout_width="@dimen/fragment_drawer_card_width"
             tools:src="@tools:sample/backgrounds/scenic" />
 
 
     </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/preview_page_pagina"
+        android:layout_width="@dimen/match_constraint"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
+        android:ellipsize="end"
+        android:fontFamily="@font/appFontRegular"
+        android:maxLines="1"
+        android:textColor="@color/pdf_section_font"
+        android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_pagina"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/preview_page_card"
+        app:layout_constraintStart_toStartOf="@id/preview_page_card"
+        app:layout_constraintTop_toBottomOf="@id/preview_page_card"
+        app:layout_constraintWidth_max="wrap"
+        tools:text="Seite 1" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/toc_recycler_view"
@@ -47,7 +64,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="toc_recycler_view, preview_page_card" />
+        app:constraint_referenced_ids="toc_recycler_view, preview_page_pagina" />
 
     <View
         android:id="@+id/page_divider"
