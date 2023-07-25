@@ -617,10 +617,8 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
-        status.postValue(
-            requireNotNull(statusBeforePasswordRequest) {
-                "before requesting password a state must be set"
-            })
+        val statusBefore = statusBeforePasswordRequest ?: LoginViewModelState.INITIAL
+        status.postValue(statusBefore)
         statusBeforePasswordRequest = null
     }
 
