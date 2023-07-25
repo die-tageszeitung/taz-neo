@@ -11,6 +11,8 @@ import androidx.annotation.StringRes
 import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
@@ -19,22 +21,29 @@ import de.taz.app.android.databinding.FragmentSubscriptionAccountBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.WebViewActivity
+import de.taz.app.android.ui.login.passwordCheck.PasswordCheckHelper
+import de.taz.app.android.ui.login.passwordCheck.setPasswordHintResponse
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
-import de.taz.app.android.util.validation.PasswordValidator
+import kotlinx.coroutines.launch
 
 class SubscriptionAccountFragment :
     SubscriptionBaseFragment<FragmentSubscriptionAccountBinding>() {
 
-    private lateinit var tracker: Tracker
-
-    private val passwordValidator = PasswordValidator()
     private val emailValidator = EmailValidator()
+
+    private lateinit var tracker: Tracker
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var storageService: StorageService
+    private lateinit var passwordCheckHelper: PasswordCheckHelper
 
     private var mailInvalid = false
     private var subscriptionInvalid = false
+    private var isPasswordValid = false
 
     companion object {
         fun newInstance(
@@ -51,6 +60,9 @@ class SubscriptionAccountFragment :
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
+        fileEntryRepository =  FileEntryRepository.getInstance(context.applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        passwordCheckHelper = PasswordCheckHelper(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -108,15 +120,14 @@ class SubscriptionAccountFragment :
             movementMethod = LinkMovementMethod.getInstance()
         }
 
-        if (mailInvalid) {
-            setEmailError(R.string.login_email_error_invalid)
+        viewBinding.fragmentSubscriptionAccountPassword.doAfterTextChanged { checkPassword() }
+        viewBinding.fragmentSubscriptionAccountEmail.doAfterTextChanged {
+            if (viewBinding.fragmentSubscriptionAccountPassword.text?.isNotEmpty() == true) {
+                checkPassword()
+            }
         }
-
-        if (subscriptionInvalid) {
-            setEmailError(R.string.login_email_error_recheck)
-        }
-
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -128,6 +139,10 @@ class SubscriptionAccountFragment :
             setEmailError(R.string.login_email_error_invalid)
             viewBinding.fragmentSubscriptionAccountPassword.nextFocusForwardId =
                 R.id.fragment_subscription_account_terms_and_conditions
+        }
+
+        if (subscriptionInvalid) {
+            setEmailError(R.string.login_email_error_recheck)
         }
 
         if (viewModel.createNewAccount) {
@@ -208,6 +223,10 @@ class SubscriptionAccountFragment :
                 viewModel.password = password
             }
 
+            if (!isPasswordValid) {
+                done = false
+            }
+
             if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
                 password?.let { pw ->
                     val passwordConfirmation =
@@ -216,12 +235,6 @@ class SubscriptionAccountFragment :
                         done = false
                         viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.setError(
                             R.string.login_password_confirmation_error_match
-                        )
-                    }
-                    if (!passwordValidator(pw)) {
-                        done = false
-                        viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(
-                            R.string.login_password_regex_error
                         )
                     }
                 } ?: run {
@@ -250,7 +263,7 @@ class SubscriptionAccountFragment :
     }
 
     private fun setPasswordError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionAccountPasswordLayout.error = context?.getString(stringRes)
+        viewBinding.fragmentSubscriptionAccountPasswordLayout.setError(stringRes)
     }
 
     private fun showTermsAndConditions() {
@@ -274,4 +287,13 @@ class SubscriptionAccountFragment :
         }
     }
 
+    private fun checkPassword() {
+        val mail = viewBinding.fragmentSubscriptionAccountEmail.text?.toString() ?: ""
+        val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString() ?: ""
+        viewLifecycleOwner.lifecycleScope.launch {
+            val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
+            isPasswordValid = passwordHintResponse.valid
+            viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(passwordHintResponse)
+        }
+    }
 }

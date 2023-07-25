@@ -263,7 +263,8 @@
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
     <string name="login_password_confirmation_error_match">Passwörter stimmen nicht überein</string>
-    <string name="login_password_regex_error">Passwort muss mind. 8 Zeichen lang sein und je mind. einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten</string>
+    <string name="login_password_regex_error">Passwort muss mind. 12 Zeichen lang sein und je mind. einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten</string>
+    <string name="login_password_regex_valid">Das sieht gut aus!</string>
 
     <string name="fragment_subscription_price_title">Monatlicher Bezugspreis</string>
     <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
