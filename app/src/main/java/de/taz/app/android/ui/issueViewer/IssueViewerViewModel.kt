@@ -95,11 +95,16 @@ class IssueViewerViewModel(
                 val displayable = displayableKey
                     ?: issueRepository.getLastDisplayable(issueKey)
                     ?: sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
-                    ?: throw Exception("Could not get sections for issue $issueKey")
-                setDisplayable(
-                    IssueKeyWithDisplayableKey(issueKey, displayable)
-                )
-                startBackgroundIssueDownload(issueKey)
+                if (displayable != null) {
+                    setDisplayable(
+                        IssueKeyWithDisplayableKey(issueKey, displayable)
+                    )
+                    startBackgroundIssueDownload(issueKey)
+                } else {
+                    log.error("Could not get displayable issueKey=$issueKey and displayableKey=$displayableKey")
+                    Sentry.captureMessage("Error while loading displayable")
+                    issueLoadingFailedErrorFlow.emit(true)
+                }
             } catch (e: CacheOperationFailedException) {
                 issueLoadingFailedErrorFlow.emit(true)
             }
