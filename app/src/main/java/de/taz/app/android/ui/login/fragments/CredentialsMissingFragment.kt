@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.login.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -9,6 +10,7 @@ import androidx.autofill.HintConstants
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
@@ -22,16 +24,19 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.MAX_NAME_LENGTH
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
+import de.taz.app.android.ui.login.passwordCheck.PasswordCheckHelper
+import de.taz.app.android.ui.login.passwordCheck.setPasswordHintResponse
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
-import de.taz.app.android.util.validation.PasswordValidator
+import kotlinx.coroutines.launch
 
 class CredentialsMissingFragment :
     SubscriptionBaseFragment<FragmentLoginMissingCredentialsBinding>() {
 
-    private val passwordValidator = PasswordValidator()
     private val emailValidator = EmailValidator()
+    private lateinit var passwordCheckHelper: PasswordCheckHelper
 
+    private var isPasswordValid = false
     private var failed: Boolean = false
 
     companion object {
@@ -42,6 +47,11 @@ class CredentialsMissingFragment :
             fragment.failed = failed
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        passwordCheckHelper = PasswordCheckHelper(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -136,6 +146,13 @@ class CredentialsMissingFragment :
             OnEditorActionDoneListener { hideSoftInputKeyboard() }
         )
 
+        viewBinding.fragmentLoginMissingCredentialsPassword.doAfterTextChanged { checkPassword() }
+        viewBinding.fragmentLoginMissingCredentialsEmail.doAfterTextChanged {
+            if (viewBinding.fragmentLoginMissingCredentialsPassword.text?.isNotEmpty() == true) {
+                checkPassword()
+            }
+        }
+
         viewBinding.fragmentLoginMissingCredentialsFirstName.doAfterTextChanged { text ->
             viewBinding.fragmentLoginMissingCredentialsSurnameLayout.counterMaxLength =
                 (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
@@ -169,15 +186,19 @@ class CredentialsMissingFragment :
     }
 
     override fun done(): Boolean {
-        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text.toString().trim().lowercase()
-        val password = viewBinding.fragmentLoginMissingCredentialsPassword.text.toString()
+        val email = viewBinding.fragmentLoginMissingCredentialsEmail.text?.toString()?.trim()?.lowercase()
+        val password = viewBinding.fragmentLoginMissingCredentialsPassword.text?.toString()
 
         val passwordConfirm =
-            viewBinding.fragmentLoginMissingCredentialsPasswordConfirmation.text.toString()
-        val firstName = viewBinding.fragmentLoginMissingCredentialsFirstName.text.toString().trim()
-        val surname = viewBinding.fragmentLoginMissingCredentialsSurname.text.toString().trim()
+            viewBinding.fragmentLoginMissingCredentialsPasswordConfirmation.text?.toString()
+        val firstName = viewBinding.fragmentLoginMissingCredentialsFirstName.text?.toString()?.trim()
+        val surname = viewBinding.fragmentLoginMissingCredentialsSurname.text?.toString()?.trim()
 
         var done = true
+
+        if (!isPasswordValid) {
+            done = false
+        }
 
         if (password != passwordConfirm && viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.isVisible) {
             viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setError(R.string.login_password_confirmation_error_match)
@@ -186,26 +207,21 @@ class CredentialsMissingFragment :
             )
             done = false
         }
-        if (!passwordValidator(password)
-            && viewBinding.fragmentLoginMissingCredentialsPasswordConfirmationLayout.isVisible
-        ) {
-            viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setError(R.string.login_password_regex_error)
-            done = false
-        }
-        if (firstName.isEmpty() && viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.isVisible) {
+
+        if (firstName.isNullOrEmpty() && viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.isVisible) {
             viewBinding.fragmentLoginMissingCredentialsFirstNameLayout.setError(
                 R.string.login_first_name_error_empty
             )
             done = false
         }
-        if (surname.isEmpty() && viewBinding.fragmentLoginMissingCredentialsSurnameLayout.isVisible) {
+        if (surname.isNullOrEmpty() && viewBinding.fragmentLoginMissingCredentialsSurnameLayout.isVisible) {
             viewBinding.fragmentLoginMissingCredentialsSurnameLayout.setError(
                 R.string.login_surname_error_empty
             )
             done = false
         }
 
-        if (email.isEmpty()) {
+        if (email.isNullOrEmpty()) {
             viewBinding.fragmentLoginMissingCredentialsEmailLayout.setError(
                 R.string.login_email_error_empty
             )
@@ -256,6 +272,16 @@ class CredentialsMissingFragment :
         activity?.apply {
             val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_REVOCATION)
             startActivity(intent)
+        }
+    }
+
+    private fun checkPassword() {
+        val mail = viewBinding.fragmentLoginMissingCredentialsEmail.text?.toString() ?: ""
+        val password = viewBinding.fragmentLoginMissingCredentialsPassword.text?.toString() ?: ""
+        viewLifecycleOwner.lifecycleScope.launch {
+            val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
+            isPasswordValid = passwordHintResponse.valid
+            viewBinding.fragmentLoginMissingCredentialsPasswordLayout.setPasswordHintResponse(passwordHintResponse)
         }
     }
 

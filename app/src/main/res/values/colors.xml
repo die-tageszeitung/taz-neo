@@ -20,6 +20,8 @@
     <color name="red">#d50e2f</color>
     <color name="white">#fff</color>
     <color name="yellow">#ff8</color>
+    <color name="darkGreen">#228400</color>
+    <color name="darkOrange">#BA5900</color>
     <color name="darkGreyEightyPercentOpacity">#CC242424</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
@@ -120,6 +122,9 @@
     <color name="audio_player_expanded_progress_unplayed_color">#363636</color>
     <color name="audio_player_expanded_progress_played_color">@color/white</color>
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
+
+    <color name="password_hint_strength_medium">@color/darkGreen</color>
+    <color name="password_hint_strength_low">@color/darkOrange</color>
 
     <color name="ic_close_button_foreground_color">@color/anotherDarkGrey</color>
     <color name="ic_close_button_background_color">@color/anotherLightGrey</color>
