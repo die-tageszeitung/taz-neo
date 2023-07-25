@@ -51,6 +51,7 @@ private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 
 data class PageWithArticles(
     val pagePdf: FileEntry,
+    val pagina: String?,
     val articles: List<Article>? = null
 )
 
@@ -358,7 +359,9 @@ class PdfPagerViewModel(
                                         fileEntryRepository.get(page.pagePdf.name)
                                     ) {
                                         "Refreshing pagePdf fileEntry failed as fileEntry was null"
-                                    }, sortedArticlesOfPage
+                                    },
+                                    page.pagina,
+                                    sortedArticlesOfPage
                                 )
                             )
                         )

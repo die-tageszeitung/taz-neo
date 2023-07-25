@@ -1,5 +1,11 @@
 package de.taz.app.android.ui.pdfViewer
 
+import android.os.Build
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.LineHeightSpan
+import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,7 +46,8 @@ class ArticleAdapter(
 
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
-        private val articleAuthors: TextView = itemView.findViewById(R.id.article_authors)
+        private var articleAuthorAndReadMinutes: TextView =
+            itemView.findViewById(R.id.article_author_and_read_minutes)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
         private val articleDivider: View = itemView.findViewById(R.id.article_divider)
@@ -61,16 +68,27 @@ class ArticleAdapter(
             } else {
                 articleTeaser.visibility = View.GONE
             }
-            if (article.authorList.isNotEmpty()) {
-                articleAuthors.visibility = View.VISIBLE
-                articleAuthors.text =
-                    itemView.context.getString(
-                        R.string.author_list,
-                        article.authorList.map { it.name }.distinct().joinToString(", ")
-                    )
+
+            val authorsString = if (article.authorList.isNotEmpty()) {
+                itemView.context.getString(
+                    R.string.author_list,
+                    article.authorList.map { it.name }.distinct().joinToString(", ")
+                )
             } else {
-                articleAuthors.visibility = View.GONE
+                ""
             }
+            val readMinutesString = if (article.readMinutes != null) {
+                itemView.context.getString(
+                    R.string.read_minutes,
+                    article.readMinutes
+                )
+            } else {
+                ""
+            }
+            val twoStyledSpannable =
+                constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
+
+            articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
 
             if (showDivider) {
                 articleDivider.visibility = View.VISIBLE
@@ -101,6 +119,90 @@ class ArticleAdapter(
             }
         }
 
+        private fun constructAuthorsAndReadMinutesSpannable(
+            authors: String,
+            readMinutes: String
+        ): SpannableString {
+            val authorsAndReadMinutesString: String
+            val authorSpanStart: Int
+            val authorSpanEnd: Int
+            val readMinutesSpanStart: Int
+            val readMinutesSpanEnd: Int
+
+            when {
+                readMinutes.isBlank() && authors.isBlank() -> {
+                    authorsAndReadMinutesString = ""
+                    authorSpanStart = 0
+                    authorSpanEnd = 0
+                    readMinutesSpanStart = 0
+                    readMinutesSpanEnd = 0
+                }
+
+                readMinutes.isBlank() -> {
+                    authorsAndReadMinutesString = authors
+                    authorSpanStart = 0
+                    authorSpanEnd = authors.length
+                    readMinutesSpanStart = 0
+                    readMinutesSpanEnd = 0
+                }
+
+                authors.isBlank() -> {
+                    authorsAndReadMinutesString = readMinutes
+                    authorSpanStart = 0
+                    authorSpanEnd = 0
+                    readMinutesSpanStart = 0
+                    readMinutesSpanEnd = readMinutes.length
+                }
+
+                else -> {
+                    authorsAndReadMinutesString = "$authors $readMinutes"
+                    authorSpanStart = 0
+                    authorSpanEnd = authors.length
+                    readMinutesSpanStart = authorSpanEnd + 1
+                    readMinutesSpanEnd = readMinutesSpanStart + readMinutes.length
+                }
+            }
+
+            val text = SpannableString(authorsAndReadMinutesString)
+
+            if (authorSpanStart < authorSpanEnd) {
+                text.setSpan(
+                    TextAppearanceSpan(
+                        itemView.context,
+                        R.style.TextAppearance_Drawer_PDF_Entry_Author
+                    ),
+                    0,
+                    authors.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            if (readMinutesSpanStart < readMinutesSpanEnd) {
+                text.setSpan(
+                    TextAppearanceSpan(
+                        itemView.context,
+                        R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                    ),
+                    readMinutesSpanStart,
+                    readMinutesSpanEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val newLineHeight =
+                        itemView.context.applicationContext.resources.getDimensionPixelSize(
+                            R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
+                        )
+                    text.setSpan(
+                        LineHeightSpan.Standard(newLineHeight),
+                        readMinutesSpanStart,
+                        readMinutesSpanEnd,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+
+            return text
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleHolder {
