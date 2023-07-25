@@ -217,10 +217,13 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                                     SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
                                 ) == null
                             ) {
-                                SubscriptionElapsedBottomSheetFragment().show(
-                                    supportFragmentManager,
-                                    SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
-                                )
+                                // Prevent a crash that occurs if the show() method is called after onSaveInstanceState.
+                                if (!supportFragmentManager.isStateSaved) {
+                                    SubscriptionElapsedBottomSheetFragment().show(
+                                        supportFragmentManager,
+                                        SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
+                                    )
+                                }
                             }
                         }
                 }
