@@ -12,9 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -27,8 +24,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Fragment used in the drawer to display preview of pages with page titles of an issue
@@ -51,11 +46,6 @@ class DrawerBodyPdfPagesFragment : Fragment() {
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
 
-    companion object {
-        // The drawer initialization will be delayed, so that the main pdf rendering has some time to finish
-        private const val DRAWER_INIT_DELAY_MS = 10L
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         storageService = StorageService.getInstance(context.applicationContext)
@@ -77,7 +67,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
         navigationRecyclerView = view.findViewById(R.id.navigation_recycler_view)
 
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
-            initDrawerAdapterWithDelay(it)
+            initDrawAdapter(it)
         }
 
         navigationRecyclerView.addOnItemTouchListener(
@@ -100,16 +90,6 @@ class DrawerBodyPdfPagesFragment : Fragment() {
             )
         )
         return view
-
-    }
-
-    private fun initDrawerAdapterWithDelay(items: List<Page>) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            delay(DRAWER_INIT_DELAY_MS)
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                initDrawAdapter(items)
-            }
-        }
     }
 
     private fun initDrawAdapter(items: List<Page>) {
