@@ -2,24 +2,19 @@ package de.taz.app.android.ui.pdfViewer
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
+import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
@@ -28,16 +23,9 @@ import de.taz.app.android.util.Log
 /**
  * Fragment used in the drawer to display preview of pages with page titles of an issue
  */
-class DrawerBodyPdfPagesFragment : Fragment() {
+class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPagesBinding>() {
 
     private val log by Log
-
-    //    TODO(peter) rename prefix: activity -> fragment
-    private lateinit var frontPageImageView: ImageView
-    private lateinit var frontPageTextView: TextView
-    private lateinit var issueDateTextView: TextView
-    private lateinit var loadingScreenConstraintLayout: ConstraintLayout
-    private lateinit var navigationRecyclerView: RecyclerView
 
     private lateinit var adapter: PdfDrawerRecyclerViewAdapter
 
@@ -52,25 +40,22 @@ class DrawerBodyPdfPagesFragment : Fragment() {
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_drawer_body_pdf_pages, container, false)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        frontPageImageView = view.findViewById(R.id.activity_pdf_drawer_front_page)
-        frontPageTextView =
-            view.findViewById(R.id.activity_pdf_drawer_front_page_title)
-        issueDateTextView = view.findViewById(R.id.activity_pdf_drawer_date)
-        loadingScreenConstraintLayout = view.findViewById(R.id.pdf_drawer_loading_screen)
-        navigationRecyclerView = view.findViewById(R.id.navigation_recycler_view)
+        // Disable animations on the RV in hope of preventing some internal crashes:
+        // See: https://redmine.hal.taz.de/issues/15694
+        // Note: The RV should actually not recycle anything because it has effectively set its
+        // height to `wrap_content` (it has `match_parent` but the parent itself has `wrap_content`)
+        // and we are not doing any structural changes. As every crash was related to some animations
+        // it seems like a good try to disable the not-needed animations at all.
+        viewBinding.navigationRecyclerView.itemAnimator = null
 
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
             initDrawAdapter(it)
         }
 
-        navigationRecyclerView.addOnItemTouchListener(
+        viewBinding.navigationRecyclerView.addOnItemTouchListener(
             RecyclerTouchListener(
                 requireContext(),
                 fun(_: View, drawerPosition: Int) {
@@ -89,7 +74,6 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 }
             )
         )
-        return view
     }
 
     private fun initDrawAdapter(items: List<Page>) {
@@ -107,7 +91,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
             }
 
             // Setup Recyclerview's Layout
-            navigationRecyclerView.apply {
+            viewBinding.navigationRecyclerView.apply {
                 layoutManager = gridLayoutManager
                 setHasFixedSize(false)
             }
@@ -116,9 +100,9 @@ class DrawerBodyPdfPagesFragment : Fragment() {
             Glide
                 .with(requireContext())
                 .load(storageService.getAbsolutePath(items.first().pagePdf))
-                .into(frontPageImageView)
+                .into(viewBinding.activityPdfDrawerFrontPage)
 
-            frontPageImageView.setOnClickListener {
+            viewBinding.activityPdfDrawerFrontPage.setOnClickListener {
                 tracker.trackDrawerTapPageEvent()
                 val newPosition = 0
                 if (newPosition != pdfPagerViewModel.currentItem.value) {
@@ -126,7 +110,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                     adapter.activePosition = newPosition
                 }
                 (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
-                frontPageTextView.setTextColor(
+                viewBinding.activityPdfDrawerFrontPageTitle.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),
                         R.color.pdf_drawer_sections_item_highlighted
@@ -134,7 +118,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 )
                 activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
             }
-            frontPageTextView.apply {
+            viewBinding.activityPdfDrawerFrontPageTitle.apply {
                 text = items.first().title
                 setTextColor(
                     ContextCompat.getColor(
@@ -144,7 +128,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 )
             }
 
-            issueDateTextView.text =
+            viewBinding.activityPdfDrawerDate.text =
                 pdfPagerViewModel.issue?.let { setDrawerDate(it) } ?: ""
 
             adapter =
@@ -156,7 +140,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                 adapter.activePosition = position - 1
                 if (position > 0) {
                     log.debug("set front page title color to: ${R.color.pdf_drawer_sections_item}")
-                    frontPageTextView.setTextColor(
+                    viewBinding.activityPdfDrawerFrontPageTitle.setTextColor(
                         ContextCompat.getColor(
                             requireContext(),
                             R.color.pdf_drawer_sections_item
@@ -164,7 +148,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
                     )
                 }
             }
-            navigationRecyclerView.adapter = adapter
+            viewBinding.navigationRecyclerView.adapter = adapter
             hideLoadingScreen()
         }
 
@@ -184,7 +168,7 @@ class DrawerBodyPdfPagesFragment : Fragment() {
 
     private fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            loadingScreenConstraintLayout.apply {
+            viewBinding.pdfDrawerLoadingScreen.root.apply {
                 animate()
                     .alpha(0f)
                     .withEndAction {
