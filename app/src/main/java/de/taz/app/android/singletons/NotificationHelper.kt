@@ -41,7 +41,7 @@ class NotificationHelper private constructor(private val applicationContext: Con
     ) {
 
         val builder = NotificationCompat.Builder(applicationContext, channelId)
-            .setSmallIcon(R.drawable.ic_logo_simple)
+            .setSmallIcon(R.drawable.ic_notification_logo)
             .setColor(ContextCompat.getColor(applicationContext, R.color.colorAccent))
             .setContentTitle(title)
             .setContentText(body)
