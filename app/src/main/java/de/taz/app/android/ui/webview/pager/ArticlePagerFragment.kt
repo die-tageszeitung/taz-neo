@@ -46,6 +46,7 @@ import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -477,8 +478,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 } else if (BuildConfig.IS_LMD) {
                     val firstPage = art.pageNameList.firstOrNull()
                     if (firstPage !== null) {
-                        val pagina = pageRepository.getStub(firstPage)?.pagina?.split('-')?.get(0)
-                        setHeaderWithPage(pagina)
+                        setHeaderWithPage(firstPage)
                     } else {
                         hideHeaderWithPage()
                     }
@@ -523,14 +523,27 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private fun setHeaderWithPage(pagina: String?) {
+    /**
+     * Set the header for the article web view.
+     *
+     * @param pageFileName - the page file name, e.g.: 's00856508.pdf'
+     */
+    private suspend fun setHeaderWithPage(pageFileName: String) {
+        // A 'pdf-page' could be double page, where a pagina could look like this '9-10', due to
+        // this we added the split and get(0) to get the first page number.
+        val firstPageNum = pageRepository.getStub(pageFileName)?.pagina?.split('-')?.get(0)
         viewBinding.header.apply {
             section.isVisible = false
-            articleNum.text = getString(
-                R.string.fragment_header_article_pagina, pagina
-            )
+            articleNum.apply {
+                text = getString(R.string.fragment_header_article_pagina, firstPageNum)
+                setOnClickListener {
+                    pdfPagerViewModel.goToPdfPage(pageFileName)
+                    (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+                }
+            }
         }
     }
+
 
     private fun hideHeaderWithPage() {
         viewBinding.header.apply {

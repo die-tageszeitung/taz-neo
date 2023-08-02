@@ -13,7 +13,6 @@ import androidx.activity.viewModels
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -23,6 +22,7 @@ import androidx.lifecycle.*
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
@@ -146,7 +146,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         }
 
         drawerLogo.setOnClickListener {
-            pdfDrawerLayout.closeDrawer(GravityCompat.START)
+            drawerAndLogoViewModel.closeDrawer()
         }
 
         if (savedInstanceState == null) {
@@ -359,6 +359,19 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
     }
 
+    /**
+     * May be used from child fragments to show an Article within the [ArticlePagerFragment]
+     */
+    fun showArticle(article: Article) {
+        lifecycleScope.launch {
+            pdfPagerViewModel.issue?.let { issueWithPages ->
+                val issueKey = IssueKey(issueWithPages.issueKey)
+                val displayableKey = article.key
+                showArticle(issueKey, displayableKey)
+            }
+        }
+    }
+
     private suspend fun showArticle(issueKey: IssueKey, displayableKey: String?) {
         issueContentViewModel.setDisplayable(issueKey, displayableKey)
         showArticlePagerFragment(ArticlePagerFragment())
@@ -370,13 +383,15 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     }
 
     private fun showArticlePagerFragment(fragment: Fragment) {
-        supportFragmentManager.commit {
-            add(
-                R.id.activity_pdf_fragment_placeholder,
-                fragment,
-                ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-            )
-            addToBackStack(ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME)
+        if (supportFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE) == null) {
+            supportFragmentManager.commit {
+                add(
+                    R.id.activity_pdf_fragment_placeholder,
+                    fragment,
+                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
+                )
+                addToBackStack(ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME)
+            }
         }
     }
 

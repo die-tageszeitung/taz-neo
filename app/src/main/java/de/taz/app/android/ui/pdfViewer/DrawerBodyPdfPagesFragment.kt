@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
@@ -18,6 +17,7 @@ import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.util.Log
 
 /**
@@ -30,6 +30,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
     private lateinit var adapter: PdfDrawerRecyclerViewAdapter
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
@@ -70,7 +71,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                         adapter.activePosition = drawerPosition
                     }
                     (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
-                    activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
+                    drawerAndLogoViewModel.closeDrawer()
                 }
             )
         )
@@ -116,7 +117,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                         R.color.pdf_drawer_sections_item_highlighted
                     )
                 )
-                activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
+                drawerAndLogoViewModel.closeDrawer()
             }
             viewBinding.activityPdfDrawerFrontPageTitle.apply {
                 text = items.first().title

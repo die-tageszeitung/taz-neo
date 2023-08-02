@@ -251,13 +251,17 @@ class PdfPagerViewModel(
     private val _openLinkEventFlow: MutableStateFlow<OpenLinkEvent?> = MutableStateFlow(null)
     val openLinkEventFlow = _openLinkEventFlow.asStateFlow()
 
+    /**
+     * Sets the article to show.
+     *
+     * @param link - the articles link, e.g.: art0000001.html
+     */
     private fun showArticle(link: String) {
         viewModelScope.launch(Dispatchers.Main) {
             val article = getCorrectArticle(link)
-
             val issueKeyWithPages = issueFlow.value?.issueKey
             if (issueKeyWithPages == null) {
-                log.info("Could not show article for link $link because there is no issue selected")
+                log.info("Could not show article because there is no issue selected")
                 return@launch
             }
 
@@ -386,7 +390,8 @@ class PdfPagerViewModel(
     ): Boolean {
         return itemsToC.any { item ->
             item is PageWithArticlesListItem.Page &&
-                    item.page.articles?.any { it.key == article.key } == true }
+                    item.page.articles?.any { it.key == article.key } == true
+        }
     }
 
     /**
