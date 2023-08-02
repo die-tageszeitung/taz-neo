@@ -4,12 +4,10 @@ import PageWithArticlesAdapter
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
@@ -17,13 +15,11 @@ import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
-import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -36,15 +32,13 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private lateinit var storageService: StorageService
 
-
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var adapter: PageWithArticlesAdapter
     private lateinit var toastHelper: ToastHelper
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var tracker: Tracker
-
-    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -103,9 +97,9 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private fun goToCurrentPage() {
         pdfPagerViewModel.currentItem.value?.let { position ->
-            activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
+            drawerAndLogoViewModel.closeDrawer()
             pdfPagerViewModel.updateCurrentItem(position)
-            popArticlePagerFragmentIfOpen()
+            (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
         }
     }
 
@@ -116,9 +110,9 @@ class DrawerBodyPdfWithSectionsFragment :
      */
     private fun handlePageClick(pageName: String) {
         tracker.trackDrawerTapPageEvent()
-        activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
+        drawerAndLogoViewModel.closeDrawer()
         pdfPagerViewModel.goToPdfPage(pageName)
-        popArticlePagerFragmentIfOpen()
+        (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
     }
 
     /**
@@ -130,26 +124,8 @@ class DrawerBodyPdfWithSectionsFragment :
     private fun handleArticleClick(pagePosition: Int, article: Article) {
         tracker.trackDrawerTapArticleEvent()
         pdfPagerViewModel.updateCurrentItem(pagePosition)
-        lifecycleScope.launch {
-            val fragment = ArticlePagerFragment()
-
-            requireActivity().supportFragmentManager.beginTransaction()
-                .add(
-                    R.id.activity_pdf_fragment_placeholder,
-                    fragment,
-                    ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
-                )
-                .addToBackStack(null)
-                .commit()
-
-            pdfPagerViewModel.issue?.let {
-                issueContentViewModel.setDisplayable(
-                    IssueKey(it.issueKey),
-                    article.key
-                )
-            }
-            activity?.findViewById<DrawerLayout>(R.id.pdf_drawer_layout)?.closeDrawers()
-        }
+        drawerAndLogoViewModel.closeDrawer()
+        (activity as? PdfPagerActivity)?.showArticle(article)
     }
 
     private fun handleArticleBookmarkClick(article: Article) {
@@ -212,14 +188,6 @@ class DrawerBodyPdfWithSectionsFragment :
                     pdfPagerViewModel.currentPage.value?.pagina
                 )
             }
-    }
-
-    private fun popArticlePagerFragmentIfOpen() {
-        val articlePagerFragment =
-            parentFragmentManager.findFragmentByTag(ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE)
-        if (articlePagerFragment != null && articlePagerFragment.isVisible) {
-            parentFragmentManager.popBackStack()
-        }
     }
 
     private fun hideLoadingScreen() {

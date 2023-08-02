@@ -110,7 +110,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
             }
             // Somehow this is only applied on opened drawers :shrug:
             drawerLogo.setOnClickListener {
-                drawerLayout.closeDrawers()
+                drawerAndLogoViewModel.closeDrawer()
             }
 
             // Adjust extra padding when we have cutout display
