@@ -5,29 +5,28 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 
 
 class SearchResultPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-    private var loadedCount: Int = 0
 
-    fun updateLoadedCount(newCount: Int) {
-        if (loadedCount >= newCount) {
-            notifyDataSetChanged()
+    private var searchResults: SearchResults? = null
+
+    fun updateSearchResults(newSearchResults: SearchResults) {
+        if (searchResults?.sessionId == newSearchResults.sessionId) {
+            val oldSize = searchResults?.results?.size ?: 0
+            val newSize = newSearchResults.results.size
+            searchResults = newSearchResults
+
+            when {
+                oldSize < newSize -> notifyItemRangeInserted(oldSize, newSize - oldSize)
+                oldSize > newSize -> notifyDataSetChanged()
+                // oldSize == newSize -> no items have changed. we just keep the old data
+            }
         } else {
-            // This would be wrong if there would be a new session with more results on the first
-            // session then had been loaded at all by the previous session. But as we can't trigger
-            // any new search from the [SearchResultPagerFragment] this won't happen
-            val addedItemCount = newCount - loadedCount
-            notifyItemRangeInserted(loadedCount - 1, addedItemCount)
+            searchResults = newSearchResults
+            notifyDataSetChanged()
         }
-        loadedCount = newCount
     }
 
-    override fun getItemCount(): Int = loadedCount
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun containsItem(itemId: Long): Boolean {
-        return itemId in 0 until loadedCount
+    override fun getItemCount(): Int {
+        return searchResults?.loadedResults ?: 0
     }
 
     override fun createFragment(position: Int): Fragment {

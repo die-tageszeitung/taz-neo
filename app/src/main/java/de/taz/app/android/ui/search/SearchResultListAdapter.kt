@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -22,19 +21,41 @@ import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
 class SearchResultListAdapter(
-    private var searchResultList: List<SearchHit>,
+    private var searchResults: SearchResults,
     private val onBookmarkClick: (String, Date?) -> Unit,
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
     private val onSearchResultClick: (Int) -> Unit,
 ) :
     RecyclerView.Adapter<SearchResultListAdapter.SearchResultListViewHolder>() {
+
+    fun updateSearchResults(newSearchResults: SearchResults) {
+        if (searchResults.sessionId == newSearchResults.sessionId) {
+            val oldSize = searchResults.results.size
+            val newSize = newSearchResults.results.size
+            searchResults = newSearchResults
+
+            when {
+                oldSize < newSize -> notifyItemRangeInserted(oldSize, newSize - oldSize)
+                oldSize > newSize -> notifyDataSetChanged()
+                // oldSize == newSize -> no items have changed. we just keep the old data
+            }
+
+        } else {
+            searchResults = newSearchResults
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun getItemCount() = searchResults.results.size
 
     class SearchResultListViewHolder(
         val view: View,
@@ -81,7 +102,9 @@ class SearchResultListAdapter(
         holder: SearchResultListViewHolder,
         position: Int
     ) {
-        val searchResultItem = searchResultList[position]
+        holder.coroutineContext.cancelChildren()
+
+        val searchResultItem = searchResults.results[position]
         val highLightColor = ResourcesCompat.getColor(
             holder.itemView.resources,
             R.color.text_highlight_mark_color,
@@ -157,7 +180,10 @@ class SearchResultListAdapter(
         holder.bind(position, searchResultItem)
     }
 
-    override fun getItemCount() = searchResultList.size
+    override fun onViewRecycled(holder: SearchResultListViewHolder) {
+        holder.coroutineContext.cancelChildren()
+    }
+
 
     // region helper functions
 

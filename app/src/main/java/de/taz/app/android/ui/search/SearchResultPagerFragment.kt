@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -17,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.appbar.MaterialToolbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -42,7 +40,7 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -77,8 +75,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private var initialPosition = RecyclerView.NO_POSITION
 
-    val viewModel by activityViewModels<SearchResultPagerViewModel>()
-    private val searchResultViewModel by activityViewModels<SearchResultViewModel>()
+    private val viewModel by activityViewModels<SearchResultViewModel>()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
@@ -96,7 +93,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(requireActivity().applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
 
@@ -129,33 +126,37 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         bringAudioPlayerOverlayToFront()
 
-        viewModel.searchResultsLiveData.observe(viewLifecycleOwner) { updatedSearchResults ->
-            searchResultViewModel.mapFromSearchResultPagerViewModel(
-                viewModel.sessionId,
-                updatedSearchResults,
-                viewModel.totalFound
-            )
-        }
-
         // Wait for the loaded result being ready before jumping to the initial position
         viewLifecycleOwner.lifecycleScope.launch {
-            val loadedCount = searchResultViewModel.loadedSearchResults.filter { it > 0 }.first()
-            if (initialPosition < loadedCount) {
-                searchResultPagerAdapter?.updateLoadedCount(loadedCount)
+            val searchResults = viewModel.searchResults.filterNotNull().first()
+            if (initialPosition < searchResults.loadedResults) {
+                searchResultPagerAdapter?.updateSearchResults(searchResults)
                 log.verbose("setting currentItem to initialPosition $initialPosition")
                 webViewPager.setCurrentItem(initialPosition, false)
+                viewModel.setCurrentPosition(initialPosition)
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                searchResultViewModel.loadedSearchResults.collect {
-                    searchResultPagerAdapter?.updateLoadedCount(it)
+                launch {
+                    viewModel.searchResults
+                        .filterNotNull()
+                        .collect {
+                            searchResultPagerAdapter?.updateSearchResults(it)
+                        }
+                }
+
+                launch {
+                    viewModel.connectionError.filterNotNull().collect {
+                        toastHelper.showNoConnectionToast()
+                        viewModel.connectionErrorWasHandled()
+                    }
                 }
             }
         }
 
-        getCurrentSearchHit()?.let { setHeader(it) }
+        updateHeader()
 
         // Adjust padding when we have cutout display
         lifecycleScope.launch {
@@ -184,12 +185,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             val currentSearchHit = getCurrentSearchHit()
-            getCurrentSearchHit()?.let { setHeader(it) }
-            viewModel.articleFileName = currentSearchHit?.articleFileName
-            super.onPageSelected(position)
-            if (viewModel.checkIfLoadMore(position)) {
-                (activity as SearchActivity).loadMore()
-            }
+
+            updateHeader()
+
+            viewModel.setCurrentPosition(position)
+            viewModel.tryLoadMore(position)
 
             articleBottomActionBarNavigationHelper.apply {
                 // show the share icon always when in public article
@@ -259,11 +259,11 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                     val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
                         toastHelper.showToast(R.string.toast_article_bookmarked)
-                    }
-                    else {
+                    } else {
                         toastHelper.showToast(R.string.toast_article_debookmarked)
                     }
                 }
+
                 articleStub == null && date != null -> {
                     // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
                     articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
@@ -288,7 +288,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         datePublished: Date
     ) {
         try {
-            val issueMetadata = apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
+            val issueMetadata =
+                apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
             contentService.downloadMetadata(issueMetadata, maxRetries = 5)
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
@@ -329,14 +330,12 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
     }
 
     private fun getCurrentSearchHit(): SearchHit? {
-        return getCurrentPagerPosition().let {
-            viewModel.searchResultsLiveData.value?.get(it)
-        }
+        return viewModel.getSearchHit(getCurrentPagerPosition())
     }
 
     private fun reloadAfterCssChange() {
         // draw every view again
-        webViewPager.adapter?.notifyDataSetChanged()
+        searchResultPagerAdapter?.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
@@ -362,20 +361,31 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         }
     }
 
-    private fun setHeader(searchResult: SearchHit) {
-        val publishedDateString = if (BuildConfig.IS_LMD) {
-            DateHelper.stringToLocalizedMonthAndYearString(searchResult.date)
-        } else {
-            DateHelper.stringToMediumLocalizedString(searchResult.date)
+    private fun updateHeader() {
+        val currentPosition = getCurrentPagerPosition()
+        val currentResults = viewModel.searchResults.value
+        val currentHit = viewModel.getSearchHit(currentPosition)
+
+        if (currentHit != null) {
+            setHeader(currentHit, currentPosition, currentResults?.totalResults ?: 0)
         }
-        viewBinding.root.findViewById<MaterialToolbar>(R.id.header_custom)?.apply {
-            findViewById<TextView>(R.id.index_indicator).text = getString(
+    }
+
+    private fun setHeader(searchHit: SearchHit, currentPosition: Int, totalResults: Int) {
+        val publishedDateString = if (BuildConfig.IS_LMD) {
+            DateHelper.stringToLocalizedMonthAndYearString(searchHit.date)
+        } else {
+            DateHelper.stringToMediumLocalizedString(searchHit.date)
+        }
+
+        viewBinding.headerCustom.apply {
+            indexIndicator.text = getString(
                 R.string.fragment_header_custom_index_indicator,
-                getCurrentPagerPosition() + 1,
-                viewModel.totalFound
+                currentPosition + 1,
+                totalResults
             )
-            findViewById<TextView>(R.id.section_title).text = searchResult.sectionTitle ?: ""
-            findViewById<TextView>(R.id.published_date).text =
+            sectionTitle.text = searchHit.sectionTitle ?: ""
+            publishedDate.text =
                 getString(R.string.fragment_header_custom_published_date, publishedDateString)
         }
     }

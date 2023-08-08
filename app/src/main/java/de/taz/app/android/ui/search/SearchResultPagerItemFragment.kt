@@ -50,7 +50,7 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
         position = requireArguments().getInt(ARGUMENT_PAGER_POSITION, NO_POSITION)
         require(position >= 0) { "SearchResultPagerItemFragment must be given a positive position argument" }
 
-        val searchResult = viewModel.searchResults.getOrNull(position)
+        val searchResult = viewModel.getSearchHit(position)
         if (searchResult == null) {
             val toastHelper = ToastHelper.getInstance(requireActivity().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
