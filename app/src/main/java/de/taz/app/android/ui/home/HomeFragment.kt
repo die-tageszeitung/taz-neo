@@ -7,6 +7,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
@@ -32,6 +33,13 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     var onHome: Boolean = true
     private var refreshJob: Job? = null
+
+
+    // There seems to be a race condition between the Java GC and the Snackbar handling code,
+    // that can result in Snackbars not being shown if they are triggered with a certain timing.
+    // Following https://stackoverflow.com/a/45219027 it seems to help to retain a reference to the last Snackbar.
+    // To prevent memory losses (the Snackbar holds a reference to the full View hierarchy) we clear it onResume.
+    private var lastSnack: Snackbar? = null
 
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
@@ -133,14 +141,35 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
 
             fabActionPdf.setOnClickListener {
+                val snackTextResId: Int
                 if (homePageViewModel.getPdfMode()) {
                     tracker.trackSwitchToMobileModeEvent()
+                    snackTextResId = R.string.toast_switch_to_mobile
                 } else {
                     tracker.trackSwitchToPdfModeEvent()
+                    snackTextResId = R.string.toast_switch_to_pdf
                 }
+
+
+                lastSnack = Snackbar.make(
+                    viewBinding.root,
+                    // Use getText to parse HTML tags used for string formatting
+                    getText(snackTextResId),
+                    Snackbar.LENGTH_SHORT
+                ).apply {
+                    anchorView = fabActionPdf
+                    setTextMaxLines(4)
+                    show()
+                }
+
                 homePageViewModel.togglePdfMode()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        lastSnack = null
     }
 
     private suspend fun onRefresh() {
