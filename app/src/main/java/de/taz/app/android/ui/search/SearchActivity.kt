@@ -6,19 +6,20 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.activity.viewModels
-import androidx.core.view.size
+import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.commit
-import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_SEARCH_HELP
 import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
@@ -28,7 +29,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
-import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -40,6 +40,7 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -51,20 +52,16 @@ class SearchActivity :
     ViewBindingActivity<ActivitySearchBinding>(),
     SuccessfulLoginAction {
 
-    private val searchResultItemsList = mutableListOf<SearchHit>()
-    private var lastVisiblePosition = 0
-
     private lateinit var apiService: ApiService
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var contentService: ContentService
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var searchResultListAdapter: SearchResultListAdapter
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
     private val log by Log
 
-    private val viewModel by viewModels<SearchResultPagerViewModel>()
+    private val viewModel by viewModels<SearchResultViewModel>()
 
     @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
@@ -82,52 +79,46 @@ class SearchActivity :
 
         viewBinding.apply {
             searchCancelButton.setOnClickListener {
-                clearSearchList()
-                clearAdvancedSettings()
+                viewModel.clearSearch()
             }
-            searchText.setOnEditorActionListener { _, actionId, _ ->
-                // search button in keyboard layout clicked:
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    advancedSearch(
-                        searchText = searchInput.editText?.text.toString(),
-                        title = searchTitle.editText?.text.toString(),
-                        author = searchAuthor.editText?.text.toString(),
-                        pubDateFrom = viewModel.pubDateFrom.value,
-                        pubDateUntil = viewModel.pubDateUntil.value,
-                        searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-                        sorting = viewModel.sorting.value ?: Sorting.relevance
-                    )
-                    return@setOnEditorActionListener true
+            searchText.apply {
+                setOnEditorActionListener { _, actionId, _ ->
+                    // search button in keyboard layout clicked:
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                        startSearch()
+                        return@setOnEditorActionListener true
+                    }
+                    false
                 }
-                false
-            }
-            searchText.setOnKeyListener { _, _, keyEvent ->
-                if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                    advancedSearch(
-                        searchText = searchInput.editText?.text.toString(),
-                        title = searchTitle.editText?.text.toString(),
-                        author = searchAuthor.editText?.text.toString(),
-                        pubDateFrom = viewModel.pubDateFrom.value,
-                        pubDateUntil = viewModel.pubDateUntil.value,
-                        searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-                        sorting = viewModel.sorting.value ?: Sorting.relevance
-                    )
+
+                setOnKeyListener { _, _, keyEvent ->
+                    if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                        startSearch()
+                    }
+                    false
                 }
-                false
-            }
-            searchText.doOnTextChanged { _, _, _, _ ->
-                searchInput.error = null
-            }
-            searchText.setOnFocusChangeListener { _, isFocused ->
-                if (isFocused) {
-                    searchCancelButton.visibility = View.VISIBLE
+
+                doOnTextChanged { _, _, _, _ ->
+                    searchInput.error = null
+                }
+
+                setOnFocusChangeListener { _, isFocused ->
+                    if (isFocused) {
+                        searchCancelButton.visibility = View.VISIBLE
+                    }
+                }
+
+                doAfterTextChanged {
+                    val searchText: String = it?.toString() ?: ""
+                    viewModel.setSelectedSearchText(searchText)
                 }
             }
+
             searchHelp.setOnClickListener {
                 showHelp()
             }
             expandAdvancedSearchButton.setOnClickListener {
-                toggleAdvancedSearchLayout(expandableAdvancedSearch.visibility == View.VISIBLE)
+                viewModel.toggleAdvancedSearchOpen()
             }
             advancedSearchTimeslot.setOnClickListener {
                 showSearchTimeDialog()
@@ -135,10 +126,6 @@ class SearchActivity :
             if (BuildConfig.IS_LMD) {
                 // Restrict the publishedIn parameter to LMd by hiding the selection action ...
                 advancedSearchPublishedInWrapper.visibility = View.GONE
-                // ... and setting it manually to "Le monde Diplomatique"
-                viewModel.chosenPublishedIn.postValue(
-                    getString(R.string.search_advanced_radio_published_in_lmd)
-                )
             } else {
                 advancedSearchPublishedIn.setOnClickListener {
                     showPublishedInDialog()
@@ -147,57 +134,77 @@ class SearchActivity :
             advancedSearchSortBy.setOnClickListener {
                 showSortByDialog()
             }
+
+            searchTitle.editText?.doAfterTextChanged {
+                val searchTitle: String? = it?.toString()
+                viewModel.setSelectedAdvancedOptions(
+                    viewModel.selectedSearchOptions.value.advancedOptions.copy(title = searchTitle)
+                )
+            }
+
+            searchAuthor.editText?.doAfterTextChanged {
+                val searchAuthor: String? = it?.toString()
+                viewModel.setSelectedAdvancedOptions(
+                    viewModel.selectedSearchOptions.value.advancedOptions.copy(author = searchAuthor)
+                )
+            }
+
             searchAuthorInput.setOnKeyListener { _, _, keyEvent ->
                 if (keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
                     hideSoftInputKeyboard()
                 }
                 false
             }
+
             advancedSearchStartSearch.setOnClickListener {
-                advancedSearch(
-                    searchText = searchInput.editText?.text.toString(),
-                    title = searchTitle.editText?.text.toString(),
-                    author = searchAuthor.editText?.text.toString(),
-                    pubDateFrom = viewModel.pubDateFrom.value,
-                    pubDateUntil = viewModel.pubDateUntil.value,
-                    searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-                    sorting = viewModel.sorting.value ?: Sorting.relevance
-                )
-                return@setOnClickListener
+                startSearch()
             }
 
             // Adjust extra padding when we have cutout display
             lifecycleScope.launch {
                 val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
                 if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    root.setPadding(0, extraPadding, 0 ,0)
+                    root.setPadding(0, extraPadding, 0, 0)
                 }
             }
         }
-        viewModel.chosenTimeSlot.distinctUntilChanged().observe(this) {
-            mapTimeSlot(it)
-        }
-        viewModel.chosenPublishedIn.distinctUntilChanged().observe(this) {
-            viewModel.searchFilter.postValue(mapSearchFilter(it))
-        }
-        viewModel.chosenSortBy.distinctUntilChanged().observe(this) {
-            viewModel.sorting.postValue(mapSortingFilter(it))
-        }
-        viewModel.pubDateFrom.distinctUntilChanged().observe(this) { from ->
-            if (from != null) {
-                if (viewModel.pubDateUntil.value != null) {
-                    updateCustomTimeSlot(from, viewModel.pubDateUntil.value)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.selectedSearchOptions.collect {
+                        updateSearchViews(it)
+                    }
                 }
-            }
-        }
-        viewModel.pubDateUntil.distinctUntilChanged().observe(this) { until ->
-            if (until != null) {
-                if (viewModel.pubDateFrom.value != null) {
-                    updateCustomTimeSlot(viewModel.pubDateFrom.value, until)
+
+                launch {
+                    viewModel.isAdvancedSearchOpen.collect {
+                        setAdvancedSearchLayoutVisibility(it)
+                    }
+                }
+
+                launch {
+                    viewModel.isAdvancedSearchHighlighted.collect {
+                        setAdvancedSearchIndicator(it)
+                    }
+                }
+
+                launch {
+                    viewModel.searchUiState.collect {
+                        updateUiState(it)
+                    }
+                }
+
+                launch {
+                    viewModel.connectionError.filterNotNull().collect {
+                        toastHelper.showNoConnectionToast()
+                        viewModel.connectionErrorWasHandled()
+                    }
                 }
             }
         }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -230,102 +237,33 @@ class SearchActivity :
     }
 
     // endregion
-    // region main functions
-    private fun advancedSearch(
-        searchText: String,
-        title: String? = null,
-        author: String? = null,
-        sessionId: String? = null,
-        rowCnt: Int = DEFAULT_SEARCH_RESULTS_TO_FETCH,
-        offset: Int = 0,
-        pubDateFrom: String? = null,
-        pubDateUntil: String? = null,
-        searchFilter: SearchFilter = SearchFilter.all,
-        sorting: Sorting = Sorting.relevance,
-        showLoadingScreen: Boolean = true
-    ) {
-        if (searchText.isBlank() && title.isNullOrBlank() && author.isNullOrBlank()) {
+
+    private fun startSearch() {
+        val searchOptions = viewModel.selectedSearchOptions.value
+        if (!searchOptions.isValid()) {
             showNoInputError()
-            return
-        }
-        hideSoftInputKeyboard()
-        hideSearchDescription()
-        if (showLoadingScreen) showLoadingScreen()
-
-        // region throw debug logs
-        log.debug("advanced SEARCH with following parameters:")
-        log.debug("searchText: $searchText")
-        log.debug("title: $title")
-        log.debug("author: $author")
-        log.debug("sessionId: $sessionId")
-        log.debug("offset: $offset")
-        log.debug("rowCnt: $rowCnt")
-        log.debug("pubDateFrom: $pubDateFrom")
-        log.debug("pubDateUntil: $pubDateUntil")
-        log.debug("searchFilter: $searchFilter")
-        log.debug("sorting: $sorting")
-        // endregion
-
-        // save search parameter to viewModel:
-        viewModel.searchText.postValue(searchText)
-        viewModel.searchTitle.postValue(title)
-        viewModel.searchAuthor.postValue(author)
-
-        if (offset == 0) {
-            clearRecyclerView()
-        }
-
-        toggleAdvancedSearchIndicator(
-            title != "" || author != "" || pubDateUntil != null || searchFilter != SearchFilter.all || sorting != Sorting.relevance
-        )
-
-        lifecycleScope.launch {
-            if (apiService.checkForConnectivity()) {
-                val result = apiService.search(
-                    searchText = searchText,
-                    title = title,
-                    author = author,
-                    sessionId = sessionId,
-                    rowCnt = rowCnt,
-                    offset = offset,
-                    pubDateFrom = pubDateFrom,
-                    pubDateUntil = pubDateUntil,
-                    filter = searchFilter,
-                    sorting = sorting
-                )
-                result?.let {
-                    viewModel.totalFound = it.totalFound
-                    viewModel.minPubDate = it.minPubDate
-                    it.searchHitList?.let { hits ->
-                        searchResultItemsList.addAll(hits)
-                        viewModel.searchResultsLiveData.postValue(searchResultItemsList)
-                        if (offset > 0) {
-                            searchResultListAdapter.notifyItemRangeChanged(
-                                offset,
-                                rowCnt
-                            )
-                        } else {
-                            initRecyclerView()
-                        }
-                    }
-                    showAmountFound(searchResultItemsList.size, viewModel.totalFound)
-                    viewModel.sessionId = it.sessionId
-                }
-                viewModel.currentlyLoadingMore.postValue(false)
-            } else {
-                toastHelper.showNoConnectionToast()
-                clearSearchList()
-                clearAdvancedSettings()
-                return@launch
-            }
+        } else {
+            viewModel.closeAdvancedSearch()
+            viewModel.startSearch(searchOptions)
         }
     }
 
-    private fun initRecyclerView() {
+
+    private fun updateSearchResults(searchResults: SearchResults) {
+        val adapter = viewBinding.searchResultList.adapter as? SearchResultListAdapter
+        if (adapter == null) {
+            initRecyclerView(searchResults)
+        } else {
+            adapter.updateSearchResults(searchResults)
+        }
+    }
+
+
+    private fun initRecyclerView(searchResults: SearchResults) {
         viewBinding.apply {
-            searchResultListAdapter =
+            val searchResultListAdapter =
                 SearchResultListAdapter(
-                    searchResultItemsList,
+                    searchResults,
                     ::toggleBookmark,
                     bookmarkRepository::createBookmarkStateFlow,
                     ::onSearchResultClick,
@@ -334,39 +272,22 @@ class SearchActivity :
             searchResultList.apply {
                 layoutManager = llm
                 adapter = searchResultListAdapter
+
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    private var lastVisiblePosition = 0
+
                     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                        if (lastVisiblePosition !=llm.findLastVisibleItemPosition()) {
-                            lastVisiblePosition = llm.findLastVisibleItemPosition()
-                            if (viewModel.checkIfLoadMore(lastVisible = lastVisiblePosition)) {
-                                viewModel.currentlyLoadingMore.value = true
-                                loadMore()
-                            }
+                        val currentLastVisiblePosition = llm.findLastVisibleItemPosition()
+                        if (lastVisiblePosition < currentLastVisiblePosition) {
+                            lastVisiblePosition = currentLastVisiblePosition
+                            viewModel.tryLoadMore(currentLastVisiblePosition)
                         }
-                        super.onScrolled(recyclerView, dx, dy)
                     }
                 })
             }
         }
     }
 
-    fun loadMore() {
-        val offset = searchResultItemsList.size
-        advancedSearch(
-            searchText = viewModel.searchText.value.toString(),
-            title = viewModel.searchTitle.value.toString(),
-            author = viewModel.searchAuthor.value.toString(),
-            sessionId = viewModel.sessionId,
-            offset = offset,
-            pubDateFrom = viewModel.pubDateFrom.value,
-            pubDateUntil = viewModel.pubDateUntil.value,
-            searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-            sorting = viewModel.sorting.value ?: Sorting.relevance,
-            showLoadingScreen = false
-        )
-    }
-
-    // endregion
     // region UI update functions
     fun updateRecyclerView(position: Int) {
         viewBinding.searchResultList.scrollToPosition(position)
@@ -381,11 +302,7 @@ class SearchActivity :
     }
 
     private fun clearRecyclerView() {
-        val size = searchResultItemsList.size
-        searchResultItemsList.clear()
-        viewBinding.searchResultList.adapter?.notifyItemRangeRemoved(0, size)
-        viewModel.searchResultsLiveData.postValue(emptyList())
-        viewModel.sessionId = null
+        viewBinding.searchResultList.adapter = null
     }
 
     private fun showSearchDescription() {
@@ -394,7 +311,6 @@ class SearchActivity :
             searchDescriptionIcon.visibility = View.VISIBLE
             searchResultList.visibility = View.GONE
         }
-        hideSoftInputKeyboard()
     }
 
     private fun hideSearchDescription() {
@@ -402,107 +318,170 @@ class SearchActivity :
             searchDescription.visibility = View.GONE
             searchDescriptionIcon.visibility = View.GONE
             searchResultList.visibility = View.VISIBLE
-            expandableAdvancedSearch.visibility = View.GONE
-            advancedSearchTitle.visibility = View.GONE
-        }
-        hideSoftInputKeyboard()
-    }
-
-    private fun clearSearchList() {
-        viewModel.totalFound = 0
-        viewModel.sessionId = null
-        viewBinding.apply {
-            searchInput.editText?.text?.clear()
-            clearRecyclerView()
-            showSearchDescription()
-            hideLoadingScreen()
-            searchInput.clearFocus()
-            expandableAdvancedSearch.visibility = View.GONE
-            advancedSearchTitle.visibility = View.GONE
-            searchResultAmount.text = ""
-            searchAuthor.editText?.text?.clear()
-            searchTitle.editText?.text?.clear()
-            expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
-            searchCancelButton.visibility = View.GONE
         }
     }
 
-    private fun showAmountFound(index: Int, amount: Int) {
-        viewBinding.apply {
-            searchResultAmount.visibility = View.VISIBLE
-            hideLoadingScreen()
-            if (amount == 0) {
-                searchResultAmount.text = getString(R.string.search_result_amount_none_found)
-            } else {
-                searchResultAmount.text = getString(
-                    R.string.search_result_amount_found,
-                    index,
-                    amount
-                )
+    private fun updateUiState(state: SearchUiState) {
+        when (state) {
+            SearchUiState.Init -> {
+                hideSoftInputKeyboard()
+                hideLoadingScreen()
+                clearRecyclerView()
+                viewBinding.apply {
+                    searchInput.apply {
+                        editText?.text?.clear()
+                        clearFocus()
+                    }
+                    searchResultAmount.isVisible = false
+                    searchCancelButton.isVisible = false
+                }
+                showSearchDescription()
+            }
+
+            SearchUiState.Loading -> {
+                hideSoftInputKeyboard()
+                hideSearchDescription()
+                clearRecyclerView()
+                viewBinding.apply {
+                    searchInput.clearFocus()
+                    searchResultAmount.isVisible = false
+                }
+                showLoadingScreen()
+            }
+
+            SearchUiState.NoResults -> {
+                hideSoftInputKeyboard()
+                hideSearchDescription()
+                hideLoadingScreen()
+                clearRecyclerView()
+                viewBinding.apply {
+                    searchInput.clearFocus()
+                    searchResultAmount.apply {
+                        isVisible = true
+                        setText(R.string.search_result_amount_none_found)
+                    }
+                }
+            }
+
+            is SearchUiState.Results -> {
+                hideSoftInputKeyboard()
+                hideSearchDescription()
+                hideLoadingScreen()
+                viewBinding.apply {
+                    searchInput.clearFocus()
+                    searchResultAmount.apply {
+                        isVisible = true
+                        text = getString(
+                            R.string.search_result_amount_found,
+                            state.searchResults.loadedResults,
+                            state.searchResults.totalResults
+                        )
+                    }
+                }
+                updateSearchResults(state.searchResults)
             }
         }
     }
 
-    private fun toggleAdvancedSearchLayout(isVisible: Boolean) {
+    private fun updateSearchViews(options: SearchOptions) {
+        viewBinding.searchInput.editText?.apply {
+            if (text.toString() != options.searchText) {
+                setText(options.searchText)
+            }
+        }
+        updateAdvancedSearchViews(options.advancedOptions)
+    }
+
+    private fun updateAdvancedSearchViews(options: AdvancedSearchOptions) {
+        viewBinding.searchTitle.editText?.apply {
+            val searchTitle = options.title ?: ""
+            if (text.toString() != searchTitle) {
+                setText(searchTitle)
+            }
+        }
+        viewBinding.searchAuthor.editText?.apply {
+            val searchAuthor = options.author ?: ""
+            if (text.toString() != searchAuthor) {
+                setText(searchAuthor)
+            }
+        }
+
+        updateTimeslotView(options.publicationDateFilter)
+
+        val filterStringId = when (options.searchFilter) {
+            SearchFilter.all -> R.string.search_advanced_radio_published_in_any
+            SearchFilter.taz -> R.string.search_advanced_radio_published_in_taz
+            SearchFilter.LMd -> R.string.search_advanced_radio_published_in_lmd
+            SearchFilter.Kontext -> R.string.search_advanced_radio_published_in_kontext
+            SearchFilter.weekend -> R.string.search_advanced_radio_published_in_weekend
+        }
+        viewBinding.advancedSearchPublishedIn.setText(filterStringId)
+
+        val sortStringResId = when (options.sorting) {
+            Sorting.appearance -> R.string.search_advanced_radio_sort_by_appearance
+            Sorting.actuality -> R.string.search_advanced_radio_sort_by_actuality
+            Sorting.relevance -> R.string.search_advanced_radio_sort_by_relevance
+        }
+        viewBinding.advancedSearchSortBy.setText(sortStringResId)
+    }
+
+    private fun updateTimeslotView(publicationDateFilter: PublicationDateFilter) {
+        val today = Calendar.getInstance().time
+        val publicationDateString = when (publicationDateFilter) {
+            PublicationDateFilter.Any -> getString(R.string.search_advanced_radio_timeslot_any)
+            is PublicationDateFilter.Custom -> {
+                val from = publicationDateFilter.from ?: viewModel.minPublicationDate
+                val until = publicationDateFilter.until ?: today
+                getTimeslotString(from, until)
+            }
+
+            PublicationDateFilter.Last31Days -> getTimeslotString(DateHelper.lastMonth(), today)
+            PublicationDateFilter.Last365Days -> getTimeslotString(DateHelper.lastYear(), today)
+            PublicationDateFilter.Last7Days -> getTimeslotString(DateHelper.lastWeek(), today)
+            PublicationDateFilter.LastDay -> getTimeslotString(DateHelper.yesterday(), today)
+        }
+        viewBinding.advancedSearchTimeslot.text = publicationDateString
+    }
+
+    private fun getTimeslotString(from: Date, until: Date): String {
+        val fromString = DateHelper.dateToMediumLocalizedString(from)
+        val untilString = DateHelper.dateToMediumLocalizedString(until)
+        return getString(
+            R.string.search_advanced_timeslot_from_until,
+            fromString,
+            untilString
+        )
+    }
+
+    private fun setAdvancedSearchLayoutVisibility(isVisible: Boolean) {
         viewBinding.apply {
-            if (isVisible) {
-                if (searchResultList.size == 0) {
-                    searchDescription.visibility = View.VISIBLE
-                    searchDescriptionIcon.visibility = View.VISIBLE
-                }
-                searchResultAmount.visibility = View.VISIBLE
-                expandableAdvancedSearch.visibility = View.GONE
-                advancedSearchTitle.visibility = View.GONE
-                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
+            if (!isVisible) {
+                val showSearchDescription = viewModel.searchUiState.value is SearchUiState.Init
+                searchDescription.isVisible = showSearchDescription
+                searchDescriptionIcon.isVisible = showSearchDescription
+
+                searchResultAmount.isVisible = true
+                expandableAdvancedSearch.isVisible = false
+                advancedSearchTitle.isVisible = false
             } else {
-                searchDescription.visibility = View.GONE
-                searchDescriptionIcon.visibility = View.GONE
-                searchResultAmount.visibility = View.GONE
-                expandableAdvancedSearch.visibility = View.VISIBLE
-                advancedSearchTitle.visibility = View.VISIBLE
-                expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
+                searchDescription.isVisible = false
+                searchDescriptionIcon.isVisible = false
+                searchResultAmount.isVisible = false
+                expandableAdvancedSearch.isVisible = true
+                advancedSearchTitle.isVisible = true
                 searchInput.error = null
             }
         }
     }
 
-    private fun toggleAdvancedSearchIndicator(advancedActive: Boolean) {
+    private fun setAdvancedSearchIndicator(isActive: Boolean) {
         viewBinding.apply {
-            if (advancedActive) {
+            if (isActive) {
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter_active)
             } else {
                 expandAdvancedSearchButton.setImageResource(R.drawable.ic_filter)
             }
         }
-    }
-
-    private fun clearAdvancedSettings() {
-        viewBinding.apply {
-            searchTitle.editText?.text?.clear()
-            searchAuthor.editText?.text?.clear()
-            viewModel.pubDateFrom.postValue(null)
-            viewModel.pubDateUntil.postValue(null)
-            viewModel.chosenTimeSlot.value = getString(R.string.search_advanced_radio_timeslot_any)
-            advancedSearchPublishedIn.text =
-                getString(R.string.search_advanced_radio_published_in_any)
-            viewModel.searchFilter.postValue(SearchFilter.all)
-            advancedSearchSortBy.text = getString(R.string.search_advanced_radio_sort_by_relevance)
-            viewModel.sorting.postValue(Sorting.relevance)
-        }
-    }
-
-    private fun updateCustomTimeSlot(pubDateFrom: String?, pubDateUntil: String?) {
-        val formattedFromDate = pubDateFrom?.let {
-            DateHelper.stringToMediumLocalizedString(it)
-        }
-        val formattedUntilDate = pubDateUntil?.let {
-            DateHelper.stringToMediumLocalizedString(it)
-        }
-        viewBinding.advancedSearchTimeslot.text = getString(
-            R.string.search_advanced_timeslot_from_until,
-            formattedFromDate,
-            formattedUntilDate
-        )
     }
 
     private fun showNoInputError() {
@@ -538,77 +517,19 @@ class SearchActivity :
         val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_SEARCH_HELP)
         startActivity(intent)
     }
+    // endregion
 
     override fun onLogInSuccessful(articleName: String) {
         // Close the result pager
-        supportFragmentManager.popBackStack(SEARCH_RESULT_PAGER_BACKSTACK_NAME, POP_BACK_STACK_INCLUSIVE)
-        // Re-start the search
-        advancedSearch(
-            searchText = viewModel.searchText.value.toString(),
-            title = viewModel.searchTitle.value.toString(),
-            author = viewModel.searchAuthor.value.toString(),
-            pubDateFrom = viewModel.pubDateFrom.value,
-            pubDateUntil = viewModel.pubDateUntil.value,
-            searchFilter = viewModel.searchFilter.value ?: SearchFilter.all,
-            sorting = viewModel.sorting.value ?: Sorting.relevance,
-            showLoadingScreen = true
+        supportFragmentManager.popBackStack(
+            SEARCH_RESULT_PAGER_BACKSTACK_NAME,
+            POP_BACK_STACK_INCLUSIVE
         )
+        // Re-start the search
+        viewModel.restartSearch()
     }
 
-    // endregion
     // region helper functions
-    private fun mapSearchFilter(publishedIn: String): SearchFilter {
-        viewBinding.advancedSearchPublishedIn.text = publishedIn
-        return when (publishedIn) {
-            getString(R.string.search_advanced_radio_published_in_taz) -> SearchFilter.taz
-            getString(R.string.search_advanced_radio_published_in_lmd) -> SearchFilter.LMd
-            getString(R.string.search_advanced_radio_published_in_kontext) -> SearchFilter.Kontext
-            getString(R.string.search_advanced_radio_published_in_weekend) -> SearchFilter.weekend
-            else -> SearchFilter.all
-        }
-    }
-
-    private fun mapSortingFilter(sortBy: String): Sorting {
-        viewBinding.advancedSearchSortBy.text = sortBy
-        return when (sortBy) {
-            getString(R.string.search_advanced_radio_sort_by_appearance) -> Sorting.appearance
-            getString(R.string.search_advanced_radio_sort_by_actuality) -> Sorting.actuality
-            else -> Sorting.relevance
-        }
-    }
-
-    private fun mapTimeSlot(timeSlotString: String?) {
-        val todayString = simpleDateFormat.format(Date())
-        viewBinding.advancedSearchTimeslot.text =
-            timeSlotString ?: getString(R.string.search_advanced_radio_timeslot_any)
-        when (timeSlotString) {
-            getString(R.string.search_advanced_radio_timeslot_last_day) -> {
-                val yesterdayString = simpleDateFormat.format(DateHelper.yesterday())
-                viewModel.pubDateUntil.postValue(todayString)
-                viewModel.pubDateFrom.postValue(yesterdayString)
-            }
-            getString(R.string.search_advanced_radio_timeslot_last_week) -> {
-                val lastWeekString = simpleDateFormat.format(DateHelper.lastWeek())
-                viewModel.pubDateUntil.postValue(todayString)
-                viewModel.pubDateFrom.postValue(lastWeekString)
-            }
-            getString(R.string.search_advanced_radio_timeslot_last_month) -> {
-                val lastMonthString = simpleDateFormat.format(DateHelper.lastMonth())
-                viewModel.pubDateUntil.postValue(todayString)
-                viewModel.pubDateFrom.postValue(lastMonthString)
-            }
-            getString(R.string.search_advanced_radio_timeslot_last_year) -> {
-                val lastYearString = simpleDateFormat.format(DateHelper.lastYear())
-                viewModel.pubDateUntil.postValue(todayString)
-                viewModel.pubDateFrom.postValue(lastYearString)
-            }
-            else -> {
-                viewModel.pubDateUntil.postValue(null)
-                viewModel.pubDateFrom.postValue(null)
-            }
-        }
-    }
-
     private fun toggleBookmark(articleFileName: String, date: Date?) {
         applicationScope.launch {
             val articleStub = articleRepository.getStub(articleFileName)
@@ -618,11 +539,11 @@ class SearchActivity :
                     val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
                         toastHelper.showToast(R.string.toast_article_bookmarked)
-                    }
-                    else {
+                    } else {
                         toastHelper.showToast(R.string.toast_article_debookmarked)
                     }
                 }
+
                 date != null -> {
                     toastHelper.showToast(R.string.toast_article_bookmarked)
                     // no articleStub so probably article not downloaded, so download it:
@@ -645,7 +566,8 @@ class SearchActivity :
         datePublished: Date
     ) {
         try {
-            val issueMetadata = apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
+            val issueMetadata =
+                apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
             contentService.downloadMetadata(issueMetadata, maxRetries = 5)
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
