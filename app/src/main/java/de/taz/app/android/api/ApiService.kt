@@ -2,6 +2,7 @@ package de.taz.app.android.api
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import com.vdurmont.semver4j.Semver
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.*
@@ -786,5 +787,20 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
 
         return response?.let { CustomerTypeMapper.from(it) }
+    }
+
+    /**
+     * Query the minimum required app version.
+     */
+    @Throws(ConnectivityException::class)
+    suspend fun getMinAppVersion(): Semver? {
+        val variables = AppVariables(os="Android", type="native")
+        val appResponse = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.App,
+                variables
+            ).data?.app
+        }
+        return appResponse?.let { MinAppVersionMapper.from(it) }
     }
 }

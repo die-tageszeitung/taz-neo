@@ -1,0 +1,11 @@
+query App(
+    $os: String!,
+    $type: String!
+) {
+    app(
+        os: $os,
+        type: $type
+    ) {
+        minVersion
+    }
+}
