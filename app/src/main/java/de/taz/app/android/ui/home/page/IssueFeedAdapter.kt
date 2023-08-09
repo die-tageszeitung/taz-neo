@@ -102,7 +102,7 @@ abstract class IssueFeedAdapter(
                     coverViewDate,
                     glideRequestManager,
                     onMomentViewActionListener,
-                    observeDownloads
+                    observeDownloads,
                 )
             } else {
                 MomentViewBinding(

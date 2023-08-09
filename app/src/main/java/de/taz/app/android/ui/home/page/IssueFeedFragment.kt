@@ -5,11 +5,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -21,7 +21,6 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Abstract class for Fragment which has an IssueFeed to show - e.g.
@@ -44,10 +43,17 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     private lateinit var contentService: ContentService
 
     private var momentChangedListener: MomentChangedListener? = null
+    private var lastRefreshMs = 0L
 
     override val viewModel: IssueFeedViewModel by activityViewModels()
 
     protected var adapter: IssueFeedAdapter? = null
+        set(value) {
+            if (field != value) {
+                setupNewAdapter(value)
+            }
+            field = value
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -71,15 +77,28 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
             }
         }
 
-        // redraw once the user logs in
-        authHelper.status.asLiveData().observeDistinctIgnoreFirst(viewLifecycleOwner) {
-            if (AuthStatus.valid == it) {
-                lifecycleScope.launchWhenResumed {
-                    withContext(Dispatchers.Main) {
-                        adapter?.notifyDataSetChanged()
-                    }
-                }
+        // redraw once the user state changes as this might result in the need to re-load the moments
+        var prevAuthStatus: AuthStatus? = null
+        authHelper.status.asLiveData().observe(viewLifecycleOwner) {
+            if (prevAuthStatus != null && prevAuthStatus != it) {
+                adapter?.notifyDataSetChanged()
             }
+            prevAuthStatus = it
+        }
+
+        // Redraw the feed if some moment placeholders are shown because of connection errors
+        viewModel.forceRefreshTimeMs.observe(viewLifecycleOwner) {
+            if (it > lastRefreshMs) {
+                adapter?.notifyDataSetChanged()
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adapter = null
+        momentChangedListener?.let {
+            viewModel.removeNotifyMomentChangedListener(it)
         }
     }
 
@@ -118,12 +137,19 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         return contentService.isPresent(abstractIssuePublication)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        adapter = null
-        momentChangedListener?.let {
-            viewModel.removeNotifyMomentChangedListener(it)
+    private fun setupNewAdapter(adapter: IssueFeedAdapter?) {
+        updateLastRefreshTime()
+        adapter?.registerAdapterDataObserver(onDataSetChangedObserver)
+    }
+
+    private val onDataSetChangedObserver = object : RecyclerView.AdapterDataObserver() {
+        // Called after adapter.notifyDataSetChanged
+        override fun onChanged() {
+            updateLastRefreshTime()
         }
     }
 
+    private fun updateLastRefreshTime() {
+        lastRefreshMs = System.currentTimeMillis()
+    }
 }

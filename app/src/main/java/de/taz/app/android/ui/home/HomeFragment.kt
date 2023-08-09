@@ -176,6 +176,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         try {
             val feedService = FeedService.getInstance(requireContext().applicationContext)
             feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
+            homePageViewModel.forceRefresh()
         } catch (e: ConnectivityException.NoInternetException) {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showNoConnectionToast()
