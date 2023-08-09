@@ -8,8 +8,10 @@ import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.persistence.repository.*
-import de.taz.app.android.singletons.*
+import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.FrontpagePublication
+import de.taz.app.android.singletons.StorageService
 
 
 class FrontpageViewBinding(
@@ -18,7 +20,7 @@ class FrontpageViewBinding(
     coverViewDate: CoverViewDate?,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
-    observeDownload: Boolean
+    observeDownload: Boolean,
 ) : CoverViewBinding(
     fragment,
     frontpagePublication,

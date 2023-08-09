@@ -5,15 +5,16 @@ import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_FILE
 import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Moment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.MomentPublication
-import de.taz.app.android.singletons.*
-import kotlin.IllegalStateException
+import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 
 
 class MomentViewBinding(
@@ -22,7 +23,7 @@ class MomentViewBinding(
     coverViewDate: CoverViewDate?,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
-    observeDownload: Boolean
+    observeDownload: Boolean,
 ) : CoverViewBinding(
     fragment,
     momentPublication,

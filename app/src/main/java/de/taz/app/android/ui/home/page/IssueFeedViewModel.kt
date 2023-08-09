@@ -1,11 +1,16 @@
 package de.taz.app.android.ui.home.page
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
+import java.util.LinkedList
 
 typealias MomentChangedListener = (Date) -> Unit
 
@@ -39,6 +44,15 @@ class IssueFeedViewModel(
     private val mutableFeedLiveData = MutableLiveData<Feed>()
     val feed: LiveData<Feed> = mutableFeedLiveData
 
+    private val _forceRefreshTimeMs = MutableLiveData<Long>(0L)
+    val forceRefreshTimeMs: LiveData<Long> = _forceRefreshTimeMs
+
+    /**
+     *  Triggers a force refresh with a redraw of the feed list (e.g. carousel).
+     */
+    fun forceRefresh() {
+        _forceRefreshTimeMs.value = System.currentTimeMillis()
+    }
 
     fun addNotifyMomentChangedListener(listener: MomentChangedListener): MomentChangedListener {
         notifyMomentChangedListeners.add(listener)
