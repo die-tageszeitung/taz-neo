@@ -5,15 +5,21 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.vdurmont.semver4j.Semver
+import com.vdurmont.semver4j.SemverException
 import de.taz.app.android.*
+import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.*
@@ -37,12 +43,14 @@ const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
 private const val MAX_RETRIES_ON_STARTUP = 3
 private const val DOWNLOAD_TASKS_TIMEOUT_MS = 2_000L
+private const val MIN_VERSION_QUERY_TIMEOUT_MS = 250L
 
 class SplashActivity : StartupActivity() {
 
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var apiService: ApiService
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
@@ -60,6 +68,8 @@ class SplashActivity : StartupActivity() {
     private var splashStartMs = 0L
     private var initComplete = false
 
+    private var minVersionDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         splashStartMs = System.currentTimeMillis()
         installSplashScreen().apply {
@@ -68,6 +78,7 @@ class SplashActivity : StartupActivity() {
         super.onCreate(savedInstanceState)
 
         authHelper = AuthHelper.getInstance(applicationContext)
+        apiService = ApiService.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
@@ -106,6 +117,8 @@ class SplashActivity : StartupActivity() {
         // blocking the the second instance that would be showing the ConnectionErrorDialog as long
         // as the setKeepOnScreenCondition is true.
         showSplashScreen = false
+        minVersionDialog?.dismiss()
+        minVersionDialog = null
         super.onDestroy()
     }
 
@@ -137,6 +150,14 @@ class SplashActivity : StartupActivity() {
         generateNotificationChannels()
         verifyStorageLocation()
         initResources()
+
+        if (!checkMinVersion()) {
+            // Stop the initialization if the min version is not met.
+            // As we did not start the downloads and thus won't end up in a broken state
+            // we can mark the initComplete
+            initComplete = true
+            return
+        }
 
         // Create async coroutines for all init tasks that might require network for downloads.
         // The [Deferred]s can be awaited with a timeout if the network is very slow.
@@ -450,7 +471,93 @@ class SplashActivity : StartupActivity() {
                 && latestResourceInfo != null && latestResourceInfo.dateDownload != null
     }
 
+    /**
+     * Returns true if the minVersion is satisfied by the current installation.
+     * If not it shows an error dialog and returns false.
+     * The caller is responsible to prevent any further API calls if it returns false.
+     * In case of network errors or if the [MIN_VERSION_QUERY_TIMEOUT_MS] is hit, the minVersion
+     * check is skipped until the next app start.
+     */
+    private suspend fun checkMinVersion(): Boolean {
+        try {
+            val minVersion = withTimeout(MIN_VERSION_QUERY_TIMEOUT_MS) {
+                apiService.getMinAppVersion()
+            }
 
+            if (minVersion == null) {
+                log.error("Could not get minVersion from API. Skip check and continue.")
+                return true
+            }
+
+
+            val currentVersion = getCurrentAppVersion()
+            if (currentVersion == null) {
+                return true
+            }
+
+            if (currentVersion.isLowerThan(minVersion)) {
+                showMinVersionDialog(minVersion, currentVersion)
+                return false
+            }
+
+        } catch (e : ConnectivityException) {
+            log.error("Could not get the minVersion on startup. Skip check until next app start and continue.", e)
+        } catch (e: TimeoutCancellationException) {
+            log.warn("Could not get the minVersion on startup in time. Skip check until next app start and continue.")
+        }
+        return true
+    }
+
+    private fun getCurrentAppVersion(): Semver? {
+        return try {
+            Semver(BuildConfig.VERSION_NAME, Semver.SemverType.LOOSE)
+        } catch (e: SemverException) {
+            log.error("Could not get current app version from versionName: ${BuildConfig.VERSION_NAME}")
+            null
+        }
+    }
+
+    private fun showMinVersionDialog(minVersion: Semver, currentVersion: Semver) {
+        // Stop showing the splash screen to ensure the dialog is shown
+        showSplashScreen = false
+
+        val message =
+            getString(R.string.required_min_version_description, currentVersion, minVersion)
+
+        minVersionDialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.required_min_version_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.close_okay) { _, _ ->
+                openUpdateOption()
+                finish()
+            }
+            .setNegativeButton(R.string.cancel_button) { _, _ -> finish() }
+            .setCancelable(false)
+            .setOnDismissListener { finish() }
+            .show()
+    }
+
+    private fun openUpdateOption() {
+        if (BuildConfig.IS_NON_FREE) {
+            openMarket()
+        } else {
+            val uri = Uri.parse(getString(R.string.app_free_download_link))
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
+    }
+
+    private fun openMarket() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                )
+            )
+        }
+    }
 }
 
 class InitializationException(message: String, override val cause: Throwable? = null) :

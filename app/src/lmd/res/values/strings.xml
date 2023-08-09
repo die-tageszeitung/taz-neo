@@ -29,6 +29,7 @@
     <string name="fragment_login_help">Geben Sie bitte Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort ein.</string>
 
     <string name="faq_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
+    <string name="app_free_download_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur LMd. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
 </resources>

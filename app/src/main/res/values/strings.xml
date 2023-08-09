@@ -443,5 +443,9 @@
     <string name="audioplayer_author_template">von %s</string>
     <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
 
+    <string name="required_min_version_title">Update erforderlich</string>
+    <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>
+
     <string name="faq_link" translatable="false">https://dl.taz.de/faq</string>
+    <string name="app_free_download_link" translatable="false">https://taz.de/Abo/App/!p4791/</string>
 </resources>

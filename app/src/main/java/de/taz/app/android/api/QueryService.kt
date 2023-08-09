@@ -14,6 +14,7 @@ import kotlin.jvm.Throws
  * The names need to match a file with `.graphql` extension in the assets
  */
 enum class QueryType {
+    App,
     AppInfo,
     Authentication,
     CheckSubscriptionId,

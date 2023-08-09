@@ -1,6 +1,5 @@
 package de.taz.app.android.api.mappers
 
-import android.util.Log
 import de.taz.app.android.api.dto.AuthStatusDto
 import de.taz.app.android.api.dto.AuthStatusDto.UNKNOWN
 import de.taz.app.android.api.dto.AuthStatusDto.alreadyLinked
@@ -10,6 +9,7 @@ import de.taz.app.android.api.dto.AuthStatusDto.notValidMail
 import de.taz.app.android.api.dto.AuthStatusDto.tazIdNotLinked
 import de.taz.app.android.api.dto.AuthStatusDto.valid
 import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.util.Log
 
 object AuthStatusMapper {
     fun from(authStatusDto: AuthStatusDto): AuthStatus {
@@ -22,7 +22,7 @@ object AuthStatusMapper {
             notValidMail -> AuthStatus.notValidMail
             UNKNOWN -> {
                 val hint = "Encountered UNKNOWN AuthStatusDto, falling back to AuthStatus.notValid"
-                Log.w(AuthStatusMapper::class.java.name, hint)
+                Log(this::class.java.name).warn(hint)
                 AuthStatus.notValid
             }
         }

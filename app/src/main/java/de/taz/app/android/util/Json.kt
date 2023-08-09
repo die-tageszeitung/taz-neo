@@ -11,6 +11,7 @@ import kotlinx.serialization.modules.subclass
 private val module = SerializersModule {
     polymorphic(Variables::class) {
         subclass(AuthenticationVariables::class)
+        subclass(AppVariables::class)
         subclass(CancellationVariables::class)
         subclass(CheckSubscriptionIdVariables::class)
         subclass(DownloadStartVariables::class)
@@ -45,4 +46,9 @@ val Json = Json {
 
     // register our serializerModule
     serializersModule = module
+    // FIXME (johannes): Set the class discriminator (the json field used to store the class name for
+    //    for polymorphic types - in our case only Variables). The default is "type" which clashes
+    //    with AppVariables. There is a @JsonClassDiscriminator annotation that could be applied to
+    //    the variables abstract class, but it seems it is only used for deserialization.
+    classDiscriminator = "_clstype"
 }

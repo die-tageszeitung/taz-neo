@@ -1,6 +1,5 @@
 package de.taz.app.android.api.mappers
 
-import android.util.Log
 import de.taz.app.android.api.dto.CustomerTypeDto
 import de.taz.app.android.api.dto.CustomerTypeDto.UNKNOWN
 import de.taz.app.android.api.dto.CustomerTypeDto.combo
@@ -12,6 +11,7 @@ import de.taz.app.android.api.dto.CustomerTypeDto.promotion
 import de.taz.app.android.api.dto.CustomerTypeDto.revocation
 import de.taz.app.android.api.dto.CustomerTypeDto.sample
 import de.taz.app.android.api.models.CustomerType
+import de.taz.app.android.util.Log
 
 object CustomerTypeMapper {
     fun from(customerTypeDto: CustomerTypeDto): CustomerType =
@@ -26,7 +26,7 @@ object CustomerTypeMapper {
             demo -> CustomerType.demo
             UNKNOWN -> {
                 val hint = "Encountered UNKNOWN CustomerTypeDtp, falling back to CustomerType.unknown"
-                Log.w(CustomerTypeMapper::class.java.name, hint)
+                Log(this::class.java.name).warn(hint)
                 CustomerType.unknown
             }
         }

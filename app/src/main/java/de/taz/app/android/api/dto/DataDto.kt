@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 @Mockable
 data class DataDto (
     val authentificationToken: AuthTokenInfoDto? = null,
+    val app: AppDto? = null,
     val cancellation: CancellationStatusDto? = null,
     val checkSubscriptionId: AuthInfoDto? = null,
     val downloadStop: Boolean? = null,
