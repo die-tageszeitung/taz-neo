@@ -476,7 +476,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         val pushToken = fireBaseDataStore.token.get()
         return if (pushToken.isNullOrBlank()) {
             val hint = "No pushToken is found. It is necessary to use when enabling notifications"
-            log.warn("hint")
+            log.warn(hint)
             Sentry.captureMessage(hint)
             false
         } else {

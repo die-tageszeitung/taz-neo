@@ -4,10 +4,12 @@ import android.util.Log
 import de.taz.app.android.annotation.Mockable
 import io.sentry.Sentry
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Calendar
+import java.util.Locale
 import kotlin.reflect.KProperty
 
-private const val LOG_TRACE_LENGTH = 100
+private const val LOG_TRACE_LENGTH = 250
 
 /**
  * Convenience class to create logs
@@ -20,7 +22,14 @@ class Log(private val tag: String) {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) =
             Log(requestBuilder::class.java.name)
 
-        var trace: MutableList<String> = Collections.synchronizedList(mutableListOf<String>())
+        // Ensure that the array deque won't have to resize when it has [LOG_TRACE_LENGTH] entries,
+        // by initializing it with a capacity of LOG_TRACE_LENGTH + 1.
+        private val trace: ArrayDeque<String> = ArrayDeque<String>(LOG_TRACE_LENGTH + 1)
+        fun getTrace(): List<String> {
+            return synchronized(trace) {
+                trace.toList()
+            }
+        }
     }
 
 
@@ -57,8 +66,11 @@ class Log(private val tag: String) {
     }
 
     private fun setSentryBreadcrumb(message: String, throwable: Throwable?) {
-        Sentry.addBreadcrumb("$tag: $message")
-        throwable?.let { Sentry.captureException(throwable) }
+        var breadCrumb = "$tag: $message"
+        if (throwable != null) {
+            breadCrumb += "\n${throwable.toString()}"
+        }
+        Sentry.addBreadcrumb(breadCrumb)
     }
 
     /**
@@ -72,12 +84,13 @@ class Log(private val tag: String) {
             Calendar.getInstance().time
         )
 
-        val traceLine = "$time $tag: $truncateMessage\n"
-        if (trace.size < LOG_TRACE_LENGTH) {
-            trace.add(traceLine)
-        } else {
-            trace.removeAt(0)
-            trace.add(traceLine)
+        val traceLine = "$time $tag: $truncateMessage"
+
+        synchronized(trace) {
+            if (trace.size >= LOG_TRACE_LENGTH) {
+                trace.removeFirst()
+            }
+            trace.addLast(traceLine)
         }
     }
 
