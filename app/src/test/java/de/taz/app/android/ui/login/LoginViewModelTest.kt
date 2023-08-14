@@ -9,12 +9,14 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.FeedService
+import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.NoOpTracker
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import de.taz.app.android.tracking.Tracker
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.runTest
 import org.junit.*
 import org.junit.Assert.assertEquals
@@ -23,10 +25,11 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import java.io.File
 import java.net.ConnectException
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class LoginViewModelTest {
 
@@ -113,10 +116,16 @@ class LoginViewModelTest {
 
     private lateinit var loginViewModel: LoginViewModel
 
-    @ObsoleteCoroutinesApi
-    @ExperimentalCoroutinesApi
     @Before
     fun setUp() {
+        // Setup mocks of implicit AuthHelper dependencies
+        Tracker.inject(NoOpTracker())
+        FirebaseHelper.inject(mock())
+        BookmarkRepository.inject(mock {
+            onBlocking { getBookmarkedArticleStubs() }.doReturn(emptyList())
+        })
+
+
         dataStore = PreferenceDataStoreFactory.create {
             File.createTempFile("test", ".preferences_pb", null)
         }
@@ -135,6 +144,8 @@ class LoginViewModelTest {
 
     @After
     fun tearDown() {
+        // Try to stop leftover coroutines launched from the LoginViewModel.coroutineContext
+        loginViewModel.cancel()
     }
 
     @Test
@@ -268,10 +279,6 @@ class LoginViewModelTest {
     */
     @Test
     fun loginNull() = runTest {
-        doReturn(null).`when`(apiService).checkSubscriptionId(
-            subscriptionId,
-            subscriptionPassword
-        )
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
         assertEquals(LoginViewModelState.INITIAL, loginViewModel.status.value)
     }

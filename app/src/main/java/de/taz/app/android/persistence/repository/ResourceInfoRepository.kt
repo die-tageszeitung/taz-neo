@@ -4,13 +4,17 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.withTransaction
 import de.taz.app.android.R
-import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.ImageResolution
+import de.taz.app.android.api.models.ImageStub
+import de.taz.app.android.api.models.ImageType
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
-import java.util.*
+import java.util.Date
 
-@Mockable
+
 class ResourceInfoRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ResourceInfoRepository, Context>(::ResourceInfoRepository)

@@ -1,8 +1,6 @@
 package android.util;
 
-import de.taz.app.android.annotation.Mockable;
 
-@Mockable
 public class Log {
     public static int d(String tag, String msg) {
         System.out.println("DEBUG: " + tag + ": " + msg);

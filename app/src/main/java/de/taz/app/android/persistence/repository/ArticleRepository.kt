@@ -3,16 +3,20 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
-import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.Author
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
 import io.sentry.Sentry
-import java.util.*
+import java.util.Date
 
-@Mockable
+
 class ArticleRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
     companion object : SingletonHolder<ArticleRepository, Context>(::ArticleRepository)

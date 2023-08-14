@@ -5,33 +5,33 @@ import androidx.annotation.VisibleForTesting
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.MAX_SIMULTANEOUS_QUERIES
 import de.taz.app.android.TAZ_AUTH_HEADER
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.DataDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.mappers.AuthInfoMapper
-import de.taz.app.android.api.mappers.AuthStatusMapper
-import de.taz.app.android.api.models.AuthInfo
 import de.taz.app.android.api.variables.Variables
 import de.taz.app.android.data.HTTP_CLIENT_ENGINE
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.Url
+import io.ktor.http.contentType
+import io.ktor.serialization.JsonConvertException
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.kotlinx.serialization
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.*
-import io.ktor.serialization.kotlinx.json.*
 
 /**
  * class to get DTOs from the [BuildConfig.GRAPHQL_ENDPOINT]
  */
-@Mockable
 class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     private val httpClient: HttpClient = HttpClient(HTTP_CLIENT_ENGINE) {
         install(ContentNegotiation) {

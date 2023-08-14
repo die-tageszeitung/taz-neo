@@ -19,14 +19,12 @@ import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.allMigrations
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import java.util.*
 
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("BlockingMethodInNonBlockingContext")
 class MigrationTest {
     private val testDb = "migration-test"

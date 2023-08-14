@@ -17,7 +17,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
@@ -44,7 +43,7 @@ import kotlinx.coroutines.launch
 const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 private const val DOUBLE_BACK_TO_EXIT_INTERVAL = 2000L
 
-@Mockable
+
 class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     companion object {

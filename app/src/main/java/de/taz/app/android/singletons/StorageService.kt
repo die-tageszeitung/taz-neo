@@ -2,21 +2,20 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import android.os.Environment
-import de.taz.app.android.annotation.Mockable
-import de.taz.app.android.api.dto.FileEntryDto
-import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.GLOBAL_FOLDER
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
-import io.ktor.utils.io.*
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readAvailable
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +39,7 @@ interface Storable {
 
 class ExternalStorageNotAvailableException(message: String) : Exception(message)
 
-@Mockable
+
 class StorageService private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<StorageService, Context>(::StorageService) {

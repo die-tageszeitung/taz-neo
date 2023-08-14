@@ -8,7 +8,6 @@ import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.ui.splash.ResourceInitUtil
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
@@ -18,7 +17,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class IssueRepositoryTest {
 
     private lateinit var context: Context

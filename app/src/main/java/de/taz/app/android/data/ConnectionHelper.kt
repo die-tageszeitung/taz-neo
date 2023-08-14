@@ -2,11 +2,14 @@ package de.taz.app.android.data
 
 import de.taz.app.android.CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
-import io.ktor.client.engine.android.*
-import kotlinx.coroutines.*
+import io.ktor.client.engine.android.Android
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -25,7 +28,7 @@ const val INFINITE = -1
 // Default ktor client engine to be used
 public val HTTP_CLIENT_ENGINE = Android
 
-@Mockable
+
 abstract class ConnectionHelper {
     val log by Log
 

@@ -1,6 +1,5 @@
 package de.taz.app.android.singletons
 
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.appLocale
 import io.ktor.util.date.*
 import java.text.ParseException
@@ -13,7 +12,7 @@ enum class AppTimeZone {
     Berlin
 }
 
-@Mockable
+
 object DateHelper {
 
     private val dateHelper = SimpleDateFormat("yyyy-MM-dd", Locale.US)

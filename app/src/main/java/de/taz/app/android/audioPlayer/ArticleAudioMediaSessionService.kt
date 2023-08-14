@@ -59,6 +59,10 @@ private class ArticleAudioMediaSessionCallback : MediaSession.Callback {
      * As the MediaSessionService may be triggered from external apps, it does strip the `localConfiguration`
      * that is containing the URI if set with MediaItem.fromUri(). Thus we have to store the Uri in the
      * `requestMetadata` and build the final `localConfiguration` based upon that.
+     *
+     * This is no longer required as of media3 1.1.0 which allows to pass the localConfiguration to be handled
+     * by the default callback implementation.
+     * See: https://github.com/androidx/media/issues/282
      */
     override fun onAddMediaItems(
         mediaSession: MediaSession,

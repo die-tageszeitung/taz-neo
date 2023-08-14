@@ -10,7 +10,6 @@ import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FileDownloader
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -20,7 +19,6 @@ import org.mockito.junit.MockitoJUnitRunner
 import java.io.IOException
 import kotlin.test.assertFailsWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(MockitoJUnitRunner::class)
 class ContentServiceTest {
     private lateinit var context: Context

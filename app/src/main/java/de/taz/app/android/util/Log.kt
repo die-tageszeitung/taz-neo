@@ -1,7 +1,6 @@
 package de.taz.app.android.util
 
 import android.util.Log
-import de.taz.app.android.annotation.Mockable
 import io.sentry.Sentry
 import java.text.SimpleDateFormat
 import java.util.ArrayDeque
@@ -16,7 +15,6 @@ private const val LOG_TRACE_LENGTH = 250
  * messages will be stored as breadcrumbs for sentry
  * if a throwable is given it is handed to sentry
  */
-@Mockable
 class Log(private val tag: String) {
     companion object {
         operator fun getValue(requestBuilder: Any, property: KProperty<*>) =

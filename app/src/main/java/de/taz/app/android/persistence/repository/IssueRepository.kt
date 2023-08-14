@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Parcelable
 import androidx.room.withTransaction
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.models.*
@@ -17,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.Parcelize
 import java.util.*
 
-@Mockable
+
 class IssueRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 

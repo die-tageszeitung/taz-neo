@@ -1,12 +1,16 @@
 package de.taz.app.android.annotation
 
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.junit.MockitoJUnitRunner
 
+@RunWith(MockitoJUnitRunner::class)
 class MockableTest {
+
     @Test
-    fun `@Mockable class is opened on test builds`() {
+    fun mockableClassIsOpenedOnTestBuilds() {
         val fooMock = mock(Foo::class.java)
         fooMock.hello()
         fooMock.world()

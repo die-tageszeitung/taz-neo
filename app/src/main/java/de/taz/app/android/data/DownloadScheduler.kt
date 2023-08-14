@@ -1,7 +1,14 @@
 package de.taz.app.android.data
 
 import android.content.Context
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
+import androidx.work.workDataOf
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.IssueDownloadWorkManagerWorker

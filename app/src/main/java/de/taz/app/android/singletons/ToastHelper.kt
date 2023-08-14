@@ -3,20 +3,15 @@ package de.taz.app.android.singletons
 import android.content.Context
 import android.widget.Toast
 import de.taz.app.android.R
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
-import java.util.*
-import kotlin.coroutines.CoroutineContext
+import java.util.Date
 
 /**
  * Singleton to create Toasts
  */
-@Mockable
 class ToastHelper private constructor(private val applicationContext: Context) {
 
     companion object : SingletonHolder<ToastHelper, Context>(::ToastHelper)

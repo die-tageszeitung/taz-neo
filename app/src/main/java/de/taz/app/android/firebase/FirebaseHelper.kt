@@ -2,7 +2,6 @@ package de.taz.app.android.firebase
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.SingletonHolder
@@ -11,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@Mockable
 class FirebaseHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context
 ) {

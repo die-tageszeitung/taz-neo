@@ -3,7 +3,7 @@ image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.4
 variables:
   SENTRY_ENVIRONMENT: official
   GIT_STRATEGY: fetch
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_STRATEGY: none
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
@@ -57,7 +57,11 @@ buildMupdf:
         - ${MAVEN_LOCAL_REPOSITORY}/com/artifex/mupdf/fitz
       policy: pull-push
   script:
-    - if ! ./scripts/test-mupdf-in-maven-local.sh; then ./scripts/publish-mupdf-to-maven-local.sh ; fi
+    - if ! ./scripts/test-mupdf-in-maven-local.sh; then
+        git submodule sync --recursive &&
+        git submodule update --init --recursive &&
+        ./scripts/publish-mupdf-to-maven-local.sh ;
+      fi
 
 lint:
   stage: test

@@ -89,13 +89,17 @@ public class MuPDFCore {
         else if (pageNum < 0)
             pageNum = 0;
         if (pageNum != currentPage) {
-            currentPage = pageNum;
             if (page != null)
                 page.destroy();
             page = null;
             if (displayList != null)
                 displayList.destroy();
             displayList = null;
+            page = null;
+            pageWidth = 0;
+            pageHeight = 0;
+            currentPage = -1;
+
             if (doc != null) {
                 page = doc.loadPage(pageNum);
                 Rect b = page.getBounds();
@@ -106,6 +110,8 @@ public class MuPDFCore {
                 pageWidth = 0;
                 pageHeight = 0;
             }
+
+            currentPage = pageNum;
         }
     }
 
@@ -134,7 +140,14 @@ public class MuPDFCore {
         gotoPage(pageNum);
 
         if (displayList == null && page != null)
-            displayList = page.toDisplayList();
+            try {
+                displayList = page.toDisplayList();
+            } catch (Exception ex) {
+                displayList = null;
+            }
+
+        if (displayList == null || page == null)
+            return;
 
         float zoom = resolution / 72;
         Matrix ctm = new Matrix(zoom, zoom);
@@ -144,13 +157,13 @@ public class MuPDFCore {
         ctm.scale(xscale, yscale);
 
         AndroidDrawDevice dev = new AndroidDrawDevice(bm, patchX, patchY);
-        displayList.run(dev, ctm, cookie);
         try {
             // Closing the device often throws a RuntimeException with the error:
             // "items left on stack in draw device: X"
             // https://sentry.taz.de/organizations/sentry/issues/4895
             // In this case we still want to try to destroy the device to free its memory,
             // and we don't want the app to crash.
+            displayList.run(dev, ctm, cookie);
             dev.close();
         } catch (RuntimeException e) {
             String message = e.getMessage();
