@@ -2,12 +2,10 @@ package de.taz.app.android.api
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.reportAndRethrowExceptions
 import java.io.IOException
-import kotlin.jvm.Throws
 
 /**
  * Types of queries that are available
@@ -43,7 +41,6 @@ enum class QueryType {
 /**
  * service class to get the queries either from cache or by reading the assets file
  */
-@Mockable
 class QueryService private constructor(applicationContext: Context) {
 
     companion object : SingletonHolder<QueryService, Context>(::QueryService)

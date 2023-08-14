@@ -10,7 +10,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
 import de.taz.app.android.R
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
@@ -56,7 +55,6 @@ private val Context.authDataStore: DataStore<Preferences> by preferencesDataStor
 /**
  * Singleton handling authentication
  */
-@Mockable
 class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
     dataStore: DataStore<Preferences>

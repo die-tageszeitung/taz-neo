@@ -1,11 +1,9 @@
 package de.taz.app.android.api.dto
 
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.PasswordResetInfo
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Mockable
 data class DataDto (
     val authentificationToken: AuthTokenInfoDto? = null,
     val app: AppDto? = null,

@@ -1,13 +1,12 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-@Mockable
+
 class FeedRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 

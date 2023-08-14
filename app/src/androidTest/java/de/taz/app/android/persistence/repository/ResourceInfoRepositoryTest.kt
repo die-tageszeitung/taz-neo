@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -19,7 +18,6 @@ import java.io.IOException
 
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class ResourceInfoRepositoryTest {
 
     private lateinit var db: AppDatabase

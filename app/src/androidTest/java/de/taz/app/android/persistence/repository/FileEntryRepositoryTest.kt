@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
@@ -18,7 +17,6 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class FileEntryRepositoryTest {
     private lateinit var db: AppDatabase
 

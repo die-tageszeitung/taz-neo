@@ -4,14 +4,13 @@ import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.*
 import de.taz.app.android.R
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
 import java.util.*
 
-@Mockable
+
 class SectionRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
 

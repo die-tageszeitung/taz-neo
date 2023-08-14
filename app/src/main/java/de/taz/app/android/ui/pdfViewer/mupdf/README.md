@@ -1,13 +1,10 @@
 # MuPDF Android Viewer
 
 These files are copied from https://github.com/ArtifexSoftware/mupdf-android-viewer and have been
-slightly modified to be used fro within this project.
+modified to be used from within this project.
+Especially PageView has been heavily rewritten and migrated to kotlin.
 
-For easier merging with the [upstream project](https://github.com/ArtifexSoftware/mupdf-android-viewer)
-the changes should be kept minimal and being marked with `TAZ`.
-
-The latest merge was from tag `1.20.1a`.
-
+The latest merge was from tag `1.22.0a`.
 
 ## License
 

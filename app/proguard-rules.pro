@@ -112,3 +112,7 @@
     public static *** inflate(android.view.LayoutInflater);
     public static *** inflate(android.view.LayoutInflater, android.view.ViewGroup, boolean);
 }
+
+# Ignore conscript related warnings - the library is provided by Android itself
+-dontwarn com.android.org.conscrypt.SSLParametersImpl
+-dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl

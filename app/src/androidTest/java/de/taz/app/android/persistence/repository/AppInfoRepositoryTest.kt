@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.AppName
 import de.taz.app.android.api.models.AppType
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
@@ -18,7 +17,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class AppInfoRepositoryTest {
 
     private lateinit var appInfoRepository: AppInfoRepository

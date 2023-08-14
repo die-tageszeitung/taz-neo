@@ -2,21 +2,21 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.*
-import kotlinx.coroutines.*
+import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
  * Singleton ensuring we only have the defined maximal number of issues downloaded
  */
-@Mockable
 class IssueCountHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context,
 ) {

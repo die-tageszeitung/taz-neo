@@ -170,9 +170,13 @@ class PageView(
         // blank()
 
         val muPDFCore = requireNotNull(this.muPDFCore)
-        val pageSize = muPDFCore.getPageSize(0)
-        drawPage(pageSize, "setPageWithoutSize")
-        onPageSizeCalculated(pageSize)
+        try {
+            val pageSize = muPDFCore.getPageSize(0)
+            drawPage(pageSize, "setPageWithoutSize")
+            onPageSizeCalculated(pageSize)
+        } catch (e: RuntimeException) {
+            log.error("Could not get PDF page size", e)
+        }
     }
 
     fun setPage(page: Page, size: PointF) {

@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.taz.app.android.TestDataUtil
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
@@ -17,7 +16,6 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class ArticleRepositoryTest {
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository

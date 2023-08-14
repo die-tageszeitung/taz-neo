@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.ui.splash.ResourceInitUtil
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -19,7 +18,6 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class SectionRepositoryTest {
 
     private val log by Log

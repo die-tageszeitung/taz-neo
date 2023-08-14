@@ -269,7 +269,7 @@ class SplashActivity : StartupActivity() {
                         applicationContext,
                         NEW_VERSION_REQUEST_CODE,
                         downloadFromServerIntent(),
-                        FLAG_CANCEL_CURRENT
+                        FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 )
             }

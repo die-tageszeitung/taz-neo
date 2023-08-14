@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
 import de.taz.app.android.util.SingletonHolder
@@ -36,7 +35,7 @@ private val Context.fcmDataStore: DataStore<Preferences> by preferencesDataStore
     }
 )
 
-@Mockable
+
 class FirebaseDataStore @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) constructor(
     applicationContext: Context
 ) {

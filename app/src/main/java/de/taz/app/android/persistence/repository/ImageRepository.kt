@@ -1,13 +1,12 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.util.SingletonHolder
 
-@Mockable
+
 class ImageRepository private constructor(
     val applicationContext: Context
 ) : RepositoryBase(applicationContext) {
