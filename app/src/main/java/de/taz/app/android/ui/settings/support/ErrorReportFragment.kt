@@ -154,7 +154,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
         val storageType =
             StorageService.getInstance(requireContext().applicationContext)
                 .getInternalFilesDir().absolutePath
-        val errorProtocol = Log.trace.toString()
+        val errorProtocol = Log.getTrace().joinToString("\n")
 
         val activityManager =
             this.requireActivity().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
