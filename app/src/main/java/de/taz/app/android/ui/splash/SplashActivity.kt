@@ -33,6 +33,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
 import io.sentry.Sentry
 import kotlinx.coroutines.*
@@ -431,6 +432,7 @@ class SplashActivity : StartupActivity() {
         applicationScope.launch {
             checkForNewestIssue(feedService, toastHelper)
             generalDataStore.clearRemovedEntries()
+            clearCustomPDFThumbnailLoaderCache(applicationContext)
         }
     }
 

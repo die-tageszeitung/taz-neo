@@ -2,8 +2,6 @@ package de.taz.app.android.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Priority
 import com.bumptech.glide.Registry
@@ -17,8 +15,10 @@ import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.ui.pdfViewer.MuPDFThumbnail
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileOutputStream
+import java.io.IOException
 
 
 @GlideModule
@@ -26,25 +26,20 @@ class ThumbnailAppModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         // register your Builder in Module
         // String.class is input and Bitmap.class is the output of ThumbnailBuilder
-        registry.prepend(String::class.java, Bitmap::class.java, ThumbnailBuilderFactory(context))
+        registry.prepend(String::class.java, Bitmap::class.java, ThumbnailBuilderFactory())
     }
 }
 
-class ThumbnailBuilderFactory(
-    /**
-     * [Context] that pass to [PDFThumbnailLoader] class
-     */
-    private val context: Context
-) :
-    ModelLoaderFactory<String, Bitmap> {
+
+class ThumbnailBuilderFactory: ModelLoaderFactory<String, Bitmap> {
     override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<String, Bitmap> {
-        return PDFThumbnailLoader(context)
+        return PDFThumbnailLoader()
     }
 
     override fun teardown() = Unit
 }
 
-class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitmap> {
+class PDFThumbnailLoader: ModelLoader<String, Bitmap> {
     override fun buildLoadData(
         model: String,
         width: Int,
@@ -60,27 +55,8 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
     ): DataFetcher<Bitmap> {
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in Bitmap>) {
             try {
-                val output: Bitmap
-                val photoCacheDir: File? = Glide.getPhotoCacheDir(context.applicationContext)
-                val thumbnail = File(
-                    photoCacheDir,
-                    Uri.parse(input).lastPathSegment.toString() + ".png"
-                )
-                // check if file is already exist then there is no need to re create it
-                if (!thumbnail.exists()) {
-                    // create thumbnail for first page of pdf file
-                    output = MuPDFThumbnail(input).thumbnail(width)
-                    FileOutputStream(thumbnail).use { fos ->
-                        output.compress(
-                            Bitmap.CompressFormat.PNG,
-                            100,
-                            fos
-                        )
-                        fos.close()
-                    }
-                } else {
-                    output = BitmapFactory.decodeFile(thumbnail.absolutePath)
-                }
+                // create thumbnail for first page of pdf file
+                val output: Bitmap = MuPDFThumbnail(input).thumbnail(width)
                 // send output data
                 callback.onDataReady(output)
             } catch (e: Exception) {
@@ -98,7 +74,7 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
         }
 
         override fun getDataSource(): DataSource {
-            return DataSource.MEMORY_CACHE
+            return DataSource.LOCAL
         }
 
     }
@@ -106,4 +82,22 @@ class PDFThumbnailLoader(private val context: Context): ModelLoader<String, Bitm
     override fun handles(model: String): Boolean {
         return model.endsWith(".pdf")
     }
+}
+
+/**
+ * Until 1.7.3 the PDFThumbnailLoader created a custom cache for each thumbnailed pdf and stored it
+ * forever in the Glide cache directory.
+ * As this functionality is no longer used, this helper can be used to delete these cache items.
+ */
+suspend fun clearCustomPDFThumbnailLoaderCache(context: Context) = withContext(Dispatchers.IO) {
+    val photoCacheDir: File? = Glide.getPhotoCacheDir(context.applicationContext)
+    photoCacheDir
+        ?.listFiles { _, name -> name.endsWith(".pdf.png")}
+        ?.forEach { file ->
+            try {
+                file.delete()
+            } catch (ioException: IOException) {
+                // Ignore errors
+            }
+        }
 }

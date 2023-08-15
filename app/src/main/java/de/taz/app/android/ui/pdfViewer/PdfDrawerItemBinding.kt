@@ -6,6 +6,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.EmptySignature
+import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.R
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.PageType
@@ -58,10 +60,14 @@ class PdfDrawerItemBinding(
             } ?: Target.SIZE_ORIGINAL
 
             val file = storageService.getFile(itemData.pdfFile)
+            val signature = itemData.pdfFile.dateDownload
+                ?.let { ObjectKey(it.time) }
+                ?: EmptySignature.obtain()
 
             boundView?.findViewById<ImageView>(R.id.view_drawer_pdf_page)?.let { imageView ->
                 glideRequestManager
                     .load(file?.absolutePath)
+                    .signature(signature)
                     .override(viewWidth, Target.SIZE_ORIGINAL)
                     .into(imageView)
             }

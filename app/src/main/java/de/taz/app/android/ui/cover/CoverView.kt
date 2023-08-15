@@ -9,14 +9,15 @@ import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.RequestManager
-import de.taz.app.android.BuildConfig
+import com.bumptech.glide.signature.EmptySignature
+import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.R
 import de.taz.app.android.monkey.getColorFromAttr
-import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.MomentWebView
+import java.util.Date
 
 
 const val MOMENT_FADE_DURATION_MS = 500L
@@ -99,7 +100,7 @@ class CoverView @JvmOverloads constructor(
     ) {
         showLoadingScreen()
         data.momentUri?.let {
-            showCover(it, data.momentType, glideRequestManager)
+            showCover(it, data.momentType, data.dateDownloaded, glideRequestManager)
         }
         setDate(coverViewDate)
     }
@@ -183,13 +184,14 @@ class CoverView @JvmOverloads constructor(
     private fun showCover(
         uri: String,
         type: CoverType,
+        dateDownloaded: Date?,
         glideRequestManager: RequestManager
     ) {
         coverPlaceholder.removeAllViews()
         when (type) {
             CoverType.ANIMATED -> showAnimatedCover(uri)
             CoverType.FRONT_PAGE,
-            CoverType.STATIC -> showStaticCover(uri, glideRequestManager)
+            CoverType.STATIC -> showStaticCover(uri, dateDownloaded, glideRequestManager)
         }
     }
 
@@ -215,15 +217,19 @@ class CoverView @JvmOverloads constructor(
         hideLoadingScreen()
     }
 
-    private fun showStaticCover(uri: String, glideRequestManager: RequestManager) {
+    private fun showStaticCover(uri: String, dateDownloaded: Date?, glideRequestManager: RequestManager) {
         val imageView = ImageView(context).apply {
             layoutParams =
                 LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         }
         imageView.alpha = 0f
         coverPlaceholder.addView(imageView)
+        val signature = dateDownloaded
+            ?.let { ObjectKey(it.time) }
+            ?: EmptySignature.obtain()
         glideRequestManager
             .load(uri)
+            .signature(signature)
             .into(imageView)
         hideLoadingScreen()
         imageView.animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
