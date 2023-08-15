@@ -13,7 +13,6 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -33,10 +32,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
-    private lateinit var generalDataStore: GeneralDataStore
 
     override fun onAttach(context: Context) {
-        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         super.onAttach(context)
     }
 
@@ -64,13 +61,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             tryScrollToSection()
         }
 
-        // Adjust padding when we have cutout display
-        lifecycleScope.launch {
-            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
-            }
-        }
+
     }
 
     private fun setupViewPager() {

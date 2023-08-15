@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Bundle
 import android.util.TypedValue
@@ -25,6 +26,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -73,6 +75,8 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
+    private lateinit var generalDataStore: GeneralDataStore
+
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
@@ -119,6 +123,7 @@ class SectionWebViewFragment : WebViewFragment<
         storageService = StorageService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
@@ -206,6 +211,7 @@ class SectionWebViewFragment : WebViewFragment<
             activity?.findViewById<ImageView>(R.id.drawer_logo)?.let {
                 resizeHeaderSectionTitle(it.width)
             }
+            applyExtraPaddingOnCutoutDisplay()
         }
 
     }
@@ -285,6 +291,17 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
+    /**
+     * Adjust padding when we have cutout display
+     */
+    private fun applyExtraPaddingOnCutoutDisplay() {
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            }
+        }
+    }
 
     override suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> {
         val articleFileNames = articleNamesInWebView.mapNotNull {
