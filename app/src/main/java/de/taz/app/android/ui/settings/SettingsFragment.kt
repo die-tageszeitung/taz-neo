@@ -258,6 +258,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsFaq.setOnClickListener { openFAQ() }
             if (pushNotificationsFeatureEnabled) {
                 fragmentSettingsNotificationsSwitchWrapper.visibility = View.VISIBLE
+                pushNotificationsAllowedLayout.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
                     toggleNotificationsEnabled()
                 }
