@@ -3,7 +3,6 @@ package de.taz.app.android.ui.home.page
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.DEFAULT_MOMENT_FILE
-import de.taz.app.android.DEFAULT_MOMENT_RATIO
 import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Moment
@@ -45,8 +44,6 @@ class MomentViewBinding(
                 // After 7 retries show the fallback
                 maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
             ) as Moment
-            val dimension = feedRepository.get(moment.issueFeedName)
-                ?.momentRatioAsDimensionRatioString() ?: DEFAULT_MOMENT_RATIO
             try {
                 contentService.downloadToCache(
                     moment,
@@ -83,17 +80,18 @@ class MomentViewBinding(
             CoverViewData(
                 momentType,
                 momentUri,
-                dimension
+                moment.dateDownload
             )
         } catch (e: CacheOperationFailedException) {
             // maxRetries reached - so show the fallback cover view:
-            val momentUri = fileEntryRepository.get(DEFAULT_MOMENT_FILE)?.let {
+            val moment = fileEntryRepository.get(DEFAULT_MOMENT_FILE)
+            val momentUri = moment?.let {
                 storageService.getFileUri(it)
             }
             CoverViewData(
                 CoverType.STATIC,
                 momentUri,
-                DEFAULT_MOMENT_RATIO
+                moment?.dateDownload
             )
         }
     }

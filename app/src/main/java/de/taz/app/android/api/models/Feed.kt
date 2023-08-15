@@ -37,10 +37,6 @@ data class Feed(
         }
     }
 
-    fun momentRatioAsDimensionRatioString(): String {
-        return "$momentRatio:1"
-    }
-
     override fun toString(): String {
         val publicationDatesString = "#${publicationDates.size} (${publicationDates.firstOrNull()?.date}, ...)"
         return "Feed(name='$name', cycle=$cycle, momentRatio=$momentRatio, publicationDates=$publicationDatesString, issueMinDate='$issueMinDate', issueMaxDate='$issueMaxDate')"

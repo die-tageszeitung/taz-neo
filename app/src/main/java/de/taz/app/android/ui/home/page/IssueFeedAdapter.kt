@@ -23,7 +23,7 @@ enum class CoverType {
 data class CoverViewData(
     val momentType: CoverType,
     val momentUri: String?,
-    val dimension: String
+    val dateDownloaded: Date?,
 )
 
 class CoverViewDate(

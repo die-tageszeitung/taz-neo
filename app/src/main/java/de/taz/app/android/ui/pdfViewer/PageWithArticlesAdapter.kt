@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.EmptySignature
+import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.singletons.StorageService
@@ -60,10 +62,15 @@ class PageWithArticlesAdapter(
          */
         fun bind(page: PageWithArticles) {
             val storageService = StorageService.getInstance(itemView.context)
+            val signature = page.pagePdf.dateDownload
+                ?.let { ObjectKey(it.time) }
+                ?: EmptySignature.obtain()
             Glide
                 .with(itemView)
                 .load(storageService.getAbsolutePath(page.pagePdf))
+                .signature(signature)
                 .into(pagePreviewImage)
+
             pagePreviewImage.setOnClickListener {
                 onPageCLick(page.pagePdf.name)
             }

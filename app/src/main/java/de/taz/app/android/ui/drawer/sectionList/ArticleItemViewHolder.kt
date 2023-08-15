@@ -84,12 +84,10 @@ class ArticleItemViewHolder(
             fileHelper.getAbsolutePath(article.imageList.first())?.let {
                 if (File(it).exists()) {
                     articleImageView.visibility = View.VISIBLE
-                    articleImageView.let { imageView ->
-                        Glide.with(itemView.context.applicationContext)
-                            .load(it)
-                            .apply(RequestOptions().override(imageView.width, imageView.height))
-                            .into(imageView)
-                    }
+                    Glide.with(itemView.context.applicationContext)
+                        .load(it)
+                        .apply(RequestOptions().override(articleImageView.width, articleImageView.height))
+                        .into(articleImageView)
                 }
             }
         } else {

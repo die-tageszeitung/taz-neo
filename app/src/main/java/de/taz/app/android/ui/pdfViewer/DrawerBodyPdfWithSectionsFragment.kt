@@ -8,6 +8,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.EmptySignature
+import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
@@ -173,21 +175,26 @@ class DrawerBodyPdfWithSectionsFragment :
      */
     private fun refreshCurrentPage() {
 //        TODO(peter) Adjust size for panorama pages
-        Glide
-            .with(this)
-            .load(pdfPagerViewModel.currentPage.value
-                ?.let {
-                    storageService.getAbsolutePath(it.pagePdf)
-                }).into(viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage)
 
-        viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text =
-            pdfPagerViewModel.currentPage.value?.type?.let {
+        pdfPagerViewModel.currentPage.value?.let { currentPage ->
+            storageService.getAbsolutePath(currentPage.pagePdf)?.let { pagePdfUri ->
+                val signature = currentPage.pagePdf.dateDownload
+                    ?.let { ObjectKey(it.time) }
+                    ?: EmptySignature.obtain()
+                Glide
+                    .with(this)
+                    .load(pagePdfUri)
+                    .signature(signature)
+                    .into(viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage)
+            }
+
+            viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text =
                 resources.getQuantityString(
                     R.plurals.pages,
-                    if (it == PageType.panorama) 2 else 1,
-                    pdfPagerViewModel.currentPage.value?.pagina
+                    if (currentPage.type == PageType.panorama) 2 else 1,
+                    currentPage.pagina
                 )
-            }
+        }
     }
 
     private fun hideLoadingScreen() {
