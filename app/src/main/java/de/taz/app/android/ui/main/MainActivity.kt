@@ -14,9 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import de.taz.app.android.APP_SESSION_TIMEOUT_MS
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TazApplication
+import de.taz.app.android.appReview.ReviewFlow
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
@@ -76,30 +78,14 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-                val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
-                val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
-                val isPdfMode = generalDataStore.pdfMode.get()
-                val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
-                val allowNotificationsDoNotShowAgain = generalDataStore.allowNotificationsDoNotShowAgain.get()
-                val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
-                val allowNotificationsShownLastMonth =
-                    DateHelper.stringToDate(allowNotificationsLastTimeShown)?.let { lastShown ->
-                        lastShown > DateHelper.lastTenDays()
-                    } ?: false
-
-                val elapsedBottomSheetConditions =
-                    authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
-
-                val allowNotificationsBottomSheetConditions =
-                    !checkNotificationsAllowed() && !allowNotificationsDoNotShowAgain && !allowNotificationsShownLastMonth && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
-
-                when {
-                    elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
-                    isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
-                    !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
-                    allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
-                    else -> Unit // do nothing else
+                launch {
+                    handlePendingDialogs()
+                }
+                launch {
+                    val newAppSessionCount = handleAppSession()
+                    if (newAppSessionCount != null) {
+                        maybeStartReviewFlow(newAppSessionCount)
+                    }
                 }
             }
         }
@@ -121,6 +107,59 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         loggedOutDialog?.dismiss()
         tryPdfDialog?.dismiss()
         super.onStop()
+    }
+
+    /**
+     * This function will try to show any pending information dialogs to the user.
+     * It must be called during the [MainActivity]s STARTED lifecycle.
+     */
+    private suspend fun handlePendingDialogs() {
+        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
+        val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
+        val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+        val isPdfMode = generalDataStore.pdfMode.get()
+        val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
+        val allowNotificationsDoNotShowAgain = generalDataStore.allowNotificationsDoNotShowAgain.get()
+        val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
+        val allowNotificationsShownLastMonth =
+            DateHelper.stringToDate(allowNotificationsLastTimeShown)?.let { lastShown ->
+                lastShown > DateHelper.lastTenDays()
+            } ?: false
+
+        val elapsedBottomSheetConditions =
+            authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
+
+        val allowNotificationsBottomSheetConditions =
+            !checkNotificationsAllowed() && !allowNotificationsDoNotShowAgain && !allowNotificationsShownLastMonth && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
+
+        when {
+            elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
+            isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
+            !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
+            allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
+            else -> Unit // do nothing else
+        }
+    }
+
+    /**
+     * This function will start a new app session if the [APP_SESSION_TIMEOUT_MS] has passed.
+     * It must be called during the [MainActivity]s STARTED lifecycle.
+     *
+     * @return the new app session count if a new session was started,
+     *         or null otherwise
+     */
+    private suspend fun handleAppSession(): Long? {
+        val nowMs = System.currentTimeMillis()
+        val lastMainActivityUsageTimeMs = generalDataStore.lastMainActivityUsageTimeMs.get()
+
+        generalDataStore.lastMainActivityUsageTimeMs.set(nowMs)
+
+        if (lastMainActivityUsageTimeMs + APP_SESSION_TIMEOUT_MS < nowMs) {
+            val appSessionCount = generalDataStore.appSessionCount.get() + 1L
+            generalDataStore.appSessionCount.set(appSessionCount)
+            return appSessionCount
+        }
+        return null
     }
 
     private var loggedOutDialog: AlertDialog? = null
@@ -230,5 +269,19 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val systemAllows = NotificationManagerCompat.from(this).areNotificationsEnabled()
         val appAllows = downloadDataStore.notificationsEnabled.get()
         return systemAllows && appAllows
+    }
+
+    /**
+     * Triggers a [ReviewFlow] on certain app sessions.
+     * The triggers are defined by the UX team as specified on the ticket.
+     * This function must only be called once per app session.
+     */
+    private fun maybeStartReviewFlow(appSessionCount: Long) {
+        if (appSessionCount == 3L || appSessionCount == 6L || appSessionCount == 10L) {
+            lifecycleScope.launch {
+                val reviewFlow = ReviewFlow.createInstance()
+                reviewFlow.tryStartReviewFlow(this@MainActivity)
+            }
+        }
     }
 }

@@ -192,6 +192,10 @@
     <string name="settings_delete_progress_text">Ausgaben werden gelöscht</string>
     <string name="settings_delete_all_issues_deleted">Alle Ausgaben erfolgreich gelöscht</string>
 
+    <string name="toast_debug_settings_enabled">Debug Einstellungen aktiviert</string>
+    <string name="settings_debug_force_new_app_session">Neue App Session anfordern (aktuell: %1$d)</string>
+    <string name="toast_force_new_app_session">Home aufrufen für neue App Session</string>
+
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
     <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie Ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>

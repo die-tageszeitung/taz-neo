@@ -19,6 +19,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
@@ -57,12 +58,18 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import java.util.*
 
+private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
+private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
+
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
     private val log by Log
 
     private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
+    private var areDebugSettingsEnabled: Boolean = false
+    private var enableDebugSettingsClickCount: Int = 0
+    private var enableDebugSettingsFirstClickMs: Long = 0L
 
     private lateinit var apiService: ApiService
     private lateinit var contentService: ContentService
@@ -232,12 +239,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 ""
             }
 
-            fragmentSettingsVersionNumber.text =
-                getString(
+            fragmentSettingsVersionNumber.apply {
+                text = getString(
                     R.string.settings_version_number,
                     BuildConfig.VERSION_NAME,
                     graphQlFlavorString
                 )
+                setOnClickListener{ handleEnableDebugSettingsClick() }
+            }
 
             fragmentSettingsAutoDownloadWifiSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
@@ -354,6 +363,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         }
                         showElapsedIndication(isElapsed)
                     }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                setupDebugSettings()
             }
         }
     }
@@ -738,7 +753,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     /**
      * Checks if the system notifications are allowed by system
-     * and show depending on the viewmMdel's settings some layout.
+     * and show depending on the viewModel's settings some layout.
      */
     private suspend fun checkNotificationsAllowed() {
         updateNotificationViews(viewModel.getNotificationsEnabled(), systemNotificationsAllowed())
@@ -919,4 +934,48 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun systemNotificationsAllowed() =
         NotificationManagerCompat.from(requireContext()).areNotificationsEnabled()
+
+
+    private fun handleEnableDebugSettingsClick() {
+        if (!areDebugSettingsEnabled) {
+            val now = System.currentTimeMillis()
+
+            if (enableDebugSettingsFirstClickMs + DEBUG_SETTINGS_MAX_CLICK_TIME_MS < now) {
+                enableDebugSettingsClickCount = 1
+                enableDebugSettingsFirstClickMs = now
+            } else {
+                enableDebugSettingsClickCount++
+            }
+
+            if (enableDebugSettingsClickCount >= DEBUG_SETTINGS_REQUIRED_CLICKS) {
+                viewModel.enableDebugSettings()
+                toastHelper.showToast(R.string.toast_debug_settings_enabled)
+                areDebugSettingsEnabled = true
+                setupDebugSettings()
+            }
+        }
+    }
+
+    private fun setupDebugSettings() {
+        lifecycleScope.launch {
+            if (viewModel.areDebugSettingsEnabled()) {
+                areDebugSettingsEnabled = true
+                viewBinding.apply {
+                    fragmentSettingsDebugSettings.isVisible = true
+
+                    fragmentSettingsForceNewAppSession.apply {
+                        text = getString(
+                            R.string.settings_debug_force_new_app_session,
+                            viewModel.getAppSessionCount()
+                        )
+                        setOnClickListener {
+                            toastHelper.showToast(R.string.toast_force_new_app_session)
+                            viewModel.forceNewAppSession()
+                        }
+                    }
+
+                }
+            }
+        }
+    }
 }
