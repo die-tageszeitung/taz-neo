@@ -172,7 +172,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                     showPasswordRequestNoMail()
                 }
                 LoginViewModelState.PASSWORD_REQUEST_INVALID_ID -> {
-                    showPasswordRequest(invalidId = true)
+                    showPasswordRequest(showSubscriptionId = true, invalidId = true)
                 }
                 LoginViewModelState.POLLING_FAILED -> {
                     toastHelper.showToast(R.string.something_went_wrong_try_later)
