@@ -1,8 +1,11 @@
 package de.taz.app.android.ui.login.fragments
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import androidx.annotation.RequiresApi
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginForgotPasswordBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
@@ -41,17 +44,26 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginForgotPasswordUsername.apply {
-            setText(
-                if (showSubscriptionId) {
-                    viewModel.subscriptionId?.toString()
-                } else {
-                    viewModel.username ?: viewModel.subscriptionId?.toString()
-                }
+        if (showSubscriptionId) {
+            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setHint(
+                R.string.login_subscription_hint
             )
+            viewBinding.fragmentLoginForgotPasswordUsername.apply {
+                setText(viewModel.subscriptionId?.toString())
+                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                setRawInputType(InputType.TYPE_CLASS_NUMBER)
+            }
+            viewBinding.fragmentLoginForgotPasswordHeader
+                .setText(R.string.fragment_login_forgot_password_for_subscription_header)
+        } else {
+            viewBinding.fragmentLoginForgotPasswordUsername.apply {
+                setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+                setHint(R.string.login_username_hint)
+            }
         }
 
         if (invalidId) {
