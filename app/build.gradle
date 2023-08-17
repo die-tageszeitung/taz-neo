@@ -83,7 +83,7 @@ android {
 
 
     compileOptions {
-        // Sets Java compatibility to Java 8
+        // Sets Java compatibility to Java 17
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
         // Flag to enable support for the new language APIs
@@ -438,6 +438,7 @@ dependencies {
 
     // google Flavor
     nonfreeImplementation 'com.google.firebase:firebase-messaging:23.2.1'
+    nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'

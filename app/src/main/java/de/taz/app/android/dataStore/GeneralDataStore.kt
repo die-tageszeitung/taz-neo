@@ -22,6 +22,9 @@ private const val PDF_MODE = "pdf_mode"
 private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
 private const val ALLOW_NOTIFICATIONS_DO_NOT_SHOW_AGAIN = "allow_notifications_do_not_show_again"
 private const val ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN = "allow_notifications_last_time_shown"
+private const val APP_SESSION_COUNT = "app_session_count"
+private const val LAST_MAIN_ACTIVITY_USAGE_TIME = "last_main_activity_usage_time"
+private const val DEBUG_SETTINGS_ENABLED = "debug_settings_enabled"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 // endregion
@@ -81,6 +84,18 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val allowNotificationsLastTimeShown: DataStoreEntry<String> = SimpleDataStoreEntry(
         dataStore, stringPreferencesKey(ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN), "2022-12-13"
+    )
+
+    val appSessionCount: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(APP_SESSION_COUNT), 0L
+    )
+
+    val lastMainActivityUsageTimeMs: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(LAST_MAIN_ACTIVITY_USAGE_TIME), 0L
+    )
+
+    val debugSettingsEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(DEBUG_SETTINGS_ENABLED), false
     )
 
     suspend fun clearRemovedEntries() {

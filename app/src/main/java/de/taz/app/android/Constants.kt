@@ -57,3 +57,7 @@ const val FILE_DOWNLOAD_RETRY_INDEFINITELY = -1
 // The app is not translated to multiple languages, thus we should use GERMAN as the default locale
 // when doing string transforms like lowercase()
 val appLocale: Locale = Locale.GERMAN
+
+
+// The time in milliseconds after which a session is deemed to be idle if there was no user action (4h)
+const val APP_SESSION_TIMEOUT_MS = 4L * 60L * 60L * 1_000L

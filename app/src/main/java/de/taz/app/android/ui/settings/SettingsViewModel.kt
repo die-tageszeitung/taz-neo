@@ -11,6 +11,7 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
@@ -36,11 +37,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val storageLocationLiveData: LiveData<StorageLocation>
     val storedIssueNumberLiveData: LiveData<Int>
 
-    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
-    private val downloadDataStore = DownloadDataStore.getInstance(application)
-    private val storageDataStore = StorageDataStore.getInstance(application)
-    private val apiService = ApiService.getInstance(application)
-    private val authHelper: AuthHelper = AuthHelper.getInstance(application)
+    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application.applicationContext)
+    private val downloadDataStore = DownloadDataStore.getInstance(application.applicationContext)
+    private val storageDataStore = StorageDataStore.getInstance(application.applicationContext)
+    private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
+    private val apiService = ApiService.getInstance(application.applicationContext)
+    private val authHelper: AuthHelper = AuthHelper.getInstance(application.applicationContext)
 
     private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
     val elapsedString = elapsedOnString.map { DateHelper.stringToMediumLocalizedString(it) }
@@ -183,4 +185,24 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()
+
+    fun enableDebugSettings() {
+        viewModelScope.launch {
+            generalDataStore.debugSettingsEnabled.set(true)
+        }
+    }
+
+    suspend fun areDebugSettingsEnabled(): Boolean {
+        return generalDataStore.debugSettingsEnabled.get()
+    }
+
+    suspend fun getAppSessionCount(): Long {
+        return generalDataStore.appSessionCount.get()
+    }
+
+    fun forceNewAppSession() {
+        viewModelScope.launch {
+            generalDataStore.lastMainActivityUsageTimeMs.set(0L)
+        }
+    }
 }
