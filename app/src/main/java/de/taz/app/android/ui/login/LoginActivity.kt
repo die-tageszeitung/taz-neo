@@ -38,6 +38,7 @@ const val LOGIN_EXTRA_USERNAME: String = "LOGIN_EXTRA_USERNAME"
 const val LOGIN_EXTRA_PASSWORD: String = "LOGIN_EXTRA_PASSWORD"
 const val LOGIN_EXTRA_OPTION: String = "LOGIN_EXTRA_OPTION"
 const val LOGIN_EXTRA_ARTICLE = "LOGIN_EXTRA_ARTICLE"
+const val LOGIN_EXTRA_FROM_HOME = "LOGIN_EXTRA_FROM_HOME"
 
 /**
  * Activity used to register or login a user
@@ -73,6 +74,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             dismissPlayer()
         }
         article = intent.getStringExtra(LOGIN_EXTRA_ARTICLE)
+        viewModel.backToHome = intent.getBooleanExtra(LOGIN_EXTRA_FROM_HOME, false)
 
         viewBinding.navigationBottom.apply {
             setOnItemSelectedListener {
