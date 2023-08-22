@@ -148,20 +148,6 @@ object DateHelper {
     }
 
     /**
-     * function to get the formatted date for the wochentaz
-     * Date ranges from the same month will *not* be shortened
-     * @param date - Date of the issue
-     * @param validityDate - Validity Date of the issue
-     * @return eg "wochentaz, 29.1. – 5.2.2023"
-     *         or "woche, 1.7. - 7.7.2023"
-     */
-    fun dateToWeekTazNotation(date: Date, validityDate: Date): String {
-        val fromDate = SimpleDateFormat("d.M.", appLocale).format(date)
-        val toDate = SimpleDateFormat("d.M.yyyy", appLocale).format(validityDate)
-        return "wochentaz, $fromDate – $toDate"
-    }
-
-    /**
      * function to get a two lines string from a given dateString
      * @param dateString - String holding the date which will be reformatted
      * @return the [String] of date in a two line format: "EEEE,<br>> d.M.yyyy", eg:
