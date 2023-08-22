@@ -26,6 +26,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import de.taz.app.android.ui.login.LOGIN_EXTRA_FROM_HOME
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
@@ -299,9 +300,10 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
                 } else {
                     homeLoginButton.visibility = View.VISIBLE
                     homeLoginButton.setOnClickListener {
-                        activity?.startActivity(
-                            Intent(activity, LoginActivity::class.java)
-                        )
+                         Intent(activity, LoginActivity::class.java).apply {
+                            this.putExtra(LOGIN_EXTRA_FROM_HOME, true)
+                            activity?.startActivity(this)
+                        }
                     }
                 }
 

@@ -340,6 +340,8 @@
 
     <string name="fragment_login_confirm_email_header">Danke für Ihre Registrierung! Wir haben ein neues taz-Konto für Sie angelegt und mit Ihren Daten verknüpft. Bitte öffnen Sie Ihr Mail-Postfach und bestätigen Sie Ihre Mail-Adresse. Sobald dies geschehen ist können Sie die neue taz-App nutzen.</string>
     <string name="fragment_login_confirm_email_elapsed_header">Danke für Ihre Registrierung! Sobald sie von unserer Abo-Verwaltung freigeschaltet sind erhalten Sie eine eMail, und können dann spätestens ab 19:00 Uhr wieder auf die aktuellen Ausgaben zugreifen.</string>
+    <string name="fragment_login_confirm_email_already_confirmed_header">Ihre E-Mail wurde schon bestätigt.\n\nViel Spaß beim Lesen.</string>
+    <string name="fragment_login_confirm_email_confirmed_header">Sie haben soeben Ihre E-Mail-Adresse bestätigt.\n\nViel Spaß beim Lesen.</string>
 
     <string name="fragment_login_registration_successful_header">Sie haben Ihr taz Abo erfolgreich mit Ihrer E-Mail-Adresse verknüpft. Viel Spaß beim Lesen.</string>
 

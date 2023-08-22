@@ -57,6 +57,7 @@ class LoginViewModel @JvmOverloads constructor(
     var subscriptionId: Int? = null
     var subscriptionPassword: String? = null
     var backToArticle: Boolean = true
+    var backToHome: Boolean = false
 
     private var nameAffix: String? = null
     var firstName: String? = null
@@ -73,6 +74,8 @@ class LoginViewModel @JvmOverloads constructor(
 
     var createNewAccount: Boolean = true
     var validCredentials: Boolean = false
+
+    var waitForMailSinceMs: Long = 0L
 
     fun setDone() {
         status.postValue(LoginViewModelState.DONE)
@@ -319,9 +322,15 @@ class LoginViewModel @JvmOverloads constructor(
                     tracker.trackSubscriptionTrialConfirmedEvent()
                 }
                 SubscriptionStatus.waitForMail -> {
+                    if (waitForMailSinceMs == 0L) {
+                        waitForMailSinceMs = System.currentTimeMillis()
+                    }
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 SubscriptionStatus.waitForProc -> {
+                    if (waitForMailSinceMs == 0L) {
+                        waitForMailSinceMs = System.currentTimeMillis()
+                    }
                     poll(previousState)
                 }
                 SubscriptionStatus.noFirstName, SubscriptionStatus.noSurname -> {
@@ -496,10 +505,16 @@ class LoginViewModel @JvmOverloads constructor(
                     )
                 }
                 SubscriptionStatus.waitForMail -> {
+                    if (waitForMailSinceMs == 0L) {
+                        waitForMailSinceMs = System.currentTimeMillis()
+                    }
                     status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
                 }
                 null,
                 SubscriptionStatus.waitForProc -> {
+                    if (waitForMailSinceMs == 0L) {
+                        waitForMailSinceMs = System.currentTimeMillis()
+                    }
                     poll(previousState, timeoutMillis)
                 }
                 SubscriptionStatus.noPollEntry -> {
