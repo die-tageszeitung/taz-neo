@@ -37,7 +37,7 @@ class SubscriptionElapsedBottomSheetFragment :
             this.resources.displayMetrics.heightPixels < this.resources.displayMetrics.widthPixels
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         if (isLandscape) {
-            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
