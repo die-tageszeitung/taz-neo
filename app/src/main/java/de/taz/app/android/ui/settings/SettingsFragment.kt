@@ -351,13 +351,15 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         val isElapsed = authStatus == AuthStatus.elapsed
                         val isValidEmail = emailValidator(email)
                         val isAboId = email.toIntOrNull() != null
+                        // taz account is not the same as taz id. it means accounts from taz workers!
+                        val isTazAccount = email.endsWith(TAZ_ACCOUNT_SUFFIX)
 
                         // Show the views for logged in also when we have a valid email, s
                         // this happens when a user creates a Probeabo with a new account and the email verification is pending
                         if (isLoggedIn || isValidEmail) {
                             viewBinding.fragmentSettingsAccountLogout.text =
                                 getString(R.string.settings_account_logout, email)
-                            showActionsWhenLoggedIn(isValidEmail, isAboId)
+                            showActionsWhenLoggedIn(isValidEmail, isAboId, isTazAccount)
                         } else {
                             showLoginButton()
                         }
@@ -644,21 +646,22 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun showActionsWhenLoggedIn(
         isValidEmail: Boolean = false,
-        isAboId: Boolean = false
+        isAboId: Boolean = false,
+        isTazAccount: Boolean = false
     ) = viewBinding.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
         if (!BuildConfig.IS_LMD) {
             fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
             // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
             fragmentSettingsAccountDeleteWrapper.visibility =
-                if (isValidEmail || isAboId) {
+                if ((isValidEmail || isAboId) && !isTazAccount) {
                     View.VISIBLE
                 } else {
                     View.GONE
                 }
             // show reset password option only for when we have a valid mail:
             fragmentSettingsAccountResetPasswordWrapper.visibility =
-                if (isValidEmail) {
+                if (isValidEmail && !isTazAccount) {
                     View.VISIBLE
                 } else {
                     View.GONE
