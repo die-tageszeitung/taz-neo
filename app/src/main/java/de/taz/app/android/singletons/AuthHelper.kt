@@ -152,8 +152,10 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun onLogin(authStatus: AuthStatus) {
-        tracker.trackUserLoginEvent()
-        tracker.startNewSession()
+        tracker.apply {
+            trackUserLoginEvent()
+            startNewSession()
+        }
         firebaseHelper.ensureTokenSent()
         isPolling.set(false)
 
@@ -163,11 +165,15 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun onLogout() {
-        tracker.trackUserLogoutEvent()
-        tracker.startNewSession()
+        tracker.apply {
+            trackUserLogoutEvent()
+            startNewSession()
+        }
         elapsedButWaiting.set(false)
         elapsedFormAlreadySent.set(false)
         isLoginWeek.set(false)
+        email.set("")
+        token.set("")
         toastHelper.showToast(R.string.toast_logout_invalid)
     }
 

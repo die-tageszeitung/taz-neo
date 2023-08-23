@@ -870,9 +870,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
 
     private fun logout() = requireActivity().lifecycleScope.launch {
-        authHelper.token.set("")
-        authHelper.email.set("")
-        authHelper.isLoginWeek.set(false)
         authHelper.status.set(AuthStatus.notValid)
         getApplicationScope().launch {
             // Refresh the feed in the background to show all public issues again when the user was logged in as a wochentaz user
