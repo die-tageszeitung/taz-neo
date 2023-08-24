@@ -40,7 +40,8 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
     private var articleFileName: String? = null
     private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
-    private lateinit var activityResultLauncher: ActivityResultLauncher<LoginContract.Input>
+    private val activityResultLauncher: ActivityResultLauncher<LoginContract.Input> =
+        registerForActivityResult(LoginContract(), this)
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
@@ -54,8 +55,6 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityResultLauncher = registerForActivityResult(LoginContract(), this)
-
         val applicationContext = requireContext().applicationContext
         toastHelper = ToastHelper.getInstance(applicationContext)
         tracker = Tracker.getInstance(applicationContext)
