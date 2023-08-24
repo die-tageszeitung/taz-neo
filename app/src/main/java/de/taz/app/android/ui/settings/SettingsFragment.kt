@@ -60,6 +60,7 @@ import java.util.*
 
 private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
 private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
+private const val TAZ_PORTAL_LOGIN_URI = "https://portal.taz.de/user/login"
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -912,21 +913,30 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun openProfileAccountOnline() {
         val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
-        try {
-            CustomTabsIntent.Builder()
-                .setDefaultColorSchemeParams(
-                    CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
-                )
-                .build()
-                .apply {
-                    launchUrl(
-                        requireContext(),
-                        Uri.parse("https://portal.taz.de/user/login")
+        lifecycleScope.launch {
+            val mail = authHelper.email.get()
+            val isValidMail = emailValidator(mail)
+            val uri = if (isValidMail) {
+                "$TAZ_PORTAL_LOGIN_URI?email=$mail"
+            } else {
+                TAZ_PORTAL_LOGIN_URI
+            }
+            try {
+                CustomTabsIntent.Builder()
+                    .setDefaultColorSchemeParams(
+                        CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                     )
-                }
-        } catch (e: ActivityNotFoundException) {
-            val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
-            toastHelper.showToast(R.string.toast_unknown_error)
+                    .build()
+                    .apply {
+                        launchUrl(
+                            requireContext(),
+                            Uri.parse(uri)
+                        )
+                    }
+            } catch (e: ActivityNotFoundException) {
+                val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
+                toastHelper.showToast(R.string.toast_unknown_error)
+            }
         }
     }
 
