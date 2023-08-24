@@ -2,6 +2,6 @@
 <androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/dialog_bottom_sheet">
+    android:id="@+id/fragment_container">
 
 </androidx.fragment.app.FragmentContainerView>

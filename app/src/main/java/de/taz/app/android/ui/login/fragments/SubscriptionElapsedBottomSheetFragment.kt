@@ -15,6 +15,7 @@ import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
+import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
@@ -26,19 +27,17 @@ import kotlinx.coroutines.launch
 class SubscriptionElapsedBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentSubscriptionElapsedBottomSheetBinding>() {
 
+    companion object {
+        const val TAG = "showSubscriptionElapsed"
+    }
+
     private val viewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
     override fun onStart() {
         super.onStart()
-
-        val isLandscape =
-            this.resources.displayMetrics.heightPixels < this.resources.displayMetrics.widthPixels
-        val behavior = BottomSheetBehavior.from(requireView().parent as View)
-        if (isLandscape) {
-            behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+        setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_HALF_EXPANDED)
     }
 
     override fun onAttach(context: Context) {

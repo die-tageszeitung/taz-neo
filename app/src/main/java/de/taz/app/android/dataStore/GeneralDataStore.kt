@@ -3,7 +3,12 @@ package de.taz.app.android.dataStore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.util.SingletonHolder
@@ -14,7 +19,6 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 // endregion
 
 // region setting keys
-private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
 private const val DISPLAY_CUTOUT_EXTRA_PADDING = "display_cutout_extra_padding"
 private const val FIRST_APP_START = "first_time_app_starts"
 private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
@@ -25,8 +29,11 @@ private const val ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN = "allow_notifications_las
 private const val APP_SESSION_COUNT = "app_session_count"
 private const val LAST_MAIN_ACTIVITY_USAGE_TIME = "last_main_activity_usage_time"
 private const val DEBUG_SETTINGS_ENABLED = "debug_settings_enabled"
+private const val HAS_BEEN_ASKED_FOR_TRACKING_CONSENT = "has_been_asked_for_tracking_consent"
+private const val CONSENT_TO_TRACKING = "consent_to_tracking"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
+private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
 // endregion
 
 private val Context.generalDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -49,10 +56,6 @@ class GeneralDataStore private constructor(applicationContext: Context) {
     private val dataStore = applicationContext.generalDataStore
 
     companion object : SingletonHolder<GeneralDataStore, Context>(::GeneralDataStore)
-
-    val dataPolicyAccepted: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(DATA_POLICY_ACCEPTED), false
-    )
 
     val displayCutoutExtraPadding: DataStoreEntry<Int> = SimpleDataStoreEntry(
         dataStore, intPreferencesKey(DISPLAY_CUTOUT_EXTRA_PADDING), 0
@@ -98,10 +101,20 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(DEBUG_SETTINGS_ENABLED), false
     )
 
+    val hasBeenAskedForTrackingConsent: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(HAS_BEEN_ASKED_FOR_TRACKING_CONSENT), false
+    )
+
+    val consentToTracking: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(CONSENT_TO_TRACKING), false
+    )
+
     suspend fun clearRemovedEntries() {
         dataStore.edit {
             // This functionality was removed with version 1.7.0
             it.remove(booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER))
+            // The data policy activity screen was removed with version 1.7.3
+            it.remove(booleanPreferencesKey(DATA_POLICY_ACCEPTED))
         }
     }
 }

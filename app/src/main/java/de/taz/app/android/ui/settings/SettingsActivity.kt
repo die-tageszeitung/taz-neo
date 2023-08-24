@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import de.taz.app.android.TazApplication
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySettingsBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -59,16 +59,18 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
         val authStatus = authHelper.status.get()
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
-        val alreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
+        val alreadyShown = getTazApplication().elapsedPopupAlreadyShown
         if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown && !isElapsedFormAlreadySent) {
             showSubscriptionElapsedBottomSheet()
         }
     }
 
     private fun showSubscriptionElapsedBottomSheet() {
-        SubscriptionElapsedBottomSheetFragment().show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
+        if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
+            SubscriptionElapsedBottomSheetFragment().show(
+                supportFragmentManager,
+                SubscriptionElapsedBottomSheetFragment.TAG
+            )
+        }
     }
 }

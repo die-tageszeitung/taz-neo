@@ -33,24 +33,6 @@ class FirstStartDownloadAndDeleteTest {
         longSettle()
         longSettle()
 
-        val dataPolicyContent = onView(withId(R.id.data_policy_fullscreen_content))
-        MatchAssertionPoller(dataPolicyContent, isDisplayed()).waitFor(10000)
-
-        onView(withId(R.id.data_policy_page_scroll_view))
-            .perform(swipeUp())
-        val acceptButton = onView(withId(R.id.data_policy_accept_button))
-
-        MatchAssertionPoller(acceptButton).waitFor(2000)
-
-        shortSettle()
-        acceptButton.perform(click())
-
-        log.info("Accepted data policy")
-
-        longSettle()
-        longSettle()
-        longSettle()
-
         val closeButton = onView(
             allOf(
                 withId(R.id.button_close), withText("×"),
@@ -118,7 +100,7 @@ class FirstStartDownloadAndDeleteTest {
         )
         materialTextView2.perform(click())
 
-        onView(allOf(withId(R.id.dialog_bottom_sheet))).check(doesNotExist())
+        onView(allOf(withId(R.id.fragment_container))).check(doesNotExist())
 
         // Long click listener needs time to be responsive again, did not find a proper way to do it with idling resources
         longSettle()

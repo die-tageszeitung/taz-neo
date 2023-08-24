@@ -66,6 +66,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
     }
 
+    val trackingAccepted = generalDataStore.consentToTracking.asLiveData()
+
     fun increaseKeepIssueNumber() {
         viewModelScope.launch {
             val newVal = storageDataStore.keepIssuesNumber.get().plus(1)
@@ -98,6 +100,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun setTrackingAccepted(isAccepted: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.consentToTracking.set(isAccepted)
+        }
+    }
 
     /**
      * Returns the value of the final notification enabled state.

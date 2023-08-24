@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import de.taz.app.android.TazApplication
+import de.taz.app.android.getTazApplication
+import kotlinx.coroutines.CoroutineScope
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -56,9 +57,8 @@ abstract class ViewBindingFragment<VIEW_BINDING : ViewBinding> : Fragment() {
         return method.invoke(this, layoutInflater, container, false) as VIEW_BINDING
     }
 
-    val applicationScope by lazy {
-        (requireActivity().application as TazApplication).applicationScope
-    }
+    val applicationScope: CoroutineScope
+        get() = getTazApplication().applicationScope
 
 }
 

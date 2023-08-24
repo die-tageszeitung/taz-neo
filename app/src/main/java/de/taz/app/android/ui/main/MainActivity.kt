@@ -24,12 +24,12 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
+import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.bottomSheet.AllowNotificationsBottomSheetFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
@@ -105,7 +105,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     override fun onStop() {
         loggedOutDialog?.dismiss()
+        loggedOutDialog = null
         tryPdfDialog?.dismiss()
+        tryPdfDialog = null
         super.onStop()
     }
 
@@ -114,12 +116,23 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
      * It must be called during the [MainActivity]s STARTED lifecycle.
      */
     private suspend fun handlePendingDialogs() {
+        // This coroutine is restarted when the Activity lifecycle is going through STARTED.
+        // We have to prevent multiple dialogs from overlapping, as the STARTED lifecycle
+        // might be triggered again if for example the Data Policy Activity was shown from the
+        // TrackingConsentFragment Bottom Sheet.
+        // In that case the conditions would be different and an additional dialog might be shown.
+        if (isShowingDialog()) {
+            return
+        }
+
+
         val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
         val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
         val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         val isPdfMode = generalDataStore.pdfMode.get()
         val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
-        val allowNotificationsDoNotShowAgain = generalDataStore.allowNotificationsDoNotShowAgain.get()
+        val allowNotificationsDoNotShowAgain =
+            generalDataStore.allowNotificationsDoNotShowAgain.get()
         val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
         val allowNotificationsShownLastMonth =
             DateHelper.stringToDate(allowNotificationsLastTimeShown)?.let { lastShown ->
@@ -132,9 +145,16 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val allowNotificationsBottomSheetConditions =
             !checkNotificationsAllowed() && !allowNotificationsDoNotShowAgain && !allowNotificationsShownLastMonth && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
 
+        val trackingOptInBottomSheetConditions =
+            !generalDataStore.hasBeenAskedForTrackingConsent.get() && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
+
         when {
             elapsedBottomSheetConditions -> showSubscriptionElapsedBottomSheet()
             isPdfMode && !authHelper.isLoggedIn() && !authHelper.isElapsed() -> showLoggedOutDialog()
+            trackingOptInBottomSheetConditions -> showTrackingConsentBottomSheet(
+                allowNotificationsBottomSheetConditions
+            )
+
             !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
             allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
             else -> Unit // do nothing else
@@ -223,21 +243,44 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedBottomSheet() {
-        (application as TazApplication).elapsedPopupAlreadyShown = true
-        SubscriptionElapsedBottomSheetFragment().show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
+        getTazApplication().elapsedPopupAlreadyShown = true
+
+        if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
+            SubscriptionElapsedBottomSheetFragment().show(
+                supportFragmentManager,
+                SubscriptionElapsedBottomSheetFragment.TAG
+            )
+        }
     }
 
     private fun showAllowNotificationsBottomSheet() {
-        AllowNotificationsBottomSheetFragment().show(
-            supportFragmentManager,
-            "showSubscriptionElapsed"
-        )
+        if (supportFragmentManager.findFragmentByTag(AllowNotificationsBottomSheetFragment.TAG) == null) {
+            AllowNotificationsBottomSheetFragment().show(
+                supportFragmentManager,
+                AllowNotificationsBottomSheetFragment.TAG
+            )
+        }
+    }
+
+    private fun showTrackingConsentBottomSheet(showAllowNotifications: Boolean) {
+        if (supportFragmentManager.findFragmentByTag(TrackingConsentBottomSheet.TAG) == null) {
+            TrackingConsentBottomSheet.newInstance(showAllowNotifications).show(
+                supportFragmentManager,
+                TrackingConsentBottomSheet.TAG
+            )
+        }
+    }
+
+    private fun isShowingDialog(): Boolean {
+        return loggedOutDialog?.isShowing == true
+                || tryPdfDialog?.isShowing == true
+                || supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) != null
+                || supportFragmentManager.findFragmentByTag(AllowNotificationsBottomSheetFragment.TAG) != null
+                || supportFragmentManager.findFragmentByTag(TrackingConsentBottomSheet.TAG) != null
     }
 
     private var doubleBackToExitPressedOnce = false
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (audioPlayerViewController.onBackPressed()) {

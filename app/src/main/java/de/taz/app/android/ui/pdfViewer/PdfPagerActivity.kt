@@ -64,8 +64,6 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
         private const val ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME =
             "ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME"
-        private const val SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG =
-            "SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG"
 
         fun newIntent(
             packageContext: Context,
@@ -213,15 +211,12 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                         .filter { it }.collect {
                             // Do not show th the bottom sheet if it is already shown
                             // (maybe because the activity was re-recreated and it was restored from the bundle)
-                            if (supportFragmentManager.findFragmentByTag(
-                                    SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
-                                ) == null
-                            ) {
+                            if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
                                 // Prevent a crash that occurs if the show() method is called after onSaveInstanceState.
                                 if (!supportFragmentManager.isStateSaved) {
                                     SubscriptionElapsedBottomSheetFragment().show(
                                         supportFragmentManager,
-                                        SUBSCRIPTION_ELAPSED_BOTTOMSHEET_TAG
+                                        SubscriptionElapsedBottomSheetFragment.TAG
                                     )
                                 }
                             }

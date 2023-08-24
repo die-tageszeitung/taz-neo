@@ -336,7 +336,7 @@
     </style>
 
     <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
-        <item name="android:textSize" >@dimen/search_result_author_text_size</item>
+        <item name="android:textSize">@dimen/search_result_author_text_size</item>
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
@@ -497,4 +497,34 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="TextAppearance.ModalTopline" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">5sp</item>
+    </style>
+
+    <style name="TextAppearance.Marketing.Head.Aktiv" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:lineSpacingExtra">7sp</item>
+    </style>
+
+    <style name="TextAppearance.Info.BodyText" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineSpacingExtra">7sp</item>
+    </style>
+
+    <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">7sp</item>
+    </style>
+
+    <style name="TextAppearance.Link.Large" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:lineSpacingExtra">15sp</item>
+        <!-- missing: underline, as it is not available in android and must be applied to the strings -->
+    </style>
 </resources>

@@ -84,6 +84,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private val emailValidator = EmailValidator()
 
     private val pushNotificationsFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree")
+    private val isTrackingFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree" && !BuildConfig.IS_LMD)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -191,7 +192,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsAccountElapsed.setOnClickListener {
                 SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
-                    "showSubscriptionElapsed"
+                    SubscriptionElapsedBottomSheetFragment.TAG
                 )
             }
 
@@ -283,6 +284,13 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             fragmentSettingsCategoryExtended.setOnClickListener {
                 toggleExtendedContent()
             }
+
+            if (isTrackingFeatureEnabled) {
+                fragmentSettingsAcceptTrackingSwitchWrapper.visibility = View.VISIBLE
+                fragmentSettingsAcceptTrackingSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    viewModel.setTrackingAccepted(isChecked)
+                }
+            }
         }
 
 
@@ -315,6 +323,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
+            }
+            trackingAccepted.distinctUntilChanged().observe(viewLifecycleOwner) { isTrackingAccepted ->
+                viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
             }
             if (pushNotificationsFeatureEnabled) {
                 notificationsEnabledLivedata.distinctUntilChanged()
@@ -734,6 +745,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
+    private fun setTrackingAccepted(isAccepted: Boolean) {
+        viewModel.setTrackingAccepted(isAccepted)
+    }
+
     /**
      * Called when the user clicked the notification toggle.
      * Note that Android will still change the toggle button state itself,
@@ -866,7 +881,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             activity?.startActivity(intent)
         }
     }
-
 
     private fun logout() = requireActivity().lifecycleScope.launch {
         authHelper.status.set(AuthStatus.notValid)
