@@ -318,12 +318,15 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
      * Triggers a [ReviewFlow] on certain app sessions.
      * The triggers are defined by the UX team as specified on the ticket.
      * This function must only be called once per app session.
+     * Only logged in users should be asked for reviews
      */
     private fun maybeStartReviewFlow(appSessionCount: Long) {
         if (appSessionCount == 3L || appSessionCount == 6L || appSessionCount == 10L) {
             lifecycleScope.launch {
-                val reviewFlow = ReviewFlow.createInstance()
-                reviewFlow.tryStartReviewFlow(this@MainActivity)
+                if (authHelper.isLoggedIn()) {
+                    val reviewFlow = ReviewFlow.createInstance()
+                    reviewFlow.tryStartReviewFlow(this@MainActivity)
+                }
             }
         }
     }
