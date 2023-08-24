@@ -16,6 +16,7 @@ class LoginContract : ActivityResultContract<LoginContract.Input, LoginContract.
         LOGIN,
         REGISTER,
         FORGOT_PASSWORD,
+        REQUEST_PASSWORD_RESET,
         PRINT_TO_DIGI,
         EXTEND_PRINT
     }

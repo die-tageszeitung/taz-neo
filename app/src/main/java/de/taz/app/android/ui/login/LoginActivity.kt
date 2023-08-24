@@ -95,10 +95,14 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginContract.Option.LOGIN -> LoginViewModelState.LOGIN
                 LoginContract.Option.REGISTER -> LoginViewModelState.SUBSCRIPTION_REQUEST
                 LoginContract.Option.FORGOT_PASSWORD -> LoginViewModelState.PASSWORD_REQUEST
+                LoginContract.Option.REQUEST_PASSWORD_RESET -> LoginViewModelState.PASSWORD_REQUEST
                 LoginContract.Option.PRINT_TO_DIGI -> LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST
                 LoginContract.Option.EXTEND_PRINT -> LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST
                 null -> LoginViewModelState.INITIAL
             }
+        if (option == LoginContract.Option.REQUEST_PASSWORD_RESET) {
+            viewModel.backToSettingsAfterEmailSent = true
+        }
 
         viewModel.apply {
             username = intent.getStringExtra(LOGIN_EXTRA_USERNAME)

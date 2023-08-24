@@ -48,7 +48,7 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.fragments.PasswordRequestFragment
+import de.taz.app.android.ui.login.LoginContract
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
@@ -79,6 +79,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
     private lateinit var tracker: Tracker
+    private val loginActivityLauncher = registerForActivityResult(LoginContract()) {}
 
     private val emailValidator = EmailValidator()
 
@@ -196,16 +197,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             if (!BuildConfig.IS_LMD) {
                 fragmentSettingsAccountResetPassword.setOnClickListener {
-                    val fragment = PasswordRequestFragment.create(
-                        invalidId = false,
-                        invalidMail = false,
-                        showSubscriptionId = false
-                    )
-
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.main_content_fragment_placeholder, fragment)
-                        .addToBackStack(fragment::class.java.name)
-                        .commit()
+                    lifecycleScope.launch {
+                        loginActivityLauncher.launch(
+                            LoginContract.Input(
+                                option = LoginContract.Option.REQUEST_PASSWORD_RESET,
+                                username = authHelper.email.get()
+                            )
+                        )
+                    }
                 }
 
                 fragmentSettingsManageAccountOnline.setOnClickListener {

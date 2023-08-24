@@ -52,6 +52,7 @@ class LoginViewModel @JvmOverloads constructor(
     val noInternet by lazy { MutableLiveData(false) }
 
     var username: String? = runBlocking { authHelper.email.get() }
+    var backToSettingsAfterEmailSent = false
 
     var password: String? = null
     var subscriptionId: Int? = null
@@ -632,7 +633,11 @@ class LoginViewModel @JvmOverloads constructor(
 
     fun backAfterEmailSent() {
         status.postValue(LoginViewModelState.LOADING)
-        val statusBefore = statusBeforePasswordRequest ?: LoginViewModelState.INITIAL
+        val statusBefore = if (backToSettingsAfterEmailSent) {
+            LoginViewModelState.DONE
+        } else {
+            statusBeforePasswordRequest ?: LoginViewModelState.INITIAL
+        }
         status.postValue(statusBefore)
         statusBeforePasswordRequest = null
     }
