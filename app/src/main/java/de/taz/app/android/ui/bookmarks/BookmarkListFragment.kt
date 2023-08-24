@@ -167,7 +167,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
         val formattedDate = if (publicationDate?.validity != null) {
             // if we got validity date (eg wochentaz)
-            DateHelper.dateToWeekTazNotation(publicationDate.date, publicationDate.validity)
+            DateHelper.dateToWeekNotation(publicationDate.date, publicationDate.validity)
         } else {
             if (BuildConfig.IS_LMD) {
                 // for LMd date should be "Ausgabe November 2023"
