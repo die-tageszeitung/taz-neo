@@ -17,13 +17,13 @@ class AddBottomSheetDialog : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.dialog_bottom_sheet, container, false)
+        return inflater.inflate(R.layout.fragment_container, container, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fragment?.let {
-            childFragmentManager.beginTransaction().replace(R.id.dialog_bottom_sheet, it).commit()
+            childFragmentManager.beginTransaction().replace(R.id.fragment_container, it).commit()
         }
     }
 

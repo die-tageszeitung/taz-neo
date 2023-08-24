@@ -9,6 +9,7 @@ import de.taz.app.android.api.models.Section
 import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,7 +23,9 @@ import kotlin.coroutines.CoroutineContext
 
 // region: Event Categories
 private const val CATEGORY_APPLICATION = "Application"
-private const val CATEGORY_USER = "User"
+private const val CATEGORY_USER_AUTH = "User Authentication"
+private const val CATEGORY_AUTH_STATUS = "Authentication Status"
+private const val CATEGORY_SUBSCRIPTION_STATUS = "Subscription Status"
 private const val CATEGORY_DIALOG = "Dialog"
 private const val CATEGORY_SUBSCRIPTION = "Subscription"
 private const val CATEGORY_APPMODE = "AppMode"
@@ -36,6 +39,8 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
 
+    private val log by Log
+
     val authHelper = AuthHelper.getInstance(applicationContext)
 
     private val matomo = Matomo.getInstance(applicationContext)
@@ -43,6 +48,11 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
         .createDefault("https://gazpacho.taz.de/matomo.php", 113)
         .setApplicationBaseUrl("https://${applicationContext.packageName}/")
     private val matomoTracker = SessionAwareTracker(matomo, config, ::onNewSession)
+
+    init {
+        // Ensure, that the tracker is initially disabled and must be enabled explicitly.
+        matomoTracker.isOptOut = true
+    }
 
     private fun onNewSession() {
         launch {
@@ -63,10 +73,12 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
     }
 
     override fun enable() {
+        log.verbose("Tracking enabled")
         matomoTracker.isOptOut = false
     }
 
     override fun disable() {
+        log.verbose("Tracking disabled")
         matomoTracker.isOptOut = true
     }
 
@@ -90,37 +102,37 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
 
     override fun trackUserAuthenticatedState() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "State Authenticated")
+            .event(CATEGORY_AUTH_STATUS, "Authenticated")
             .with(matomoTracker)
     }
 
     override fun trackUserAnonymousState() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "State Anonymous")
+            .event(CATEGORY_AUTH_STATUS, "Anonymous")
             .with(matomoTracker)
     }
 
     override fun trackUserLoginEvent() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "Login")
+            .event(CATEGORY_USER_AUTH, "Login")
             .with(matomoTracker)
     }
 
     override fun trackUserLogoutEvent() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "Logout")
+            .event(CATEGORY_USER_AUTH, "Logout")
             .with(matomoTracker)
     }
 
     override fun trackUserSubscriptionElapsedEvent() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "Subscription Elapsed")
+            .event(CATEGORY_SUBSCRIPTION_STATUS, "Elapsed")
             .with(matomoTracker)
     }
 
     override fun trackUserSubscriptionRenewedEvent() {
         TrackHelper.track()
-            .event(CATEGORY_USER, "Subscription Renewed")
+            .event(CATEGORY_SUBSCRIPTION_STATUS, "Renewed")
             .with(matomoTracker)
     }
 

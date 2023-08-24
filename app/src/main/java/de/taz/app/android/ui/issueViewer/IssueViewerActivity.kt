@@ -221,7 +221,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
             if (issueKey.status == IssueStatus.public && subscriptionElapsed && !isElapsedFormAlreadySent) {
                 SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
-                    "showSubscriptionElapsed"
+                    SubscriptionElapsedBottomSheetFragment.TAG
                 )
             } else if (showDownloadFailedDialogOnNotElapsed) {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)

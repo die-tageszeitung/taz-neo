@@ -472,6 +472,24 @@
                 android:text="@string/settings_revocation" />
 
             <include layout="@layout/settings_separator_view" />
+
+            <LinearLayout
+                android:id="@+id/fragment_settings_accept_tracking_switch_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_accept_tracking_switch"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_accept_tracking" />
+
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
             <!-- endregion -->
 
             <!-- region erweitert -->

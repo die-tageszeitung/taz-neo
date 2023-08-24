@@ -16,4 +16,8 @@
 
     <dimen name="fragment_bookmarks_top_margin">16dp</dimen>
     <dimen name="grotesk_font_adjustment">2dp</dimen>
+
+    <!-- font adjustment !-->
+    <dimen name="fragment_tracking_notifications_description_margin_top">-5dp</dimen>
+    <dimen name="fragment_tracking_notifications_buttons_margin_top">20dp</dimen>
 </resources>

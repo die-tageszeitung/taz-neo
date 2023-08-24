@@ -15,20 +15,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/web_view_background">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/content_wrapper"
+        <de.taz.app.android.ui.webview.AppWebView
+            android:id="@+id/web_view_fullscreen_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/activity_data_policy_button_margin_bottom">
-
-            <de.taz.app.android.ui.webview.AppWebView
-                android:id="@+id/web_view_fullscreen_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.core.widget.NestedScrollView>
 
     <ImageButton

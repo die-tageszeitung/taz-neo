@@ -9,6 +9,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.facebook.stetho.Stetho
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
@@ -29,6 +30,7 @@ abstract class AbstractTazApplication : Application() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var generalDataStore: GeneralDataStore
     private var _tracker: Tracker? = null
 
     // use this scope if you want to run code which should not terminate if the lifecycle of
@@ -44,7 +46,9 @@ abstract class AbstractTazApplication : Application() {
         // Install the global exception handler
         UncaughtExceptionHandler(applicationContext)
 
-        authHelper = AuthHelper.getInstance(this)
+        authHelper = AuthHelper.getInstance(applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(applicationContext)
+
         applicationScope.launch {
             generateInstallationId()
             setUpSentry()
@@ -112,15 +116,24 @@ abstract class AbstractTazApplication : Application() {
 
     // region tracking
     private fun setupTracker() {
-        _tracker = Tracker.getInstance(applicationContext)
+        val tracker = Tracker.getInstance(applicationContext)
 
-        // FIXME (johannes): store opt-in in our settings and enable/disable accordingly
-        _tracker?.enable()
-
+        _tracker = tracker
         ProcessLifecycleOwner.get().lifecycle.addObserver(trackerLifecycleObserver)
 
-        // Track this download (only tracks once)
-        _tracker?.trackDownload(BuildConfig.VERSION_NAME)
+        applicationScope.launch {
+            // Keep listening to changes and en/disable the tracker accordingly
+            generalDataStore.consentToTracking.asFlow().collect { isEnabled ->
+                if (isEnabled) {
+                    tracker.enable()
+
+                    // Track this download (only tracks once per version)
+                    tracker.trackDownload(BuildConfig.VERSION_NAME)
+                } else {
+                    tracker.disable()
+                }
+            }
+        }
     }
 
     private val trackerLifecycleObserver = object : DefaultLifecycleObserver {

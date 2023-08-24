@@ -89,11 +89,24 @@
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
 
-    <string name="fragment_bottom_sheet_notifications_title">Bock auf Bescheidwissen?</string>
-    <string name="fragment_bottom_sheet_notifications_description">Willkommen zurück! Wir haben etwas Brandneues für Sie: Bleiben Sie auf dem Laufendem mit Benachrichtigungen.\n\nSie möchten auch in Zukunft keine Ausgabe mehr verpassen? Schalten Sie die Mitteilungen an und verpassen Sie nichts.</string>
+    <string name="fragment_bottom_sheet_notifications_title_01">Nichts verpassen …</string>
+    <string name="fragment_bottom_sheet_notifications_description_01">… im wahren Leben nicht immer leicht, doch in der taz App kein Problem: mit unseren praktischen Mitteilungen.\nAuf Wunsch benachrichtigen wir Sie stets per Push-Nachricht, sobald die neue Ausgabe da ist – so wissen Sie bereits am Vorabend, was morgen in der Zeitung steht.</string>
+    <string name="fragment_bottom_sheet_notifications_title_02">Sie wollen Bescheid wissen?</string>
+    <string name="fragment_bottom_sheet_notifications_description_02">Auf Wunsch benachrichtigen wir Sie stets per Push-Nachricht, sobald die neue Ausgabe da ist – so wissen Sie bereits am Vorabend, was morgen in der Zeitung steht.</string>
     <string name="fragment_bottom_sheet_notifications_yes">Ja, Mitteillungen einschalten</string>
-    <string name="fragment_bottom_sheet_notifications_not_now">Jetzt nicht</string>
-    <string name="fragment_bottom_sheet_notifications_no">Einstellungen so lassen</string>
+    <string name="fragment_bottom_sheet_notifications_not_now"><u>Fragen Sie später nochmal</u></string>
+    <string name="fragment_bottom_sheet_notifications_no">Nein, Einstellungen so lassen</string>
+
+    <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
+    <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
+    <string name="fragment_tracking_consent_description_01">Anonyme Nutzungsdaten helfen uns, noch besser zu werden. Aber wir wissen auch: Wer Daten will, muss freundlich sein – und geben sie niemals weiter. Ihre Einwilligung zur Nutzung kann außerdem immer widerrufen werden.</string>
+    <!-- Shall be used for A/B testing, not setup yet
+    <string name="fragment_tracking_consent_title_02">Sie wollen uns mit Ihren Nutzungsdaten helfen, die taz besser zu machen?</string>
+    <string name="fragment_tracking_consent_description_02">Diese bleiben vollständig anonym und helfen uns dabei, die App benutzerfreundlicher zu machen. Unser Versprechen: DATENSCHUTZ wird bei uns immer groß geschrieben.</string>
+    -->
+    <string name="fragment_tracking_consent_accept">Ja, ich helfe mit</string>
+    <string name="fragment_tracking_consent_reject">Nein, keine Daten senden</string>
+    <string name="fragment_tracking_consent_privacy_policy">Mit Nutzung der taz  App gelten unsere allgemeinen <u>Datenschutzbestimmungen</u>.</string>
 
     <string name="fragment_bookmark">zu Leseliste hinzufügen</string>
     <string name="fragment_bookmarks_title">leseliste</string>
@@ -162,6 +175,7 @@
     <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehende Dateien migriert.</string>
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
+    <string name="settings_accept_tracking">Nutzungsdaten senden (anonym und sicher)</string>
 
     <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
     <string name="storage_migration_help_text_delete_issues_error">Beim Löschen von ungenutzten Ausgaben trat ein Fehler auf.</string>

@@ -170,6 +170,13 @@
     <dimen name="fragment_bottom_sheet_text_size_image_padding_vertical">10dp</dimen>
     <dimen name="fragment_bottom_sheet_icon_size">28dp</dimen>
 
+    <dimen name="fragment_tracking_notifications_illustration_margin_vertical">15dp</dimen>
+    <dimen name="fragment_tracking_notifications_description_margin_top">10dp</dimen>
+    <dimen name="fragment_tracking_notifications_buttons_margin_top">30dp</dimen>
+    <dimen name="fragment_tracking_notifications_buttons_margin_between">20dp</dimen>
+    <dimen name="fragment_tracking_notifications_footnote_margin_top">20dp</dimen>
+
+
     <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
     <dimen name="fragment_bookmarks_icons_vertical_margin">13.5dp</dimen>
@@ -212,11 +219,6 @@
 
     <dimen name="ic_close_button_margin_end">15dp</dimen>
     <dimen name="ic_close_button_margin_top">15dp</dimen>
-
-    <dimen name="activity_data_policy_button_width">240dp</dimen>
-    <dimen name="activity_data_policy_button_text_size">17sp</dimen>
-    <dimen name="activity_data_policy_button_margin_bottom">40dp</dimen>
-    <dimen name="activity_data_policy_button_margin_horizontal">18dp</dimen>
 
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
 
