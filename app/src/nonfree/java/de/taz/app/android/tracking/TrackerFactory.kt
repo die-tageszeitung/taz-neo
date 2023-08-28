@@ -9,7 +9,7 @@ import de.taz.app.android.BuildConfig
  */
 class TrackerFactory : TrackerFactoryInterface {
     override fun createInstance(applicationContext: Context): Tracker {
-        if (BuildConfig.BUILD_TYPE == "debug" && !BuildConfig.IS_LMD) {
+        if (!BuildConfig.IS_LMD) {
             return MatomoTracker(applicationContext)
         } else {
             return NoOpTracker()
