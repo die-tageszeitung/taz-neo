@@ -99,7 +99,7 @@
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
-    <string name="fragment_tracking_consent_description_01">Anonyme Nutzungsdaten helfen uns, noch besser zu werden. Aber wir wissen auch: Wer Daten will, muss freundlich sein – und geben sie niemals weiter. Ihre Einwilligung zur Nutzung kann außerdem immer widerrufen werden.</string>
+    <string name="fragment_tracking_consent_description_01">Anonyme Nutzungsdaten helfen uns, noch besser zu werden. Wir wissen natürlich: Wer Daten will, muss freundlich sein – deshalb behandeln wir diese mit größtmöglicher Sorgfalt und absolut vertraulich. Ihre Einwilligung zur Nutzung kann zudem jederzeit widerrufen werden.</string>
     <!-- Shall be used for A/B testing, not setup yet
     <string name="fragment_tracking_consent_title_02">Sie wollen uns mit Ihren Nutzungsdaten helfen, die taz besser zu machen?</string>
     <string name="fragment_tracking_consent_description_02">Diese bleiben vollständig anonym und helfen uns dabei, die App benutzerfreundlicher zu machen. Unser Versprechen: DATENSCHUTZ wird bei uns immer groß geschrieben.</string>
