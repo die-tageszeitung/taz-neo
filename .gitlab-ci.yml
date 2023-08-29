@@ -8,6 +8,8 @@ variables:
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
   BUNDLE_VERSION: "001"
+  # Omit the -dirty suffix on CI builds, even if there might be changed file in the mupdf submodules
+  VERSION_IGNORES_DIRTY_TREE: "true"
 
 stages:
   - prepare
