@@ -35,6 +35,8 @@ private const val CATEGORY_DRAWER = "Drawer"
 private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
 // endregion
 
+private const val SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1_000 // 2h
+
 class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
@@ -50,8 +52,12 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
     private val matomoTracker = SessionAwareTracker(matomo, config, ::onNewSession)
 
     init {
-        // Ensure, that the tracker is initially disabled and must be enabled explicitly.
-        matomoTracker.isOptOut = true
+        matomoTracker.apply {
+            // Ensure, that the tracker is initially disabled and must be enabled explicitly.
+            isOptOut = true
+            // Force longer sessions until the library is fixed to handle session timeouts in regard to the last sent event
+            setSessionTimeout(SESSION_TIMEOUT_MS)
+        }
     }
 
     private fun onNewSession() {
