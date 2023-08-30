@@ -22,6 +22,7 @@ import io.sentry.protocol.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -123,16 +124,18 @@ abstract class AbstractTazApplication : Application() {
 
         applicationScope.launch {
             // Keep listening to changes and en/disable the tracker accordingly
-            generalDataStore.consentToTracking.asFlow().collect { isEnabled ->
-                if (isEnabled) {
-                    tracker.enable()
+            generalDataStore.consentToTracking.asFlow()
+                .distinctUntilChanged()
+                .collect { isEnabled ->
+                    if (isEnabled) {
+                        tracker.enable()
 
-                    // Track this download (only tracks once per version)
-                    tracker.trackDownload(BuildConfig.VERSION_NAME)
-                } else {
-                    tracker.disable()
+                        // Track this download (only tracks once per version)
+                        tracker.trackDownload(BuildConfig.VERSION_NAME)
+                    } else {
+                        tracker.disable()
+                    }
                 }
-            }
         }
     }
 
