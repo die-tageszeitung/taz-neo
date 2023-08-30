@@ -321,7 +321,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
      * Only logged in users should be asked for reviews
      */
     private fun maybeStartReviewFlow(appSessionCount: Long) {
-        if (appSessionCount == 3L || appSessionCount == 6L || appSessionCount == 10L) {
+        if (appSessionCount == 3L || appSessionCount == 6L || appSessionCount == 10L || appSessionCount % 25L == 0L) {
             lifecycleScope.launch {
                 if (authHelper.isLoggedIn()) {
                     val reviewFlow = ReviewFlow.createInstance()
