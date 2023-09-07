@@ -466,7 +466,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
         }
         // clean up file system:
-        storageService.deleteAllUnusedIssueFolders(feedName)
+        //FIXME: Check why the moments are not deleted together with the issues!
+        // Until we know that we cannot delete the "unused" folders. So this is only a quickfix:
+        //storageService.deleteAllUnusedIssueFolders(feedName)
         toastHelper.showToast(R.string.settings_delete_all_issues_deleted)
     }
 
