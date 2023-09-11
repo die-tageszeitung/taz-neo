@@ -9,10 +9,12 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
@@ -28,6 +30,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -83,6 +87,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
     private val tracker = Tracker.getInstance(applicationContext)
+    private val dataStore = AudioPlayerDataStore.getInstance(applicationContext)
 
     // Central internal state of the Service
     private val state: MutableStateFlow<State> = MutableStateFlow(State.Init)
@@ -90,6 +95,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private val _progress = MutableStateFlow<PlayerProgress?>(null)
     private var progressObserverJob: Job? = null
+
+    private val playbackSpeedPreference = dataStore.playbackSpeed.asFlow().distinctUntilChanged()
+    private var playbackSpeed: Float = DEFAULT_AUDIO_PLAYBACK_SPEED
 
     // region public attributes and methods
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -191,6 +199,16 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             seekTo(newPosition)
         }
     }
+
+    suspend fun setPlaybackSpeed(playbackSpeed: Float) {
+        // Only set the playback speed on the dataStore - setting the playback speed on the controller
+        // will be handled by an observer on the dataStore entry.
+        dataStore.playbackSpeed.set(playbackSpeed)
+    }
+
+    fun getPlaybackSpeed(): Float {
+        return playbackSpeed
+    }
     // endregion public attributes and methods
 
     init {
@@ -198,31 +216,35 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         // We can't use .map().stateIn() because we need a MutableStateFlow to be able to
         // get the current subscriber count and decide if we can release the [MediaController]
         launch {
-            state.collect {
+            combine(state, playbackSpeedPreference) { state, playbackSpeed ->
                 val wasExpanded = getExpandedFromUiState()
-                val uiState = when (val state = it) {
+                val uiState = when (state) {
                     State.Init -> UiState.Hidden
                     is State.ControllerReady -> UiState.Hidden
 
                     is State.ControllerError -> UiState.Error(
                         expanded = wasExpanded,
                         wasHandled = false,
+                        playbackSpeed = playbackSpeed,
                         articleAudio = null,
                         AudioPlayerException.Generic(cause = state.exception)
                     )
 
                     is State.AudioPrepare -> UiState.Loading(state.articleAudio)
                     is State.AudioQueued -> UiState.Loading(state.articleAudio)
-                    is State.AudioReady -> UiState.Paused(state.articleAudio, wasExpanded)
-                    is State.AudioPlaying -> UiState.Playing(state.articleAudio, wasExpanded)
+                    is State.AudioReady -> UiState.Paused(state.articleAudio, wasExpanded, playbackSpeed)
+                    is State.AudioPlaying -> UiState.Playing(state.articleAudio, wasExpanded, playbackSpeed)
                     is State.AudioError -> UiState.Error(
                         expanded = wasExpanded,
                         wasHandled = false,
+                        playbackSpeed = playbackSpeed,
                         state.articleAudio,
                         mapAudioErrorToException(state)
                     )
                 }
-                _uiState.value = uiState
+                uiState
+            }.collect {
+                _uiState.value = it
             }
         }
 
@@ -233,6 +255,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     is State.AudioPlaying -> tracker.trackAudioPlayerPlayArticleEvent(state.articleAudio)
                     else -> Unit
                 }
+            }
+        }
+
+        launch {
+            playbackSpeedPreference.collect {
+                val currentController = getControllerFromState()
+                currentController?.setPlaybackSpeed(it)
+                playbackSpeed = it
             }
         }
     }
@@ -301,6 +331,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun onControllerReady(controller: MediaController) {
         log.verbose("onControllerReady (${controller.hashCode()}")
         controller.addListener(controllerListener)
+        controller.setPlaybackSpeed(playbackSpeed)
+
         when (val state = state.value) {
             State.Init, is State.ControllerError -> {
                 if (controller.currentMediaItem != null) {

@@ -463,6 +463,8 @@
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
     <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
+    <string name="audioplayer_playback_speed">%sx</string>
+    <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

@@ -8,8 +8,15 @@
 
     <dimen name="bottom_sheet_elevation">10dp</dimen>
     <dimen name="moment_elevation">5dp</dimen>
-    <dimen name="view_moment_download_icon_size">25dp</dimen>
 
+    <!--
+    To increase the touch area around a small view we can add a second touch area view which is
+    constrained to the small element dimensions. To make it larger we can use negative margins.
+    Note that we have to set marginStart/End/Top/Bottom individually.
+    -->
+    <dimen name="additional_touch_area_margin">-10dp</dimen>
+
+    <dimen name="view_moment_download_icon_size">25dp</dimen>
     <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
@@ -301,6 +308,7 @@
     <dimen name="audioplayer_expanded_play_action_size">34dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
+    <dimen name="audioplayer_expanded_title_author_margin_end">16dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>

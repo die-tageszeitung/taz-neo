@@ -62,3 +62,6 @@ val appLocale: Locale = Locale.GERMAN
 
 // The time in milliseconds after which a session is deemed to be idle if there was no user action (4h)
 const val APP_SESSION_TIMEOUT_MS = 4L * 60L * 60L * 1_000L
+
+// Default playback speed used for the AudioPlayer
+const val DEFAULT_AUDIO_PLAYBACK_SPEED = 1F

@@ -306,7 +306,6 @@ dependencies {
     implementation ('androidx.core:core-ktx:1.9.0') {
         because "1.10.0+ introduces a flickering on the section pager header."
         // TODO: Resolve the flickering without downgrading
-
     }
     implementation 'androidx.collection:collection-ktx:1.2.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
