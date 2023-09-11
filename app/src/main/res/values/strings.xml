@@ -106,7 +106,7 @@
     -->
     <string name="fragment_tracking_consent_accept">Ja, ich helfe mit</string>
     <string name="fragment_tracking_consent_reject">Nein, keine Daten senden</string>
-    <string name="fragment_tracking_consent_privacy_policy">Mit Nutzung der taz  App gelten unsere allgemeinen <u>Datenschutzbestimmungen</u>.</string>
+    <string name="fragment_tracking_consent_privacy_policy">Hier finden Sie unsere <u>Datenschutzbestimmungen</u>.</string>
 
     <string name="fragment_bookmark">zu Leseliste hinzufügen</string>
     <string name="fragment_bookmarks_title">leseliste</string>
