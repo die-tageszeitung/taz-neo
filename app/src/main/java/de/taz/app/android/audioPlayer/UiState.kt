@@ -6,11 +6,11 @@ package de.taz.app.android.audioPlayer
 sealed class UiState {
     object Hidden : UiState()
     data class Loading(val articleAudio: ArticleAudio?): UiState()
-    data class Playing(val articleAudio: ArticleAudio, val expanded: Boolean): UiState()
-    data class Paused(val articleAudio: ArticleAudio, val expanded: Boolean): UiState()
+    data class Playing(val articleAudio: ArticleAudio, val expanded: Boolean, val playbackSpeed: Float): UiState()
+    data class Paused(val articleAudio: ArticleAudio, val expanded: Boolean, val playbackSpeed: Float): UiState()
 
     /**
      * @param wasHandled true if the error has already been presented to a user by any active player
      */
-    data class Error(val expanded: Boolean, val wasHandled: Boolean, val articleAudio: ArticleAudio?, val cause: AudioPlayerException?): UiState()
+    data class Error(val expanded: Boolean, val wasHandled: Boolean, val playbackSpeed: Float, val articleAudio: ArticleAudio?, val cause: AudioPlayerException?): UiState()
 }

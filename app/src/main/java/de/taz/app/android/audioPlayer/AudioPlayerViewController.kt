@@ -150,7 +150,7 @@ class AudioPlayerViewController(
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
                     enableCollapseOnTouchOutsideForMobile()
-                    showExpandedPlayer(isPlaying = false)
+                    showExpandedPlayer(isPlaying = false, uiState.playbackSpeed)
                     enableBackHandling()
                 } else {
                     showSmallPlayer(isPlaying = false)
@@ -161,7 +161,7 @@ class AudioPlayerViewController(
                 bindArticleAudio(uiState.articleAudio)
                 if (uiState.expanded) {
                     enableCollapseOnTouchOutsideForMobile()
-                    showExpandedPlayer(isPlaying = true)
+                    showExpandedPlayer(isPlaying = true, uiState.playbackSpeed)
                     enableBackHandling()
                 } else {
                     disableCollapseOnTouchOutsideForMobile()
@@ -305,7 +305,7 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioplayerOverlayBinding.showExpandedPlayer(isPlaying: Boolean) {
+    private fun AudioplayerOverlayBinding.showExpandedPlayer(isPlaying: Boolean, playbackSpeed: Float) {
         positionPlayerViews(isExpanded = true)
         showOverlay()
         smallPlayer.isVisible = false
@@ -317,6 +317,10 @@ class AudioPlayerViewController(
             R.drawable.ic_play_outline
         }
         expandedAudioAction.setImageResource(imageResourceId)
+        expandedPlaybackSpeed.apply {
+            val playbackSpeedString = playbackSpeed.toString().removeSuffix("0").removeSuffix(".")
+            text = resources.getString(R.string.audioplayer_playback_speed, playbackSpeedString)
+        }
     }
 
     private fun ensurePlayerOverlayIsAddedInFront() {
@@ -429,7 +433,6 @@ class AudioPlayerViewController(
         }
     }
 
-
     private fun AudioplayerOverlayBinding.setupUserInteractionHandlers() {
         closeButton.setOnClickListener { audioPlayerService.dismissPlayer() }
 
@@ -451,6 +454,11 @@ class AudioPlayerViewController(
             // Catch all clicks on the overlay view to prevent overlaying items from being clicked
         }
 
+        expandedPlaybackSpeedTouchArea.setOnClickListener {
+            launch {
+                togglePlaybackSpeed()
+            }
+        }
 
         if (!isTabletMode) {
             touchOutside.setOnClickListener {
@@ -470,7 +478,6 @@ class AudioPlayerViewController(
             }
         }
     }
-
 
     private fun toggleAudioPlaying() {
         audioPlayerService.toggleAudioPlaying()
@@ -493,6 +500,21 @@ class AudioPlayerViewController(
             }
             activity.startActivity(intent)
         }
+    }
+
+    /**
+     * Toggle between the playback speeds in the following order:
+     * 1 -> 1.5 -> 2 -> 0.5 -> 1 ...
+     * If a unspecified value is encountered the playback speed is returned to 1
+     */
+    private suspend fun togglePlaybackSpeed() {
+        val playbackSpeed = when (audioPlayerService.getPlaybackSpeed()) {
+            1F -> 1.5F
+            1.5F -> 2F
+            2F -> 0.5F
+            else -> 1F
+        }
+        audioPlayerService.setPlaybackSpeed(playbackSpeed)
     }
 
     /**
