@@ -13,7 +13,10 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.matomo.sdk.Matomo
 import org.matomo.sdk.QueryParams
 import org.matomo.sdk.TrackMe
@@ -37,9 +40,7 @@ private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
 
 private const val SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1_000 // 2h
 
-class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
-
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+class MatomoTracker(applicationContext: Context) : Tracker {
 
     private val log by Log
 
@@ -60,21 +61,19 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
         }
     }
 
-    private fun onNewSession() {
-        launch {
-            when (authHelper.status.get()) {
-                AuthStatus.valid -> trackUserAuthenticatedState()
-                AuthStatus.elapsed -> {
-                    trackUserAuthenticatedState()
-                    trackUserSubscriptionElapsedEvent()
-                }
-
-                AuthStatus.notValid -> trackUserAnonymousState()
-
-                // These status won't occur as a result of an authentication - only during the login process itself.
-                // They won't ever be set to AuthHelper.status and can be ignored
-                AuthStatus.tazIdNotLinked, AuthStatus.alreadyLinked, AuthStatus.notValidMail -> Unit
+    private suspend fun onNewSession() {
+        when (authHelper.status.get()) {
+            AuthStatus.valid -> trackUserAuthenticatedState()
+            AuthStatus.elapsed -> {
+                trackUserAuthenticatedState()
+                trackUserSubscriptionElapsedEvent()
             }
+
+            AuthStatus.notValid -> trackUserAnonymousState()
+
+            // These status won't occur as a result of an authentication - only during the login process itself.
+            // They won't ever be set to AuthHelper.status and can be ignored
+            AuthStatus.tazIdNotLinked, AuthStatus.alreadyLinked, AuthStatus.notValidMail -> Unit
         }
     }
 
@@ -537,13 +536,21 @@ class MatomoTracker(applicationContext: Context) : Tracker, CoroutineScope {
 }
 
 /**
- * Wrapper around [org.matomo.sdk.Tracker] calling [onNewSession] when the first event of a new session is sent.
+ * Wrapper around [org.matomo.sdk.Tracker] which is aware of special handling for new sessions.
+ *
+ * - It is calling [onNewSession] after the first event of a new session was sent.
+ * - It delays all events of a new session to ensure they have a different event datetime string,
+ *   then the event before to prevent a bug in the visit/session handling of the matomo server.
  */
 private class SessionAwareTracker(
     matomo: Matomo,
     config: TrackerBuilder,
-    private val onNewSession: () -> Unit
-) : org.matomo.sdk.Tracker(matomo, config) {
+    private val onNewSession: suspend () -> Unit
+) : org.matomo.sdk.Tracker(matomo, config), CoroutineScope {
+
+    // Use a single thread (the main thread) for dispatching tracking events. By using .immediate the
+    // coroutine is executed immediately if we are already on the main thread.
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main.immediate
 
     companion object {
         private const val MATOMO_TRUE_VALUE: String = "1"
@@ -553,18 +560,67 @@ private class SessionAwareTracker(
         requireNotNull(config.applicationBaseUrl) { "TrackerBuilder must contain a valid applicationBaseUrl" }
     }
 
-    // Circuit breaker to prevent from infinite recursion in case of onNewSession calling track() with another event
-    private var isInNewSessionHandling = false
+    // Mutex used to guard changes to [newSessionRequested] and [lastEventTimeMs] properties.
+    // Locking a mutex is fair: the first to await it will get a lock on it first, thus we get some
+    // kind of queue with it.
+    private val mutex = Mutex()
+
+    // True when a new session was requested via [startNewSession()]. We can't handle the case of
+    // new sessions due to the internal timeouts within [org.matomo.sdk.Tracker]
+    private var newSessionRequested = false
+
+    // Matomo gets confused with visits/sessions if the last event has the same timestamp as the
+    // event with the new_visit parameter. Thus we store the timestamp of every tracked event and
+    // delay all tracking events in case a new session was requested.
+    private var lastEventTimeMs = 0L
+
+    override fun startNewSession() {
+        launch {
+            mutex.withLock {
+                newSessionRequested = true
+                super.startNewSession()
+            }
+        }
+    }
 
     override fun track(trackMe: TrackMe): org.matomo.sdk.Tracker {
-        super.track(trackMe)
+        launch {
+            var isNewSession = false
+            mutex.withLock {
+                // Determine if we have to delay this event in case a new session was requested.
+                if (newSessionRequested) {
+                    val now = System.currentTimeMillis()
+                    val diff = now - lastEventTimeMs
+                    if (diff < 1_000L) {
+                        val msUntilNextSecond = 1_000L - (now % 1_000L)
+                        // Give an additional 10ms buffer to delay to be sure we are on the next second
+                        val delayMs = msUntilNextSecond + 10L
 
-        val sessionStartParam: String? = trackMe.get(QueryParams.SESSION_START)
-        if (sessionStartParam == MATOMO_TRUE_VALUE && !isInNewSessionHandling) {
-            isInNewSessionHandling = true
-            onNewSession()
-            isInNewSessionHandling = false
+                        // Delaying the execution while holding the mutex is fine, because this
+                        // will ensure that every following event will already have a different
+                        // datetime string. The order of the events is kept, as the mutex is FIFO
+                        delay(delayMs)
+                    }
+                }
+
+                // Store this events time and let the super implementation handle the actual tracking
+                lastEventTimeMs = System.currentTimeMillis()
+                super.track(trackMe)
+
+                // Test if this event did create a new session
+                val sessionStartParam: String? = trackMe.get(QueryParams.SESSION_START)
+                if (sessionStartParam == MATOMO_TRUE_VALUE) {
+                    newSessionRequested = false
+                    isNewSession = true
+                }
+            }
+
+            // Finally, after the mutex is returned, the onNewSession callback may be triggered
+            if (isNewSession) {
+                onNewSession()
+            }
         }
+
         return this
     }
 }
