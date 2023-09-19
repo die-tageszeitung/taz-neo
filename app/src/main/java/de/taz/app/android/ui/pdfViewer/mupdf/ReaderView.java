@@ -129,6 +129,18 @@ public class ReaderView
             slideViewOntoScreen(v);
     }
 
+    public void scrollToRightSide() {
+        mScrollerLastX = mScrollerLastY = 0;
+        mScroller.startScroll(0, 0, -getWidth(), 0, 400);
+        mStepper.prod();
+    }
+
+    public void scrollToLeftSide() {
+        mScrollerLastX = mScrollerLastY = 0;
+        mScroller.startScroll(0, 0, getWidth(), 0, 400);
+        mStepper.prod();
+    }
+
     public void moveToPrevious() {
         View v = mChildViews.get(mCurrent - 1);
         if (v != null)
