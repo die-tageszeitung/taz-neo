@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.coachMarks.DrawerLogoCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
@@ -219,7 +220,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 imageDrawable.intrinsicHeight.toFloat(),
                 resources.displayMetrics
             ) * scaleFactor
-
             withContext(Dispatchers.Main) {
                 viewBinding.apply {
                     drawerLogo.setImageDrawable(imageDrawable)
@@ -234,6 +234,9 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     }
                 }
             }
+
+            DrawerLogoCoachMark(requireContext(), viewBinding.drawerLogo, imageDrawable)
+                .maybeShow()
         }
     }
 

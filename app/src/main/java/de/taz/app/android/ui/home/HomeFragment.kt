@@ -13,6 +13,8 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.ArchiveCoachMark
+import de.taz.app.android.coachMarks.FabCoachMark
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -27,6 +29,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.Date
+
 
 class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     val log by Log
@@ -115,6 +118,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                                 onHome = true
                                 enableRefresh()
                             }
+
                             ARCHIVE_PAGER_POSITION -> {
                                 onHome = false
                                 setHomeIconFilled(false)
@@ -164,6 +168,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
                 homePageViewModel.togglePdfMode()
             }
+        }
+        lifecycleScope.launch {
+            FabCoachMark(requireContext(), viewBinding.fabActionPdf)
+                .maybeShow()
+            ArchiveCoachMark(requireContext())
+                .maybeShow()
         }
     }
 

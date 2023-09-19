@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.webkit.WebView
-import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -37,7 +36,6 @@ import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -106,8 +104,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     override fun onStop() {
         loggedOutDialog?.dismiss()
         loggedOutDialog = null
-        tryPdfDialog?.dismiss()
-        tryPdfDialog = null
         super.onStop()
     }
 
@@ -130,7 +126,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
         val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         val isPdfMode = generalDataStore.pdfMode.get()
-        val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
         val allowNotificationsDoNotShowAgain =
             generalDataStore.allowNotificationsDoNotShowAgain.get()
         val allowNotificationsLastTimeShown = generalDataStore.allowNotificationsLastTimeShown.get()
@@ -154,8 +149,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             trackingOptInBottomSheetConditions -> showTrackingConsentBottomSheet(
                 allowNotificationsBottomSheetConditions
             )
-
-            !isPdfMode && timesPdfShown < 1 -> showTryPdfDialog()
             allowNotificationsBottomSheetConditions -> showAllowNotificationsBottomSheet()
             else -> Unit // do nothing else
         }
@@ -200,29 +193,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
         loggedOutDialog?.show()
         tracker.trackPdfModeLoginHintDialog()
-    }
-
-    private var tryPdfDialog: AlertDialog? = null
-    private suspend fun showTryPdfDialog() {
-        val timesPdfShown = generalDataStore.tryPdfDialogCount.get()
-        tryPdfDialog = MaterialAlertDialogBuilder(this)
-            .setView(R.layout.dialog_try_pdf)
-            .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                applicationScope.launch(Dispatchers.Main) {
-                    generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                    dialog.dismiss()
-                }
-            }
-            .create()
-
-        tryPdfDialog?.show()
-        tracker.trackPdfModeSwitchHintDialog()
-        tryPdfDialog?.findViewById<ImageButton>(R.id.button_close)?.setOnClickListener {
-            applicationScope.launch(Dispatchers.Main) {
-                generalDataStore.tryPdfDialogCount.set(timesPdfShown + 1)
-                tryPdfDialog?.dismiss()
-            }
-        }
     }
 
     fun showHome() {
@@ -273,7 +243,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private fun isShowingDialog(): Boolean {
         return loggedOutDialog?.isShowing == true
-                || tryPdfDialog?.isShowing == true
                 || supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(AllowNotificationsBottomSheetFragment.TAG) != null
                 || supportFragmentManager.findFragmentByTag(TrackingConsentBottomSheet.TAG) != null

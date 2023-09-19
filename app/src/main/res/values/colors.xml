@@ -23,10 +23,10 @@
     <color name="darkGreen">#228400</color>
     <color name="darkOrange">#BA5900</color>
     <color name="darkGreyEightyPercentOpacity">#CC242424</color>
+    <color name="blackEightyPercentOpacity">#CC000000</color>
 
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
-    <color name="dialog_try_pdf_text">@color/black</color>
     <color name="bottom_sheet_text_color">@color/black</color>
     <color name="navigation_bottom_highlight">@color/black</color>
     <color name="textColor">@color/black</color>

@@ -21,9 +21,7 @@ private const val PREFERENCES_TAZ_API_CSS = "preferences_tazapicss"
 // region setting keys
 private const val DISPLAY_CUTOUT_EXTRA_PADDING = "display_cutout_extra_padding"
 private const val FIRST_APP_START = "first_time_app_starts"
-private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 private const val PDF_MODE = "pdf_mode"
-private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
 private const val ALLOW_NOTIFICATIONS_DO_NOT_SHOW_AGAIN = "allow_notifications_do_not_show_again"
 private const val ALLOW_NOTIFICATIONS_LAST_TIME_SHOWN = "allow_notifications_last_time_shown"
 private const val APP_SESSION_COUNT = "app_session_count"
@@ -34,6 +32,8 @@ private const val CONSENT_TO_TRACKING = "consent_to_tracking"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
+private const val TRY_PDF_DIALOG_COUNT = "try_pdf_shown"
+private const val DRAWER_SHOWN_COUNT = "DRAWER_SHOWN_NUMBER"
 // endregion
 
 private val Context.generalDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -44,7 +44,7 @@ private val Context.generalDataStore: DataStore<Preferences> by preferencesDataS
                 it,
                 PREFERENCES_TAZ_API_CSS,
                 keysToMigrate = setOf(
-                    DATA_POLICY_ACCEPTED, FIRST_APP_START, DRAWER_SHOWN_COUNT, PDF_MODE, TRY_PDF_DIALOG_COUNT
+                    DATA_POLICY_ACCEPTED, FIRST_APP_START, PDF_MODE
                 )
             ),
         )
@@ -65,20 +65,12 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(FIRST_APP_START), false
     )
 
-    val drawerShownCount: DataStoreEntry<Int> = SimpleDataStoreEntry(
-        dataStore, intPreferencesKey(DRAWER_SHOWN_COUNT), 0
-    )
-
     /* The lmd build variant has pdf as its default and only mode.
        That's why the default value for the pdfMode entry depends on whether
        we have the lmd variant or not.
      */
     val pdfMode: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(PDF_MODE), BuildConfig.IS_LMD
-    )
-
-    val tryPdfDialogCount: DataStoreEntry<Int> = SimpleDataStoreEntry(
-        dataStore, intPreferencesKey(TRY_PDF_DIALOG_COUNT), 0
     )
 
     val allowNotificationsDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
@@ -115,6 +107,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
             it.remove(booleanPreferencesKey(ENABLE_EXPERIMENTAL_ARTICLE_READER))
             // The data policy activity screen was removed with version 1.7.3
             it.remove(booleanPreferencesKey(DATA_POLICY_ACCEPTED))
+            // The try pdf dialog was removed in version after 1.7.4
+            it.remove(intPreferencesKey(TRY_PDF_DIALOG_COUNT))
+            // The counting of the drawer opening was removed in version after 1.7.4
+            it.remove(intPreferencesKey(DRAWER_SHOWN_COUNT))
         }
     }
 }

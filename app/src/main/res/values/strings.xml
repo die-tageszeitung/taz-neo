@@ -366,10 +366,6 @@
     <string name="fragment_login_taz_mail">app@taz.de</string>
     <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
 
-    <string name="dialog_try_pdf_figure_alt_text">Abbildung, die den Zeitungsumschaltknopf ganz links in der Menüleiste zeigt</string>
-    <string name="dialog_try_pdf_title">Entdecken Sie jetzt die Zeitungsansicht</string>
-    <string name="dialog_try_pdf_description">Hier können Sie zwischen der mobilen und der Ansicht der Zeitungsseiten wechseln.</string>
-
     <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler:innen sind informiert.</string>
 
     <string name="button_close_text">Schließen</string>
@@ -471,4 +467,22 @@
 
     <string name="faq_link" translatable="false">https://dl.taz.de/faq</string>
     <string name="app_free_download_link" translatable="false">https://taz.de/Abo/App/!p4791/</string>
+
+    <!-- region coach marks  -->
+    <string name="coach_mark_fab_title">Wie sieht’s denn hier aus?</string>
+    <string name="coach_mark_fab_text">Wie Sie lesen, ist ihr Bier – umschalten aufs gewohnte Zeitungslayout geht hier!</string>
+
+    <string name="coach_mark_archive_title">All you can read</string>
+    <string name="coach_mark_archive_text">Für die Übersicht aller Ausgaben auf einen Blick: Einfach nach oben scrollen.</string>
+
+    <string name="coach_mark_taz_logo_title">Alles auf einen Klick</string>
+    <string name="coach_mark_taz_logo_text">Für den vollen Durchblick einfach das Logo antippen – hier findet sich die vollständige Inhaltsangabe der Ausgabe.</string>
+
+    <string name="coach_mark_horizontal_swipe_title">Unbestimmte Artikel</string>
+    <string name="coach_mark_horizontal_swipe_text">Ressorts und Artikel einfach genüsslich durchstöbern, indem man nach links und rechts wischt.</string>
+
+    <string name="coach_mark_article_audio_title">Lesen und lesen lassen.</string>
+    <string name="coach_mark_article_audio_text">Wer hören will, muss klicken: Hinter diesem Symbol verbirgt sich unsere tolle Vorlesefunktion – einfach mal ausprobieren!</string>
+    <!-- endregion -->
+
 </resources>

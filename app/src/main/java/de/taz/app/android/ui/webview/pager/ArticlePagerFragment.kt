@@ -27,6 +27,7 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -140,6 +141,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             // reset swiped flag on navigating away from article pager
             if (it != IssueContentDisplayMode.Article) {
                 hasBeenSwiped = false
+            } else {
+                // We show here the couch mark for audio of the article. It is at this place because
+                // the [ArticlePagerFragment] is always created in the [IssueViewerActivity], even if
+                // a section is shown. But the [activeDisplayMode] gives us the indication that we
+                // are on an article.
+                lifecycleScope.launch {
+                    ArticleAudioCoachMark(
+                        requireContext(),
+                        viewBinding.navigationBottomLayout
+                            .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+                    ).maybeShow()
+                }
             }
         }
         issueContentViewModel.goNextArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
