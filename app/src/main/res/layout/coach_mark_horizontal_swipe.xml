@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blackEightyPercentOpacity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:rotation="-7">
+
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/coach_mark_horizontal_swipe_title" />
+
+            <TextView
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_header"
+                android:text="@string/coach_mark_horizontal_swipe_text" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_text_layout"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/ic_scroll_horizontal" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/button_close"
+        android:layout_width="@dimen/coach_mark_button_close_size"
+        android:layout_height="@dimen/coach_mark_button_close_size"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
+        android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
+        android:contentDescription="@string/close_button"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close_audio_player"
+        app:tint="@color/lightGrey" />
+
+</RelativeLayout>

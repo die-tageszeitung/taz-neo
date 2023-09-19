@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blackEightyPercentOpacity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+        android:paddingBottom="@dimen/coach_mark_text_layout_padding_bottom"
+        android:rotation="-7">
+
+        <TextView
+            android:id="@+id/coach_mark_header"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/coach_mark_fab_title" />
+
+        <TextView
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_header"
+            android:text="@string/coach_mark_fab_text" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/button_close"
+        android:layout_width="@dimen/coach_mark_button_close_size"
+        android:layout_height="@dimen/coach_mark_button_close_size"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
+        android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
+        android:contentDescription="@string/close_button"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close_audio_player"
+        app:tint="@color/lightGrey" />
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_icon_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_action_pdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/bottom_navigation_action_pdf"
+            android:elevation="0dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_pdf_view"
+            app:backgroundTint="@color/blackEightyPercentOpacity"
+            app:maxImageSize="@dimen/bottom_navigation_icon_size"
+            app:tint="@color/white" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/coach_mark_arrow"
+        android:layout_width="1dp"
+        android:layout_height="55dp"
+        android:background="@color/white"
+        android:backgroundTint="@color/white"
+        android:paddingStart="40dp"
+        android:paddingBottom="50dp"
+        android:rotation="10"
+        tools:ignore="RtlSymmetry" />
+
+</RelativeLayout>

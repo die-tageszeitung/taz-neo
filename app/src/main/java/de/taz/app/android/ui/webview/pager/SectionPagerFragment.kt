@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -13,6 +12,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.HorizontalSwipeCoachMark
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -61,7 +61,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             tryScrollToSection()
         }
 
-
+        lifecycleScope.launch {
+            HorizontalSwipeCoachMark(requireContext())
+                .maybeShow()
+        }
     }
 
     private fun setupViewPager() {

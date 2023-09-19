@@ -17,14 +17,11 @@ import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
-import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 
 /**
  * Show an Issue with sections and articles in their respective pager fragments
@@ -81,22 +78,6 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                 tazApiCssDataStore.keepScreenOn.asFlow().collect {
                     KeepScreenOnHelper.toggleScreenOn(it, activity)
                 }
-            }
-        }
-
-        lifecycleScope.launchWhenResumed {
-            val timesDrawerShown = generalDataStore.drawerShownCount.get()
-            val isDrawerClosed = drawerAndLogoViewModel.drawerState.value is DrawerState.Closed
-            if (isDrawerClosed && timesDrawerShown < DRAWER_SHOW_NUMBER) {
-                delay(500)
-                drawerAndLogoViewModel.openDrawer()
-                // Wait for the issue to be set on the ViewModel
-                viewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                    .filterNotNull()
-                    .first()
-                delay(1500)
-                drawerAndLogoViewModel.closeDrawer()
-                generalDataStore.drawerShownCount.set(timesDrawerShown + 1)
             }
         }
     }

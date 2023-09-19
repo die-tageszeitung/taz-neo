@@ -314,6 +314,16 @@
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>
     <!-- endregion -->
 
+    <!-- region coach marks  -->
+    <dimen name="coach_mark_text_layout_margin_start">50dp</dimen>
+    <dimen name="coach_mark_text_layout_margin_end">25dp</dimen>
+    <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
+    <dimen name="coach_mark_button_close_size">32dp</dimen>
+    <dimen name="coach_mark_button_close_margin_top">60dp</dimen>
+    <dimen name="coach_mark_button_close_margin_end">18dp</dimen>
+    <dimen name="coach_mark_archive_padding_bottom">89dp</dimen>
+    <!-- endregion -->
+
     <!--    special dimens -->
     <!--    dimen equals to match_parent (see https://stackoverflow.com/questions/16478808/value-equals-to-match-parent-or-fill-parent-in-dimens-xml) -->
     <dimen name="custom_match_parent">-1px</dimen>

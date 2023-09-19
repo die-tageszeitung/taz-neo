@@ -539,4 +539,18 @@
         <item name="android:lineSpacingExtra">15sp</item>
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
     </style>
+
+    <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.CoachMark.Text" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
 </resources>
