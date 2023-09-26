@@ -547,8 +547,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         // this we added the split and get(0) to get the first page number.
         val firstPageNum = pageRepository.getStub(pageFileName)?.pagina?.split('-')?.get(0)
         viewBinding.header.apply {
-            section.isVisible = false
-            articleNum.apply {
+            articleNum.isVisible = false
+            section.apply {
                 text = getString(R.string.fragment_header_article_pagina, firstPageNum)
                 setOnClickListener {
                     pdfPagerViewModel.goToPdfPage(pageFileName)

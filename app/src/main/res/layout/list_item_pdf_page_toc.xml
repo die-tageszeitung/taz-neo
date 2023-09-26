@@ -27,7 +27,7 @@
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"
         android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
-        app:layout_constraintEnd_toEndOf="@id/article_title"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_title"
         android:visibility="gone"

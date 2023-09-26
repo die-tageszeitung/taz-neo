@@ -7,17 +7,26 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/fragment_padding_horizontal">
 
-    <ImageView
-        android:id="@+id/fragment_bookmarks_moment_image"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/fragment_bookmarks_moment_card"
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/fragment_bookmarks_issue_header_moment_height"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_moment_margin_top"
-        android:adjustViewBounds="true"
-        android:elevation="@dimen/fragment_bookmarks_issue_header_moment_elevation"
+        app:cardCornerRadius="@dimen/fragment_bookmarks_issue_header_moment_elevation_corners"
+        app:cardElevation="@dimen/fragment_bookmarks_issue_header_moment_elevation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription"
-        tools:src="@tools:sample/avatars" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/fragment_bookmarks_moment_image"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/fragment_bookmarks_issue_header_moment_height"
+            android:adjustViewBounds="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription"
+            tools:src="@tools:sample/avatars" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/fragment_bookmarks_issue_header_date"
@@ -26,7 +35,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/fragment_bookmarks_issue_header_date_margin_start"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/fragment_bookmarks_moment_image"
+        app:layout_constraintStart_toEndOf="@id/fragment_bookmarks_moment_card"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="donnerstag, 24.2.22" />
 
@@ -35,7 +44,7 @@
         android:layout_height="@dimen/fragment_bookmarks_issue_header_dotted_line_height"
         android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_dotted_line_margin_top"
         android:src="@drawable/dotted_line_bookmarks"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bookmarks_moment_image"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bookmarks_moment_card"
         tools:ignore="ContentDescription" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
