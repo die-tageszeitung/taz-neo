@@ -13,7 +13,6 @@ import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -144,8 +143,7 @@ class DrawerBodyPdfWithSectionsFragment :
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
-            }
-            else {
+            } else {
                 toastHelper.showToast(R.string.toast_article_debookmarked)
             }
         }
@@ -174,8 +172,6 @@ class DrawerBodyPdfWithSectionsFragment :
      * Refreshes what page is shown as the current page in the drawer.
      */
     private fun refreshCurrentPage() {
-//        TODO(peter) Adjust size for panorama pages
-
         pdfPagerViewModel.currentPage.value?.let { currentPage ->
             storageService.getAbsolutePath(currentPage.pagePdf)?.let { pagePdfUri ->
                 val signature = currentPage.pagePdf.dateDownload
@@ -188,12 +184,10 @@ class DrawerBodyPdfWithSectionsFragment :
                     .into(viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageImage)
             }
 
-            viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text =
-                resources.getQuantityString(
-                    R.plurals.pages,
-                    if (currentPage.type == PageType.panorama) 2 else 1,
-                    currentPage.pagina
-                )
+            viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.text = getString(
+                R.string.fragment_header_article_pagina,
+                pdfPagerViewModel.currentPage.value?.pagina?.split("-")?.get(0)
+            )
         }
     }
 

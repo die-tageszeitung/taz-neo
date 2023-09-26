@@ -36,6 +36,7 @@
 
     <TextView
         android:id="@+id/article_author_and_read_minutes"
+        style="@style/TextAppearance.Drawer.PDF.Entry.Author"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"

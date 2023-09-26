@@ -141,6 +141,8 @@
 
     <style name="TextAppearance.Drawer.PDF.Entry.Author" parent="TextAppearance.Bookmarks.Entry.Author">
         <item name="android:textSize">@dimen/list_item_pdf_page_toc_text_size</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
 
     <style name="TextAppearance.Drawer.PDF.Entry.ReadMinutes" parent="TextAppearance.Bookmarks.Entry.ReadMinutes">
