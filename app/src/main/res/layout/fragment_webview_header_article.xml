@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.appbar.MaterialToolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/backgroundColor">
@@ -30,7 +30,8 @@
                 android:layout_marginRight="@dimen/fragment_header_article_num_margin_horizontal"
                 android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/section" />
+                app:layout_constraintEnd_toStartOf="@id/section"
+                tool:text="2/5" />
 
             <TextView
                 android:id="@+id/section"
@@ -40,6 +41,7 @@
                 android:clipToPadding="false"
                 android:textAlignment="viewEnd"
                 app:layout_constraintBottom_toBottomOf="parent"
+                tool:text="inland"
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 

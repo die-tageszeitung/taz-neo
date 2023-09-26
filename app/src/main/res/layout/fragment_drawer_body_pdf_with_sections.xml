@@ -71,7 +71,7 @@
             android:textColor="@color/pdf_section_font"
             android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
             app:layout_constraintEnd_toStartOf="@id/fragment_drawer_body_pdf_with_sections_title"
-            app:layout_constraintBottom_toBottomOf="@id/fragment_drawer_body_pdf_with_sections_current_page_title" />
+            app:layout_constraintBaseline_toBaselineOf="@id/fragment_drawer_body_pdf_with_sections_current_page_title" />
 
         <TextView
             android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
@@ -81,7 +81,7 @@
             android:textColor="@color/pdf_section_font"
             android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
+            app:layout_constraintBaseline_toBaselineOf="@id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
             tools:text="März 2023" />
 
         <View

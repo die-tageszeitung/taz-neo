@@ -8,7 +8,7 @@
     <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">17sp</dimen>
     <dimen name="drawer_margin_horizontal">18dp</dimen>
     <dimen name="list_item_pdf_page_toc_text_size">15sp</dimen>
-    <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">3.5sp</dimen>
+    <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="text_appearance_archive_date_text_size">13sp</dimen>

@@ -4,4 +4,10 @@
     <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
         <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
     </style>
+
+    <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">@dimen/fragment_webview_header_page_text_size</item>
+    </style>
 </resources>

@@ -46,7 +46,7 @@
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
-    <dimen name="fragment_drawer_separator_margin_top">4dp</dimen>
+    <dimen name="fragment_drawer_separator_margin_top">8dp</dimen>
     <dimen name="fragment_drawer_card_width">62dp</dimen>
     <dimen name="fragment_drawer_card_height">92dp</dimen>
 
@@ -133,6 +133,7 @@
     <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
     <dimen name="fragment_webview_header_padding_top">65dp</dimen>
+    <dimen name="fragment_webview_header_page_text_size">15sp</dimen>
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
@@ -201,7 +202,8 @@
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_margin_top">8dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_moment_elevation">1dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_moment_elevation">4dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_moment_elevation_corners">0dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_date_margin_start">10dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_date_text_size">18sp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_height">3dp</dimen>
