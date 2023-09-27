@@ -28,6 +28,9 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
+import de.taz.app.android.coachMarks.ArticleShareCoachMark
+import de.taz.app.android.coachMarks.ArticleSizeCoachMark
+import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
@@ -67,6 +70,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var coachMarkDataStore: CoachMarkDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
@@ -95,6 +99,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         pageRepository = PageRepository.getInstance(context.applicationContext)
+        coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
@@ -148,9 +153,21 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 // are on an article.
                 lifecycleScope.launch {
                     ArticleAudioCoachMark(
-                        requireContext(),
+                        this@ArticlePagerFragment,
                         viewBinding.navigationBottomLayout
                             .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+                    ).maybeShow()
+                    ArticleSizeCoachMark(
+                        this@ArticlePagerFragment,
+                        viewBinding.navigationBottomLayout
+                            .findViewById<View?>(R.id.bottom_navigation_action_size)
+                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+                    ).maybeShow()
+                    ArticleShareCoachMark(
+                        this@ArticlePagerFragment,
+                        viewBinding.navigationBottomLayout
+                            .findViewById<View?>(R.id.bottom_navigation_action_share)
                             .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
                     ).maybeShow()
                 }
@@ -353,14 +370,25 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
 
-            R.id.bottom_navigation_action_share ->
+            R.id.bottom_navigation_action_share -> {
                 share()
-
+                lifecycleScope.launch {
+                    ArticleShareCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
+            }
             R.id.bottom_navigation_action_size -> {
                 showBottomSheet(TextSettingsFragment())
+                lifecycleScope.launch {
+                    ArticleSizeCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
             }
 
-            R.id.bottom_navigation_action_audio -> audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()
+            R.id.bottom_navigation_action_audio -> {
+                audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()
+                lifecycleScope.launch {
+                    ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
+            }
         }
     }
 

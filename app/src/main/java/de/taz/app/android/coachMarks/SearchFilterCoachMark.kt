@@ -1,15 +1,15 @@
 package de.taz.app.android.coachMarks
 
 import android.content.Context
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.widget.ImageView
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.search.SearchActivity
 
 
-class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionButton) :
-    BaseCoachMark(homeFragment) {
+class SearchFilterCoachMark(searchActivity: SearchActivity, private val view: ImageView) :
+    BaseCoachMark(searchActivity, searchActivity.lifecycle) {
 
     companion object {
         suspend fun setFunctionAlreadyDiscovered(context: Context) {
@@ -17,7 +17,7 @@ class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionBu
             val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
 
             val currentAppSession = generalDataStore.appSessionCount.get()
-            coachMarkDataStore.fabCoachMarkShown.set(
+            coachMarkDataStore.searchFilterCoachMarkShown.set(
                 currentAppSession
             )
         }
@@ -26,17 +26,21 @@ class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionBu
     override suspend fun maybeShowInternal() {
 
         if (coachMarkDataStore.alwaysShowCoachMarks.get()) {
-            getLocationAndShowLayout(fab, R.layout.coach_mark_fab)
+            getLocationAndShowLayout(view, R.layout.coach_mark_search_filter)
             return
         }
 
-        val pdfMode = generalDataStore.pdfMode.get()
-        val currentAppSession = generalDataStore.appSessionCount.get()
-        val coachMarkFabShownOnSession = coachMarkDataStore.fabCoachMarkShown.get()
+        coachMarkDataStore.searchActivityShown.set(
+            coachMarkDataStore.searchActivityShown.get() + 1L
+        )
 
-        if (!pdfMode && coachMarkFabShownOnSession == 0L) {
-            getLocationAndShowLayout(fab, R.layout.coach_mark_fab)
-            coachMarkDataStore.fabCoachMarkShown.set(
+        val currentAppSession = generalDataStore.appSessionCount.get()
+        val thisCoachMarkShownOnSession = coachMarkDataStore.searchFilterCoachMarkShown.get()
+        val searchActivityShownAmount = coachMarkDataStore.searchActivityShown.get()
+
+        if (thisCoachMarkShownOnSession == 0L && searchActivityShownAmount > COACH_MARK_PRIO4) {
+            getLocationAndShowLayout(view, R.layout.coach_mark_search_filter)
+            coachMarkDataStore.searchFilterCoachMarkShown.set(
                 currentAppSession
             )
             incrementCoachMarksShownInSession()

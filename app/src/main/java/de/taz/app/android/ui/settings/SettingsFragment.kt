@@ -998,6 +998,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                             viewModel.forceNewAppSession()
                         }
                     }
+                    fragmentSettingsCoachMarksAlways.apply {
+                        isChecked = viewModel.getAlwaysShowCoachMarks()
+                        setOnClickListener {
+                            viewModel.setAlwaysShowCoachMarks(fragmentSettingsCoachMarksAlways.isChecked)
+                        }
+                    }
 
                 }
             }

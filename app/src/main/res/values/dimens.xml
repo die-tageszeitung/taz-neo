@@ -196,6 +196,11 @@
     <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
     <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
+    <dimen name="fragment_bookmarks_description_icon_size">48dp</dimen>
+    <dimen name="fragment_bookmarks_description_text_size">16sp</dimen>
+    <dimen name="fragment_bookmarks_description_text_line_spacing_extra">3.2sp</dimen>
+    <dimen name="fragment_bookmarks_description_margin_horizontal">45dp</dimen>
+    <dimen name="fragment_bookmarks_description_icon_margin_bottom">20dp</dimen>
     <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
     <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
     <dimen name="grotesk_font_adjustment">0dp</dimen>
@@ -248,7 +253,7 @@
     <dimen name="search_icon_size">38dp</dimen>
     <dimen name="search_icon_padding_vertical">7dp</dimen>
     <dimen name="search_description_text_size">20sp</dimen>
-    <dimen name="search_description_text_line_spacing_extra">5sp</dimen>
+    <dimen name="search_description_text_line_spacing_extra">5.6sp</dimen>
     <dimen name="search_description_icon_size">48dp</dimen>
     <dimen name="search_result_title_text_size">17.5sp</dimen>
     <dimen name="search_result_title_line_spacing_extra">3.5sp</dimen>
@@ -319,11 +324,15 @@
     <!-- region coach marks  -->
     <dimen name="coach_mark_text_layout_margin_start">50dp</dimen>
     <dimen name="coach_mark_text_layout_margin_end">25dp</dimen>
+    <dimen name="coach_mark_text_layout_margin_top">10dp</dimen>
     <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
     <dimen name="coach_mark_button_close_size">32dp</dimen>
     <dimen name="coach_mark_button_close_margin_top">60dp</dimen>
     <dimen name="coach_mark_button_close_margin_end">18dp</dimen>
-    <dimen name="coach_mark_archive_padding_bottom">89dp</dimen>
+
+    <dimen name="coach_mark_drawer_logo_text_layout_padding_top">190dp</dimen>
+    <dimen name="coach_mark_article_padding_bottom">166dp</dimen>
+
     <!-- endregion -->
 
     <!--    special dimens -->

@@ -5,23 +5,45 @@ import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.widget.ImageView
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.CoachMarkDataStore
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.ui.TazViewerFragment
 
 
-class DrawerLogoCoachMark(private val context: Context, private val drawerLogo: ImageView, private val logo: Drawable) :
-    BaseCoachMark(context) {
-    override suspend fun maybeShow() {
+class DrawerLogoCoachMark(tazViewerFragment: TazViewerFragment, private val drawerLogo: ImageView, private val logo: Drawable) :
+    BaseCoachMark(tazViewerFragment) {
 
-        if (authHelper.isLoggedIn()) {
+    private val context = tazViewerFragment.requireContext()
+
+    companion object {
+        suspend fun setFunctionAlreadyDiscovered(context: Context) {
+            val generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+            val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
+
             val currentAppSession = generalDataStore.appSessionCount.get()
-            val coachMarkDrawerLogoShownOnSession =
-                coachMarkDataStore.drawerLogoCoachMarkShown.get()
+            coachMarkDataStore.drawerLogoCoachMarkShown.set(
+                currentAppSession
+            )
+        }
+    }
 
-            if (coachMarkDrawerLogoShownOnSession == 0L) {
-                getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_taz_logo)
-                coachMarkDataStore.drawerLogoCoachMarkShown.set(
-                    currentAppSession
-                )
-            }
+    override suspend fun maybeShowInternal() {
+
+        if (coachMarkDataStore.alwaysShowCoachMarks.get()) {
+            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_taz_logo)
+            return
+        }
+
+        val coachMarkDrawerLogoShownOnSession =
+            coachMarkDataStore.drawerLogoCoachMarkShown.get()
+
+        if (coachMarkDrawerLogoShownOnSession == 0L) {
+            val currentAppSession = generalDataStore.appSessionCount.get()
+            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_taz_logo)
+            coachMarkDataStore.drawerLogoCoachMarkShown.set(
+                currentAppSession
+            )
+            incrementCoachMarksShownInSession()
         }
     }
 

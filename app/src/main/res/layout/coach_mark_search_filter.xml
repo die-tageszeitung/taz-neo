@@ -7,26 +7,29 @@
     android:background="@color/blackEightyPercentOpacity">
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="38dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="25dp"
         android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
-        android:paddingTop="@dimen/coach_mark_drawer_logo_text_layout_padding_top"
+        android:paddingTop="228dp"
         android:rotation="-7">
 
         <TextView
             android:id="@+id/coach_mark_header"
             style="@style/TextAppearance.CoachMark.Header"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/coach_mark_taz_logo_title" />
+            android:text="@string/coach_mark_search_filter_swipe_title" />
 
         <TextView
             style="@style/TextAppearance.CoachMark.Text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_taz_logo_text" />
+            android:layout_marginEnd="30dp"
+            android:text="@string/coach_mark_search_filter_swipe_text" />
     </RelativeLayout>
 
     <ImageView
@@ -48,21 +51,24 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/drawer_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true" />
+            android:layout_width="@dimen/search_icon_size"
+            android:layout_height="@dimen/search_icon_size"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/search_filter"
+            android:paddingVertical="@dimen/search_icon_padding_vertical"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_filter"
+            app:tint="@color/white" />
     </RelativeLayout>
 
     <View
         android:id="@+id/coach_mark_arrow"
         android:layout_width="1dp"
-        android:layout_height="66dp"
+        android:layout_height="150dp"
         android:background="@color/white"
         android:backgroundTint="@color/white"
-        android:paddingStart="60dp"
-        android:paddingTop="65dp"
-        android:rotation="-14"
+        android:paddingEnd="70dp"
+        android:rotation="65"
         tools:ignore="RtlSymmetry" />
 
 </RelativeLayout>

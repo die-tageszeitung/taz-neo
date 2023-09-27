@@ -10,6 +10,7 @@ import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
@@ -41,6 +42,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val downloadDataStore = DownloadDataStore.getInstance(application.applicationContext)
     private val storageDataStore = StorageDataStore.getInstance(application.applicationContext)
     private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
+    private val coachMarkDataStore = CoachMarkDataStore.getInstance(application.applicationContext)
     private val apiService = ApiService.getInstance(application.applicationContext)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application.applicationContext)
 
@@ -207,9 +209,20 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return generalDataStore.appSessionCount.get()
     }
 
+    suspend fun getAlwaysShowCoachMarks(): Boolean {
+        return coachMarkDataStore.alwaysShowCoachMarks.get()
+    }
+
     fun forceNewAppSession() {
         viewModelScope.launch {
             generalDataStore.lastMainActivityUsageTimeMs.set(0L)
+        }
+    }
+
+     fun setAlwaysShowCoachMarks(value: Boolean) {
+        viewModelScope.launch {
+            log.verbose("always show coach marks set to $value")
+            coachMarkDataStore.alwaysShowCoachMarks.set(value)
         }
     }
 }

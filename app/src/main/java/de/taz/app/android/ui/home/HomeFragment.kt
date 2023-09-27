@@ -167,12 +167,16 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 }
 
                 homePageViewModel.togglePdfMode()
+                lifecycleScope.launch {
+                    FabCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
             }
         }
         lifecycleScope.launch {
-            FabCoachMark(requireContext(), viewBinding.fabActionPdf)
+
+            FabCoachMark(this@HomeFragment, viewBinding.fabActionPdf)
                 .maybeShow()
-            ArchiveCoachMark(requireContext())
+            ArchiveCoachMark(this@HomeFragment)
                 .maybeShow()
         }
     }
@@ -236,6 +240,9 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     fun showArchive() {
         viewBinding.feedArchivePager.currentItem = ARCHIVE_PAGER_POSITION
+        lifecycleScope.launch {
+            ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
+        }
     }
 
     fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)

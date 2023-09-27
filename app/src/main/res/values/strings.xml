@@ -110,6 +110,7 @@
 
     <string name="fragment_bookmark">zu Leseliste hinzufügen</string>
     <string name="fragment_bookmarks_title">leseliste</string>
+    <string name="fragment_bookmarks_description">Sie haben noch keine Artikel in Ihrer Leseliste.\n\n Speichern Sie Artikel zum weiterlesen, hören oder erinnern in Ihrer persönlichen Leseliste. Einfach das Sternchen bei den Artikeln aktivieren.</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
@@ -399,7 +400,7 @@
     <string name="search_advanced_sort_by">sortierung</string>
     <string name="search_input_hint">taz Archiv durchsuchen</string>
     <string name="search_input_error">Nach was wollen Sie suchen?</string>
-    <string name="search_description">Suche nach Autor:innnen, Artikeln, Rubriken oder Themen</string>
+    <string name="search_description">Auf die Suche, fertig, los!\n\n\nOb Autor*innen, konkrete Artikel, Rubriken oder Themen – mit der Suchfunktion geht’s direkt zu den Wunschinhalten.</string>
     <string name="search_filter">Suche filtern</string>
     <string name="search_advanced_title">Titel</string>
     <string name="search_advanced_author">Autor:in</string>
@@ -479,6 +480,20 @@
 
     <string name="coach_mark_article_audio_title">Lesen und lesen lassen.</string>
     <string name="coach_mark_article_audio_text">Wer hören will, muss klicken: Hinter diesem Symbol verbirgt sich unsere tolle Vorlesefunktion – einfach mal ausprobieren!</string>
+
+    <string name="coach_mark_article_size_title">Die taz ist unlesbar?</string>
+    <string name="coach_mark_article_size_text">Da schafft die individuelle Anpassung der Schriftgröße Abhilfe.</string>
+
+    <string name="coach_mark_article_share_title">Teile und herrsche</string>
+    <string name="coach_mark_article_share_text">Der Artikel ist besonders gut? Oder nervt zu Tode? Mit der Share-Funktion kann man Freud wie Leid ganz einfach mit anderen teilen.</string>
+
+    <string name="coach_mark_article_bookmarks_swipe_title">Richtig durchwischen!</string>
+    <string name="coach_mark_article_bookmarks_swipe_text">Artikel einfach nach links wischen oder auf den Stern tippen und schon verschwinden sie aus der Leseliste.</string>
+
+    <string name="coach_mark_search_filter_swipe_title">Die ganz persönliche Filterblase</string>
+    <string name="coach_mark_search_filter_swipe_text">Mit der Filter-Funktion neben dem Suchfeld wirklich nur das finden, was man auch sucht.</string>
+
+    <string name="coach_marks_debug_settings">Coachmarks immer anzeigen</string>
     <!-- endregion -->
 
 </resources>
