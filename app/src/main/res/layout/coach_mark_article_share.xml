@@ -13,7 +13,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
         android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
-        android:paddingBottom="@dimen/coach_mark_article_padding_bottom"
+        android:paddingBottom="175dp"
         android:rotation="-7">
 
         <TextView
