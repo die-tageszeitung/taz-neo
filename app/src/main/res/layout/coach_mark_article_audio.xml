@@ -7,24 +7,25 @@
     android:background="@color/blackEightyPercentOpacity">
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
         android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
-        android:paddingBottom="150dp"
+        android:paddingBottom="@dimen/coach_mark_article_padding_bottom"
         android:rotation="-7">
 
         <TextView
             android:id="@+id/coach_mark_header"
             style="@style/TextAppearance.CoachMark.Header"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/coach_mark_article_audio_title" />
 
         <TextView
             style="@style/TextAppearance.CoachMark.Text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
             android:text="@string/coach_mark_article_audio_text" />
@@ -49,8 +50,8 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="30.8dp"
-            android:layout_height="30.8dp"
+            android:layout_width="@dimen/bottom_navigation_icon_size"
+            android:layout_height="@dimen/bottom_navigation_icon_size"
             android:src="@drawable/ic_audio"
             app:tint="@color/white" />
 
@@ -62,9 +63,9 @@
         android:layout_height="70dp"
         android:background="@color/white"
         android:backgroundTint="@color/white"
-        android:paddingBottom="80dp"
         android:paddingEnd="20dp"
-        android:rotation="-30"
+        android:paddingBottom="80dp"
+        android:rotation="-40"
         tools:ignore="RtlSymmetry" />
 
 </RelativeLayout>

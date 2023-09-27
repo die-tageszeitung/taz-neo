@@ -10,8 +10,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val TYPE_HEADER = 0
 private const val TYPE_ITEM = 1
@@ -143,6 +147,9 @@ class BookmarkListAdapter(
             if (viewHolder is BookmarkListViewHolder) {
                 val position = viewHolder.bindingAdapterPosition
                 removeBookmarkWithUndo(viewHolder.itemView, position)
+                CoroutineScope(Dispatchers.Default).launch {
+                    BookmarksSwipeCoachMark.setFunctionAlreadyDiscovered(viewHolder.itemView.context)
+                }
             }
         }
 

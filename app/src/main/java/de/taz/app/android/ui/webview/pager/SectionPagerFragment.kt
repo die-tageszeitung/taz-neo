@@ -5,9 +5,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
@@ -26,6 +30,7 @@ import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.launch
+
 
 class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val log by Log
@@ -61,9 +66,17 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             tryScrollToSection()
         }
 
-        lifecycleScope.launch {
-            HorizontalSwipeCoachMark(requireContext())
-                .maybeShow()
+        issueContentViewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
+            // We show here the couch mark for horizontal swipe. It is at this place because
+            // the [SectionPagerFragment] is always created in the [IssueViewerActivity], even if
+            // an article is shown. But the [activeDisplayMode] gives us the indication that we
+            // are on an section.
+            if (it == IssueContentDisplayMode.Section) {
+                lifecycleScope.launch {
+                    HorizontalSwipeCoachMark(this@SectionPagerFragment)
+                        .maybeShow()
+                }
+            }
         }
     }
 
@@ -97,6 +110,23 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             }
             hideLogoIfNecessary(position)
             lastPage = position
+        }
+
+        // To detect whether we have swiped through the section pager manually, it is not enough to
+        // listen on the `onPageSelected` as that is triggered too by clicking a section in the drawer.
+        // So we need to really listen to `onPageSCrolled` to detect real horizontal swipes:
+        var scrolled = false
+        override fun onPageScrollStateChanged(state: Int) {
+            super.onPageScrollStateChanged(state)
+            if (state == SCROLL_STATE_DRAGGING) {
+                scrolled = true
+            }
+            if (state == SCROLL_STATE_IDLE && scrolled) {
+                scrolled = false
+                lifecycleScope.launch {
+                    HorizontalSwipeCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
+            }
         }
     }
 

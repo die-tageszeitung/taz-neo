@@ -15,6 +15,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FeedRepository
@@ -78,6 +79,14 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             lifecycleScope.launch {
                 recycleAdapter?.setData(getGroupedBookmarks(bookmarks))
                 hideLoadingScreen()
+            }
+            if (bookmarks.isEmpty()) {
+                viewBinding.bookmarksDescriptionLayout.visibility = View.VISIBLE
+            } else {
+                viewBinding.bookmarksDescriptionLayout.visibility = View.GONE
+                lifecycleScope.launch {
+                    BookmarksSwipeCoachMark(this@BookmarkListFragment).maybeShow()
+                }
             }
         }
 

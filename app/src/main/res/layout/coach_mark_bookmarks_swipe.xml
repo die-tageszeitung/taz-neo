@@ -26,14 +26,14 @@
                 style="@style/TextAppearance.CoachMark.Header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/coach_mark_horizontal_swipe_title" />
+                android:text="@string/coach_mark_article_bookmarks_swipe_title" />
 
             <TextView
                 style="@style/TextAppearance.CoachMark.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/coach_mark_header"
-                android:text="@string/coach_mark_horizontal_swipe_text" />
+                android:text="@string/coach_mark_article_bookmarks_swipe_text" />
 
         </RelativeLayout>
 
@@ -43,7 +43,7 @@
             android:layout_below="@id/coach_mark_text_layout"
             android:layout_centerInParent="true"
             android:layout_marginTop="40dp"
-            android:src="@drawable/ic_scroll_horizontal" />
+            android:src="@drawable/ic_scroll_left" />
     </RelativeLayout>
 
     <ImageView

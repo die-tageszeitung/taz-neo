@@ -20,6 +20,7 @@ import de.taz.app.android.TazApplication
 import de.taz.app.android.appReview.ReviewFlow
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
@@ -59,6 +60,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     private lateinit var authHelper: AuthHelper
     private lateinit var downloadDataStore: DownloadDataStore
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var coachMarkDataStore: CoachMarkDataStore
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
@@ -68,6 +70,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         authHelper = AuthHelper.getInstance(applicationContext)
+        coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)
         downloadDataStore = DownloadDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
@@ -170,6 +173,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         if (lastMainActivityUsageTimeMs + APP_SESSION_TIMEOUT_MS < nowMs) {
             val appSessionCount = generalDataStore.appSessionCount.get() + 1L
             generalDataStore.appSessionCount.set(appSessionCount)
+            // reset the coach mark count:
+            coachMarkDataStore.coachMarksShownInSession.set(0)
             return appSessionCount
         }
         return null

@@ -129,6 +129,9 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
                 override fun onDrawerOpened(drawerView: View) {
                     drawerAndLogoViewModel.openDrawer()
+                    lifecycleScope.launch {
+                        DrawerLogoCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                    }
                 }
 
                 override fun onDrawerClosed(drawerView: View) {
@@ -235,7 +238,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 }
             }
 
-            DrawerLogoCoachMark(requireContext(), viewBinding.drawerLogo, imageDrawable)
+            DrawerLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
                 .maybeShow()
         }
     }

@@ -536,12 +536,11 @@
 
                 <include layout="@layout/settings_separator_view" />
 
-
                 <LinearLayout
+                    android:id="@+id/fragment_settings_debug_settings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:id="@+id/fragment_settings_debug_settings"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -554,8 +553,16 @@
 
                     <include layout="@layout/settings_separator_view" />
 
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fragment_settings_coach_marks_always"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/coach_marks_debug_settings" />
 
+                    <include layout="@layout/settings_separator_view" />
                 </LinearLayout>
+
             </LinearLayout>
             <!-- endregion -->
 

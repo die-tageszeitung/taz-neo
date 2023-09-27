@@ -24,6 +24,7 @@ import de.taz.app.android.api.models.Sorting
 import de.taz.app.android.api.variables.SearchFilter
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.coachMarks.SearchFilterCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
@@ -119,6 +120,9 @@ class SearchActivity :
             }
             expandAdvancedSearchButton.setOnClickListener {
                 viewModel.toggleAdvancedSearchOpen()
+                lifecycleScope.launch {
+                    SearchFilterCoachMark.setFunctionAlreadyDiscovered(this@SearchActivity)
+                }
             }
             advancedSearchTimeslot.setOnClickListener {
                 showSearchTimeDialog()
@@ -202,6 +206,10 @@ class SearchActivity :
                     }
                 }
             }
+        }
+        lifecycleScope.launch {
+            SearchFilterCoachMark(this@SearchActivity, viewBinding.expandAdvancedSearchButton)
+                .maybeShow()
         }
     }
 

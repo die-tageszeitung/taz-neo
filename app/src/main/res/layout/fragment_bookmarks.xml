@@ -9,6 +9,39 @@
     android:background="@color/backgroundColor"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bookmarks_description_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/bookmarks_description_icon"
+            android:layout_width="@dimen/fragment_bookmarks_description_icon_size"
+            android:layout_height="@dimen/fragment_bookmarks_description_icon_size"
+            android:layout_marginBottom="@dimen/fragment_bookmarks_description_icon_margin_bottom"
+            android:contentDescription="@string/fragment_bookmarks_description"
+            android:src="@drawable/ic_bookmark"
+            app:layout_constraintBottom_toTopOf="@id/bookmarks_description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/bookmarks_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/fragment_bookmarks_description_margin_horizontal"
+            android:lineSpacingExtra="@dimen/fragment_bookmarks_description_text_line_spacing_extra"
+            android:text="@string/fragment_bookmarks_description"
+            android:textAlignment="center"
+            android:textSize="@dimen/fragment_bookmarks_description_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bookmarks_description_icon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
     <include
         android:id="@+id/loading_screen"
         layout="@layout/include_loading_screen"
