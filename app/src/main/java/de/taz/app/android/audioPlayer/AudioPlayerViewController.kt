@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 private const val CIRCULAR_PROGRESS_TICKS = 1000L
+private val PLAYBACK_SPEEDS = floatArrayOf(0.5F, 0.7F, 0.8F, 0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.5F, 2.0F)
 
 private enum class DisplayMode {
     DISPLAY_MODE_MOBILE,
@@ -548,18 +549,20 @@ class AudioPlayerViewController(
     }
 
     /**
-     * Toggle between the playback speeds in the following order:
-     * 1 -> 1.5 -> 2 -> 0.5 -> 1 ...
+     * Toggle between the playback speeds in the order of [PLAYBACK_SPEEDS]
      * If a unspecified value is encountered the playback speed is returned to 1
      */
     private suspend fun togglePlaybackSpeed() {
-        val playbackSpeed = when (audioPlayerService.getPlaybackSpeed()) {
-            1F -> 1.5F
-            1.5F -> 2F
-            2F -> 0.5F
-            else -> 1F
+        val currentSpeed = audioPlayerService.getPlaybackSpeed()
+        // Find the closest index to the current playback speed
+        val currentIndex = PLAYBACK_SPEEDS.indexOfFirst { it >= currentSpeed }
+        val newSpeed = if (currentIndex >= 0) {
+            val nextIndex = (currentIndex + 1) % PLAYBACK_SPEEDS.size
+            PLAYBACK_SPEEDS[nextIndex]
+        } else {
+            1F
         }
-        audioPlayerService.setPlaybackSpeed(playbackSpeed)
+        audioPlayerService.setPlaybackSpeed(newSpeed)
     }
 
     /**
