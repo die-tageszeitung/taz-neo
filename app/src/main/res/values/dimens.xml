@@ -22,7 +22,7 @@
 
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
-    <dimen name="drawer_margin_top">28dp</dimen>
+    <dimen name="drawer_margin_top">12dp</dimen>
     <dimen name="drawer_width">@dimen/custom_match_parent</dimen>
 
     <dimen name="fragment_drawer_padding_start">18dp</dimen>
@@ -31,9 +31,9 @@
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
     <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
     <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
-    <dimen name="fragment_drawer_date_text_size">13sp</dimen>
     <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
+    <dimen name="fragment_drawer_header_action_margin_top">18dp</dimen>
     <dimen name="fragment_drawer_title_margin_end">10dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
     <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
@@ -44,6 +44,9 @@
     <dimen name="fragment_drawer_section_title_padding_top">0dp</dimen>
     <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
+
+    <dimen name="drawer_play_issue_icon_size">24dp</dimen>
+    <dimen name="drawer_play_issue_text_icon_padding">5dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_separator_margin_top">8dp</dimen>
@@ -316,6 +319,7 @@
     <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
     <dimen name="audioplayer_expanded_title_author_margin_end">16dp</dimen>
+    <dimen name="audioplayer_expanded_auto_play_next_margin_top">18dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>

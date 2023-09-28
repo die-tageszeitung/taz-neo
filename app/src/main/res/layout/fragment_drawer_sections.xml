@@ -42,18 +42,66 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="freitag,\n13.12.22" />
 
+            <ImageView
+                android:id="@+id/fragment_drawer_play_issue_icon"
+                android:layout_width="@dimen/drawer_play_issue_icon_size"
+                android:layout_height="@dimen/drawer_play_issue_icon_size"
+                android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:clickable="true"
+                android:contentDescription="@string/drawer_play_issue"
+                android:focusable="true"
+                android:src="@drawable/ic_audio"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment"
+                app:tint="@color/drawer_sections_header_action" />
+
             <TextView
-                android:id="@+id/fragment_drawer_toggle_all_sections"
-                style="@style/TextAppearance.Drawer.Sections.Toggle"
+                android:id="@+id/fragment_drawer_play_issue_text"
+                style="@style/TextAppearance.TextButton.Small"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/fragment_drawer_sections_expand_all"
-                android:textAlignment="viewEnd"
-                android:visibility="gone"
-                app:layout_constraintBaseline_toBottomOf="@id/fragment_drawer_sections_moment"
-                app:layout_constraintStart_toEndOf="@id/fragment_drawer_sections_moment"
+                android:layout_marginStart="@dimen/drawer_play_issue_text_icon_padding"
+                android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:text="@string/drawer_play_issue"
+                android:textColor="@color/drawer_sections_header_action"
+                app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
+                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment" />
+
+
+            <View
+                android:id="@+id/fragment_drawer_toggle_all_sections_touch_area"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/additional_touch_area_margin"
+                android:layout_marginTop="@dimen/additional_touch_area_margin"
+                android:layout_marginEnd="@dimen/additional_touch_area_margin"
+                android:layout_marginBottom="@dimen/additional_touch_area_margin"
+                android:clickable="true"
+                android:contentDescription="@string/audioplayer_playback_speed_content_description"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_drawer_toggle_all_sections"
+                app:layout_constraintEnd_toEndOf="@id/fragment_drawer_toggle_all_sections"
+                app:layout_constraintStart_toStartOf="@id/fragment_drawer_toggle_all_sections"
+                app:layout_constraintTop_toTopOf="@id/fragment_drawer_toggle_all_sections" />
+
+            <ImageView
+                android:id="@+id/fragment_drawer_toggle_all_sections"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:contentDescription="@string/fragment_drawer_sections_expand_all"
+                android:src="@drawable/ic_chevron_double_down"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:visibility="visible"/>
+                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment"
+                app:tint="@color/drawer_sections_header_action" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/fragment_drawer_header_action_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="fragment_drawer_play_issue_icon,fragment_drawer_play_issue_text,fragment_drawer_toggle_all_sections"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

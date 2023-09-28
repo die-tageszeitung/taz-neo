@@ -25,7 +25,7 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SectionStub
-import de.taz.app.android.audioPlayer.AudioPlayerViewModel
+import de.taz.app.android.audioPlayer.IssueAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
@@ -66,7 +66,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
-    private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
+    private val audioPlayerViewModel: IssueAudioPlayerViewModel by viewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
@@ -301,7 +301,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
             }
 
-            audioPlayerViewModel.setIsVisibleArticle(nextStub)
+            audioPlayerViewModel.setVisibleArticle(nextStub)
 
             articleBottomActionBarNavigationHelper.apply {
                 // show the player button only for articles with audio

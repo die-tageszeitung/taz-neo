@@ -28,7 +28,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.audioPlayer.AudioPlayerViewModel
+import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
@@ -73,7 +73,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     override val viewModel: BookmarkPagerViewModel by activityViewModels()
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
-    private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
+    private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
@@ -210,7 +210,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             articleStub?.let {
                 viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
-                audioPlayerViewModel.setIsVisibleArticle(it)
+                audioPlayerViewModel.setVisibleArticle(it)
             }
 
 

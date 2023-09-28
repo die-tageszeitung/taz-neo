@@ -451,6 +451,7 @@
     <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
     <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
+    <string name="drawer_play_issue">ausgabe hören</string>
 
     <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
@@ -458,6 +459,7 @@
     <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
+    <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

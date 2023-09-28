@@ -58,18 +58,49 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/activity_pdf_drawer_date"
-                    style="@style/TextAppearance.Drawer.Sections.Date"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
                     android:layout_marginStart="@dimen/fragment_drawer_thumbnail_margin"
-                    android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
-                    android:layout_weight="0.5"
-                    android:textColor="@color/fragment_drawer_date_text_color"
-                    android:textSize="@dimen/fragment_drawer_date_text_size"
-                    tools:text="weekday,\n DD.MM.JJJJ" />
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5">
+
+                    <TextView
+                        android:id="@+id/activity_pdf_drawer_date"
+                        style="@style/TextAppearance.Date.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/fragment_drawer_thumbnail_margin"
+                        android:layout_marginBottom="@dimen/fragment_drawer_date_margin_bottom"
+                        android:textColor="@color/fragment_drawer_date_text_color"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="weekday,\nDD.MM.JJJJ" />
+
+                    <ImageView
+                        android:id="@+id/fragment_drawer_play_issue_icon"
+                        android:layout_width="@dimen/drawer_play_issue_icon_size"
+                        android:layout_height="@dimen/drawer_play_issue_icon_size"
+                        android:clickable="true"
+                        android:contentDescription="@string/drawer_play_issue"
+                        android:focusable="true"
+                        android:src="@drawable/ic_audio"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:tint="@color/pdf_drawer_header_action"
+                        />
+
+                    <TextView
+                        android:id="@+id/fragment_drawer_play_issue_text"
+                        style="@style/TextAppearance.TextButton.Small"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/drawer_play_issue_text_icon_padding"
+                        android:text="@string/drawer_play_issue"
+                        android:textColor="@color/pdf_drawer_header_action"
+                        app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
+                        app:layout_constraintTop_toTopOf="@id/fragment_drawer_play_issue_icon" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 

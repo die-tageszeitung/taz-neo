@@ -102,13 +102,6 @@
         <item name="android:fontFamily">@font/appFontBold</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections.Toggle" parent="TextAppearance.Fragment.Title">
-        <item name="android:textColor">@color/drawer_sections_toggle</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-    </style>
-
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.Fragment.Title">
         <item name="android:textColor">@color/drawer_sections_date</item>
         <item name="android:textSize">15sp</item>
@@ -148,6 +141,7 @@
     <style name="TextAppearance.Drawer.PDF.Entry.ReadMinutes" parent="TextAppearance.Bookmarks.Entry.ReadMinutes">
         <item name="android:textSize">13.5sp</item>
     </style>
+
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
@@ -511,6 +505,11 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="TextAppearance.AudioPlayer.Switch" parent="TextAppearance.Settings.Entry">
+        <!-- Defined in Figma as: GUI/Settings with some additional colors -->
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
     <style name="TextAppearance.ModalTopline" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">14sp</item>
@@ -540,6 +539,13 @@
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">15sp</item>
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
+    </style>
+
+    <style name="TextAppearance.Date.Small" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">

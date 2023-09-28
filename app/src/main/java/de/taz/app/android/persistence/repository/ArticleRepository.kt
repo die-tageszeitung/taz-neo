@@ -274,6 +274,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    suspend fun getArticleListForIssue(issueKey: IssueKey): List<Article> =
+        getArticleStubListForIssue(issueKey)
+            .map { articleStubToArticle(it.articleStub) }
+
     suspend fun setDownloadDate(
         articleStub: ArticleStub,
         date: Date?

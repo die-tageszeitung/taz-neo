@@ -7,12 +7,19 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+import androidx.media3.common.Player.DiscontinuityReason
+import androidx.media3.common.Player.MediaItemTransitionReason
+import androidx.media3.common.Player.REPEAT_MODE_ALL
+import androidx.media3.common.Player.REPEAT_MODE_OFF
+import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -28,10 +35,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -55,25 +64,26 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         object Init : State()
         data class ControllerReady(val controller: MediaController) : State()
         data class ControllerError(val exception: Exception) : State()
-        data class AudioQueued(val articleAudio: ArticleAudio) : State()
+        data class AudioQueued(val item: AudioPlayerItem) : State()
+
         data class AudioPrepare(
             val controller: MediaController,
-            val articleAudio: ArticleAudio
+            val item: AudioPlayerItem,
         ) : State()
 
         data class AudioReady(
             val controller: MediaController,
-            val articleAudio: ArticleAudio
+            val item: AudioPlayerItem,
         ) : State()
 
         data class AudioPlaying(
             val controller: MediaController,
-            val articleAudio: ArticleAudio
+            val item: AudioPlayerItem,
         ) : State()
 
         data class AudioError(
             val controller: MediaController,
-            val articleAudio: ArticleAudio,
+            val item: AudioPlayerItem,
             val exception: PlaybackException,
         ) : State()
     }
@@ -99,9 +109,43 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private val playbackSpeedPreference = dataStore.playbackSpeed.asFlow().distinctUntilChanged()
     private var playbackSpeed: Float = DEFAULT_AUDIO_PLAYBACK_SPEED
 
+    // Store the autoPlay preference as a StateFlow, so that we can access its value without a coroutine
+    private val autoPlayNextPreference =
+        dataStore.autoPlayNext.asFlow().stateIn(this, SharingStarted.Eagerly, false)
+
     // region public attributes and methods
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
     val progress: StateFlow<PlayerProgress?> = _progress.asStateFlow()
+
+    fun playIssue(issue: Issue): Deferred<Unit> {
+        return async {
+            val articlesWithAudio = issue.getArticles().filter { it.audioFile != null }
+            val issueAudio = IssueAudio(
+                issue.issueKey,
+                issue.baseUrl,
+                articlesWithAudio,
+                0,
+                0
+            )
+            enqueueAndPlay(issueAudio)
+        }
+    }
+
+    fun playIssue(issueStub: IssueStub, articleStub: ArticleStub): Deferred<Unit> {
+        return async {
+            val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
+            val articlesWithAudio = articles.filter { it.audioFile != null }
+            val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub.key }.coerceAtLeast(0)
+            val issueAudio = IssueAudio(
+                issueStub.issueKey,
+                issueStub.baseUrl,
+                articlesWithAudio,
+                indexOfArticle,
+                indexOfArticle,
+            )
+            enqueueAndPlay(issueAudio)
+        }
+    }
 
     fun playArticleAudioAsync(articleStub: ArticleStub): Deferred<Unit> {
         return async {
@@ -121,9 +165,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val sectionStub = article.getSectionStub(applicationContext)
             val issueStub = sectionStub?.getIssueStub(applicationContext)
 
-            if (issueStub != null && sectionStub != null && audioFile != null) {
-                val audioFileUrl = createAudioFileUrl(issueStub, audioFile)
-                val articleAudio = ArticleAudio(audioFileUrl, article, issueStub.issueKey)
+            if (sectionStub != null && issueStub != null && audioFile != null) {
+                val articleAudio = ArticleAudio(issueStub.issueKey, issueStub.baseUrl, article)
                 enqueueAndPlay(articleAudio)
             } else {
                 throw AudioPlayerException.Generic("Could not load audio data for the Article(key=${article.key})")
@@ -134,7 +177,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun toggleAudioPlaying() {
         when (val state = state.value) {
             // Try to re-prepare and play the audio
-            is State.AudioError -> enqueueAndPlay(state.articleAudio)
+            is State.AudioError -> enqueueAndPlay(state.item)
 
             // Let the audio controller decide how to pause/play the current audio
             is State.AudioPlaying -> toggleAudioControllerPlaying(state.controller)
@@ -153,6 +196,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun dismissPlayer() {
         val controller = getControllerFromState()
+
         controller?.apply {
             stop()
             onControllerDismiss(this)
@@ -164,16 +208,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         _uiState.compareAndSet(error, error.copy(wasHandled = true))
     }
 
+    fun onErrorHandled(error: UiState.InitError) {
+        dismissPlayer()
+    }
+
     fun setPlayerExpanded(expanded: Boolean) {
         var updated = false
         while (!updated) {
             val prevState = _uiState.value
-            val newState = when(prevState) {
-                is UiState.Error -> prevState.copy(expanded = expanded)
-                is UiState.Paused -> prevState.copy(expanded = expanded)
-                is UiState.Playing -> prevState.copy(expanded = expanded)
-                UiState.Hidden, is UiState.Loading -> prevState
-            }
+            val newState = prevState.copyWithExpanded(expanded)
             updated = _uiState.compareAndSet(prevState, newState)
         }
     }
@@ -200,6 +243,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    fun skipToNext() {
+        getControllerFromState()?.seekToNextMediaItem()
+    }
+
+    fun skipToPrevious() {
+        getControllerFromState()?.seekToPreviousMediaItem()
+    }
+
     suspend fun setPlaybackSpeed(playbackSpeed: Float) {
         // Only set the playback speed on the dataStore - setting the playback speed on the controller
         // will be handled by an observer on the dataStore entry.
@@ -209,6 +260,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun getPlaybackSpeed(): Float {
         return playbackSpeed
     }
+
+    fun setAutoPlayNext(autoPlayNext: Boolean) {
+        launch {
+            if (autoPlayNext != autoPlayNextPreference.value) {
+                dataStore.autoPlayNext.set(autoPlayNext)
+            }
+        }
+    }
     // endregion public attributes and methods
 
     init {
@@ -216,47 +275,23 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         // We can't use .map().stateIn() because we need a MutableStateFlow to be able to
         // get the current subscriber count and decide if we can release the [MediaController]
         launch {
-            combine(state, playbackSpeedPreference) { state, playbackSpeed ->
-                val wasExpanded = getExpandedFromUiState()
-                val uiState = when (state) {
-                    State.Init -> UiState.Hidden
-                    is State.ControllerReady -> UiState.Hidden
-
-                    is State.ControllerError -> UiState.Error(
-                        expanded = wasExpanded,
-                        wasHandled = false,
-                        playbackSpeed = playbackSpeed,
-                        articleAudio = null,
-                        AudioPlayerException.Generic(cause = state.exception)
-                    )
-
-                    is State.AudioPrepare -> UiState.Loading(state.articleAudio)
-                    is State.AudioQueued -> UiState.Loading(state.articleAudio)
-                    is State.AudioReady -> UiState.Paused(state.articleAudio, wasExpanded, playbackSpeed)
-                    is State.AudioPlaying -> UiState.Playing(state.articleAudio, wasExpanded, playbackSpeed)
-                    is State.AudioError -> UiState.Error(
-                        expanded = wasExpanded,
-                        wasHandled = false,
-                        playbackSpeed = playbackSpeed,
-                        state.articleAudio,
-                        mapAudioErrorToException(state)
-                    )
-                }
-                uiState
+            combine(state, playbackSpeedPreference, autoPlayNextPreference) { state, playbackSpeed, autoPlayNext ->
+                val wasExpanded = _uiState.value.isExpanded()
+                mapUiState(state, wasExpanded, playbackSpeed, autoPlayNext)
             }.collect {
                 _uiState.value = it
             }
         }
 
-        // Trigger tracking events from the default dispatcher
-        launch(Dispatchers.Default) {
-            state.collect {state ->
-                when(state) {
-                    is State.AudioPlaying -> tracker.trackAudioPlayerPlayArticleEvent(state.articleAudio)
-                    else -> Unit
-                }
-            }
-        }
+//        // Trigger tracking events from the default dispatcher
+//        launch(Dispatchers.Default) {
+//            state.collect {state ->
+//                when(state) {
+//                    is State.AudioPlaying -> tracker.trackAudioPlayerPlayArticleEvent(state.articleAudio)
+//                    else -> Unit
+//                }
+//            }
+//        }
 
         launch {
             playbackSpeedPreference.collect {
@@ -265,14 +300,20 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 playbackSpeed = it
             }
         }
+
+        launch {
+            autoPlayNextPreference.collect {
+                getControllerFromState()?.setAutoPlayNext(it)
+            }
+        }
     }
 
     private fun createAudioFileUrl(issueStub: IssueStub, audioFile: FileEntry): Uri {
         return Uri.parse("${issueStub.baseUrl}/${audioFile.name}")
     }
 
-    private fun enqueueAndPlay(articleAudio: ArticleAudio) {
-        log.verbose("enqueueAndPlay(${articleAudio.article.key})")
+    private fun enqueueAndPlay(item: AudioPlayerItem) {
+        log.verbose("enqueueAndPlay($item)")
         var updated = false
         var prevState: State? = null
         var newState: State? = null
@@ -281,15 +322,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             prevState = state.value
             newState = when (prevState) {
                 // Retry with this articleAudio file
-                is State.AudioError -> State.AudioPrepare(prevState.controller, articleAudio)
+                is State.AudioError -> State.AudioPrepare(prevState.controller, item)
                 // Overwrite the current preparation
-                is State.AudioPrepare -> State.AudioPrepare(prevState.controller, articleAudio)
-                is State.AudioReady -> State.AudioPrepare(prevState.controller, articleAudio)
-                is State.AudioPlaying -> State.AudioPrepare(prevState.controller, articleAudio)
-                is State.ControllerReady -> State.AudioPrepare(prevState.controller, articleAudio)
+                is State.AudioPrepare -> State.AudioPrepare(prevState.controller, item)
+                is State.AudioReady -> State.AudioPrepare(prevState.controller, item)
+                is State.AudioPlaying -> State.AudioPrepare(prevState.controller, item)
+                is State.ControllerReady -> State.AudioPrepare(prevState.controller, item)
                 // Overwrite the queued Audio
-                is State.AudioQueued -> State.AudioQueued(articleAudio)
-                is State.ControllerError, State.Init -> State.AudioQueued(articleAudio)
+                is State.AudioQueued -> State.AudioQueued(item)
+                is State.ControllerError, State.Init -> State.AudioQueued(item)
             }
             updated = compareAndSetState(prevState, newState)
         }
@@ -299,7 +340,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             prevState is State.ControllerError || prevState is State.Init
         when {
             newState is State.AudioPrepare ->
-                prepareAudio(newState.controller, newState.articleAudio)
+                prepareAudio(newState.controller, newState.item)
 
             newState is State.AudioQueued && controllerNeedsConnection ->
                 connectController()
@@ -330,8 +371,10 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private fun onControllerReady(controller: MediaController) {
         log.verbose("onControllerReady (${controller.hashCode()}")
-        controller.addListener(controllerListener)
-        controller.setPlaybackSpeed(playbackSpeed)
+        controller.apply {
+            addListener(controllerListener)
+            setPlaybackSpeed(playbackSpeed)
+        }
 
         when (val state = state.value) {
             State.Init, is State.ControllerError -> {
@@ -346,8 +389,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             }
 
             is State.AudioQueued -> {
-                forceState(State.AudioPrepare(controller, state.articleAudio))
-                prepareAudio(controller, state.articleAudio)
+                forceState(State.AudioPrepare(controller, state.item))
+                prepareAudio(controller, state.item)
             }
             // illegal states
             is State.ControllerReady, is State.AudioPrepare, is State.AudioError, is State.AudioReady, is State.AudioPlaying ->
@@ -366,9 +409,65 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    private fun prepareAudio(controller: MediaController, articleAudio: ArticleAudio) {
-        log.verbose("Preparing Audio: ${articleAudio.article.key}")
-        val article = articleAudio.article
+    private fun prepareAudio(controller: MediaController, item: AudioPlayerItem) {
+        when (item) {
+            is ArticleAudio -> prepareArticleAudio(controller, item)
+            is IssueAudio -> prepareIssueAudio(controller, item)
+        }
+    }
+
+    private fun prepareArticleAudio(controller: MediaController, articleAudio: ArticleAudio) {
+        log.verbose("Preparing Article Audio: $articleAudio")
+        val audioUri = createAudioFileUri(articleAudio.baseUrl, requireNotNull(articleAudio.article.audioFile))
+        val mediaItem = createMediaItem(articleAudio.article, audioUri)
+        controller.apply {
+            playWhenReady = true
+            setMediaItem(mediaItem)
+            repeatMode = REPEAT_MODE_OFF
+            prepare()
+            play()
+        }
+    }
+
+    private fun prepareIssueAudio(controller: MediaController, issueAudio: IssueAudio) {
+        log.verbose("Preparing Issue Audio: $issueAudio")
+
+        val mediaItems = issueAudio.articles
+            .mapNotNull { article ->
+                if (article.audioFile == null) {
+                    // IssueAudio must only contain articles with an audioFile, but the type system
+                    // can't know it, so we have this additional unnecessary null check to prevent warnings.
+                    return@mapNotNull null
+                }
+
+                val audioUri = createAudioFileUri(issueAudio.baseUrl, article.audioFile)
+                createMediaItem(article, audioUri)
+            }
+
+        controller.apply {
+            playWhenReady = true
+            setMediaItems(mediaItems, issueAudio.startIndex, 0L)
+            setAutoPlayNext(autoPlayNextPreference.value)
+            prepare()
+            play()
+        }
+    }
+
+    private fun MediaController.setAutoPlayNext(isAutoPlayNext: Boolean) {
+        repeatMode = if (isAutoPlayNext) {
+            REPEAT_MODE_ALL
+        } else {
+            // To stop after the current audio, while still being able to skip manually,
+            // we set the repeat mode to REPEAT_MODE_ONE and pause the player if we detect it
+            REPEAT_MODE_ONE
+        }
+    }
+
+    private fun createAudioFileUri(baseUrl: String, audioFile: FileEntry): Uri {
+        return Uri.parse("$baseUrl/${audioFile.name}")
+    }
+
+    private fun createMediaItem(article: Article, audioUri: Uri): MediaItem {
         val authorList = article.authorList.distinct()
         val authors = authorList.mapNotNull { it.name }.joinToString(", ")
 
@@ -381,18 +480,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             .setArtist(authors)
             .setArtworkUri(articleImageUri)
             .build()
-        val mediaItem = MediaItem.Builder()
-            .setMediaId(articleAudio.article.key)
-            .setArticleAudioRequestMetadata(articleAudio)
+
+        return MediaItem.Builder()
+            .setMediaId(article.key)
+            .setArticleAudioRequestMetadata(audioUri)
             .setMediaMetadata(mediaMetadata)
             .build()
-
-        controller.apply {
-            playWhenReady = true
-            setMediaItem(mediaItem)
-            prepare()
-            play()
-        }
     }
 
     private fun toggleAudioControllerPlaying(controller: MediaController) {
@@ -461,71 +554,100 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 Player.STATE_BUFFERING, Player.STATE_IDLE, Player.STATE_READY -> Unit
             }
         }
-    }
 
-    private fun onAudioPlay() {
-        val newState = when (val state = state.value) {
-            is State.AudioError -> State.AudioPlaying(state.controller, state.articleAudio)
-            is State.AudioPlaying -> State.AudioPlaying(state.controller, state.articleAudio)
-            is State.AudioReady -> State.AudioPlaying(state.controller, state.articleAudio)
-            is State.AudioPrepare -> State.AudioPlaying(state.controller, state.articleAudio)
-
-            State.Init, is State.AudioQueued, is State.ControllerError, is State.ControllerReady -> null
-        }
-
-        if (newState is State.AudioPlaying) {
-            // Ensure the same article is playing
-            val playingArticleFileName = newState.controller.currentMediaItem?.mediaId
-            if (playingArticleFileName == newState.articleAudio.article.key) {
-                forceState(newState)
-            } else {
-                log.warn("Android AudioPlayer has prepared another audio. Trigger reloading of requested articleAudio")
-                enqueueAndPlay(newState.articleAudio)
+        override fun onPositionDiscontinuity(
+            oldPosition: Player.PositionInfo,
+            newPosition: Player.PositionInfo,
+            @DiscontinuityReason reason: Int
+        ) {
+            // To be able to respect the [autoPlayNext] functionality, we set the player repeat
+            // mode to [REPEAT_MODE_ONE] and immediately pause when we detect the repeat of item due
+            // to an auto transition to the start of the audio.
+            // Note: This is a workaround for MEDIA_ITEM_TRANSITION_REASON_REPEAT which is
+            // unfortunately not triggered for REPEAT_MODE_ONE.
+            if (reason == DISCONTINUITY_REASON_AUTO_TRANSITION
+                && oldPosition.mediaItemIndex == newPosition.mediaItemIndex
+                && newPosition.positionMs == 0L
+                && oldPosition.positionMs != 0L) {
+                getControllerFromState()?.pause()
             }
         }
 
-        // setup attached activities
+        override fun onMediaItemTransition(
+            mediaItem: MediaItem?,
+            @MediaItemTransitionReason reason: Int
+        ) {
+            if (mediaItem == null) {
+                // The playlist became empty
+                return
+            }
+
+            when (reason) {
+                // A new [AudioPlayerItem] is being played on a new playlist
+                Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED -> return
+                Player.MEDIA_ITEM_TRANSITION_REASON_AUTO -> onMediaItemSeek(mediaItem, true)
+                Player.MEDIA_ITEM_TRANSITION_REASON_SEEK -> onMediaItemSeek(mediaItem, false)
+                // Ignored, as Android does not trigger it for REPEAT_MODE_ONE
+                Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT -> Unit
+            }
+        }
     }
 
-    private fun onAudioPause() {
-        val newState = when (val state = state.value) {
-            is State.AudioError -> State.AudioReady(state.controller, state.articleAudio)
-            is State.AudioPlaying -> State.AudioReady(state.controller, state.articleAudio)
-            is State.AudioReady -> State.AudioReady(state.controller, state.articleAudio)
-            is State.AudioPrepare -> State.AudioReady(state.controller, state.articleAudio)
+    private fun onAudioPlay() {
+        val currentState = state.value
+        val controller = currentState.getControllerOrNull()
+        val item = currentState.getItemOrNull()
+        val mediaItem = controller?.currentMediaItem
 
-            State.Init, is State.AudioQueued, is State.ControllerError, is State.ControllerReady -> null
-        }
-
-        if (newState is State.AudioReady) {
-            // Ensure the same article is playing
-            val playingArticleFileName = newState.controller.currentMediaItem?.mediaId
-            if (playingArticleFileName == newState.articleAudio.article.key) {
+        if (controller != null && item != null && mediaItem != null) {
+            if (item.contains(mediaItem)) {
+                val newItem = item.copyFor(mediaItem)
+                val newState = State.AudioPlaying(controller, newItem)
                 forceState(newState)
             } else {
                 log.warn("Android AudioPlayer has prepared another audio. Trigger reloading of requested articleAudio")
-                enqueueAndPlay(newState.articleAudio)
+                enqueueAndPlay(item)
+            }
+        }
+    }
+
+    private fun onAudioPause() {
+        val currentState = state.value
+        val controller = currentState.getControllerOrNull()
+        val item = currentState.getItemOrNull()
+        val mediaItem = controller?.currentMediaItem
+
+        if (controller != null && item != null && mediaItem != null) {
+            if (item.contains(mediaItem)) {
+                val newItem = item.copyFor(mediaItem)
+                val newState = State.AudioReady(controller, newItem)
+                forceState(newState)
+            } else {
+                // This fallback is a last resort to sync the player and service state.
+                // As this should never happen, we try to keep the code simple and just play the
+                // services audio file again, even though we came from a pause.
+                log.warn("Android AudioPlayer has prepared another audio. Trigger reloading of requested articleAudio")
+                enqueueAndPlay(item)
             }
         }
     }
 
     private fun onAudioError(error: PlaybackException) {
         log.info("Error on playing Audio: $error.errorCodeName}", error)
-        val newState = when (val state = state.value) {
-            is State.AudioError -> State.AudioError(state.controller, state.articleAudio, error)
-            is State.AudioPlaying -> State.AudioError(state.controller, state.articleAudio, error)
-            is State.AudioPrepare -> State.AudioError(state.controller, state.articleAudio, error)
-            is State.AudioReady -> State.AudioError(state.controller, state.articleAudio, error)
-            is State.AudioQueued, is State.ControllerError, is State.ControllerReady, State.Init -> null
-        }
 
-        if (newState is State.AudioError) {
-            val playingArticleFileName = newState.controller.currentMediaItem?.mediaId
-            if (playingArticleFileName == newState.articleAudio.article.key) {
+        val currentState = state.value
+        val controller = currentState.getControllerOrNull()
+        val item = currentState.getItemOrNull()
+        val mediaItem = controller?.currentMediaItem
+
+        if (controller != null && item != null && mediaItem != null) {
+            if (item.contains(mediaItem)) {
+                val newItem = item.copyFor(mediaItem)
+                val newState = State.AudioError(controller, newItem, error)
                 forceState(newState)
             } else {
                 log.warn("Android AudioPlayer has prepared another audio. Trigger reloading of requested articleAudio")
-                enqueueAndPlay(newState.articleAudio)
+                enqueueAndPlay(item)
             }
         }
     }
@@ -541,6 +663,60 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         //            dismissPlayer()
         //        }
     }
+
+    /**
+     * Called when a [MediaItem] is going to be played because of a skip/rewind action.
+     * @param autoSkipped Must be true if the next item in the playlist was played automatically.
+     */
+    private fun onMediaItemSeek(nextMediaItem: MediaItem, autoSkipped: Boolean) {
+        log.verbose("onMediaItemSeek($nextMediaItem, $autoSkipped)")
+
+        val currentState = state.value
+        val item = currentState.getItemOrNull()
+        if (item == null) {
+            log.warn("onMediaItemSeek(${nextMediaItem.toLogString()}) called but the player state has no item ${currentState.toLogString()}")
+            return
+        }
+
+        when (item) {
+            is ArticleAudio -> onMediaItemSeek(currentState, item, nextMediaItem)
+            is IssueAudio -> onMediaItemSeek(currentState, item, nextMediaItem, autoSkipped)
+        }
+    }
+
+    private fun onMediaItemSeek(currentState: State, item: ArticleAudio, nextMediaItem: MediaItem) {
+        val isPreparingAudio = currentState is State.AudioPrepare || currentState is State.AudioQueued
+        if (item.article.key != nextMediaItem.mediaId && !isPreparingAudio) {
+            log.error("Seeking to a MediaItem(${nextMediaItem.toLogString()}, while the current item is $item. Reset playing the current item")
+            enqueueAndPlay(item)
+        }
+    }
+
+    private fun onMediaItemSeek(currentState: State, item: IssueAudio, nextMediaItem: MediaItem, autoSkipped: Boolean) {
+        val nextIndex = item.indexOf(nextMediaItem)
+
+        if (nextIndex < 0) {
+            val isPreparingAudio =
+                currentState is State.AudioPrepare || currentState is State.AudioQueued
+            if (!isPreparingAudio) {
+                log.error("Seeking to a MediaItem(${nextMediaItem.mediaId}, which is not found in $item. Reset playing the current item")
+                enqueueAndPlay(item)
+            }
+
+        } else if (nextIndex == item.startIndex && autoSkipped) {
+            // The playlist was looped one time (or the users skipped back and then reached the starting article again)
+            val newItem = item.copy(currentIndex = nextIndex)
+            val newState = currentState.copyWithItem(newItem)
+            forceState(newState)
+            currentState.getControllerOrNull()?.pause()
+
+        } else if (nextIndex != item.currentIndex) {
+            val newItem = item.copy(currentIndex = nextIndex)
+            val newState = currentState.copyWithItem(newItem)
+            forceState(newState)
+        }
+    }
+
 
     // region helper functions
     /** See [MutableStateFlow.compareAndSet] */
@@ -559,27 +735,49 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         this.state.value = state
     }
 
-    private fun getControllerFromState(): MediaController? {
-        return when (val state = state.value) {
-            is State.AudioError -> state.controller
-            is State.AudioPlaying -> state.controller
-            is State.AudioPrepare -> state.controller
-            is State.AudioReady -> state.controller
-            is State.ControllerReady -> state.controller
-            State.Init, is State.ControllerError, is State.AudioQueued -> null
-        }
+    private fun getControllerFromState(): MediaController? = state.value.getControllerOrNull()
+
+    private fun State.getControllerOrNull(): MediaController? = when (this) {
+        is State.AudioError -> controller
+        is State.AudioPlaying -> controller
+        is State.AudioPrepare -> controller
+        is State.AudioReady -> controller
+        is State.ControllerReady -> controller
+        State.Init, is State.ControllerError, is State.AudioQueued -> null
+    }
+
+    private fun getItemFromState(): AudioPlayerItem? = state.value.getItemOrNull()
+
+    private fun State.getItemOrNull(): AudioPlayerItem? = when (this) {
+        is State.AudioError -> item
+        is State.AudioPlaying -> item
+        is State.AudioPrepare -> item
+        is State.AudioQueued -> item
+        is State.AudioReady -> item
+        State.Init, is State.ControllerError, is State.ControllerReady -> null
+    }
+
+    private fun State.copyWithItem(newItem: AudioPlayerItem): State = when(this) {
+        is State.AudioError -> copy(item = newItem)
+        is State.AudioPlaying -> copy(item = newItem)
+        is State.AudioPrepare -> copy(item = newItem)
+        is State.AudioQueued -> copy(item = newItem)
+        is State.AudioReady -> copy(item = newItem)
+        State.Init, is State.ControllerError, is State.ControllerReady -> this
     }
 
     private fun State.toLogString(): String = when (this) {
-        is State.AudioError -> "${this::class.simpleName}(${controller.hashCode()}, ${articleAudio.article.key})"
-        is State.AudioPlaying -> "${this::class.simpleName}(${controller.hashCode()}, ${articleAudio.article.key})"
-        is State.AudioPrepare -> "${this::class.simpleName}(${controller.hashCode()}, ${articleAudio.article.key})"
-        is State.AudioQueued -> "${this::class.simpleName}(${articleAudio.article.key})"
-        is State.AudioReady -> "${this::class.simpleName}(${controller.hashCode()}, ${articleAudio.article.key})"
+        is State.AudioError -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.AudioPlaying -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.AudioPrepare -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.AudioQueued -> "${this::class.simpleName}($item)"
+        is State.AudioReady -> "${this::class.simpleName}(${controller.hashCode()},$item)"
         is State.ControllerError -> "${this::class.simpleName}: ${this.exception}"
         is State.ControllerReady -> "${this::class.simpleName}(${controller.hashCode()})"
         State.Init -> "${this::class.simpleName}"
     }
+
+    private fun MediaItem.toLogString(): String = "MediaItem($mediaId)"
 
     private fun mapAudioErrorToException(audioError: State.AudioError): AudioPlayerException {
         return when (audioError.exception.errorCode) {
@@ -594,15 +792,67 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             else -> AudioPlayerException.Generic(cause = audioError.exception)
         }
     }
+    // endregion helper functions
 
-    private fun getExpandedFromUiState(): Boolean {
-        return when (val state = uiState.value) {
-            is UiState.Error -> state.expanded
-            UiState.Hidden -> false
-            is UiState.Loading -> false
-            is UiState.Paused -> state.expanded
-            is UiState.Playing -> state.expanded
+
+    // region UiState
+    private fun mapUiState(state: State, isExpanded: Boolean, playbackSpeed: Float, isAutoPlayNext: Boolean): UiState {
+        return when (state) {
+            State.Init -> UiState.Hidden
+            is State.ControllerReady -> UiState.Hidden
+
+            is State.ControllerError -> UiState.InitError(
+                wasHandled = false,
+                AudioPlayerException.Generic(cause = state.exception)
+            )
+
+            is State.AudioPrepare -> UiState.Initializing(state.item.currentArticle)
+            is State.AudioQueued -> UiState.Initializing(state.item.currentArticle)
+            is State.AudioReady -> UiState.Paused(
+                UiState.PlayerState(
+                    state.item.currentArticle,
+                    state.item.issueKey,
+                    isExpanded,
+                    playbackSpeed,
+                    isAutoPlayNext,
+                    getUiStateControls(state.item, isAutoPlayNext),
+                )
+            )
+
+            is State.AudioPlaying -> UiState.Playing(
+                UiState.PlayerState(
+                    state.item.currentArticle,
+                    state.item.issueKey,
+                    isExpanded,
+                    playbackSpeed,
+                    isAutoPlayNext,
+                    getUiStateControls(state.item, isAutoPlayNext),
+                )
+            )
+
+            is State.AudioError -> UiState.Error(
+                wasHandled = false,
+                UiState.PlayerState(
+                    state.item.currentArticle,
+                    state.item.issueKey,
+                    isExpanded,
+                    playbackSpeed,
+                    isAutoPlayNext,
+                    getUiStateControls(state.item, isAutoPlayNext),
+                ),
+                mapAudioErrorToException(state)
+            )
         }
     }
-    // endregion helper functions
+
+    private fun getUiStateControls(item: AudioPlayerItem, isAutoPlayNext: Boolean): UiState.Controls = when(item) {
+        is ArticleAudio -> UiState.Controls(UiState.ControlValue.HIDDEN, UiState.ControlValue.HIDDEN, UiState.ControlValue.HIDDEN)
+        is IssueAudio -> {
+            val skipNext = if (isAutoPlayNext || item.currentIndex < item.articles.lastIndex) { UiState.ControlValue.ENABLED } else { UiState.ControlValue.DISABLED }
+            val skipPrevious = if (isAutoPlayNext || item.currentIndex > 0) { UiState.ControlValue.ENABLED } else { UiState.ControlValue.DISABLED }
+            UiState.Controls(skipNext, skipPrevious, UiState.ControlValue.ENABLED)
+        }
+    }
+
+    // endregion UiState
 }
