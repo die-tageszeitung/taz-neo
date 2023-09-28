@@ -291,6 +291,20 @@
                 app:barrierDirection="bottom"
                 app:constraint_referenced_ids="expanded_progress_current_time,expanded_progress_remaining_time" />
 
+
+            <ImageView
+                android:id="@+id/expanded_skip_previous_action"
+                android:layout_width="@dimen/audioplayer_expanded_seek_action_size"
+                android:layout_height="@dimen/audioplayer_expanded_seek_action_size"
+                android:contentDescription="@string/media3_controls_seek_to_previous_description"
+                android:src="@drawable/ic_previous"
+                app:layout_constraintBottom_toBottomOf="@id/expanded_audio_action"
+                app:layout_constraintEnd_toStartOf="@id/expanded_rewind_action"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_action"
+                app:tint="@color/audio_player_controls_color" />
+
             <ImageView
                 android:id="@+id/expanded_rewind_action"
                 android:layout_width="@dimen/audioplayer_expanded_seek_action_size"
@@ -299,8 +313,7 @@
                 android:src="@drawable/ic_rewind_15"
                 app:layout_constraintBottom_toBottomOf="@id/expanded_audio_action"
                 app:layout_constraintEnd_toStartOf="@id/expanded_audio_action"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@id/expanded_skip_previous_action"
                 app:layout_constraintTop_toTopOf="@id/expanded_audio_action"
                 app:tint="@color/audio_player_controls_color" />
 
@@ -324,10 +337,33 @@
                 android:contentDescription="@string/media3_controls_seek_forward_description"
                 android:src="@drawable/ic_forward_15"
                 app:layout_constraintBottom_toBottomOf="@id/expanded_audio_action"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/expanded_skip_next_action"
                 app:layout_constraintStart_toEndOf="@id/expanded_audio_action"
                 app:layout_constraintTop_toTopOf="@id/expanded_audio_action"
                 app:tint="@color/audio_player_controls_color" />
+
+            <ImageView
+                android:id="@+id/expanded_skip_next_action"
+                android:layout_width="@dimen/audioplayer_expanded_seek_action_size"
+                android:layout_height="@dimen/audioplayer_expanded_seek_action_size"
+                android:contentDescription="@string/media3_controls_seek_to_next_description"
+                android:src="@drawable/ic_next"
+                app:layout_constraintBottom_toBottomOf="@id/expanded_audio_action"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/expanded_forward_action"
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_action"
+                app:tint="@color/audio_player_controls_color" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/expanded_auto_play_next_switch"
+                style="@style/TextAppearance.AudioPlayer.Switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/audioplayer_expanded_auto_play_next_margin_top"
+                android:text="@string/audioplayer_auto_play_next"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action" />
 
         </de.taz.app.android.audioPlayer.views.ExpandedPlayerConstraintLayout>
 

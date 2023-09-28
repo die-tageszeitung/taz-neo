@@ -2,6 +2,7 @@ package de.taz.app.android.audioPlayer
 
 import android.app.PendingIntent
 import android.content.Intent
+import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
@@ -81,14 +82,15 @@ private class ArticleAudioMediaSessionCallback : MediaSession.Callback {
 
         return Futures.immediateFuture(mediaItemsWithLocalUriInfo)
     }
+
 }
 
 /**
  * Set the [RequestMetadata] on the [MediaItem] so that it might be prepared via [ArticleAudioMediaSessionCallback].
  */
-fun MediaItem.Builder.setArticleAudioRequestMetadata(articleAudio: ArticleAudio): MediaItem.Builder =
+fun MediaItem.Builder.setArticleAudioRequestMetadata(audioFileUri: Uri): MediaItem.Builder =
     apply {
         setRequestMetadata(
-            MediaItem.RequestMetadata.Builder().setMediaUri(articleAudio.audioFileUrl).build()
+            MediaItem.RequestMetadata.Builder().setMediaUri(audioFileUri).build()
         )
     }

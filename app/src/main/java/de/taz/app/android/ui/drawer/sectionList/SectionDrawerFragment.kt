@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
+import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -43,6 +45,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
+    private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
     private val log by Log
 
@@ -101,9 +104,15 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 launch {
                     sectionListAdapter.allOpened.collect { allOpened ->
                         if (allOpened) {
-                            viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_collapse_all)
+                            viewBinding.fragmentDrawerToggleAllSections.apply {
+                                setImageResource(R.drawable.ic_chevron_double_up)
+                                contentDescription = getString(R.string.fragment_drawer_sections_collapse_all)
+                            }
                         } else {
-                            viewBinding.fragmentDrawerToggleAllSections.setText(R.string.fragment_drawer_sections_expand_all)
+                            viewBinding.fragmentDrawerToggleAllSections.apply {
+                                setImageResource(R.drawable.ic_chevron_double_down)
+                                contentDescription = getString(R.string.fragment_drawer_sections_expand_all)
+                            }
                         }
                     }
                 }
@@ -129,6 +138,25 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                                 showIssue(issueStub.issueKey)
                             }
                         }
+                }
+
+                launch {
+                    drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
+                        val imageResource = if (isActive) {
+                            R.drawable.ic_audio_filled
+                        } else {
+                            R.drawable.ic_audio
+                        }
+                        viewBinding.fragmentDrawerPlayIssueIcon.setImageResource(imageResource)
+                    }
+                }
+
+                launch {
+                    drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
+                        toastHelper.showToast(message, long = true)
+                        drawerAudioPlayerViewModel.clearErrorMessage()
+
+                    }
                 }
             }
         }
@@ -159,6 +187,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
+            drawerAudioPlayerViewModel.setIssue(issue)
 
             sectionListAdapter.initWithList(
                 getSectionDrawerItemList(issue.sectionList)
@@ -180,11 +209,17 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     viewBinding.separatorLineImprintTop.visibility = View.GONE
                 }
             }
-            viewBinding.fragmentDrawerToggleAllSections.apply {
-                visibility = View.VISIBLE
-                setOnClickListener {
+            viewBinding.apply {
+                fragmentDrawerHeaderActionGroup.visibility = View.VISIBLE
+                fragmentDrawerToggleAllSectionsTouchArea.setOnClickListener {
                     tracker.trackDrawerToggleAllSectionsEvent()
                     sectionListAdapter.toggleAllSections()
+                }
+                fragmentDrawerPlayIssueIcon.setOnClickListener {
+                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
+                }
+                fragmentDrawerPlayIssueText.setOnClickListener {
+                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
                 }
             }
 

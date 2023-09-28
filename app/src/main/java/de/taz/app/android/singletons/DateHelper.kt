@@ -157,7 +157,7 @@ object DateHelper {
     fun stringToLongLocalized2LineString(dateString: String): String? {
         return stringToDate(dateString)
             ?.let { issueDate ->
-                SimpleDateFormat("EEEE,\n d.M.yyyy", appLocale)
+                SimpleDateFormat("EEEE,\nd.M.yyyy", appLocale)
                     .format(issueDate)
                     .lowercase(appLocale)
             }

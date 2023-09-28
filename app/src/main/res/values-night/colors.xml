@@ -14,6 +14,7 @@
     <color name="bottom_sheet_text_color">@color/lightGrey</color>
     <color name="drawer_sections_date">@color/lightGrey</color>
     <color name="drawer_sections_item">@color/lightGrey</color>
+    <color name="drawer_sections_header_action">@color/lightGrey</color>
 
     <color name="backgroundColor">@color/superDarkGrey</color>
 

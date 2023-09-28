@@ -5,20 +5,29 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
+import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 /**
  * Fragment used in the drawer to display preview of pages with page titles of an issue
@@ -31,14 +40,17 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
+    private lateinit var toastHelper: ToastHelper
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         storageService = StorageService.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,6 +87,33 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                 }
             )
         )
+
+        pdfPagerViewModel.issueLiveData.observe(viewLifecycleOwner) {
+            val issue = Issue(it)
+            drawerAudioPlayerViewModel.setIssue(issue)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    drawerAudioPlayerViewModel.isIssueActiveAudio.collect { isActive ->
+                        val imageResource = if (isActive) {
+                            R.drawable.ic_audio_filled
+                        } else {
+                            R.drawable.ic_audio
+                        }
+                        viewBinding.fragmentDrawerPlayIssueIcon.setImageResource(imageResource)
+                    }
+                }
+
+                launch {
+                    drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
+                        toastHelper.showToast(message, long = true)
+                        drawerAudioPlayerViewModel.clearErrorMessage()
+                    }
+                }
+            }
+        }
     }
 
     private fun initDrawAdapter(items: List<Page>) {
@@ -131,6 +170,11 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
             viewBinding.activityPdfDrawerDate.text =
                 pdfPagerViewModel.issue?.let { setDrawerDate(it) } ?: ""
+
+            viewBinding.apply {
+                fragmentDrawerPlayIssueIcon.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
+                fragmentDrawerPlayIssueText.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
+            }
 
             adapter =
                 PdfDrawerRecyclerViewAdapter(

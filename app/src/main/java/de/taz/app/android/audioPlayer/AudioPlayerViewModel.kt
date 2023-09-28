@@ -16,17 +16,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-
 /**
- * Convenience wrapper around the [AudioPlayerService] that may be used from
+ * Convenience wrapper around the [AudioPlayerService] that may be used from Fragments showing an Article.
  *
- * Note: this ViewModel *must not* be bound the an Activity but shall only be used on Fragments with `by viewModel<AudioPlayerViewModel>()`
+ * Note: this ViewModel *must not* be bound to an Activity but shall only be used on Fragments with `by viewModel<AudioPlayerViewModel>()`
  */
-class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(androidApplication) {
-    private val log by Log
+abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(androidApplication) {
+    protected val log by Log
 
-    private val application = androidApplication as AbstractTazApplication
-    private val audioPlayerService = AudioPlayerService.getInstance(application.applicationContext)
+    protected val application = androidApplication as AbstractTazApplication
+    protected val audioPlayerService = AudioPlayerService.getInstance(application.applicationContext)
 
     private val visibleArticleStub: MutableStateFlow<ArticleStub?> = MutableStateFlow(null)
     private val visibleArticleFileName = visibleArticleStub.map { it?.articleFileName }
@@ -42,26 +41,26 @@ class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(a
         visibleArticleFileName, audioPlayerService.uiState
     ) { articleFileName: String?, state: UiState ->
         when (state) {
-            is UiState.Error -> state.articleAudio?.isArticleFileName(articleFileName) ?: false
-            UiState.Hidden -> false
-            is UiState.Loading -> state.articleAudio?.isArticleFileName(articleFileName) ?: false
-            is UiState.Paused -> state.articleAudio.isArticleFileName(articleFileName)
-            is UiState.Playing -> state.articleAudio.isArticleFileName(articleFileName)
+            UiState.Hidden, is UiState.InitError -> false
+            is UiState.Initializing -> state.article.key == articleFileName
+            is UiState.Paused -> state.playerState.article.key == articleFileName
+            is UiState.Playing -> state.playerState.article.key == articleFileName
+            is UiState.Error -> state.playerState.article.key == articleFileName
         }
     }
 
     val isPlayerVisible: Flow<Boolean> = audioPlayerService.uiState.map {
         when (it) {
             UiState.Hidden -> false
-            is UiState.Error, is UiState.Loading, is UiState.Paused, is UiState.Playing -> true
+            is UiState.Error, is UiState.Initializing, is UiState.Paused, is UiState.Playing, is UiState.InitError -> true
         }
     }
 
-    fun setIsVisibleArticle(articleStub: ArticleStub) {
+    fun setVisibleArticle(articleStub: ArticleStub) {
         visibleArticleStub.value = articleStub
     }
 
-    fun clearIsVisibleArticle() {
+    fun clearVisibleArticle() {
         visibleArticleStub.value = null
     }
 
@@ -78,10 +77,15 @@ class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(a
                 if (isVisibleArticleActive) {
                     audioPlayerService.dismissPlayer()
                 } else {
-                    playArticleStub(articleStub)
+                    try {
+                        play(articleStub)
+                    } catch (e: Exception) {
+                        log.error("Could not play article audio (${articleStub.articleFileName})", e)
+                        _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
+                    }
                 }
             } else {
-                log.error("handleOnAudioActionOnVisibleArticle() was called before setIsVisibleArticle()")
+                log.error("handleOnAudioActionOnVisibleArticle() was called before setVisibleArticle()")
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
             }
         }
@@ -91,16 +95,24 @@ class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(a
         _errorMessageFlow.value = null
     }
 
-    private suspend fun playArticleStub(articleStub: ArticleStub) {
-        try {
-            audioPlayerService.playArticleAudioAsync(articleStub).await()
-        } catch (e: Exception) {
-            log.error("Could not play article audio (${articleStub.articleFileName})")
-            _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
-        }
-    }
+    abstract suspend fun play(articleStub: ArticleStub)
+}
 
-    private fun ArticleAudio.isArticleFileName(articleFileName: String?): Boolean =
-        article.key == articleFileName
+
+class ArticleAudioPlayerViewModel(androidApplication: Application) :
+    AudioPlayerViewModel(androidApplication) {
+
+    override suspend fun play(articleStub: ArticleStub) {
+        audioPlayerService.playArticleAudioAsync(articleStub).await()
+    }
+}
+
+class IssueAudioPlayerViewModel(androidApplication: Application) :
+    AudioPlayerViewModel(androidApplication) {
+
+    override suspend fun play(articleStub: ArticleStub) {
+        val issueStub = requireNotNull(articleStub.getIssueStub(application.applicationContext))
+        audioPlayerService.playIssue(issueStub, articleStub).await()
+    }
 
 }
