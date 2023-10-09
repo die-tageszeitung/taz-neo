@@ -6,7 +6,6 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
@@ -353,12 +352,6 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackPdfModeSwitchHintDialog() {
-        TrackHelper.track()
-            .event(CATEGORY_DIALOG, "PDF Mode Switch Hint")
-            .with(matomoTracker)
-    }
-
     override fun trackConnectionErrorDialog() {
         TrackHelper.track()
             .event(CATEGORY_DIALOG, "Connection Error")
@@ -512,6 +505,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackDrawerTapPlayIssueEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_DRAWER, "Tap")
+            .name("Tap Play Issue")
+            .with(matomoTracker)
+    }
+
     override fun trackDrawerToggleAllSectionsEvent() {
         TrackHelper.track()
             .event(CATEGORY_DRAWER, "Toggle")
@@ -526,13 +526,93 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerPlayArticleEvent(articleAudio: ArticleAudio) {
+    override fun trackAudioPlayerPlayArticleEvent(article: Article) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Article")
-            .name(articlePath(articleAudio.article.key, articleAudio.article.mediaSyncId))
+            .name(articlePath(article.key, article.mediaSyncId))
             .with(matomoTracker)
     }
 
+    override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Change Play Speed")
+            .name(playbackSpeed.toString())
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerMaximizeEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Maximize")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerMinimizeEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Minimize")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerCloseEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Close")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSkipNextEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Skip Next")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSkipPreviousEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Skip Previous")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSeekForwardSecondsEvent(seconds: Long) {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Seek Forward")
+            .name("$seconds Seconds")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long) {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Seek Backward")
+            .name("$seconds Seconds")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSeekPositionEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Seek Position")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerResumeEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Resume")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerPauseEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Pause")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerAutoplayEnableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Enable Auto Play Next")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerAutoplayDisableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Disable Auto Play Next")
+            .with(matomoTracker)
+    }
 }
 
 /**

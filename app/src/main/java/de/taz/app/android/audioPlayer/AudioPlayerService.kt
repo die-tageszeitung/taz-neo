@@ -213,6 +213,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun setPlayerExpanded(expanded: Boolean) {
+        if (expanded) {
+            tracker.trackAudioPlayerMaximizeEvent()
+        } else {
+            tracker.trackAudioPlayerMinimizeEvent()
+        }
+
         var updated = false
         while (!updated) {
             val prevState = _uiState.value
@@ -222,12 +228,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun seekTo(positionMs: Long) {
+        tracker.trackAudioPlayerSeekPositionEvent()
         getControllerFromState()?.apply {
             this.seekTo(positionMs)
         }
     }
 
     fun seekForward() {
+        tracker.trackAudioPlayerSeekForwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
         getControllerFromState()?.apply {
             val newPosition = (currentPosition + SEEK_FORWARD_MS)
             if (newPosition < duration) {
@@ -237,6 +245,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun seekBackward() {
+        tracker.trackAudioPlayerSeekBackwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
         getControllerFromState()?.apply {
             val newPosition = (currentPosition - SEEK_BACKWARD_MS).coerceAtLeast(0L)
             seekTo(newPosition)
@@ -244,14 +253,17 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun skipToNext() {
+        tracker.trackAudioPlayerSkipNextEvent()
         getControllerFromState()?.seekToNextMediaItem()
     }
 
     fun skipToPrevious() {
+        tracker.trackAudioPlayerSkipPreviousEvent()
         getControllerFromState()?.seekToPreviousMediaItem()
     }
 
     suspend fun setPlaybackSpeed(playbackSpeed: Float) {
+        tracker.trackAudioPlayerChangePlaySpeedEvent(playbackSpeed)
         // Only set the playback speed on the dataStore - setting the playback speed on the controller
         // will be handled by an observer on the dataStore entry.
         dataStore.playbackSpeed.set(playbackSpeed)
@@ -264,6 +276,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun setAutoPlayNext(autoPlayNext: Boolean) {
         launch {
             if (autoPlayNext != autoPlayNextPreference.value) {
+                if (autoPlayNext) {
+                    tracker.trackAudioPlayerAutoplayEnableEvent()
+                } else {
+                    tracker.trackAudioPlayerAutoplayDisableEvent()
+                }
+
                 dataStore.autoPlayNext.set(autoPlayNext)
             }
         }
@@ -283,15 +301,22 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             }
         }
 
-//        // Trigger tracking events from the default dispatcher
-//        launch(Dispatchers.Default) {
-//            state.collect {state ->
-//                when(state) {
-//                    is State.AudioPlaying -> tracker.trackAudioPlayerPlayArticleEvent(state.articleAudio)
-//                    else -> Unit
-//                }
-//            }
-//        }
+        // Trigger tracking if a different article is played
+        launch(Dispatchers.Default) {
+            var lastArticleTracked: Article? = null
+            state.collect {state ->
+                when(state) {
+                    is State.AudioPlaying -> {
+                        if (lastArticleTracked != state.item.currentArticle) {
+                            tracker.trackAudioPlayerPlayArticleEvent(state.item.currentArticle)
+                            lastArticleTracked = state.item.currentArticle
+                        }
+                    }
+                    is State.Init -> lastArticleTracked = null
+                    else -> Unit
+                }
+            }
+        }
 
         launch {
             playbackSpeedPreference.collect {
@@ -306,10 +331,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 getControllerFromState()?.setAutoPlayNext(it)
             }
         }
-    }
-
-    private fun createAudioFileUrl(issueStub: IssueStub, audioFile: FileEntry): Uri {
-        return Uri.parse("${issueStub.baseUrl}/${audioFile.name}")
     }
 
     private fun enqueueAndPlay(item: AudioPlayerItem) {

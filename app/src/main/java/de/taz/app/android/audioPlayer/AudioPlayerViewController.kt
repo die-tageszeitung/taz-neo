@@ -27,6 +27,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
@@ -80,6 +81,7 @@ class AudioPlayerViewController(
     private lateinit var audioPlayerService: AudioPlayerService
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
+    private lateinit var tracker: Tracker
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
@@ -87,11 +89,13 @@ class AudioPlayerViewController(
     private var boundArticleHasImage: Boolean = false
     private var boundArticleIssueKey: AbstractIssueKey? = null
     private var isTabletMode: Boolean = false
+    private var isPlaying: Boolean = false
 
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
         storageService = StorageService.getInstance(activity.applicationContext)
         toastHelper = ToastHelper.getInstance(activity.applicationContext)
+        tracker = Tracker.getInstance(activity.applicationContext)
         // FIXME (johannes): Re-consider adding the player views here if it prevents flickering during Activity changes
         isTabletMode = activity.resources.getBoolean(R.bool.isTablet)
     }
@@ -137,6 +141,8 @@ class AudioPlayerViewController(
         if (uiState.isExpanded()) {
             enableBackHandling()
         }
+
+        isPlaying = uiState is UiState.Playing
 
         when (uiState) {
             is UiState.Initializing -> binding.showLoadingState()
@@ -468,7 +474,10 @@ class AudioPlayerViewController(
     }
 
     private fun AudioplayerOverlayBinding.setupUserInteractionHandlers() {
-        closeButton.setOnClickListener { audioPlayerService.dismissPlayer() }
+        closeButton.setOnClickListener {
+            tracker.trackAudioPlayerCloseEvent()
+            audioPlayerService.dismissPlayer()
+        }
 
         audioActionButton.setOnClickListener { toggleAudioPlaying() }
 
@@ -526,6 +535,12 @@ class AudioPlayerViewController(
     }
 
     private fun toggleAudioPlaying() {
+        if (isPlaying) {
+            tracker.trackAudioPlayerPauseEvent()
+        } else {
+            tracker.trackAudioPlayerResumeEvent()
+        }
+
         audioPlayerService.toggleAudioPlaying()
     }
 
