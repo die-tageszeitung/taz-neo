@@ -191,9 +191,6 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
 
-        // if we have position 0 we are on teh actual issue, so set the home icon to filled:
-        getHomeFragment().setHomeIconFilled(nextPosition == 0)
-
         val item = adapter.getItem(nextPosition)
         if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
             return
@@ -274,7 +271,6 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     fun skipToHome() {
-        getHomeFragment().setHomeIconFilled()
         viewModel.feed.value?.publicationDates?.firstOrNull()?.let {
             skipToDate(it.date)
         }

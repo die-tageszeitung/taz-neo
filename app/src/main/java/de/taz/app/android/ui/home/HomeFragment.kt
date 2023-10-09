@@ -6,7 +6,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -121,7 +120,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
                             ARCHIVE_PAGER_POSITION -> {
                                 onHome = false
-                                setHomeIconFilled(false)
                                 disableRefresh()
                             }
                         }
@@ -217,25 +215,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         refreshJob?.cancel()
         refreshJob = null
         super.onDestroyView()
-    }
-
-    fun setHomeIconFilled(filled: Boolean = true) {
-        val menuView = view?.rootView?.findViewById<BottomNavigationView>(R.id.navigation_bottom)
-        val menu = menuView?.menu
-        if (filled) {
-            // Only set filled if onHome (not on archive)
-            if (onHome) {
-                menuView?.post {
-                    menu?.findItem(R.id.bottom_navigation_action_home)
-                        ?.setIcon(R.drawable.ic_home_filled)
-                }
-            }
-        } else {
-            menuView?.post {
-                menu?.findItem(R.id.bottom_navigation_action_home)
-                    ?.setIcon(R.drawable.ic_home)
-            }
-        }
     }
 
     fun showArchive() {
