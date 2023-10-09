@@ -32,4 +32,6 @@
     <string name="app_free_download_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur LMd. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
+
+    <string name="coach_mark_article_size_title">Die LMd ist unlesbar?</string>
 </resources>
