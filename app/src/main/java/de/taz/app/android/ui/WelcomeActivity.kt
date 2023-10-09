@@ -1,7 +1,6 @@
 package de.taz.app.android.ui
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
@@ -12,13 +11,11 @@ import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityWelcomeBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
@@ -27,8 +24,6 @@ import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-const val START_HOME_ACTIVITY = "START_HOME_ACTIVITY"
 
 class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
@@ -40,17 +35,11 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     private lateinit var resourceInfoRepository: ResourceInfoRepository
     private lateinit var tracker: Tracker
 
-    private var startHomeActivity = false
-
-    private val generalDataStore by lazy { GeneralDataStore.getInstance(applicationContext) }
-
     private val welcomeSlidesHtmlFile = "welcomeSlidesAndroid.html"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        startHomeActivity = intent.getBooleanExtra(START_HOME_ACTIVITY, false)
 
         storageService = StorageService.getInstance(applicationContext)
         resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
@@ -66,8 +55,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         viewBinding.apply {
             buttonClose.setOnClickListener {
                 log.debug("welcome screen close clicked")
-                setFirstTimeStart()
-                done()
+                finish()
             }
 
             webViewFullscreenContent.apply {
@@ -89,14 +77,9 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         tracker.trackWebViewScreen(welcomeSlidesHtmlFile)
     }
 
-    private fun setFirstTimeStart() {
-        applicationScope.launch { generalDataStore.hasSeenWelcomeScreen.set(true) }
-    }
-
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-        // flag SETTINGS_FIRST_TIME_APP_STARTS will not be set to true
-        done()
+        finish()
     }
 
     private suspend fun ensureResourceInfoIsDownloadedAndShowWelcomeSlides() {
@@ -139,16 +122,4 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         }
     }
 
-    private fun done() {
-        if (startHomeActivity) {
-            startMainActivity()
-        } else {
-            finish()
-        }
-    }
-
-    private fun startMainActivity() {
-        MainActivity.start(this, Intent.FLAG_ACTIVITY_NO_ANIMATION)
-        finish()
-    }
 }
