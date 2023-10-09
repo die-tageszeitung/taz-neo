@@ -7,6 +7,7 @@ import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,10 +24,11 @@ import kotlinx.coroutines.launch
  */
 class DrawerAudioPlayerViewModel(androidApplication: Application) :
     AndroidViewModel(androidApplication) {
-    protected val log by Log
+    private val log by Log
 
     private val application = androidApplication as AbstractTazApplication
     private val audioPlayerService = AudioPlayerService.getInstance(application.applicationContext)
+    private val tracker = Tracker.getInstance(application.applicationContext)
 
     private val issue: MutableStateFlow<Issue?> = MutableStateFlow(null)
     private val issueKey = issue.map { it?.issueKey }
@@ -51,6 +53,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
     }
 
     fun handleOnPlayAllClicked() {
+        tracker.trackDrawerTapPlayIssueEvent()
         viewModelScope.launch {
             val currentIssue = issue.value
             if (currentIssue != null) {

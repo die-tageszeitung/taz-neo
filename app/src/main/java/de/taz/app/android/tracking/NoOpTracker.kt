@@ -4,7 +4,6 @@ import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 
 class NoOpTracker : Tracker {
@@ -50,7 +49,6 @@ class NoOpTracker : Tracker {
     override fun trackSharingNotPossibleDialog() {}
     override fun trackAutomaticDownloadDialog() {}
     override fun trackPdfModeLoginHintDialog() {}
-    override fun trackPdfModeSwitchHintDialog() {}
     override fun trackConnectionErrorDialog() {}
     override fun trackFatalErrorDialog() {}
     override fun trackIssueDownloadErrorDialog() {}
@@ -74,7 +72,21 @@ class NoOpTracker : Tracker {
     override fun trackDrawerTapImprintEvent() {}
     override fun trackDrawerTapMomentEvent() {}
     override fun trackDrawerTapBookmarkEvent() {}
+    override fun trackDrawerTapPlayIssueEvent() {}
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
-    override fun trackAudioPlayerPlayArticleEvent(articleAudio: ArticleAudio) {}
+    override fun trackAudioPlayerPlayArticleEvent(articleAudio: Article) {}
+    override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}
+    override fun trackAudioPlayerMaximizeEvent() {}
+    override fun trackAudioPlayerMinimizeEvent() {}
+    override fun trackAudioPlayerCloseEvent() {}
+    override fun trackAudioPlayerSkipNextEvent() {}
+    override fun trackAudioPlayerSkipPreviousEvent() {}
+    override fun trackAudioPlayerSeekForwardSecondsEvent(seconds: Long) {}
+    override fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long) {}
+    override fun trackAudioPlayerSeekPositionEvent() {}
+    override fun trackAudioPlayerResumeEvent() {}
+    override fun trackAudioPlayerPauseEvent() {}
+    override fun trackAudioPlayerAutoplayEnableEvent() {}
+    override fun trackAudioPlayerAutoplayDisableEvent() {}
 }

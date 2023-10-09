@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
-import de.taz.app.android.audioPlayer.ArticleAudio
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
 
@@ -103,7 +102,6 @@ interface Tracker {
     fun trackSharingNotPossibleDialog()
     fun trackAutomaticDownloadDialog()
     fun trackPdfModeLoginHintDialog()
-    fun trackPdfModeSwitchHintDialog()
     fun trackConnectionErrorDialog()
     fun trackFatalErrorDialog()
     fun trackIssueDownloadErrorDialog()
@@ -131,8 +129,22 @@ interface Tracker {
     fun trackDrawerTapImprintEvent()
     fun trackDrawerTapMomentEvent()
     fun trackDrawerTapBookmarkEvent()
+    fun trackDrawerTapPlayIssueEvent()
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(articleAudio: ArticleAudio)
+    fun trackAudioPlayerPlayArticleEvent(articleAudio: Article)
+    fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)
+    fun trackAudioPlayerMaximizeEvent()
+    fun trackAudioPlayerMinimizeEvent()
+    fun trackAudioPlayerCloseEvent()
+    fun trackAudioPlayerSkipNextEvent()
+    fun trackAudioPlayerSkipPreviousEvent()
+    fun trackAudioPlayerSeekForwardSecondsEvent(seconds: Long)
+    fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long)
+    fun trackAudioPlayerSeekPositionEvent()
+    fun trackAudioPlayerResumeEvent()
+    fun trackAudioPlayerPauseEvent()
+    fun trackAudioPlayerAutoplayEnableEvent()
+    fun trackAudioPlayerAutoplayDisableEvent()
 }
