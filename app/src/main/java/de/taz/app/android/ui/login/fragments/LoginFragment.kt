@@ -6,9 +6,11 @@ import android.view.View
 import androidx.annotation.StringRes
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.util.hideSoftInputKeyboard
 
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
@@ -91,6 +93,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             tracker.trackLoginHelpDialog()
         }
 
+        viewBinding.fragmentLoginShowDataPolicy.setOnClickListener {
+            showDataPolicy()
+        }
+
         viewBinding.fragmentLoginPassword.setOnEditorActionListener(
             OnEditorActionDoneListener {
                 login()
@@ -123,4 +129,13 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         viewBinding.fragmentLoginSwitchPrint2digiBox.visibility = View.GONE
         viewBinding.fragmentLoginExtendPrintWithDigiBox.visibility = View.GONE
     }
+
+
+    private fun showDataPolicy() {
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
+            startActivity(intent)
+        }
+    }
+
 }
