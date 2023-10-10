@@ -11,12 +11,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentArticleReadOnBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
+import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.FormInvalidMessageLength
@@ -127,6 +129,10 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
             showHelp.setOnClickListener {
                 showHelpDialog()
+            }
+
+            showDataPolicy.setOnClickListener {
+                showDataPolicy()
             }
         }
     }
@@ -282,6 +288,13 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
             dialog.show()
             tracker.trackLoginHelpDialog()
+        }
+    }
+
+    private fun showDataPolicy() {
+        activity?.apply {
+            val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
+            startActivity(intent)
         }
     }
 }
