@@ -20,6 +20,7 @@ class ArticleBottomActionBarNavigationHelper(
 
 
     private var isFixed = false
+    private var isFixedForever = false
     private var defaultBehavior: BottomNavigationBehavior<View>? = null
 
     // The behavior is set on a container. See fragment_webview_pager.xml
@@ -119,7 +120,7 @@ class ArticleBottomActionBarNavigationHelper(
 
     fun fixToolbar() {
         expand(animate = false)
-        if (!isFixed) {
+        if (!isFixed && !isFixedForever) {
             defaultBehavior = behaviorView?.getBehavior()
             behaviorView?.setBehavior(null)
             isFixed = true
@@ -127,10 +128,15 @@ class ArticleBottomActionBarNavigationHelper(
     }
 
     fun releaseToolbar() {
-        if (isFixed) {
+        if (isFixed && !isFixedForever) {
             behaviorView?.setBehavior(defaultBehavior)
             isFixed = false
         }
+    }
+
+    fun fixToolbarForever() {
+        fixToolbar()
+        isFixedForever = true
     }
 
     private fun View.getBehavior(): BottomNavigationBehavior<View>? {

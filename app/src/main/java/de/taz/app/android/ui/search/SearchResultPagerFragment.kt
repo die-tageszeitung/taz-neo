@@ -103,6 +103,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         articleBottomActionBarNavigationHelper
             .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
 
+        if (resources.getBoolean(R.bool.isTablet)) {
+            articleBottomActionBarNavigationHelper.fixToolbarForever()
+        }
+
         loadingScreen.visibility = View.GONE
 
         // we either want to restore the last position or the one given on initialization
