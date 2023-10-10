@@ -94,6 +94,10 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         articleBottomActionBarNavigationHelper
             .setBottomNavigationFromContainer(viewBinding.navigationBottomLayout)
 
+        if (resources.getBoolean(R.bool.isTablet)) {
+            articleBottomActionBarNavigationHelper.fixToolbarForever()
+        }
+
         viewBinding.webviewPagerViewpager.apply {
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
         }
