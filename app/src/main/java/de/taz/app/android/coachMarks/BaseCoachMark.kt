@@ -11,6 +11,7 @@ import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 
 
@@ -33,6 +34,7 @@ abstract class BaseCoachMark(private val context: Context, private val lifecycle
     protected val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
     protected val generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     protected val authHelper = AuthHelper.getInstance(context.applicationContext)
+    protected val tracker = Tracker.getInstance(context.applicationContext)
     private val isPortrait =
         context.resources.displayMetrics.heightPixels > context.resources.displayMetrics.widthPixels
     private val isTabletMode = context.resources.getBoolean(R.bool.isTablet)
@@ -79,9 +81,11 @@ abstract class BaseCoachMark(private val context: Context, private val lifecycle
         val coachMarkDialog = CoachMarkDialog(context, location, layoutResId)
         onCoachMarkCreated(coachMarkDialog)
         coachMarkDialog.show()
+        tracker.trackCoachMarkShow(context.resources.getResourceName(layoutResId))
         coachMarkDialog.setOnDismissListener {
             // Release the coach mark lock
             isCoachMarkShown = false
+            tracker.trackCoachMarkClose(context.resources.getResourceName(layoutResId))
         }
 
         lifecycle.addObserver(object : DefaultLifecycleObserver {
