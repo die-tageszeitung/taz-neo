@@ -15,7 +15,7 @@ object ArticleMapper {
             articleDto.title,
             articleDto.teaser,
             articleDto.onlineLink,
-            articleDto.audioFile?.let { FileEntryMapper.from(issueKey, it) },
+            articleDto.audio?.let { AudioMapper.from(issueKey, it) },
             articleDto.pageNameList ?: emptyList(),
             articleDto.imageList?.map { ImageMapper.from(issueKey, it) } ?: emptyList(),
             articleDto.authorList?.map { AuthorMapper.from(it) } ?: emptyList(),

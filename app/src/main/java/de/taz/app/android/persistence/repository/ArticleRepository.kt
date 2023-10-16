@@ -3,13 +3,13 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import androidx.lifecycle.LiveData
+import androidx.room.withTransaction
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.Author
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.persistence.join.ArticleAudioFileJoin
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
@@ -23,6 +23,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val audioRepository = AudioRepository.getInstance(applicationContext)
 
     suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
@@ -35,15 +36,15 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
 
         val articleFileName = articleToSave.articleHtml.name
-        appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
 
-        // save audioFile and relation
-        articleToSave.audioFile?.let { audioFile ->
-            fileEntryRepository.save(audioFile)
-            appDatabase.articleAudioFileJoinDao().insertOrReplace(
-                ArticleAudioFileJoin(articleToSave.articleHtml.name, audioFile.name)
-            )
+        // FIXME (johannes): why dont we do all of the operations in a transaction?
+
+        // First save the audioFile to fullfill the ForeignKey constraint
+        articleToSave.audio?.let { audio ->
+            audioRepository.save(audio)
         }
+
+        appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
 
         // save html file
         fileEntryRepository.save(articleToSave.articleHtml)
@@ -69,6 +70,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                 )
             )
         }
+
 
     }
 
@@ -125,8 +127,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
     suspend fun articleStubToArticle(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
-        val audioFile = appDatabase.articleAudioFileJoinDao().getAudioFileForArticle(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
+        val audio = articleStub.audioFileName?.let { audioRepository.get(it) }
 
         // get authors
         val authorImageJoins =
@@ -163,7 +165,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.title,
             articleStub.teaser,
             articleStub.onlineLink,
-            audioFile,
+            audio,
             articleStub.pageNameList,
             articleImages,
             authors,
@@ -217,14 +219,6 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     }
                 }
 
-                // delete audioFile and relation
-                article.audioFile?.let { audioFile ->
-                    appDatabase.articleAudioFileJoinDao().delete(
-                        ArticleAudioFileJoin(article.articleHtml.name, audioFile.name)
-                    )
-                    fileEntryRepository.delete(audioFile)
-                }
-
                 // delete html file
                 fileEntryRepository.delete(article.articleHtml)
 
@@ -249,6 +243,11 @@ class ArticleRepository private constructor(applicationContext: Context) :
                     )
                     // if an issue has no imprint, it uses an imprint of an older issue. That is why it cannot be deleted here.
                     // TODO need to refactor this
+                }
+
+                // After the article has been deleted (and the foreign key reference is removed), we try to delete the audio entry
+                article.audio?.let { audio ->
+                    audioRepository.tryDelete(audio)
                 }
             }
         }

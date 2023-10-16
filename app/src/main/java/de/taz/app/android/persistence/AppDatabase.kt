@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 27
+const val DATABASE_VERSION = 28
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -42,15 +42,16 @@ val allMigrations = arrayOf(
     Migration24to25,
     Migration25to26,
     Migration26to27,
+    Migration27to28,
 )
 
 @Database(
     entities = [
         AppInfo::class,
-        ArticleAudioFileJoin::class,
         ArticleAuthorImageJoin::class,
         ArticleStub::class,
         ArticleImageJoin::class,
+        AudioStub::class,
         Feed::class,
         FileEntry::class,
         ImageStub::class,
@@ -77,20 +78,22 @@ val allMigrations = arrayOf(
     AppNameTypeConverter::class,
     AppTypeTypeConverter::class,
     ArticleTypeTypeConverter::class,
+    AudioSpeakerConverter::class,
     CycleTypeConverter::class,
     DownloadStatusTypeConverter::class,
+    FloatListConverter::class,
     FrameListTypeConverter::class,
     ImageResolutionTypeConverter::class,
     ImageTypeTypeConverter::class,
-    IssueStatusTypeConverter::class,
     IssueDateDownloadTypeConverter::class,
+    IssueStatusTypeConverter::class,
     PageTypeTypeConverter::class,
+    PublicationDateListTypeConverter::class,
+    SectionTypeTypeConverter::class,
+    SectionTypeTypeConverter::class,
+    StorageLocationConverter::class,
     StorageTypeConverter::class,
     StringListTypeConverter::class,
-    SectionTypeTypeConverter::class,
-    SectionTypeTypeConverter::class,
-    PublicationDateListTypeConverter::class,
-    StorageLocationConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
     companion object : SingletonHolder<AppDatabase, Context>({ applicationContext: Context ->
@@ -106,7 +109,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun appInfoDao(): AppInfoDao
     abstract fun articleDao(): ArticleDao
-    abstract fun articleAudioFileJoinDao(): ArticleAudioFileJoinDao
+    abstract fun audioDao(): AudioDao
     abstract fun articleAuthorImageJoinDao(): ArticleAuthorImageJoinDao
     abstract fun articleImageJoinDao(): ArticleImageJoinDao
     abstract fun feedDao(): FeedDao

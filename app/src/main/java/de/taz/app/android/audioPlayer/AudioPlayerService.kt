@@ -119,7 +119,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun playIssue(issue: Issue): Deferred<Unit> {
         return async {
-            val articlesWithAudio = issue.getArticles().filter { it.audioFile != null }
+            val articlesWithAudio = issue.getArticles().filter { it.audio != null }
             val issueAudio = IssueAudio(
                 issue.issueKey,
                 issue.baseUrl,
@@ -134,7 +134,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun playIssue(issueStub: IssueStub, articleStub: ArticleStub): Deferred<Unit> {
         return async {
             val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
-            val articlesWithAudio = articles.filter { it.audioFile != null }
+            val articlesWithAudio = articles.filter { it.audio != null }
             val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub.key }.coerceAtLeast(0)
             val issueAudio = IssueAudio(
                 issueStub.issueKey,
@@ -160,7 +160,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun playArticleAudioAsync(article: Article): Deferred<Unit> {
         return async {
-            val audioFile = article.audioFile
+            val audioFile = article.audio?.file
 
             val sectionStub = article.getSectionStub(applicationContext)
             val issueStub = sectionStub?.getIssueStub(applicationContext)
@@ -439,7 +439,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private fun prepareArticleAudio(controller: MediaController, articleAudio: ArticleAudio) {
         log.verbose("Preparing Article Audio: $articleAudio")
-        val audioUri = createAudioFileUri(articleAudio.baseUrl, requireNotNull(articleAudio.article.audioFile))
+        val audioUri = createAudioFileUri(articleAudio.baseUrl, requireNotNull(articleAudio.article.audio?.file))
         val mediaItem = createMediaItem(articleAudio.article, audioUri)
         controller.apply {
             playWhenReady = true
@@ -455,13 +455,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         val mediaItems = issueAudio.articles
             .mapNotNull { article ->
-                if (article.audioFile == null) {
+                if (article.audio == null) {
                     // IssueAudio must only contain articles with an audioFile, but the type system
                     // can't know it, so we have this additional unnecessary null check to prevent warnings.
                     return@mapNotNull null
                 }
 
-                val audioUri = createAudioFileUri(issueAudio.baseUrl, article.audioFile)
+                val audioUri = createAudioFileUri(issueAudio.baseUrl, article.audio.file)
                 createMediaItem(article, audioUri)
             }
 
