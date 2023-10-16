@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration6to7 : Migration(6, 7) {
+class Migration6to7 : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("CREATE TABLE Image (`name` TEXT NOT NULL, `storageType` TEXT NOT NULL, `moTime` INTEGER NOT NULL, `sha256` TEXT NOT NULL, `size` INTEGER NOT NULL, `folder` TEXT NOT NULL, `type` TEXT NOT NULL, `alpha` REAL NOT NULL, `resolution` TEXT NOT NULL, PRIMARY KEY(`name`, `storageType`))")
 

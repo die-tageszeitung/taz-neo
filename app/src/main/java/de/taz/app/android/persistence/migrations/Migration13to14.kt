@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration13to14 : Migration(13, 14) {
+class Migration13to14 : Migration(13, 14) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             // Download table now obsolete

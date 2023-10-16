@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration23to24 : Migration(23, 24) {
+class Migration23to24 : Migration(23, 24) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             execSQL("ALTER TABLE Article ADD COLUMN bookmarkedTime TEXT;")

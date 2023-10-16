@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.persistence.typeconverters.AudioSpeakerConverter
 
-object Migration27to28 : Migration(27, 28) {
+class Migration27to28 : Migration(27, 28) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             execSQL("CREATE TABLE IF NOT EXISTS `Audio` (`fileName` TEXT NOT NULL, `playtime` INTEGER, `duration` REAL, `speaker` TEXT NOT NULL, `breaks` TEXT, PRIMARY KEY(`fileName`), FOREIGN KEY(`fileName`) REFERENCES `FileEntry`(`name`) ON UPDATE NO ACTION ON DELETE NO ACTION )")

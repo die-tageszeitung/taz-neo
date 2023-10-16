@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration7to8 : Migration(7, 8) {
+class Migration7to8 : Migration(7, 8) {
     override fun migrate(database: SupportSQLiteDatabase) {
 
         database.execSQL("REPLACE INTO FileEntry SELECT name, storageType, moTime, sha256, size, folder FROM Image")

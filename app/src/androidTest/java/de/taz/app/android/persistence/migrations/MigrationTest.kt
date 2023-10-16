@@ -54,7 +54,7 @@ class MigrationTest {
         val database = Room.databaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java, testDb
-        ).addMigrations(*allMigrations).build()
+        ).addMigrations(*allMigrations()).build()
         // close the database and release any stream resources when the test finishes
         helper.closeWhenFinished(database)
         return database
@@ -77,7 +77,7 @@ class MigrationTest {
             close()
         }
 
-        helper.runMigrationsAndValidate(testDb, 2, true, Migration1to2)
+        helper.runMigrationsAndValidate(testDb, 2, true, Migration1to2())
 
         val fromDB = getMigratedRoomDatabase().appInfoDao().get()
         Assert.assertNotNull(fromDB)
@@ -105,7 +105,7 @@ class MigrationTest {
             close()
         }
 
-        helper.runMigrationsAndValidate(testDb, 3, true, Migration2to3)
+        helper.runMigrationsAndValidate(testDb, 3, true, Migration2to3())
 
         val fromDB = getMigratedRoomDatabase().sectionDao().get(sectionFileName)
         Assert.assertNotNull(fromDB)
@@ -145,7 +145,7 @@ class MigrationTest {
             close()
         }
 
-        helper.runMigrationsAndValidate(testDb, 4, true, Migration3to4)
+        helper.runMigrationsAndValidate(testDb, 4, true, Migration3to4())
 
         val fromDB: IssueStub? =
             getMigratedRoomDatabase().issueDao().getByFeedDateAndStatus(feedName, date, status)
@@ -182,7 +182,7 @@ class MigrationTest {
             close()
         }
 
-        helper.runMigrationsAndValidate(testDb, 5, true, Migration4to5)
+        helper.runMigrationsAndValidate(testDb, 5, true, Migration4to5())
 
         val fromDB: IssueStub? =
             getMigratedRoomDatabase().issueDao().getByFeedDateAndStatus(feedName, date, status)
@@ -250,7 +250,7 @@ class MigrationTest {
         }
 
         // Migrate the database to version 28
-        db = helper.runMigrationsAndValidate(testDb, 28, true, Migration27to28)
+        db = helper.runMigrationsAndValidate(testDb, 28, true, Migration27to28())
 
         // Verify that the data was migrated correctly
         db.query(

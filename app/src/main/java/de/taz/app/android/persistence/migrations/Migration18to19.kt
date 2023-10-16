@@ -4,7 +4,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import de.taz.app.android.api.interfaces.StorageLocation
 
-object Migration18to19 : Migration(18, 19) {
+class Migration18to19 : Migration(18, 19) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             execSQL("""

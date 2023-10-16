@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration10to11 : Migration(10, 11) {
+class Migration10to11 : Migration(10, 11) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
             execSQL("CREATE INDEX IF NOT EXISTS `index_SectionNavButtonJoin_sectionFileName` ON SectionNavButtonJoin (`sectionFileName`)")

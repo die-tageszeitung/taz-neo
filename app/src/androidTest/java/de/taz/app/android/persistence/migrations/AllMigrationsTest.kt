@@ -37,7 +37,7 @@ class AllMigrationsTest {
                 InstrumentationRegistry.getInstrumentation().targetContext,
                 AppDatabase::class.java,
                 testDb
-        ).addMigrations(*allMigrations).build().apply {
+        ).addMigrations(*allMigrations()).build().apply {
             openHelper.writableDatabase
             close()
         }

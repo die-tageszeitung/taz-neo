@@ -15,35 +15,35 @@ import de.taz.app.android.util.SingletonHolder
 const val DATABASE_VERSION = 29
 const val DATABASE_NAME = "db"
 
-val allMigrations = arrayOf(
-    Migration1to2,
-    Migration2to3,
-    Migration3to4,
-    Migration4to5,
-    Migration5to6,
-    Migration6to7,
-    Migration7to8,
-    Migration8to9,
-    Migration9to10,
-    Migration10to11,
-    Migration11to12,
-    Migration12to13,
-    Migration13to14,
-    Migration14to15,
-    Migration15to16,
-    Migration16to17,
-    Migration17to18,
-    Migration18to19,
-    Migration19to20,
-    Migration20to21,
-    Migration21to22,
-    Migration22to23,
-    Migration23to24,
-    Migration24to25,
-    Migration25to26,
-    Migration26to27,
-    Migration27to28,
-    Migration28to29,
+fun allMigrations() = arrayOf(
+    Migration1to2(),
+    Migration2to3(),
+    Migration3to4(),
+    Migration4to5(),
+    Migration5to6(),
+    Migration6to7(),
+    Migration7to8(),
+    Migration8to9(),
+    Migration9to10(),
+    Migration10to11(),
+    Migration11to12(),
+    Migration12to13(),
+    Migration13to14(),
+    Migration14to15(),
+    Migration15to16(),
+    Migration16to17(),
+    Migration17to18(),
+    Migration18to19(),
+    Migration19to20(),
+    Migration20to21(),
+    Migration21to22(),
+    Migration22to23(),
+    Migration23to24(),
+    Migration24to25(),
+    Migration25to26(),
+    Migration26to27(),
+    Migration27to28(),
+    Migration28to29(),
 )
 
 @Database(
@@ -103,7 +103,7 @@ abstract class AppDatabase : RoomDatabase() {
             AppDatabase::class.java,
             DATABASE_NAME
         )
-            .addMigrations(*allMigrations)
+            .addMigrations(*allMigrations())
             .fallbackToDestructiveMigration()
             .build()
     })
