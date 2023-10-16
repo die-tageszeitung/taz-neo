@@ -77,6 +77,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         tracker.trackWebViewScreen(welcomeSlidesHtmlFile)
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         finish()
