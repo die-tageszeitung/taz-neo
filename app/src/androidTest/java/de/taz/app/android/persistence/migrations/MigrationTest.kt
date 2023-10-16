@@ -1,27 +1,35 @@
 package de.taz.app.android.persistence.migrations
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT
+import androidx.core.database.getFloatOrNull
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getStringOrNull
 import androidx.room.Room
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.taz.app.android.api.models.AppName
 import de.taz.app.android.api.models.AppType
+import de.taz.app.android.api.models.AudioSpeaker
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.persistence.AppDatabase
-import java.io.IOException
+import de.taz.app.android.persistence.allMigrations
+import de.taz.app.android.persistence.typeconverters.AudioSpeakerConverter
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import de.taz.app.android.api.models.SectionType
-import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.persistence.allMigrations
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert
+import java.io.IOException
 import java.util.*
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 
 @RunWith(AndroidJUnit4::class)
@@ -34,8 +42,7 @@ class MigrationTest {
     @get:Rule
     val helper: MigrationTestHelper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java.canonicalName,
-        FrameworkSQLiteOpenHelperFactory()
+        AppDatabase::class.java,
     )
 
     @Before
@@ -190,6 +197,87 @@ class MigrationTest {
             Assert.assertEquals(fromDB.minResourceVersion, minResourceVersion)
             Assert.assertEquals(fromDB.dateDownload, dateDownload)
             Assert.assertFalse(fromDB.isWeekend)
+        }
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate27to28() {
+        val values = ContentValues()
+        var db = helper.createDatabase(testDb, 27)
+
+        val articleFileName1 = "art03786143.public.html"
+        val articleFileName2 = "art03786145.public.html"
+        val audioFileName1 = "Media.1254823.public.mp3"
+        val unknownAudioSpeaker = AudioSpeakerConverter().toString(AudioSpeaker.UNKNOWN)
+
+        // Prepare the database at version 27 by inserting two articles, of which one has a audio file
+        db.apply {
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName1)
+                put("issueFeedName", "test")
+                put("issueDate", "2023-10-11")
+                put("pageNameList", "[]")
+                put("articleType", "STANDARD")
+                put("position", 0)
+                put("percentage", 0)
+                put("hasAudio", true)
+            }
+            insert("Article", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName1)
+                put("audioFileName", audioFileName1)
+            }
+            insert("ArticleAudioFileJoin", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName2)
+                put("issueFeedName", "test")
+                put("issueDate", "2023-10-11")
+                put("pageNameList", "[]")
+                put("articleType", "STANDARD")
+                put("position", 0)
+                put("percentage", 0)
+                put("hasAudio", false)
+            }
+            insert("Article", CONFLICT_ABORT, values)
+
+            close()
+        }
+
+        // Migrate the database to version 28
+        db = helper.runMigrationsAndValidate(testDb, 28, true, Migration27to28)
+
+        // Verify that the data was migrated correctly
+        db.query(
+            "SELECT audioFileName FROM Article WHERE articleFileName=?",
+            arrayOf(articleFileName1)
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(audioFileName1, cursor.getString(0))
+        }
+
+        db.query(
+            "SELECT playtime, duration, speaker, breaks FROM Audio WHERE fileName=?",
+            arrayOf(audioFileName1)
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(null, cursor.getIntOrNull(0))
+            assertEquals(null, cursor.getFloatOrNull(1))
+            assertEquals(unknownAudioSpeaker, cursor.getString(2))
+            assertEquals(null, cursor.getStringOrNull(3))
+        }
+
+        db.query(
+            "SELECT audioFileName FROM Article WHERE articleFileName=?",
+            arrayOf(articleFileName2)
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(null, cursor.getStringOrNull(0))
         }
     }
 

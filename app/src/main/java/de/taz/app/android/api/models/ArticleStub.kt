@@ -1,12 +1,26 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Ignore
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.interfaces.ArticleOperations
-import java.util.*
+import java.util.Date
 
-@Entity(tableName = "Article")
+@Entity(
+    tableName = "Article",
+    foreignKeys = [
+        ForeignKey(
+            entity = AudioStub::class,
+            parentColumns = ["fileName"],
+            childColumns = ["audioFileName"]
+        )
+    ],
+    indices = [
+        Index("audioFileName")
+    ]
+)
 data class ArticleStub(
     @PrimaryKey val articleFileName: String,
     val issueFeedName: String,
@@ -16,7 +30,7 @@ data class ArticleStub(
     val onlineLink: String?,
     val pageNameList: List<String>,
     val bookmarkedTime: Date?,
-    val hasAudio: Boolean = false,
+    val audioFileName: String?,
     override val articleType: ArticleType,
     val position: Int,
     val percentage: Int,
@@ -27,6 +41,9 @@ data class ArticleStub(
     val readMinutes: Int?,
 ) : ArticleOperations {
 
+    val hasAudio: Boolean
+        get() = audioFileName != null
+
     constructor(article: Article) : this(
         article.articleHtml.name,
         article.issueFeedName,
@@ -36,7 +53,7 @@ data class ArticleStub(
         article.onlineLink,
         article.pageNameList,
         article.bookmarkedTime,
-        article.audioFile != null,
+        article.audio?.file?.name,
         article.articleType,
         article.position,
         article.percentage,

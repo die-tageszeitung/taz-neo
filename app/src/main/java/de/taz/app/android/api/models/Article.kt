@@ -4,7 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
-import java.util.*
+import java.util.Date
 
 data class Article(
     val articleHtml: FileEntry,
@@ -13,12 +13,12 @@ data class Article(
     val title: String?,
     val teaser: String?,
     val onlineLink: String?,
-    val audioFile: FileEntry?,
+    val audio: Audio?,
     val pageNameList: List<String>,
     val imageList: List<Image>,
     val authorList: List<Author>,
     val mediaSyncId: Int?,
-    val chars: Int? ,
+    val chars: Int?,
     val words: Int?,
     val readMinutes: Int?,
     override val articleType: ArticleType,

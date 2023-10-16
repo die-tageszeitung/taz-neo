@@ -55,12 +55,18 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                     teaser
                     onlineLink
                     pageNameList
-                    audioFile {
-                        name
-                        storageType
-                        moTime
-                        sha256
-                        size
+                    audio {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
                     }
                     imageList {
                         name
@@ -121,12 +127,18 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         teaser
                         onlineLink
                         pageNameList
-                        audioFile {
-                            name
-                            storageType
-                            moTime
-                            sha256
-                            size
+                        audio {
+                            file {
+                                name
+                                storageType
+                                moTime
+                                sha256
+                                size
+                            }
+                            playtime
+                            duration
+                            speaker
+                            breaks
                         }
                         imageList {
                             name
