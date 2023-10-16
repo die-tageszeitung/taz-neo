@@ -89,4 +89,6 @@ class NoOpTracker : Tracker {
     override fun trackAudioPlayerPauseEvent() {}
     override fun trackAudioPlayerAutoplayEnableEvent() {}
     override fun trackAudioPlayerAutoplayDisableEvent() {}
+    override fun trackCoachMarkShow(layoutResName: String) {}
+    override fun trackCoachMarkClose(layoutResName: String) {}
 }

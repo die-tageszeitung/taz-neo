@@ -147,4 +147,6 @@ interface Tracker {
     fun trackAudioPlayerPauseEvent()
     fun trackAudioPlayerAutoplayEnableEvent()
     fun trackAudioPlayerAutoplayDisableEvent()
+    fun trackCoachMarkShow(layoutResName: String)
+    fun trackCoachMarkClose(layoutResName: String)
 }

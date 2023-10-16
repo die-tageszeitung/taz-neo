@@ -35,6 +35,7 @@ private const val CATEGORY_BOOKMARKS = "Bookmarks"
 private const val CATEGORY_SHARE = "Share"
 private const val CATEGORY_DRAWER = "Drawer"
 private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
+private const val CATEGORY_COACH_MARK = "Coachmark"
 // endregion
 
 private const val SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1_000 // 2h
@@ -611,6 +612,20 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     override fun trackAudioPlayerAutoplayDisableEvent() {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Disable Auto Play Next")
+            .with(matomoTracker)
+    }
+
+    override fun trackCoachMarkShow(layoutResName: String) {
+        TrackHelper.track()
+            .event(CATEGORY_COACH_MARK, "Show")
+            .name(layoutResName)
+            .with(matomoTracker)
+    }
+
+    override fun trackCoachMarkClose(layoutResName: String) {
+        TrackHelper.track()
+            .event(CATEGORY_COACH_MARK, "Close")
+            .name(layoutResName)
             .with(matomoTracker)
     }
 }
