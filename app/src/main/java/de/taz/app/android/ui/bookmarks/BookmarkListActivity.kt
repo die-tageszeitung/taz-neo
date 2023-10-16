@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.bookmarks
 
+import android.annotation.SuppressLint
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityBookmarksBinding
@@ -21,6 +22,7 @@ class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
         )
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (audioPlayerViewController.onBackPressed()) {

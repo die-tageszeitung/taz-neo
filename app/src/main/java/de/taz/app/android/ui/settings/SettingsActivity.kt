@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +43,7 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
         )
     }
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (audioPlayerViewController.onBackPressed()) {

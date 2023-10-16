@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -255,6 +256,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var doubleBackToExitPressedOnce = false
 
+    @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (audioPlayerViewController.onBackPressed()) {
