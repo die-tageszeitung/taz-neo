@@ -19,11 +19,19 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
+    private val audioRepository = AudioRepository.getInstance(applicationContext)
+
 
     private val defaultNavDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
     suspend fun save(section: Section) {
+        // [SectionStub.podcastFileName] references the [AudioStub.fileName] as a ForeignKey,
+        // thus the [AudioStub] must be saved before the [SectionStub] to fulfill the constraint.
+        section.podcast?.let { audio ->
+            audioRepository.save(audio)
+        }
+
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
         fileEntryRepository.save(section.sectionHtml)
         section.articleList.forEach { articleRepository.save(it) }
@@ -97,6 +105,8 @@ class SectionRepository private constructor(applicationContext: Context) :
             "navigation button is essential for the app running"
         }
 
+        val podcast = sectionStub.podcastFileName?.let { audioRepository.get(it)  }
+
         return Section(
             sectionHtml = sectionFile,
             issueDate = sectionStub.issueDate,
@@ -106,7 +116,8 @@ class SectionRepository private constructor(applicationContext: Context) :
             articleList = articles,
             imageList = images,
             extendedTitle = sectionStub.extendedTitle,
-            dateDownload = sectionStub.dateDownload
+            dateDownload = sectionStub.dateDownload,
+            podcast = podcast,
         )
 
     }
@@ -158,6 +169,11 @@ class SectionRepository private constructor(applicationContext: Context) :
             appDatabase.sectionDao().delete(SectionStub(section))
         } catch (e: SQLiteConstraintException) {
             // do not delete still used
+        }
+
+        // After the section has been deleted (and the foreign key reference is removed), we try to delete the audio entry
+        section.podcast?.let { audio ->
+            audioRepository.tryDelete(audio)
         }
     }
 

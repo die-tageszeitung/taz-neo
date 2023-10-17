@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 28
+const val DATABASE_VERSION = 29
 const val DATABASE_NAME = "db"
 
 val allMigrations = arrayOf(
@@ -43,6 +43,7 @@ val allMigrations = arrayOf(
     Migration25to26,
     Migration26to27,
     Migration27to28,
+    Migration28to29,
 )
 
 @Database(

@@ -105,6 +105,19 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                     title
                     extendedTitle
                     type
+                    podcast {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
+                    }
                     navButton {
                         resolution
                         name

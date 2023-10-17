@@ -105,6 +105,19 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                     title
                     extendedTitle
                     type
+                    podcast {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
+                    }
                     navButton {
                         name
                         storageType

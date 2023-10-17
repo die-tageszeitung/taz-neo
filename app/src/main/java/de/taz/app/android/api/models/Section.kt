@@ -15,7 +15,8 @@ data class Section(
     val articleList: List<Article>,
     val imageList: List<Image>,
     override val extendedTitle: String?,
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    val podcast: Audio?,
 ) : SectionOperations, WebViewDisplayable {
 
     override val key: String

@@ -10,5 +10,6 @@ data class SectionDto (
     val articleList: List<ArticleDto>? = null,
     val imageList: List<ImageDto>? = null,
     val extendedTitle: String? = null,
-    val navButton: ImageDto
+    val navButton: ImageDto,
+    val podcast: AudioDto?,
 )

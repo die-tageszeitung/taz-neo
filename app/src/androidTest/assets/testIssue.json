@@ -81,7 +81,7 @@
                 "pageNameList": [
                   "s00778097.pdf"
                 ],
-                "audioFile": null,
+                "audio": null,
                 "imageList": null,
                 "authorList": null
               },
@@ -99,6 +99,7 @@
                   "title": "titel",
                   "extendedTitle": "die tageszeitung",
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -122,7 +123,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678569",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -138,7 +139,7 @@
                       "teaser": "Kommentar von Ulrike Herrmann über 250-Euro-Kaufgutscheine für jeden Bürger",
                       "onlineLink": "https://www.taz.de/!5678568",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -187,6 +188,7 @@
                   "title": "der tag",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -210,7 +212,7 @@
                       "teaser": "China versorgt die halbe Welt mit Atemschutzmasken und versucht Wucherern vorzubeugen. Doch der Kampf ums Geschäft wird hart geführt und die Qualität ist oft mangelhaft",
                       "onlineLink": "https://www.taz.de/!5678558",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -226,7 +228,7 @@
                       "teaser": "das portrait",
                       "onlineLink": "https://www.taz.de/!5680942",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009812.norm.jpg",
@@ -253,7 +255,7 @@
                       "teaser": "taz 🐾 sachen",
                       "onlineLink": "https://www.taz.de/!5678559",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -269,7 +271,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5681051",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -285,7 +287,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678560",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009813.norm.jpg",
@@ -325,6 +327,7 @@
                   "title": "das thema",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -348,7 +351,7 @@
                       "teaser": "In der Zwangspause vom Leistungsstress erkennen viele die Vorteile einer entschleunigten Gesellschaft, sagt Wachstumskritiker Niko Paech. Das werde die Bewegung für eine Postwachstums-Ökonomie stärken",
                       "onlineLink": "https://www.taz.de/!5680789",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009791.norm.jpg",
@@ -388,6 +391,7 @@
                   "title": "nahaufnahme",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -411,7 +415,7 @@
                       "teaser": "In Dharavi verteilt Raphel Paul umsonst Lebensmittel. Kiran Dighavkar versucht die Seuche einzudämmen. Und Studentin Neha hat Angst. Szenen aus dem größten Slum Asiens in Zeiten der Coronakrise",
                       "onlineLink": "https://www.taz.de/!5678557",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009804.norm.jpg",
@@ -451,6 +455,7 @@
                   "title": "inland",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -474,7 +479,7 @@
                       "teaser": "In einigen Ländern meldeten Ämter Corona-Infizierte an die Polizei. Datenschützer protestierten vehement. Nicht überall erfolgreich",
                       "onlineLink": "https://www.taz.de/!5680851",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009809.norm.jpg",
@@ -501,7 +506,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678578",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -517,7 +522,7 @@
                       "teaser": "Regierung bestätigt chinesische Einflussversuche auf Beamte",
                       "onlineLink": "https://www.taz.de/!5678577",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -533,7 +538,7 @@
                       "teaser": "Ist das Cannabis-Verbot verfassungswidrig? Ein Strafrichter wendet sich ans Verfassungsgericht",
                       "onlineLink": "https://www.taz.de/!5680983",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -549,7 +554,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678586",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -565,7 +570,7 @@
                       "teaser": "Kinder und Arbeit: Auch im Homeoffice schultern Frauen mehr als Männer. Mareike Bünning zum Alltag in Coronazeiten",
                       "onlineLink": "https://www.taz.de/!5680130",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009789.norm.jpg",
@@ -592,7 +597,7 @@
                       "teaser": "Desinfektionsmittel statt Weihwasser: Gottesdienste finden wieder statt",
                       "onlineLink": "https://www.taz.de/!5680999",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -651,6 +656,7 @@
                   "title": "wirtschaft + umwelt",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -674,7 +680,7 @@
                       "teaser": "Neue Verkehrsregeln auf Deutschlands Straßen: Bundesverkehrsminister Scheuer will Radfahren sicherer machen. Rasern droht schneller der Führerscheinentzug",
                       "onlineLink": "https://www.taz.de/!5678581",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009779.norm.jpg",
@@ -701,7 +707,7 @@
                       "teaser": "Deutschland führt laut Sipri in Westeuropa das Wachstum bei Rüstungsausgaben an",
                       "onlineLink": "https://www.taz.de/!5678582",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -717,7 +723,7 @@
                       "teaser": "Zahl des Tages",
                       "onlineLink": "https://www.taz.de/!5678579",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -733,7 +739,7 @@
                       "teaser": "Die Grünen wollen an alle Einwohner Gutscheine verteilen, um kleine Läden, Friseure und Kneipen zu unterstützen. Das sei gerechter als Steuersenkungen",
                       "onlineLink": "https://www.taz.de/!5678580",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -762,6 +768,7 @@
                   "title": "ökobiz",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -785,7 +792,7 @@
                       "teaser": "Viele Staaten greifen ihren Airlines ohne Öko-Bedingungen unter die Flügel – wohl auch die Bundesregierung der Lufthansa. Wien dagegen nutzt die Coronakrise für Klimapolitik",
                       "onlineLink": "https://www.taz.de/!5678585",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009759.norm.jpg",
@@ -812,7 +819,7 @@
                       "teaser": "krisen-check",
                       "onlineLink": "https://www.taz.de/!5678584",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -851,6 +858,7 @@
                   "title": "ausland",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -874,7 +882,7 @@
                       "teaser": "Der Rücktritt des brasilianischen Justizministers Sergio Moro trifft die Regierung von Jair Bolsonaro ins Mark. Der bisherige Superminister wendet sich jetzt gegen den Präsidenten",
                       "onlineLink": "https://www.taz.de/!5680974",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009802.norm.jpg",
@@ -901,7 +909,7 @@
                       "teaser": "aufreger",
                       "onlineLink": "https://www.taz.de/!5680982",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -917,7 +925,7 @@
                       "teaser": "Saudi-Arabien",
                       "onlineLink": "https://www.taz.de/!5681030",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -933,7 +941,7 @@
                       "teaser": "Im Mittelmeer ist kein einziges privates Rettungsschiff mehr im Einsatz, vor allem wegen der Quarantänebestimmungen",
                       "onlineLink": "https://www.taz.de/!5678594",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -949,7 +957,7 @@
                       "teaser": "Die Wildhüter des Virunga-Nationalparks im Kongo wurden mit EU-Hilfe zu einer Kampftruppe hochgerüstet. Das macht sie zum Kriegsziel. 13 von ihnen starben jetzt in einem vermutlich von Hutu-Milizen gelegten Hinterhalt",
                       "onlineLink": "https://www.taz.de/!5678539",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009794.norm.jpg",
@@ -976,7 +984,7 @@
                       "teaser": "In Spanien endet für Kinder unter 14 Jahren die Ausgangssperre – unter weiter strengen Auflagen",
                       "onlineLink": "https://www.taz.de/!5680988",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1015,6 +1023,7 @@
                   "title": "meinung + diskussion",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1038,7 +1047,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009811.norm.jpg",
@@ -1065,7 +1074,7 @@
                       "teaser": "Pascal Beucker über die Maskenpflicht",
                       "onlineLink": "https://www.taz.de/!5678549",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1081,7 +1090,7 @@
                       "teaser": "Viele Eltern wollen ihre nervigen Rotznasen nur schnell wieder abgeben. Ob die Kinder die Kita vermissen, steht auf einem anderen Blatt",
                       "onlineLink": "https://www.taz.de/!5678547",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1097,7 +1106,7 @@
                       "teaser": "Erik Peter über Corona-Verschwörungsdemos",
                       "onlineLink": "https://www.taz.de/!5678552",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1113,7 +1122,7 @@
                       "teaser": "Anja Krüger über die neuen Verkehrsregeln",
                       "onlineLink": "https://www.taz.de/!5678553",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1142,6 +1151,7 @@
                   "title": "taz zwei",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1165,7 +1175,7 @@
                       "teaser": "Der staatliche Zugriff auf die Körper seiner Bürger wird normalerweise kritisch gesehen. In der Krise jedoch werden Unterwerfung und die Einordnung ins Kollektiv praktiziert",
                       "onlineLink": "https://www.taz.de/!5678601",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009750.norm.jpg",
@@ -1192,7 +1202,7 @@
                       "teaser": "Fatma Aydemir Minority Report",
                       "onlineLink": "https://www.taz.de/!5678597",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1208,7 +1218,7 @@
                       "teaser": "wie geht es uns, herr küppersbusch?",
                       "onlineLink": "https://www.taz.de/!5678599",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1224,7 +1234,7 @@
                       "teaser": "andropause | teil 14",
                       "onlineLink": "https://www.taz.de/!5678598",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009786.norm.png",
@@ -1294,6 +1304,7 @@
                   "title": "kultur",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1317,7 +1328,7 @@
                       "teaser": "Der italienische Schriftsteller Paolo Giordano über nackte Zahlen, Schlafmangel und das Ansehen der Wissenschaft seit Corona",
                       "onlineLink": "https://www.taz.de/!5678573",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009772.norm.jpg",
@@ -1344,7 +1355,7 @@
                       "teaser": "Fang Fang hat den größten Lockdown in der Geschichte poetisch begleitet. Für das internationale Interesse an ihrer Arbeit wird die Schriftstellerin nun in China angefeindet",
                       "onlineLink": "https://www.taz.de/!5680881",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1360,7 +1371,7 @@
                       "teaser": "Am Freitag wurden die Auszeichnungen des 70. Deutschen Filmpreises vergeben. Die TV-Gala fand ohne ZuschauerInnen statt, dafür gab es Einspielungen per Skype",
                       "onlineLink": "https://www.taz.de/!5678570",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009774.norm.jpg",
@@ -1387,7 +1398,7 @@
                       "teaser": "Zwischen den Versprechen der Programmhefte und dem realen Theater klafft oft eine große Lücke. Jakob Hayner geht in seinem Buch „Warum Theater“ den Gründen dafür nach",
                       "onlineLink": "https://www.taz.de/!5679667",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1403,7 +1414,7 @@
                       "teaser": "Könnte die Ausstellung „Monet. Orte“ im Potsdamer Museum Barberini ihre Tore noch einmal öffnen, bevor die Leihgaben zurückmüssen, würde man doch nur wieder von den Heuhaufen sprechen. Das wäre ausgesprochen schade",
                       "onlineLink": "https://www.taz.de/!5671544",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009775.norm.jpg",
@@ -1430,7 +1441,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5680720",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1446,7 +1457,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678574",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1462,7 +1473,7 @@
                       "teaser": "Der Detroiter Technoproduzent Mike Huckaby ist am Freitag gestorben. Ein Nachruf",
                       "onlineLink": "https://www.taz.de/!5678571",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009776.norm.jpg",
@@ -1532,6 +1543,7 @@
                   "title": "medien",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1555,7 +1567,7 @@
                       "teaser": "Seit Anfang April wird in Spanien das Recht, bei einer Pressekonferenz eine Frage zu stellen, verlost. Viele kleinere Publikationen freuen sich über die neue Regelung",
                       "onlineLink": "https://www.taz.de/!5678546",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009755.norm.jpg",
@@ -1582,7 +1594,7 @@
                       "teaser": "Natalie Mayroth Die Couchreporter",
                       "onlineLink": "https://www.taz.de/!5678545",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1598,7 +1610,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1614,7 +1626,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678544",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009751.norm.jpg",
@@ -1674,6 +1686,7 @@
                   "title": "leibesübungen",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1697,7 +1710,7 @@
                       "teaser": "Die großen Rundfahrten der Radprofis finden derzeit digital statt. Die Tour de Suisse ging am Sonntag zu Ende: Spitzensport mit einigen Besonderheiten",
                       "onlineLink": "https://www.taz.de/!5678590",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009763.norm.jpg",
@@ -1724,7 +1737,7 @@
                       "teaser": "Der Fußball setzt auf eine Sonderbehandlung. Darüber ließe sich trefflich streiten. Stattdessen wird über Kicker mit Masken debattiert",
                       "onlineLink": "https://www.taz.de/!5678588",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1740,7 +1753,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678591",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1779,6 +1792,7 @@
                   "title": "die wahrheit",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1802,7 +1816,7 @@
                       "teaser": "Die lustige Tierwelt und ihre ernste Erforschung (96): Das Schuppentier gilt als einer der Hauptverdächtigen im Fall Corona",
                       "onlineLink": "https://www.taz.de/!5678531",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009741.norm.jpg",
@@ -1829,7 +1843,7 @@
                       "teaser": "das wetter",
                       "onlineLink": "https://www.taz.de/!5678538",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1845,7 +1859,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678537",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1861,7 +1875,7 @@
                       "teaser": "Ralf Sotscheck",
                       "onlineLink": "https://www.taz.de/!5678532",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1877,7 +1891,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009742.norm.jpg",
@@ -1937,6 +1951,7 @@
                   "title": "berlin",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -1960,7 +1975,7 @@
                       "teaser": "Die Coronakrise bringt den geplanten Machtwechsel bei der SPD durcheinander. Die Wahl von Franziska Giffey und Raed Saleh als Landeschefs liegt auf Eis, weil der Parteitag auf unbestimmte Zeit verschoben ist. Davon profitiert Noch-SPD- und Regierungschef Müller",
                       "onlineLink": "https://www.taz.de/!5678514",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009764.norm.jpg",
@@ -1987,7 +2002,7 @@
                       "teaser": "Die Wochenvorschau von Uwe Rada",
                       "onlineLink": "https://www.taz.de/!5678513",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2003,7 +2018,7 @@
                       "teaser": "Kommentar von Claudius Prößer zu den temporären Radstreifen",
                       "onlineLink": "https://www.taz.de/!5678529",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2019,7 +2034,7 @@
                       "teaser": "Ab heute gilt: Maske auf in Bus und Bahn. Allerdings gibt es dehnbare Ausnahmen – und Bußgelder werden auch nicht fällig",
                       "onlineLink": "https://www.taz.de/!5678523",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009799.norm.jpg",
@@ -2046,7 +2061,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5681015",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2062,7 +2077,7 @@
                       "teaser": "Viele Berliner Läden haben wieder auf. Aber weder in den Malls noch im alternativen Einkaufsambiente kommt Bummellaune auf",
                       "onlineLink": "https://www.taz.de/!5678527",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2078,7 +2093,7 @@
                       "teaser": "Wer prekär arbeitet – etwa in den Branchen Reinigung und Pflege –, wird am stärksten von den Folgen der Coronakrise getroffen, sagt Ute Kathmann. Sie hofft, dass künftig Minijobs abgeschafft werden",
                       "onlineLink": "https://www.taz.de/!5680834",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009757.norm.jpg",
@@ -2105,7 +2120,7 @@
                       "teaser": "Die Berliner Fuckup Night findet erstmals ohne Zuschauer statt",
                       "onlineLink": "https://www.taz.de/!5678521",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2121,7 +2136,7 @@
                       "teaser": "berliner szenen",
                       "onlineLink": "https://www.taz.de/!5678518",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2137,7 +2152,7 @@
                       "teaser": "Berlin ist nicht nur Europas Metropole der elektronischen Musik, sondern auch die „Stadt der Nachtigallen“ – beschreibt der Musiker David Rothenberg im gleichnamigen Buch",
                       "onlineLink": "https://www.taz.de/!5679668",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009783.norm.jpg",
@@ -2164,7 +2179,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2180,7 +2195,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678519",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2196,7 +2211,7 @@
                       "teaser": "berlin viral",
                       "onlineLink": "https://www.taz.de/!5678517",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -2255,6 +2270,7 @@
                   "title": "nord",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "name": "navButton.taz.normal.png",
                     "storageType": "resource",
@@ -2278,7 +2294,7 @@
                       "teaser": "Anfang April ließ sich der Bremer Pastor Olaf Latzel noch von evangelikalen Medien als Opfer von Attacken beklagen. Jetzt ermittelt der Staatsschutz – aber gegen den Geistlichen. Grund ist seine Hetze gegen Homosexuelle. Die Leitung der Landeskirche begrüßt das",
                       "onlineLink": "https://www.taz.de/!5678512",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009824.norm.jpg",
@@ -2305,7 +2321,7 @@
                       "teaser": "In der Nähe der Nordseeinsel rammt ein Schiff eine Windkraftanlage. Drei Besatzungsmitglieder teils schwer verletzt",
                       "onlineLink": "https://www.taz.de/!5680952",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2321,7 +2337,7 @@
                       "teaser": "südwester",
                       "onlineLink": "https://www.taz.de/!5678511",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2337,7 +2353,7 @@
                       "teaser": "das portrait",
                       "onlineLink": "https://www.taz.de/!5678494",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009821.norm.jpg",
@@ -2364,7 +2380,7 @@
                       "teaser": "Mitten in der Corona-Spielpause verlängert Hannover 96 die Verträge von Trainer und Sportchef",
                       "onlineLink": "https://www.taz.de/!5678498",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2380,7 +2396,7 @@
                       "teaser": "Der THW Kiel ist zum 21. Mal deutscher Handball-Meister. Die Entscheidung am grünen Tisch ist kurios, der Titel aber verdient. Trainer Jicha könnte damit eine neue Ära einleiten",
                       "onlineLink": "https://www.taz.de/!5678495",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009822.norm.jpg",
@@ -2407,7 +2423,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678497",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2423,7 +2439,7 @@
                       "teaser": "André Montaldo-Ventsam war Entwicklungshelfer und ehrenamtlicher Kapitän eines Geflüchteten-Rettungsschiffs auf dem Mittelmeer. Aber er musste auch schon drei Mal seinen Laden wieder aufbauen. Ein Gespräch über Krisen – und das Weitermachen",
                       "onlineLink": "https://www.taz.de/!5678508",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009820.norm.jpg",
@@ -2450,7 +2466,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5681064",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009834.norm.jpg",
@@ -2477,7 +2493,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678503",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2493,7 +2509,7 @@
                       "teaser": "Auch in Hamburg gilt in Bussen, Bahnen und Geschäften eine Maskenpflicht. Bußgeld droht Geschäftsinhabern, die nicht darauf achten. Es gibt Ausnahmen für Beeinträchtigte",
                       "onlineLink": "https://www.taz.de/!5678505",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2509,7 +2525,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678501",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2525,7 +2541,7 @@
                       "teaser": "corona in hamburg",
                       "onlineLink": "https://www.taz.de/!5678499",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2541,7 +2557,7 @@
                       "teaser": "Heute vor 75 Jahren wurde Bremen befreit. Die Bevölkerung, so berichtete damals der britische Korrespondent Harry Ditton, freute sich darüber allerdings nicht",
                       "onlineLink": "https://www.taz.de/!5678611",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.1009828.norm.jpg",
@@ -2568,7 +2584,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678605",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2584,7 +2600,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678603",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2600,7 +2616,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5678608",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }

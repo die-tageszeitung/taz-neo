@@ -210,7 +210,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private fun hideLogoIfNecessary(position: Int) {
         val sectionStub = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(position)
         val isAdvertisement = sectionStub?.type == SectionType.advertisement
-        if (isAdvertisement) {
+        val isPodcast = sectionStub?.type == SectionType.podcast
+        if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
         } else {
             drawerAndLogoViewModel.showLogo()

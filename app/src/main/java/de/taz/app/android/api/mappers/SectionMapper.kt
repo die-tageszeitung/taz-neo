@@ -18,7 +18,8 @@ object SectionMapper {
             } ?: listOf(),
             imageList = sectionDto.imageList?.map { ImageMapper.from(issueKey, it) } ?: listOf(),
             extendedTitle = sectionDto.extendedTitle,
-            dateDownload = null
+            dateDownload = null,
+            podcast = sectionDto.podcast?.let { AudioMapper.from(issueKey, it) }
         )
     }
 }

@@ -69,7 +69,7 @@
                 "pageNameList": [
                   "s00774120.pdf"
                 ],
-                "audioFile": null,
+                "audio": null,
                 "imageList": null,
                 "authorList": null
               },
@@ -87,6 +87,7 @@
                   "title": "titel",
                   "extendedTitle": "die tageszeitung",
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -110,7 +111,7 @@
                       "teaser": "Kommentar von Dominic Johnson zu den Handlungsoptionen in Syrien",
                       "onlineLink": "https://www.taz.de/!5666613",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -126,7 +127,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666614",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -165,6 +166,7 @@
                   "title": "der tag",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -188,7 +190,7 @@
                       "teaser": "Tausende von Flüchtlingen hausen derzeit an der türkisch-griechischen Grenze. Aus der EU werden sie mit Tränengas beschossen. Und die Gewalt gegen sie könnte zunehmen",
                       "onlineLink": "https://www.taz.de/!5666617",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999146.norm.jpg",
@@ -215,7 +217,7 @@
                       "teaser": "„Operation Frühlingsschild“ drängt syrische Armee in Idlib zurück. Russland greift nicht dagegen ein",
                       "onlineLink": "https://www.taz.de/!5666616",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -231,7 +233,7 @@
                       "teaser": "das portrait",
                       "onlineLink": "https://www.taz.de/!5666691",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999134.norm.jpg",
@@ -258,7 +260,7 @@
                       "teaser": "Robert-Koch-Institut bestätigt 117 Fälle. Quarantäne für Karnevalisten in NRW endet. Aldi und Lidl bestätigen Hamsterkäufe. Scholz: Konjunkturprogramm ist möglich, falls nötig",
                       "onlineLink": "https://www.taz.de/!5666688",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -274,7 +276,7 @@
                       "teaser": "taz 🐾 sachen",
                       "onlineLink": "https://www.taz.de/!5666689",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -290,7 +292,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666692",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -306,7 +308,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666693",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -322,7 +324,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666690",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999133.norm.jpg",
@@ -362,6 +364,7 @@
                   "title": "nahaufnahme",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -385,7 +388,7 @@
                       "teaser": "Boris Aplichuk macht Wahlkampf auf einem Tel Aviver Wochenmarkt für Benjamin Netanjahu. Er vergöttert den israelischen Regierungschef. Chava Levi postet von zu Hause aus Kommentare für Benny Gantz. Sie hasst Netanjahu. Heute wird gewählt",
                       "onlineLink": "https://www.taz.de/!5666667",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999104.norm.jpg",
@@ -412,7 +415,7 @@
                       "teaser": "Kopf-an-Kopf-Rennen zwischen Likud und Blau-Weiß. Doch ein Wahlsieger in Israel ist in jedem Fall auf Koalitionspartner angewiesen. Diese Parteien haben Chancen auf einen Einzug in das Parlament, die Knesset",
                       "onlineLink": "https://www.taz.de/!5666664",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -441,6 +444,7 @@
                   "title": "inland",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -464,7 +468,7 @@
                       "teaser": "Auf einer Strategiekonferenz in Kassel diskutierte die Linkspartei über ihre Rolle und stellte die Machtfrage: Wie will sie regieren – und wenn ja: mit wem?",
                       "onlineLink": "https://www.taz.de/!5666699",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999123.norm.jpg",
@@ -491,7 +495,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666702",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -507,7 +511,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666701",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -523,7 +527,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666673",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -539,7 +543,7 @@
                       "teaser": "Grundgesetzänderung, virtuelle Polizeiwache, mehr Rechte für MigrantInnen: Die Grünen legen nach Hanau einen Aktionsplan gegen Rassismus vor",
                       "onlineLink": "https://www.taz.de/!5668009",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -555,7 +559,7 @@
                       "teaser": "Das Menschenrechtskommissariat der Vereinten Nationen bemängelt die mangelnde Kooperation der Bundesrepublik bei der Verbesserung der Situation von ungewollt schwangeren Frauen",
                       "onlineLink": "https://www.taz.de/!5667748",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999107.norm.jpg",
@@ -582,7 +586,7 @@
                       "teaser": "Am Bundesverfassungsgericht in Karlsruhe wird über das Verbot der Abtreibungsinformation nicht der liberale Erste Senat, sondern der konservative Zweite Senat entscheiden",
                       "onlineLink": "https://www.taz.de/!5668017",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -611,6 +615,7 @@
                   "title": "wirtschaft + umwelt",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -634,7 +639,7 @@
                       "teaser": "Sei dem Wochenende fahren Fahrgäste von Bahn, Bus und Tram des kleinen Landes kostenlos. Der Gratisverkehr ist Teil einer größeren Verkehrswende",
                       "onlineLink": "https://www.taz.de/!5666676",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -650,7 +655,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666678",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -666,7 +671,7 @@
                       "teaser": "Zahl des Tages",
                       "onlineLink": "https://www.taz.de/!5666675",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -682,7 +687,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5668025",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999129.norm.jpg",
@@ -709,7 +714,7 @@
                       "teaser": "Die ersten Verhandlungen über ein neues UN-Abkommen versprechen einen besseren Schutz der Artenvielfalt, sagt Friedrich Wulf von der Umweltorganisation Pro Natura",
                       "onlineLink": "https://www.taz.de/!5666677",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -727,6 +732,7 @@
                   "title": "taz.klima",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -750,7 +756,7 @@
                       "teaser": "Am Mittwoch präsentiert die EU ihr erstes Klimagesetz, den „Green Deal“. Dieses hat in den letzten Monaten hektische Aktivitäten bei den Vertretern der fossilen Industrie ausgelöst",
                       "onlineLink": "https://www.taz.de/!5666698",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999110.norm.jpg",
@@ -790,6 +796,7 @@
                   "title": "ausland",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -813,7 +820,7 @@
                       "teaser": "Das Wahlergebnis ist ein deutliches Votum gegen die in Verruf geratene Sozialdemokratie und das alte, korrupte System",
                       "onlineLink": "https://www.taz.de/!5668001",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999119.norm.jpg",
@@ -840,7 +847,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5667988",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -856,7 +863,7 @@
                       "teaser": "US-Vorwahlen",
                       "onlineLink": "https://www.taz.de/!5666671",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -872,7 +879,7 @@
                       "teaser": "Malaysia",
                       "onlineLink": "https://www.taz.de/!5666672",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -888,7 +895,7 @@
                       "teaser": "Frankreichs Premier Philippe erklärt die Debatte um Macrons Rentenreform kurzerhand für beendet",
                       "onlineLink": "https://www.taz.de/!5668016",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -904,7 +911,7 @@
                       "teaser": "Laut Afghanistan-Abkommen reduzieren die USA ihre Truppen, die Taliban wollen sich von Islamisten distanzieren. Es ist ein Hoffnungsschimmer, viele Fragen bleiben",
                       "onlineLink": "https://www.taz.de/!5667989",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999102.norm.jpg",
@@ -931,7 +938,7 @@
                       "teaser": "Der Militärgeheimdienstchef der Demokratischen Republik Kongo, einer der mächtigsten Generäle der Kabila-Ära, verliert erst das Amt und dann das Leben",
                       "onlineLink": "https://www.taz.de/!5668030",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -960,6 +967,7 @@
                   "title": "meinung + diskussion",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -983,7 +991,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999117.norm.jpg",
@@ -1010,7 +1018,7 @@
                       "teaser": "Anna Lehmann über die Strategiekonferenz der Linkspartei",
                       "onlineLink": "https://www.taz.de/!5666631",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1026,7 +1034,7 @@
                       "teaser": "An Hanau haben wir alle als Gesellschaft eine Mitschuld. Denn wir haben ein Rassismusproblem. Wir müssen wieder lernen, eine Einheit zu sein",
                       "onlineLink": "https://www.taz.de/!5666629",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1042,7 +1050,7 @@
                       "teaser": "Alina Schwermer über den Hass im Fußball und Dietmar Hopp",
                       "onlineLink": "https://www.taz.de/!5666634",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1058,7 +1066,7 @@
                       "teaser": "Sven Hansen zum Afghanistan-Abkommen der USA mit den Taliban",
                       "onlineLink": "https://www.taz.de/!5666635",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1087,6 +1095,7 @@
                   "title": "taz zwei",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1110,7 +1119,7 @@
                       "teaser": "Frauen leisten noch immer deutlich mehr Fürsorgearbeit als Männer. Um diese Ungerechtigkeit zu verringern, braucht es ein Wertesystem, in dem Menschenleben mehr als Profit zählen, sagt die US-amerikanische Ethnografin Kristen Ghodsee",
                       "onlineLink": "https://www.taz.de/!5666687",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999096.norm.jpg",
@@ -1137,7 +1146,7 @@
                       "teaser": "Hengameh Yaghoobifarah Habibitus",
                       "onlineLink": "https://www.taz.de/!5666703",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1153,7 +1162,7 @@
                       "teaser": "wie geht es uns, herr küppersbusch?",
                       "onlineLink": "https://www.taz.de/!5666705",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1169,7 +1178,7 @@
                       "teaser": "specht der woche",
                       "onlineLink": "https://www.taz.de/!5666704",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999125.norm.jpg",
@@ -1209,6 +1218,7 @@
                   "title": "kultur",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1232,7 +1242,7 @@
                       "teaser": "Die 70. Berlinale ist dem Ruf treu geblieben, ein politisches Filmfestival zu sein. Dass das nicht auf Kosten der Filmkunst gehen muss, zeigte der Goldene Bär für Mohammad Rasoulofs „There Is No Evil“, einen der mutigsten und eindringlichsten Filme im Wettbewerb",
                       "onlineLink": "https://www.taz.de/!5668002",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999099.norm.jpg",
@@ -1259,7 +1269,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666652",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1275,7 +1285,7 @@
                       "teaser": "Vom smarten Kühlschrank auf Diät gesetzt: In „(R)evolution“ blicken Yael Ronen und Dimitrij Schad im Thalia Theater Hamburg in die Zukunft",
                       "onlineLink": "https://www.taz.de/!5668004",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1291,7 +1301,7 @@
                       "teaser": "Die österreichische Schriftstellerin Monika Helfer erzählt in ihrem autobiografischen Roman „Die Bagage“ von der Familie ihrer Großmutter. Es ist eine erstaunliche und traurige Geschichte von Armut, Krieg – und Liebe",
                       "onlineLink": "https://www.taz.de/!5666707",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999100.norm.jpg",
@@ -1318,7 +1328,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5668010",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1347,6 +1357,7 @@
                   "title": "medien",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1370,7 +1381,7 @@
                       "teaser": "Die Thematik von Juli Zehs Bestseller „Unterleuten“ ist auch 2020 noch hochaktuell. Doch der ZDF-Verfilmung fehlt es an Tiefe und Spannung",
                       "onlineLink": "https://www.taz.de/!5666628",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999091.norm.jpg",
@@ -1397,7 +1408,7 @@
                       "teaser": "Anne Fromm Unter Druck",
                       "onlineLink": "https://www.taz.de/!5667919",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1413,7 +1424,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1429,7 +1440,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666626",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999089.norm.jpg",
@@ -1469,6 +1480,7 @@
                   "title": "leibesübungen",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1492,7 +1504,7 @@
                       "teaser": "Beim 0:3 in Köln macht der junge Keeper Alexander Nübel schon wieder einen Fehler und wird recht gnadenlos ausgepfiffen",
                       "onlineLink": "https://www.taz.de/!5666621",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999141.norm.jpg",
@@ -1519,7 +1531,7 @@
                       "teaser": "Der Hass auf die Papas Dietmar und Dietrich hat sich verselbständigt. Ist die Fußballwelt wirklich so einfach?",
                       "onlineLink": "https://www.taz.de/!5666619",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999140.norm.jpg",
@@ -1546,7 +1558,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1562,7 +1574,7 @@
                       "teaser": "das detail",
                       "onlineLink": "https://www.taz.de/!5666620",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1578,7 +1590,7 @@
                       "teaser": "Der DFB hat sich schicke Regeln zum Kampf gegen Rassismus und Diskriminierung gegeben. Im Dauerkrieg zwischen den aktiven Fanszenen und Hoffenheims Klubeigner Dietmar Hopp kommen sie erstmals zum Einsatz",
                       "onlineLink": "https://www.taz.de/!5666640",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999108.norm.jpg",
@@ -1605,7 +1617,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666639",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -1634,6 +1646,7 @@
                   "title": "die wahrheit",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1657,7 +1670,7 @@
                       "teaser": "Mathias Broeckers, Wahrheit-Redakteur der ersten Stunde, geht in den Ruhestand. Eine persönliche Würdigung",
                       "onlineLink": "https://www.taz.de/!5666656",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999092.norm.jpg",
@@ -1684,7 +1697,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666662",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1700,7 +1713,7 @@
                       "teaser": "das wetter",
                       "onlineLink": "https://www.taz.de/!5666663",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1716,7 +1729,7 @@
                       "teaser": "Ralf Sotscheck",
                       "onlineLink": "https://www.taz.de/!5666657",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1732,7 +1745,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999093.norm.jpg",
@@ -1782,6 +1795,7 @@
                   "title": "berlin",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -1805,7 +1819,7 @@
                       "teaser": "Vor zwei Jahren verübten Rechte einen Brandanschlag am Haus von Ferat Kocak. Wie lebt er mit der Angst nach dem Attentat? Der Linken-Politiker im Interview über Hanau, schlaflose Nächte, Menschenmengen und Solidarität",
                       "onlineLink": "https://www.taz.de/!5666637",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999088.norm.jpg",
@@ -1832,7 +1846,7 @@
                       "teaser": "Die Wochenvorschau von Alke Wierth",
                       "onlineLink": "https://www.taz.de/!5666636",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1848,7 +1862,7 @@
                       "teaser": "Baum steht noch: Baumbesetzung an Rummelsburger Bucht mit Teilerfolg. Wagenplatz nicht geräumt",
                       "onlineLink": "https://www.taz.de/!5666686",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1864,7 +1878,7 @@
                       "teaser": "Nach ITB-Absage",
                       "onlineLink": "https://www.taz.de/!5666682",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1880,7 +1894,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5668036",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999135.norm.jpg",
@@ -1907,7 +1921,7 @@
                       "teaser": "Neuerdings werden alle Asylsuchende in Berlin auf den Coronavirus getestet. Letzte Woche gab es den ersten „Abklärungsfall“",
                       "onlineLink": "https://www.taz.de/!5666679",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1923,7 +1937,7 @@
                       "teaser": "Syrienkrieg",
                       "onlineLink": "https://www.taz.de/!5666680",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1939,7 +1953,7 @@
                       "teaser": "In Neukölln will Emilia von Senger eine Buchhandlung eröffnen, die nur Werke von weiblichen und queeren Autor*innen führt: „She said“ will eine Gleichberechtigung herstellen, die es bisher nicht gibt",
                       "onlineLink": "https://www.taz.de/!5666653",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999087.norm.jpg",
@@ -1966,7 +1980,7 @@
                       "teaser": "Am Dienstag wird wohl entschieden, wo die IAA stattfindet",
                       "onlineLink": "https://www.taz.de/!5666654",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1982,7 +1996,7 @@
                       "teaser": "berliner szenen",
                       "onlineLink": "https://www.taz.de/!5666646",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -1998,7 +2012,7 @@
                       "teaser": "Es ist mutig, aus unfertigen Romanen zu lesen. Noch mehr, dann gleich mit Wissenschaftlerinnen darüber zu sprechen. Aber genau das verlangt „Kabeljau & Talk“. Am Samstag stellte sich dem die Autorin Bettina Wilpert",
                       "onlineLink": "https://www.taz.de/!5666644",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999112.norm.jpg",
@@ -2025,7 +2039,7 @@
                       "teaser": "Um Schwierigkeiten für Frauen an der Clubtür ging es am Samstagabend in einer Gesprächsrunde im://about blank – ein weites Feld",
                       "onlineLink": "https://www.taz.de/!5666645",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2041,7 +2055,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666647",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2057,7 +2071,7 @@
                       "teaser": "false",
                       "onlineLink": null,
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
@@ -2086,6 +2100,7 @@
                   "title": "nord",
                   "extendedTitle": null,
                   "type": "articles",
+                  "podcast": null,
                   "navButton": {
                     "resolution": "normal",
                     "name": "navButton.taz.normal.png",
@@ -2109,7 +2124,7 @@
                       "teaser": "Obwohl ein Gericht den Bau einer umstrittenen Schweinezuchtanlage in Ellringen bereits 2018 gestoppt hatte, wird nun ein veränderter Bauplan diskutiert. Die Mehrheit im Rat und die Gemeinde sind für die Anlage, Gegner:innen protestieren, die Befürworter schweigen",
                       "onlineLink": "https://www.taz.de/!5666583",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999158.norm.jpg",
@@ -2136,7 +2151,7 @@
                       "teaser": "südwester",
                       "onlineLink": "https://www.taz.de/!5666582",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2152,7 +2167,7 @@
                       "teaser": "das portrait",
                       "onlineLink": "https://www.taz.de/!5666594",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999145.norm.jpg",
@@ -2179,7 +2194,7 @@
                       "teaser": "Sportschütze Timo Schreiber wünscht sich strenger kontrollierte Waffengesetze, um rassistische Terroranschläge wie in Hanau künftig zu verhindern. Ein Gespräch über die Verantwortung von Vereinen, Behörden und seine Begeisterung für den Schießsport",
                       "onlineLink": "https://www.taz.de/!5666595",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999144.norm.jpg",
@@ -2206,7 +2221,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666596",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2222,7 +2237,7 @@
                       "teaser": "Der Hamburger Ex-Polizeipräsident und Historiker Wolfgang Kopitzsch hat nicht nur zum Altonaer Blutsonntag geforscht, den sein Vater miterlebte, sondern auch zum Reserve-Polizeibataillon 101, das 1942 in Polen Juden ermordete. Auf seine Initiative fahren seit 20 Jahren Polizeischüler zu polnischen KZ-Gedenkstätten. Hamburg ist damit Pionier",
                       "onlineLink": "https://www.taz.de/!5666585",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999136.norm.jpg",
@@ -2249,7 +2264,7 @@
                       "teaser": "Christophe Cissé soll nach Mali abgeschoben werden. Dabei hat er hier Freunde, Arbeit und eine Zukunft. Doch dann lief sein Pass ab, und er geriet ins Räderwerk der Behörden",
                       "onlineLink": "https://www.taz.de/!5663949",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999164.norm.jpg",
@@ -2276,7 +2291,7 @@
                       "teaser": "Jasmin Ramadan Einfach gesagt",
                       "onlineLink": "https://www.taz.de/!5666589",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2292,7 +2307,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666588",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2308,7 +2323,7 @@
                       "teaser": "Eine Fotoausstellung in der Kulturambulanz gibt den Menschen, die in der Psychiatrie Kloster Blankenburg unter menschenunwürdigen Bedingungen verwahrt wurden, ein Gesicht",
                       "onlineLink": "https://www.taz.de/!5666607",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": [
                         {
                           "name": "Media.999163.norm.jpg",
@@ -2335,7 +2350,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666601",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2351,7 +2366,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666604",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     },
@@ -2367,7 +2382,7 @@
                       "teaser": "false",
                       "onlineLink": "https://www.taz.de/!5666599",
                       "pageNameList": null,
-                      "audioFile": null,
+                      "audio": null,
                       "imageList": null,
                       "authorList": null
                     }
