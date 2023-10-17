@@ -110,7 +110,7 @@ class MigrationTest {
         val fromDB = getMigratedRoomDatabase().sectionDao().get(sectionFileName)
         Assert.assertNotNull(fromDB)
 
-        fromDB.let {
+        fromDB?.let {
             Assert.assertEquals(fromDB.sectionFileName, sectionFileName)
             Assert.assertEquals(fromDB.issueDate, issueDate)
             Assert.assertEquals(fromDB.title, title)
