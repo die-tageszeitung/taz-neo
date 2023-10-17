@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 enum class SectionTypeDto {
     articles,
     advertisement,
+    podcast,
     UNKNOWN
 }
 

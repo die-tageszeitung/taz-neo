@@ -4,7 +4,6 @@ import androidx.media3.common.MediaItem
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 
-// FIXME: this name is stupid
 sealed interface AudioPlayerItem {
     val issueKey: AbstractIssueKey
     val currentArticle: Article

@@ -37,9 +37,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
         val articleFileName = articleToSave.articleHtml.name
 
-        // FIXME (johannes): why dont we do all of the operations in a transaction?
-
-        // First save the audioFile to fullfill the ForeignKey constraint
+        // [ArticleStub.audioFileName] references the [AudioStub.fileName] as a ForeignKey,
+        // thus the [AudioStub] must be saved before the [ArticleStub] to fulfill the constraint.
         articleToSave.audio?.let { audio ->
             audioRepository.save(audio)
         }
