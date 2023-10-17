@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-object Migration9to10 : Migration(9, 10) {
+class Migration9to10 : Migration(9, 10) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.apply {
 
