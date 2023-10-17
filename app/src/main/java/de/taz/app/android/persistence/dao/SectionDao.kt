@@ -10,7 +10,7 @@ import java.util.*
 interface SectionDao : BaseDao<SectionStub> {
 
     @Query("SELECT Section.* FROM Section WHERE Section.sectionFileName == :sectionFileName LIMIT 1")
-    suspend fun get(sectionFileName: String): SectionStub
+    suspend fun get(sectionFileName: String): SectionStub?
 
     @Query(
         """SELECT Section.* FROM Section INNER JOIN IssueSectionJoin
