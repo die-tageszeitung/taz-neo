@@ -314,19 +314,19 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         // Trigger tracking if a different article is played
         launch(Dispatchers.Default) {
-//            var lastArticleTracked: Article? = null
-//            state.collect {state ->
-//                when(state) {
-//                    is State.AudioPlaying -> {
-//                        if (lastArticleTracked != state.item.currentArticle) {
-//                            tracker.trackAudioPlayerPlayArticleEvent(state.item.currentArticle)
-//                            lastArticleTracked = state.item.currentArticle
-//                        }
-//                    }
-//                    is State.Init -> lastArticleTracked = null
-//                    else -> Unit
-//                }
-//            }
+            var lastItemTracked: AudioPlayerItem? = null
+            state.collect {state ->
+                when(state) {
+                    is State.AudioPlaying -> {
+                        if (lastItemTracked != state.item) {
+                            trackAudioPlaying(state.item)
+                            lastItemTracked = state.item
+                        }
+                    }
+                    is State.Init -> lastItemTracked = null
+                    else -> Unit
+                }
+            }
         }
 
         launch {
@@ -801,6 +801,19 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 AudioPlayerException.Network(cause = audioError.exception)
 
             else -> AudioPlayerException.Generic(cause = audioError.exception)
+        }
+    }
+
+    private fun trackAudioPlaying(item: AudioPlayerItem) {
+        when (item) {
+            is ArticleAudio ->
+                tracker.trackAudioPlayerPlayArticleEvent(item.article)
+
+            is IssueAudio ->
+                tracker.trackAudioPlayerPlayArticleEvent(item.currentArticle)
+
+            is PodcastAudio ->
+                tracker.trackAudioPlayerPlayPodcastEvent(item.issueStub.issueKey, item.section, item.title)
         }
     }
     // endregion helper functions
