@@ -1,6 +1,5 @@
 package de.taz.app.android.audioPlayer
 
-import android.net.Uri
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -19,17 +18,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.audioPlayer.DisplayMode.*
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
-import de.taz.app.android.persistence.repository.AbstractIssueKey
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -57,8 +51,6 @@ class AudioPlayerViewController(
     private val activity: AppCompatActivity
 ) : CoroutineScope {
 
-    private val log by Log
-
     init {
         if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             onCreate()
@@ -85,9 +77,7 @@ class AudioPlayerViewController(
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
-    private var boundArticle: Article? = null
-    private var boundArticleHasImage: Boolean = false
-    private var boundArticleIssueKey: AbstractIssueKey? = null
+    private var boundItem: UiState.Item? = null
     private var isTabletMode: Boolean = false
     private var isPlaying: Boolean = false
 
@@ -101,13 +91,11 @@ class AudioPlayerViewController(
     }
 
     private fun onStart() {
-        log.verbose("onStart()")
         coroutineJob.cancelChildren()
         ensurePlayerOverlayIsAddedInFront()
 
         launch {
             audioPlayerService.uiState.collect {
-                log.verbose("Collected: $it")
                 val binding = playerOverlayBinding
                 if (binding != null) {
                     onPlayerUiChange(it, binding)
@@ -123,14 +111,12 @@ class AudioPlayerViewController(
     }
 
     private fun onStop() {
-        log.verbose("onStop")
         coroutineJob.cancelChildren()
         playerOverlayBinding?.hideOverlay()
     }
 
     private fun clearBoundData() {
-        boundArticle = null
-        boundArticleIssueKey = null
+        boundItem = null
     }
 
     private fun onPlayerUiChange(
@@ -182,8 +168,7 @@ class AudioPlayerViewController(
     }
 
     private fun AudioplayerOverlayBinding.setupPreparedPlayer(isPlaying: Boolean, playerState: UiState.PlayerState) {
-        bindArticle(playerState.article)
-        boundArticleIssueKey = playerState.issueKey
+        bindItem(playerState.item)
         if (playerState.expanded) {
             enableCollapseOnTouchOutsideForMobile()
             showExpandedPlayer(isPlaying, playerState.playbackSpeed, playerState.isAutoPlayNext, playerState.controls)
@@ -194,46 +179,29 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioplayerOverlayBinding.bindArticle(article: Article) {
-        if (boundArticle?.key != article.key) {
+    private fun AudioplayerOverlayBinding.bindItem(item: UiState.Item) {
+        if (boundItem != item) {
 
-            val articleTitle = article.title ?: article.key
-            val authorText = article.authorList
-                .mapNotNull { it.name }
-                .distinct()
-                .takeIf { it.isNotEmpty() }
-                ?.let {
-                    activity.getString(
-                        R.string.audioplayer_author_template,
-                        it.joinToString(", ")
-                    )
-                }
+            audioTitle.text = item.title
+            audioAuthor.text = item.author ?: ""
 
-
-            audioTitle.text = articleTitle
-            audioAuthor.text = authorText ?: ""
-
-            val articleImage = article.imageList.firstOrNull()
-            val articleImageUriString = articleImage?.let { storageService.getFileUri(it) }
-            val articleImageUri = articleImageUriString?.let { Uri.parse(it) }
-            boundArticleHasImage = articleImageUri != null
             audioImage.apply {
-                isVisible = boundArticleHasImage
-                setImageURI(articleImageUri)
+                isVisible = item.coverImageUri != null
+                setImageURI(item.coverImageUri)
             }
 
-            expandedAudioTitle.text = articleTitle
+            expandedAudioTitle.text = item.title
             expandedAudioAuthor.apply {
-                isVisible = authorText != null
-                text = authorText ?: ""
+                isVisible = item.author != null
+                text = item.author ?: ""
             }
 
             expandedAudioImage.apply {
-                isVisible = articleImageUri != null
-                setImageURI(articleImageUri)
+                isVisible = item.coverImageUri != null
+                setImageURI(item.coverImageUri)
             }
         }
-        boundArticle = article
+        boundItem = item
     }
 
     private fun updateProgressBars(progress: PlayerProgress?) {
@@ -310,7 +278,7 @@ class AudioPlayerViewController(
 
     private fun AudioplayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {
         val isShowingPlayer = !isLoading
-        audioImage.isVisible = isShowingPlayer && boundArticleHasImage
+        audioImage.isVisible = isShowingPlayer && boundItem?.coverImageUri != null
         audioTitle.isVisible = isShowingPlayer
         audioAuthor.isVisible = isShowingPlayer
         audioActionButton.isVisible = isShowingPlayer
@@ -548,19 +516,19 @@ class AudioPlayerViewController(
         // Collapse the player only if we are in the mobile mode. Keep it open in tablet mode.
         val expanded = isTabletMode
         audioPlayerService.setPlayerExpanded(expanded)
-        boundArticleIssueKey?.let { issueKey ->
-
-            val intent = IssueViewerActivity.newIntent(
-                activity,
-                IssuePublication(issueKey),
-                boundArticle?.key
-            )
-
-            if (activity is IssueViewerActivity) {
-                activity.finish()
-            }
-            activity.startActivity(intent)
-        }
+//        boundArticleIssueKey?.let { issueKey ->
+//
+//            val intent = IssueViewerActivity.newIntent(
+//                activity,
+//                IssuePublication(issueKey),
+//                boundArticle?.key
+//            )
+//
+//            if (activity is IssueViewerActivity) {
+//                activity.finish()
+//            }
+//            activity.startActivity(intent)
+//        }
     }
 
     /**

@@ -68,4 +68,30 @@ class StoragePathService private constructor(private val applicationContext: Con
             }
         }
     }
+
+    /**
+     * Determine the base url of a [FileEntry].
+     */
+    suspend fun determineBaseUrl(
+        fileEntry: FileEntry,
+        issue: IssueOperations
+    ): String = withContext(Dispatchers.IO) {
+        when (fileEntry.storageType) {
+            StorageType.global -> {
+                (contentService.downloadMetadata(
+                    AppInfoKey(),
+                    maxRetries = -1 // retry indefinitely
+                ) as AppInfo).globalBaseUrl
+            }
+
+            StorageType.resource -> {
+                (contentService.downloadMetadata(
+                    ResourceInfoKey(-1),
+                    maxRetries = -1 // retry indefinitely
+                ) as ResourceInfo).resourceBaseUrl
+            }
+
+            StorageType.issue -> issue.baseUrl
+        }
+    }
 }

@@ -1,14 +1,13 @@
 package de.taz.app.android.audioPlayer
 
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.persistence.repository.AbstractIssueKey
+import android.net.Uri
 
 /**
  * Public player state used to render UI components.
  */
 sealed class UiState {
     object Hidden : UiState()
-    data class Initializing(val article: Article) : UiState()
+    data class Initializing(val item: Item) : UiState()
     data class InitError(
         val wasHandled: Boolean,
         val cause: AudioPlayerException
@@ -37,11 +36,16 @@ sealed class UiState {
         Hidden -> false
         is Initializing -> false
         is InitError -> false
-        is Paused ->  playerState.expanded
-        is Playing ->  playerState.expanded
+        is Paused -> playerState.expanded
+        is Playing -> playerState.expanded
     }
 
-    fun copyWithExpanded(isExpanded: Boolean): UiState = when(this) {
+    fun isPlayerVisible(): Boolean = when (this) {
+        Hidden, is InitError -> false
+        is Error, is Initializing, is Paused, is Playing -> true
+    }
+
+    fun copyWithExpanded(isExpanded: Boolean): UiState = when (this) {
         is Error -> copy(playerState = playerState.copy(expanded = isExpanded))
         is Paused -> copy(playerState = playerState.copy(expanded = isExpanded))
         is Playing -> copy(playerState = playerState.copy(expanded = isExpanded))
@@ -50,15 +54,24 @@ sealed class UiState {
 
     // Helper classes
     data class PlayerState(
-        val article: Article,
-        val issueKey: AbstractIssueKey,
+        val item: Item,
         val expanded: Boolean,
         val playbackSpeed: Float,
         val isAutoPlayNext: Boolean,
         val controls: Controls,
     )
 
-    data class Controls(val skipNext: ControlValue, val skipPrevious: ControlValue, val autoPlayNext: ControlValue)
+    data class Item(
+        val title: String,
+        val author: String?,
+        val coverImageUri: Uri?,
+    )
+
+    data class Controls(
+        val skipNext: ControlValue,
+        val skipPrevious: ControlValue,
+        val autoPlayNext: ControlValue
+    )
 
     enum class ControlValue {
         ENABLED,
@@ -66,4 +79,3 @@ sealed class UiState {
         HIDDEN,
     }
 }
-

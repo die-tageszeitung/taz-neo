@@ -362,22 +362,23 @@ class SectionWebViewFragment : WebViewFragment<
         val issueStub = viewModel.issueStubFlow.first()
         val section = viewModel.sectionFlow.first()
         if (section.type == SectionType.podcast && section.podcast != null) {
-            webView.apply {
-                val onGestureListener = object : SimpleOnGestureListener() {
-                    override fun onSingleTapUp(e: MotionEvent): Boolean {
-                        log.error("!!!play podcast !!!")
-                        return true
+            val onGestureListener = object : SimpleOnGestureListener() {
+                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        audioPlayerService.playPodcastAsync(issueStub, section, section.podcast)
+                            .await()
                     }
-                    // We have to "consume" (return true) the onDown event too, so that the Android
-                    // event system is sending the subsequent UP event to this component.
-                    override fun onDown(e: MotionEvent): Boolean = true
+                    return true
                 }
-                val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
-                    setIsLongpressEnabled(false)
-                }
-                setOnTouchListener { _, event ->
-                    gestureDetectorCompat.onTouchEvent(event)
-                }
+                // We have to "consume" (return true) the onDown event too, so that the Android
+                // event system is sending the subsequent UP event to this component.
+                override fun onDown(e: MotionEvent): Boolean = true
+            }
+            val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
+                setIsLongpressEnabled(false)
+            }
+            webView.setOnTouchListener { _, event ->
+                gestureDetectorCompat.onTouchEvent(event)
             }
 
         } else {

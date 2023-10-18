@@ -33,27 +33,22 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
     private val _errorMessageFlow = MutableStateFlow<String?>(null)
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
 
+    val isPlayerVisible = audioPlayerService.uiState.map { it.isPlayerVisible() }
+
     /**
      * True if the currently visible article is active within the audio player.
      * Note, that does not mean it is playing.
      */
     val isActiveAudio: Flow<Boolean> = combine(
-        visibleArticleFileName, audioPlayerService.uiState
-    ) { articleFileName: String?, state: UiState ->
-        when (state) {
-            UiState.Hidden, is UiState.InitError -> false
-            is UiState.Initializing -> state.article.key == articleFileName
-            is UiState.Paused -> state.playerState.article.key == articleFileName
-            is UiState.Playing -> state.playerState.article.key == articleFileName
-            is UiState.Error -> state.playerState.article.key == articleFileName
+        visibleArticleFileName, isPlayerVisible, audioPlayerService.currentItem
+    ) { articleFileName: String?, isPlayerVisible: Boolean, audioPlayerItem: AudioPlayerItem? ->
+        val currentlyPlayingArticle = when(audioPlayerItem) {
+            is ArticleAudio -> audioPlayerItem.article
+            is IssueAudio -> audioPlayerItem.currentArticle
+            is PodcastAudio, null -> null
         }
-    }
 
-    val isPlayerVisible: Flow<Boolean> = audioPlayerService.uiState.map {
-        when (it) {
-            UiState.Hidden -> false
-            is UiState.Error, is UiState.Initializing, is UiState.Paused, is UiState.Playing, is UiState.InitError -> true
-        }
+        isPlayerVisible && currentlyPlayingArticle != null && currentlyPlayingArticle.key == articleFileName
     }
 
     fun setVisibleArticle(articleStub: ArticleStub) {
@@ -112,7 +107,7 @@ class IssueAudioPlayerViewModel(androidApplication: Application) :
 
     override suspend fun play(articleStub: ArticleStub) {
         val issueStub = requireNotNull(articleStub.getIssueStub(application.applicationContext))
-        audioPlayerService.playIssue(issueStub, articleStub).await()
+        audioPlayerService.playIssueAsync(issueStub, articleStub).await()
     }
 
 }
