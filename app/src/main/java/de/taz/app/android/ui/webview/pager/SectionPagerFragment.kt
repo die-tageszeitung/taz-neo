@@ -38,10 +38,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

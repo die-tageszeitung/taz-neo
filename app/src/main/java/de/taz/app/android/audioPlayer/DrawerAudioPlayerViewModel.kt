@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
@@ -36,15 +37,25 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
     private val _errorMessageFlow = MutableStateFlow<String?>(null)
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
 
+    private val currentAudioPlayerItemIssueKey = audioPlayerService.currentItem.map {
+        when (it) {
+            is ArticleAudio -> it.issueStub.issueKey
+            is IssueAudio -> it.issueStub.issueKey
+            is PodcastAudio -> it.issueStub.issueKey
+            null -> null
+        }
+    }
+
     val isIssueActiveAudio: Flow<Boolean> =
-        combine(issueKey, audioPlayerService.uiState) { issueKey: IssueKey?, state: UiState ->
+        combine(issueKey, audioPlayerService.uiState, currentAudioPlayerItemIssueKey) { issueKey: IssueKey?, state: UiState, currentAudioPlayerItemIssueKey: AbstractIssueKey? ->
             when (state) {
                 UiState.Hidden, is UiState.InitError, is UiState.Initializing, is UiState.Paused, is UiState.Error -> false
                 // Only show the drawers audio indicator as playing if isAutoPlayNext is enabled and if a whole issue is playing
                 // FIXME (johannes): checking state.playerState.controls.autoPlayNext is a hack that allows me to skip passing additional information about the "type" of playing thing to the UI state for now
                 is UiState.Playing -> state.playerState.isAutoPlayNext
                         && state.playerState.controls.autoPlayNext == UiState.ControlValue.ENABLED
-                        && IssueKey(state.playerState.issueKey) == issueKey
+                        && currentAudioPlayerItemIssueKey != null
+                        && IssueKey(currentAudioPlayerItemIssueKey) == issueKey
             }
         }
 
@@ -59,7 +70,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
             if (currentIssue != null) {
                 try {
                     audioPlayerService.setAutoPlayNext(true)
-                    audioPlayerService.playIssue(currentIssue).await()
+                    audioPlayerService.playIssueAsync(currentIssue).await()
                 } catch (e: Exception) {
                     log.error("Could not play issue audio (${currentIssue.issueKey})", e)
                     _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
