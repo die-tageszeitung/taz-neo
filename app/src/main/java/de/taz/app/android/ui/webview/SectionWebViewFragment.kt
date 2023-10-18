@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
@@ -7,13 +8,16 @@ import android.graphics.Point
 import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.UiThread
 import androidx.core.os.bundleOf
+import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.widget.TextViewCompat
@@ -26,6 +30,8 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SectionType
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -48,6 +54,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
+
 
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
     WebViewViewModel<Section>(application, savedStateHandle) {
@@ -76,6 +83,7 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var audioPlayerService: AudioPlayerService
 
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
@@ -111,6 +119,7 @@ class SectionWebViewFragment : WebViewFragment<
             viewModel.displayableLiveData.postValue(
                 sectionRepository.get(sectionFileName)
             )
+            maybeHandlePodcast()
         }
     }
 
@@ -124,6 +133,7 @@ class SectionWebViewFragment : WebViewFragment<
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
     }
 
     override fun setHeader(displayable: Section) {
@@ -318,7 +328,7 @@ class SectionWebViewFragment : WebViewFragment<
     override suspend fun onSetBookmark(
         articleName: String,
         isBookmarked: Boolean,
-        showNotification: Boolean
+        showNotification: Boolean,
     ) {
         val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
         if (articleStub != null) {
@@ -344,6 +354,34 @@ class SectionWebViewFragment : WebViewFragment<
             // fragments view is already destroyed or not ready yet. In this case the `webView`
             // property will be `null`. Unfortunately it is defined as non-null in kotlin,
             // thus we catch and ignore this exception.
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private suspend fun maybeHandlePodcast() {
+        val issueStub = viewModel.issueStubFlow.first()
+        val section = viewModel.sectionFlow.first()
+        if (section.type == SectionType.podcast && section.podcast != null) {
+            webView.apply {
+                val onGestureListener = object : SimpleOnGestureListener() {
+                    override fun onSingleTapUp(e: MotionEvent): Boolean {
+                        log.error("!!!play podcast !!!")
+                        return true
+                    }
+                    // We have to "consume" (return true) the onDown event too, so that the Android
+                    // event system is sending the subsequent UP event to this component.
+                    override fun onDown(e: MotionEvent): Boolean = true
+                }
+                val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
+                    setIsLongpressEnabled(false)
+                }
+                setOnTouchListener { _, event ->
+                    gestureDetectorCompat.onTouchEvent(event)
+                }
+            }
+
+        } else {
+            webView.clearOnTouchListener()
         }
     }
 }

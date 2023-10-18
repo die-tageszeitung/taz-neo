@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.util.Base64
 import android.view.MotionEvent
 import android.webkit.WebView
-import androidx.annotation.MainThread
 import androidx.annotation.UiThread
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
@@ -15,7 +14,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
-import java.util.*
+import java.util.Calendar
 
 private const val MAILTO_PREFIX = "mailto:"
 private const val MAX_DOWN_DURATION = 200L
@@ -36,8 +35,31 @@ class AppWebView @JvmOverloads constructor(
 
     private var initialTouchX = 0f
     private var initialTouchDownTimeMs = 0L
+    private var touchListener: OnTouchListener? = null
+
+    /**
+     * Override the [AppWebView] touch handling with the given [OnTouchListener].
+     * To restore the default behavior pass null or call [clearOnTouchListener].
+     */
+    override fun setOnTouchListener(touchListener: OnTouchListener?) {
+        this.touchListener = touchListener
+    }
+
+    /**
+     * Clear any custom touch listener and restore the default [AppWebView] touch handling.
+     */
+    fun clearOnTouchListener() {
+        touchListener = null
+    }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        // If a touchListener is currently set, it will fully override the default touch handling.
+        // For null safety reasons of the Kotlin type system we have to store an intermediate reference to the current touch listener.
+        val currentTouchListener = touchListener
+        if (currentTouchListener != null) {
+            return currentTouchListener.onTouch(this, event)
+        }
+
         if (event.pointerCount > 1) {
             // We do not want to handle multi touch events to be handled:
             // Ignore the event but signal that we have consumed it
@@ -114,16 +136,6 @@ class AppWebView @JvmOverloads constructor(
         evaluateJavascript("(function(){tazApi.$functionName($argumentsString);})()", null)
     }
 
-    override fun loadDataWithBaseURL(
-        baseUrl: String?,
-        data: String,
-        mimeType: String?,
-        encoding: String?,
-        failUrl: String?
-    ) {
-        super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, failUrl)
-    }
-
     private fun handleTap(x: Float) {
         log.debug("tapped on x $x")
         if (x<width*0.25 && width >0) {
@@ -134,5 +146,4 @@ class AppWebView @JvmOverloads constructor(
             onBorderTapListener?.invoke(ViewBorder.NONE)
         }
     }
-
 }
