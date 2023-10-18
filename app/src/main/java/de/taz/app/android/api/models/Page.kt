@@ -13,7 +13,8 @@ data class Page(
     val type: PageType? = null,
     val frameList: List<Frame>? = null,
     override val dateDownload: Date?,
-    val baseUrl: String
+    val baseUrl: String,
+    val podcast: Audio?,
 ) : DownloadableCollection {
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {

@@ -207,6 +207,19 @@ query LastIssuesQuery($feedName: String, $limit: Int!) {
                         y2
                         link
                     }
+                    podcast {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
+                    }
                 }
             }
         }

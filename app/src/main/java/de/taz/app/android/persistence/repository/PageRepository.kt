@@ -14,23 +14,20 @@ class PageRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<PageRepository, Context>(::PageRepository)
 
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val audioRepository = AudioRepository.getInstance(applicationContext)
 
     suspend fun update(pageStub: PageStub) {
         appDatabase.pageDao().update(pageStub)
     }
 
     suspend fun save(page: Page, issueKey: IssueKey): Page {
-        appDatabase.pageDao().insertOrReplace(
-            PageStub(
-                page.pagePdf.name,
-                page.title,
-                page.pagina,
-                page.type,
-                page.frameList,
-                page.dateDownload,
-                page.baseUrl
-            )
-        )
+        // [PageStub.podcastFileName] references the [AudioStub.fileName] as a ForeignKey,
+        // thus the [AudioStub] must be saved before the [PageStub] to fulfill the constraint.
+        page.podcast?.let { audio ->
+            audioRepository.save(audio)
+        }
+
+        appDatabase.pageDao().insertOrReplace(PageStub(page))
         fileEntryRepository.save(page.pagePdf)
         appDatabase.issuePageJoinDao().insertOrReplace(
             IssuePageJoin(
@@ -82,7 +79,7 @@ class PageRepository private constructor(applicationContext: Context) :
 
     private suspend fun pageStubToPage(pageStub: PageStub): Page {
         val file = fileEntryRepository.getOrThrow(pageStub.pdfFileName)
-
+        val audio = pageStub.podcastFileName?.let { audioRepository.get(it) }
         return Page(
             file,
             pageStub.title,
@@ -90,7 +87,8 @@ class PageRepository private constructor(applicationContext: Context) :
             pageStub.type,
             pageStub.frameList,
             pageStub.dateDownload,
-            pageStub.baseUrl
+            pageStub.baseUrl,
+            audio
         )
     }
 
@@ -99,6 +97,7 @@ class PageRepository private constructor(applicationContext: Context) :
             appDatabase.pageDao().delete(it)
         }
         fileEntryRepository.delete(page.pagePdf.name)
+        page.podcast?.let { audioRepository.tryDelete(it) }
     }
 
     suspend fun delete(pages: List<Page>) {
@@ -107,11 +106,17 @@ class PageRepository private constructor(applicationContext: Context) :
         )
 
         fileEntryRepository.deleteList(pages.map { it.pagePdf.name })
+        pages.mapNotNull { it.podcast }.forEach {
+            audioRepository.tryDelete(it)
+        }
     }
 
     suspend fun deleteIfNoIssueRelated(pages: List<Page>) {
         appDatabase.pageDao().deletePageFileEntriesIfNoIssueRelated(pages.map { it.pagePdf.name })
         appDatabase.pageDao().deleteIfNoIssueRelated(pages.map { it.pagePdf.name })
+        pages.mapNotNull { it.podcast }.forEach {
+            audioRepository.tryDelete(it)
+        }
     }
 
     suspend fun getDownloadDate(page: Page): Date? {

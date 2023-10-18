@@ -2697,6 +2697,7 @@
                   "title": "meinung + diskussion",
                   "pagina": "12",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.82390893625695,
@@ -2774,6 +2775,7 @@
                   "title": "taz zwei",
                   "pagina": "13",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047619420929027,
@@ -2795,6 +2797,7 @@
                   "title": "taz zwei",
                   "pagina": "14",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.3555553564569,
@@ -2837,6 +2840,7 @@
                   "title": "kultur",
                   "pagina": "15",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.65714352910082,
@@ -2865,6 +2869,7 @@
                   "title": "kultur",
                   "pagina": "16",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.050481961848467,
@@ -2900,6 +2905,7 @@
                   "title": "kultur",
                   "pagina": "17",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047619420929027,
@@ -2921,6 +2927,7 @@
                   "title": "medien",
                   "pagina": "18",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.29209116677661,
@@ -2963,6 +2970,7 @@
                   "title": "leibesübungen",
                   "pagina": "19",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047581343311162,
@@ -3012,6 +3020,7 @@
                   "title": "die wahrheit",
                   "pagina": "20",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.82523829309238,
@@ -3082,6 +3091,7 @@
                   "title": "berlin",
                   "pagina": "21",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.74603236821504,
@@ -3110,6 +3120,7 @@
                   "title": "berlin",
                   "pagina": "22",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.050793302371004,
@@ -3166,6 +3177,7 @@
                   "title": "berlin",
                   "pagina": "23",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047619420929027,
@@ -3187,6 +3199,7 @@
                   "title": "berlin kultur",
                   "pagina": "24",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.050642111829484,
@@ -3236,6 +3249,7 @@
                   "title": "nord",
                   "pagina": "25",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047619420929027,
@@ -3271,6 +3285,7 @@
                   "title": "nord",
                   "pagina": "26",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.050793302371004,
@@ -3306,6 +3321,7 @@
                   "title": "nord",
                   "pagina": "27",
                   "type": "right",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.047619420929027,
@@ -3327,6 +3343,7 @@
                   "title": "taz.hamburg",
                   "pagina": "28",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.050520039466331,
@@ -3362,6 +3379,7 @@
                   "title": "taz.bremen",
                   "pagina": "29",
                   "type": "left",
+                  "podcast": null,
                   "frameList": [
                     {
                       "x1": 0.74927008566344,

@@ -9,5 +9,6 @@ data class PageDto(
     val pagina: String? = null,
     val type: PageTypeDto? = null,
     val frameList: List<FrameDto>? = null,
-    val baseUrl: String? = null
+    val baseUrl: String? = null,
+    val podcast: AudioDto?,
 )
