@@ -5,9 +5,7 @@ import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 
-sealed interface AudioPlayerItem {
-//    fun openItem(activity: AppCompatActivity): Boolean = false
-}
+sealed interface AudioPlayerItem
 
 
 /**
@@ -63,7 +61,12 @@ data class IssueAudio(
 
 data class PodcastAudio(
     val issueStub: IssueStub,
-    // For now podcasts need to be bound to a Section
+    // For now podcasts are always bound to a Section
+    // Warning: It is not optimal to store the full Section instance as a property of PodcastAudio as
+    // a Section contains multiple deeply nested data structures (lists of articles with lists of images ...).
+    // And all of these have to be compared all when using the default equals() method on PodcastAudio.
+    // But as we know in this specific case, that the Section of type "podcast" won't contain any Articles
+    // we can keep the full Section instance for now.
     val section: Section,
     val title: String,
     val audio: Audio,
