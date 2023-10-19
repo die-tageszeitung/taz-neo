@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 29,
-    "identityHash": "c5744cb73245a24f2f16c61cf388a58b",
+    "identityHash": "b50bece614ac43254d41c1ec5677464a",
     "entities": [
       {
         "tableName": "AppInfo",
@@ -1192,7 +1192,7 @@
       },
       {
         "tableName": "Page",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pdfFileName` TEXT NOT NULL, `title` TEXT, `pagina` TEXT, `type` TEXT, `frameList` TEXT, `dateDownload` TEXT, `baseUrl` TEXT NOT NULL, PRIMARY KEY(`pdfFileName`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pdfFileName` TEXT NOT NULL, `title` TEXT, `pagina` TEXT, `type` TEXT, `frameList` TEXT, `dateDownload` TEXT, `baseUrl` TEXT NOT NULL, `podcastFileName` TEXT, PRIMARY KEY(`pdfFileName`), FOREIGN KEY(`podcastFileName`) REFERENCES `Audio`(`fileName`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "pdfFileName",
@@ -1235,6 +1235,12 @@
             "columnName": "baseUrl",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "podcastFileName",
+            "columnName": "podcastFileName",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -1243,8 +1249,30 @@
             "pdfFileName"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
+        "indices": [
+          {
+            "name": "index_Page_podcastFileName",
+            "unique": false,
+            "columnNames": [
+              "podcastFileName"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Page_podcastFileName` ON `${TABLE_NAME}` (`podcastFileName`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Audio",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "podcastFileName"
+            ],
+            "referencedColumns": [
+              "fileName"
+            ]
+          }
+        ]
       },
       {
         "tableName": "ResourceInfo",
@@ -1633,7 +1661,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c5744cb73245a24f2f16c61cf388a58b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b50bece614ac43254d41c1ec5677464a')"
     ]
   }
 }
