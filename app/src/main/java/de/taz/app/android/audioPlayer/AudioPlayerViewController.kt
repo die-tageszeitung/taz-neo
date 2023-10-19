@@ -20,10 +20,12 @@ import androidx.media3.ui.TimeBar.OnScrubListener
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.DisplayMode.*
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
+import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -200,6 +202,8 @@ class AudioPlayerViewController(
                 isVisible = item.coverImageUri != null
                 setImageURI(item.coverImageUri)
             }
+
+            setupOpenItemInteractionHandlers(item.openItemSpec)
         }
         boundItem = item
     }
@@ -455,10 +459,6 @@ class AudioPlayerViewController(
         expandedForwardAction.setOnClickListener { audioPlayerService.seekForward() }
         expandedRewindAction.setOnClickListener { audioPlayerService.seekBackward() }
 
-        expandedAudioTitle.setOnClickListener { openIssue() }
-        expandedAudioAuthor.setOnClickListener { openIssue() }
-        expandedAudioImage.setOnClickListener { openIssue() }
-
         expandedProgress.addListener(onScrubListener)
 
         expandedPlayer.setOnClickListener {
@@ -491,6 +491,27 @@ class AudioPlayerViewController(
         }
     }
 
+    private fun AudioplayerOverlayBinding.setupOpenItemInteractionHandlers(openItemSpec: UiState.OpenItemSpec?) {
+        if (openItemSpec != null) {
+            expandedAudioTitle.setOnClickListener { openItem(openItemSpec) }
+            expandedAudioAuthor.setOnClickListener { openItem(openItemSpec) }
+            expandedAudioImage.setOnClickListener { openItem(openItemSpec) }
+        } else {
+            expandedAudioTitle.apply {
+                isClickable = false
+                setOnClickListener(null)
+            }
+            expandedAudioAuthor.apply {
+                isClickable = false
+                setOnClickListener(null)
+            }
+            expandedAudioImage.apply {
+                isClickable = false
+                setOnClickListener(null)
+            }
+        }
+    }
+
     private val onScrubListener = object : OnScrubListener {
         override fun onScrubStart(timeBar: TimeBar, position: Long) = Unit
         override fun onScrubMove(timeBar: TimeBar, position: Long) = Unit
@@ -512,23 +533,24 @@ class AudioPlayerViewController(
         audioPlayerService.toggleAudioPlaying()
     }
 
-    private fun openIssue() {
+    private fun openItem(openItemSpec: UiState.OpenItemSpec) {
         // Collapse the player only if we are in the mobile mode. Keep it open in tablet mode.
         val expanded = isTabletMode
         audioPlayerService.setPlayerExpanded(expanded)
-//        boundArticleIssueKey?.let { issueKey ->
-//
-//            val intent = IssueViewerActivity.newIntent(
-//                activity,
-//                IssuePublication(issueKey),
-//                boundArticle?.key
-//            )
-//
-//            if (activity is IssueViewerActivity) {
-//                activity.finish()
-//            }
-//            activity.startActivity(intent)
-//        }
+        when (openItemSpec) {
+            is UiState.OpenItemSpec.OpenIssueItemSpec -> {
+                val intent = IssueViewerActivity.newIntent(
+                    activity,
+                    IssuePublication(openItemSpec.issueKey),
+                    openItemSpec.displayableKey
+                )
+
+                if (activity is IssueViewerActivity) {
+                    activity.finish()
+                }
+                activity.startActivity(intent)
+            }
+        }
     }
 
     /**

@@ -5,6 +5,7 @@ import android.net.Uri
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.singletons.StorageService
 
 /**
@@ -17,13 +18,13 @@ class UiStateHelper(private val applicationContext: Context) {
 
     fun asUiItem(audioPlayerItem: AudioPlayerItem): UiState.Item = audioPlayerItem.run {
         when (this) {
-            is ArticleAudio -> articleAsAUiItem(article)
-            is IssueAudio -> articleAsAUiItem(currentArticle)
+            is ArticleAudio -> articleAsAUiItem(article, issueStub.issueKey)
+            is IssueAudio -> articleAsAUiItem(currentArticle, issueStub.issueKey)
             is PodcastAudio -> podcastAsUiItem(this)
         }
     }
 
-    private fun articleAsAUiItem(article: Article): UiState.Item {
+    private fun articleAsAUiItem(article: Article, issueKey: AbstractIssueKey): UiState.Item {
         val authorText = getAudioAuthor(article)
             ?.let {
                 applicationContext.getString(R.string.audioplayer_author_template, it)
@@ -32,7 +33,8 @@ class UiStateHelper(private val applicationContext: Context) {
         return UiState.Item(
             getAudioTitle(article),
             authorText,
-            getAudioImage(article)
+            getAudioImage(article),
+            UiState.OpenItemSpec.OpenIssueItemSpec(issueKey, article.key)
         )
     }
 
@@ -65,6 +67,7 @@ class UiStateHelper(private val applicationContext: Context) {
             podcastAudio.title,
             null,
             getAudioImageForPodcast(podcastAudio.section),
+            null, // Podcasts shall not open the issue when being clicked in the player
         )
     }
 
