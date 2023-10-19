@@ -13,7 +13,8 @@ object PageMapper {
             pageDto.type?.let { PageTypeMapper.from(it) },
             pageDto.frameList?.map { FrameMapper.from(it) },
             null,
-            baseUrl
+            baseUrl,
+            pageDto.podcast?.let { AudioMapper.from(issueKey, it) },
         )
     }
 }

@@ -207,6 +207,19 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         y2
                         link
                     }
+                    podcast {
+                        file {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
+                        playtime
+                        duration
+                        speaker
+                        breaks
+                    }
                 }
             }
         }
