@@ -96,12 +96,13 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(title)
             .setArtist(authorText)
-            // FIXME (johannes): passing an local file:// url for the artwork is not working due to
-            //     Androids App filesystem restrictions: Image file are stored in the private app
+            // FIXME (johannes): passing a local file:// url for the artwork is not working 100%
+            //     due to Androids App filesystem restrictions: Image file are stored in the private app
             //     storage and won't be accessible by other app. We could circumvent this by
-            //     generating and passing a bitmap. But luckily the mp3 already contains some
-            //     Artwork in its id3 tag which is used by the notification player area as a fallback.
-            //.setArtworkUri(imageUri) // FIXME: this is probably not working as intended!
+            //     generating and passing a bitmap.
+            //     Somehow we do get some errors on the logs, but the image is sometimes still shown.
+            //     Thus we keep the Uri logic for now.
+            .setArtworkUri(imageUri)
             .build()
 
         return MediaItem.Builder()
@@ -115,6 +116,8 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(podcastAudio.title)
             .setArtist(null)
+            // We don't set the artwork here, as the podcast mp3 does contain a preview image which
+            // is used as a fallback by the Android media3 framework.
             .setArtworkUri(null)
             .build()
 
