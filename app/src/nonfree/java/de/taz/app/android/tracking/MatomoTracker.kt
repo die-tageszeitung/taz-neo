@@ -534,6 +534,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackAudioPlayerPlayPodcastEvent(
+        issueKey: AbstractIssuePublication,
+        section: SectionOperations,
+        title: String
+    ) {
+        val path = "/${issuePath(issueKey)}/${sectionPath(section)}"
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Play Podcast")
+            .name("$path|$title")
+            .with(matomoTracker)
+    }
+
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Change Play Speed")
