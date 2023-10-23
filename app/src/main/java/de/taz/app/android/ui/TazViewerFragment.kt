@@ -161,7 +161,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     override fun onResume() {
         super.onResume()
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val defaultDrawerFileName =
                 resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
             imageRepository.get(defaultDrawerFileName)?.let {

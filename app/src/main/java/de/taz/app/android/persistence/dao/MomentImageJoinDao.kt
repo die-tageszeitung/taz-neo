@@ -30,7 +30,7 @@ interface MomentImageJoinDao : BaseDao<MomentImageJoin> {
             
         """
     )
-    suspend fun getIssueStub(momentFileName: String): IssueStub
+    suspend fun getIssueStub(momentFileName: String): IssueStub?
 
 
     /**

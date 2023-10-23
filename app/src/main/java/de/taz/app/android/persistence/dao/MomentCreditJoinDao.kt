@@ -31,7 +31,7 @@ interface MomentCreditJoinDao : BaseDao<MomentCreditJoin> {
             
         """
     )
-    suspend fun getIssueStub(momentFileName: String): IssueStub
+    suspend fun getIssueStub(momentFileName: String): IssueStub?
 
     /**
      * Delete all the entries related to the given issue from this join table.
