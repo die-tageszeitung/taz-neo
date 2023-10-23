@@ -59,7 +59,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
     suspend fun getImprintArticleStubForIssue(
         issueFeedName: String,
         issueDate: String
-    ): ArticleStub
+    ): ArticleStub?
 
     @Query(
         """

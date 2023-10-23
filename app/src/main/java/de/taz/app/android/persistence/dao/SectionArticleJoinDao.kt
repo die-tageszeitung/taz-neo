@@ -112,7 +112,7 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
             WHERE SectionArticleJoin.articleFileName == :articleFileName
         """
     )
-    suspend fun getIndexOfArticleInSection(articleFileName: String): Int
+    suspend fun getIndexOfArticleInSection(articleFileName: String): Int?
 
     @Query(
         """

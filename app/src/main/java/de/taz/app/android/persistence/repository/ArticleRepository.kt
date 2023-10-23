@@ -180,8 +180,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
         )
     }
 
-    suspend fun getIndexInSection(articleName: String): Int {
-        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName).plus(1)
+    suspend fun getIndexInSection(articleName: String): Int? {
+        return appDatabase.sectionArticleJoinDao().getIndexOfArticleInSection(articleName)?.plus(1)
     }
 
     suspend fun deleteArticle(article: Article) {
@@ -257,16 +257,20 @@ class ArticleRepository private constructor(applicationContext: Context) :
     ): List<ArticleStubWithSectionKey> {
         val articleStubList = appDatabase.articleDao()
             .getArticleStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
-        val imprintStub =
-            appDatabase.articleDao().getImprintArticleStubForIssue(issueKey.feedName, issueKey.date)
-        val articleStubListWithImprint = articleStubList + imprintStub
+            .toMutableList()
+
+        // Add imprint to the article list - if it exists
+        appDatabase.articleDao().getImprintArticleStubForIssue(issueKey.feedName, issueKey.date)
+            ?.let { imprintStub ->
+                articleStubList.add(imprintStub)
+            }
 
         val sectionArticleJoinList = appDatabase.sectionArticleJoinDao()
             .getSectionArticleJoinsForIssue(issueKey.feedName, issueKey.date, issueKey.status)
         val articleSectionMap =
             sectionArticleJoinList.associate { it.articleFileName to it.sectionFileName }
 
-        return articleStubListWithImprint.map {
+        return articleStubList.map {
             val sectionKey = articleSectionMap[it.articleFileName]
             ArticleStubWithSectionKey(it, sectionKey)
         }

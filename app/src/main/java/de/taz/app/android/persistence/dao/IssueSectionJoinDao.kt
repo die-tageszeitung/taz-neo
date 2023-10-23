@@ -53,6 +53,6 @@ interface IssueSectionJoinDao : BaseDao<IssueSectionJoin> {
         ORDER BY IssueSectionJoin.`index` ASC LIMIT 1
         """
     )
-    suspend fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub
+    suspend fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub?
 
 }
