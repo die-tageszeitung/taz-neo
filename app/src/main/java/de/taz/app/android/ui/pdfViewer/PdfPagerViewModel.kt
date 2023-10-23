@@ -140,7 +140,6 @@ class PdfPagerViewModel(
                 // We'll try to download the issues metadata 3 times.
                 // If that fails (for example due to missing network) we will emit an error and retry
                 // the download indefinitely.
-                // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
                 var issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadIssueMetadata(issuePublicationWithPages, maxRetries = 3)
@@ -156,11 +155,16 @@ class PdfPagerViewModel(
                 // if this ViewModel is destroyed - it will retry indefinitely.
                 // We wait (join) until the operations coroutine has finished - note that we don't know if the
                 // downloadToCache did succeed or failed: only that the launched coroutine has stopped.
-                // TODO (johannes): getting a full issue from the individual db tables takes quite long, we might want to cache it
                 getApplicationScope().launch {
-                    contentService.downloadToCache(
-                        download = IssuePublicationWithPages(issue.issueKey)
-                    )
+                    try {
+                        contentService.downloadToCache(
+                            download = IssuePublicationWithPages(issue.issueKey)
+                        )
+                    } catch (e: Exception) {
+                        // Ignore all errors happening during the download in this coroutine.
+                        // The actual check if the issue was downloaded fully, will be done below.
+                        log.error("Failed to download full PDF issue", e)
+                    }
                 }.join()
 
                 // Update the latest page position and the viewDate
