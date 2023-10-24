@@ -3,13 +3,11 @@ image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.4
 variables:
   SENTRY_ENVIRONMENT: official
   GIT_STRATEGY: fetch
-  GIT_SUBMODULE_STRATEGY: none
+  GIT_SUBMODULE_STRATEGY: recursive
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
   BUNDLE_VERSION: "003"
-  # Omit the -dirty suffix on CI builds, even if there might be changed file in the mupdf submodules
-  VERSION_IGNORES_DIRTY_TREE: "true"
 
 stages:
   - prepare
@@ -108,6 +106,10 @@ assembleAllTazFlavors:
   extends: .prepareEnv
   interruptible: true
   script:
+    # Ensure that the git tree is not dirty
+    - git diff --name-status --exit-code || GIT_DIRTY=1
+    - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Build the app flavors
     - ./gradlew --console=plain assembleNonfreeTazProductionDebug
                                 assembleNonfreeTazProductionRelease
                                 assembleNonfreeTazProductionManualUpdateRelease
@@ -123,6 +125,10 @@ assembleAllLmdFlavors:
   extends: .prepareEnv
   interruptible: true
   script:
+    # Ensure that the git tree is not dirty
+    - git diff --name-status --exit-code || GIT_DIRTY=1
+    - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Build the app flavors
     - ./gradlew --console=plain assembleNonfreeLmdProductionDebug
                                 assembleNonfreeLmdProductionRelease
                                 assembleNonfreeLmdProductionManualUpdateRelease
@@ -162,6 +168,10 @@ publishTazGooglePlay:
   extends: .prepareEnv
   dependencies: [] # Do not use any artifacts from the previous build stage in this job
   script:
+    # Ensure that the git tree is not dirty
+    - git diff --name-status --exit-code || GIT_DIRTY=1
+    - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Build and submit to Google Play
     - ./gradlew --no-daemon --console=plain publishNonfreeTazProductionReleaseBundle
     - ./scripts/setup_mail.sh
     - ./scripts/send-release-mail-to-app-runde.sh
@@ -199,7 +209,10 @@ publishLmdGooglePlay:
   extends: .prepareEnv
   dependencies: [] # Do not use any artifacts from the previous build stage in this job
   script:
-    - echo "Would do something"
+    # Ensure that the git tree is not dirty
+    - git diff --name-status --exit-code || GIT_DIRTY=1
+    - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Build and submit to Google Play
     - ./gradlew --no-daemon --console=plain publishNonfreeLmdProductionReleaseBundle
   rules:
     - if: $CI_COMMIT_TAG && $CI_COMMIT_TAG =~ /lmd-.*/
