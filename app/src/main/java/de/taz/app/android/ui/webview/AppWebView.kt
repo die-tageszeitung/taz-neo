@@ -35,27 +35,30 @@ class AppWebView @JvmOverloads constructor(
 
     private var initialTouchX = 0f
     private var initialTouchDownTimeMs = 0L
-    private var touchListener: OnTouchListener? = null
+    private var overrideTouchListener: OnTouchListener? = null
 
     /**
      * Override the [AppWebView] touch handling with the given [OnTouchListener].
      * To restore the default behavior pass null or call [clearOnTouchListener].
+     * Note: We can't override the setOnTouchListener function directly, because it will also be set
+     * from [ArticleWebViewFragment.hideKeyboardOnAllViewsExceptEditText] and will thus disable
+     * the tapToScroll functionality.
      */
-    override fun setOnTouchListener(touchListener: OnTouchListener?) {
-        this.touchListener = touchListener
+    fun overrideOnTouchListener(touchListener: OnTouchListener?) {
+        overrideTouchListener = touchListener
     }
 
     /**
      * Clear any custom touch listener and restore the default [AppWebView] touch handling.
      */
     fun clearOnTouchListener() {
-        touchListener = null
+        overrideTouchListener = null
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // If a touchListener is currently set, it will fully override the default touch handling.
         // For null safety reasons of the Kotlin type system we have to store an intermediate reference to the current touch listener.
-        val currentTouchListener = touchListener
+        val currentTouchListener = overrideTouchListener
         if (currentTouchListener != null) {
             return currentTouchListener.onTouch(this, event)
         }
