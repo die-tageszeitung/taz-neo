@@ -5,7 +5,6 @@ import android.view.View
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentLoginMissingSubscriptionBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
-import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.ui.login.fragments.subscription.SubscriptionBaseFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 
@@ -46,17 +45,10 @@ class SubscriptionMissingFragment :
             finish()
         }
 
-        viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
-            viewModel.requestPasswordReset(subscriptionId = true)
-        }
-
         viewBinding.fragmentLoginMissingSubscriptionPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )
 
-        viewBinding.fragmentLoginMissingSubscriptionSubscriptionButton.setOnClickListener {
-            viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
-        }
         viewBinding.fragmentLoginMissingSubscriptionHelp.setOnClickListener {
             showHelpDialog(R.string.fragment_login_missing_subscription_help)
         }
