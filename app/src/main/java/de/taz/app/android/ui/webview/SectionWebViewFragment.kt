@@ -377,7 +377,7 @@ class SectionWebViewFragment : WebViewFragment<
             val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
                 setIsLongpressEnabled(false)
             }
-            webView.setOnTouchListener { _, event ->
+            webView.overrideOnTouchListener { _, event ->
                 gestureDetectorCompat.onTouchEvent(event)
             }
 
