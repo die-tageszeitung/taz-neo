@@ -333,6 +333,15 @@ class AudioPlayerViewController(
             isGone = (controls.autoPlayNext == UiState.ControlValue.HIDDEN)
             isChecked = isAutoPlayNext
         }
+
+        if (controls.seekBreaks) {
+            expandedForwardAction.setImageResource(R.drawable.ic_forward_break)
+            expandedRewindAction.setImageResource(R.drawable.ic_backward_break)
+        } else {
+            expandedForwardAction.setImageResource(R.drawable.ic_forward_15)
+            expandedRewindAction.setImageResource(R.drawable.ic_backward_15)
+        }
+
     }
 
     private fun ensurePlayerOverlayIsAddedInFront() {

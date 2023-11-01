@@ -47,6 +47,8 @@ import kotlin.coroutines.CoroutineContext
 
 private const val SEEK_FORWARD_MS = 15000L
 private const val SEEK_BACKWARD_MS = 15000L
+// Time in ms after the last break, during which a backwards seek will go to the break before the last break.
+private const val SEEK_BACKWARDS_BREAK_MARGIN_MS = 1000L
 
 /**
  * [AudioPlayerService] will be shared between all activities.
@@ -135,6 +137,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun playIssueAsync(issueStub: IssueStub, articleStub: ArticleStub): Deferred<Unit> {
         return async {
+            // FIXME (johannes): This nested db/mapping call takes about 3s on the Pixel 6a and results in a visible delay after clicking on the tab bar
             val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
             val articlesWithAudio = articles.filter { it.audio != null }
             val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub.key }.coerceAtLeast(0)
@@ -245,21 +248,58 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    /**
+     * Seek forward within the currently active audio.
+     * If the respective [AudioPlayerItem] has some breaks defined it will seek to the next break.
+     * If not, it will seek [SEEK_FORWARD_MS] forward.
+     */
     fun seekForward() {
-        tracker.trackAudioPlayerSeekForwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
-        getControllerFromState()?.apply {
-            val newPosition = (currentPosition + SEEK_FORWARD_MS)
-            if (newPosition < duration) {
-                seekTo(newPosition)
+        val breaks = getItemFromState()?.breaks
+
+        if (!breaks.isNullOrEmpty()) {
+            tracker.trackAudioPlayerSeekForwardBreakEvent()
+            getControllerFromState()?.apply {
+                val currentPositionInS = currentPosition / 1000F
+                val nextBreakInS = breaks.find { it > currentPositionInS }
+                val nextBreakPositionInMs = nextBreakInS?.times(1000L)?.toLong()
+
+                val nextBreakPositionOrEndInMs = nextBreakPositionInMs?.coerceAtMost(duration) ?: duration
+                seekTo(nextBreakPositionOrEndInMs)
+            }
+        } else {
+            tracker.trackAudioPlayerSeekForwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
+            getControllerFromState()?.apply {
+                val newPosition = (currentPosition + SEEK_FORWARD_MS)
+                seekTo(newPosition.coerceAtMost(duration))
             }
         }
     }
 
+    /**
+     * Seek backwards within the currently active audio.
+     * If the respective [AudioPlayerItem] has some breaks defined it will seek to the previous break.
+     * If not, it will seek [SEEK_BACKWARD_MS] backwards.
+     */
     fun seekBackward() {
-        tracker.trackAudioPlayerSeekBackwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
-        getControllerFromState()?.apply {
-            val newPosition = (currentPosition - SEEK_BACKWARD_MS).coerceAtLeast(0L)
-            seekTo(newPosition)
+        val breaks = getItemFromState()?.breaks
+
+        if (!breaks.isNullOrEmpty()) {
+            tracker.trackAudioPlayerSeekBackwardBreakEvent()
+            getControllerFromState()?.apply {
+                val currentPositionWithSlack = (currentPosition - SEEK_BACKWARDS_BREAK_MARGIN_MS).coerceAtLeast(0L)
+                val currentPositionWithSlackInS = currentPositionWithSlack / 1000F
+                val prevBreakInS = breaks.findLast { it <= currentPositionWithSlackInS }
+                val prevBreakPositionInMs = prevBreakInS?.times(1000L)?.toLong()
+
+                val prevBreakPositionOrStartInMs = prevBreakPositionInMs?.coerceAtLeast(0L) ?: 0L
+                seekTo(prevBreakPositionOrStartInMs)
+            }
+        } else {
+            tracker.trackAudioPlayerSeekBackwardSecondsEvent(SEEK_FORWARD_MS / 1_000L)
+            getControllerFromState()?.apply {
+                val newPosition = (currentPosition - SEEK_BACKWARD_MS)
+                seekTo(newPosition.coerceAtLeast(0L))
+            }
         }
     }
 

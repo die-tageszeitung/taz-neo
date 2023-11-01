@@ -85,6 +85,8 @@ class NoOpTracker : Tracker {
     override fun trackAudioPlayerSkipPreviousEvent() {}
     override fun trackAudioPlayerSeekForwardSecondsEvent(seconds: Long) {}
     override fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long) {}
+    override fun trackAudioPlayerSeekForwardBreakEvent() {}
+    override fun trackAudioPlayerSeekBackwardBreakEvent() {}
     override fun trackAudioPlayerSeekPositionEvent() {}
     override fun trackAudioPlayerResumeEvent() {}
     override fun trackAudioPlayerPauseEvent() {}

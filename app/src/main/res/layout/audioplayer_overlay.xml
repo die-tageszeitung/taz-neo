@@ -310,7 +310,7 @@
                 android:layout_width="@dimen/audioplayer_expanded_seek_action_size"
                 android:layout_height="@dimen/audioplayer_expanded_seek_action_size"
                 android:contentDescription="@string/media3_controls_seek_back_description"
-                android:src="@drawable/ic_rewind_15"
+                android:src="@drawable/ic_backward_15"
                 app:layout_constraintBottom_toBottomOf="@id/expanded_audio_action"
                 app:layout_constraintEnd_toStartOf="@id/expanded_audio_action"
                 app:layout_constraintStart_toEndOf="@id/expanded_skip_previous_action"
