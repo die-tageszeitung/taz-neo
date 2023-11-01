@@ -74,11 +74,13 @@ class UiStateHelper(private val applicationContext: Context) {
     fun getUiStateControls(
         audioPlayerItem: AudioPlayerItem, isAutoPlayNext: Boolean
     ): UiState.Controls = audioPlayerItem.run {
+        val seekBreaks = !breaks.isNullOrEmpty()
         when (this) {
             is ArticleAudio -> UiState.Controls(
                 UiState.ControlValue.HIDDEN,
                 UiState.ControlValue.HIDDEN,
-                UiState.ControlValue.HIDDEN
+                UiState.ControlValue.HIDDEN,
+                seekBreaks
             )
 
             is IssueAudio -> {
@@ -92,13 +94,14 @@ class UiStateHelper(private val applicationContext: Context) {
                 } else {
                     UiState.ControlValue.DISABLED
                 }
-                UiState.Controls(skipNext, skipPrevious, UiState.ControlValue.ENABLED)
+                UiState.Controls(skipNext, skipPrevious, UiState.ControlValue.ENABLED, seekBreaks)
             }
 
             is PodcastAudio -> UiState.Controls(
                 UiState.ControlValue.HIDDEN,
                 UiState.ControlValue.HIDDEN,
-                UiState.ControlValue.HIDDEN
+                UiState.ControlValue.HIDDEN,
+                seekBreaks
             )
         }
     }

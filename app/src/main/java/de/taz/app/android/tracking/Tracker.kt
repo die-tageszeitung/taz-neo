@@ -147,6 +147,8 @@ interface Tracker {
     fun trackAudioPlayerSkipPreviousEvent()
     fun trackAudioPlayerSeekForwardSecondsEvent(seconds: Long)
     fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long)
+    fun trackAudioPlayerSeekForwardBreakEvent()
+    fun trackAudioPlayerSeekBackwardBreakEvent()
     fun trackAudioPlayerSeekPositionEvent()
     fun trackAudioPlayerResumeEvent()
     fun trackAudioPlayerPauseEvent()

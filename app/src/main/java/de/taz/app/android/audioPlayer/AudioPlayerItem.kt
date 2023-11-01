@@ -5,7 +5,13 @@ import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 
-sealed interface AudioPlayerItem
+sealed interface AudioPlayerItem {
+    /**
+     * Optional list of breaks for the currently active audioplayer item.
+     * Each break is given in seconds with fractions.
+     */
+    val breaks: List<Float>?
+}
 
 
 /**
@@ -16,6 +22,9 @@ data class ArticleAudio(
     val issueStub: IssueStub,
     val article: Article,
 ) : AudioPlayerItem {
+
+    override val breaks: List<Float>?
+        get() = article.audio?.breaks
 
     override fun toString(): String {
         return "ArticleAudio(${article.key})"
@@ -49,6 +58,9 @@ data class IssueAudio(
 
     val currentArticle: Article = articles[currentIndex]
 
+    override val breaks: List<Float>?
+        get() = currentArticle.audio?.breaks
+
     override fun toString(): String {
         return "IssueAudio(${issueStub.issueKey}, #$currentIndex)"
     }
@@ -71,6 +83,9 @@ data class PodcastAudio(
     val title: String,
     val audio: Audio,
 ) : AudioPlayerItem {
+
+    override val breaks: List<Float>?
+        get() = audio.breaks
 
     override fun toString(): String {
         return "PodcastAudio(${issueStub.issueKey}, ${section.key}, $title)"

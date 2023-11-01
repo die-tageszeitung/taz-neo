@@ -5,6 +5,10 @@ data class Audio(
     val playtime: Int?,
     val duration: Float?,
     val speaker: AudioSpeaker,
+    /**
+     * Optional list of breaks for the [Audio] item.
+     * Each break is given in seconds with fractions.
+     */
     val breaks: List<Float>?
 ) {
 

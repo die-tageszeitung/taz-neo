@@ -590,10 +590,24 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackAudioPlayerSeekForwardBreakEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Seek Forward")
+            .name("Break")
+            .with(matomoTracker)
+    }
+
     override fun trackAudioPlayerSeekBackwardSecondsEvent(seconds: Long) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Seek Backward")
             .name("$seconds Seconds")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerSeekBackwardBreakEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Seek Backward")
+            .name("Break")
             .with(matomoTracker)
     }
 
