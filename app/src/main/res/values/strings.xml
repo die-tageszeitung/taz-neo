@@ -461,6 +461,8 @@
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
     <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
+    <string name="audioplayer_disclaimer_title">Disclaimer</string>
+    <string name="audioplayer_disclaimer_author">vertonung@taz.de</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

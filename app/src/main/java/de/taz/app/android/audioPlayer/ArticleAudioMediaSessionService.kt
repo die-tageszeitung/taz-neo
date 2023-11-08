@@ -19,7 +19,7 @@ import de.taz.app.android.util.Log
 class ArticleAudioMediaSessionService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
-    private val mediaSessionCallback = ArticleAudioMediaSessionCallback()
+    private val mediaSessionCallback = ArticleAudioMediaSessionCallback(this)
 
     override fun onCreate() {
         super.onCreate()
@@ -52,7 +52,7 @@ class ArticleAudioMediaSessionService : MediaSessionService() {
 
 }
 
-private class ArticleAudioMediaSessionCallback : MediaSession.Callback {
+private class ArticleAudioMediaSessionCallback(private val mediaSessionService: MediaSessionService) : MediaSession.Callback {
     private val log by Log
 
     /**
@@ -82,4 +82,18 @@ private class ArticleAudioMediaSessionCallback : MediaSession.Callback {
         return Futures.immediateFuture(mediaItemsWithLocalUriInfo)
     }
 
+
+    override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
+        super.onDisconnected(session, controller)
+
+        if (mediaSessionService.packageName == controller.packageName) {
+            // Unfortunately media3 does not stop the foreground [MediaSessionService] when the
+            // controller from [AudioPlayerService] has been released/disconnected, as there are
+            // still controllers from the Android notifications area connected.
+            // So we force the [MediaSessionService] to stop once our internal player is dismissed
+            // (and disconnected). This will first free up resource, and second remove the player
+            // controls from the notification area.
+            mediaSessionService.stopSelf()
+        }
+    }
 }
