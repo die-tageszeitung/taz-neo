@@ -74,7 +74,7 @@ class UiStateHelper(private val applicationContext: Context) {
     fun getUiStateControls(
         audioPlayerItem: AudioPlayerItem, isAutoPlayNext: Boolean
     ): UiState.Controls = audioPlayerItem.run {
-        val seekBreaks = !breaks.isNullOrEmpty()
+        val seekBreaks = !audio?.breaks.isNullOrEmpty()
         when (this) {
             is ArticleAudio -> UiState.Controls(
                 UiState.ControlValue.HIDDEN,
@@ -105,4 +105,19 @@ class UiStateHelper(private val applicationContext: Context) {
             )
         }
     }
+
+    fun getDisclaimerUiItem(): UiState.Item = UiState.Item(
+        applicationContext.getString(R.string.audioplayer_disclaimer_title),
+        applicationContext.getString(R.string.audioplayer_disclaimer_author),
+        null,
+        null
+    )
+
+    fun getDisclaimerUiStateControls(): UiState.Controls = UiState.Controls(
+        UiState.ControlValue.HIDDEN,
+        UiState.ControlValue.HIDDEN,
+        UiState.ControlValue.HIDDEN,
+        seekBreaks = false
+    )
+
 }

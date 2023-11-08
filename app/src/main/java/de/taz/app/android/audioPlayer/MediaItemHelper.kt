@@ -9,6 +9,10 @@ import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.singletons.StoragePathService
 
+private const val DISCLAIMER_MEDIA_ID = "disclaimer"
+private const val DISCLAIMER_NOTE_FEMALE_ASSET_PATH = "/femaleNote.mp3"
+private const val DISCLAIMER_NOTE_MALE_ASSET_PATH = "/maleNote.mp3"
+
 /**
  * Helper classes used to connect [AudioPlayerItem] with the [MediaItem] that is used by the Android media framework.
  *
@@ -137,6 +141,36 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
                 MediaItem.RequestMetadata.Builder().setMediaUri(audioFileUri).build()
             )
         }
+
+
+    fun createDisclaimerMediaItem(useMaleSpeaker: Boolean): MediaItem {
+        val uiStateItem = uiStateHelper.getDisclaimerUiItem()
+
+        val mediaMetadata = MediaMetadata.Builder()
+            .setTitle(uiStateItem.title)
+            .setArtist(uiStateItem.author)
+            .build()
+
+        val disclaimerUri = if (useMaleSpeaker) {
+            Uri.parse("asset://$DISCLAIMER_NOTE_MALE_ASSET_PATH")
+        } else {
+            Uri.parse("asset://$DISCLAIMER_NOTE_FEMALE_ASSET_PATH")
+        }
+
+        val requestMetadata = MediaItem.RequestMetadata.Builder()
+            .setMediaUri(disclaimerUri)
+            .build()
+
+        return MediaItem.Builder()
+            .setMediaId(DISCLAIMER_MEDIA_ID)
+            .setRequestMetadata(requestMetadata)
+            .setMediaMetadata(mediaMetadata)
+            .build()
+    }
+
+    fun isDisclaimer(mediaItem: MediaItem): Boolean {
+        return mediaItem.mediaId == DISCLAIMER_MEDIA_ID
+    }
 }
 
 /**

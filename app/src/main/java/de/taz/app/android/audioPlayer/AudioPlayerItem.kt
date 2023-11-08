@@ -7,10 +7,9 @@ import de.taz.app.android.api.models.Section
 
 sealed interface AudioPlayerItem {
     /**
-     * Optional list of breaks for the currently active audioplayer item.
-     * Each break is given in seconds with fractions.
+     * [Audio] for the currently active item.
      */
-    val breaks: List<Float>?
+    val audio: Audio
 }
 
 
@@ -23,8 +22,7 @@ data class ArticleAudio(
     val article: Article,
 ) : AudioPlayerItem {
 
-    override val breaks: List<Float>?
-        get() = article.audio?.breaks
+    override val audio: Audio = requireNotNull(article.audio)
 
     override fun toString(): String {
         return "ArticleAudio(${article.key})"
@@ -58,8 +56,7 @@ data class IssueAudio(
 
     val currentArticle: Article = articles[currentIndex]
 
-    override val breaks: List<Float>?
-        get() = currentArticle.audio?.breaks
+    override val audio: Audio = requireNotNull(currentArticle.audio)
 
     override fun toString(): String {
         return "IssueAudio(${issueStub.issueKey}, #$currentIndex)"
@@ -81,11 +78,8 @@ data class PodcastAudio(
     // we can keep the full Section instance for now.
     val section: Section,
     val title: String,
-    val audio: Audio,
+    override val audio: Audio,
 ) : AudioPlayerItem {
-
-    override val breaks: List<Float>?
-        get() = audio.breaks
 
     override fun toString(): String {
         return "PodcastAudio(${issueStub.issueKey}, ${section.key}, $title)"
