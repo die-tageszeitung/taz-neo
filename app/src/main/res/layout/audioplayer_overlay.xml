@@ -266,6 +266,21 @@
                 app:touch_target_height="@dimen/audioplayer_expanded_progress_touch_target_height"
                 app:unplayed_color="@color/audio_player_expanded_progress_unplayed_color" />
 
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/expanded_progress_loading_overlay"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/audioplayer_expanded_progress_scrubber_radius"
+                android:indeterminate="true"
+                android:paddingTop="@dimen/audioplayer_expanded_progress_overlay_padding_top"
+                android:visibility="gone"
+                app:indicatorColor="@color/audio_player_expanded_progress_unplayed_color"
+                app:layout_constraintEnd_toEndOf="@id/expanded_progress"
+                app:layout_constraintStart_toStartOf="@id/expanded_progress"
+                app:layout_constraintTop_toTopOf="@id/expanded_progress"
+                app:trackColor="@color/audio_player_expanded_progress_played_color"
+                app:trackThickness="@dimen/audioplayer_expanded_progress_bar_height" />
+
             <TextView
                 android:id="@+id/expanded_progress_current_time"
                 style="@style/TextAppearance.AudioPlayer.ProgressTime"

@@ -309,11 +309,15 @@
     <dimen name="audioplayer_expanded_title_margin_top">20dp</dimen>
     <dimen name="audioplayer_expanded_author_margin_top">4dp</dimen>
     <dimen name="audioplayer_expanded_progress_scrubber_size">12dp</dimen>
+    <!-- audioplayer_expanded_progress_scrubber_size / 2 -->
+    <dimen name="audioplayer_expanded_progress_scrubber_radius">6dp</dimen>
     <dimen name="audioplayer_expanded_progress_bar_height">3dp</dimen>
     <dimen name="audioplayer_expanded_progress_touch_target_height">24dp</dimen>
     <!-- The margin between the top of the scrubber and the bottom of the author text should be 18dp:
         margin  = 18 - (touch_target_height - scrubber_size) / 2 - grotesk fake padding (2dp) -->
     <dimen name="audioplayer_expanded_progress_margin_top">10dp</dimen>
+    <!-- audioplayer_expanded_progress_touch_target_height / 2 - floor(audioplayer_expanded_progress_bar_height / 2) -->
+    <dimen name="audioplayer_expanded_progress_overlay_padding_top">11dp</dimen>
     <dimen name="audioplayer_expanded_seek_action_size">32dp</dimen>
     <dimen name="audioplayer_expanded_play_action_size">34dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>

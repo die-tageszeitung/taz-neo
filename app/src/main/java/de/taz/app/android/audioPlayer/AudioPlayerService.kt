@@ -525,7 +525,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         log.verbose("Preparing Issue Audio: $issueAudio")
         val mediaItems = mediaItemHelper.getMediaItems(issueAudio)
         controller.apply {
-            setMediaItems(mediaItems, issueAudio.startIndex, 0L)
+            setMediaItems(mediaItems, issueAudio.currentIndex, 0L)
             setAutoPlayNext(autoPlayNextPreference.value)
             prepare()
             playWhenReady = true
@@ -844,12 +844,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     private fun State.toLogString(): String = when (this) {
-        is State.AudioError -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.AudioError -> "${this::class.simpleName}(${controller.hashCode()}, $item)"
         is State.AudioQueued -> "${this::class.simpleName}($item)"
-        is State.AudioReady -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.AudioReady -> "${this::class.simpleName}(${controller.hashCode()}, $item, isPlaying=$isPlaying, isLoading=$isLoading)"
         is State.ControllerError -> "${this::class.simpleName}: ${this.exception}"
         is State.ControllerReady -> "${this::class.simpleName}(${controller.hashCode()})"
-        is State.DisclaimerReady -> "${this::class.simpleName}(${controller.hashCode()},$item)"
+        is State.DisclaimerReady -> "${this::class.simpleName}(${controller.hashCode()}, $item, isPlaying=$isPlaying, isLoading=$isLoading)"
         State.Init -> "${this::class.simpleName}"
     }
 
@@ -905,6 +905,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             playbackSpeed,
                             isAutoPlayNext,
                             uiStateHelper.getUiStateControls(state.item, isAutoPlayNext),
+                            state.isLoading,
                         )
                     )
                 } else {
@@ -915,6 +916,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             playbackSpeed,
                             isAutoPlayNext,
                             uiStateHelper.getUiStateControls(state.item, isAutoPlayNext),
+                            state.isLoading,
                         )
                     )
                 }
@@ -927,6 +929,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     playbackSpeed,
                     isAutoPlayNext,
                     uiStateHelper.getUiStateControls(state.item, isAutoPlayNext),
+                    isLoading = true,
                 ),
                 mapAudioErrorToException(state)
             )
@@ -938,6 +941,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     playbackSpeed,
                     isAutoPlayNext,
                     uiStateHelper.getDisclaimerUiStateControls(),
+                    state.isLoading,
                 )
             )
         }

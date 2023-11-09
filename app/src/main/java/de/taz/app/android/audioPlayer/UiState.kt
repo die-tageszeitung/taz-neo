@@ -60,6 +60,7 @@ sealed class UiState {
         val playbackSpeed: Float,
         val isAutoPlayNext: Boolean,
         val controls: Controls,
+        val isLoading: Boolean,
     )
 
     data class Item(
