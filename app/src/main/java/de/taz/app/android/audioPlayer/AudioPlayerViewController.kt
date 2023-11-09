@@ -28,13 +28,16 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 private const val CIRCULAR_PROGRESS_TICKS = 1000L
 private val PLAYBACK_SPEEDS = floatArrayOf(0.5F, 0.7F, 0.8F, 0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.5F, 2.0F)
+private const val DELAYED_LOADING_STATE_MS = 500L
 
 private enum class DisplayMode {
     DISPLAY_MODE_MOBILE,
@@ -82,6 +85,9 @@ class AudioPlayerViewController(
     private var boundItem: UiState.Item? = null
     private var isTabletMode: Boolean = false
     private var isPlaying: Boolean = false
+    private var isLoading: Boolean = false
+
+    private var delayedSetLoadingJob: Job? = null
 
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
@@ -107,7 +113,9 @@ class AudioPlayerViewController(
 
         launch {
             audioPlayerService.progress.collect {
-                updateProgressBars(it)
+                if (!isLoading) {
+                    updateProgressBars(it)
+                }
             }
         }
     }
@@ -171,6 +179,8 @@ class AudioPlayerViewController(
 
     private fun AudioplayerOverlayBinding.setupPreparedPlayer(isPlaying: Boolean, playerState: UiState.PlayerState) {
         bindItem(playerState.item)
+        setupLoadingState(playerState)
+
         if (playerState.expanded) {
             enableCollapseOnTouchOutsideForMobile()
             showExpandedPlayer(isPlaying, playerState.playbackSpeed, playerState.isAutoPlayNext, playerState.controls)
@@ -206,6 +216,45 @@ class AudioPlayerViewController(
             setupOpenItemInteractionHandlers(item.openItemSpec)
         }
         boundItem = item
+    }
+
+    private fun setupLoadingState(playerState: UiState.PlayerState) {
+        if (isLoading != playerState.isLoading) {
+            isLoading = playerState.isLoading
+
+            if (playerState.isLoading) {
+                // Delay showing the loading state, to prevent some flickering when skipping to the next audio
+                launchDelayedSetLoadingJob()
+
+            } else {
+                delayedSetLoadingJob?.cancel()
+                delayedSetLoadingJob = null
+
+                playerOverlayBinding?.apply {
+                    audioProgress.isIndeterminate = false
+                    expandedProgress.isVisible = true
+                    expandedProgressLoadingOverlay.isVisible = false
+                }
+            }
+        }
+    }
+
+    private fun launchDelayedSetLoadingJob() {
+        // Only launch a new setLoading job if there is none still in the queue
+        if (delayedSetLoadingJob?.isActive != true) {
+            delayedSetLoadingJob = launch {
+                delay(DELAYED_LOADING_STATE_MS)
+                // Check if we are still in a loading state, otherwise ignore
+                if (isLoading) {
+                    playerOverlayBinding?.apply {
+                        audioProgress.isIndeterminate = true
+                        // Keep the actual TimeBar invisible for easier position of other elements
+                        expandedProgress.isInvisible = true
+                        expandedProgressLoadingOverlay.isVisible = true
+                    }
+                }
+            }
+        }
     }
 
     private fun updateProgressBars(progress: PlayerProgress?) {
