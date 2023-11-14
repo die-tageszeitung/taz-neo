@@ -225,18 +225,25 @@ class SearchActivity :
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
+        // If there is a fragment on the backstack, we let Android handle the back functionality
+        if (supportFragmentManager.backStackEntryCount != 0) {
+            super.onBackPressed()
+            return
+        }
+
+        // When the audio player is open, we use audioplayer backstack
         if (audioPlayerViewController.onBackPressed()) {
             return
         }
 
-        val searchResultPagerFragment =
-            supportFragmentManager.fragments.firstOrNull { it is SearchResultPagerFragment } as? SearchResultPagerFragment
-
-        if (searchResultPagerFragment?.isAdded == true) {
-            super.onBackPressed()
-        } else {
-            bottomNavigationBack()
+        // When the advanced search is open, we close it
+        if (viewModel.isAdvancedSearchOpen.value) {
+            viewModel.closeAdvancedSearch()
+            return
         }
+
+        // Otherwise we close the Search Activity and go back to the previous tab
+        bottomNavigationBack()
     }
 
     override fun onDestroy() {
@@ -581,7 +588,10 @@ class SearchActivity :
             contentService.downloadToCache(article)
             bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {
-            log.warn("Error while trying to download a full article because of a bookmark request", e)
+            log.warn(
+                "Error while trying to download a full article because of a bookmark request",
+                e
+            )
             Sentry.captureException(e)
             toastHelper.showToast(R.string.toast_problem_bookmarking_article, long = true)
         }
