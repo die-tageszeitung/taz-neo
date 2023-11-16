@@ -187,6 +187,7 @@
     <dimen name="fragment_tracking_notifications_buttons_margin_between">20dp</dimen>
     <dimen name="fragment_tracking_notifications_footnote_margin_top">20dp</dimen>
 
+    <dimen name="fragment_pdf_pager_tap_bar_width">75dp</dimen>
 
     <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
