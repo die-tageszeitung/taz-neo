@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
+import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.base.BaseMainFragment
@@ -67,19 +68,65 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         }
     }
 
-    private val onCoordinatesClickedListener = OnCoordinatesClickedListener { page, x, y ->
-        val frameList = page.frameList ?: emptyList()
-        val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-        if (frame != null) {
-            frame.link?.let {
-                pdfPagerViewModel.onFrameLinkClicked(it)
-            }
-        } else {
+    private val onCoordinatesClickedListener =
+        OnCoordinatesClickedListener { page, xPage, yPage, xAbs, yAbs ->
             viewLifecycleOwner.lifecycleScope.launch {
                 if (tazApiCssDataStore.tapToScroll.get()) {
-                    handleTapToScroll(page, x)
+                    val tapBarWidth =
+                        resources.getDimension(R.dimen.fragment_pdf_pager_tap_bar_width).toInt()
+
+                    val isPortrait =
+                        resources.displayMetrics.heightPixels > resources.displayMetrics.widthPixels
+                    val isInitialScale =
+                        (viewBinding.readerView.displayedView as PageView).scale == 1f
+                    val isPanoramaPage = page.type == PageType.panorama
+
+                    val isPanoramaSinglePageFocused = isPanoramaPage && isPortrait && isInitialScale
+
+                    val isLeftTapBar = xAbs < tapBarWidth
+                    val isRightTapBar = xAbs > resources.displayMetrics.widthPixels - tapBarWidth
+
+                    val isLeftOutside = xPage < 0f
+                    val isRightOutside = xPage > 1f
+
+                    when {
+                        isLeftTapBar || isLeftOutside -> handleLeftTap(isPanoramaSinglePageFocused)
+                        isRightTapBar || isRightOutside -> handleRightTap(isPanoramaSinglePageFocused)
+                        else -> handlePageClick(page, xPage, yPage)
+                    }
                 }
             }
+        }
+
+    /**
+     * Handle the tap on the left side of the screen or on the area on the left outside the page.
+     *
+     * @param isPanoramaSinglePageFocused - true if the panorama page is focused and on side of the
+     * panorama page is shown
+     */
+    private fun handleLeftTap(isPanoramaSinglePageFocused: Boolean) {
+        val readerView = viewBinding.readerView
+        val isRightPageShown = readerView.displayedView.right == readerView.width
+        if (isPanoramaSinglePageFocused && isRightPageShown) {
+            readerView.scrollToLeftSide()
+        } else {
+            readerView.moveToPrevious()
+        }
+    }
+
+    /**
+     * Handle the tap on the right side of the screen or on the area on the right outside the page.
+     *
+     * @param isPanoramaSinglePageFocused - true if the panorama page is focused and on side of the
+     * panorama page is shown
+     */
+    private fun handleRightTap(isPanoramaSinglePageFocused: Boolean) {
+        val readerView = viewBinding.readerView
+        val isLeftPageShown = readerView.displayedView.left == 0
+        if (isPanoramaSinglePageFocused && isLeftPageShown) {
+            readerView.scrollToRightSide()
+        } else {
+            readerView.moveToNext()
         }
     }
 
@@ -103,36 +150,23 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         drawerAndLogoViewModel.hideLogo()
     }
 
-    private fun handleTapToScroll(page: Page, x: Float) {
-        val isPanoramaPage = page.type == PageType.panorama
-        val isPortrait =
-            resources.displayMetrics.heightPixels > resources.displayMetrics.widthPixels
-        val isInitialScale = (viewBinding.readerView.displayedView as PageView).scale == 1f
-
-        if (x < 0.25f) {
-            viewBinding.readerView.moveToPrevious()
-        } else if (x > 0.75f) {
-            viewBinding.readerView.moveToNext()
-        } else if (isPanoramaPage && isPortrait && isInitialScale) {
-            handleTapToScrollOnPanoramaPage(x)
-        }
-    }
-
     /**
-     * The tap functionality works differently on panorama pages in portrait mode.
-     * On the left side the intercepted [x] to trigger a right swipe is then between [0.375, 0.5]
-     * and accordingly on the right side between [0.5, 0.625].
-     * Additionally we do not move to the next page but perform a "swipe" to the other page side.
+     * Handle the click on the page.
+     *
+     * Opens the element that is clicked on the page at the given coordinates (x, y).
+     * Where (0,0) is the top left corner of the page and (1,1) is the bottom right corner of the
+     * page.
+     *
+     * @param page - the page on which the click happened
+     * @param x - the x coordinate of the click
+     * @param y - the y coordinate of the click
      */
-    private fun handleTapToScrollOnPanoramaPage(x: Float) {
-        val displayedView = viewBinding.readerView.displayedView
-        if (displayedView != null) {
-            val onLeftSide = displayedView.left == 0
-            val onRightSide = displayedView.right == viewBinding.readerView.width
-            if (onLeftSide && 0.5f >= x && x >= 0.375f) {
-                viewBinding.readerView.scrollToRightSide()
-            } else if (onRightSide && 0.625f >= x && x >= 0.5f) {
-                viewBinding.readerView.scrollToLeftSide()
+    private fun handlePageClick(page: Page, x: Float, y: Float) {
+        val frameList = page.frameList ?: emptyList()
+        val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
+        if (frame != null) {
+            frame.link?.let {
+                pdfPagerViewModel.onFrameLinkClicked(it)
             }
         }
     }

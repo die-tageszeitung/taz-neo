@@ -129,16 +129,18 @@ public class ReaderView
             slideViewOntoScreen(v);
     }
 
-    public void scrollToRightSide() {
+    public void scrollHorizontallyBy(Integer howMuchToScroll) {
         mScrollerLastX = mScrollerLastY = 0;
-        mScroller.startScroll(0, 0, -getWidth(), 0, 400);
+        mScroller.startScroll(0, 0, howMuchToScroll, 0, 400);
         mStepper.prod();
     }
 
+    public void scrollToRightSide() {
+        scrollHorizontallyBy(-(getDisplayedView().getWidth() - getWidth()));
+    }
+
     public void scrollToLeftSide() {
-        mScrollerLastX = mScrollerLastY = 0;
-        mScroller.startScroll(0, 0, getWidth(), 0, 400);
-        mStepper.prod();
+        scrollHorizontallyBy(getDisplayedView().getWidth() - getWidth());
     }
 
     public void moveToPrevious() {
@@ -396,8 +398,7 @@ public class ReaderView
 
         try {
             onLayout2(changed, left, top, right, bottom);
-		}
-		catch (java.lang.OutOfMemoryError e) {
+        } catch (java.lang.OutOfMemoryError e) {
             System.out.println("Out of memory during layout");
         }
     }
@@ -628,7 +629,7 @@ public class ReaderView
     private void measureView(PageView v) {
 
         // See what size the view wants to be
-		v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        v.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 
         // Let the PageView decide on its size and its scaling factor
         v.measure(View.MeasureSpec.EXACTLY | (int) (v.getMeasuredWidth() * v.getScale()),
@@ -762,11 +763,13 @@ public class ReaderView
     }
 
     private OnCoordinatesClickedListener mOnCoordinatesClickedListener;
+
     public void setOnCoordinatesClickedListener(OnCoordinatesClickedListener onCoordinatesClickedListener) {
         mOnCoordinatesClickedListener = onCoordinatesClickedListener;
     }
 
     private OnPageChangeCallback mOnPageChangeCallback;
+
     public void setOnPageChangeCallback(OnPageChangeCallback onPageChangeCallback) {
         mOnPageChangeCallback = onPageChangeCallback;
     }
@@ -782,7 +785,7 @@ public class ReaderView
             float docRatioY = docY / pageView.getHeight();
 
             Page page = pageView.getPage();
-            mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY);
+            mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY, e.getX(), e.getY());
         }
         return true;
     }
