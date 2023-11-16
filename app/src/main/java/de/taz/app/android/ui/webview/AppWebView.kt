@@ -8,6 +8,7 @@ import android.util.Base64
 import android.view.MotionEvent
 import android.webkit.WebView
 import androidx.annotation.UiThread
+import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.util.Log
@@ -140,10 +141,11 @@ class AppWebView @JvmOverloads constructor(
     }
 
     private fun handleTap(x: Float) {
-        log.debug("tapped on x $x")
-        if (x<width*0.25 && width >0) {
+        val tapBarWidth =
+            resources.getDimension(R.dimen.tap_bar_width)
+        if (width > 0 && x < tapBarWidth) {
             onBorderTapListener?.invoke(ViewBorder.LEFT)
-        } else if (x>width*0.75 && width >0) {
+        } else if (width > 0 && x > width - tapBarWidth) {
             onBorderTapListener?.invoke(ViewBorder.RIGHT)
         } else {
             onBorderTapListener?.invoke(ViewBorder.NONE)
