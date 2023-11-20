@@ -73,7 +73,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             viewLifecycleOwner.lifecycleScope.launch {
                 if (tazApiCssDataStore.tapToScroll.get()) {
                     val tapBarWidth =
-                        resources.getDimension(R.dimen.fragment_pdf_pager_tap_bar_width).toInt()
+                        resources.getDimension(R.dimen.tap_bar_width).toInt()
 
                     val isPortrait =
                         resources.displayMetrics.heightPixels > resources.displayMetrics.widthPixels
