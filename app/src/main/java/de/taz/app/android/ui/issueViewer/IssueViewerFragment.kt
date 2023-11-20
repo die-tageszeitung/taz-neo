@@ -8,7 +8,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import de.taz.app.android.*
 import de.taz.app.android.base.BaseViewModelFragment
-import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
 import de.taz.app.android.monkey.*
@@ -16,7 +15,6 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
-import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
@@ -39,21 +37,12 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
 
     private val log by Log
 
-
     private lateinit var sectionRepository: SectionRepository
-    private lateinit var imageRepository: ImageRepository
-    private lateinit var articleRepository: ArticleRepository
-    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-
-    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
-        imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
-        articleRepository = ArticleRepository.getInstance(requireContext().applicationContext)
-        generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
     }
 

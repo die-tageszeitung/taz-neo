@@ -52,20 +52,6 @@ data class IssueWithPages(
     override val issueKey: IssueKeyWithPages
         get() = IssueKeyWithPages(feedName, date, status)
 
-    override suspend fun getDownloadDate(applicationContext: Context): Date? {
-        return IssueRepository.getInstance(applicationContext).getDownloadDate(this)
-    }
-
-    override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
-        IssueRepository.getInstance(applicationContext).apply {
-            setDownloadDate(this@IssueWithPages, date)
-            get(issueKey)?.let {
-                // downloading an issue with pages also means downloading the regular issue
-                IssueRepository.getInstance(applicationContext).setDownloadDate(it, date)
-            }
-        }
-    }
-
     override fun getDownloadTag(): String {
         return "$tag/pdf"
     }

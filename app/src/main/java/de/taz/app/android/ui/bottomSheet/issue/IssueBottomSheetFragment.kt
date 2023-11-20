@@ -21,6 +21,7 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
@@ -52,6 +53,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
     private lateinit var issueRepository: IssueRepository
+    private lateinit var momentRepository: MomentRepository
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var tracker: Tracker
@@ -80,6 +82,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         authHelper = AuthHelper.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        momentRepository = MomentRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
@@ -114,40 +117,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         viewBinding.fragmentBottomSheetIssueShare.setOnClickListener {
             lifecycleScope.launch {
-                loadingScreen?.visibility = View.VISIBLE
-
-                var issue = contentService.downloadMetadata(issuePublication) as Issue
-                var image = issue.moment.getMomentFileToShare()
-                fileEntryRepository.get(
-                    image.name
-                )?.let {
-                    contentService.downloadSingleFileIfNotDownloaded(it, issue.baseUrl)
-                }
-                // refresh issue after altering file state
-                issue = contentService.downloadMetadata(issuePublication) as Issue
-                image = issue.moment.getMomentFileToShare()
-
-                storageService.getAbsolutePath(image)?.let { imageAsFile ->
-                    val applicationId = view.context.packageName
-                    val imageUriNew = FileProvider.getUriForFile(
-                        view.context,
-                        "${applicationId}.contentProvider",
-                        File(imageAsFile)
-                    )
-
-                    log.debug("imageUriNew: $imageUriNew")
-                    log.debug("imageAsFile: $imageAsFile")
-                    val sendIntent: Intent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                        type = "image/jpg"
-                    }
-                    tracker.trackShareMomentEvent(issue.issueKey)
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    view.context.startActivity(shareIntent)
-                }
-                loadingScreen?.visibility = View.GONE
-                dismiss()
+                shareIssue(issuePublication)
             }
         }
 
@@ -231,6 +201,52 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             } else {
                 parentFragment?.showNoInternetDialog()
             }
+        }
+    }
+
+    private suspend fun shareIssue(issuePublication: AbstractIssuePublication) {
+        try {
+            loadingScreen?.visibility = View.VISIBLE
+
+            // Only download the full Issue from the database if it is not present
+            if (!contentService.isPresent(issuePublication)) {
+                contentService.downloadMetadata(issuePublication) as Issue
+            }
+
+            val issueStub = checkNotNull(issueRepository.getMostValuableIssueStubForPublication(issuePublication))
+            var image = checkNotNull(momentRepository.get(issueStub.issueKey)).getMomentFileToShare()
+
+            val imageFileEntry = checkNotNull(fileEntryRepository.get(image.name))
+            contentService.downloadSingleFileIfNotDownloaded(imageFileEntry, issueStub.baseUrl)
+            // refresh image after altering file state
+            image = checkNotNull(momentRepository.get(issueStub.issueKey)).getMomentFileToShare()
+
+            storageService.getAbsolutePath(image)?.let { imageAsFile ->
+                val applicationId = requireContext().packageName
+                val imageUriNew = FileProvider.getUriForFile(
+                    requireContext(),
+                    "${applicationId}.contentProvider",
+                    File(imageAsFile)
+                )
+
+                log.debug("imageUriNew: $imageUriNew")
+                log.debug("imageAsFile: $imageAsFile")
+                val sendIntent: Intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_STREAM, imageUriNew)
+                    type = "image/jpg"
+                }
+                tracker.trackShareMomentEvent(issueStub.issueKey)
+                val shareIntent = Intent.createChooser(sendIntent, null)
+                requireContext().startActivity(shareIntent)
+            }
+            loadingScreen?.visibility = View.GONE
+            dismiss()
+
+        } catch (e: Exception) {
+            log.error("Error while sharing $issuePublication", e)
+            toastHelper.showToast(R.string.toast_unknown_error, long = true)
+            dismiss()
         }
     }
 

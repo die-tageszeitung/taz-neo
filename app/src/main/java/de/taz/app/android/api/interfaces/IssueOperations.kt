@@ -33,10 +33,10 @@ interface IssueOperations: DownloadableStub {
     }
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {
-        return IssueRepository.getInstance(applicationContext).getDownloadDate(this@IssueOperations)
+        return IssueRepository.getInstance(applicationContext).getDownloadDate(this)
     }
 
     override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
-        return IssueRepository.getInstance(applicationContext).setDownloadDate(this@IssueOperations, date)
+        return IssueRepository.getInstance(applicationContext).setDownloadDate(this, date)
     }
 }

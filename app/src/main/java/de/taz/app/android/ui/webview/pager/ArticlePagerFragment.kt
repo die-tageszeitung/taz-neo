@@ -64,6 +64,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
 
     private val log by Log
 
+    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val audioPlayerViewModel: IssueAudioPlayerViewModel by viewModels()
@@ -88,8 +89,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private var isTabletLandscapeMode = false
     private var currentAppBarOffset = 0
     private var lockOffsetChangedListener = false
-
-    private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
 
     private var sectionChangeHandler: SectionChangeHandler? = null
 
@@ -367,7 +366,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             R.id.bottom_navigation_action_bookmark -> {
                 getCurrentArticleStub()?.let { articleStub ->
                     if (articleStub.isImprint()) {
-                        toastHelper.showToast(R.string.toast_imporint_not_possibile_to_bookmark)
+                        toastHelper.showToast(R.string.toast_imprint_not_possibile_to_bookmark)
                     } else {
                         toggleBookmark(articleStub)
                     }

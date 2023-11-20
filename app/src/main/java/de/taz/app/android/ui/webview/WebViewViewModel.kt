@@ -16,11 +16,8 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
 
     val displayableLiveData = MutableLiveData<DISPLAYABLE?>(null)
 
-    var displayable: DISPLAYABLE?
+    val displayable: DISPLAYABLE?
         get() = displayableLiveData.value
-        set(value) {
-            displayableLiveData.value = value
-        }
 
     var scrollPosition: Int?
         get() = savedStateHandle.get(KEY_SCROLL_POSITION)

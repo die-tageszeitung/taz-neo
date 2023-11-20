@@ -52,28 +52,18 @@ data class Article(
         return articleHtml.name
     }
 
-
-    suspend fun nextArticle(applicationContext: Context): Article? {
-        val articleRepository = ArticleRepository.getInstance(applicationContext)
-        return articleRepository.nextArticleStub(key)?.let {
-            articleRepository.articleStubToArticle(it)
-        }
-    }
-
-
-    suspend fun previousArticle(applicationContext: Context): Article? {
+    override suspend fun previous(applicationContext: Context): Article? {
         val articleRepository = ArticleRepository.getInstance(applicationContext)
         return articleRepository.previousArticleStub(key)?.let {
             articleRepository.articleStubToArticle(it)
         }
     }
 
-    override suspend fun previous(applicationContext: Context): Article? {
-        return previousArticle(applicationContext)
-    }
-
     override suspend fun next(applicationContext: Context): Article? {
-        return nextArticle(applicationContext)
+        val articleRepository = ArticleRepository.getInstance(applicationContext)
+        return articleRepository.nextArticleStub(key)?.let {
+            articleRepository.articleStubToArticle(it)
+        }
     }
 
     override suspend fun getIssueStub(applicationContext: Context): IssueStub? {

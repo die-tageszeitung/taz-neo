@@ -78,6 +78,7 @@ class PdfPagerViewModel(
 
     private var issuePublication: IssuePublicationWithPages? = null
 
+    // FIXME (johannes): Loading a full issue takes a couple seconds. We should try to keep it out of the PdfPagerViewModel if possible
     private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
     val issueLiveData = issueFlow.filterNotNull().asLiveData()
 
@@ -140,6 +141,7 @@ class PdfPagerViewModel(
                 // We'll try to download the issues metadata 3 times.
                 // If that fails (for example due to missing network) we will emit an error and retry
                 // the download indefinitely.
+                // FIXME (johannes): we have to get the full Issue here until the #issueFlow has been replaced
                 var issue = try {
                     issueDownloadFailedErrorFlow.emit(false)
                     downloadIssueMetadata(issuePublicationWithPages, maxRetries = 3)

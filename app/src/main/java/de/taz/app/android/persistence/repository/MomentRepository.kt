@@ -146,6 +146,9 @@ class MomentRepository private constructor(applicationContext: Context) :
         return get(momentKey.feedName, momentKey.date, momentKey.status)
     }
 
+    suspend fun get(issueKey: AbstractIssueKey): Moment? =
+        get(issueKey.feedName, issueKey.date, issueKey.status)
+
     suspend fun exists(momentKey: MomentKey): Boolean {
         return get(momentKey) != null
     }

@@ -39,26 +39,18 @@ data class Section(
         return sectionHtml.name
     }
 
-    suspend fun nextSection(applicationContext: Context): Section? {
-        val sectionRepository = SectionRepository.getInstance(applicationContext)
-        return sectionRepository.getNextSectionStub(this.key)?.let {
-            sectionRepository.sectionStubToSection(it)
-        }
-    }
-
-    suspend fun previousSection(applicationContext: Context): Section? {
+    override suspend fun previous(applicationContext: Context): Section? {
         val sectionRepository = SectionRepository.getInstance(applicationContext)
         return sectionRepository.getPreviousSectionStub(this.key)?.let {
             sectionRepository.sectionStubToSection(it)
         }
     }
 
-    override suspend fun previous(applicationContext: Context): Section? {
-        return previousSection(applicationContext)
-    }
-
     override suspend fun next(applicationContext: Context): Section? {
-        return nextSection(applicationContext)
+        val sectionRepository = SectionRepository.getInstance(applicationContext)
+        return sectionRepository.getNextSectionStub(this.key)?.let {
+            sectionRepository.sectionStubToSection(it)
+        }
     }
 
     override suspend fun getIssueStub(applicationContext: Context): IssueStub? {

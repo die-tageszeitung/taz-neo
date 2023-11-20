@@ -29,6 +29,8 @@ import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -292,9 +294,10 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         datePublished: Date
     ) {
         try {
-            val issueMetadata =
-                apiService.getIssueByFeedAndDate(BuildConfig.DISPLAYED_FEED, datePublished)
-            contentService.downloadMetadata(issueMetadata, maxRetries = 5)
+            val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, simpleDateFormat.format(datePublished))
+            if (!contentService.isPresent(issuePublication)) {
+                contentService.downloadMetadata(issuePublication, maxRetries = 5)
+            }
             val article = requireNotNull(articleRepository.get(articleFileName))
             contentService.downloadToCache(article)
             bookmarkRepository.addBookmark(article)

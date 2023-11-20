@@ -18,7 +18,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.coachMarks.DrawerLogoCoachMark
-import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -49,7 +48,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
     private lateinit var storageService: StorageService
     private lateinit var imageRepository: ImageRepository
-    private lateinit var contentService: ContentService
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var drawerViewController: DrawerViewController
 
@@ -65,7 +63,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
         storageService = StorageService.getInstance(requireContext().applicationContext)
         imageRepository = ImageRepository.getInstance(requireContext().applicationContext)
-        contentService = ContentService.getInstance(requireContext().applicationContext)
         generalDataStore = GeneralDataStore.getInstance(requireContext().applicationContext)
 
         // supportFragmentManager recovers state by itself
