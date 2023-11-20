@@ -28,11 +28,6 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
-
-    suspend fun save(issues: List<Issue>) {
-        issues.forEach { save(it) }
-    }
-
     suspend fun save(issue: Issue): Issue {
         log.info("saving issue: ${issue.tag}")
         appDatabase.withTransaction {
@@ -94,37 +89,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         return get(issue.issueKey)!!
     }
 
-    suspend fun exists(issueOperations: IssueOperations): Boolean {
-        return getStub(
-            IssueKey(
-                issueOperations.feedName,
-                issueOperations.date,
-                issueOperations.status
-            )
-        )?.let { true } ?: false
-    }
-
-    suspend fun exists(issueKey: IssueKey): Boolean {
-        return getStub(issueKey)?.let { true } ?: false
-    }
-
-    suspend fun saveIfDoesNotExist(issues: List<Issue>): List<Issue> {
-        return issues.map { saveIfDoesNotExist(it) }
-    }
-
-    suspend fun saveIfDoesNotExist(issue: Issue): Issue {
-        if (!exists(issue)) {
-            save(issue)
-        }
-        return issue
-    }
-
     /**
      * Change the existing issueStub in the Database
      * NOTE: Make sure to use update only after fetching the data from db and then doing the desired
      * changes - as otherwise changes might be overwritten
      */
-    suspend fun update(issueStub: IssueStub) {
+    private suspend fun update(issueStub: IssueStub) {
         appDatabase.issueDao().update(issueStub)
     }
 
@@ -213,11 +183,6 @@ class IssueRepository private constructor(applicationContext: Context) :
             .maxByOrNull { it.status }
     }
 
-    suspend fun getIssueStubForPage(pageFileName: String): IssueStub? {
-        return appDatabase.issuePageJoinDao().getIssueStubsForPage(pageFileName)
-            .maxByOrNull { it.status }
-    }
-
     /**
      * Alert - the same section can be referenced by multiple issues.
      * By convention we'll return the "most valuable" issue here
@@ -256,17 +221,26 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun getDownloadDateWithPages(issueKey: IssueKeyWithPages): Date? {
+    private suspend fun getDownloadDateWithPages(issueKey: IssueKeyWithPages): Date? {
         return appDatabase.issueDao()
             .getDownloadDateWithPages(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    suspend fun getDownloadDate(issue: Issue): Date? {
+    private suspend fun getDownloadDate(issue: Issue): Date? {
         return getDownloadDate(IssueStub(issue))
     }
 
-    suspend fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
+    private suspend fun getDownloadDate(issueWithPages: IssueWithPages): Date? {
         return getDownloadDateWithPages(issueWithPages.issueKey)
+    }
+
+    private suspend fun getDownloadDate(issueKey: IssueKey): Date? {
+        return appDatabase.issueDao()
+            .getDownloadDate(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
+    private suspend fun getDownloadDate(issueStub: IssueStub): Date? {
+        return getDownloadDate(issueStub.issueKey)
     }
 
     suspend fun isDownloaded(issueKey: AbstractIssueKey): Boolean {
@@ -277,21 +251,12 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun isDownloaded(issueKey: IssueKey): Boolean {
+    private suspend fun isDownloaded(issueKey: IssueKey): Boolean {
         return getDownloadDate(issueKey) != null
     }
 
-    suspend fun isDownloaded(issueKeyWithPages: IssueKeyWithPages): Boolean {
+    private suspend fun isDownloaded(issueKeyWithPages: IssueKeyWithPages): Boolean {
         return getDownloadDateWithPages(issueKeyWithPages) != null
-    }
-
-    suspend fun getDownloadDate(issueKey: IssueKey): Date? {
-        return appDatabase.issueDao()
-            .getDownloadDate(issueKey.feedName, issueKey.date, issueKey.status)
-    }
-
-    suspend fun getDownloadDate(issueStub: IssueStub): Date? {
-        return getDownloadDate(issueStub.issueKey)
     }
 
     suspend fun updateLastViewedDate(issueOperations: IssueOperations) {
@@ -312,13 +277,13 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
+    private suspend fun setDownloadDate(issueStub: IssueStub, dateDownload: Date?) {
         getStub(issueStub.issueKey)?.let {
             update(it.copy(dateDownload = dateDownload))
         }
     }
 
-    suspend fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
+    private suspend fun setDownloadDate(issueWithPages: IssueWithPages, dateDownload: Date?) {
         getStub(issueWithPages.issueKey)?.let {
             update(
                 it.copy(
@@ -329,18 +294,8 @@ class IssueRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun setDownloadDate(issue: Issue, dateDownload: Date?) {
+    private suspend fun setDownloadDate(issue: Issue, dateDownload: Date?) {
         setDownloadDate(IssueStub(issue), dateDownload)
-    }
-
-    suspend fun resetDownloadDate(issue: Issue) {
-        resetDownloadDate(IssueStub(issue))
-    }
-
-    suspend fun resetDownloadDate(issueStub: IssueStub) {
-        getStub(issueStub.issueKey)?.let {
-            update(it.copy(dateDownload = null))
-        }
     }
 
     private suspend fun issueStubToIssue(issueStub: IssueStub): Issue {
@@ -429,17 +384,6 @@ class IssueRepository private constructor(applicationContext: Context) :
         return issueStubToIssue(issueStub)
     }
 
-    suspend fun delete(issueKey: IssueKey) {
-        get(issueKey)?.let { delete(it) }
-    }
-
-    suspend fun replace(issue: Issue) {
-        appDatabase.withTransaction {
-            delete(issue)
-            save(issue)
-        }
-    }
-
     fun getDownloadedIssuesCountFlow(): Flow<Int> {
         return appDatabase.issueDao().getDownloadedIssuesCountFlow()
     }
@@ -471,6 +415,10 @@ class IssueRepository private constructor(applicationContext: Context) :
     ): AbstractIssueKey? {
         return getMostValuableIssueStubForPublication(issuePublication)
             ?.let { if (issuePublication is IssuePublicationWithPages) IssueKeyWithPages(it.issueKey) else it.issueKey }
+    }
+
+    suspend fun delete(issueKey: IssueKey) {
+        get(issueKey)?.let { delete(it) }
     }
 
     suspend fun delete(issue: Issue) {

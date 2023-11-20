@@ -34,8 +34,6 @@ class ContentService(
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
-    private val cacheStatusFlow = CacheOperation.cacheStatusFlow
-    private val activeCacheOperations = CacheOperation.activeCacheOperations
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
 
     /**
@@ -196,5 +194,15 @@ class ContentService(
     suspend fun deleteIssue(issuePublication: AbstractIssuePublication) {
         IssueDeletion.prepare(applicationContext, issuePublication)
             .execute()
+    }
+
+    /**
+     * Get the IssueKey of the Issue Metadata (IssueStub) that matches the current
+     * min status as determined by the authHelper.
+     * Returns null if no such Issue exists in the database.
+     */
+    suspend fun getIssueKey(issuePublication: AbstractIssuePublication): AbstractIssueKey? {
+        val issueKey = issueRepository.getMostValuableIssueKeyForPublication(issuePublication)
+        return issueKey?.takeIf { it.status >= authHelper.getMinStatus() }
     }
 }

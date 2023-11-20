@@ -25,7 +25,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
     private val audioRepository = AudioRepository.getInstance(applicationContext)
 
-    suspend fun update(articleStub: ArticleStub) {
+    private suspend fun update(articleStub: ArticleStub) {
         appDatabase.articleDao().insertOrReplace(articleStub)
     }
 
@@ -81,10 +81,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().get(articleFileName)
     }
 
-    fun getStubLiveData(articleName: String): LiveData<ArticleStub?> {
-        return appDatabase.articleDao().getLiveData(articleName)
-    }
-
+    /* currently not used. see [TazApiJS] for further information
     suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
         if (articleStub?.bookmarkedTime != null) {
@@ -94,6 +91,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
             )
         }
     }
+    */
 
     suspend fun getSectionArticleStubListByArticleName(articleName: String): List<ArticleStub> {
         var articleStubList = appDatabase.articleDao().getSectionArticleListByArticle(articleName)

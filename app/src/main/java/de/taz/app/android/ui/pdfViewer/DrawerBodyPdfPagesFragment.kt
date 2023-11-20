@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
@@ -89,8 +89,8 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         )
 
         pdfPagerViewModel.issueLiveData.observe(viewLifecycleOwner) {
-            val issue = Issue(it)
-            drawerAudioPlayerViewModel.setIssue(issue)
+            val issueStub = IssueStub(it)
+            drawerAudioPlayerViewModel.setIssueStub(issueStub)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

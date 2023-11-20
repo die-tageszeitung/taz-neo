@@ -22,7 +22,6 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -54,11 +53,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var issueRepository: IssueRepository
     private lateinit var contentService: ContentService
     private lateinit var momentRepository: MomentRepository
-    private lateinit var feedRepository: FeedRepository
-    private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var toastHelper: ToastHelper
-    private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
 
     private var momentBinder: MomentViewBinding? = null
@@ -70,9 +66,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
-        storageService = StorageService.getInstance(context.applicationContext)
-        feedRepository = FeedRepository.getInstance(context.applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
@@ -179,16 +172,15 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
-            val issue =
-                contentService.downloadMetadata(
-                    IssuePublication(issueKey)
-                ) as Issue
-            currentIssueStub = IssueStub(issue)
+            // Wait for the first issueStub that matches the required key. This must succeed at some point as the the IssueStub must be present to show the Issue
+            currentIssueStub = issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status).filterNotNull().first()
 
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
-            drawerAudioPlayerViewModel.setIssue(issue)
+            drawerAudioPlayerViewModel.setIssueStub(currentIssueStub)
 
+            // FIXME (johannes): Refactor getSectionDrawerItemList to not need the full [Issue]
+            val issue = issueRepository.getIssue(currentIssueStub)
             sectionListAdapter.initWithList(
                 getSectionDrawerItemList(issue.sectionList)
             )
@@ -223,7 +215,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 }
             }
 
-            if (issue.dateDownload == null) {
+            if (currentIssueStub.dateDownload == null) {
                 launchWaitForIssueDownloadComplete(issueKey)
             }
 
@@ -342,6 +334,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     .first { it.dateDownload != null }
 
             currentIssueStub = issueDownloadedForSure
+            // FIXME (johannes): Refactor getSectionDrawerItemList to not need the full [Issue]
             val issue = issueRepository.getIssue(issueDownloadedForSure)
             sectionListAdapter.updateListData(
                 getSectionDrawerItemList(issue.sectionList)

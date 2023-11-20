@@ -59,11 +59,11 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         }
     }
 
-    // TODO (johannes): We are no longer consuming the position stored on the Article but are using
-    //                  ViewerStateRepository - check if this call is still needed/makes sense
     @JavascriptInterface
     fun pageReady(percentage: Int, position: Int) {
         log.debug("pageReady $percentage $position")
+        /* This function is currently not used by the android app, as it does not scroll within the WebView
+           Instead [ViewerStateRepository] is used to store the apps scroll position.
         webViewFragment.viewModel.displayable?.let {
             if (it is Article) {
                 applicationContext?.let { context ->
@@ -74,6 +74,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
                 }
             }
         }
+        */
     }
 
     @JavascriptInterface

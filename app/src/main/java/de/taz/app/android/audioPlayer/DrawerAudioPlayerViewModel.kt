@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.tracking.Tracker
@@ -31,8 +31,8 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
     private val audioPlayerService = AudioPlayerService.getInstance(application.applicationContext)
     private val tracker = Tracker.getInstance(application.applicationContext)
 
-    private val issue: MutableStateFlow<Issue?> = MutableStateFlow(null)
-    private val issueKey = issue.map { it?.issueKey }
+    private val issueStub: MutableStateFlow<IssueStub?> = MutableStateFlow(null)
+    private val issueKey = issueStub.map { it?.issueKey }
 
     private val _errorMessageFlow = MutableStateFlow<String?>(null)
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
@@ -59,20 +59,20 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
             }
         }
 
-    fun setIssue(issue: Issue) {
-        this.issue.value = issue
+    fun setIssueStub(issueStub: IssueStub) {
+        this.issueStub.value = issueStub
     }
 
     fun handleOnPlayAllClicked() {
         tracker.trackDrawerTapPlayIssueEvent()
         viewModelScope.launch {
-            val currentIssue = issue.value
-            if (currentIssue != null) {
+            val currentIssueStub = issueStub.value
+            if (currentIssueStub != null) {
                 try {
                     audioPlayerService.setAutoPlayNext(true)
-                    audioPlayerService.playIssueAsync(currentIssue).await()
+                    audioPlayerService.playIssueAsync(currentIssueStub, null).await()
                 } catch (e: Exception) {
-                    log.error("Could not play issue audio (${currentIssue.issueKey})", e)
+                    log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
                     _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
                 }
             } else {

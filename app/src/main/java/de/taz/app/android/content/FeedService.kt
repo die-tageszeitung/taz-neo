@@ -63,6 +63,8 @@ class FeedService(applicationContext: Context) {
         val cachedIssueDate = cachedFeed?.publicationDates?.getOrNull(0)?.date
 
         return if (newestIssueDate != null && newestIssueDate != cachedIssueDate) {
+            // This would work with the IssueStub, too, but as it is only called from the [IssueDownloadWorker]
+            // and from a background coroutine start from the [SplashActivity] we can ignore the slow Issue loading
             (contentService.downloadMetadata(
                 download = IssuePublication(name, simpleDateFormat.format(newestIssueDate)),
                 maxRetries = 3

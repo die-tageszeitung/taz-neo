@@ -198,6 +198,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     private suspend fun getArticleIssue(articleStub: ArticleStub): Issue {
+        // We don't really need the returned Issue, but it should not matter too much here,
+        // as login/logout are not happening that often, and it is called on a background co-routine
         return contentService.downloadMetadata(
             IssuePublication(
                 articleStub.issueFeedName,

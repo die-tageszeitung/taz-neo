@@ -96,7 +96,8 @@ class ArticleWebViewFragment : WebViewFragment<
                         ).commit()
                     }
                 } catch (e: IllegalStateException) {
-                    // do nothing already hidden
+                    // there is no more Fragment.Context as requireContext() threw up.
+                    // that means the Fragment is already being destroyed and we don't have to do anything
                 }
             }
             super.hideLoadingScreen()

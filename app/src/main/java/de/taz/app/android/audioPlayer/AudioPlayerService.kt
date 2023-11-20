@@ -135,12 +135,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    fun playIssueAsync(issueStub: IssueStub, articleStub: ArticleStub): Deferred<Unit> {
+    fun playIssueAsync(issueStub: IssueStub, articleStub: ArticleStub? = null): Deferred<Unit> {
         return async {
             // FIXME (johannes): This nested db/mapping call takes about 3s on the Pixel 6a and results in a visible delay after clicking on the tab bar
             val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
             val articlesWithAudio = articles.filter { it.audio != null }
-            val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub.key }.coerceAtLeast(0)
+            val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub?.key }.coerceAtLeast(0)
             val issueAudio = IssueAudio(
                 issueStub,
                 articlesWithAudio,

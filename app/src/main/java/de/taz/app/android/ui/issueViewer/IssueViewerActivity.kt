@@ -17,6 +17,7 @@ import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -164,33 +165,50 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        contentService = ContentService.getInstance(context.applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        contentService = ContentService.getInstance(requireContext().applicationContext)
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
-                suspend fun downloadMetadata(maxRetries: Int = -1) =
-                    contentService.downloadMetadata(
-                        issuePublication,
-                        maxRetries = maxRetries
-                    ) as Issue
 
-                val issue = try {
-                    downloadMetadata(maxRetries = 3)
-                } catch (e: CacheOperationFailedException) {
-                    // show error then retry infinitely
-                    issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
-                    downloadMetadata()
+                // Short circuit around the IssueStub to prevent from having to load the full Issue which takes ages
+                val issuePublication = this@IssueViewerWrapperFragment.issuePublication
+                val cachedIssueKey = contentService.getIssueKey(issuePublication)
+
+                val issueKey = if (cachedIssueKey != null) {
+                    IssueKey(cachedIssueKey)
+                } else {
+                    // If the Issue metadata is not downloaded yet, we try to download it
+                    suspend fun downloadMetadata(maxRetries: Int = -1) =
+                        contentService.downloadMetadata(
+                            issuePublication,
+                            maxRetries = maxRetries
+                        ) as Issue
+
+                    val issue = try {
+                        downloadMetadata(maxRetries = 3)
+                    } catch (e: CacheOperationFailedException) {
+                        // show error then retry infinitely
+                        issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
+                        downloadMetadata()
+                    }
+
+                    issue.issueKey
                 }
+
                 if (displayableKey != null) {
                     issueViewerViewModel.setDisplayable(
-                        issue.issueKey,
+                        issueKey,
                         displayableKey,
                         loadIssue = true
                     )
                 } else {
-                    issueViewerViewModel.setDisplayable(issue.issueKey, loadIssue = true)
+                    issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
                 }
             }
             checkElapsedAndShowBottomSheet()
