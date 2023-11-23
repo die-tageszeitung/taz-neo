@@ -71,8 +71,8 @@ class DrawerBodyPdfWithSectionsFragment :
             }
         }
 
-        pdfPagerViewModel.issueLiveData.observe(viewLifecycleOwner) { issue ->
-            val dateString = DateHelper.stringToLocalizedMonthAndYearString(issue.date)
+        pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) { issueStub ->
+            val dateString = DateHelper.stringToLocalizedMonthAndYearString(issueStub.date)
             viewBinding.fragmentDrawerBodyPdfWithSectionsTitle.text = dateString
         }
 

@@ -1,7 +1,6 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
@@ -125,5 +124,13 @@ class PageRepository private constructor(applicationContext: Context) :
 
     suspend fun setDownloadDate(page: Page, date: Date?) {
         update(PageStub(page).copy(dateDownload = date))
+    }
+
+    suspend fun getPagesForIssueKey(issueKey: IssueKey): List<Page> {
+        return appDatabase.pageDao()
+            .getPageStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+            .map { pageStub ->
+                pageStubToPage(pageStub)
+            }
     }
 }

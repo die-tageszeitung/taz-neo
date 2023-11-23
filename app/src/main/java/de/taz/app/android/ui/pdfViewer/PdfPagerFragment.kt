@@ -32,6 +32,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
+
     private val log by Log
 
     override fun onAttach(context: Context) {
@@ -172,12 +173,12 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     }
 
     private fun trackOnPageChange(position: Int) {
-        val issue = pdfPagerViewModel.issue
-        val page = issue?.pageList?.getOrNull(position)
+        val issueStub = pdfPagerViewModel.issueStub
+        val page = pdfPagerViewModel.pdfPageList.value?.getOrNull(position)
 
-        if (issue != null && page != null) {
+        if (issueStub != null && page != null) {
             val pagina = page.pagina ?: (position + 1).toString()
-            tracker.trackPdfPageScreen(issue.issueKey, pagina)
+            tracker.trackPdfPageScreen(issueStub.issueKey, pagina)
 
         } else {
             log.warn("Could not get page for position=$position")

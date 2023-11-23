@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
@@ -88,9 +87,8 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
             )
         )
 
-        pdfPagerViewModel.issueLiveData.observe(viewLifecycleOwner) {
-            val issueStub = IssueStub(it)
-            drawerAudioPlayerViewModel.setIssueStub(issueStub)
+        pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) {
+            drawerAudioPlayerViewModel.setIssueStub(it)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -169,7 +167,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
             }
 
             viewBinding.activityPdfDrawerDate.text =
-                pdfPagerViewModel.issue?.let { setDrawerDate(it) } ?: ""
+                pdfPagerViewModel.issueStub?.let { setDrawerDate(it) } ?: ""
 
             viewBinding.apply {
                 fragmentDrawerPlayIssueIcon.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
@@ -199,15 +197,14 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     }
 
-    private fun setDrawerDate(issueWithPages: IssueWithPages): String? {
-        val issue = pdfPagerViewModel.issue
-        return if (issue?.isWeekend == true && !issue.validityDate.isNullOrBlank()) {
+    private fun setDrawerDate(issueStub: IssueStub): String? {
+        return if (issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()) {
             DateHelper.stringsToWeek2LineString(
-                issue.date,
-                issue.validityDate
+                issueStub.date,
+                issueStub.validityDate
             )
         } else {
-            DateHelper.stringToLongLocalized2LineString(issueWithPages.date)
+            DateHelper.stringToLongLocalized2LineString(issueStub.date)
         }
     }
 

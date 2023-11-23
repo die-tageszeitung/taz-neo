@@ -24,7 +24,7 @@ import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Image
-import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -157,18 +157,17 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
         val displayableKey: String? = intent?.getStringExtra(KEY_DISPLAYABLE)
         if (displayableKey != null) {
             intent.removeExtra(KEY_DISPLAYABLE)
-            val issueObserver = object : Observer<IssueWithPages?> {
-                override fun onChanged(issueWithPages: IssueWithPages?) {
-                    if (issueWithPages != null) {
-                        val issueKey = IssueKey(issueWithPages.issueKey)
+            val issueObserver = object : Observer<IssueStub?> {
+                override fun onChanged(issueStub: IssueStub?) {
+                    if (issueStub != null) {
                         lifecycleScope.launch {
-                            showArticle(issueKey, displayableKey)
+                            showArticle(issueStub.issueKey, displayableKey)
                         }
-                        pdfPagerViewModel.issueLiveData.removeObserver(this)
+                        pdfPagerViewModel.issueStubLiveData.removeObserver(this)
                     }
                 }
             }
-            pdfPagerViewModel.issueLiveData.observe(this, issueObserver)
+            pdfPagerViewModel.issueStubLiveData.observe(this, issueObserver)
         }
 
         // Adjust extra padding when we have cutout display
@@ -359,10 +358,9 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
      */
     fun showArticle(article: Article) {
         lifecycleScope.launch {
-            pdfPagerViewModel.issue?.let { issueWithPages ->
-                val issueKey = IssueKey(issueWithPages.issueKey)
+            pdfPagerViewModel.issueStub?.let { issueStub ->
                 val displayableKey = article.key
-                showArticle(issueKey, displayableKey)
+                showArticle(issueStub.issueKey, displayableKey)
             }
         }
     }
