@@ -373,9 +373,6 @@ dependencies {
     // animations
     implementation 'com.airbnb.android:lottie:6.1.0'
 
-    // iban validation
-    implementation 'nl.garvelink.oss:iban:1.14.0'
-
     // semver parsing
     implementation 'com.vdurmont:semver4j:3.1.0'
 

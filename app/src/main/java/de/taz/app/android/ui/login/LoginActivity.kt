@@ -10,12 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.snackbar.Snackbar
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
-import de.taz.app.android.api.ApiService
-import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.PriceInfo
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityLoginBinding
@@ -196,7 +191,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.NAME_MISSING -> showNamesMissing()
                 LoginViewModelState.SUBSCRIPTION_ADDRESS -> showSubscriptionAddress()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
-                LoginViewModelState.SUBSCRIPTION_BANK -> showSubscriptionBank()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
                     mailInvalid = true
                 )
@@ -212,39 +206,26 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID -> showSubscriptionAddress(
                     surnameInvalid = true
                 )
-                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showSubscriptionBank(
-                    accountHolderInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showSubscriptionBank(
-                    ibanEmpty = true
-                )
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showSubscriptionBank(
-                    ibanInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showSubscriptionBank(
-                    ibanNoSepa = true
-                )
-                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showSubscriptionPossibilities(
-                    priceInvalid = true
-                )
+                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
+                //  since we don't let the user send this data.
+                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showLoginForm()
+
                 LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
                     nameTooLong = true
                 )
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
                     showSubscriptionAccount(subscriptionInvalid = true)
                 }
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> {
-                    showSubscriptionAddress(cityInvalid = true)
-                }
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> {
-                    showSubscriptionAddress(countryInvalid = true)
-                }
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> {
-                    showSubscriptionAddress(streetInvalid = true)
-                }
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> {
-                    showSubscriptionAddress(postcodeInvalid = true)
-                }
+                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
+                //  since we don't let the user send this data.
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> showLoginForm()
+                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> showLoginForm()
                 LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
                     showPasswordRequest(showSubscriptionId = true)
                 }
@@ -357,31 +338,15 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()
 
-    private fun showSubscriptionPossibilities(priceInvalid: Boolean = false) {
+    private fun showSubscriptionPossibilities() {
         log.verbose("showLoginRequestTestSubscription")
         viewModel.status.postValue(LoginViewModelState.LOADING)
         lifecycleScope.launch {
-            // if on non free flavor it is not allowed to buy stuff from the app,
-            // so we show a fragment where we only allow the trial subscription:
-            if (BuildConfig.IS_NON_FREE) {
-                showFragment(
-                    SubscriptionTrialOnlyFragment.newInstance(
-                        elapsed = authHelper.isElapsed()
-                    )
+            showFragment(
+                SubscriptionTrialOnlyFragment.newInstance(
+                    elapsed = authHelper.isElapsed()
                 )
-            }
-            // otherwise - on free flavor - we can call getPriceList to receive
-            // current price list from api
-            else {
-                getPriceList()?.let {
-                    showFragment(
-                        SubscriptionPriceFragment.newInstance(
-                            it,
-                            invalidPrice = priceInvalid
-                        )
-                    )
-                } ?: hideLoadingScreen()
-            }
+            )
         }
     }
 
@@ -397,23 +362,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         showFragment(
             SubscriptionExtendPrintPlusDigiFragment()
         )
-    }
-
-    /**
-     * get priceList synchronous to give user feedback
-     */
-    private suspend fun getPriceList(): List<PriceInfo>? {
-        return try {
-            ApiService.getInstance(applicationContext).getPriceList()
-        } catch (nie: ConnectivityException.NoInternetException) {
-            Snackbar.make(rootView, R.string.toast_no_internet, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) { showSubscriptionPossibilities(false) }.show()
-            null
-        } catch (ie: ConnectivityException.ImplementationException) {
-            Snackbar.make(rootView, R.string.toast_unknown_error, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) { showSubscriptionPossibilities(false) }.show()
-            null
-        }
     }
 
     private fun showRegistrationSuccessful() {
@@ -499,10 +447,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showSubscriptionAddress(
-        cityInvalid: Boolean = false,
-        countryInvalid: Boolean = false,
-        postcodeInvalid: Boolean = false,
-        streetInvalid: Boolean = false,
         nameTooLong: Boolean = false,
         firstNameEmpty: Boolean = false,
         firstNameInvalid: Boolean = false,
@@ -517,10 +461,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 firstNameInvalid = firstNameInvalid,
                 surnameEmpty = surnameEmpty,
                 surnameInvalid = surnameInvalid,
-                cityInvalid = cityInvalid,
-                countryInvalid = countryInvalid,
-                postcodeInvalid = postcodeInvalid,
-                streetInvalid = streetInvalid
             )
         )
     }
@@ -534,23 +474,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             SubscriptionAccountFragment.newInstance(
                 mailInvalid = mailInvalid,
                 subscriptionInvalid = subscriptionInvalid
-            )
-        )
-    }
-
-    private fun showSubscriptionBank(
-        accountHolderInvalid: Boolean = false,
-        ibanEmpty: Boolean = false,
-        ibanInvalid: Boolean = false,
-        ibanNoSepa: Boolean = false
-    ) {
-        log.verbose("showSubscriptionBank")
-        showFragment(
-            SubscriptionBankFragment.newInstance(
-                accountHolderInvalid = accountHolderInvalid,
-                ibanEmpty = ibanEmpty,
-                ibanInvalid = ibanInvalid,
-                ibanNoSepa = ibanNoSepa
             )
         )
     }

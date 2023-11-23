@@ -25,7 +25,6 @@ enum class QueryType {
     LastIssues,
     Notification,
     PasswordReset,
-    PriceList,
     ResourceInfo,
     Subscription,
     SubscriptionId2TazId,

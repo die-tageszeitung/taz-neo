@@ -65,11 +65,8 @@
     <string name="fragment_header_custom_index_indicator">%1$d von %2$d</string>
     <string name="fragment_header_custom_published_date">Ausgabe %s</string>
 
-    <string name="trial_subscription_title">Sie möchten ein (kostenloses Test-)Abo abschließen?</string>
-    <string name="trial_subscription_name">6 Wochen Testabo</string>
 
     <string name="order_button">Bestellen</string>
-    <string name="order_with_costs_button">kostenpflichtig Bestellen</string>
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
     <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per E-Mail um Bestätigung gebeten. Sollten Sie diese E-Mail nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer:in sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
@@ -280,8 +277,6 @@
     <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
     <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
 
-    <string name="login_comment_hint">Bemerkung</string>
-
     <string name="login_password_hint">Passwort</string>
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
     <string name="login_password_error_empty">Passwort darf nicht leer sein.</string>
@@ -289,36 +284,15 @@
     <string name="login_password_regex_error">Passwort muss mind. 12 Zeichen lang sein und je mind. einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten</string>
     <string name="login_password_regex_valid">Das sieht gut aus!</string>
 
-    <string name="fragment_subscription_price_title">Monatlicher Bezugspreis</string>
-    <string name="fragment_subscription_price_description">Wie auch bei der gedruckten taz gilt im Abo unser Soli-Preis-System. Sie zahlen, was Sie können und wollen.</string>
-
     <string name="fragment_subscription_address_title">Persönliche Daten</string>
     <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
     <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen Sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können Sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
     <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
 
-    <string name="fragment_subscription_bank_title">Bankdaten</string>
-    <string name="fragment_subscription_bank_description">Wir führen Einzugsermächtigungen als SEPA-Mandat. Unsere Gläubigeridentifikationsnummer ist DE9200100000011699.\nEU-Konten können am SEPA-Lastschriftverfahren teilnehmen.\nZahlungen sind ausschließlich in Euro möglich.</string>
-
-    <string name="street_hint">Straße/Hausnummer</string>
-    <string name="postcode_hint">PLZ</string>
-    <string name="country_hint">Land</string>
-    <string name="city_hint">Ort</string>
-    <string name="phone_hint">Telefon</string>
-
-    <string name="iban_hint">IBAN</string>
-    <string name="iban_error_invalid">Die IBAN ist ungültig.</string>
-    <string name="iban_error_empty">Bitte geben Sie Ihre IBAN an.</string>
-    <string name="iban_error_no_sepa">SEPA leider nicht verfügbar.</string>
-
     <string name="street_error_empty">Adresse wird benötigt.</string>
     <string name="city_error_empty">Adresse wird benötigt.</string>
     <string name="postcode_error_empty">Adresse wird benötigt.</string>
     <string name="country_error_empty">Adresse wird benötigt.</string>
-
-    <string name="account_holder_helper">Falls abweichend zu Abonnent:in</string>
-    <string name="account_holder_hint">Kontoinhaber:in</string>
-    <string name="subscription_field_invalid">Enthält nur ungültige Zeichen.</string>
 
     <string name="login_button">Anmelden</string>
 
@@ -382,7 +356,6 @@
     <string name="terms_and_conditions_data_policy">Datenschutz</string>
     <string name="terms_and_conditions_revocation">Widerruf</string>
 
-    <string name="price_error_none">Bitte wählen Sie einen Preis aus.</string>
     <string name="fragment_login_subscription_already_taken_header">Ihr Abo wird bereits von einer anderen tazId genutzt.</string>
     <string name="fragment_login_missing_subscription_help">Ihrem taz-Konto ist kein Abo zugeordnet. Bitte geben Sie Ihre Abo-Daten ein um es zu verknüpfen, oder schließen Sie ein Abo ab.</string>
     <string name="pdf_mode_better_to_be_logged_in_hint">"Sie sind nicht angemeldet.\n\nUm die Zeitungsansicht komplett nutzen zu können, melden Sie sich bitte an.\n\nAnsonsten können Sie sich nur die erste Seite der betreffenden Ausgabe anschauen."</string>

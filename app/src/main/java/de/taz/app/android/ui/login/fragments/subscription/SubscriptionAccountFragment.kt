@@ -68,11 +68,9 @@ class SubscriptionAccountFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
         viewBinding.fragmentSubscriptionAccountEmail.apply {
             setText(viewModel.username)
         }
-        viewBinding.fragmentSubscriptionAccountComment.setText(viewModel.comment)
 
         drawLayout()
 
@@ -87,10 +85,6 @@ class SubscriptionAccountFragment :
         viewBinding.cancelButton.setOnClickListener {
             finish()
         }
-
-        viewBinding.fragmentSubscriptionAccountComment.setOnEditorActionListener(
-            OnEditorActionDoneListener{ hideSoftInputKeyboard()}
-        )
 
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
             done()
@@ -165,30 +159,16 @@ class SubscriptionAccountFragment :
             }
         }
 
-        if (viewModel.price == 0) {
-            viewBinding.fragmentSubscriptionAccountCommentLayout.visibility = View.GONE
-            viewBinding.fragmentSubscriptionOrderNote.visibility = View.VISIBLE
-            if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
-                viewBinding.fragmentSubscriptionAccountPasswordConfirm
-            } else {
-                viewBinding.fragmentSubscriptionAccountPassword
-            }.apply {
-                imeOptions = EditorInfo.IME_ACTION_DONE
-                setOnEditorActionListener(
-                    OnEditorActionDoneListener{ hideSoftInputKeyboard() }
-                )
-            }
+        viewBinding.fragmentSubscriptionOrderNote.visibility = View.VISIBLE
+        if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
+            viewBinding.fragmentSubscriptionAccountPasswordConfirm
         } else {
-            viewBinding.fragmentSubscriptionAccountProceed.setText(R.string.order_with_costs_button)
-            viewBinding.fragmentSubscriptionAccountCommentLayout.visibility = View.VISIBLE
-            if (viewBinding.fragmentSubscriptionAccountPasswordConfirmLayout.isVisible) {
-                viewBinding.fragmentSubscriptionAccountPasswordConfirm
-            } else {
-                viewBinding.fragmentSubscriptionAccountPassword
-            }.apply {
-                imeOptions = EditorInfo.IME_ACTION_NEXT
-                nextFocusForwardId = R.id.fragment_subscription_account_comment
-            }
+            viewBinding.fragmentSubscriptionAccountPassword
+        }.apply {
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            setOnEditorActionListener(
+                OnEditorActionDoneListener { hideSoftInputKeyboard() }
+            )
         }
 
         if (viewModel.validCredentials) {
@@ -243,7 +223,6 @@ class SubscriptionAccountFragment :
             }
         }
 
-        viewModel.comment = viewBinding.fragmentSubscriptionAccountComment.text?.toString()
 
         if (!viewBinding.fragmentSubscriptionAccountTermsAndConditions.isChecked) {
             done = false

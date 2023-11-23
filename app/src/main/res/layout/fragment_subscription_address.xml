@@ -74,100 +74,7 @@
                 android:imeOptions="actionNext"
                 android:inputType="textPersonName"
                 android:maxLines="1"
-                android:nextFocusForward="@id/fragment_subscription_address_street_layout" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_subscription_address_street_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_name_affix_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_subscription_address_street"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="streetAddress"
-                android:hint="@string/street_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textPostalAddress"
-                android:maxLines="1"
-                android:nextFocusForward="@id/fragment_subscription_address_country_layout" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_subscription_address_country_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_street_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_subscription_address_country"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="addressCountry"
-                android:hint="@string/country_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textPostalAddress"
-                android:nextFocusForward="@id/fragment_subscription_address_postcode" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_subscription_address_postcode_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_country_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_subscription_address_postcode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="postalCode"
-                android:hint="@string/postcode_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textPostalAddress"
-                android:maxLines="1"
-                android:nextFocusForward="@id/fragment_subscription_address_city_layout" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_subscription_address_city_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_postcode_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_subscription_address_city"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="addressLocality"
-                android:hint="@string/city_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textPostalAddress"
-                android:maxLines="1"
-                android:nextFocusForward="@id/fragment_subscription_address_phone_layout" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_subscription_address_phone_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_city_layout">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_subscription_address_phone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="phone"
-                android:hint="@string/phone_hint"
-                android:imeOptions="actionDone"
-                android:inputType="phone"
-                android:maxLines="1" />
+                android:nextFocusForward="@id/fragment_subscription_address_proceed" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -179,7 +86,7 @@
             android:text="@string/next_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_phone_layout"
+            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_address_name_affix_layout"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <Button

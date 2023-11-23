@@ -35,9 +35,7 @@ class NoOpTracker : Tracker {
     override fun trackSubscriptionExtendFormScreen() {}
     override fun trackSubscriptionTrialInfoScreen() {}
     override fun trackSubscriptionTrialElapsedInfoScreen() {}
-    override fun trackSubscriptionPriceScreen() {}
     override fun trackSubscriptionPersonalDataFormScreen() {}
-    override fun trackSubscriptionPaymentFormScreen() {}
     override fun trackSubscriptionAccountLoginFormScreen() {}
     override fun trackLoginHelpDialog() {}
     override fun trackSubscriptionHelpDialog() {}
