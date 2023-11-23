@@ -206,14 +206,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_NAME_SURNAME_INVALID -> showSubscriptionName(
                     surnameInvalid = true
                 )
-                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
-                //  since we don't let the user send this data.
-                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showLoginForm()
-
                 LoginViewModelState.SUBSCRIPTION_NAME_NAME_TOO_LONG -> showSubscriptionName(
                     nameTooLong = true
                 )
