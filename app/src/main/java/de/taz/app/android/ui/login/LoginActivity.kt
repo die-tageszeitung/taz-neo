@@ -189,21 +189,21 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
                 LoginViewModelState.DONE -> done()
                 LoginViewModelState.NAME_MISSING -> showNamesMissing()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS -> showSubscriptionAddress()
+                LoginViewModelState.SUBSCRIPTION_NAME -> showSubscriptionName()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
                     mailInvalid = true
                 )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY -> showSubscriptionAddress(
+                LoginViewModelState.SUBSCRIPTION_NAME_FIRST_NAME_EMPTY -> showSubscriptionName(
                     firstNameEmpty = true
                 )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID -> showSubscriptionAddress(
+                LoginViewModelState.SUBSCRIPTION_NAME_FIRST_NAME_INVALID -> showSubscriptionName(
                     firstNameInvalid = true
                 )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY -> showSubscriptionAddress(
+                LoginViewModelState.SUBSCRIPTION_NAME_SURNAME_EMPTY -> showSubscriptionName(
                     surnameEmpty = true
                 )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID -> showSubscriptionAddress(
+                LoginViewModelState.SUBSCRIPTION_NAME_SURNAME_INVALID -> showSubscriptionName(
                     surnameInvalid = true
                 )
                 // TODO(peter) Check if this might can be removed totally since it's not possible to reach
@@ -214,7 +214,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showLoginForm()
                 LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showLoginForm()
 
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
+                LoginViewModelState.SUBSCRIPTION_NAME_NAME_TOO_LONG -> showSubscriptionName(
                     nameTooLong = true
                 )
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
@@ -446,16 +446,16 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         }
     }
 
-    private fun showSubscriptionAddress(
+    private fun showSubscriptionName(
         nameTooLong: Boolean = false,
         firstNameEmpty: Boolean = false,
         firstNameInvalid: Boolean = false,
         surnameEmpty: Boolean = false,
         surnameInvalid: Boolean = false
     ) {
-        log.verbose("showSubscriptionAddress")
+        log.verbose("showSubscriptionName")
         showFragment(
-            SubscriptionAddressFragment.newInstance(
+            SubscriptionNameFragment.newInstance(
                 nameTooLong = nameTooLong,
                 firstNameEmpty = firstNameEmpty,
                 firstNameInvalid = firstNameInvalid,

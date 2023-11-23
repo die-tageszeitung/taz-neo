@@ -284,7 +284,7 @@
     <string name="login_password_regex_error">Passwort muss mind. 12 Zeichen lang sein und je mind. einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten</string>
     <string name="login_password_regex_valid">Das sieht gut aus!</string>
 
-    <string name="fragment_subscription_address_title">Persönliche Daten</string>
+    <string name="fragment_subscription_name_title">Persönliche Daten</string>
     <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
     <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen Sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können Sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
     <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>

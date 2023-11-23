@@ -68,6 +68,6 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     }
 
     override fun next() {
-        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS)
+        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_NAME)
     }
 }
