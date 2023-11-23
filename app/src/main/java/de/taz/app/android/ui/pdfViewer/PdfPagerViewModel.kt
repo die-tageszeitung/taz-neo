@@ -8,7 +8,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.AuthStatus
@@ -16,6 +15,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
@@ -27,6 +27,7 @@ import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.util.Log
@@ -75,17 +76,18 @@ class PdfPagerViewModel(
     private val articleRepository = ArticleRepository.getInstance(application.applicationContext)
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
     private val imageRepository = ImageRepository.getInstance(application.applicationContext)
+    private val pageRepository = PageRepository.getInstance(application.applicationContext)
 
     private var issuePublication: IssuePublicationWithPages? = null
 
-    // FIXME (johannes): Loading a full issue takes a couple seconds. We should try to keep it out of the PdfPagerViewModel if possible
-    private var issueFlow = MutableStateFlow<IssueWithPages?>(null)
-    val issueLiveData = issueFlow.filterNotNull().asLiveData()
+    private var issueStubFlow = MutableStateFlow<IssueStub?>(null)
 
-    val issue: IssueWithPages?
-        get() = issueFlow.value
+    val issueStubLiveData = issueStubFlow.filterNotNull().asLiveData()
 
-    private val pdfPageListFlow: SharedFlow<List<Page>?> = issueFlow
+    val issueStub: IssueStub?
+        get() = issueStubFlow.value
+
+    private val pdfPageListFlow: SharedFlow<List<Page>?> = issueStubFlow
         .map(::pdfPageListMapper)
         .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 1)
     val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
@@ -112,9 +114,9 @@ class PdfPagerViewModel(
             _currentItem.value = validPosition
 
             // Save current position to database to restore later on
-            issueFlow.value?.issueKey?.let {
+            issueStubFlow.value?.issueKey?.let {
                 issueRepository.saveLastPagePosition(
-                    it.getIssueKey(),
+                    it,
                     validPosition
                 )
 
@@ -138,58 +140,57 @@ class PdfPagerViewModel(
         val issuePublicationWithPages = this.issuePublication
         if (issuePublicationWithPages != null) {
             viewModelScope.launch {
-                // We'll try to download the issues metadata 3 times.
-                // If that fails (for example due to missing network) we will emit an error and retry
-                // the download indefinitely.
-                // FIXME (johannes): we have to get the full Issue here until the #issueFlow has been replaced
-                var issue = try {
-                    issueDownloadFailedErrorFlow.emit(false)
-                    downloadIssueMetadata(issuePublicationWithPages, maxRetries = 3)
-                } catch (e: CacheOperationFailedException) {
-                    // show dialog and retry infinitely
-                    issueDownloadFailedErrorFlow.emit(true)
-                    downloadIssueMetadata(issuePublicationWithPages)
+
+                val cachedIssueKey = contentService.getIssueKey(issuePublicationWithPages)
+                val isIssuePresent = contentService.isPresent(issuePublicationWithPages)
+
+                val issueStub = if (isIssuePresent && cachedIssueKey != null) {
+                    issueRepository.getStub(cachedIssueKey)
+                } else {
+                    // If the Issue metadata is not downloaded yet, we try to download it
+                    suspend fun downloadMetadata(maxRetries: Int = -1) =
+                        contentService.downloadMetadata(
+                            issuePublicationWithPages, maxRetries = maxRetries
+                        ) as IssueWithPages
+
+                    val issue = try {
+                        downloadMetadata(maxRetries = 3)
+                    } catch (e: CacheOperationFailedException) {
+                        // show error then retry infinitely
+                        issueDownloadFailedErrorFlow.emit(true)
+                        downloadMetadata()
+                    }
+
+                    getApplicationScope().launch {
+                        try {
+                            contentService.downloadToCache(
+                                download = IssuePublicationWithPages(issue.issueKey)
+                            )
+                        } catch (e: Exception) {
+                            // Ignore all errors happening during the download in this coroutine.
+                            // The actual check if the issue was downloaded fully, will be done below.
+                            log.error("Failed to download full PDF issue", e)
+                        }
+                    }.join()
+
+                    issueRepository.getStub(issue.issueKey)
                 }
 
-                // Then we start the actual download of the Issue data with the PDF pages.
-                // While this will also download the issues metadata it does not return that data.
-                // The download will be started on the application scope, so that it can finish even
-                // if this ViewModel is destroyed - it will retry indefinitely.
-                // We wait (join) until the operations coroutine has finished - note that we don't know if the
-                // downloadToCache did succeed or failed: only that the launched coroutine has stopped.
-                getApplicationScope().launch {
-                    try {
-                        contentService.downloadToCache(
-                            download = IssuePublicationWithPages(issue.issueKey)
-                        )
-                    } catch (e: Exception) {
-                        // Ignore all errors happening during the download in this coroutine.
-                        // The actual check if the issue was downloaded fully, will be done below.
-                        log.error("Failed to download full PDF issue", e)
-                    }
-                }.join()
-
-                // Update the latest page position and the viewDate
-                updateCurrentItemInternal(issue.lastPagePosition ?: 0)
-                issueRepository.updateLastViewedDate(issue)
-
-                // Last we'll get the latest issue entry from the database, so that we will have a correct download date
-                val issueStub = issueRepository.getStub(issue.issueKey)
                 if (issueStub == null) {
                     val hint =
-                        "Issue ${issue.issueKey} that was just downloaded is not found in the database."
+                        "Issue of ${issuePublicationWithPages.date} that was just downloaded is not found in the database."
                     log.error(hint)
                     Sentry.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
                     return@launch
                 }
 
-                // We will not get the full issue from the database as this requires quite some work/time,
-                // only the latest issue stub to update our metadata with
-                issue = issue.copyWithMetadata(issueStub)
+                // Update the latest page position and the viewDate
+                updateCurrentItemInternal(issueStub.lastPagePosition ?: 0)
+                issueRepository.updateLastViewedDate(issueStub)
 
-                if (issue.dateDownloadWithPages == null) {
-                    val hint = "Issue ${issue.issueKey} was not fully downloaded."
+                if (issueStub.dateDownloadWithPages == null) {
+                    val hint = "Issue ${issueStub.issueKey} was not fully downloaded."
                     log.error(hint)
                     Sentry.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
@@ -197,18 +198,19 @@ class PdfPagerViewModel(
                 }
 
                 // Finally store the downloaded issue and its data
-                issueFlow.value = issue
+                issueStubFlow.value = issueStub
+
             }
         } else {
-            issueFlow.value = null
+            issueStubFlow.value = null
         }
     }
 
-    private suspend fun pdfPageListMapper(issue: IssueWithPages?): List<Page>? {
-        return if (issue == null || issue.dateDownloadWithPages == null) {
+    private suspend fun pdfPageListMapper(issueStub: IssueStub?): List<Page>? {
+        return if (issueStub?.dateDownloadWithPages == null) {
             null
         } else {
-            issue.pageList.map {
+            pageRepository.getPagesForIssueKey(issueStub.issueKey).map {
                 val fileEntry = requireNotNull(fileEntryRepository.get(it.pagePdf.name)) {
                     "Refreshing pagePdf fileEntry failed as fileEntry was null"
                 }
@@ -228,7 +230,7 @@ class PdfPagerViewModel(
     fun goToPdfPage(link: String) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
-        if (issueFlow.value?.status == IssueStatus.regular) {
+        if (issueStubFlow.value?.status == IssueStatus.regular) {
             viewModelScope.launch {
                 updateCurrentItemInternal(getPositionOfPdf(link))
             }
@@ -265,7 +267,7 @@ class PdfPagerViewModel(
     private fun showArticle(link: String) {
         viewModelScope.launch(Dispatchers.Main) {
             val article = getCorrectArticle(link)
-            val issueKeyWithPages = issueFlow.value?.issueKey
+            val issueKeyWithPages = issueStubFlow.value?.issueKey
             if (issueKeyWithPages == null) {
                 log.info("Could not show article because there is no issue selected")
                 return@launch
@@ -290,7 +292,7 @@ class PdfPagerViewModel(
     }
 
     private suspend fun getCorrectArticle(link: String): Article? {
-        val correctLink = if (issueFlow.value?.status == IssueStatus.regular) {
+        val correctLink = if (issueStubFlow.value?.status == IssueStatus.regular) {
             link
         } else {
             // if we are not on a regular issue all the articles have "public" indication
@@ -305,7 +307,7 @@ class PdfPagerViewModel(
      * Will not emit anything until a issue is loaded.
      */
     val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
-        issueFlow.filterNotNull(),
+        issueStubFlow.filterNotNull(),
         authHelper.status.asFlow(),
         authHelper.elapsedFormAlreadySent.asFlow()
     ) { issue, authStatus, isElapsedFormAlreadySent ->
@@ -315,25 +317,16 @@ class PdfPagerViewModel(
         isPublic && isElapsed && !isElapsedFormAlreadySent
     }
 
-    private suspend fun downloadIssueMetadata(
-        issuePublicationWithPages: IssuePublicationWithPages,
-        maxRetries: Int = METADATA_DOWNLOAD_RETRY_INDEFINITELY
-    ) = contentService.downloadMetadata(
-        issuePublicationWithPages,
-        maxRetries = maxRetries
-    ) as IssueWithPages
-
     private val itemsToCFlow =
-        issueFlow.filterNotNull().map { issue ->
-            val sortedArticlesOfIssueMap =
-                issue.getArticles()
+        issueStubFlow.filterNotNull().map { issueStub ->
+            val sortedArticlesOfIssueMap = articleRepository.getArticleListForIssue(issueStub.issueKey)
                     .map { it.key }
                     .withIndex()
                     .associate { it.value to it.index }
-            if (issue.isDownloaded(application)) {
+            if (issueStub.isDownloaded(application)) {
                 val pages = mutableListOf<PageWithArticlesListItem>()
                 var imprint: Article? = null
-                issue.pageList.forEach { page ->
+                pageRepository.getPagesForIssueKey(issueStub.issueKey).forEach { page ->
                     val articlesOfPage = mutableListOf<Article>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->

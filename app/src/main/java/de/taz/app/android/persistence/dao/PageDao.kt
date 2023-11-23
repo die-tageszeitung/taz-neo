@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.PageStub
 import java.util.*
 
@@ -28,4 +29,20 @@ interface PageDao : BaseDao<PageStub> {
             (pdfFileName NOT IN (SELECT pageKey FROM IssuePageJoin))
     """)
     suspend fun deleteIfNoIssueRelated(pageNames: List<String>)
+
+    @Query(
+        """
+        SELECT Page.* FROM Page 
+            INNER JOIN IssuePageJoin ON Page.pdfFileName = IssuePageJoin.pageKey
+        WHERE IssuePageJoin.issueFeedName == :issueFeed 
+            AND IssuePageJoin.issueDate == :issueDate 
+            AND IssuePageJoin.issueStatus == :issueStatus
+            ORDER BY IssuePageJoin.`index`
+    """
+    )
+    suspend fun getPageStubListForIssue(
+        issueFeed: String,
+        issueDate: String,
+        issueStatus: IssueStatus,
+    ): List<PageStub>
 }

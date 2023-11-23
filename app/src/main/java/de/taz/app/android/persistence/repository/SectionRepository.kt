@@ -81,6 +81,12 @@ class SectionRepository private constructor(applicationContext: Context) :
         )
     }
 
+    suspend fun getSectionsForIssue(issueKey: IssueKey): List<Section> {
+        return appDatabase.sectionDao().getSectionsForIssue(
+            issueKey.feedName, issueKey.date, issueKey.status
+        ).mapNotNull { sectionStubToSection(it) }
+    }
+
     suspend fun getPreviousSectionStub(sectionFileName: String): SectionStub? {
         return appDatabase.sectionDao().getPrevious(sectionFileName)
     }

@@ -51,6 +51,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var sectionListAdapter: SectionListAdapter
 
     private lateinit var issueRepository: IssueRepository
+    private lateinit var sectionRepository: SectionRepository
     private lateinit var contentService: ContentService
     private lateinit var momentRepository: MomentRepository
     private lateinit var bookmarkRepository: BookmarkRepository
@@ -65,6 +66,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
+        sectionRepository = SectionRepository.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
@@ -179,10 +181,9 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
             drawerAudioPlayerViewModel.setIssueStub(currentIssueStub)
 
-            // FIXME (johannes): Refactor getSectionDrawerItemList to not need the full [Issue]
-            val issue = issueRepository.getIssue(currentIssueStub)
+            val sectionList = sectionRepository.getSectionsForIssue(currentIssueStub.issueKey)
             sectionListAdapter.initWithList(
-                getSectionDrawerItemList(issue.sectionList)
+                getSectionDrawerItemList(sectionList)
             )
 
             view?.scrollY = 0
@@ -334,10 +335,9 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     .first { it.dateDownload != null }
 
             currentIssueStub = issueDownloadedForSure
-            // FIXME (johannes): Refactor getSectionDrawerItemList to not need the full [Issue]
-            val issue = issueRepository.getIssue(issueDownloadedForSure)
+            val sectionList = sectionRepository.getSectionsForIssue(currentIssueStub.issueKey)
             sectionListAdapter.updateListData(
-                getSectionDrawerItemList(issue.sectionList)
+                getSectionDrawerItemList(sectionList)
             )
         }
     }
