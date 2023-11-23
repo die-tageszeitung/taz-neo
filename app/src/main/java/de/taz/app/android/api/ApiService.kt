@@ -678,16 +678,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
     }
 
-    suspend fun getPriceList(): List<PriceInfo> {
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.PriceList
-            ).data
-                ?.priceList
-                ?.map { PriceInfoMapper.from(it) }
-        } ?: emptyList()
-    }
-
     suspend fun getIssueByPublication(issuePublication: AbstractIssuePublication): Issue =
         transformToConnectivityException {
             val issues = graphQlClient.query(

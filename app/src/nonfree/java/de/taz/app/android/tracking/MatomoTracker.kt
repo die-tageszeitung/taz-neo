@@ -265,24 +265,10 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackSubscriptionPriceScreen() {
-        TrackHelper.track()
-            .screen("/subscription/price_selection")
-            .title("Subscription Price Selection")
-            .with(matomoTracker)
-    }
-
     override fun trackSubscriptionPersonalDataFormScreen() {
         TrackHelper.track()
             .screen("/subscription/personal_data_form")
             .title("Subscription Personal Data Form")
-            .with(matomoTracker)
-    }
-
-    override fun trackSubscriptionPaymentFormScreen() {
-        TrackHelper.track()
-            .screen("/subscription/payment_form")
-            .title("Subscription Payment Form")
             .with(matomoTracker)
     }
 

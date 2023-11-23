@@ -87,9 +87,7 @@ interface Tracker {
     fun trackSubscriptionExtendFormScreen()
     fun trackSubscriptionTrialInfoScreen()
     fun trackSubscriptionTrialElapsedInfoScreen()
-    fun trackSubscriptionPriceScreen()
     fun trackSubscriptionPersonalDataFormScreen()
-    fun trackSubscriptionPaymentFormScreen()
     fun trackSubscriptionAccountLoginFormScreen()
 
     fun trackLoginHelpDialog()
