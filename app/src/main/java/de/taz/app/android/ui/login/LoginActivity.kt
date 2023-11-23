@@ -220,12 +220,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
                     showSubscriptionAccount(subscriptionInvalid = true)
                 }
-                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
-                //  since we don't let the user send this data.
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> showLoginForm()
                 LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
                     showPasswordRequest(showSubscriptionId = true)
                 }
