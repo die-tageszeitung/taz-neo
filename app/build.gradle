@@ -6,13 +6,6 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-parcelize'
     id 'kotlinx-serialization'
-
-    // FIXME (johannes): kapt is still required for glide as its ksp support is not working for
-    //                   as expected. It manages to show images but it fails to register the [ThumbnailAppModule].
-    //                   Tested on glide version 4.15.1
-    //                   Note: ksp is promised to be faster then kapt while handling annotations during build
-    id 'kotlin-kapt'
-
 }
 
 // WARNING: this will apply the Google Services plugin based on the gradle command,
@@ -287,9 +280,9 @@ dependencies {
     def glide_version = '4.15.1'
     def ktor_version = '2.3.3'
     def lifecycle_version = '2.6.2'
-    def room_version = '2.5.2'
+    def room_version = '2.6.0'
     def work_version = '2.8.1'
-    def media3_version = '1.1.1'
+    def media3_version = '1.2.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -303,14 +296,11 @@ dependencies {
 
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation ('androidx.core:core-ktx:1.9.0') {
-        because "1.10.0+ introduces a flickering on the section pager header."
-        // TODO: Resolve the flickering without downgrading
-    }
+    implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.collection:collection-ktx:1.3.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
 
-    implementation 'androidx.fragment:fragment-ktx:1.6.1'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
 
     implementation('androidx.recyclerview:recyclerview:1.2.1') {
         // See https://redmine.hal.taz.de/issues/15468
@@ -319,9 +309,7 @@ dependencies {
     implementation 'com.github.valkriaine:Bouncy:2.3'
 
     implementation "com.github.bumptech.glide:glide:$glide_version"
-    // FIXME (johannes): use ksp once it works. see comment above
-    // ksp "com.github.bumptech.glide:ksp:$glide_version"
-    kapt "com.github.bumptech.glide:compiler:$glide_version"
+     ksp "com.github.bumptech.glide:ksp:$glide_version"
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
@@ -334,7 +322,7 @@ dependencies {
 
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
-    implementation 'androidx.browser:browser:1.6.0'
+    implementation 'androidx.browser:browser:1.7.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
@@ -437,11 +425,11 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.12'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.2.1'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:23.3.1'
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
 }
 
 sentry {
