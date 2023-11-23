@@ -191,24 +191,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.NAME_MISSING -> showNamesMissing()
                 LoginViewModelState.SUBSCRIPTION_NAME -> showSubscriptionName()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
-                LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
-                    mailInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_NAME_FIRST_NAME_EMPTY -> showSubscriptionName(
-                    firstNameEmpty = true
-                )
-                LoginViewModelState.SUBSCRIPTION_NAME_FIRST_NAME_INVALID -> showSubscriptionName(
-                    firstNameInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_NAME_SURNAME_EMPTY -> showSubscriptionName(
-                    surnameEmpty = true
-                )
-                LoginViewModelState.SUBSCRIPTION_NAME_SURNAME_INVALID -> showSubscriptionName(
-                    surnameInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_NAME_NAME_TOO_LONG -> showSubscriptionName(
-                    nameTooLong = true
-                )
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
                     showSubscriptionAccount(subscriptionInvalid = true)
                 }
