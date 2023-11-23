@@ -64,7 +64,6 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     }
 
     override fun done(): Boolean {
-        viewModel.price = 0
         return true
     }
 

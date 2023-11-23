@@ -60,18 +60,8 @@ class LoginViewModel @JvmOverloads constructor(
     var backToArticle: Boolean = true
     var backToHome: Boolean = false
 
-    private var nameAffix: String? = null
     var firstName: String? = null
     var surName: String? = null
-    var street: String? = null
-    var city: String? = null
-    var postCode: String? = null
-    var country: String? = null
-    var phone: String? = null
-    var price: Int? = null
-    var iban: String? = null
-    var accountHolder: String? = null
-    var comment: String? = null
 
     var createNewAccount: Boolean = true
     var validCredentials: Boolean = false
@@ -480,13 +470,7 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.token.set(token)
                     authHelper.email.set(username ?: "")
 
-                    if (price == 0) {
-                        // There is currently no purchase option in the nonfree variant,
-                        // thus we can assume that the only way to reach the handlePoll() function
-                        // is due to a trial subscription (price = 0)
-                        tracker.trackSubscriptionTrialConfirmedEvent()
-                    }
-
+                    tracker.trackSubscriptionTrialConfirmedEvent()
                     status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
                 }
                 SubscriptionStatus.elapsed -> {
@@ -654,110 +638,6 @@ class LoginViewModel @JvmOverloads constructor(
         subscriptionId = null
     }
 
-    private fun getSubscription(previousState: LoginViewModelState) {
-        status.postValue(LoginViewModelState.LOADING)
-        launch {
-            try {
-                ApiService.getInstance(getApplication()).subscription(
-                    tazId = username ?: "",
-                    idPassword = password ?: "",
-                    surname = surName,
-                    firstName = firstName,
-                    street = street ?: "",
-                    city = city ?: "",
-                    postCode = postCode ?: "",
-                    country = country ?: "",
-                    phone = phone,
-                    price = price ?: -1,
-                    iban = iban ?: "",
-                    accountHolder = accountHolder,
-                    comment = comment, nameAffix = nameAffix
-                )?.let { subscriptionInfo ->
-                    log.debug("getSubscription returned: $subscriptionInfo")
-                    when (subscriptionInfo.status) {
-                        SubscriptionStatus.ibanNoIban -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY)
-                        }
-                        SubscriptionStatus.ibanInvalidChecksum -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID)
-                        }
-                        SubscriptionStatus.ibanNoSepaCountry -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA)
-                        }
-                        SubscriptionStatus.invalidAccountHolder -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID)
-                        }
-                        SubscriptionStatus.invalidMail -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
-                        }
-                        SubscriptionStatus.invalidFirstName -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID)
-                        }
-                        SubscriptionStatus.invalidSurname -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID)
-                        }
-                        SubscriptionStatus.noFirstName -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY)
-                        }
-                        SubscriptionStatus.noSurname -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY)
-                        }
-                        SubscriptionStatus.nameTooLong -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG)
-                        }
-                        SubscriptionStatus.priceNotValid -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_PRICE_INVALID)
-                        }
-                        SubscriptionStatus.waitForMail -> {
-                            status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
-                        }
-                        SubscriptionStatus.waitForProc -> {
-                            poll(previousState)
-                        }
-                        SubscriptionStatus.alreadyLinked -> {
-                            statusBeforeEmailAlreadyLinked = previousState
-                            status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
-                        }
-                        SubscriptionStatus.tazIdNotValid -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID)
-                        }
-                        SubscriptionStatus.valid,
-                        SubscriptionStatus.invalidConnection,
-                        SubscriptionStatus.noPollEntry,
-                        SubscriptionStatus.tooManyPollTries,
-                        SubscriptionStatus.subscriptionIdNotValid,
-                        SubscriptionStatus.elapsed,
-                        SubscriptionStatus.UNKNOWN_RESPONSE -> {
-                            // this should not happen
-                            Sentry.captureMessage("subscription returned ${subscriptionInfo.status} ")
-                            toastHelper.showSomethingWentWrongToast()
-                            status.postValue(previousState)
-                        }
-                        SubscriptionStatus.invalidCity -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID)
-                        }
-                        SubscriptionStatus.invalidCountry -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID)
-                        }
-                        SubscriptionStatus.invalidPostcode -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID)
-                        }
-                        SubscriptionStatus.invalidStreet -> {
-                            status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID)
-                        }
-                    }
-                } ?: run {
-                    toastHelper.showSomethingWentWrongToast()
-                    Sentry.captureMessage("subscription returned null")
-                    status.postValue(previousState)
-                }
-            } catch (nie: ConnectivityException) {
-                noInternet.postValue(true)
-                status.postValue(previousState)
-            }
-        }
-    }
-
     private suspend fun checkCredentials(): Boolean? {
         return try {
             val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
@@ -783,14 +663,10 @@ class LoginViewModel @JvmOverloads constructor(
             }
         }
 
-        if (price == 0) {
-            if (createNewAccount || !validCredentials) {
-                getTrialSubscriptionForNewCredentials(previousState)
-            } else {
-                getTrialSubscriptionForExistingCredentials(previousState)
-            }
+        if (createNewAccount || !validCredentials) {
+            getTrialSubscriptionForNewCredentials(previousState)
         } else {
-            getSubscription(previousState)
+            getTrialSubscriptionForExistingCredentials(previousState)
         }
     }
 
