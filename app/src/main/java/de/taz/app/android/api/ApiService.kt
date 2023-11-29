@@ -495,60 +495,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
     }
 
     /**
-     * function to request a subscription
-     * @param tazId the username
-     * @param idPassword the password for the username
-     * @param surname surname of the requesting person
-     * @param firstName firstName of the requesting person
-     */
-    @Throws(ConnectivityException::class)
-    suspend fun subscription(
-        tazId: String,
-        idPassword: String,
-        surname: String? = null,
-        firstName: String? = null,
-        street: String,
-        city: String,
-        postCode: String,
-        country: String,
-        phone: String? = null,
-        price: Int,
-        iban: String,
-        accountHolder: String? = null,
-        comment: String? = null,
-        nameAffix: String? = null
-    ): SubscriptionInfo? {
-        val tag = "subscription"
-        log.debug("$tag tazId: $tazId")
-        return transformToConnectivityException {
-            graphQlClient.query(
-                QueryType.Subscription,
-                SubscriptionVariables(
-                    installationId = authHelper.installationId.get(),
-                    pushToken = fireBaseDataStore.token.get(),
-                    tazId = tazId,
-                    idPassword = idPassword,
-                    surname = surname,
-                    firstName = firstName,
-                    street = street,
-                    city = city,
-                    postcode = postCode,
-                    country = country,
-                    phone = phone,
-                    price = price,
-                    iban = iban,
-                    accountHolder = accountHolder,
-                    comment = comment,
-                    nameAffix = nameAffix,
-                    deviceFormat = deviceFormat
-                )
-            ).data
-                ?.subscription
-                ?.let { SubscriptionInfoMapper.from(it) }
-        }
-    }
-
-    /**
      * function to request a trial subscription
      * @param tazId the username
      * @param idPassword the password for the username

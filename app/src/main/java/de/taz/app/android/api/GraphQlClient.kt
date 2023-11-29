@@ -77,7 +77,7 @@ class GraphQlClient @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) co
                     setBody(query)
                     val token = authHelper.token.get()
                     if (token.isNotEmpty()
-                        && (authHelper.isLoggedIn() || queryType == QueryType.Subscription)
+                        && (authHelper.isLoggedIn())
                     ) {
                         header(TAZ_AUTH_HEADER, token)
                     }

@@ -189,43 +189,11 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 LoginViewModelState.USERNAME_MISSING -> showLoginForm(usernameErrorId = R.string.login_username_error_empty)
                 LoginViewModelState.DONE -> done()
                 LoginViewModelState.NAME_MISSING -> showNamesMissing()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS -> showSubscriptionAddress()
+                LoginViewModelState.SUBSCRIPTION_NAME -> showSubscriptionName()
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT -> showSubscriptionAccount()
-                LoginViewModelState.SUBSCRIPTION_ACCOUNT_MAIL_INVALID -> showSubscriptionAccount(
-                    mailInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_EMPTY -> showSubscriptionAddress(
-                    firstNameEmpty = true
-                )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_FIRST_NAME_INVALID -> showSubscriptionAddress(
-                    firstNameInvalid = true
-                )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_EMPTY -> showSubscriptionAddress(
-                    surnameEmpty = true
-                )
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_SURNAME_INVALID -> showSubscriptionAddress(
-                    surnameInvalid = true
-                )
-                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
-                //  since we don't let the user send this data.
-                LoginViewModelState.SUBSCRIPTION_BANK_ACCOUNT_HOLDER_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_EMPTY -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_BANK_IBAN_NO_SEPA -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_PRICE_INVALID -> showLoginForm()
-
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_NAME_TOO_LONG -> showSubscriptionAddress(
-                    nameTooLong = true
-                )
                 LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID -> {
                     showSubscriptionAccount(subscriptionInvalid = true)
                 }
-                // TODO(peter) Check if this might can be removed totally since it's not possible to reach
-                //  since we don't let the user send this data.
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_CITY_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_COUNTRY_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_STREET_INVALID -> showLoginForm()
-                LoginViewModelState.SUBSCRIPTION_ADDRESS_POSTCODE_INVALID -> showLoginForm()
                 LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID -> {
                     showPasswordRequest(showSubscriptionId = true)
                 }
@@ -446,16 +414,16 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         }
     }
 
-    private fun showSubscriptionAddress(
+    private fun showSubscriptionName(
         nameTooLong: Boolean = false,
         firstNameEmpty: Boolean = false,
         firstNameInvalid: Boolean = false,
         surnameEmpty: Boolean = false,
         surnameInvalid: Boolean = false
     ) {
-        log.verbose("showSubscriptionAddress")
+        log.verbose("showSubscriptionName")
         showFragment(
-            SubscriptionAddressFragment.newInstance(
+            SubscriptionNameFragment.newInstance(
                 nameTooLong = nameTooLong,
                 firstNameEmpty = firstNameEmpty,
                 firstNameInvalid = firstNameInvalid,

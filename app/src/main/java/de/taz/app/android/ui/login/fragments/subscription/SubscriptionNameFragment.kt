@@ -6,7 +6,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.annotation.StringRes
 import de.taz.app.android.R
-import de.taz.app.android.databinding.FragmentSubscriptionAddressBinding
+import de.taz.app.android.databinding.FragmentSubscriptionNameBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.tracking.Tracker
@@ -15,8 +15,8 @@ import de.taz.app.android.ui.login.LoginViewModelState
 
 const val MAX_NAME_LENGTH = 24
 
-class SubscriptionAddressFragment :
-    SubscriptionBaseFragment<FragmentSubscriptionAddressBinding>() {
+class SubscriptionNameFragment :
+    SubscriptionBaseFragment<FragmentSubscriptionNameBinding>() {
 
     private lateinit var tracker: Tracker
 
@@ -33,8 +33,8 @@ class SubscriptionAddressFragment :
             firstNameInvalid: Boolean = false,
             surnameEmpty: Boolean = false,
             surnameInvalid: Boolean = false
-        ): SubscriptionAddressFragment {
-            val fragment = SubscriptionAddressFragment()
+        ): SubscriptionNameFragment {
+            val fragment = SubscriptionNameFragment()
             fragment.nameTooLong = nameTooLong
             fragment.firstNameEmpty = firstNameEmpty
             fragment.firstNameInvalid = firstNameInvalid
@@ -53,15 +53,15 @@ class SubscriptionAddressFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            fragmentSubscriptionAddressNameAffix.imeOptions = EditorInfo.IME_ACTION_DONE
-            fragmentSubscriptionAddressFirstName.setText(viewModel.firstName)
-            fragmentSubscriptionAddressSurname.setText(viewModel.surName)
+            fragmentSubscriptionNameNameAffix.imeOptions = EditorInfo.IME_ACTION_DONE
+            fragmentSubscriptionNameFirstName.setText(viewModel.firstName)
+            fragmentSubscriptionNameSurname.setText(viewModel.surName)
 
-            fragmentSubscriptionAddressNameAffix.setOnEditorActionListener(
+            fragmentSubscriptionNameNameAffix.setOnEditorActionListener(
                 OnEditorActionDoneListener(::ifDoneNext)
             )
 
-            fragmentSubscriptionAddressProceed.setOnClickListener {
+            fragmentSubscriptionNameProceed.setOnClickListener {
                 ifDoneNext()
             }
 
@@ -100,22 +100,22 @@ class SubscriptionAddressFragment :
     override fun done(): Boolean {
         var done = true
         viewBinding.apply {
-            if (fragmentSubscriptionAddressFirstName.text.isNullOrBlank()) {
+            if (fragmentSubscriptionNameFirstName.text.isNullOrBlank()) {
                 setFirstNameError(R.string.login_first_name_error_empty)
                 done = false
             }
-            if (fragmentSubscriptionAddressSurname.text.isNullOrBlank()) {
+            if (fragmentSubscriptionNameSurname.text.isNullOrBlank()) {
                 setSurnameError(R.string.login_surname_error_empty)
                 done = false
             }
-            val combinedName = fragmentSubscriptionAddressFirstName.text.toString() + fragmentSubscriptionAddressSurname.text.toString()
+            val combinedName = fragmentSubscriptionNameFirstName.text.toString() + fragmentSubscriptionNameSurname.text.toString()
             if (combinedName.length > MAX_NAME_LENGTH) {
                 setNameTooLongError()
                 done = false
             }
             viewModel.apply {
-                firstName = fragmentSubscriptionAddressFirstName.text.toString()
-                surName = fragmentSubscriptionAddressSurname.text.toString()
+                firstName = fragmentSubscriptionNameFirstName.text.toString()
+                surName = fragmentSubscriptionNameSurname.text.toString()
             }
         }
         if (!done) {
@@ -129,11 +129,11 @@ class SubscriptionAddressFragment :
     }
 
     private fun setFirstNameError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionAddressFirstNameLayout.setError(stringRes)
+        viewBinding.fragmentSubscriptionNameFirstNameLayout.setError(stringRes)
     }
 
     private fun setSurnameError(@StringRes stringRes: Int) {
-        viewBinding.fragmentSubscriptionAddressSurnameLayout.setError(stringRes)
+        viewBinding.fragmentSubscriptionNameSurnameLayout.setError(stringRes)
     }
 
     private fun setNameTooLongError() {

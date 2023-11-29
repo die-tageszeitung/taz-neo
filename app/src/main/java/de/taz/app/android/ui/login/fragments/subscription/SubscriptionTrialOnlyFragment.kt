@@ -34,13 +34,13 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
         if (elapsed) {
             viewBinding.fragmentSubscriptionTrialOnlyDescription.visibility = View.GONE
             viewBinding.fragmentSubscriptionTrialOnlyDescriptionElapsed.visibility = View.VISIBLE
-            viewBinding.fragmentSubscriptionAddressProceed.text =
+            viewBinding.fragmentSubscriptionTrialOnlyProceed.text =
                 getString(R.string.close_okay)
-            viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
+            viewBinding.fragmentSubscriptionTrialOnlyProceed.setOnClickListener {
                 this.activity?.finish()
             }
         } else {
-            viewBinding.fragmentSubscriptionAddressProceed.setOnClickListener {
+            viewBinding.fragmentSubscriptionTrialOnlyProceed.setOnClickListener {
                 ifDoneNext()
             }
         }
@@ -64,11 +64,10 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     }
 
     override fun done(): Boolean {
-        viewModel.price = 0
         return true
     }
 
     override fun next() {
-        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ADDRESS)
+        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_NAME)
     }
 }

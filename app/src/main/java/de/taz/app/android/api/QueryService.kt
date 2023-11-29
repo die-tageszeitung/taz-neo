@@ -26,7 +26,6 @@ enum class QueryType {
     Notification,
     PasswordReset,
     ResourceInfo,
-    Subscription,
     SubscriptionId2TazId,
     SubscriptionPoll,
     SubscriptionReset,
