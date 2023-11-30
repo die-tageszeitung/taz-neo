@@ -478,7 +478,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showAlreadyCancelled()
         } else {
             when (status.info) {
-                CancellationInfo.tazId -> showCancelWithTazIdDialog(status.cancellationLink)
+                CancellationInfo.tazId, CancellationInfo.elapsed -> showCancelWithTazIdDialog(status.cancellationLink)
                 CancellationInfo.aboId -> showCancelWithAboIdDialog()
                 CancellationInfo.specialAccess ->
                     showCancellationDialogWithMessage(
