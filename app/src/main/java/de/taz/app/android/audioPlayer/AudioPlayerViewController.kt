@@ -1,5 +1,6 @@
 package de.taz.app.android.audioPlayer
 
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -17,6 +18,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.DisplayMode.*
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
@@ -79,6 +82,7 @@ class AudioPlayerViewController(
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
+    private lateinit var glideRequestManager: RequestManager
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
@@ -96,6 +100,7 @@ class AudioPlayerViewController(
         tracker = Tracker.getInstance(activity.applicationContext)
         // FIXME (johannes): Re-consider adding the player views here if it prevents flickering during Activity changes
         isTabletMode = activity.resources.getBoolean(R.bool.isTablet)
+        glideRequestManager = Glide.with(activity)
     }
 
     private fun onStart() {
@@ -197,25 +202,57 @@ class AudioPlayerViewController(
             audioTitle.text = item.title
             audioAuthor.text = item.author ?: ""
 
-            audioImage.apply {
-                isVisible = item.coverImageUri != null
-                setImageURI(item.coverImageUri)
-            }
-
             expandedAudioTitle.text = item.title
             expandedAudioAuthor.apply {
                 isVisible = item.author != null
                 text = item.author ?: ""
             }
 
-            expandedAudioImage.apply {
-                isVisible = item.coverImageUri != null
-                setImageURI(item.coverImageUri)
-            }
-
+            bindAudioImages(item)
             setupOpenItemInteractionHandlers(item.openItemSpec)
         }
         boundItem = item
+    }
+
+    private fun AudioplayerOverlayBinding.bindAudioImages(item: UiState.Item) {
+        if (item.coverImageUri != null) {
+            audioImage.apply {
+                isVisible = true
+                glideRequestManager.clear(this)
+                setImageURI(item.coverImageUri)
+            }
+            expandedAudioImage.apply {
+                isVisible = true
+                glideRequestManager.clear(this)
+                setImageURI(item.coverImageUri)
+            }
+        } else if (item.coverImageGlidePath != null) {
+            // FIXME (johannes): on other places we use a custom signature. thus we have to re-create the image here even if it was caches before
+            audioImage.apply {
+                isVisible = true
+                glideRequestManager
+                    .load(item.coverImageGlidePath)
+                    .centerCrop()
+                    .into(this)
+            }
+
+            expandedAudioImage.apply {
+                isVisible = true
+                glideRequestManager
+                    .load(item.coverImageGlidePath)
+                    .fitCenter()
+                    .into(this)
+            }
+        } else {
+            audioImage.apply {
+                isVisible = false
+                glideRequestManager.clear(this)
+            }
+            expandedAudioImage.apply {
+                isVisible = true
+                glideRequestManager.clear(this)
+            }
+        }
     }
 
     private fun setupLoadingState(playerState: UiState.PlayerState) {
@@ -331,7 +368,7 @@ class AudioPlayerViewController(
 
     private fun AudioplayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {
         val isShowingPlayer = !isLoading
-        audioImage.isVisible = isShowingPlayer && boundItem?.coverImageUri != null
+        audioImage.isVisible = isShowingPlayer && boundItem?.hasCoverImage == true
         audioTitle.isVisible = isShowingPlayer
         audioAuthor.isVisible = isShowingPlayer
         audioActionButton.isVisible = isShowingPlayer

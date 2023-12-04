@@ -28,7 +28,7 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
         return when (audioPlayerItem) {
             is ArticleAudio -> audioPlayerItem.article.key == mediaItem.mediaId
             is IssueAudio -> audioPlayerItem.indexOf(mediaItem) >= 0
-            is PodcastAudio -> audioPlayerItem.section.key == mediaItem.mediaId
+            is PodcastAudio -> audioPlayerItem.audio.file.name == mediaItem.mediaId
         }
     }
 
@@ -118,7 +118,7 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
 
     private fun createPodcastMediaItem(podcastAudio: PodcastAudio, audioUri: Uri): MediaItem {
         val mediaMetadata = MediaMetadata.Builder()
-            .setTitle(podcastAudio.title)
+            .setTitle(uiStateHelper.getTitleForPodcast(podcastAudio))
             .setArtist(null)
             // We don't set the artwork here, as the podcast mp3 does contain a preview image which
             // is used as a fallback by the Android media3 framework.
@@ -126,7 +126,7 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
             .build()
 
         return MediaItem.Builder()
-            .setMediaId(podcastAudio.section.key)
+            .setMediaId(podcastAudio.audio.file.name)
             .setArticleAudioRequestMetadata(audioUri)
             .setMediaMetadata(mediaMetadata)
             .build()

@@ -67,8 +67,11 @@ sealed class UiState {
         val title: String,
         val author: String?,
         val coverImageUri: Uri?,
+        val coverImageGlidePath: String?,
         val openItemSpec: OpenItemSpec?,
-    )
+    ) {
+        val hasCoverImage = coverImageUri != null || coverImageGlidePath != null
+    }
 
     /**
      * This specification is used to open an item in the audio player when being clicked on.

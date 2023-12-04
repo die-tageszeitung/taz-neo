@@ -131,10 +131,9 @@ interface Tracker {
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(articleAudio: Article)
+    fun trackAudioPlayerPlayArticleEvent(article: Article)
     fun trackAudioPlayerPlayPodcastEvent(
         issueKey: AbstractIssuePublication,
-        section: SectionOperations,
         title: String
     )
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)
