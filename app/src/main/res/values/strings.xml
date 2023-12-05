@@ -263,7 +263,7 @@
     <string name="login_surname_error_invalid">Enthält nur ungültige Zeichen</string>
 
     <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
-    _
+
     <string name="login_subscription_hint">Abo-ID</string>
     <string name="login_subscription_error_invalid">Die Abo-ID ist ungültig.</string>
     <string name="login_subscription_error_empty">Bitte Abo-ID angeben.</string>
