@@ -280,8 +280,8 @@ dependencies {
     def glide_version = '4.15.1'
     def ktor_version = '2.3.3'
     def lifecycle_version = '2.6.2'
-    def room_version = '2.6.0'
-    def work_version = '2.8.1'
+    def room_version = '2.6.1'
+    def work_version = '2.9.0'
     def media3_version = '1.2.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
