@@ -14,24 +14,20 @@ import androidx.media3.common.Player.REPEAT_MODE_ONE
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.dataStore.AudioPlayerDataStore
-import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,7 +63,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         object Init : State()
         data class ControllerReady(val controller: MediaController) : State()
         data class ControllerError(val exception: Exception) : State()
+        data class AudioInitQueued(val initItem: AudioPlayerItemInit): State()
         data class AudioQueued(val item: AudioPlayerItem) : State()
+
+        data class AudioInit(
+            val controller: MediaController,
+            val initItem: AudioPlayerItemInit,
+        ): State()
 
         data class AudioReady(
             val controller: MediaController,
@@ -88,6 +90,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val item: AudioPlayerItem,
             val exception: PlaybackException,
         ) : State()
+
+        data class AudioInitError(
+            val controller: MediaController?,
+            val exception: Exception,
+        ) : State()
     }
 
     private val log by Log
@@ -96,12 +103,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private val coroutineJob = SupervisorJob()
     override val coroutineContext: CoroutineContext = coroutineJob + Dispatchers.Main
 
-    private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val tracker = Tracker.getInstance(applicationContext)
     private val dataStore = AudioPlayerDataStore.getInstance(applicationContext)
 
     private val uiStateHelper = UiStateHelper(applicationContext)
     private val mediaItemHelper = MediaItemHelper(applicationContext, uiStateHelper)
+    private val audioPlayerItemInitHelper = AudioPlayerItemInitHelper(applicationContext)
 
     // Central internal state of the Service
     private val state: MutableStateFlow<State> = MutableStateFlow(State.Init)
@@ -117,75 +124,36 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private val autoPlayNextPreference =
         dataStore.autoPlayNext.asFlow().stateIn(this, SharingStarted.Eagerly, false)
 
+    private var initItemJob: Job? = null
+
     // region public attributes and methods
     val currentItem: Flow<AudioPlayerItem?> = state.map { it.getItemOrNull() }
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
     val progress: StateFlow<PlayerProgress?> = _progress.asStateFlow()
 
-    fun playIssueAsync(issue: Issue): Deferred<Unit> {
-        return async {
-            val articlesWithAudio = issue.getArticles().filter { it.audio != null }
-            val issueAudio = IssueAudio(
-                IssueStub(issue),
-                articlesWithAudio,
-                0,
-                0
-            )
-            enqueueAndPlay(issueAudio)
-        }
+    fun playIssue(issueKey: AbstractIssueKey, articleStub: ArticleStub) {
+        val issueOfArticleInit = IssueOfArticleInit(issueKey, articleStub)
+        initItem(issueOfArticleInit)
     }
 
-    fun playIssueAsync(issueStub: IssueStub, articleStub: ArticleStub? = null): Deferred<Unit> {
-        return async {
-            // FIXME (johannes): This nested db/mapping call takes about 3s on the Pixel 6a and results in a visible delay after clicking on the tab bar
-            val articles = articleRepository.getArticleListForIssue(issueStub.issueKey)
-            val articlesWithAudio = articles.filter { it.audio != null }
-            val indexOfArticle = articlesWithAudio.indexOfFirst { it.key == articleStub?.key }.coerceAtLeast(0)
-            val issueAudio = IssueAudio(
-                issueStub,
-                articlesWithAudio,
-                indexOfArticle,
-                indexOfArticle,
-            )
-            enqueueAndPlay(issueAudio)
-        }
+    fun playIssue(issueStub: IssueStub) {
+        val issueInit = IssueInit(issueStub)
+        initItem(issueInit)
     }
 
-    fun playArticleAudioAsync(articleStub: ArticleStub): Deferred<Unit> {
-        return async {
-            val article = articleRepository.get(articleStub.articleFileName)
-            if (article != null) {
-                playArticleAudioAsync(article).await()
-            } else {
-                throw AudioPlayerException.Generic("Could not load the full Article for ArticleStub(articleFileName=${articleStub.articleFileName})")
-            }
-        }
+    fun playArticle(articleStub: ArticleStub) {
+        val articleAudioInit = ArticleInit(articleStub)
+        initItem(articleAudioInit)
     }
 
-    fun playArticleAudioAsync(article: Article): Deferred<Unit> {
-        return async {
-            val sectionStub = article.getSectionStub(applicationContext)
-            val issueStub = sectionStub?.getIssueStub(applicationContext)
-
-            if (issueStub != null && article.audio != null) {
-                val articleAudio = ArticleAudio(issueStub, article)
-                enqueueAndPlay(articleAudio)
-            } else {
-                throw AudioPlayerException.Generic("Could not load audio data for the Article(key=${article.key})")
-            }
-        }
-    }
-
-    fun playPodcastAsync(issueStub: IssueStub, section: Section, audio: Audio): Deferred<Unit> {
-        return async {
-            val podcastAudio = PodcastAudio(
-                issueStub,
-                section,
-                section.getHeaderTitle(),
-                audio
-            )
-            enqueueAndPlay(podcastAudio)
-        }
+    fun playPodcast(issueStub: IssueStub, section: Section, audio: Audio) {
+        val podcastAudio = PodcastAudio(
+            issueStub,
+            section,
+            section.getHeaderTitle(),
+            audio
+        )
+        enqueueAndPlay(podcastAudio)
     }
 
     fun toggleAudioPlaying() {
@@ -198,12 +166,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             is State.DisclaimerReady -> toggleAudioControllerPlaying(state.controller)
 
             // Ignore: no known audio is queued
-            State.Init, is State.ControllerReady, is State.ControllerError -> Unit
+            State.Init, is State.ControllerReady, is State.ControllerError, is State.AudioInit -> Unit
 
             // Ignore: the controller is not ready yet, so we can't easily control playing.
             // This is an edge case as the UI for pausing should not be shown without a controller
             // being ready.
-            is State.AudioQueued -> Unit
+            is State.AudioQueued, is State.AudioInitQueued, is State.AudioInitError-> Unit
         }
     }
 
@@ -214,6 +182,10 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             stop()
             onControllerDismiss(this)
         }
+
+        initItemJob?.cancel()
+        initItemJob = null
+
         forceState(State.Init)
     }
 
@@ -383,6 +355,66 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    private fun initItem(initItem: AudioPlayerItemInit) {
+        var updated = false
+        var prevState: State? = null
+
+        while (!updated) {
+            prevState = state.value
+            val newState = when (prevState) {
+                State.Init, is State.AudioError, is State.AudioInitQueued, is State.AudioQueued, is State.ControllerError ->
+                    State.AudioInitQueued(initItem)
+                is State.AudioInit -> State.AudioInit(prevState.controller, initItem)
+                is State.AudioReady -> State.AudioInit(prevState.controller, initItem)
+                is State.ControllerReady -> State.AudioInit(prevState.controller, initItem)
+                is State.DisclaimerReady -> State.AudioInit(prevState.controller, initItem)
+                is State.AudioInitError -> if (prevState.controller != null) {
+                    State.AudioInit(requireNotNull(prevState.controller), initItem)
+                } else {
+                    State.AudioInitQueued(initItem)
+                }
+            }
+            updated = compareAndSetState(prevState, newState)
+        }
+
+        if (prevState.controllerNeedsConnection()) {
+            connectController()
+        }
+
+        initItemJob?.cancel()
+        initItemJob = launch {
+            try {
+                val audioItem = audioPlayerItemInitHelper.initAudioPlayerItem(initItem)
+                onAudioPlayerItemInit(initItem, audioItem)
+            } catch (e: Exception) {
+                onAudioPlayerItemError(initItem, e)
+            }
+        }
+    }
+
+    private fun onAudioPlayerItemInit(initItem: AudioPlayerItemInit, item: AudioPlayerItem) {
+        val currentInitItem = when (val currentState = state.value) {
+            is State.AudioInit -> currentState.initItem
+            is State.AudioInitQueued -> currentState.initItem
+            else -> null
+        }
+        if (currentInitItem == initItem) {
+            enqueueAndPlay(item)
+        }
+    }
+
+    private fun onAudioPlayerItemError(initItem: AudioPlayerItemInit, exception: Exception) {
+        log.error("Could not initialize AudioPlayerItem for $initItem", exception)
+        val currentInitItem = when (val currentState = state.value) {
+            is State.AudioInit -> currentState.initItem
+            is State.AudioInitQueued -> currentState.initItem
+            else -> null
+        }
+        if (currentInitItem == initItem) {
+            forceState(State.AudioInitError(getControllerFromState(), exception))
+        }
+    }
+
     private fun enqueueAndPlay(item: AudioPlayerItem) {
         log.verbose("enqueueAndPlay($item)")
         var updated = false
@@ -398,22 +430,27 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 is State.AudioReady -> State.AudioReady(prevState.controller, item, isPlaying = true, isLoading = true)
                 is State.ControllerReady -> State.AudioReady(prevState.controller, item, isPlaying = true, isLoading = true)
                 is State.DisclaimerReady -> State.AudioReady(prevState.controller, item, isPlaying = true, isLoading = true)
+                is State.AudioInit -> State.AudioReady(prevState.controller, item, isPlaying = true, isLoading = true)
                 // Overwrite the queued Audio
                 is State.AudioQueued -> State.AudioQueued(item)
+                is State.AudioInitQueued -> State.AudioQueued(item)
                 is State.ControllerError, State.Init -> State.AudioQueued(item)
+                is State.AudioInitError -> if (prevState.controller != null) {
+                    State.AudioReady(requireNotNull(prevState.controller), item, isPlaying = true, isLoading = true)
+                } else {
+                    State.AudioQueued(item)
+                }
             }
             updated = compareAndSetState(prevState, newState)
         }
 
         // Trigger operations required for the transition
-        val controllerNeedsConnection =
-            prevState is State.ControllerError || prevState is State.Init
         when {
             newState is State.AudioReady -> launch {
                 prepareAudio(newState.controller, newState.item)
             }
 
-            newState is State.AudioQueued && controllerNeedsConnection ->
+            newState is State.AudioQueued && prevState.controllerNeedsConnection() ->
                 connectController()
 
             else -> Unit
@@ -421,10 +458,10 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     private fun enqueueAndPlayDisclaimer(controller: MediaController, item: AudioPlayerItem) {
-        val useMaleSpeaker = when (item.audio?.speaker) {
+        val useMaleSpeaker = when (item.audio.speaker) {
             AudioSpeaker.MACHINE_MALE -> true
             AudioSpeaker.MACHINE_FEMALE -> false
-            AudioSpeaker.HUMAN, AudioSpeaker.PODCAST, AudioSpeaker.UNKNOWN, null ->
+            AudioSpeaker.HUMAN, AudioSpeaker.PODCAST, AudioSpeaker.UNKNOWN ->
                 error("enqueueAndPlayDisclaimer must only be called for machine read texts")
         }
         val disclaimerMediaItem = mediaItemHelper.createDisclaimerMediaItem(useMaleSpeaker)
@@ -468,6 +505,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             setPlaybackSpeed(playbackSpeed)
         }
 
+        // FIXME(johannes): this should probably use compare and set, as the audio init might happen concurrently,
+        //  but in reality the controller connection is quite fast and will probably not result in any problem
         when (val state = state.value) {
             State.Init, is State.ControllerError -> {
                 if (controller.currentMediaItem != null) {
@@ -485,8 +524,20 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 prepareAudio(controller, state.item)
             }
 
+            is State.AudioInitQueued -> {
+                forceState(State.AudioInit(controller, state.initItem))
+            }
+
+            is State.AudioInitError -> {
+                forceState(State.AudioInitError(controller, state.exception))
+            }
+
             // illegal states
-            is State.ControllerReady, is State.AudioError, is State.AudioReady, is State.DisclaimerReady ->
+            is State.ControllerReady,
+            is State.AudioError,
+            is State.AudioReady,
+            is State.DisclaimerReady,
+            is State.AudioInit ->
                 throw IllegalStateException("${state.toLogString()} not allowed onControllerReady")
         }
 
@@ -771,7 +822,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val newState = when (currentState) {
                 is State.AudioReady -> currentState.copy(isLoading = isLoading)
                 is State.DisclaimerReady -> currentState.copy(isLoading = isLoading)
-                is State.AudioError, is State.AudioQueued, is State.ControllerError, is State.ControllerReady, State.Init ->
+                is State.AudioError, is State.AudioQueued, is State.ControllerError, is State.ControllerReady, is State.AudioInitQueued, is State.AudioInit, State.Init, is State.AudioInitError ->
                     // Abort if the current state does not have a isLoading property
                     return
             }
@@ -790,7 +841,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val newState = when (currentState) {
                 is State.AudioReady -> currentState.copy(isPlaying = isPlaying)
                 is State.DisclaimerReady -> currentState.copy(isPlaying = isPlaying)
-                is State.AudioError, is State.AudioQueued, is State.ControllerError, is State.ControllerReady, State.Init ->
+                is State.AudioError, is State.AudioQueued, is State.ControllerError, is State.ControllerReady, is State.AudioInitQueued, is State.AudioInit, State.Init, is State.AudioInitError ->
                     // Abort if the current state does not have a isPlaying property
                     return
             }
@@ -822,7 +873,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         is State.AudioReady -> controller
         is State.ControllerReady -> controller
         is State.DisclaimerReady -> controller
-        State.Init, is State.ControllerError, is State.AudioQueued -> null
+        is State.AudioInit -> controller
+        is State.AudioInitError -> controller
+        State.Init, is State.ControllerError, is State.AudioQueued, is State.AudioInitQueued -> null
     }
 
     private fun getItemFromState(): AudioPlayerItem? = state.value.getItemOrNull()
@@ -832,7 +885,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         is State.AudioQueued -> item
         is State.AudioReady -> item
         is State.DisclaimerReady -> item
-        State.Init, is State.ControllerError, is State.ControllerReady -> null
+        State.Init, is State.ControllerError, is State.ControllerReady, is State.AudioInitQueued, is State.AudioInit, is State.AudioInitError -> null
     }
 
     private fun State.copyWithItem(newItem: AudioPlayerItem): State = when(this) {
@@ -840,7 +893,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         is State.AudioQueued -> copy(item = newItem)
         is State.AudioReady -> copy(item = newItem)
         is State.DisclaimerReady -> copy(item = newItem)
-        State.Init, is State.ControllerError, is State.ControllerReady -> this
+        State.Init, is State.ControllerError, is State.ControllerReady, is State.AudioInitQueued, is State.AudioInit, is State.AudioInitError -> this
     }
 
     private fun State.toLogString(): String = when (this) {
@@ -850,8 +903,17 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         is State.ControllerError -> "${this::class.simpleName}: ${this.exception}"
         is State.ControllerReady -> "${this::class.simpleName}(${controller.hashCode()})"
         is State.DisclaimerReady -> "${this::class.simpleName}(${controller.hashCode()}, $item, isPlaying=$isPlaying, isLoading=$isLoading)"
+        is State.AudioInitQueued -> "${this::class.simpleName}($initItem)"
+        is State.AudioInit -> "${this::class.simpleName}(${controller.hashCode()}, $initItem)"
+        is State.AudioInitError -> "${this::class.simpleName}(${controller?.hashCode()}})"
         State.Init -> "${this::class.simpleName}"
     }
+
+    /**
+     * Returns true if the controller still needs a connection and [connectController] must be called.
+     */
+    private fun State?.controllerNeedsConnection(): Boolean =
+        this is State.Init || this is State.ControllerError || (this is State.AudioInitError && this.controller == null)
 
     private fun MediaItem.toLogString(): String = "MediaItem($mediaId)"
 
@@ -895,7 +957,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 AudioPlayerException.Generic(cause = state.exception)
             )
 
-            is State.AudioQueued -> UiState.Initializing(uiStateHelper.asUiItem(state.item))
+            is State.AudioInitError -> UiState.InitError(
+                wasHandled = false,
+                AudioPlayerException.Generic(cause = state.exception)
+            )
+
+            is State.AudioInit -> UiState.Initializing
+            is State.AudioInitQueued -> UiState.Initializing
+            is State.AudioQueued -> UiState.Initializing
+
             is State.AudioReady ->
                 if (state.isPlaying) {
                     UiState.Playing(

@@ -8,7 +8,7 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
  */
 sealed class UiState {
     object Hidden : UiState()
-    data class Initializing(val item: Item) : UiState()
+    object Initializing : UiState()
     data class InitError(
         val wasHandled: Boolean,
         val cause: AudioPlayerException

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,8 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
 
     protected val application = androidApplication as AbstractTazApplication
     protected val audioPlayerService = AudioPlayerService.getInstance(application.applicationContext)
+
+    var visibleIssueKey: AbstractIssueKey? = null
 
     private val visibleArticleStub: MutableStateFlow<ArticleStub?> = MutableStateFlow(null)
     private val visibleArticleFileName = visibleArticleStub.map { it?.articleFileName }
@@ -90,24 +93,23 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
         _errorMessageFlow.value = null
     }
 
-    abstract suspend fun play(articleStub: ArticleStub)
+    abstract fun play(articleStub: ArticleStub)
 }
 
 
 class ArticleAudioPlayerViewModel(androidApplication: Application) :
     AudioPlayerViewModel(androidApplication) {
 
-    override suspend fun play(articleStub: ArticleStub) {
-        audioPlayerService.playArticleAudioAsync(articleStub).await()
+    override fun play(articleStub: ArticleStub) {
+        audioPlayerService.playArticle(articleStub)
     }
 }
 
 class IssueAudioPlayerViewModel(androidApplication: Application) :
     AudioPlayerViewModel(androidApplication) {
 
-    override suspend fun play(articleStub: ArticleStub) {
-        val issueStub = requireNotNull(articleStub.getIssueStub(application.applicationContext))
-        audioPlayerService.playIssueAsync(issueStub, articleStub).await()
+    override fun play(articleStub: ArticleStub) {
+        val issueKey = requireNotNull(visibleIssueKey)
+        audioPlayerService.playIssue(issueKey, articleStub)
     }
-
 }
