@@ -34,6 +34,7 @@ class UiStateHelper(private val applicationContext: Context) {
             getAudioTitle(article),
             authorText,
             getAudioImage(article),
+            null,
             UiState.OpenItemSpec.OpenIssueItemSpec(issueKey, article.key)
         )
     }
@@ -56,17 +57,26 @@ class UiStateHelper(private val applicationContext: Context) {
         return articleImageUriString?.let { Uri.parse(it) }
     }
 
-    private fun getAudioImageForPodcast(section: Section): Uri? {
+    fun getTitleForPodcast(podcastAudio: PodcastAudio): String {
+        return podcastAudio.section?.title
+            ?: podcastAudio.page?.title
+            ?: applicationContext.getString(R.string.audioplayer_podcast_generic)
+    }
+
+    private fun getAudioImageForSection(section: Section): Uri? {
         val sectionImage = section.imageList.firstOrNull()
         val sectionImageUriString = sectionImage?.let { storageService.getFileUri(it) }
         return sectionImageUriString?.let { Uri.parse(it) }
     }
 
     private fun podcastAsUiItem(podcastAudio: PodcastAudio): UiState.Item {
+        val coverImageUri = podcastAudio.section?.let { getAudioImageForSection(it) }
+        val coverImageGlidePath = podcastAudio.page?.let { storageService.getAbsolutePath(it.pagePdf) }
         return UiState.Item(
-            podcastAudio.title,
+            getTitleForPodcast(podcastAudio),
             null,
-            getAudioImageForPodcast(podcastAudio.section),
+            coverImageUri,
+            coverImageGlidePath,
             null, // Podcasts shall not open the issue when being clicked in the player
         )
     }
@@ -74,7 +84,7 @@ class UiStateHelper(private val applicationContext: Context) {
     fun getUiStateControls(
         audioPlayerItem: AudioPlayerItem, isAutoPlayNext: Boolean
     ): UiState.Controls = audioPlayerItem.run {
-        val seekBreaks = !audio?.breaks.isNullOrEmpty()
+        val seekBreaks = !audio.breaks.isNullOrEmpty()
         when (this) {
             is ArticleAudio -> UiState.Controls(
                 UiState.ControlValue.HIDDEN,
@@ -109,6 +119,7 @@ class UiStateHelper(private val applicationContext: Context) {
     fun getDisclaimerUiItem(): UiState.Item = UiState.Item(
         applicationContext.getString(R.string.audioplayer_disclaimer_title),
         applicationContext.getString(R.string.audioplayer_disclaimer_author),
+        null,
         null,
         null
     )

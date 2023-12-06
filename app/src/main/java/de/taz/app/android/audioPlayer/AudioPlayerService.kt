@@ -18,6 +18,7 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.AbstractIssueKey
@@ -146,11 +147,21 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         initItem(articleAudioInit)
     }
 
+    fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
+        val podcastAudio = PodcastAudio(
+            issueStub,
+            null,
+            page,
+            audio
+        )
+        enqueueAndPlay(podcastAudio)
+    }
+
     fun playPodcast(issueStub: IssueStub, section: Section, audio: Audio) {
         val podcastAudio = PodcastAudio(
             issueStub,
             section,
-            section.getHeaderTitle(),
+            null,
             audio
         )
         enqueueAndPlay(podcastAudio)
@@ -940,7 +951,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 tracker.trackAudioPlayerPlayArticleEvent(item.currentArticle)
 
             is PodcastAudio ->
-                tracker.trackAudioPlayerPlayPodcastEvent(item.issueStub.issueKey, item.section, item.title)
+                tracker.trackAudioPlayerPlayPodcastEvent(item.issueStub.issueKey, uiStateHelper.getTitleForPodcast(item))
         }
     }
     // endregion helper functions

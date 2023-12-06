@@ -9,6 +9,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
@@ -32,6 +33,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tracker: Tracker
+    private lateinit var audioPlayerService: AudioPlayerService
 
     private val log by Log
 
@@ -39,6 +41,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,17 +97,25 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
      * Opens the element that is clicked on the page at the given coordinates (x, y).
      * Where (0,0) is the top left corner of the page and (1,1) is the bottom right corner of the
      * page.
+     * If the page has a podcast, all clicks within the page will be intercepted to play the play podcast.
      *
      * @param page - the page on which the click happened
      * @param x - the x coordinate of the click
      * @param y - the y coordinate of the click
      */
     private fun handlePageClick(page: Page, x: Float, y: Float) {
-        val frameList = page.frameList ?: emptyList()
-        val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
-        if (frame != null) {
-            frame.link?.let {
-                pdfPagerViewModel.onFrameLinkClicked(it)
+        val issueStub = pdfPagerViewModel.issueStub
+        if (page.podcast != null && issueStub != null && x in 0f..1f && y in 0f..1f) {
+            // This page has a podcast and the click was anywhere on the pdf page. Trigger playing the PDF
+            audioPlayerService.playPodcast(issueStub, page, page.podcast)
+        } else {
+
+            val frameList = page.frameList ?: emptyList()
+            val frame = frameList.firstOrNull { it.x1 <= x && x < it.x2 && it.y1 <= y && y < it.y2 }
+            if (frame != null) {
+                frame.link?.let {
+                    pdfPagerViewModel.onFrameLinkClicked(it)
+                }
             }
         }
     }
@@ -166,7 +177,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             readerView.moveToNext()
         }
     }
-
 
     private fun hideLoadingScreen() {
         val pdfLoadingScreenRoot = viewBinding.pdfLoadingScreen.root
