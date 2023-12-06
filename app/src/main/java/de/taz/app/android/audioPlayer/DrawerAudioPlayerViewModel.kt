@@ -2,7 +2,6 @@ package de.taz.app.android.audioPlayer
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
 import de.taz.app.android.api.models.IssueStub
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 /**
  * Convenience wrapper around the [AudioPlayerService] that may be used from Drawer Fragments to play an Issue.
@@ -65,20 +63,18 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
 
     fun handleOnPlayAllClicked() {
         tracker.trackDrawerTapPlayIssueEvent()
-        viewModelScope.launch {
-            val currentIssueStub = issueStub.value
-            if (currentIssueStub != null) {
-                try {
-                    audioPlayerService.setAutoPlayNext(true)
-                    audioPlayerService.playIssueAsync(currentIssueStub, null).await()
-                } catch (e: Exception) {
-                    log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
-                    _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
-                }
-            } else {
-                log.error("handleOnPlayAllClicked() was called before setIssue()")
+        val currentIssueStub = issueStub.value
+        if (currentIssueStub != null) {
+            try {
+                audioPlayerService.setAutoPlayNext(true)
+                audioPlayerService.playIssue(currentIssueStub)
+            } catch (e: Exception) {
+                log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
             }
+        } else {
+            log.error("handleOnPlayAllClicked() was called before setIssue()")
+            _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
         }
     }
 

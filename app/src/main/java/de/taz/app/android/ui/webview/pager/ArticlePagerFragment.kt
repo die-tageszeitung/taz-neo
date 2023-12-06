@@ -189,6 +189,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
             }
         }
 
+        issueContentViewModel.issueKeyAndDisplayableKeyLiveData.observe(viewLifecycleOwner) {
+            if (it != null) {
+                audioPlayerViewModel.visibleIssueKey = it.issueKey
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {

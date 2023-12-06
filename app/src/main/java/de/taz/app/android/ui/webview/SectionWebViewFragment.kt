@@ -364,10 +364,7 @@ class SectionWebViewFragment : WebViewFragment<
         if (section.type == SectionType.podcast && section.podcast != null) {
             val onGestureListener = object : SimpleOnGestureListener() {
                 override fun onSingleTapUp(e: MotionEvent): Boolean {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        audioPlayerService.playPodcastAsync(issueStub, section, section.podcast)
-                            .await()
-                    }
+                    audioPlayerService.playPodcast(issueStub, section, section.podcast)
                     return true
                 }
                 // We have to "consume" (return true) the onDown event too, so that the Android
