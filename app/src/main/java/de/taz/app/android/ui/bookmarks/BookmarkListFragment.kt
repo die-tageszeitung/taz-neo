@@ -151,7 +151,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     private suspend fun determineMomentImageUri(article: Article): String? {
 
-        val moment = momentRepository?.get(
+        val moment = momentRepository.get(
             article.issueFeedName,
             article.issueDate,
             article.guessIssueStatusByArticleFileName()
@@ -160,7 +160,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         val momentImageUri = moment?.getMomentImage()
             ?.let { FileEntry(it) }
             ?.let {
-                storageService?.getFileUri(it)
+                storageService.getFileUri(it)
             }
 
         return momentImageUri
