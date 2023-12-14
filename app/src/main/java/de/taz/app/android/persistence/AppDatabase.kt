@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 29
+const val DATABASE_VERSION = 30
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -44,6 +44,7 @@ fun allMigrations() = arrayOf(
     Migration26to27(),
     Migration27to28(),
     Migration28to29(),
+    Migration29to30(),
 )
 
 @Database(
@@ -71,7 +72,6 @@ fun allMigrations() = arrayOf(
         SectionStub::class,
         SectionArticleJoin::class,
         SectionImageJoin::class,
-        SectionNavButtonJoin::class
     ],
     version = DATABASE_VERSION
 )
@@ -132,6 +132,4 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun sectionArticleJoinDao(): SectionArticleJoinDao
     abstract fun sectionDao(): SectionDao
     abstract fun sectionImageJoinDao(): SectionImageJoinDao
-    abstract fun sectionNavButtonJoinDao(): SectionNavButtonJoinDao
-
 }

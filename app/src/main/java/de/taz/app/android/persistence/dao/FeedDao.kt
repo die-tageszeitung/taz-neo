@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Feed
 import kotlinx.coroutines.flow.Flow
-import java.util.*
 
 @Dao
 interface FeedDao: BaseDao<Feed> {
