@@ -30,6 +30,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
 import de.taz.app.android.coachMarks.ArticleSizeCoachMark
+import de.taz.app.android.coachMarks.HorizontalArticleSwipeCoachMark
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
@@ -173,6 +174,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                             .findViewById<View?>(R.id.bottom_navigation_action_share)
                             .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
                     ).maybeShow()
+                    HorizontalArticleSwipeCoachMark(
+                        this@ArticlePagerFragment
+                    ).maybeShow()
                 }
             }
         }
@@ -290,6 +294,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                                 pdfPagerViewModel.goToPdfPage(it)
                             }
                         }
+                    }
+                    lifecycleScope.launch {
+                        HorizontalArticleSwipeCoachMark.setFunctionAlreadyDiscovered(
+                            requireContext()
+                        )
                     }
                 }
             }

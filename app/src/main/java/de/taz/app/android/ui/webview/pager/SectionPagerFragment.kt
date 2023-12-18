@@ -14,7 +14,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.coachMarks.HorizontalSwipeCoachMark
+import de.taz.app.android.coachMarks.HorizontalSectionSwipeCoachMark
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
@@ -67,7 +67,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             // are on an section.
             if (it == IssueContentDisplayMode.Section) {
                 lifecycleScope.launch {
-                    HorizontalSwipeCoachMark(this@SectionPagerFragment)
+                    HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
                         .maybeShow()
                 }
             }
@@ -118,7 +118,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
             if (state == SCROLL_STATE_IDLE && scrolled) {
                 scrolled = false
                 lifecycleScope.launch {
-                    HorizontalSwipeCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                    HorizontalSectionSwipeCoachMark.setFunctionAlreadyDiscovered(requireContext())
                 }
             }
         }

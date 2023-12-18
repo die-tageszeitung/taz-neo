@@ -33,5 +33,30 @@
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur LMd. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
 
-    <string name="coach_mark_article_size_title">Die LMd ist unlesbar?</string>
+    <string name="fragment_bookmarks_description">Sie haben noch keine Artikel in Ihrer Leseliste.\n\n Speichern Sie Artikel für später in Ihrer persönlichen Leseliste. Einfach das Sternchen bei den Artikeln aktivieren.</string>
+    <string name="search_description">Auf die Suche, fertig, los!\n\n\nOb Autor:innen, einzelne Artikel oder Themen – mit der Suchfunktion geht’s direkt zu den gewünschten Inhalten.</string>
+
+    <!-- region coach marks  -->
+    <string name="coach_mark_archive_title">Archiv</string>
+    <string name="coach_mark_archive_text">Für die Übersicht aller Ausgaben auf einen Blick: Einfach nach oben scrollen.</string>
+
+    <string name="coach_mark_horizontal_swipe_title">Schneller navigieren</string>
+    <string name="coach_mark_horizontal_swipe_text">Durch alle Texte der Ausgabe lässt es sich schnell navigieren, indem man nach links und rechts wischt.</string>
+
+    <string name="coach_mark_article_audio_title">Lesen lassen</string>
+    <string name="coach_mark_article_audio_text">Sämtliche Texte werden von professionellen Sprecher:innen vorgelesen!</string>
+
+    <string name="coach_mark_article_share_title">Texte teilen</string>
+    <string name="coach_mark_article_share_text">Mit der Share-Funktion  ganz einfach einzelne Texte verschicken – mit allen, die es interessieren könnte (auch ganz ohne Abo).</string>
+
+    <string name="coach_mark_article_size_title">Schriftgröße ändern</string>
+    <string name="coach_mark_article_size_text">Hier lässt sich die Schriftgröße aller Texte individuell anpassen.</string>
+
+    <string name="coach_mark_article_bookmarks_swipe_title">Aufräumen</string>
+    <string name="coach_mark_article_bookmarks_swipe_text">Einfach nach links wischen oder auf den Stern tippen und schon verschwinden die Texte aus der Leseliste.</string>
+
+    <string name="coach_mark_search_filter_swipe_title">Filter-Funktion</string>
+    <string name="coach_mark_search_filter_swipe_text">Mit der Filter-Funktion neben dem Suchfeld wirklich nur das finden, was man auch sucht.</string>
+
+    <!-- endregion -->
 </resources>

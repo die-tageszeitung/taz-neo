@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.base.ViewBindingFragment
-import de.taz.app.android.coachMarks.DrawerLogoCoachMark
+import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -127,7 +127,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 override fun onDrawerOpened(drawerView: View) {
                     drawerAndLogoViewModel.openDrawer()
                     lifecycleScope.launch {
-                        DrawerLogoCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                        TazLogoCoachMark.setFunctionAlreadyDiscovered(requireContext())
                     }
                 }
 
@@ -234,8 +234,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     }
                 }
             }
-
-            DrawerLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
+            TazLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
                 .maybeShow()
         }
     }
