@@ -12,4 +12,5 @@
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="text_appearance_archive_date_text_size">13sp</dimen>
+    <dimen name="coach_mark_header_line_height">32sp</dimen>
 </resources>

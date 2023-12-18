@@ -4,5 +4,6 @@
     <item name="appFontBold" format="reference" type="font">@font/benton_sans_bold</item>
     <item name="appFontAlternative" format="reference" type="font">@font/arnhem_pro_blond</item>
     <item name="appFontAlternativeItalic" format="reference" type="font">@font/arnhem_pro_blond_italic</item>
-    <item name="appFontCoachMarkHeader" format="reference" type="font">@font/american_typewriter_condensed_bold</item>
+    <item name="appFontCoachMarkHeader" format="reference" type="font">@font/benton_sans_bold</item>
+    <item name="appFontCoachMarkText" format="reference" type="font">@font/arnhem_pro_blond</item>
 </resources>

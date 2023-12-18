@@ -174,6 +174,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
             FabCoachMark(this@HomeFragment, viewBinding.fabActionPdf)
                 .maybeShow()
+
             ArchiveCoachMark(this@HomeFragment)
                 .maybeShow()
         }

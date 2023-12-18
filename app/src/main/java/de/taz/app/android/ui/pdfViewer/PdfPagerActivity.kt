@@ -18,7 +18,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.commit
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Observer
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
@@ -27,6 +31,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
+import de.taz.app.android.coachMarks.LmdLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
@@ -184,6 +189,9 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             }
 
             override fun onDrawerOpened(drawerView: View) {
+                lifecycleScope.launch {
+                    LmdLogoCoachMark.setFunctionAlreadyDiscovered(applicationContext)
+                }
                 drawerAndLogoViewModel.openDrawer()
             }
 
@@ -324,6 +332,8 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 logicalWidth.toInt(),
                 drawerLogoWrapper.height
             )
+            LmdLogoCoachMark(this, drawerLogo, imageDrawable)
+                .maybeShow()
         }
     }
 

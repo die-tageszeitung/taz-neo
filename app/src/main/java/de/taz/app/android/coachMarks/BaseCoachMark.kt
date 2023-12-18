@@ -3,6 +3,7 @@ package de.taz.app.android.coachMarks
 import android.content.Context
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -22,6 +23,7 @@ const val MAX_TO_SHOW_IN_ONE_SESSION = 3
 
 abstract class BaseCoachMark(private val context: Context, private val lifecycle: Lifecycle) {
     constructor(fragment: Fragment): this(fragment.requireContext(), fragment.lifecycle)
+    constructor(activity: AppCompatActivity): this(activity, activity.lifecycle)
 
     private companion object {
         // To ensure that at most one CoachMark is shown, we store a simple flag.

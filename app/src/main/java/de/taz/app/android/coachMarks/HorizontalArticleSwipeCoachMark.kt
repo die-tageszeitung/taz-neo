@@ -1,12 +1,13 @@
 package de.taz.app.android.coachMarks
 
 import android.content.Context
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.ui.webview.pager.SectionPagerFragment
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 
-class HorizontalSwipeCoachMark(sectionPagerFragment: SectionPagerFragment) : BaseCoachMark(sectionPagerFragment) {
+class HorizontalArticleSwipeCoachMark(articlePagerFragment: ArticlePagerFragment) : BaseCoachMark(articlePagerFragment) {
 
     companion object {
         suspend fun setFunctionAlreadyDiscovered(context: Context) {
@@ -14,7 +15,7 @@ class HorizontalSwipeCoachMark(sectionPagerFragment: SectionPagerFragment) : Bas
             val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
 
             val currentAppSession = generalDataStore.appSessionCount.get()
-            coachMarkDataStore.horizontalSwipeCoachMarkShown.set(
+            coachMarkDataStore.horizontalArticleSwipeCoachMarkShown.set(
                 currentAppSession
             )
         }
@@ -22,19 +23,24 @@ class HorizontalSwipeCoachMark(sectionPagerFragment: SectionPagerFragment) : Bas
 
     override suspend fun maybeShowInternal() {
 
+        if (!BuildConfig.IS_LMD) {
+            // Do not show this Coach Mark if not LMd
+            return
+        }
+
         if (coachMarkDataStore.alwaysShowCoachMarks.get()) {
             getLocationAndShowLayout(null, R.layout.coach_mark_horizontal_swipe)
             return
         }
 
         val currentAppSession = generalDataStore.appSessionCount.get()
-        val coachMarkTazLogoShownOnSession = coachMarkDataStore.drawerLogoCoachMarkShown.get()
+        val coachMarkArticleSizeCoachMarkShown = coachMarkDataStore.articleSizeCoachMarkShown.get()
         val coachMarkHorizontalSwipeShownOnSession =
-            coachMarkDataStore.horizontalSwipeCoachMarkShown.get()
+            coachMarkDataStore.horizontalArticleSwipeCoachMarkShown.get()
 
-        if (coachMarkHorizontalSwipeShownOnSession == 0L && currentAppSession >= coachMarkTazLogoShownOnSession + COACH_MARK_PRIO2) {
+        if (coachMarkHorizontalSwipeShownOnSession == 0L && currentAppSession >= coachMarkArticleSizeCoachMarkShown + COACH_MARK_PRIO2) {
             getLocationAndShowLayout(null, R.layout.coach_mark_horizontal_swipe)
-            coachMarkDataStore.horizontalSwipeCoachMarkShown.set(
+            coachMarkDataStore.horizontalArticleSwipeCoachMarkShown.set(
                 currentAppSession
             )
             incrementCoachMarksShownInSession()

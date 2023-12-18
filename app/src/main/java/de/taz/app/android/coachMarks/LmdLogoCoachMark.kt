@@ -4,16 +4,17 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.widget.ImageView
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 
 
-class DrawerLogoCoachMark(tazViewerFragment: TazViewerFragment, private val drawerLogo: ImageView, private val logo: Drawable) :
-    BaseCoachMark(tazViewerFragment) {
+class LmdLogoCoachMark(pdfPagerActivity: PdfPagerActivity, private val drawerLogo: ImageView, private val logo: Drawable) :
+    BaseCoachMark(pdfPagerActivity) {
 
-    private val context = tazViewerFragment.requireContext()
+    private val context = pdfPagerActivity.applicationContext
 
     companion object {
         suspend fun setFunctionAlreadyDiscovered(context: Context) {
@@ -21,7 +22,7 @@ class DrawerLogoCoachMark(tazViewerFragment: TazViewerFragment, private val draw
             val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
 
             val currentAppSession = generalDataStore.appSessionCount.get()
-            coachMarkDataStore.drawerLogoCoachMarkShown.set(
+            coachMarkDataStore.lmdLogoCoachMarkShown.set(
                 currentAppSession
             )
         }
@@ -29,18 +30,23 @@ class DrawerLogoCoachMark(tazViewerFragment: TazViewerFragment, private val draw
 
     override suspend fun maybeShowInternal() {
 
+        if (!BuildConfig.IS_LMD) {
+            // Do not show this Coach Mark if not LMd
+            return
+        }
+
         if (coachMarkDataStore.alwaysShowCoachMarks.get()) {
-            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_taz_logo)
+            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_lmd_logo)
             return
         }
 
         val coachMarkDrawerLogoShownOnSession =
-            coachMarkDataStore.drawerLogoCoachMarkShown.get()
+            coachMarkDataStore.lmdLogoCoachMarkShown.get()
 
         if (coachMarkDrawerLogoShownOnSession == 0L) {
             val currentAppSession = generalDataStore.appSessionCount.get()
-            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_taz_logo)
-            coachMarkDataStore.drawerLogoCoachMarkShown.set(
+            getLocationAndShowLayout(drawerLogo, R.layout.coach_mark_lmd_logo)
+            coachMarkDataStore.lmdLogoCoachMarkShown.set(
                 currentAppSession
             )
             incrementCoachMarksShownInSession()

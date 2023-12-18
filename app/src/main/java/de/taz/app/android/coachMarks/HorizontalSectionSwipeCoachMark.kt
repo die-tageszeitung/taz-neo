@@ -1,16 +1,12 @@
 package de.taz.app.android.coachMarks
 
 import android.content.Context
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.ui.home.HomeFragment
+import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 
-
-class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionButton) :
-    BaseCoachMark(homeFragment) {
+class HorizontalSectionSwipeCoachMark(sectionPagerFragment: SectionPagerFragment) : BaseCoachMark(sectionPagerFragment) {
 
     companion object {
         suspend fun setFunctionAlreadyDiscovered(context: Context) {
@@ -18,7 +14,7 @@ class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionBu
             val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
 
             val currentAppSession = generalDataStore.appSessionCount.get()
-            coachMarkDataStore.fabCoachMarkShown.set(
+            coachMarkDataStore.horizontalSectionSwipeCoachMarkShown.set(
                 currentAppSession
             )
         }
@@ -26,23 +22,19 @@ class FabCoachMark(homeFragment: HomeFragment, private val fab: FloatingActionBu
 
     override suspend fun maybeShowInternal() {
 
-        if (BuildConfig.IS_LMD) {
-            // Do not show this Coach Mark for LMd
-            return
-        }
-
         if (coachMarkDataStore.alwaysShowCoachMarks.get()) {
-            getLocationAndShowLayout(fab, R.layout.coach_mark_fab)
+            getLocationAndShowLayout(null, R.layout.coach_mark_horizontal_swipe)
             return
         }
 
-        val pdfMode = generalDataStore.pdfMode.get()
         val currentAppSession = generalDataStore.appSessionCount.get()
-        val coachMarkFabShownOnSession = coachMarkDataStore.fabCoachMarkShown.get()
+        val coachMarkTazLogoShownOnSession = coachMarkDataStore.tazLogoCoachMarkShown.get()
+        val coachMarkHorizontalSwipeShownOnSession =
+            coachMarkDataStore.horizontalSectionSwipeCoachMarkShown.get()
 
-        if (!pdfMode && coachMarkFabShownOnSession == 0L) {
-            getLocationAndShowLayout(fab, R.layout.coach_mark_fab)
-            coachMarkDataStore.fabCoachMarkShown.set(
+        if (coachMarkHorizontalSwipeShownOnSession == 0L && currentAppSession >= coachMarkTazLogoShownOnSession + COACH_MARK_PRIO2) {
+            getLocationAndShowLayout(null, R.layout.coach_mark_horizontal_swipe)
+            coachMarkDataStore.horizontalSectionSwipeCoachMarkShown.set(
                 currentAppSession
             )
             incrementCoachMarksShownInSession()

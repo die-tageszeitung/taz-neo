@@ -8,14 +8,15 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.sync.Mutex
 
 private const val PREFERENCES_COACH_MARK = "preferences_coach_mark"
 
 private const val FAB_COACH_MARK_SHOWN = "fab_coach_mark_shown"
 private const val ARCHIVE_COACH_MARK_SHOWN = "archive_coach_mark_shown"
 private const val TAZ_LOGO_COACH_MARK_SHOWN = "taz_logo_coach_mark_shown"
-private const val HORIZONTAL_SWIPE_COACH_MARK_SHOWN = "horizontal_swipe_coach_mark_shown"
+private const val LMD_LOGO_COACH_MARK_SHOWN = "lmd_logo_coach_mark_shown"
+private const val HORIZONTAL_SECTION_SWIPE_COACH_MARK_SHOWN = "horizontal_swipe_coach_mark_shown"
+private const val HORIZONTAL_ARTICLE_SWIPE_COACH_MARK_SHOWN = "horizontal_article_swipe_coach_mark_shown"
 private const val ARTICLE_AUDIO_COACH_MARK_SHOWN = "article_audio_coach_mark_shown"
 private const val ARTICLE_SIZE_COACH_MARK_SHOWN = "article_size_coach_mark_shown"
 private const val ARTICLE_SHARE_COACH_MARK_SHOWN = "article_share_coach_mark_shown"
@@ -43,11 +44,17 @@ class CoachMarkDataStore private constructor(applicationContext: Context) {
     val archiveCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(ARCHIVE_COACH_MARK_SHOWN), 0
     )
-    val drawerLogoCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
+    val tazLogoCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(TAZ_LOGO_COACH_MARK_SHOWN), 0
     )
-    val horizontalSwipeCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
-        dataStore, longPreferencesKey(HORIZONTAL_SWIPE_COACH_MARK_SHOWN), 0
+    val lmdLogoCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(LMD_LOGO_COACH_MARK_SHOWN), 0
+    )
+    val horizontalSectionSwipeCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(HORIZONTAL_SECTION_SWIPE_COACH_MARK_SHOWN), 0
+    )
+    val horizontalArticleSwipeCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(HORIZONTAL_ARTICLE_SWIPE_COACH_MARK_SHOWN), 0
     )
     val articleAudioCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(ARTICLE_AUDIO_COACH_MARK_SHOWN), 0
