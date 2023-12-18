@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.facebook.stetho.Stetho
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.singletons.AuthHelper
@@ -56,7 +55,6 @@ abstract class AbstractTazApplication : Application() {
         }
 
         if (BuildConfig.DEBUG) {
-            Stetho.initializeWithDefaults(this)
             val vmPolicyBuilder = StrictMode.VmPolicy.Builder()
                 .detectLeakedClosableObjects()
                 .penaltyLog()

@@ -352,9 +352,6 @@ dependencies {
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
-    // stetho debug bridge
-    implementation 'com.facebook.stetho:stetho:1.6.0'
-
     // mupdf
     implementation 'com.artifex.mupdf:fitz:1.22.0'
 
