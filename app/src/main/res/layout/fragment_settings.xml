@@ -38,506 +38,68 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout
-            android:id="@+id/web_view_wrapper"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="@dimen/fragment_settings_padding_horizontal"
-            android:paddingEnd="@dimen/fragment_settings_padding_horizontal">
-
-            <!-- region konto -->
-            <TextView
-                android:id="@+id/fragment_settings_category_account"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_account" />
-
-            <include layout="@layout/settings_separator_view" />
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:id="@+id/fragment_settings_account_manage_account_wrapper"
-                android:layout_width="match_parent"
+                android:id="@+id/web_view_wrapper"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                tools:visibility="visible">
+                android:paddingHorizontal="@dimen/fragment_settings_padding_horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="@dimen/fragment_settings_max_width">
 
+                <!-- region konto -->
                 <TextView
-                    android:id="@+id/fragment_settings_account_manage_account"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_account_manage_account" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_account_elapsed_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <TextView
-                    android:id="@+id/fragment_settings_account_elapsed"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_account_elapsed" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_account_logout_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <TextView
-                    android:id="@+id/fragment_settings_account_logout"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_account_logout"
-                    tools:text="Abmelden (user@taz.de)" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_account_reset_password_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <TextView
-                    android:id="@+id/fragment_settings_account_reset_password"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_reset_password" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_manage_account_online_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/fragment_settings_manage_account_online"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        style="@style/TextAppearance.Settings.Entry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/settings_manage_account_online"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:layout_width="@dimen/fragment_settings_icon_size"
-                        android:layout_height="0dp"
-                        android:contentDescription="@string/settings_manage_account_online"
-                        android:src="@drawable/ic_open_in_browser"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_account_delete_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <TextView
-                    android:id="@+id/fragment_settings_account_delete"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_account_delete"
-                    android:textColor="@color/critical_action" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-            <!-- endregion -->
-
-            <!-- region allow push notifications -->
-            <LinearLayout
-                android:id="@+id/fragment_settings_notifications_switch_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/fragment_settings_notifications_switch"
+                    android:id="@+id/fragment_settings_category_account"
                     style="@style/TextAppearance.Settings.Category"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="@dimen/fragment_settings_category_switch_padding_bottom"
-                    android:text="@string/settings_notifications"
-                    app:trackTint="@color/material_switch_color_list"
-                    tools:checked="true" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/push_notifications_must_be_allowed_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="@dimen/fragment_settings_caution_icon_margin_end"
-                    android:src="@drawable/ic_caution"
-                    tools:ignore="ContentDescription" />
-
-                <TextView
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_notifications_caution_text"
-                    android:textColor="@color/critical_action" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/push_notifications_should_be_allowed_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <TextView
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_notifications_info_text" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/push_notifications_allowed_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone">
-
-                <TextView
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_notifications_allowed_by_system" />
-            </LinearLayout>
-            <!-- endregion -->
-
-            <!-- region ausgabenverwaltung -->
-            <TextView
-                android:id="@+id/fragment_settings_category_issue_management"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_issue_management" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <include
-                android:id="@+id/fragment_settings_general_keep_issues"
-                layout="@layout/settings_keep_issues"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                style="@style/TextAppearance.Settings.Detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_general_keep_number_issues_detail" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_auto_download_switch"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_auto_downloads_switch"
-                tools:checked="true" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_auto_download_wifi_switch"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_auto_downloads_wifi_switch" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_auto_pdf_download_switch"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_auto_pdf_downloads_switch" />
-
-            <include
-                android:id="@+id/fragment_settings_auto_download_switch_separator_line"
-                layout="@layout/settings_separator_view" />
-
-            <include
-                android:id="@+id/fragment_settings_storage_location"
-                layout="@layout/storage_select"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_delete_all_issues"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_delete_all_issues"
-                android:textColor="@color/critical_action" />
-
-            <include layout="@layout/settings_separator_view" />
-            <!-- endregion -->
-
-            <!-- region darstellung -->
-            <TextView
-                android:id="@+id/fragment_settings_category_text"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_text" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <include
-                android:id="@+id/fragment_settings_text_size"
-                layout="@layout/settings_text_size"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_text_justified"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_text_justified" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_night_mode"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_text_night_mode"
-                tools:checked="true"/>
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_tap_to_scroll"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_text_tap_to_scroll" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/fragment_settings_keep_screen_on"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_text_keep_screen_on" />
-
-            <include layout="@layout/settings_separator_view" />
-            <!-- endregion -->
-
-            <!-- region hilfe -->
-            <TextView
-                android:id="@+id/fragment_settings_category_support"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_support" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_welcome_slides"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_welcome_slides" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_settings_faq"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/fragment_settings_min_height">
-
-                <TextView
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_faq"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:layout_width="@dimen/fragment_settings_icon_size"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/settings_faq_open_in_browser"
-                    android:src="@drawable/ic_open_in_browser"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <include
-                android:id="@+id/fragment_settings_faq_separator_line"
-                layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_support_report_bug"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_support_report_bug" />
-
-            <include layout="@layout/settings_separator_view" />
-            <!-- endregion -->
-
-            <!-- region rechtliches -->
-            <TextView
-                android:id="@+id/fragment_settings_category_legal"
-                style="@style/TextAppearance.Settings.Category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_category_legal" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_terms"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_terms" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_data_policy"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_data_policy" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <TextView
-                android:id="@+id/fragment_settings_revocation"
-                style="@style/TextAppearance.Settings.Entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_revocation" />
-
-            <include layout="@layout/settings_separator_view" />
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_accept_tracking_switch_wrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/fragment_settings_accept_tracking_switch"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_accept_tracking" />
-
-                <include layout="@layout/settings_separator_view" />
-            </LinearLayout>
-            <!-- endregion -->
-
-            <!-- region erweitert -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/fragment_settings_category_extended"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    style="@style/TextAppearance.Settings.Category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_category_extended"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <ImageView
-                    android:id="@+id/fragment_settings_extended_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
-                    android:contentDescription="@string/settings_extended_collapse"
-                    android:src="@drawable/ic_arrow_down"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/fragment_settings_extended_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <include layout="@layout/settings_separator_view" />
-
-                <TextView
-                    android:id="@+id/fragment_settings_reset_app"
-                    style="@style/TextAppearance.Settings.Entry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_reset_app"
-                    android:textColor="@color/critical_action" />
+                    android:text="@string/settings_category_account" />
 
                 <include layout="@layout/settings_separator_view" />
 
                 <LinearLayout
-                    android:id="@+id/fragment_settings_debug_settings"
+                    android:id="@+id/fragment_settings_account_manage_account_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/fragment_settings_account_manage_account"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_account_manage_account" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_account_elapsed_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/fragment_settings_account_elapsed"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_account_elapsed" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_account_logout_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -545,34 +107,481 @@
                     tools:visibility="visible">
 
                     <TextView
-                        android:id="@+id/fragment_settings_force_new_app_session"
+                        android:id="@+id/fragment_settings_account_logout"
                         style="@style/TextAppearance.Settings.Entry"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/settings_debug_force_new_app_session" />
-
-                    <include layout="@layout/settings_separator_view" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/fragment_settings_coach_marks_always"
-                        style="@style/TextAppearance.Settings.Entry"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/coach_marks_debug_settings" />
+                        android:text="@string/settings_account_logout"
+                        tools:text="Abmelden (user@taz.de)" />
 
                     <include layout="@layout/settings_separator_view" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/fragment_settings_account_reset_password_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/fragment_settings_account_reset_password"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_reset_password" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_manage_account_online_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/fragment_settings_manage_account_online"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            style="@style/TextAppearance.Settings.Entry"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_manage_account_online"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:layout_width="@dimen/fragment_settings_icon_size"
+                            android:layout_height="0dp"
+                            android:contentDescription="@string/settings_manage_account_online"
+                            android:src="@drawable/ic_open_in_browser"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_account_delete_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <TextView
+                        android:id="@+id/fragment_settings_account_delete"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_account_delete"
+                        android:textColor="@color/critical_action" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+                <!-- endregion -->
+
+                <!-- region allow push notifications -->
+                <LinearLayout
+                    android:id="@+id/fragment_settings_notifications_switch_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fragment_settings_notifications_switch"
+                        style="@style/TextAppearance.Settings.Category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="@dimen/fragment_settings_category_switch_padding_bottom"
+                        android:text="@string/settings_notifications"
+                        app:trackTint="@color/material_switch_color_list"
+                        tools:checked="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/push_notifications_must_be_allowed_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/fragment_settings_caution_icon_margin_end"
+                        android:src="@drawable/ic_caution"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_notifications_caution_text"
+                        android:textColor="@color/critical_action" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/push_notifications_should_be_allowed_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_notifications_info_text" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/push_notifications_allowed_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_notifications_allowed_by_system" />
+                </LinearLayout>
+                <!-- endregion -->
+
+                <!-- region ausgabenverwaltung -->
+                <TextView
+                    android:id="@+id/fragment_settings_category_issue_management"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_issue_management" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <include
+                    android:id="@+id/fragment_settings_general_keep_issues"
+                    layout="@layout/settings_keep_issues"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    style="@style/TextAppearance.Settings.Detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_general_keep_number_issues_detail" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_auto_download_switch"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_auto_downloads_switch"
+                    tools:checked="true" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_auto_download_wifi_switch"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_auto_downloads_wifi_switch" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_auto_pdf_download_switch"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_auto_pdf_downloads_switch" />
+
+                <include
+                    android:id="@+id/fragment_settings_auto_download_switch_separator_line"
+                    layout="@layout/settings_separator_view" />
+
+                <include
+                    android:id="@+id/fragment_settings_storage_location"
+                    layout="@layout/storage_select"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_delete_all_issues"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_delete_all_issues"
+                    android:textColor="@color/critical_action" />
+
+                <include layout="@layout/settings_separator_view" />
+                <!-- endregion -->
+
+                <!-- region darstellung -->
+                <TextView
+                    android:id="@+id/fragment_settings_category_text"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_text" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <include
+                    android:id="@+id/fragment_settings_text_size"
+                    layout="@layout/settings_text_size"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_text_justified"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_text_justified" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_night_mode"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_text_night_mode"
+                    tools:checked="true"/>
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_tap_to_scroll"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_text_tap_to_scroll" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_keep_screen_on"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_text_keep_screen_on" />
+
+                <include layout="@layout/settings_separator_view" />
+                <!-- endregion -->
+
+                <!-- region hilfe -->
+                <TextView
+                    android:id="@+id/fragment_settings_category_support"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_support" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_welcome_slides"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_welcome_slides" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/fragment_settings_faq"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/fragment_settings_min_height">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_faq"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:layout_width="@dimen/fragment_settings_icon_size"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/settings_faq_open_in_browser"
+                        android:src="@drawable/ic_open_in_browser"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <include
+                    android:id="@+id/fragment_settings_faq_separator_line"
+                    layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_support_report_bug"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_support_report_bug" />
+
+                <include layout="@layout/settings_separator_view" />
+                <!-- endregion -->
+
+                <!-- region rechtliches -->
+                <TextView
+                    android:id="@+id/fragment_settings_category_legal"
+                    style="@style/TextAppearance.Settings.Category"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_category_legal" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_terms"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_terms" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_data_policy"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_data_policy" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <TextView
+                    android:id="@+id/fragment_settings_revocation"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_revocation" />
+
+                <include layout="@layout/settings_separator_view" />
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_accept_tracking_switch_wrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/fragment_settings_accept_tracking_switch"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_accept_tracking" />
+
+                    <include layout="@layout/settings_separator_view" />
+                </LinearLayout>
+                <!-- endregion -->
+
+                <!-- region erweitert -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/fragment_settings_category_extended"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        style="@style/TextAppearance.Settings.Category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_category_extended"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/fragment_settings_extended_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
+                        android:contentDescription="@string/settings_extended_collapse"
+                        android:src="@drawable/ic_arrow_down"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <LinearLayout
+                    android:id="@+id/fragment_settings_extended_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <include layout="@layout/settings_separator_view" />
+
+                    <TextView
+                        android:id="@+id/fragment_settings_reset_app"
+                        style="@style/TextAppearance.Settings.Entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_reset_app"
+                        android:textColor="@color/critical_action" />
+
+                    <include layout="@layout/settings_separator_view" />
+
+                    <LinearLayout
+                        android:id="@+id/fragment_settings_debug_settings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:id="@+id/fragment_settings_force_new_app_session"
+                            style="@style/TextAppearance.Settings.Entry"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_debug_force_new_app_session" />
+
+                        <include layout="@layout/settings_separator_view" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/fragment_settings_coach_marks_always"
+                            style="@style/TextAppearance.Settings.Entry"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/coach_marks_debug_settings" />
+
+                        <include layout="@layout/settings_separator_view" />
+                    </LinearLayout>
+
+                </LinearLayout>
+                <!-- endregion -->
+
+                <TextView
+                    android:id="@+id/fragment_settings_version_number"
+                    style="@style/TextAppearance.Settings.Detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
             </LinearLayout>
-            <!-- endregion -->
-
-            <TextView
-                android:id="@+id/fragment_settings_version_number"
-                style="@style/TextAppearance.Settings.Detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
