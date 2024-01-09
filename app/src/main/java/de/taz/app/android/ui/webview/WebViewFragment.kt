@@ -31,6 +31,7 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
@@ -101,10 +102,10 @@ abstract class WebViewFragment<
     override fun onAttach(context: Context) {
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         viewerStateRepository =
-            ViewerStateRepository.getInstance(requireContext().applicationContext)
+            ViewerStateRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -197,29 +198,31 @@ abstract class WebViewFragment<
      */
     private fun scrollBy(scrollHeight: Int) {
         view?.let {
-            val navBarHeight = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.let {
-                if (it.visibility == View.VISIBLE) {
-                    it.height - it.translationY.toInt()
-                } else {
-                    0
-                }
-            } ?: 0
-            var offset = navBarHeight
-
             val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
             // if on bottom and tap on right side go to next article
             if (!scrollView.canScrollVertically(1) && scrollHeight > 0) {
                 issueViewerViewModel.goNextArticle.postValue(true)
             }
-            // if on bottom and tap on right side go to next article
+
+            // if on bottom and tap on right side go to previous article
             else if (!scrollView.canScrollVertically(-1) && scrollHeight < 0) {
                 issueViewerViewModel.goPreviousArticle.postValue(true)
+
             } else {
-                lifecycleScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch {
+                    val navBarHeight = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.let {
+                        if (it.visibility == View.VISIBLE) {
+                            it.height - it.translationY.toInt()
+                        } else {
+                            0
+                        }
+                    } ?: 0
+                    var offset = navBarHeight
+
                     val appBarLayout = it.findViewById<AppBarLayout>(R.id.app_bar_layout)
                     val isExpanded = appBarLayout?.height?.minus(appBarLayout.bottom) == 0
-                    // hide app bar bar when scrolling down
                     if (scrollHeight > 0) {
+                        // hide app bar bar when scrolling down
                         if (isExpanded) {
                             offset += appBarLayout.height
                             appBarLayout?.setExpanded(false, true)

@@ -151,6 +151,13 @@ interface Tracker {
     fun trackAudioPlayerPauseEvent()
     fun trackAudioPlayerAutoplayEnableEvent()
     fun trackAudioPlayerAutoplayDisableEvent()
+
     fun trackCoachMarkShow(layoutResName: String)
     fun trackCoachMarkClose(layoutResName: String)
+
+    fun trackTapToScrollSettingStatusEvent(enable: Boolean)
+
+    fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication)
+
+    fun trackTestTrackingGoal()
 }

@@ -10,7 +10,10 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
 import de.taz.app.android.R
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.AuthStatus
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.MappingDataStoreEntry
 import de.taz.app.android.dataStore.SimpleDataStoreEntry
@@ -19,9 +22,12 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
-import de.taz.app.android.util.*
-import kotlinx.coroutines.*
+import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 // region old setting names
 private const val PREFERENCES_AUTH = "auth"
@@ -108,7 +114,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_INFO_MESSAGE), ""
     )
 
-    final val status = MappingDataStoreEntry(
+    val status = MappingDataStoreEntry(
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_STATUS), AuthStatus.notValid,
         { authStatus -> authStatus.name }, { string -> AuthStatus.valueOf(string) }
     )
@@ -127,6 +133,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
+    suspend fun isInternalTazUser(): Boolean = isLoggedIn() && email.get().endsWith("@taz.de")
 
     suspend fun getMinStatus() =
         if (isValid()) IssueStatus.regular else IssueStatus.public

@@ -4,9 +4,10 @@ import android.content.Context
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
-import java.util.*
+import java.util.Date
 
 /**
  * A helper class that can be used to notify the API of the progress of an issue download
@@ -14,11 +15,13 @@ import java.util.*
  * @param isAutomaticDownload Indicating if the download was triggered by a user or automatically (By scheduler)
  */
 class IssueDownloadNotifier(
-    context: Context,
+    applicationContext: Context,
     private val issueKey: AbstractIssueKey,
     private val isAutomaticDownload: Boolean
 ) {
-    private val apiService = ApiService.getInstance(context)
+    private val apiService = ApiService.getInstance(applicationContext)
+    private val tracker = Tracker.getInstance(applicationContext)
+
     private val log by Log
     private lateinit var started: Date
     private var downloadId: String? = null
@@ -77,6 +80,7 @@ class IssueDownloadNotifier(
             apiService.notifyServerOfDownloadStop(
                 it, secondsTaken
             )
+            tracker.trackIssueDownloadEvent(issueKey)
             log.debug("Issue download of $issueKey completed after $secondsTaken")
         } ?: log.warn("Somehow download Id was null so information of downloadStop failed!")
     }

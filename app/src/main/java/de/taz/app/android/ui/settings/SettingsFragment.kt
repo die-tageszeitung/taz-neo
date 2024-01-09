@@ -19,6 +19,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
@@ -26,7 +27,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
-import de.taz.app.android.*
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.R
+import de.taz.app.android.TAZ_ACCOUNT_SUFFIX
+import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
+import de.taz.app.android.WEBVIEW_HTML_FILE_REVOCATION
+import de.taz.app.android.WEBVIEW_HTML_FILE_TERMS
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
@@ -54,9 +60,14 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import java.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
 private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
@@ -696,6 +707,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun setTapToScroll(enabled: Boolean) {
         log.debug("setTapToScroll: $enabled")
         viewModel.setTapToScroll(enabled)
+        tracker.trackTapToScrollSettingStatusEvent(enabled)
     }
 
     private fun setKeepScreenOn(enabled: Boolean) {
@@ -983,7 +995,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setupDebugSettings() {
         lifecycleScope.launch {
-            if (viewModel.areDebugSettingsEnabled()) {
+            if (areDebugSettingsEnabled || viewModel.areDebugSettingsEnabled()) {
                 areDebugSettingsEnabled = true
                 viewBinding.apply {
                     fragmentSettingsDebugSettings.isVisible = true
@@ -998,6 +1010,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                             viewModel.forceNewAppSession()
                         }
                     }
+
                     fragmentSettingsCoachMarksAlways.apply {
                         isChecked = viewModel.getAlwaysShowCoachMarks()
                         setOnClickListener {
@@ -1005,6 +1018,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         }
                     }
 
+
+                    fragmentSettingsTestTrackingGoalWrapper.isGone = BuildConfig.IS_LMD
+                    fragmentSettingsTestTrackingGoal.apply {
+                        isChecked = viewModel.getTestTrackingGoalStatus()
+                        setOnClickListener {
+                            val enabled = fragmentSettingsTestTrackingGoal.isChecked
+                            viewModel.setTestTrackingGoalStatus(enabled)
+                            if (enabled) {
+                                tracker.apply {
+                                    trackTestTrackingGoal()
+                                    dispatch()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

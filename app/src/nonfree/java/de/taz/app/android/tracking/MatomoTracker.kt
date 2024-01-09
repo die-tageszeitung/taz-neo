@@ -6,6 +6,7 @@ import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Section
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Log
@@ -25,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 
 // region: Event Categories
 private const val CATEGORY_APPLICATION = "Application"
-private const val CATEGORY_USER_AUTH = "User Authentication"
+private const val CATEGORY_USER_AUTH = "User"
 private const val CATEGORY_AUTH_STATUS = "Authentication Status"
 private const val CATEGORY_SUBSCRIPTION_STATUS = "Subscription Status"
 private const val CATEGORY_DIALOG = "Dialog"
@@ -36,6 +37,14 @@ private const val CATEGORY_SHARE = "Share"
 private const val CATEGORY_DRAWER = "Drawer"
 private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
 private const val CATEGORY_COACH_MARK = "Coachmark"
+private const val CATEGORY_TAP_TO_SCROLL = "Tap am Rand"
+private const val CATEGORY_ISSUE = "Issue"
+// endregion
+
+// region: Goals
+// IDs are defined on the backend instance
+private const val GOAL_INTERNAL_TAZ_USER_ID = 3
+private const val GOAL_TEST_TRACKING_ID = 2
 // endregion
 
 private const val SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1_000 // 2h
@@ -44,7 +53,8 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     private val log by Log
 
-    val authHelper = AuthHelper.getInstance(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
+    private val generalDataStore = GeneralDataStore.getInstance(applicationContext)
 
     private val matomo = Matomo.getInstance(applicationContext)
     private val config = TrackerBuilder
@@ -62,6 +72,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     }
 
     private suspend fun onNewSession() {
+        setTrackingGoals()
         when (authHelper.status.get()) {
             AuthStatus.valid -> trackUserAuthenticatedState()
             AuthStatus.elapsed -> {
@@ -75,6 +86,30 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             // They won't ever be set to AuthHelper.status and can be ignored
             AuthStatus.tazIdNotLinked, AuthStatus.alreadyLinked, AuthStatus.notValidMail -> Unit
         }
+    }
+
+    private suspend fun setTrackingGoals() {
+        if (authHelper.isInternalTazUser() && !generalDataStore.hasInternalTazUserGoalBeenTracked.get() && !matomoTracker.isOptOut) {
+            trackInternalTazUserGoal()
+            generalDataStore.hasInternalTazUserGoalBeenTracked.set(true)
+        }
+        if (generalDataStore.testTrackingGoalEnabled.get()) {
+            trackTestTrackingGoal()
+        }
+    }
+
+    private fun trackInternalTazUserGoal() {
+        TrackHelper.track()
+            .goal(GOAL_INTERNAL_TAZ_USER_ID)
+            .revenue(0.1f)
+            .with(matomoTracker)
+    }
+
+    override fun trackTestTrackingGoal() {
+        TrackHelper.track()
+            .goal(GOAL_TEST_TRACKING_ID)
+            .revenue(0.01f)
+            .with(matomoTracker)
     }
 
     override fun enable() {
@@ -107,13 +142,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun trackUserAuthenticatedState() {
         TrackHelper.track()
-            .event(CATEGORY_AUTH_STATUS, "Authenticated")
+            .event(CATEGORY_AUTH_STATUS, "State Authenticated")
             .with(matomoTracker)
     }
 
     override fun trackUserAnonymousState() {
         TrackHelper.track()
-            .event(CATEGORY_AUTH_STATUS, "Anonymous")
+            .event(CATEGORY_AUTH_STATUS, "State Anonymous")
             .with(matomoTracker)
     }
 
@@ -137,19 +172,19 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     override fun trackUserSubscriptionRenewedEvent() {
         TrackHelper.track()
-            .event(CATEGORY_SUBSCRIPTION_STATUS, "Renewed")
+            .event(CATEGORY_SUBSCRIPTION_STATUS, "Subscription Renewed")
             .with(matomoTracker)
     }
 
     override fun trackCoverflowScreen(pdfMode: Boolean) {
-        val screenName = if (pdfMode) "/home/coverflow/pdf" else "/home/coverflow/app"
-        val screenTitle = if (pdfMode) "Coverflow PDF" else "Coverflow App"
+        val screenName = if (pdfMode) "/home/coverflow/pdf" else "/home/coverflow/mobile"
+        val screenTitle = if (pdfMode) "Coverflow PDF" else "Coverflow Mobile"
         TrackHelper.track().screen(screenName).title(screenTitle).with(matomoTracker)
     }
 
     override fun trackArchiveScreen(pdfMode: Boolean) {
-        val screenName = if (pdfMode) "/home/archive/pdf" else "/home/archive/app"
-        val screenTitle = if (pdfMode) "Archive PDF" else "Archive App"
+        val screenName = if (pdfMode) "/home/archive/pdf" else "/home/archive/mobile"
+        val screenTitle = if (pdfMode) "Archive PDF" else "Archive Mobile"
         TrackHelper.track().screen(screenName).title(screenTitle).with(matomoTracker)
     }
 
@@ -178,7 +213,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
 
     private fun articlePath(articleFileName: String, mediaSyncId: Int?): String {
         val mediaSyncSuffix = mediaSyncId ?: ""
-        return "article/$articleFileName|$mediaSyncSuffix"
+        return "article/$articleFileName?id=$mediaSyncSuffix"
     }
 
     override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {
@@ -527,7 +562,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         val path = "/${issuePath(issueKey)}"
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Podcast")
-            .name("$path|$title")
+            .name("$path?title=$title")
             .with(matomoTracker)
     }
 
@@ -637,6 +672,25 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         TrackHelper.track()
             .event(CATEGORY_COACH_MARK, "Close")
             .name(layoutResName)
+            .with(matomoTracker)
+    }
+
+    override fun trackTapToScrollSettingStatusEvent(enable: Boolean) {
+        val eventName = if (enable) {
+            "Ein"
+        } else {
+            "Aus"
+        }
+        TrackHelper.track()
+            .event(CATEGORY_TAP_TO_SCROLL, "Status")
+            .name(eventName)
+            .with(matomoTracker)
+    }
+
+    override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication) {
+        TrackHelper.track()
+            .event(CATEGORY_ISSUE, "Download")
+            .name(issueKey.date)
             .with(matomoTracker)
     }
 }
