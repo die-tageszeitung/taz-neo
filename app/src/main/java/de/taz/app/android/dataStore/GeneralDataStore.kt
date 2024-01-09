@@ -28,6 +28,8 @@ private const val LAST_MAIN_ACTIVITY_USAGE_TIME = "last_main_activity_usage_time
 private const val DEBUG_SETTINGS_ENABLED = "debug_settings_enabled"
 private const val HAS_BEEN_ASKED_FOR_TRACKING_CONSENT = "has_been_asked_for_tracking_consent"
 private const val CONSENT_TO_TRACKING = "consent_to_tracking"
+private const val HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED = "has_internal_taz_user_goal_been_tracked"
+private const val TEST_GOAL_TRACKING_ENABLED = "test_goal_tracking_enabled"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -95,6 +97,14 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val consentToTracking: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(CONSENT_TO_TRACKING), false
+    )
+
+    val hasInternalTazUserGoalBeenTracked: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED), false
+    )
+
+    val testTrackingGoalEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(TEST_GOAL_TRACKING_ENABLED), false
     )
 
     suspend fun clearRemovedEntries() {

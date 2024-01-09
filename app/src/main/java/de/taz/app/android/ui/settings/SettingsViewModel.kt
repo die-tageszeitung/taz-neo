@@ -225,4 +225,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             coachMarkDataStore.alwaysShowCoachMarks.set(value)
         }
     }
+
+    suspend fun getTestTrackingGoalStatus(): Boolean {
+        return generalDataStore.testTrackingGoalEnabled.get()
+    }
+
+    fun setTestTrackingGoalStatus(enabled: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.testTrackingGoalEnabled.set(enabled)
+        }
+    }
 }
