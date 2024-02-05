@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blackEightyPercentOpacity">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+        android:paddingBottom="@dimen/coach_mark_article_padding_bottom"
+        android:rotation="-7"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/left_tap_area">
+
+        <TextView
+            android:id="@+id/coach_mark_header"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/coach_mark_article_tap_to_scroll_title" />
+
+        <TextView
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_header"
+            android:text="@string/coach_mark_article_tap_to_scroll_text" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/button_close"
+        android:layout_width="@dimen/coach_mark_button_close_size"
+        android:layout_height="@dimen/coach_mark_button_close_size"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
+        android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
+        android:contentDescription="@string/close_button"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close_audio_player"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/lightGrey" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/left_tap_area"
+        android:layout_width="53dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="17dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginBottom="90dp"
+        android:background="@drawable/dotted_line_rectangle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="17dp"
+            android:contentDescription="@string/coach_mark_article_tap_to_scroll_icon_description"
+            android:src="@drawable/ic_tap_to_scroll"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="53dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="17dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginBottom="90dp"
+        android:background="@drawable/dotted_line_rectangle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="17dp"
+            android:contentDescription="@string/coach_mark_article_tap_to_scroll_icon_description"
+            android:src="@drawable/ic_tap_to_scroll"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

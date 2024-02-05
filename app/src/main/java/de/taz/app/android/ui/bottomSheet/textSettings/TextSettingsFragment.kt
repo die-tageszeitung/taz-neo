@@ -4,18 +4,25 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.databinding.FragmentBottomSheetTextSizeBinding
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.settings.SettingsActivity
+import kotlinx.coroutines.launch
 
 class TextSettingsFragment :
     BaseViewModelFragment<TextSettingsViewModel, FragmentBottomSheetTextSizeBinding>() {
 
+    private lateinit var authHelper: AuthHelper
     private lateinit var tracker: Tracker
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
@@ -50,8 +57,29 @@ class TextSettingsFragment :
             )
         }
 
+        lifecycleScope.launch {
+            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+                viewBinding.fragmentBottomSheetMultiColumnMode.setOnClickListener {
+                    onMultiColumnModeChanged(
+                        !viewBinding.fragmentBottomSheetMultiColumnModeSwitch.isChecked
+                    )
+                }
+                viewBinding.fragmentBottomSheetMultiColumnModeSwitch.setOnClickListener {
+                    onMultiColumnModeChanged(
+                        viewBinding.fragmentBottomSheetMultiColumnModeSwitch.isChecked
+                    )
+                }
+            } else {
+                viewBinding.fragmentBottomSheetMultiColumnMode.isVisible = false
+            }
+        }
+
         viewModel.observeNightMode(viewLifecycleOwner) { activated ->
             setNightMode(activated)
+        }
+
+        viewModel.observeMultiColumnMode(viewLifecycleOwner) { activated ->
+            setMultiColumnMode(activated)
         }
 
         viewModel.observeFontSize(viewLifecycleOwner) { textSizePercentage ->
@@ -68,12 +96,21 @@ class TextSettingsFragment :
         viewBinding.fragmentBottomSheetTextSizeNightModeSwitch.isChecked = active
     }
 
+    private fun setMultiColumnMode(active: Boolean) {
+        viewBinding.fragmentBottomSheetMultiColumnModeSwitch.isChecked = active
+    }
+
+
     private fun setFontSizePercentage(percent: String) {
         viewBinding.fragmentBottomSheetTextSizePercentage.text = "$percent%"
     }
 
     private fun onNightModeChanged(activated: Boolean) {
         viewModel.setNightMode(activated)
+    }
+
+    private fun onMultiColumnModeChanged(activated: Boolean) {
+        viewModel.setMultiColumnMode(activated)
     }
 
     private fun onSettingsSelected() {

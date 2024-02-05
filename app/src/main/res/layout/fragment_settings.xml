@@ -385,6 +385,22 @@
 
                 <include layout="@layout/settings_separator_view" />
 
+            <LinearLayout
+                android:id="@+id/fragment_settings_multi_column_mode_wrapper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_multi_column_mode"
+                    style="@style/TextAppearance.Settings.Entry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_text_multi_column_mode" />
+
+                <include layout="@layout/settings_separator_view" />
+            </LinearLayout>
+
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/fragment_settings_tap_to_scroll"
                     style="@style/TextAppearance.Settings.Entry"

@@ -1,13 +1,16 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.webkit.WebView
 import androidx.annotation.UiThread
+import androidx.core.view.GestureDetectorCompat
 import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
@@ -15,10 +18,10 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URLDecoder
-import java.util.Calendar
+import kotlin.math.abs
 
 private const val MAILTO_PREFIX = "mailto:"
-private const val MAX_DOWN_DURATION = 200L
+private const val SCROLL_DETECT_DISTANCE = 150L
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
@@ -26,17 +29,19 @@ class AppWebView @JvmOverloads constructor(
     defStyle: Int = 0
 ) : WebView(context, attributeSet, defStyle) {
     var onBorderTapListener: ((ViewBorder) -> Unit)? = null
+    var onBorderListener: ((ViewBorder) -> Unit)? = null
     private val log by Log
 
     init {
-        // prevent horizontal scrolling
         isHorizontalScrollBarEnabled = false
         settings.allowFileAccess = true
     }
 
-    private var initialTouchX = 0f
-    private var initialTouchDownTimeMs = 0L
+    private var initialX = 0f
+    private var lastViewBorderEvent: ViewBorder? = null
+
     private var overrideTouchListener: OnTouchListener? = null
+    private val gestureDetector: GestureDetectorCompat
 
     /**
      * Override the [AppWebView] touch handling with the given [OnTouchListener].
@@ -56,6 +61,7 @@ class AppWebView @JvmOverloads constructor(
         overrideTouchListener = null
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         // If a touchListener is currently set, it will fully override the default touch handling.
         // For null safety reasons of the Kotlin type system we have to store an intermediate reference to the current touch listener.
@@ -64,33 +70,68 @@ class AppWebView @JvmOverloads constructor(
             return currentTouchListener.onTouch(this, event)
         }
 
-        if (event.pointerCount > 1) {
-            // We do not want to handle multi touch events to be handled:
-            // Ignore the event but signal that we have consumed it
+        if (gestureDetector.onTouchEvent(event)) {
             return true
         }
 
-        if (event.action == MotionEvent.ACTION_DOWN) {
-            // Save the initial touch x position and re-set it on the following events,
-            // to prevent the webview from being able to be scrolled horizontally if its content
-            // is larger then the webview itself
-            initialTouchX = event.x
-        } else {
-            event.setLocation(initialTouchX, event.y)
+        if (event.pointerCount > 1) {
+            // We do not want to handle multi touch events
+            return super.onTouchEvent(event)
         }
 
-        when (event.action) {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                initialTouchDownTimeMs = Calendar.getInstance().timeInMillis
+                initialX =  event.x
             }
-            MotionEvent.ACTION_UP -> {
-                val duration =  Calendar.getInstance().timeInMillis - initialTouchDownTimeMs
-                if (duration < MAX_DOWN_DURATION) {
-                    handleTap(event.x)
+            MotionEvent.ACTION_MOVE -> {
+                if (!this.canScrollHorizontally(-1) && !this.canScrollHorizontally(1)) {
+                    val horizontalScrollDistance = event.x - initialX
+                    if (abs(horizontalScrollDistance) > SCROLL_DETECT_DISTANCE) {
+                        invokeOnBorderListener(ViewBorder.BOTH)
+                    }
                 }
             }
         }
         return super.onTouchEvent(event)
+    }
+
+    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
+        super.onScrollChanged(l, t, oldl, oldt)
+        // only update if horizontal scroll is detected:
+        if (l != oldl) {
+            val canScrollLeft =  this.canScrollHorizontally(-1)
+            val canScrollRight = this.canScrollHorizontally(1)
+
+            if (!canScrollLeft && !canScrollRight) {
+                invokeOnBorderListener(ViewBorder.BOTH)
+            } else if (!canScrollRight) {
+                invokeOnBorderListener(ViewBorder.RIGHT)
+            } else if (!canScrollLeft) {
+                invokeOnBorderListener(ViewBorder.LEFT)
+            } else {
+                invokeOnBorderListener(ViewBorder.NONE)
+            }
+        }
+    }
+
+
+    private fun invokeOnBorderListener(viewBorder: ViewBorder) {
+        if (viewBorder != lastViewBorderEvent) {
+            onBorderListener?.invoke(viewBorder)
+            lastViewBorderEvent = viewBorder
+        }
+    }
+
+    private val onGestureListener = object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
+            // Handle the tap, but don't consume the event
+            handleTap(event.x)
+            return false
+        }
+    }
+
+    init {
+        gestureDetector = GestureDetectorCompat(context, onGestureListener)
     }
 
     override fun loadUrl(url: String) {

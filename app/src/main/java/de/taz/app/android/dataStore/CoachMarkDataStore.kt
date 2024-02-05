@@ -17,6 +17,7 @@ private const val TAZ_LOGO_COACH_MARK_SHOWN = "taz_logo_coach_mark_shown"
 private const val LMD_LOGO_COACH_MARK_SHOWN = "lmd_logo_coach_mark_shown"
 private const val HORIZONTAL_SECTION_SWIPE_COACH_MARK_SHOWN = "horizontal_swipe_coach_mark_shown"
 private const val HORIZONTAL_ARTICLE_SWIPE_COACH_MARK_SHOWN = "horizontal_article_swipe_coach_mark_shown"
+private const val ARTICLE_TAP_TO_SCROLL_COACH_MARK_SHOWN = "article_tap_to_scroll_coach_mark_shown"
 private const val ARTICLE_AUDIO_COACH_MARK_SHOWN = "article_audio_coach_mark_shown"
 private const val ARTICLE_SIZE_COACH_MARK_SHOWN = "article_size_coach_mark_shown"
 private const val ARTICLE_SHARE_COACH_MARK_SHOWN = "article_share_coach_mark_shown"
@@ -55,6 +56,9 @@ class CoachMarkDataStore private constructor(applicationContext: Context) {
     )
     val horizontalArticleSwipeCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(HORIZONTAL_ARTICLE_SWIPE_COACH_MARK_SHOWN), 0
+    )
+    val articleTapToScrollCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
+        dataStore, longPreferencesKey(ARTICLE_TAP_TO_SCROLL_COACH_MARK_SHOWN), 0
     )
     val articleAudioCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(ARTICLE_AUDIO_COACH_MARK_SHOWN), 0

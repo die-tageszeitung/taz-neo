@@ -12,15 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 
 
@@ -99,23 +96,23 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
 
     @JavascriptInterface
     fun openUrl(url: String) {
-        webViewFragment.viewModel.tapLock.postValue(true)
         log.verbose("openUrl $url")
         // relevant for links in the title for instance
 
         webViewFragment.apply {
-            webViewFragment.lifecycleScope.launch {
-                if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
-                    webViewFragment.setDisplayable(url)
-                } else {
-                    openExternally(url)
+            lifecycleScope.launch {
+                if (!tapLock) {
+                    if (url.endsWith(".html") && (url.startsWith("art") || url.startsWith("section"))) {
+                        setDisplayable(url)
+                    } else {
+                        openExternally(url)
+                    }
                 }
             }
         }
     }
 
     private fun openExternally(url: String) {
-        webViewFragment.viewModel.tapLock.postValue(true)
         val color = ContextCompat.getColor(applicationContext, R.color.colorAccent)
         try {
             CustomTabsIntent.Builder()
@@ -137,16 +134,17 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
 
     @JavascriptInterface
     fun openImage(name: String) {
-        webViewFragment.viewModel.tapLock.postValue(true)
         log.verbose("openImage $name")
 
-        val intent = Intent(applicationContext, ImagePagerActivity::class.java)
-        intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
-        intent.putExtra(IMAGE_NAME, name)
+        if (!webViewFragment.tapLock) {
+            val intent = Intent(applicationContext, ImagePagerActivity::class.java)
+            intent.putExtra(DISPLAYABLE_NAME, displayable?.key)
+            intent.putExtra(IMAGE_NAME, name)
 
-        webViewFragment.requireActivity().startActivity(
-            intent
-        )
+            webViewFragment.requireActivity().startActivity(
+                intent
+            )
+        }
     }
 
     /**
@@ -171,6 +169,13 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     fun setBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) {
         runBlocking {
             webViewFragment.onSetBookmark(articleName, isBookmarked, showNotification)
+        }
+    }
+
+    @JavascriptInterface
+    fun onMultiColumnLayoutReady() {
+        if (webViewFragment is MultiColumnLayoutReadyCallback) {
+            webViewFragment.onMultiColumnLayoutReady()
         }
     }
 }

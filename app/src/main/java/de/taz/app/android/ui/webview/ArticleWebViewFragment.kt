@@ -2,34 +2,48 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.EditText
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.whenCreated
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
+import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class ArticleWebViewFragment : WebViewFragment<
-        Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding
-        >() {
+class ArticleWebViewFragment :
+    WebViewFragment<Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding>(),
+    MultiColumnLayoutReadyCallback {
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
     private lateinit var articleFileName: String
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
+    private lateinit var tazApiCssHelper: TazApiCssHelper
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tracker: Tracker
+
+    private var isMultiColumnMode = false
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -55,6 +69,8 @@ class ArticleWebViewFragment : WebViewFragment<
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
+        tazApiCssHelper = TazApiCssHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
@@ -82,13 +98,18 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
+    override fun onDestroyView() {
+        webView.onBorderListener = null
+        super.onDestroyView()
+    }
+
     override fun hideLoadingScreen() {
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.displayable?.let { article ->
                 try {
                     val issueStub =
                         article.getIssueStub(requireContext().applicationContext)
-                    if (issueStub?.issueKey?.status == IssueStatus.public && !article.isImprint()) {
+                    if (issueStub?.issueKey?.status == IssueStatus.public && !article.isImprint() && !isMultiColumnMode) {
 
                         childFragmentManager.beginTransaction().replace(
                             R.id.fragment_article_bottom_fragment_placeholder,
@@ -104,8 +125,47 @@ class ArticleWebViewFragment : WebViewFragment<
         }
     }
 
+    override fun reloadAfterCssChange() {
+        lifecycleScope.launch {
+            whenCreated {
+                if (!isRendered) {
+                    return@whenCreated
+                }
+
+                webView.injectCss()
+                val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
+                if (isMultiColumn) {
+                    // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
+                    webView.callTazApi(
+                        "enableArticleColumnMode",
+                        calculateColumnHeight(),
+                        calculateColumnWidth(),
+                        DEFAULT_COLUMN_GAP_PX
+                    )
+                }
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+                    webView.reload()
+                }
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                tazApiCssDataStore.multiColumnMode.asFlow().collect {
+                    if (isMultiColumnMode != it) {
+                        isMultiColumnMode = it
+                        if (it) {
+                            setupMultiColumnMode()
+                        } else {
+                            disableMultiColumnMode()
+                        }
+                    }
+                }
+            }
+        }
         hideKeyboardOnAllViewsExceptEditText(view)
     }
 
@@ -136,5 +196,135 @@ class ArticleWebViewFragment : WebViewFragment<
             }
         }
     }
+
+    override fun onPageRendered() {
+        super.onPageRendered()
+        lifecycleScope.launch {
+            // setting multi column mode is only possible after page is rendered so the webView can compute its scroll width
+            if (isMultiColumnMode) {
+                setupMultiColumnMode()
+            } else {
+                restoreLastScrollPosition()
+                addPaddingBottomIfNecessary()
+                hideLoadingScreen()
+            }
+        }
+    }
+
+    private fun setupMultiColumnMode() {
+        // Ignore the setup if the WebView has not rendered yet
+        if (!isRendered) {
+            return
+        }
+
+        viewBinding.nestedScrollView.scrollingEnabled = false
+        webView.updateLayoutParams<MarginLayoutParams> {
+            topMargin =
+                resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
+        }
+
+        // show the navigation buttons when on border
+        webView.onBorderListener = { border ->
+            when (border) {
+                ViewBorder.LEFT -> showPrevArticleButton()
+                ViewBorder.RIGHT -> showNextArticleButton()
+                ViewBorder.BOTH -> showBothArticleButton()
+                ViewBorder.NONE -> showNoneArticleButton()
+            }
+        }
+        bindArticleButtons()
+
+        webView.callTazApi(
+            "enableArticleColumnMode",
+            calculateColumnHeight(),
+            calculateColumnWidth(),
+            DEFAULT_COLUMN_GAP_PX
+        )
+    }
+
+    override fun onMultiColumnLayoutReady() {
+        lifecycleScope.launch {
+            restoreLastHorizontalScrollPosition()
+            hideLoadingScreen()
+        }
+    }
+
+    private fun disableMultiColumnMode() {
+        // Ignore if the WebView has not rendered yet
+        if (!isRendered) {
+            return
+        }
+
+        log.verbose("Change text settings: switch off multi column mode")
+        viewBinding.nestedScrollView.scrollingEnabled = true
+        showNoneArticleButton()
+        webView.onBorderListener = null
+
+        webView.updateLayoutParams<MarginLayoutParams> {
+            topMargin =
+                resources.getDimensionPixelSize(R.dimen.fragment_webview_article_margin_top)
+        }
+
+        webView.callTazApi("disableArticleColumnMode")
+    }
+
+    private fun showNextArticleButton() {
+        viewBinding.apply {
+            goNextArticle.show()
+            goPrevArticle.hide()
+        }
+    }
+    private fun showPrevArticleButton() {
+        viewBinding.apply {
+            goPrevArticle.show()
+            goNextArticle.hide()
+        }
+    }
+    private fun showBothArticleButton() {
+        viewBinding.apply {
+            goPrevArticle.show()
+            goNextArticle.show()
+        }
+    }
+    private fun showNoneArticleButton() {
+        viewBinding.apply {
+            goPrevArticle.hide()
+            goNextArticle.hide()
+        }
+    }
+
+    private fun bindArticleButtons() {
+        viewBinding.apply {
+            goPrevArticle.setOnClickListener {
+                issueViewerViewModel.goPreviousArticle.value = true
+                showNoneArticleButton()
+            }
+            goNextArticle.setOnClickListener {
+                issueViewerViewModel.goNextArticle.value = true
+                showNoneArticleButton()
+            }
+        }
+    }
+
+    private fun calculateColumnHeight(): Float {
+        val webViewMarginTop =
+            resources.getDimensionPixelSize(R.dimen.fragment_webview_article_margin_top)
+        return viewBinding.nestedScrollView.height.toFloat() / resources.displayMetrics.density - webViewMarginTop
+    }
+
+
+    private fun calculateColumnWidth(): Float {
+        val isPortrait =
+            resources.displayMetrics.widthPixels < resources.displayMetrics.heightPixels
+        val amountOfColumns = if (isPortrait) {
+            2
+        } else {
+            3
+        }
+        val webViewWidth =
+            viewBinding.nestedScrollView.width.toFloat() / resources.displayMetrics.density
+        return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
+    }
+
 }
 

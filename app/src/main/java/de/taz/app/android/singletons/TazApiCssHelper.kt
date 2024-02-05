@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 private const val DEFAULT_NIGHT_COLOR = "#121212"
 private const val DEFAULT_DAY_COLOR = "#FFFFFF"
 private const val DEFAULT_FONT_SIZE = 18
+const val DEFAULT_COLUMN_GAP_PX = 34f
 
 class TazApiCssHelper private constructor(applicationContext: Context){
 
@@ -38,29 +39,59 @@ class TazApiCssHelper private constructor(applicationContext: Context){
 
             val fontSizePx = computeFontSize(tazApiCssDataStore.fontSize.get())
             val textAlign= if (tazApiCssDataStore.textJustification.get()) "justify" else "left"
+
+            // The column-width, #content.width and height will be calculated dependent on the
+            // actual View size. See tazApiJs.enableArticleColumnMode for further information.
+            // The ::-webkit-scrollbar must be disabled to make sure that high content like portrait
+            // images won't break the column calculation. By default WebViews reserve a space of 6px
+            // for scrollbars, but we can hide it as we don't use the scrollbars at all.
+            val multiColumnsString = """
+                    #content.article--multi-column {
+                        column-fill: auto;
+                        column-gap: ${DEFAULT_COLUMN_GAP_PX}px;
+                        orphans: 3;
+                        widows: 3;
+                        margin-left: 0px;
+                        padding-left: ${DEFAULT_COLUMN_GAP_PX}px;
+                        padding-right: ${DEFAULT_COLUMN_GAP_PX}px;
+                        left: 0px;
+                        overflow-x: scroll;
+                    }
+                    #content.article--multi-column::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .no-horizontal-padding {
+                        padding-left: 0px;
+                        padding-right: 0px;
+                    }
+                """.trimIndent()
             if (tazApiCssDataStore.nightMode.get()) {
-                return@withContext """
-                            $importString
-                            html, body {
-                                background-color : ${DEFAULT_NIGHT_COLOR};
-                                font-size        : ${fontSizePx}px;
-                            }
-                            p {
-                                text-align: ${textAlign};
-                            }
-                            div.demoDiv:before {
-                                background-image : --webkit_linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
-                                background-image : linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
-                            }""".trimIndent()
+                """
+                    $importString
+                    html, body {
+                        background-color : ${DEFAULT_NIGHT_COLOR};
+                        font-size        : ${fontSizePx}px;
+                    }
+                    p {
+                        text-align: ${textAlign};
+                    }
+                    div.demoDiv:before {
+                        background-image : --webkit_linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
+                        background-image : linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
+                    }
+                    $multiColumnsString
+                    """.trimIndent()
             } else {
-                return@withContext """
-                            html, body {
-                                background-color : ${DEFAULT_DAY_COLOR};
-                                font-size        : ${fontSizePx}px;
-                            }
-                            p {
-                                text-align: ${textAlign};
-                            }""".trimIndent()
+                """
+                    html, body {
+                        background-color : ${DEFAULT_DAY_COLOR};
+                        font-size        : ${fontSizePx}px;
+                    }
+                    p {
+                        text-align: ${textAlign};
+                    }
+                    $multiColumnsString
+                    """.trimIndent()
             }
         }
 }

@@ -8,17 +8,26 @@
     android:background="@color/backgroundColor"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
-    <FrameLayout
+    <!-- Use a custom loading screen to be able to fix the indicator position with a paddingBottom
+         so that it is at the same position as the one shown from the pager -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loading_screen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:translationY="@dimen/fragment_webview_translation_loading_screen">
+        android:background="@color/backgroundColor"
+        android:paddingBottom="@dimen/fragment_webview_loading_screen_padding_bottom"
+        android:translationZ="@dimen/loading_screen_translationZ">
 
-        <include
-            android:id="@+id/loading_screen"
-            layout="@layout/include_loading_screen" />
-    </FrameLayout>
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.core.widget.NestedScrollView
+    <de.taz.app.android.util.LockableNestedScrollView
         android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,13 +39,28 @@
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/fragment_article_padding_bottom">
 
+            <!-- Attention:
+                When using the default <android.webkit.WebView> the linter warns us, that
+                > "Placing a <WebView> in a parent element that uses wrap_content can lead to subtle bugs;
+                > use match_parent instead"
+                This is also noted as a best practice at https://developer.android.com/develop/ui/views/layout/webapps/best-practices
+                > "We discourage setting the height to wrap_content because it results in incorrect sizing.
+                > Similarly, setting the layout width to wrap_content isn't supported and causes your
+                > WebView to use the width of its parent instead. Because of this behavior, it's also
+                > important to make sure none of your WebView object's parent layout objects have their
+                > height and width set to wrap_content."
+
+                As we are not yet aware of any bugs resulting from it, and rely on this behavior
+                due to the additional scrollable content below the WebView, we keep the wrap_content.
+            -->
             <de.taz.app.android.ui.webview.AppWebView
                 android:id="@+id/web_view"
-                android:nestedScrollingEnabled="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_webview_article_margin_top"
+                android:nestedScrollingEnabled="false"
                 android:overScrollMode="never"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.fragment.app.FragmentContainerView
@@ -46,6 +70,42 @@
                 app:layout_constraintTop_toBottomOf="@id/web_view" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+    </de.taz.app.android.util.LockableNestedScrollView>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/go_next_article"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_marginEnd="@dimen/fragment_webview_article_fab_margin_horizontal"
+            android:layout_marginBottom="@dimen/fragment_webview_article_fab_margin_bottom"
+            android:text="@string/fragment_webview_article_fab_go_next_article"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:backgroundTint="@color/blackEightyPercentOpacity"
+            app:icon="@drawable/ic_arrow_right"
+            app:iconGravity="end"
+            app:iconTint="@color/white"
+            app:maxImageSize="@dimen/bottom_navigation_icon_size"
+            app:tint="@color/white" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/go_prev_article"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:layout_marginStart="@dimen/fragment_webview_article_fab_margin_horizontal"
+            android:layout_marginBottom="@dimen/fragment_webview_article_fab_margin_bottom"
+            android:text="@string/fragment_webview_article_fab_go_prev_article"
+            android:textColor="@color/white"
+            android:visibility="gone"
+            app:backgroundTint="@color/blackEightyPercentOpacity"
+            app:icon="@drawable/ic_arrow_left"
+            app:iconTint="@color/white"
+            app:maxImageSize="@dimen/bottom_navigation_icon_size" />
+    </FrameLayout>
 </de.taz.app.android.util.NestedCoordinatorLayout>

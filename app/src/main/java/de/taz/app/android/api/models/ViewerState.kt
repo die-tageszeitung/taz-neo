@@ -8,5 +8,6 @@ import androidx.room.Entity
 )
 data class ViewerState(
     val displayableName: String,
-    val scrollPosition: Int
+    val scrollPosition: Int,
+    val scrollPositionHorizontal: Int
 )

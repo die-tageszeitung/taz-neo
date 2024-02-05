@@ -100,7 +100,7 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
     private fun onWebViewRendered() {
         viewLifecycleOwner.lifecycleScope.launch {
             addLoginFragmentIfRequired()
-            viewBinding.loadingScreen.root.visibility = View.GONE
+            viewBinding.loadingScreen.visibility = View.GONE
         }
     }
 

@@ -193,8 +193,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
             }
 
+            if (resources.getBoolean(R.bool.isTablet)) {
+                fragmentSettingsMultiColumnMode.setOnCheckedChangeListener { _, isChecked ->
+                    setMultiColumnMode(isChecked)
+                }
+            } else {
+                fragmentSettingsMultiColumnModeWrapper.isVisible = false
+            }
+
             fragmentSettingsTapToScroll.setOnCheckedChangeListener { _, isChecked ->
-                setTapToScroll(isChecked)
+                if (viewModel.multiColumnModeLiveData.value == false) {
+                    setTapToScroll(isChecked)
+                }
             }
 
             fragmentSettingsKeepScreenOn.setOnCheckedChangeListener { _, isChecked ->
@@ -318,8 +328,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             nightModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { nightMode ->
                 showNightMode(nightMode)
             }
+            multiColumnModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showMultiColumnMode(enabled)
+            }
             tapToScrollLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showTapToScroll(enabled)
+                showTapToScroll(enabled || multiColumnModeLiveData.value == true)
             }
             keepScreenOnLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { screenOn ->
                 showKeepScreenOn(screenOn)
@@ -384,6 +397,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                             showActionsWhenLoggedIn(isValidEmail, isAboId, isTazAccount)
                         } else {
                             showLoginButton()
+                            hideAndUnsetMultiColumnSetting()
                         }
                         showElapsedIndication(isElapsed)
                     }
@@ -443,6 +457,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun hideAutoPdfDownloadSwitch() {
         viewBinding.fragmentSettingsAutoPdfDownloadSwitch.visibility = View.GONE
         viewBinding.fragmentSettingsAutoDownloadSwitchSeparatorLine.root.visibility = View.GONE
+    }
+
+    private fun hideAndUnsetMultiColumnSetting() {
+        viewBinding.fragmentSettingsMultiColumnModeWrapper.isVisible = false
+        setMultiColumnMode(false)
     }
 
     private suspend fun deleteAllIssuesWithProgressBar(
@@ -623,8 +642,19 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         view?.findViewById<MaterialSwitch>(R.id.fragment_settings_night_mode)?.isChecked = nightMode
     }
 
+    private fun showMultiColumnMode(multiColumnModeEnabled: Boolean) {
+        viewBinding.fragmentSettingsMultiColumnMode.isChecked =
+            multiColumnModeEnabled
+        viewBinding.fragmentSettingsTapToScroll.isEnabled = !multiColumnModeEnabled
+        if (!multiColumnModeEnabled) {
+            showTapToScroll(viewModel.tapToScrollLiveData.value == true)
+        } else {
+            showTapToScroll(true)
+        }
+    }
+
     private fun showTapToScroll(enabled: Boolean) {
-        view?.findViewById<MaterialSwitch>(R.id.fragment_settings_tap_to_scroll)?.isChecked =
+        viewBinding.fragmentSettingsTapToScroll.isChecked =
             enabled
     }
 
@@ -692,6 +722,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
         }
         fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
+        if (resources.getBoolean(R.bool.isTablet)) {
+            fragmentSettingsMultiColumnModeWrapper.isVisible = true
+        }
     }
 
     private fun disableNightMode() {
@@ -702,6 +735,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun enableNightMode() {
         log.debug("enableNightMode")
         viewModel.setNightMode(true)
+    }
+
+    private fun setMultiColumnMode(enabled: Boolean) {
+        log.debug("setMultiColumnMode: $enabled")
+        viewModel.setMultiColumnMode(enabled)
     }
 
     private fun setTapToScroll(enabled: Boolean) {

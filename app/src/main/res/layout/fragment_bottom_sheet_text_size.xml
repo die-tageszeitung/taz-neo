@@ -151,6 +151,42 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/fragment_bottom_sheet_multi_column_mode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
+        android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal_switch"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode">
+
+        <TextView
+            style="@style/TextAppearance.BottomSheet.Setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_bottom_sheet_multi_column_mode"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/fragment_bottom_sheet_multi_column_mode_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:trackTint="@color/material_switch_color_list" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
         app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -159,7 +195,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
             android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
-            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode"
+            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
