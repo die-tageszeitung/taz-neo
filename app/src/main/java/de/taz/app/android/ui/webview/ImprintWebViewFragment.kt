@@ -1,13 +1,14 @@
 package de.taz.app.android.ui.webview
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenCreated
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
@@ -15,7 +16,6 @@ import de.taz.app.android.databinding.FragmentWebviewImprintBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
@@ -45,8 +45,8 @@ class ImprintWebViewFragment : WebViewFragment<
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        storageService = StorageService.getInstance(requireContext().applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(requireContext().applicationContext)
+        storageService = StorageService.getInstance(context.applicationContext)
+        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,6 +97,20 @@ class ImprintWebViewFragment : WebViewFragment<
                             }
                     }
                 }
+            }
+        }
+    }
+
+    override fun reloadAfterCssChange() {
+        lifecycleScope.launch {
+            whenCreated {
+                if (!isRendered) {
+                    return@whenCreated
+                }
+
+                webView.injectCss()
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+                    webView.reload()
             }
         }
     }

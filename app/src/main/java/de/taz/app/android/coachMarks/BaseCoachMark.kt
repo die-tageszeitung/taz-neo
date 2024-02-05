@@ -45,8 +45,7 @@ abstract class BaseCoachMark(private val context: Context, private val lifecycle
     protected val log by Log
 
     suspend fun maybeShow() {
-        val maxReached =
-            coachMarkDataStore.coachMarksShownInSession.get() >= MAX_TO_SHOW_IN_ONE_SESSION
+        val maxReached = coachMarkDataStore.coachMarksShownInSession.get() >= MAX_TO_SHOW_IN_ONE_SESSION
         val alwaysShow = coachMarkDataStore.alwaysShowCoachMarks.get()
         if (showConditions && authHelper.isLoggedIn() && (alwaysShow || !maxReached) && (alwaysShow || !isCoachMarkShown)) {
             maybeShowInternal()

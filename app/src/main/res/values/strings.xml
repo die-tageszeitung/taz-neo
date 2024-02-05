@@ -79,6 +79,7 @@
     <string name="fragment_bottom_sheet_text_size_decrease">Textgröße erhöhen</string>
     <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
     <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
+    <string name="fragment_bottom_sheet_multi_column_mode">Mehrspaltigkeit</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>
@@ -93,6 +94,11 @@
     <string name="fragment_bottom_sheet_notifications_yes">Ja, Mitteillungen einschalten</string>
     <string name="fragment_bottom_sheet_notifications_not_now"><u>Fragen Sie später nochmal</u></string>
     <string name="fragment_bottom_sheet_notifications_no">Nein, Einstellungen so lassen</string>
+
+    <string name="fragment_bottom_sheet_multi_column_mode_title">Lesemodus ändern?</string>
+    <string name="fragment_bottom_sheet_multi_column_mode_description">Ihr Bildschirm hat eine Größe von %d px. Wir empfehlen für Ihr Lesevergnügen hier ein Spalten Layout. Sie können die Einstellung jederzeit unter Layoutänderungen in der Toolbar wieder ändern.</string>
+    <string name="fragment_bottom_sheet_multi_column_mode_positive_button">Alles so lassen, wie es ist</string>
+    <string name="fragment_bottom_sheet_multi_column_mode_negative_button">Mehrspaltigkeit aktivieren</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
@@ -128,6 +134,7 @@
     <string name="settings_text_font_size">Textgröße (Inhalte)</string>
     <string name="settings_text_justified">Blocksatz</string>
     <string name="settings_text_night_mode">Nachtmodus</string>
+    <string name="settings_text_multi_column_mode">Mehrspaltigkeit</string>
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
     <string name="settings_account_manage_account">Anmelden</string>
@@ -461,6 +468,10 @@
     <string name="coach_mark_horizontal_swipe_title">Unbestimmte Artikel</string>
     <string name="coach_mark_horizontal_swipe_text">Ressorts und Artikel einfach genüsslich durchstöbern, indem man nach links und rechts wischt.</string>
 
+    <string name="coach_mark_article_tap_to_scroll_title">Tippen am Rand zum Blättern</string>
+    <string name="coach_mark_article_tap_to_scroll_text">Hier wird die Navigation um tippen am Rand erweitert. Let’s go tipping</string>
+    <string name="coach_mark_article_tap_to_scroll_icon_description">Icon, das einen Tipp symbolisiert</string>
+
     <string name="coach_mark_article_audio_title">Lesen und lesen lassen.</string>
     <string name="coach_mark_article_audio_text">Wer hören will, muss klicken: Hinter diesem Symbol verbirgt sich unsere tolle Vorlesefunktion – einfach mal ausprobieren!</string>
 
@@ -478,5 +489,8 @@
 
     <string name="coach_marks_debug_settings">Coachmarks immer anzeigen</string>
     <!-- endregion -->
+
+    <string name="fragment_webview_article_fab_go_prev_article">vorheriger Artikel</string>
+    <string name="fragment_webview_article_fab_go_next_article">nächster Artikel</string>
 
 </resources>

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:translationZ="2dp">
+    android:translationZ="@dimen/loading_screen_translationZ">
 
     <ProgressBar
         android:layout_width="wrap_content"

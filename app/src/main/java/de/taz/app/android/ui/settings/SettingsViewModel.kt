@@ -26,6 +26,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val fontSizeLiveData: LiveData<String>
     val textJustificationLiveData: LiveData<Boolean>
     val nightModeLiveData: LiveData<Boolean>
+    val multiColumnModeLiveData: LiveData<Boolean>
     val tapToScrollLiveData: LiveData<Boolean>
     val keepScreenOnLiveData: LiveData<Boolean>
 
@@ -54,6 +55,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         textJustificationLiveData = tazApiCssDataStore.textJustification.asLiveData()
         nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
+        multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
         tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
         keepScreenOnLiveData = tazApiCssDataStore.keepScreenOn.asLiveData()
 
@@ -178,6 +180,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setNightMode(value: Boolean) {
         viewModelScope.launch {
             tazApiCssDataStore.nightMode.set(value)
+        }
+    }
+
+    fun setMultiColumnMode(value: Boolean) {
+        viewModelScope.launch {
+            tazApiCssDataStore.multiColumnMode.set(value)
         }
     }
 

@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
@@ -26,6 +27,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
@@ -246,6 +248,29 @@ class SectionWebViewFragment : WebViewFragment<
         super.onPause()
     }
 
+    override fun onPageRendered() {
+        super.onPageRendered()
+        lifecycleScope.launch {
+            restoreLastScrollPosition()
+            addPaddingBottomIfNecessary()
+            hideLoadingScreen()
+        }
+    }
+
+    override fun reloadAfterCssChange() {
+        lifecycleScope.launch {
+            whenCreated {
+                if (!isRendered) {
+                    return@whenCreated
+                }
+
+                webView.injectCss()
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+                    webView.reload()
+            }
+        }
+    }
+
     private val resizeDrawerLogoListener =
         View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             resizeHeaderSectionTitle(v.width)
@@ -346,6 +371,10 @@ class SectionWebViewFragment : WebViewFragment<
 
     @UiThread
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
+        if (!isRendered) {
+            return
+        }
+
         val articleName = ArticleName.fromArticleFileName(articleFileName)
         try {
             webView.callTazApi("onBookmarkChange", articleName, isBookmarked)

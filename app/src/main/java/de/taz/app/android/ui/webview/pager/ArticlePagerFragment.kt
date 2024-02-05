@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +18,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
@@ -30,9 +32,11 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
 import de.taz.app.android.coachMarks.ArticleSizeCoachMark
+import de.taz.app.android.coachMarks.ArticleTapToScrollCoachMark
 import de.taz.app.android.coachMarks.HorizontalArticleSwipeCoachMark
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -40,11 +44,13 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -71,9 +77,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val audioPlayerViewModel: IssueAudioPlayerViewModel by viewModels()
 
     private lateinit var articleRepository: ArticleRepository
+    private lateinit var authHelper: AuthHelper
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var coachMarkDataStore: CoachMarkDataStore
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
     private lateinit var issueRepository: IssueRepository
@@ -96,11 +104,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         pageRepository = PageRepository.getInstance(context.applicationContext)
         coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
         fontHelper = FontHelper.getInstance(context.applicationContext)
@@ -119,6 +129,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
 
         viewBinding.webviewPagerViewpager.apply {
+
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
 
             (adapter as ArticlePagerAdapter?)?.notifyDataSetChanged()
@@ -177,6 +188,33 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     HorizontalArticleSwipeCoachMark(
                         this@ArticlePagerFragment
                     ).maybeShow()
+
+                    if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+                        // Observer multi column mode only when tablet and logged in
+                        tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) { isMultiColumn ->
+                            viewBinding.webviewPagerViewpager.isUserInputEnabled = !isMultiColumn
+                            pinCollapsingToolBar(isMultiColumn)
+                            if (isMultiColumn) {
+                                lifecycleScope.launch {
+                                    ArticleTapToScrollCoachMark(
+                                        this@ArticlePagerFragment
+                                    ).maybeShow()
+                                }
+                            }
+                        }
+                        // Maybe show multi column bottom sheet
+                        lifecycleScope.launch {
+                            val alreadyShown = generalDataStore.multiColumnModeBottomSheetAlreadyShown.get()
+                            if (!alreadyShown && !tazApiCssDataStore.multiColumnMode.get())
+                                if (childFragmentManager.findFragmentByTag(
+                                        MultiColumnModeBottomSheetFragment.TAG) == null) {
+                                    MultiColumnModeBottomSheetFragment().show(
+                                        childFragmentManager,
+                                        MultiColumnModeBottomSheetFragment.TAG
+                                    )
+                                }
+                        }
+                    }
                 }
             }
         }
@@ -334,7 +372,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             sectionChangeHandler?.onPageScrolled(
                 position, positionOffset, positionOffsetPixels
@@ -648,6 +686,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                         sectionStub.sectionFileName
                     )
                 }
+            }
+        }
+    }
+
+    /**
+     * Pins the collapsing toolbar so it does not collapse on scroll down action.
+     */
+    private fun pinCollapsingToolBar(pin: Boolean = true) {
+        viewBinding.collapsingToolbarLayout.updateLayoutParams<AppBarLayout.LayoutParams> {
+            scrollFlags = if (pin) {
+                AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
+            } else {
+                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
             }
         }
     }

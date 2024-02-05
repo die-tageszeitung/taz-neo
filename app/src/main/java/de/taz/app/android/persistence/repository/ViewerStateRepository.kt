@@ -10,11 +10,12 @@ class ViewerStateRepository private constructor(applicationContext: Context) :
 
     companion object : SingletonHolder<ViewerStateRepository, Context>(::ViewerStateRepository)
 
-    suspend fun save(displayableName: String, scrollPosition: Int) {
+    suspend fun save(displayableName: String, scrollPosition: Int = 0, scrollPositionHorizontal: Int = 0) {
         save(
             ViewerState(
                 displayableName,
-                scrollPosition
+                scrollPosition,
+                scrollPositionHorizontal
             )
         )
     }
@@ -23,13 +24,13 @@ class ViewerStateRepository private constructor(applicationContext: Context) :
         appDatabase.viewerStateDao().insertOrReplace(viewerState)
     }
 
-    suspend fun saveIfNotExists(displayableName: String, scrollPosition: Int) {
+    suspend fun saveIfNotExists(displayableName: String, scrollPosition: Int = 0, scrollPositionHorizontal: Int = 0) {
         saveIfNotExists(ViewerState(
-            displayableName, scrollPosition
+            displayableName, scrollPosition, scrollPositionHorizontal
         ))
     }
 
-    suspend fun saveIfNotExists(viewerState: ViewerState) {
+    private suspend fun saveIfNotExists(viewerState: ViewerState) {
 
         appDatabase.viewerStateDao().insertOrIgnore(viewerState)
     }

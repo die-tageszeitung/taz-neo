@@ -22,9 +22,14 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
 
     private val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
 
+    private val multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
 
     fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
         nightModeLiveData.distinctUntilChanged().observe(lifecycleOwner, Observer(block))
+    }
+
+    fun observeMultiColumnMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
+        multiColumnModeLiveData.distinctUntilChanged().observe(lifecycleOwner, Observer(block))
     }
 
     fun observeFontSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
@@ -54,6 +59,12 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
             if (newSize <= MAX_TEXT_SIZE) {
                 setFontSize(newSize.toString())
             }
+        }
+    }
+
+    fun setMultiColumnMode(value: Boolean) {
+        launch {
+            tazApiCssDataStore.multiColumnMode.set(value)
         }
     }
 

@@ -5,14 +5,104 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.migrations.*
-import de.taz.app.android.persistence.dao.*
-import de.taz.app.android.persistence.join.*
-import de.taz.app.android.persistence.typeconverters.*
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.AudioStub
+import de.taz.app.android.api.models.Feed
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.ImageStub
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.MomentStub
+import de.taz.app.android.api.models.PageStub
+import de.taz.app.android.api.models.ResourceInfoStub
+import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.ViewerState
+import de.taz.app.android.persistence.dao.AppInfoDao
+import de.taz.app.android.persistence.dao.ArticleAuthorImageJoinDao
+import de.taz.app.android.persistence.dao.ArticleDao
+import de.taz.app.android.persistence.dao.ArticleImageJoinDao
+import de.taz.app.android.persistence.dao.AudioDao
+import de.taz.app.android.persistence.dao.FeedDao
+import de.taz.app.android.persistence.dao.FileEntryDao
+import de.taz.app.android.persistence.dao.ImageDao
+import de.taz.app.android.persistence.dao.ImageStubDao
+import de.taz.app.android.persistence.dao.IssueDao
+import de.taz.app.android.persistence.dao.IssueImprintJoinDao
+import de.taz.app.android.persistence.dao.IssuePageJoinDao
+import de.taz.app.android.persistence.dao.IssueSectionJoinDao
+import de.taz.app.android.persistence.dao.MomentCreditJoinDao
+import de.taz.app.android.persistence.dao.MomentDao
+import de.taz.app.android.persistence.dao.MomentFilesJoinDao
+import de.taz.app.android.persistence.dao.MomentImageJoinDao
+import de.taz.app.android.persistence.dao.PageDao
+import de.taz.app.android.persistence.dao.ResourceInfoDao
+import de.taz.app.android.persistence.dao.ResourceInfoFileEntryJoinDao
+import de.taz.app.android.persistence.dao.SectionArticleJoinDao
+import de.taz.app.android.persistence.dao.SectionDao
+import de.taz.app.android.persistence.dao.SectionImageJoinDao
+import de.taz.app.android.persistence.dao.ViewerStateDao
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
+import de.taz.app.android.persistence.join.ArticleImageJoin
+import de.taz.app.android.persistence.join.IssueImprintJoin
+import de.taz.app.android.persistence.join.IssuePageJoin
+import de.taz.app.android.persistence.join.IssueSectionJoin
+import de.taz.app.android.persistence.join.MomentCreditJoin
+import de.taz.app.android.persistence.join.MomentFilesJoin
+import de.taz.app.android.persistence.join.MomentImageJoin
+import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
+import de.taz.app.android.persistence.join.SectionArticleJoin
+import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.persistence.migrations.Migration10to11
+import de.taz.app.android.persistence.migrations.Migration11to12
+import de.taz.app.android.persistence.migrations.Migration12to13
+import de.taz.app.android.persistence.migrations.Migration13to14
+import de.taz.app.android.persistence.migrations.Migration14to15
+import de.taz.app.android.persistence.migrations.Migration15to16
+import de.taz.app.android.persistence.migrations.Migration16to17
+import de.taz.app.android.persistence.migrations.Migration17to18
+import de.taz.app.android.persistence.migrations.Migration18to19
+import de.taz.app.android.persistence.migrations.Migration19to20
+import de.taz.app.android.persistence.migrations.Migration1to2
+import de.taz.app.android.persistence.migrations.Migration20to21
+import de.taz.app.android.persistence.migrations.Migration21to22
+import de.taz.app.android.persistence.migrations.Migration22to23
+import de.taz.app.android.persistence.migrations.Migration23to24
+import de.taz.app.android.persistence.migrations.Migration24to25
+import de.taz.app.android.persistence.migrations.Migration25to26
+import de.taz.app.android.persistence.migrations.Migration26to27
+import de.taz.app.android.persistence.migrations.Migration27to28
+import de.taz.app.android.persistence.migrations.Migration28to29
+import de.taz.app.android.persistence.migrations.Migration29to30
+import de.taz.app.android.persistence.migrations.Migration2to3
+import de.taz.app.android.persistence.migrations.Migration30to31
+import de.taz.app.android.persistence.migrations.Migration3to4
+import de.taz.app.android.persistence.migrations.Migration4to5
+import de.taz.app.android.persistence.migrations.Migration5to6
+import de.taz.app.android.persistence.migrations.Migration6to7
+import de.taz.app.android.persistence.migrations.Migration7to8
+import de.taz.app.android.persistence.migrations.Migration8to9
+import de.taz.app.android.persistence.migrations.Migration9to10
+import de.taz.app.android.persistence.typeconverters.AppNameTypeConverter
+import de.taz.app.android.persistence.typeconverters.AppTypeTypeConverter
+import de.taz.app.android.persistence.typeconverters.ArticleTypeTypeConverter
+import de.taz.app.android.persistence.typeconverters.AudioSpeakerConverter
+import de.taz.app.android.persistence.typeconverters.CycleTypeConverter
+import de.taz.app.android.persistence.typeconverters.DownloadStatusTypeConverter
+import de.taz.app.android.persistence.typeconverters.FloatListConverter
+import de.taz.app.android.persistence.typeconverters.FrameListTypeConverter
+import de.taz.app.android.persistence.typeconverters.ImageResolutionTypeConverter
+import de.taz.app.android.persistence.typeconverters.ImageTypeTypeConverter
+import de.taz.app.android.persistence.typeconverters.IssueDateDownloadTypeConverter
+import de.taz.app.android.persistence.typeconverters.IssueStatusTypeConverter
+import de.taz.app.android.persistence.typeconverters.PageTypeTypeConverter
+import de.taz.app.android.persistence.typeconverters.PublicationDateListTypeConverter
+import de.taz.app.android.persistence.typeconverters.SectionTypeTypeConverter
+import de.taz.app.android.persistence.typeconverters.StorageLocationConverter
+import de.taz.app.android.persistence.typeconverters.StorageTypeConverter
+import de.taz.app.android.persistence.typeconverters.StringListTypeConverter
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 30
+const val DATABASE_VERSION = 31
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -45,6 +135,7 @@ fun allMigrations() = arrayOf(
     Migration27to28(),
     Migration28to29(),
     Migration29to30(),
+    Migration30to31(),
 )
 
 @Database(

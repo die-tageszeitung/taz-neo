@@ -6,7 +6,10 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class NightModeHelper private constructor(private val applicationContext: Context) {
     companion object : SingletonHolder<NightModeHelper, Context>(::NightModeHelper)

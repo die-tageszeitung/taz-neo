@@ -1,154 +1,234 @@
 var tazApi = (function() {
 
 	var menuStatus = false;
+	var contentResizeObserver = null;
 
-	return (function() {
+    /*
+        @params
+        name: String or array of strings
+              Name of the desired configuration variable(s)
 
-        /*
-            @params
-            name: String or array of strings
-                  Name of the desired configuration variable(s)
+        callback: closure
+                  Receives the value of the configuration variable
+                  or a dictionary of values if name was an array of strings
 
-            callback: closure
-                      Receives the value of the configuration variable
-                      or a dictionary of values if name was an array of strings
+    */
+    function getConfiguration(name, callback) {
+        console.log("getconfiguration " + name + " " + callback);
+        if (typeof(name) == "string") {
+            console.log("get configuration with a single string");
+            callback(ANDROIDAPI.getConfiguration(name));
+        } else { /* name is supposed to be string array */
+            console.log("get configuration with a string array");
+            var result = {};
+            for (i in name){
+                result[name[i]] = ANDROIDAPI.getConfiguration(name[i]);
+            }
+            if (typeof(callback === "function")) {
+                callback(result);
+            }
+        }
+    }
 
-        */
-        function getConfiguration(name, callback) {
-            console.log("getconfiguration " + name + " " + callback);
-            if (typeof(name) == "string") {
-                console.log("get configuration with a single string");
-                callback(ANDROIDAPI.getConfiguration(name));
-            } else { /* name is supposed to be string array */
-                console.log("get configuration with a string array");
-                var result = {};
-                for (i in name){
-                    result[name[i]] = ANDROIDAPI.getConfiguration(name[i]);
-                }
-                if (typeof(callback === "function")) {
-                    callback(result);
-                }
+    /*
+        @params
+        name: String or a dictionary of String:String
+              The name of the configuration variable to be set
+              or a dictionary containing the key:value pairs of configuration variable and new values
+        value: String or nil
+               New value of the configuration variable or nil if name is a dictionary
+    */
+    function setConfiguration(name, value) {
+        console.log("setconfiguration " + name + " " + value);
+        if (typeof(name) == "string") {
+            ANDROIDAPI.setConfiguration(name, value);
+        } else { /* name is a dict */
+            for (i in name) {
+                ANDROIDAPI.setConfiguration(i, name[i]);
+            }
+        }
+    }
+
+    /*
+        Called after every scroll, the function informs the native code about the current
+        scroll position.
+        This can be used for tracking reading progress for bookmarked articles for instance.
+
+        @params
+        percentSeen (Int 0..100)
+            gibt an, wieviel Prozent der Seite gelesen (bzw. hochgescrollt) worden ist.
+
+        position (Int 0..n)
+            stellt als opakes Datum die Position des Webviews in einer Seite dar
+
+    */
+    function pageReady(percentSeen, position) {
+        console.log("pageready " + percentSeen + " " + position);
+        ANDROIDAPI.pageReady(percentSeen, position);
+    }
+
+    function nextArticle(position) {
+        console.log("nextArticle " + position);
+        ANDROIDAPI.nextArticle(position);
+    }
+
+    function previousArticle(position) {
+        console.log("previousArticle " + position);
+        ANDROIDAPI.previousArticle(position);
+    }
+
+    function openUrl(url) {
+        console.log("openUrl "+url);
+        ANDROIDAPI.openUrl(url);
+    }
+
+    function openImage(name) {
+        console.log("openImage "+name);
+        ANDROIDAPI.openImage(name);
+    }
+
+    function injectCss(encodedCssContent) {
+        var parent = document.getElementsByTagName('head').item(0);
+
+        /* remove old previously injected style elements */
+        var oldStyleElements = parent.getElementsByTagName('style');
+
+        for (var i = 0; i < oldStyleElements.length; i++) {
+            parent.removeChild(oldStyleElements.item(i));
+        }
+
+        /* remove current tazApi.css as well, since it sometimes contradicts the injected style */
+        var oldStyleLinks = parent.getElementsByTagName('link');
+        for (var i = 0; i < oldStyleLinks.length; i++) {
+            if (oldStyleLinks.item(i).href.indexOf('tazApi.css') >= 0) {
+                parent.removeChild(oldStyleLinks.item(i));
             }
         }
 
-        /*
-            @params
-            name: String or a dictionary of String:String
-                  The name of the configuration variable to be set
-                  or a dictionary containing the key:value pairs of configuration variable and new values
-            value: String or nil
-                   New value of the configuration variable or nil if name is a dictionary
-        */
-        function setConfiguration(name, value) {
-            console.log("setconfiguration " + name + " " + value);
-            if (typeof(name) == "string") {
-                ANDROIDAPI.setConfiguration(name, value);
-            } else { /* name is a dict */
-                for (i in name) {
-                    ANDROIDAPI.setConfiguration(i, name[i]);
-                }
+        /* inject new css */
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        /* Tell the browser to BASE64-decode the string */
+        style.innerHTML = window.atob(encodedCssContent);
+        parent.appendChild(style);
+    }
+
+    /**
+    * Load the Bookmarks for the current Section.
+    * setupBookmarksCallback(articleNames) is called with an array of the names of all
+    * bookmarked articles (without the .html suffix).
+    */
+    function getBookmarks(setupBookmarksCallback) {
+        // Find all articles names listed on the current section
+        // this is necessary for title sections where the graphql does *not* return all articles
+        var articleNames = [];
+        var bookmarkStars = document.getElementsByClassName("bookmarkStar");
+        for (var i = 0; i < bookmarkStars.length; i++) {
+            articleNames.push(bookmarkStars[i].id);
+        }
+
+        var bookmarkedArticleNamesJson = ANDROIDAPI.getBookmarkedArticleNames(JSON.stringify(articleNames));
+
+        var bookmarkedArticleNames = JSON.parse(bookmarkedArticleNamesJson);
+        setupBookmarksCallback(bookmarkedArticleNames);
+    }
+
+    function setBookmark(articleName, isBookmarked, showNotification) {
+        ANDROIDAPI.setBookmark(articleName, isBookmarked, showNotification)
+    }
+
+    function enableArticleColumnMode(heightPx, columnWidthPx, columnGapPx) {
+        // If there is already a observer running, we disconnect/stop it
+        disconnectContentResizeObserver();
+
+        var content = document.getElementById("content");
+
+        // Enable column mode
+        content.classList.add("article--multi-column");
+
+        // Set the #content height to the the webviews parentView height
+        content.style.height = heightPx + "px";
+
+        // Overwrite body padding for small (tablet) screens:
+        var screenWidth = window.innerWidth;
+        if (screenWidth < 660) {
+            document.body.classList.add("no-horizontal-padding");
+        }
+
+        // Let the css column handling figure out the required size of the container and then
+        // set its exact width, so that the outer Android WebView can handle the scrolling.
+        contentResizeObserver = new ResizeObserver(function(entries) {
+            // After css has calculated the columns, we can take a look at the scrollWidth to
+            // find out the actual number of columns and set the content width so that
+            // it fits the columns exactly.
+            var factor = Math.floor(content.scrollWidth / (columnWidthPx + columnGapPx));
+            var contentWidth = factor * columnWidthPx + (factor - 1) * columnGapPx;
+            var contentWidthString = contentWidth + "px";
+
+            // Stop observing for changes and inform the App that the multi column layout ist
+            // ready, once the set content width is the same as the calculated one.
+            // As css only keeps a couple of decimals we define them as the same when their
+            // difference is < 1 px
+            var currentStyleWidth = NaN;
+            if (content.style.width && content.style.width.endsWith("px")) {
+                currentStyleWidth = parseFloat(content.style.width);
             }
-        }
+            var diff = Math.abs(currentStyleWidth - contentWidth);
 
-        /*
-            Called after every scroll, the function informs the native code about the current
-            scroll position.
-            This can be used for tracking reading progress for bookmarked articles for instance.
-
-            @params
-            percentSeen (Int 0..100)
-                gibt an, wieviel Prozent der Seite gelesen (bzw. hochgescrollt) worden ist.
-
-            position (Int 0..n)
-                stellt als opakes Datum die Position des Webviews in einer Seite dar
-
-        */
-		function pageReady(percentSeen, position) {
-		    console.log("pageready " + percentSeen + " " + position);
-		    ANDROIDAPI.pageReady(percentSeen, position);
-        }
-
-		function nextArticle(position) {
-            console.log("nextArticle " + position);
-			ANDROIDAPI.nextArticle(position);
-		}
-
-		function previousArticle(position) {
-            console.log("previousArticle " + position);
-			ANDROIDAPI.previousArticle(position);
-		}
-
-		function openUrl(url) {
-            console.log("openUrl "+url);
-			ANDROIDAPI.openUrl(url);
-		}
-
-		function openImage(name) {
-            console.log("openImage "+name);
-			ANDROIDAPI.openImage(name);
-		}
-
-        function injectCss(encodedCssContent) {
-            var parent = document.getElementsByTagName('head').item(0);
-
-            /* remove old previously injected style elements */
-            var oldStyleElements = parent.getElementsByTagName('style');
-
-            for (var i = 0; i < oldStyleElements.length; i++) {
-                parent.removeChild(oldStyleElements.item(i));
+            if (diff != NaN && diff < 1.0) {
+                disconnectContentResizeObserver();
+                // Wait for the next cycle before indicating ready, to give the WebView the
+                // chance to render the changes.
+                setTimeout(function() {
+                    ANDROIDAPI.onMultiColumnLayoutReady();
+                });
+            } else {
+                // Wait for the next cycle to set the width.
+                // If it is set in the same cycle the observer will not be called again
+                setTimeout(function() {
+                    content.style.width = contentWidthString;
+                });
             }
+        });
+        contentResizeObserver.observe(content);
 
-            /* remove current tazApi.css as well, since it sometimes contradicts the injected style */
-            var oldStyleLinks = parent.getElementsByTagName('link');
-            for (var i = 0; i < oldStyleLinks.length; i++) {
-                if (oldStyleLinks.item(i).href.indexOf('tazApi.css') >= 0) {
-                    parent.removeChild(oldStyleLinks.item(i));
-                }
-            }
+        // (Re-) Set the initial width to the default "auto", so that the first run of the
+        // column calculation works correctly (for example when the font size changes)
+        content.style.width = "auto";
 
-            /* inject new css */
-            var style = document.createElement('style');
-            style.type = 'text/css';
-            /* Tell the browser to BASE64-decode the string */
-            style.innerHTML = window.atob(encodedCssContent);
-            parent.appendChild(style);
+        // Finally set the requested column width and wait for the contentResizeObserver to settle
+        content.style.columnWidth = columnWidthPx + "px";
+    }
+
+    function disableArticleColumnMode() {
+        disconnectContentResizeObserver();
+        var content = document.getElementById("content");
+        content.style.height = null;
+        content.style.width = null;
+        content.style.columnWidth = null;
+        content.classList.remove("article--multi-column");
+        document.body.classList.remove("no-horizontal-padding");
+    }
+
+    function disconnectContentResizeObserver() {
+        if (contentResizeObserver != null) {
+            contentResizeObserver.disconnect();
+            contentResizeObserver = null;
         }
+    }
 
-        /**
-        * Load the Bookmarks for the current Section.
-        * setupBookmarksCallback(articleNames) is called with an array of the names of all
-        * bookmarked articles (without the .html suffix).
-        */
-        function getBookmarks(setupBookmarksCallback) {
-            // Find all articles names listed on the current section
-            // this is necessary for title sections where the graphql does *not* return all articles
-            var articleNames = [];
-            var bookmarkStars = document.getElementsByClassName("bookmarkStar");
-            for (var i = 0; i < bookmarkStars.length; i++) {
-                articleNames.push(bookmarkStars[i].id);
-            }
-
-            var bookmarkedArticleNamesJson = ANDROIDAPI.getBookmarkedArticleNames(JSON.stringify(articleNames));
-
-            var bookmarkedArticleNames = JSON.parse(bookmarkedArticleNamesJson);
-            setupBookmarksCallback(bookmarkedArticleNames);
-        }
-
-        function setBookmark(articleName, isBookmarked, showNotification) {
-            ANDROIDAPI.setBookmark(articleName, isBookmarked, showNotification)
-        }
-
-		return {
-			getConfiguration : getConfiguration,
-			setConfiguration : setConfiguration,
-			pageReady : pageReady,
-			nextArticle : nextArticle,
-			previousArticle : previousArticle,
-			openUrl : openUrl,
-			injectCss: injectCss,
-			openImage : openImage,
-			getBookmarks: getBookmarks,
-			setBookmark: setBookmark,
-		};
-	}());
+    return {
+        getConfiguration : getConfiguration,
+        setConfiguration : setConfiguration,
+        pageReady : pageReady,
+        nextArticle : nextArticle,
+        previousArticle : previousArticle,
+        openUrl : openUrl,
+        injectCss: injectCss,
+        openImage : openImage,
+        getBookmarks: getBookmarks,
+        setBookmark: setBookmark,
+        enableArticleColumnMode: enableArticleColumnMode,
+        disableArticleColumnMode: disableArticleColumnMode,
+    };
 }());
