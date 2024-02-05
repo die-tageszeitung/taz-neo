@@ -9,6 +9,7 @@ import java.util.Locale
 import kotlin.reflect.KProperty
 
 private const val LOG_TRACE_LENGTH = 250
+private const val LOG_TRACE_MESSAGE_LENGTH = 200
 
 /**
  * Convenience class to create logs
@@ -34,33 +35,33 @@ class Log(private val tag: String) {
     fun verbose(message: String, throwable: Throwable? = null) {
         Log.v(tag, message, throwable)
         setSentryBreadcrumb(message, throwable)
-        addToTrace(message)
+        addToTrace(message, "V")
     }
 
 
     fun debug(message: String, throwable: Throwable? = null) {
         Log.d(tag, message, throwable)
         setSentryBreadcrumb(message, throwable)
-        addToTrace(message)
+        addToTrace(message, "D")
     }
 
 
     fun error(message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
         setSentryBreadcrumb(message, throwable)
-        addToTrace(message)
+        addToTrace(message, "E")
     }
 
     fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
         setSentryBreadcrumb(message, throwable)
-        addToTrace(message)
+        addToTrace(message, "I")
     }
 
     fun warn(message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
         setSentryBreadcrumb(message, throwable)
-        addToTrace(message)
+        addToTrace(message, "W")
     }
 
     private fun setSentryBreadcrumb(message: String, throwable: Throwable?) {
@@ -75,14 +76,14 @@ class Log(private val tag: String) {
     keep [LOG_TRACE_LENGTH] lines of logs for attach to error reports;
     if a log line is longer than 200 chars, truncate it
      */
-    private fun addToTrace(message: String) {
-        val truncateMessage = if (message.length > 200) message.substring(0, 200) else message
+    private fun addToTrace(message: String, level: String) {
+        val truncateMessage = if (message.length > LOG_TRACE_MESSAGE_LENGTH) message.substring(0, LOG_TRACE_MESSAGE_LENGTH) else message
 
         val time = SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", Locale.GERMAN).format(
             Calendar.getInstance().time
         )
 
-        val traceLine = "$time $tag: $truncateMessage"
+        val traceLine = "$time $level $tag: $truncateMessage"
 
         synchronized(trace) {
             if (trace.size >= LOG_TRACE_LENGTH) {
