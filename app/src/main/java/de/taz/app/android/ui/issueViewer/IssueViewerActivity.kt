@@ -176,7 +176,6 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         if (savedInstanceState == null) {
             lifecycleScope.launch(Dispatchers.Main) {
 
-                // Short circuit around the IssueStub to prevent from having to load the full Issue which takes ages
                 val issuePublication = this@IssueViewerWrapperFragment.issuePublication
                 val cachedIssueKey = contentService.getIssueKey(issuePublication)
 
