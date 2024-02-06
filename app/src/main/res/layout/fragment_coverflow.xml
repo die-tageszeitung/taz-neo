@@ -48,7 +48,7 @@
             app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
 
-    <com.factor.bouncy.BouncyRecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_cover_flow_grid"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

@@ -77,10 +77,11 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        grid.edgeEffectFactory = BouncyEdgeEffect.Factory
 
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
             // redraw all visible views
-            viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+            grid.adapter?.notifyDataSetChanged()
             updateUIForCurrentDate(forceStartDownloadObserver = true)
 
             // Track a new screen if the PDF mode changes when the Fragment is already resumed.

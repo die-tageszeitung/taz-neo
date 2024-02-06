@@ -22,6 +22,7 @@ public class MuPDFCore {
     private Document doc;
     private Outline[] outline;
     private int pageCount = -1;
+    private boolean reflowable = false;
     private int currentPage;
     private Page page;
     private float pageWidth;
@@ -37,6 +38,7 @@ public class MuPDFCore {
         this.doc = doc;
         doc.layout(layoutW, layoutH, layoutEM);
         pageCount = doc.countPages();
+        reflowable = doc.isReflowable();
         resolution = 160;
         currentPage = -1;
     }
@@ -57,8 +59,8 @@ public class MuPDFCore {
         return pageCount;
     }
 
-    public synchronized boolean isReflowable() {
-        return doc.isReflowable();
+    public boolean isReflowable() {
+        return reflowable;
     }
 
     public synchronized int layout(int oldPage, int w, int h, int em) {
