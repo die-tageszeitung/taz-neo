@@ -13,6 +13,7 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentMultiColumnModeBottomSheetBinding
 import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
+import de.taz.app.android.tracking.Tracker
 import kotlinx.coroutines.launch
 
 class MultiColumnModeBottomSheetFragment :
@@ -20,6 +21,7 @@ class MultiColumnModeBottomSheetFragment :
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var tracker: Tracker
 
     companion object {
         const val TAG = "MultiColumnModeBottomSheet"
@@ -29,6 +31,7 @@ class MultiColumnModeBottomSheetFragment :
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onStart() {
@@ -50,6 +53,7 @@ class MultiColumnModeBottomSheetFragment :
         viewBinding.positiveButton.setOnClickListener {
             lifecycleScope.launch {
                 tazApiCssDataStore.multiColumnMode.set(true)
+                tracker.trackArticleColumnModeEnableEvent()
                 dismiss()
             }
         }

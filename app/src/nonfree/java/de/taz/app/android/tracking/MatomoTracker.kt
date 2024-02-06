@@ -39,6 +39,7 @@ private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
 private const val CATEGORY_COACH_MARK = "Coachmark"
 private const val CATEGORY_TAP_TO_SCROLL = "Tap am Rand"
 private const val CATEGORY_ISSUE = "Issue"
+private const val CATEGORY_ARTICLE = "Article"
 // endregion
 
 // region: Goals
@@ -691,6 +692,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         TrackHelper.track()
             .event(CATEGORY_ISSUE, "Download")
             .name(issueKey.date)
+            .with(matomoTracker)
+    }
+
+    override fun trackArticleColumnModeEnableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_ARTICLE, "Enable Column Mode")
+            .with(matomoTracker)
+    }
+
+    override fun trackArticleColumnModeDisableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_ARTICLE, "Disable Column Mode")
             .with(matomoTracker)
     }
 }

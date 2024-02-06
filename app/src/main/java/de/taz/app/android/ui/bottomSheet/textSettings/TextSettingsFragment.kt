@@ -111,6 +111,11 @@ class TextSettingsFragment :
 
     private fun onMultiColumnModeChanged(activated: Boolean) {
         viewModel.setMultiColumnMode(activated)
+        if (activated) {
+            tracker.trackArticleColumnModeEnableEvent()
+        } else {
+            tracker.trackArticleColumnModeDisableEvent()
+        }
     }
 
     private fun onSettingsSelected() {

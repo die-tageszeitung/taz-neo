@@ -95,4 +95,6 @@ class NoOpTracker : Tracker {
     override fun trackTapToScrollSettingStatusEvent(enable: Boolean) {}
     override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication) {}
     override fun trackTestTrackingGoal() {}
+    override fun trackArticleColumnModeEnableEvent() {}
+    override fun trackArticleColumnModeDisableEvent() {}
 }

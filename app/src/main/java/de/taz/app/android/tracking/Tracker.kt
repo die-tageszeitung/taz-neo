@@ -160,4 +160,7 @@ interface Tracker {
     fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication)
 
     fun trackTestTrackingGoal()
+
+    fun trackArticleColumnModeEnableEvent()
+    fun trackArticleColumnModeDisableEvent()
 }
