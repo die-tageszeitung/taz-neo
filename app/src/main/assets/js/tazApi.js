@@ -155,9 +155,25 @@ var tazApi = (function() {
             document.body.classList.add("no-horizontal-padding");
         }
 
+        // (Re-) Set the initial width to the default "auto", so that the first run of the
+        // column calculation works correctly (for example when the font size changes)
+        content.style.width = "auto";
+
+        // Finally set the requested column width and wait for the contentResizeObserver to settle
+        content.style.columnWidth = columnWidthPx + "px";
+
+        // Helper that ensures the callback is called at most once
+        var onMultiColumnLayoutReadyCalled = false;
+        function callOnMultiColumnLayoutReady() {
+            if (!onMultiColumnLayoutReadyCalled) {
+                ANDROIDAPI.onMultiColumnLayoutReady();
+                onMultiColumnLayoutReadyCalled = true;
+            }
+        }
+
         // Let the css column handling figure out the required size of the container and then
         // set its exact width, so that the outer Android WebView can handle the scrolling.
-        contentResizeObserver = new ResizeObserver(function(entries) {
+        function setContentWidthForColumns() {
             // After css has calculated the columns, we can take a look at the scrollWidth to
             // find out the actual number of columns and set the content width so that
             // it fits the columns exactly.
@@ -180,7 +196,7 @@ var tazApi = (function() {
                 // Wait for the next cycle before indicating ready, to give the WebView the
                 // chance to render the changes.
                 setTimeout(function() {
-                    ANDROIDAPI.onMultiColumnLayoutReady();
+                    callOnMultiColumnLayoutReady();
                 });
             } else {
                 // Wait for the next cycle to set the width.
@@ -189,15 +205,28 @@ var tazApi = (function() {
                     content.style.width = contentWidthString;
                 });
             }
-        });
-        contentResizeObserver.observe(content);
+        };
 
-        // (Re-) Set the initial width to the default "auto", so that the first run of the
-        // column calculation works correctly (for example when the font size changes)
-        content.style.width = "auto";
+        if (typeof ResizeObserver != "undefined") {
+            contentResizeObserver = new ResizeObserver(setContentWidthForColumns);
+            contentResizeObserver.observe(content);
 
-        // Finally set the requested column width and wait for the contentResizeObserver to settle
-        content.style.columnWidth = columnWidthPx + "px";
+            // Ensure that the callback is called eventually after 1s, even if the ResizeObserver didn't settle
+            setTimeout(function() {
+                disconnectContentResizeObserver();
+                callOnMultiColumnLayoutReady();
+            }, 1000);
+
+        } else {
+            // Fallback for old devices not supporting ResizeObserver (WebView < 64)
+            // Set the first content width immediately after this cycle,
+            // then wait for 250ms to let the css rendering handle the column width re-set the width.
+            // Finally after another 250ms call the the callback.
+            ANDROIDAPI.logMissingJsFeature("ResizeObserver");
+            setTimeout(setContentWidthForColumns);
+            setTimeout(setContentWidthForColumns, 250);
+            setTimeout(callOnMultiColumnLayoutReady, 500);
+        }
     }
 
     function disableArticleColumnMode() {
