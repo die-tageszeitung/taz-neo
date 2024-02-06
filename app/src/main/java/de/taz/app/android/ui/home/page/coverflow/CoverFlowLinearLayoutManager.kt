@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.factor.bouncy.BouncyRecyclerView
 
 class CoverFlowLinearLayoutManager(
     context: Context,
