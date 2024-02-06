@@ -19,7 +19,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
@@ -740,6 +739,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun setMultiColumnMode(enabled: Boolean) {
         log.debug("setMultiColumnMode: $enabled")
         viewModel.setMultiColumnMode(enabled)
+        if (enabled) {
+            tracker.trackArticleColumnModeEnableEvent()
+        } else {
+            tracker.trackArticleColumnModeDisableEvent()
+        }
     }
 
     private fun setTapToScroll(enabled: Boolean) {
@@ -1057,7 +1061,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     }
 
 
-                    fragmentSettingsTestTrackingGoalWrapper.isGone = BuildConfig.IS_LMD
+                    fragmentSettingsTestTrackingGoalWrapper.isVisible = isTrackingFeatureEnabled
                     fragmentSettingsTestTrackingGoal.apply {
                         isChecked = viewModel.getTestTrackingGoalStatus()
                         setOnClickListener {

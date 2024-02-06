@@ -115,22 +115,6 @@
                         tools:text="Abmelden (user@taz.de)" />
 
                     <include layout="@layout/settings_separator_view" />
-
-                    <LinearLayout
-                        android:id="@+id/fragment_settings_test_tracking_goal_wrapper"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/fragment_settings_test_tracking_goal"
-                            style="@style/TextAppearance.Settings.Entry"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/settings_debug_enable_tracking_test_goal" />
-
-                        <include layout="@layout/settings_separator_view" />
-                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -601,8 +585,23 @@
                             android:text="@string/coach_marks_debug_settings" />
 
                         <include layout="@layout/settings_separator_view" />
-                    </LinearLayout>
 
+                        <LinearLayout
+                            android:id="@+id/fragment_settings_test_tracking_goal_wrapper"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/fragment_settings_test_tracking_goal"
+                                style="@style/TextAppearance.Settings.Entry"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/settings_debug_enable_tracking_test_goal" />
+
+                            <include layout="@layout/settings_separator_view" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
                 <!-- endregion -->
 
