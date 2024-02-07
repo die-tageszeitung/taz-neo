@@ -221,7 +221,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         try {
             return issueList.first { it.date == simpleDateFormat.format(issueDate) }
         } catch (e: NoSuchElementException) {
-            throw NotFoundException()
+            throw NotFoundException("Issue ($issueDate) not found on API")
         }
     }
 
@@ -643,7 +643,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                 ?.let {
                     IssueMapper.from(issuePublication.feedName, it)
                 }
-        } ?: throw NotFoundException()
+        } ?: throw NotFoundException("Issue (${issuePublication.date}) not found on API")
 
 
     /**

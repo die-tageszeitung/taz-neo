@@ -2,7 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.*
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.join.SectionArticleJoin

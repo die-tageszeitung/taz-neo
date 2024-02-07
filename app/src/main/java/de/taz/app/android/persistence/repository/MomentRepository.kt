@@ -88,7 +88,6 @@ class MomentRepository private constructor(applicationContext: Context) :
         )
     }
 
-    @Throws(NotFoundException::class)
     suspend fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
         val stub = appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
         return stub?.let {
@@ -127,11 +126,7 @@ class MomentRepository private constructor(applicationContext: Context) :
     }
 
     suspend fun getStub(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): MomentStub? {
-        return try {
-            appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
-        } catch (e: NotFoundException) {
-            null
-        }
+        return appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
     }
 
     suspend fun isDownloaded(momentKey: MomentKey): Boolean {
