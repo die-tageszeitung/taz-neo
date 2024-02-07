@@ -377,7 +377,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     suspend fun getIssueStubForImage(image: Image): IssueStub {
         return appDatabase.issueDao().getStubForArticleImageName(image.name)
             ?: appDatabase.issueDao().getStubForSectionImageName(image.name)
-            ?: throw NotFoundException()
+            ?: throw NotFoundException("IssueStub for image ${image.name} not found in database")
     }
 
     suspend fun getIssue(issueStub: IssueStub): Issue {

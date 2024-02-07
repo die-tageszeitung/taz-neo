@@ -58,7 +58,7 @@ class PageRepository private constructor(applicationContext: Context) :
     suspend fun getOrThrow(fileName: String): Page {
         appDatabase.pageDao().get(fileName)?.let {
             return pageStubToPage(it)
-        } ?: throw NotFoundException()
+        } ?: throw NotFoundException("Page $fileName not found in database")
     }
 
     suspend fun get(fileName: String): Page? {

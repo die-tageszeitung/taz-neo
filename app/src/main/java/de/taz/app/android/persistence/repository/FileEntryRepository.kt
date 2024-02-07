@@ -63,7 +63,7 @@ class FileEntryRepository private constructor(
     }
 
     suspend fun getOrThrow(fileEntryName: String): FileEntry {
-        return get(fileEntryName) ?: throw NotFoundException()
+        return get(fileEntryName) ?: throw NotFoundException("FileEntry $fileEntryName not found in database")
     }
 
     suspend fun getOrThrow(fileEntryNames: List<String>): List<FileEntry> {
