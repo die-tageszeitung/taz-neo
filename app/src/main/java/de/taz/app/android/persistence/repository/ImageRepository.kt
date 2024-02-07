@@ -1,6 +1,7 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageStub
@@ -13,15 +14,34 @@ class ImageRepository private constructor(
 
     companion object : SingletonHolder<ImageRepository, Context>(::ImageRepository)
 
-    suspend fun save(image: Image) {
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+
+    /**
+     * Save the [Image] to the database and replace any existing [Image] with the same key.
+     * The related [FileEntry] is saved recursively and replaces any existing [FileEntry] with the
+     * same key but an earlier modification time.
+     *
+     * This method must be called as part of a transaction, for example when saving an [Article].
+     */
+    suspend fun saveInternal(image: Image) {
         appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
-        FileEntryRepository.getInstance(applicationContext).save(FileEntry(image))
+        fileEntryRepository.save(FileEntry(image))
     }
 
-    suspend fun save(images: List<Image>) {
-        images.forEach { save(it) }
+    /**
+     * Save the list of [Image]s to the database and replace any existing [Image] with the same key.
+     * The related [FileEntry]s are saved recursively.
+     *
+     * This method must be called as part of a transaction, for example when saving an [Article].
+     */
+    suspend fun saveInternal(images: List<Image>) {
+        images.forEach { saveInternal(it) }
     }
 
+    /**
+     * Save the [ImageStub] to the database and replace any existing [ImageStub] with the same key.
+     * It does not save the related [FileEntry].
+     */
     suspend fun saveOrReplace(imageStub: ImageStub) {
         appDatabase.imageStubDao().insertOrReplace(imageStub)
     }

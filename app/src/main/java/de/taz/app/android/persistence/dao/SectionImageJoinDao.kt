@@ -19,4 +19,7 @@ interface SectionImageJoinDao : BaseDao<SectionImageJoin> {
     )
     suspend fun getImagesForSection(sectionFileName: String): List<Image>
 
+    @Query("DELETE FROM SectionImageJoin WHERE sectionFileName = :sectionFileName")
+    suspend fun deleteRelationToSection(sectionFileName: String)
+
 }

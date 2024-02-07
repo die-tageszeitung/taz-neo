@@ -18,32 +18,38 @@ class FileEntryRepository private constructor(
         appDatabase.fileEntryDao().update(fileEntry)
     }
 
+    /**
+     * Save the [FileEntry]
+     * and replace any existing [FileEntry] with the same key but an earlier modification time.
+     */
     suspend fun save(fileEntry: FileEntry) {
         val fromDB = appDatabase.fileEntryDao().getByName(fileEntry.name)
-        fromDB?.let {
-            if (fromDB.moTime < fileEntry.moTime) {
-                appDatabase.fileEntryDao().insertOrReplace(
-                    fileEntry
-                )
-            }
-        } ?: appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+        if (fromDB == null || fromDB.moTime < fileEntry.moTime) {
+            appDatabase.fileEntryDao().insertOrReplace(fileEntry)
+        }
     }
 
+    /**
+     * Save the [FileEntry]
+     * and replace any existing [FileEntry] with the same key regardless of the modification time.
+     */
     suspend fun saveOrReplace(fileEntry: FileEntry): FileEntry {
         appDatabase.fileEntryDao().insertOrReplace(fileEntry)
         return fileEntry
     }
 
+    /**
+     * Save the list of [FileEntry]s
+     * and replace any existing [FileEntry] with the same key but an earlier modification time.
+     *
+     * This method must be called as part of a transaction, for example when saving a [Moment].
+     */
     suspend fun save(fileEntries: List<FileEntry>) {
         fileEntries.forEach { save(it) }
     }
 
     suspend fun get(fileEntryName: String): FileEntry? {
         return appDatabase.fileEntryDao().getByName(fileEntryName)
-    }
-
-    suspend fun getDownloaded(): List<FileEntry> {
-        return appDatabase.fileEntryDao().getDownloaded()
     }
 
     suspend fun getDownloadedByStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
@@ -56,10 +62,6 @@ class FileEntryRepository private constructor(
 
     suspend fun getDownloadedExceptStorageLocation(storageLocation: StorageLocation): List<FileEntry> {
         return appDatabase.fileEntryDao().getDownloadedExceptStorageLocation(storageLocation)
-    }
-
-    suspend fun getList(fileEntryNames: List<String>): List<FileEntry> {
-        return appDatabase.fileEntryDao().getByNames(fileEntryNames)
     }
 
     suspend fun getOrThrow(fileEntryName: String): FileEntry {

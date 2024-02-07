@@ -17,6 +17,9 @@ interface ArticleAuthorImageJoinDao : BaseDao<ArticleAuthorImageJoin> {
     )
     suspend fun getAuthorImageJoinForArticle(articleFileName: String): List<ArticleAuthorImageJoin>
 
+    @Query("DELETE FROM ArticleAuthor WHERE articleFileName = :articleFileName")
+    suspend fun deleteRelationToArticle(articleFileName: String)
+
     @Query(
         """SELECT DISTINCT ArticleAuthor.* FROM ArticleAuthor INNER JOIN Article
         ON ArticleAuthor.articleFileName == Article.articleFileName 

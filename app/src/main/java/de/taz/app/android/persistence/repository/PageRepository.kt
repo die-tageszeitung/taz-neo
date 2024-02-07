@@ -1,6 +1,8 @@
 package de.taz.app.android.persistence.repository
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
+import androidx.room.withTransaction
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
@@ -19,33 +21,51 @@ class PageRepository private constructor(applicationContext: Context) :
         appDatabase.pageDao().update(pageStub)
     }
 
-    suspend fun save(page: Page, issueKey: IssueKey): Page {
+    /**
+     * Save the [Page] to the database and replace any existing [Page] with the same key.
+     *
+     * This will recursively save all the related models.
+     *
+     * This method must be called as part of a transaction, for example when saving an [Issue].
+     */
+    suspend fun saveInternal(page: Page) {
         // [PageStub.podcastFileName] references the [AudioStub.fileName] as a ForeignKey,
         // thus the [AudioStub] must be saved before the [PageStub] to fulfill the constraint.
         page.podcast?.let { audio ->
-            audioRepository.save(audio)
+            audioRepository.saveInternal(audio)
         }
 
         appDatabase.pageDao().insertOrReplace(PageStub(page))
         fileEntryRepository.save(page.pagePdf)
-        appDatabase.issuePageJoinDao().insertOrReplace(
-            IssuePageJoin(
-                issueKey.feedName,
-                issueKey.date,
-                issueKey.status,
-                page.pagePdf.name,
-                0
-            )
-        )
-        return get(page.pagePdf.name)!!
     }
 
-    suspend fun save(pages: List<Page>, issueKey: IssueKey) {
-        pages.forEach { page ->
-            save(page, issueKey)
+    /**
+     * Save the downloaded front [Page] for the [issueKey].
+     *
+     * The [Issue] Metadata itself does not have to be stored yet, as a relation to the [issueKey]
+     * is just saved via an [IssuePageJoin].
+     * It is required to store the relation, so that the Front Page can be retrieved for a specific
+     * Issue in the carousel.
+     */
+    suspend fun saveFrontPage(page: Page, issueKey: IssueKey): Page {
+        return appDatabase.withTransaction {
+            saveInternal(page)
+
+            appDatabase.issuePageJoinDao().insertOrReplace(
+                IssuePageJoin(
+                    issueKey.feedName,
+                    issueKey.date,
+                    issueKey.status,
+                    page.pagePdf.name,
+                    0
+                )
+            )
+
+            requireNotNull(get(page.pagePdf.name)) { "Could not get Page(${page.pagePdf.name}) after it was saved" }
         }
     }
 
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     suspend fun getWithoutFile(fileName: String): PageStub? {
         return appDatabase.pageDao().get(fileName)
     }

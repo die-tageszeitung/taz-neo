@@ -63,7 +63,7 @@ class SectionRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() = runTest {
-        sectionRepository.save(section)
+        sectionRepository.saveInternal(section)
         val fromDB = sectionRepository.get(section.sectionHtml.name)
         assertEquals(fromDB, section)
     }
@@ -71,7 +71,7 @@ class SectionRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun readBase()  = runTest {
-        sectionRepository.save(section)
+        sectionRepository.saveInternal(section)
         val fromDB = sectionRepository.getStub(section.sectionHtml.name)
         assertEquals(fromDB, SectionStub(section))
     }
@@ -81,7 +81,7 @@ class SectionRepositoryTest {
     fun writeAndReadMultiple() = runTest {
         for (section in sections) {
             log.debug("checking section ${section.sectionHtml.name}")
-            sectionRepository.save(section)
+            sectionRepository.saveInternal(section)
             val fromDB = sectionRepository.get(section.sectionHtml.name)
             assertEquals(fromDB, section)
         }

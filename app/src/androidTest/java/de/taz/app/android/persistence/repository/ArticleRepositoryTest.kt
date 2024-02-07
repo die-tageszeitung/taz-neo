@@ -54,7 +54,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() = runTest {
-        articleRepository.save(article)
+        articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
 
         assertEquals(fromDB, article)
@@ -63,7 +63,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun readBase() = runTest {
-        articleRepository.save(article)
+        articleRepository.saveInternal(article)
         val fromDB = articleRepository.getStub(article.articleHtml.name)
 
         assertEquals(fromDB, ArticleStub(article))
@@ -72,8 +72,8 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndReadMultiple() = runTest {
-        articleRepository.save(article)
-        articleRepository.save(article2)
+        articleRepository.saveInternal(article)
+        articleRepository.saveInternal(article2)
         val fromDB = articleRepository.get(article.articleHtml.name)
         val fromDB2 = articleRepository.get(article2.articleHtml.name)
 
@@ -84,7 +84,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun delete() = runTest {
-        articleRepository.save(article)
+        articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
 
@@ -96,7 +96,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun deleteBookmarkedFails() = runTest {
-        articleRepository.save(article)
+        articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
 

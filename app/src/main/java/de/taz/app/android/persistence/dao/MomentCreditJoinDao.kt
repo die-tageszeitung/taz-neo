@@ -38,5 +38,5 @@ interface MomentCreditJoinDao : BaseDao<MomentCreditJoin> {
      * Note: this does not delete any data in the related Moment or FileEntry table.
      */
     @Query("DELETE FROM MomentCreditJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
-    suspend fun delete(feedName: String, date: String, status: IssueStatus)
+    suspend fun deleteRelationToMoment(feedName: String, date: String, status: IssueStatus)
 }

@@ -28,6 +28,14 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         appDatabase.resourceInfoDao().update(resourceInfoStub)
     }
 
+    /**
+     * Save the full downloaded [ResourceInfo] metadata to the database
+     * and replace any existing [ResourceInfo] with the same key.
+     *
+     * This will recursively save all the related models.
+     * As there are many-to-many relations, replacing an existing [ResourceInfo] might result in some
+     * orphaned children that have to be cleanup up by some scrubber process.
+     */
     suspend fun save(resourceInfo: ResourceInfo): ResourceInfo {
         appDatabase.withTransaction {
             val currentResourceInfo = getNewest()
@@ -50,25 +58,30 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
                 resourceInfo.resourceList
             )
 
-            val imageStub = ImageStub(
-                defaultNavButtonDrawerFileName,
-                ImageType.button,
-                alpha = 1f,
-                ImageResolution.normal
-            )
+            // Ensure, that the defaultNavButtonDrawerFileName Image entry exists
             val imageFileEntry =
                 resourceInfo.resourceList.findLast { it.name == defaultNavButtonDrawerFileName }
             if (imageFileEntry != null){
-                imageRepository.save(Image(imageFileEntry, imageStub))
+                val imageStub = ImageStub(
+                    defaultNavButtonDrawerFileName,
+                    ImageType.button,
+                    alpha = 1f,
+                    ImageResolution.normal
+                )
+                imageRepository.saveInternal(Image(imageFileEntry, imageStub))
             }
+
             // save relation to files
-            appDatabase.resourceInfoFileEntryJoinDao().insertOrReplace(
-                resourceInfo.resourceList.mapIndexed { index, fileEntry ->
-                    ResourceInfoFileEntryJoin(resourceInfo.resourceVersion, fileEntry.name, index)
-                }
-            )
+            appDatabase.resourceInfoFileEntryJoinDao().apply {
+                deleteRelationToResourceInfo(resourceInfo.resourceVersion)
+                insertOrReplace(resourceInfo.resourceList.mapIndexed { index, fileEntry ->
+                    ResourceInfoFileEntryJoin(
+                        resourceInfo.resourceVersion, fileEntry.name, index
+                    )
+                })
+            }
         }
-        return getNewest()!!
+        return requireNotNull(getNewest()) { "Could not get $resourceInfo after it was saved" }
     }
 
     suspend fun getWithoutFiles(): ResourceInfoStub? {
@@ -83,7 +96,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
     }
 
-    suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
+    private suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )

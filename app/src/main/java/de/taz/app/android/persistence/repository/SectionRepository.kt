@@ -3,11 +3,13 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.R
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
-import java.util.*
+import java.util.Date
 
 
 class SectionRepository private constructor(applicationContext: Context) :
@@ -20,34 +22,47 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
     private val audioRepository = AudioRepository.getInstance(applicationContext)
 
-
     private val defaultNavDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
-    suspend fun save(section: Section) {
+    /**
+     * Save the [Section] to the database and replace any existing [Section] with the same key.
+     *
+     * This will recursively save all the related models.
+     *
+     * This method must be called as part of a transaction, for example when saving an [Issue].
+     * As there are many-to-many relations, replacing an existing [Section] might result in some
+     * orphaned children that have to be cleanup up by some scrubber process.
+     */
+    suspend fun saveInternal(section: Section) {
+        val sectionFileName = section.sectionHtml.name
+
         // [SectionStub.podcastFileName] references the [AudioStub.fileName] as a ForeignKey,
         // thus the [AudioStub] must be saved before the [SectionStub] to fulfill the constraint.
         section.podcast?.let { audio ->
-            audioRepository.save(audio)
+            audioRepository.saveInternal(audio)
         }
 
         appDatabase.sectionDao().insertOrReplace(SectionStub(section))
         fileEntryRepository.save(section.sectionHtml)
-        section.articleList.forEach { articleRepository.save(it) }
-        appDatabase.sectionArticleJoinDao().insertOrReplace(
-            section.articleList.mapIndexed { index, article ->
+
+        section.articleList.forEach { articleRepository.saveInternal(it) }
+        appDatabase.sectionArticleJoinDao().apply {
+            deleteRelationToSection(sectionFileName)
+            insertOrReplace(section.articleList.mapIndexed { index, article ->
                 SectionArticleJoin(
-                    section.sectionHtml.name,
-                    article.articleHtml.name,
-                    index
+                    section.sectionHtml.name, article.articleHtml.name, index
                 )
-            }
-        )
-        imageRepository.save(section.imageList)
-        appDatabase.sectionImageJoinDao()
-            .insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
+            })
+        }
+
+        imageRepository.saveInternal(section.imageList)
+        appDatabase.sectionImageJoinDao().apply {
+            deleteRelationToSection(sectionFileName)
+            insertOrReplace(section.imageList.mapIndexed { index, fileEntry ->
                 SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
             })
+        }
     }
 
     suspend fun update(sectionStub: SectionStub) {
@@ -94,7 +109,6 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
     }
 
-    @Throws(NotFoundException::class)
     suspend fun sectionStubToSection(sectionStub: SectionStub): Section? {
         val sectionFileName = sectionStub.sectionFileName
         val sectionFile = fileEntryRepository.get(sectionFileName) ?: return null

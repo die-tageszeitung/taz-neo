@@ -2,11 +2,17 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import androidx.room.withTransaction
 import de.taz.app.android.api.interfaces.IssueOperations
-import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.join.*
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.MomentStub
+import de.taz.app.android.persistence.join.MomentCreditJoin
+import de.taz.app.android.persistence.join.MomentFilesJoin
+import de.taz.app.android.persistence.join.MomentImageJoin
 import de.taz.app.android.util.SingletonHolder
-import java.util.*
+import java.util.Date
 
 class MomentRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {
@@ -21,49 +27,74 @@ class MomentRepository private constructor(applicationContext: Context) :
         appDatabase.momentDao().insertOrReplace(momentStub)
     }
 
-    suspend fun save(moment: Moment): Moment {
-        imageRepository.save(moment.imageList)
-        imageRepository.save(moment.creditList)
+    /**
+     * Save the [Moment] to the database and replace any existing [Moment] with the same key.
+     *
+     * This method must be called as part of a transaction,
+     * for example when saving an [Issue]
+     * or when downloading a single [Moment] for displaying within the cover view.
+     *
+     * As there are many-to-many relations, replacing an existing [Moment] might result in some orphaned
+     * children that have to be cleanup up by some scrubber process.
+     */
+    suspend fun saveInternal(moment: Moment) {
+        imageRepository.saveInternal(moment.imageList)
+        imageRepository.saveInternal(moment.creditList)
         fileEntryRepository.save(moment.momentList)
         appDatabase.momentDao().insertOrReplace(MomentStub(moment))
 
-        // Create the relation between this moment by joining its issue with the respective FileEntries.
-        // We have to delete all of the previous join table entries before inserting the current ones
-        // to ensure only the actual entries of this moments image, credit and momentList are stored.
-        // Leaving the previous ones resulted in a crash when the filename of a Moment was changed
-        // on the backend: https://redmine.hal.taz.de/issues/14295
-        // Note that the only the join table is cleared but the actual file and its FileEntry remains
-        // - even if the issue it was previously related to is deleted. We would have to implement
-        // some kind of cleanup/scrubber process to find and remove leftover files.
         appDatabase.momentImageJoinJoinDao().apply {
-            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
-            insertOrAbort(
-                moment.imageList.mapIndexed { index, image ->
-                    MomentImageJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
-                }
-            )
+            deleteRelationToMoment(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+            insertOrAbort(moment.imageList.mapIndexed { index, image ->
+                MomentImageJoin(
+                    moment.issueFeedName,
+                    moment.issueDate,
+                    moment.issueStatus,
+                    image.name,
+                    index
+                )
+            })
         }
         appDatabase.momentCreditJoinDao().apply {
-            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
-            insertOrAbort(
-                moment.creditList.mapIndexed { index, image ->
-                    MomentCreditJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, image.name, index)
-                }
-            )
+            deleteRelationToMoment(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+            insertOrAbort(moment.creditList.mapIndexed { index, image ->
+                MomentCreditJoin(
+                    moment.issueFeedName,
+                    moment.issueDate,
+                    moment.issueStatus,
+                    image.name,
+                    index
+                )
+            })
         }
-        appDatabase.momentFilesJoinDao().apply{
-            delete(moment.issueFeedName, moment.issueDate, moment.issueStatus)
+        appDatabase.momentFilesJoinDao().apply {
+            deleteRelationToMoment(moment.issueFeedName, moment.issueDate, moment.issueStatus)
             insertOrAbort(
                 moment.momentList.mapIndexed { index, file ->
-                    MomentFilesJoin(moment.issueFeedName, moment.issueDate, moment.issueStatus, file.name, index)
+                    MomentFilesJoin(
+                        moment.issueFeedName,
+                        moment.issueDate,
+                        moment.issueStatus,
+                        file.name,
+                        index
+                    )
                 }
             )
         }
-
-        return get(moment.momentKey)!!
     }
 
-    suspend fun momentStubToMoment(momentStub: MomentStub): Moment {
+    /**
+     * Save a single downloaded [Moment].
+     * The [Moment] may exist without a related [Issue].
+     */
+    suspend fun save(moment: Moment): Moment {
+        return appDatabase.withTransaction {
+            saveInternal(moment)
+            requireNotNull(get(moment.momentKey)) { "Could not get Moment(${moment.momentKey}) after it was saved" }
+        }
+    }
+
+    private suspend fun momentStubToMoment(momentStub: MomentStub): Moment {
         return Moment(
             momentStub.issueFeedName,
             momentStub.issueDate,
@@ -90,30 +121,7 @@ class MomentRepository private constructor(applicationContext: Context) :
 
     suspend fun get(issueFeedName: String, issueDate: String, issueStatus: IssueStatus): Moment? {
         val stub = appDatabase.momentDao().get(issueFeedName, issueDate, issueStatus)
-        return stub?.let {
-            Moment(
-                stub.issueFeedName,
-                stub.issueDate,
-                stub.issueStatus,
-                stub.baseUrl,
-                appDatabase.momentImageJoinJoinDao().getMomentFiles(
-                    issueFeedName,
-                    issueDate,
-                    issueStatus
-                ),
-                appDatabase.momentCreditJoinDao().getMomentFiles(
-                    issueFeedName,
-                    issueDate,
-                    issueStatus
-                ),
-                appDatabase.momentFilesJoinDao().getMomentFiles(
-                    issueFeedName,
-                    issueDate,
-                    issueStatus
-                ),
-                stub.dateDownload
-            )
-        }
+        return stub?.let { momentStubToMoment(it) }
     }
 
     suspend fun getDownloadDate(moment: Moment): Date? {
@@ -145,7 +153,7 @@ class MomentRepository private constructor(applicationContext: Context) :
         get(issueKey.feedName, issueKey.date, issueKey.status)
 
     suspend fun exists(momentKey: MomentKey): Boolean {
-        return get(momentKey) != null
+        return getStub(momentKey.feedName, momentKey.date, momentKey.status) != null
     }
 
     suspend fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {

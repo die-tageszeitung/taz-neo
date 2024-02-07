@@ -5,7 +5,7 @@ import androidx.room.Query
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.MomentStub
-import java.util.*
+import java.util.Date
 
 @Dao
 interface MomentDao: BaseDao<MomentStub> {

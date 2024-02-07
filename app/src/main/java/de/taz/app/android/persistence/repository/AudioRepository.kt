@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
+import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioStub
 import de.taz.app.android.util.SingletonHolder
@@ -25,8 +26,15 @@ class AudioRepository private constructor(applicationContext: Context) :
         )
     }
 
-    suspend fun save(audio: Audio) {
+    /**
+     * Save the [Audio] to the database and replace any existing [Audio] with the same key.
+     *
+     * This method must be called as part of a transaction,
+     * for example when saving an [Article].
+     */
+    suspend fun saveInternal(audio: Audio) {
         fileEntryRepository.save(audio.file)
+
         val audioStub = AudioStub(audio)
         appDatabase.audioDao().insertOrReplace(audioStub)
     }

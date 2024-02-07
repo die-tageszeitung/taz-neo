@@ -55,4 +55,6 @@ interface IssueSectionJoinDao : BaseDao<IssueSectionJoin> {
     )
     suspend fun getFirstSectionForIssue(feedName: String, date: String, status: IssueStatus): SectionStub?
 
+    @Query("DELETE FROM IssueSectionJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
+    suspend fun deleteRelationToIssue(feedName: String, date: String, status: IssueStatus)
 }

@@ -7,7 +7,7 @@ import androidx.room.Update
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStatus
-import java.util.*
+import java.util.Date
 
 @Dao
 interface ArticleDao : BaseDao<ArticleStub> {

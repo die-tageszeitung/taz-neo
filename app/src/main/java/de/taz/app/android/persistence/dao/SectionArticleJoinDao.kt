@@ -130,4 +130,7 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
         issueStatus: IssueStatus
     ): List<SectionArticleJoin>
 
+
+    @Query("DELETE FROM SectionArticleJoin WHERE sectionFileName = :sectionFileName")
+    suspend fun deleteRelationToSection(sectionFileName: String)
 }

@@ -2,8 +2,6 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
-import androidx.lifecycle.LiveData
-import androidx.room.withTransaction
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
@@ -29,7 +27,16 @@ class ArticleRepository private constructor(applicationContext: Context) :
         appDatabase.articleDao().insertOrReplace(articleStub)
     }
 
-    suspend fun save(article: Article) {
+    /**
+     * Save the [Article] to the database and replace any existing [Article] with the same key.
+     *
+     * This will recursively save all the related models.
+     *
+     * This method must be called as part of a transaction, for example when saving a [Section].
+     * As there are many-to-many relations, replacing an existing [Article] might result in some
+     * orphaned children that have to be cleanup up by some scrubber process.
+     */
+    suspend fun saveInternal(article: Article) {
         var articleToSave = article
         getStub(articleToSave.key)?.let {
             articleToSave = articleToSave.copy(bookmarkedTime = it.bookmarkedTime)
@@ -40,7 +47,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         // [ArticleStub.audioFileName] references the [AudioStub.fileName] as a ForeignKey,
         // thus the [AudioStub] must be saved before the [ArticleStub] to fulfill the constraint.
         articleToSave.audio?.let { audio ->
-            audioRepository.save(audio)
+            audioRepository.saveInternal(audio)
         }
 
         appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
@@ -49,28 +56,27 @@ class ArticleRepository private constructor(applicationContext: Context) :
         fileEntryRepository.save(articleToSave.articleHtml)
 
         // save images and relations
-        imageRepository.save(articleToSave.imageList)
-        articleToSave.imageList.forEachIndexed { index, image ->
-            appDatabase.articleImageJoinDao().insertOrReplace(
-                ArticleImageJoin(articleFileName, image.name, index)
-            )
+        imageRepository.saveInternal(articleToSave.imageList)
+        appDatabase.articleImageJoinDao().apply {
+            deleteRelationToArticle(articleFileName)
+            articleToSave.imageList.forEachIndexed { index, image ->
+                insertOrReplace(ArticleImageJoin(articleFileName, image.name, index))
+            }
         }
 
         // save authors
-        articleToSave.authorList.forEachIndexed { index, author ->
-//            TODO(peter) Check if it's okay to not have an image of author
-            author.imageAuthor?.let { fileEntryRepository.save(it) }
-            appDatabase.articleAuthorImageJoinDao().insertOrReplace(
-                ArticleAuthorImageJoin(
-                    articleFileName,
-                    author.name,
-                    author.imageAuthor?.name,
-                    index
+        appDatabase.articleAuthorImageJoinDao().apply {
+            deleteRelationToArticle(articleFileName)
+            articleToSave.authorList.forEachIndexed { index, author ->
+                // TODO(peter) Check if it's okay to not have an image of author
+                author.imageAuthor?.let { fileEntryRepository.save(it) }
+                insertOrReplace(
+                    ArticleAuthorImageJoin(
+                        articleFileName, author.name, author.imageAuthor?.name, index
+                    )
                 )
-            )
+            }
         }
-
-
     }
 
     suspend fun get(articleFileName: String): Article? {
