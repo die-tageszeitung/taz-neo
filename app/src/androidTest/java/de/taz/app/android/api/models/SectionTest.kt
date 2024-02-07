@@ -53,7 +53,7 @@ class SectionTest {
 
     @Test
     fun getAllFiles() = runBlocking {
-        sectionRepository.save(section)
+        sectionRepository.saveInternal(section)
         val fileList = section.getAllFiles()
 
         assertTrue(fileList.filter { it == section.sectionHtml }.size == 1)

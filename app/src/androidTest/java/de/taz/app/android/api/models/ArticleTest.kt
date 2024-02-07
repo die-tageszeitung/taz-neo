@@ -43,7 +43,7 @@ class ArticleTest {
 
     @Test
     fun getAllFiles() = runBlocking {
-        articleRepository.save(article)
+        articleRepository.saveInternal(article)
         val fileList = article.getAllFiles()
 
         assertTrue(fileList.filter { it == article.articleHtml }.size == 1)

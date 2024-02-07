@@ -3,7 +3,6 @@ package de.taz.app.android.persistence.dao
 import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
 
@@ -33,11 +32,6 @@ interface IssuePageJoinDao : BaseDao<IssuePageJoin> {
     )
     suspend fun getPageNamesForIssue(feedName: String, date: String, status: IssueStatus): List<String>
 
-    @Query(
-        """SELECT Issue.* FROM Issue INNER JOIN IssuePageJoin
-        ON Issue.feedName = IssuePageJoin.issueFeedName AND Issue.date = IssuePageJoin.issueDate
-        WHERE IssuePageJoin.pageKey == :pageKey
-    """
-    )
-    suspend fun getIssueStubsForPage(pageKey: String): List<IssueStub>
+    @Query("DELETE FROM IssuePageJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
+    suspend fun deleteRelationToIssue(feedName: String, date: String, status: IssueStatus)
 }

@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.PageStub
-import java.util.*
+import java.util.Date
 
 @Dao
 interface PageDao : BaseDao<PageStub> {

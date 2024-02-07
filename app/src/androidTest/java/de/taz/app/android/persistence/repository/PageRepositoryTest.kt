@@ -53,7 +53,7 @@ class PageRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() = runTest {
-        pageRepository.save(page, issue.issueKey)
+        pageRepository.saveInternal(page)
         val fromDB = pageRepository.get(page.pagePdf.name)
         assertEquals(fromDB, page)
     }
@@ -61,7 +61,7 @@ class PageRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun getWithoutFile() = runTest {
-        pageRepository.save(page, issue.issueKey)
+        pageRepository.saveInternal(page)
         val fromDB = pageRepository.getWithoutFile(page.pagePdf.name)
         assertEquals(fromDB, PageStub(page))
     }
@@ -72,7 +72,7 @@ class PageRepositoryTest {
         for (page in pages) {
             assertTrue(pages.filter { it == page }.size == 1)
 
-            pageRepository.save(page, issue.issueKey)
+            pageRepository.saveInternal(page)
             val fromDB = pageRepository.get(page.pagePdf.name)
             assertEquals(fromDB, page)
         }

@@ -28,6 +28,14 @@ class IssueRepository private constructor(applicationContext: Context) :
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val viewerStateRepository = ViewerStateRepository.getInstance(applicationContext)
 
+    /**
+     * Save the full downloaded [Issue] metadata to the database
+     * and replace any existing [Issue] with the same key.
+     *
+     * This will recursively save all the related models.
+     * As there are many-to-many relations, replacing an existing [Issue] might result in some
+     * orphaned children that have to be cleanup up by some scrubber process.
+     */
     suspend fun save(issue: Issue): Issue {
         log.info("saving issue: ${issue.tag}")
         appDatabase.withTransaction {
@@ -36,57 +44,54 @@ class IssueRepository private constructor(applicationContext: Context) :
             )
 
             // save pages
-            pageRepository.save(issue.pageList, issue.issueKey)
+            issue.pageList.forEach {
+                pageRepository.saveInternal(it)
+            }
 
             // save page relation
-            appDatabase.issuePageJoinDao().insertOrReplace(
-                issue.pageList.mapIndexed { index, page ->
+            appDatabase.issuePageJoinDao().apply {
+                deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+                insertOrReplace(issue.pageList.mapIndexed { index, page ->
                     IssuePageJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        page.pagePdf.name,
-                        index
+                        issue.feedName, issue.date, issue.status, page.pagePdf.name, index
                     )
-                }
-            )
+                })
+            }
 
             // save moment
-            momentRepository.save(issue.moment)
+            momentRepository.saveInternal(issue.moment)
 
             // save imprint
             issue.imprint?.let { imprint ->
-                articleRepository.save(imprint)
-                appDatabase.issueImprintJoinDao().insertOrReplace(
-                    IssueImprintJoin(
-                        issue.feedName,
-                        issue.date,
-                        issue.status,
-                        imprint.articleHtml.name
+                articleRepository.saveInternal(imprint)
+                appDatabase.issueImprintJoinDao().apply {
+                    deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+                    insertOrReplace(
+                        IssueImprintJoin(
+                            issue.feedName, issue.date, issue.status, imprint.articleHtml.name
+                        )
                     )
-                )
+                }
             }
 
             // save sections
-            issue.sectionList.let { sectionList ->
-                sectionList.forEach { sectionRepository.save(it) }
-                appDatabase.issueSectionJoinDao()
-                    .insertOrReplace(sectionList.mapIndexed { index, it ->
+            appDatabase.issueSectionJoinDao().apply {
+                deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+                issue.sectionList.let { sectionList ->
+                    sectionList.forEach { sectionRepository.saveInternal(it) }
+                    insertOrReplace(sectionList.mapIndexed { index, it ->
                         IssueSectionJoin(
-                            issue.feedName,
-                            issue.date,
-                            issue.status,
-                            it.sectionHtml.name,
-                            index
+                            issue.feedName, issue.date, issue.status, it.sectionHtml.name, index
                         )
                     })
+                }
             }
-            null
         }
+
         // It is important to refresh the issue after this operation, as in the sub operation
         // (saving articles, sections etc.) might be business logic slightly altering the actually
         // saved data, naming bookmarked state that is being preserved, for instance.
-        return get(issue.issueKey)!!
+        return requireNotNull(get(issue.issueKey)) { "Could not get Issue(${issue.issueKey}) after it was saved" }
     }
 
     /**

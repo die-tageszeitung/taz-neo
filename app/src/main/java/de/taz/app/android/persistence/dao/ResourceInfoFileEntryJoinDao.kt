@@ -15,4 +15,7 @@ interface ResourceInfoFileEntryJoinDao: BaseDao<ResourceInfoFileEntryJoin> {
         ORDER BY ResourceInfoFileEntryJoin.`index` ASC """
     )
     suspend fun getFileEntriesForResourceInfo(resourceInfoVersion: Int): List<FileEntry>
+
+    @Query("DELETE FROM ResourceInfoFileEntryJoin WHERE resourceInfoVersion = :resourceInfoVersion")
+    suspend fun deleteRelationToResourceInfo(resourceInfoVersion: Int)
 }

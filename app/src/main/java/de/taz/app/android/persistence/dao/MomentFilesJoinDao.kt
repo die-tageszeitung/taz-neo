@@ -23,5 +23,5 @@ interface MomentFilesJoinDao : BaseDao<MomentFilesJoin> {
      * Note: this does not delete any data in the related Moment or FileEntry table.
      */
     @Query("DELETE FROM MomentFilesJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
-    suspend fun delete(feedName: String, date: String, status: IssueStatus)
+    suspend fun deleteRelationToMoment(feedName: String, date: String, status: IssueStatus)
 }

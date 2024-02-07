@@ -7,9 +7,29 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.AppInfoKey
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoKey
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.persistence.repository.FrontPageKey
+import de.taz.app.android.persistence.repository.FrontpagePublication
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.MomentKey
+import de.taz.app.android.persistence.repository.MomentPublication
+import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.simpleDateFormat
 
 /**
@@ -227,7 +247,7 @@ class MetadataDownload(
                 simpleDateFormat.parse(frontpagePublication.date)!!
             ) ?: throw CacheOperationFailedException("No frontpage found for $frontpagePublication")
             if (frontPageStatus >= minStatus) {
-                return@retryOnConnectionFailure pageRepository.save(
+                return@retryOnConnectionFailure pageRepository.saveFrontPage(
                     frontPage, IssueKey(
                         frontpagePublication.feedName,
                         frontpagePublication.date,
@@ -258,7 +278,7 @@ class MetadataDownload(
                 simpleDateFormat.parse(frontPageKey.date)!!
             ) ?: throw CacheOperationFailedException("No frontpage found for $frontPageKey")
             if (frontPageStatus >= minStatus) {
-                return@retryOnConnectionFailure pageRepository.save(
+                return@retryOnConnectionFailure pageRepository.saveFrontPage(
                     frontPage, IssueKey(
                         frontPageKey.feedName,
                         frontPageKey.date,

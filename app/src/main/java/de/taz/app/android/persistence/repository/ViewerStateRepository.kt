@@ -31,7 +31,6 @@ class ViewerStateRepository private constructor(applicationContext: Context) :
     }
 
     private suspend fun saveIfNotExists(viewerState: ViewerState) {
-
         appDatabase.viewerStateDao().insertOrIgnore(viewerState)
     }
 

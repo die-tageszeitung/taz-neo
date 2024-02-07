@@ -4,12 +4,11 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import androidx.room.withTransaction
-import androidx.viewbinding.ViewBinding
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.content.ContentService
 import de.taz.app.android.base.StartupActivity
+import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.databinding.ActivityStorageMigrationBinding

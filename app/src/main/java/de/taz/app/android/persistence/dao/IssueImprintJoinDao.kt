@@ -37,6 +37,7 @@ interface IssueImprintJoinDao : BaseDao<IssueImprintJoin> {
         status: IssueStatus
     ): String?
 
+
     @Query(
         """SELECT Issue.* FROM Issue INNER JOIN IssueImprintJoin
         ON Issue.date == IssueImprintJoin.issueDate
@@ -47,4 +48,6 @@ interface IssueImprintJoinDao : BaseDao<IssueImprintJoin> {
     )
     suspend fun getIssueForImprintFileName(imprintFileName: String): IssueStub?
 
+    @Query("DELETE FROM IssueImprintJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
+    suspend fun deleteRelationToIssue(feedName: String, date: String, status: IssueStatus)
 }
