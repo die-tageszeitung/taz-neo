@@ -8,11 +8,11 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.R
-import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.ui.home.page.CoverType
 import de.taz.app.android.ui.home.page.CoverViewData
 import de.taz.app.android.ui.home.page.CoverViewDate
@@ -210,7 +210,7 @@ class CoverView @JvmOverloads constructor(
                 loadsImagesAutomatically = true
                 allowFileAccess = true
             }
-            setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
+            setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundColor))
             loadUrl(uri)
             animate().alpha(1f).duration = MOMENT_FADE_DURATION_MS
         }

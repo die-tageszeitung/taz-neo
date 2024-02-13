@@ -8,6 +8,7 @@ import android.view.View
 import android.webkit.WebSettings
 import android.widget.LinearLayout
 import androidx.annotation.IntDef
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
@@ -26,7 +27,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
-import de.taz.app.android.monkey.getColorFromAttr
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
@@ -201,7 +201,7 @@ abstract class WebViewFragment<
                 }
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
-            setBackgroundColor(context.getColorFromAttr(R.color.backgroundColor))
+            setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundColor))
         }
     }
 

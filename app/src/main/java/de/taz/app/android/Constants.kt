@@ -8,7 +8,6 @@ const val TAZ_AUTH_HEADER = "X-tazAppAuthKey"
 const val DEBUG_VERSION_DOWNLOAD_ENDPOINT = "https://dl.taz.de/down/taz.neo.debug.apk"
 
 // UI
-const val DEFAULT_MOMENT_RATIO = "0.670219:1"
 const val DEFAULT_MOMENT_FILE = "noInternetMoment.png"
 const val SUBSCRIPTION_EMAIL_ADDRESS = "app@taz.de"
 const val TAZ_ACCOUNT_SUFFIX = "@taz.de"
@@ -17,7 +16,6 @@ const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
 const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
 const val WEBVIEW_HTML_FILE_DATA_POLICY = "welcomeSlidesDataPolicy.html"
 const val WEBVIEW_HTML_FILE_SEARCH_HELP = "searchHelp.html"
-const val WEBVIEW_JQUERY_FILE = "jquery-3.min.js"
 const val WEBVIEW_TAP_TO_SCROLL_OFFSET = 350
 const val KNILE_SEMIBOLD_RESOURCE_FILE_NAME = "knile-semibold-webfont.woff"
 const val KNILE_REGULAR_RESOURCE_FILE_NAME = "knile-regular-webfont.woff"
