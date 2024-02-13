@@ -40,7 +40,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -245,7 +245,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 share()
 
             R.id.bottom_navigation_action_size -> {
-                showBottomSheet(TextSettingsFragment())
+                showBottomSheet(TextSettingsBottomSheetFragment())
             }
 
             R.id.bottom_navigation_action_audio -> audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()

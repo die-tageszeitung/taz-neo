@@ -34,7 +34,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -251,7 +251,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 share()
 
             R.id.bottom_navigation_action_size -> {
-                showBottomSheet(TextSettingsFragment())
+                showBottomSheet(TextSettingsBottomSheetFragment())
             }
         }
     }

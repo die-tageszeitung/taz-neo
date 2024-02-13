@@ -76,10 +76,16 @@
 
     <string name="fragment_archive_navigation_end_item_image_active">aktiv</string>
 
-    <string name="fragment_bottom_sheet_text_size_decrease">Textgröße erhöhen</string>
-    <string name="fragment_bottom_sheet_text_size_increase">Textgröße veringern</string>
-    <string name="fragment_bottom_sheet_text_night_mode">Nachtmodus</string>
+    <string name="fragment_bottom_sheet_text_size_description">Textgröße</string>
+    <string name="fragment_bottom_sheet_text_size_decrease">kleinere Schrift</string>
+    <string name="fragment_bottom_sheet_text_size_increase">größere Schrift</string>
+    <string name="fragment_bottom_sheet_text_size_night_mode_description">Tag- und Nachtmodus</string>
+    <string name="fragment_bottom_sheet_text_day_mode">Heller Hintergrund</string>
+    <string name="fragment_bottom_sheet_text_night_mode">Dunkler Hintergrund</string>
+    <string name="fragment_bottom_sheet_column_description">Artikeldarstellung</string>
+    <string name="fragment_bottom_sheet_single_column_mode">Einspaltigkeit</string>
     <string name="fragment_bottom_sheet_multi_column_mode">Mehrspaltigkeit</string>
+    <string name="fragment_bottom_sheet_text_size_settings_description">Weitere Einstellungen</string>
     <string name="fragment_bottom_sheet_text_size_settings">Einstellungen</string>
 
     <string name="fragment_bottom_sheet_issue_read">Ausgabe lesen</string>

@@ -1,225 +1,394 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:animateLayoutChanges="true">
+
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/bottom_sheet_background"
-        android:elevation="@dimen/bottom_sheet_elevation"
-        >
+        android:layout_margin="10dp"
+        android:background="@null"
+        android:contentDescription="@string/button_close_text"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_bottom_sheet_text_size_layout"
-            android:layout_width="match_parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/fragment_bottom_sheet_text_size_description"
+            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            android:layout_width="245dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginStart="15dp"
+            android:text="@string/fragment_bottom_sheet_text_size_description"
+            app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_text_size_layout"
+            app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fragment_bottom_sheet_text_size_layout" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_bottom_sheet_text_size_layout"
+            style="@style/BottomSheetContainer"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_text_size_description"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_bottom_sheet_text_size_decrease"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_percentage_wrapper"
-                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                    style="@style/TextAppearance.BottomSheet.TextSize.Decrease"
+                <ImageView
+                    android:id="@+id/icon_small_a"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_marginTop="23dp"
                     android:contentDescription="@string/fragment_bottom_sheet_text_size_decrease"
-                    android:gravity="center"
-                    android:paddingTop="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
-                    android:paddingBottom="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
-                    android:text="a"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:src="@drawable/ic_small_a"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/text_small_a"
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_text_size_decrease"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
 
-        <View
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:background="@color/bottom_sheet_divider_color"
+                android:background="@color/textColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/fragment_bottom_sheet_text_size_percentage_wrapper"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_bottom_sheet_text_size_percentage_wrapper"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_increase"
-                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_text_size_decrease"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
+                <TextView
                     android:id="@+id/fragment_bottom_sheet_text_size_percentage"
-                    style="@style/TextAppearance.BottomSheet.Setting"
+                    style="@style/TextAppearance.BottomSheet.TextSize.Description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="100%"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="100%" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <View
+            <View
                 android:layout_width="1dp"
                 android:layout_height="0dp"
-                android:background="@color/bottom_sheet_divider_color"
+                android:background="@color/textColor"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/fragment_bottom_sheet_text_size_percentage_wrapper"
                 app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/fragment_bottom_sheet_text_size_increase"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_text_size_percentage_wrapper"
                 app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                    style="@style/TextAppearance.BottomSheet.TextSize.Increase"
+                <ImageView
+                    android:id="@+id/icon_big_a"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_marginTop="17dp"
                     android:contentDescription="@string/fragment_bottom_sheet_text_size_increase"
-                    android:gravity="center"
-                    android:paddingTop="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
-                    android:paddingBottom="@dimen/fragment_bottom_sheet_text_size_image_padding_vertical"
-                    android:text="a"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:src="@drawable/ic_big_a"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_text_size_increase"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/bottom_sheet_divider_color"
-            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_layout" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_bottom_sheet_text_size_night_mode"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/fragment_bottom_sheet_night_mode_description"
+            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            android:layout_width="245dp"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
-            android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal_switch"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
+            android:layout_marginStart="15dp"
+            android:text="@string/fragment_bottom_sheet_text_size_night_mode_description"
+            app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode"
+            app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_night_mode"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fragment_bottom_sheet_text_size_night_mode" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_bottom_sheet_text_size_night_mode"
+            style="@style/BottomSheetContainer"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_night_mode_description"
             app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_layout">
 
-        <TextView
-                style="@style/TextAppearance.BottomSheet.Setting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fragment_bottom_sheet_text_night_mode"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/setting_day_mode"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:layout_constraintEnd_toStartOf="@id/setting_night_mode"
+                app:layout_constraintStart_toStartOf="parent">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/fragment_bottom_sheet_text_size_night_mode_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:trackTint="@color/material_switch_color_list" />
+                <ImageView
+                    android:id="@+id/setting_day_mode_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:contentDescription="@string/fragment_bottom_sheet_text_day_mode"
+                    android:src="@drawable/ic_light_mode"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/setting_day_mode_text"
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_text_day_mode"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/bottom_sheet_divider_color"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/fragment_bottom_sheet_multi_column_mode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
-        android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal_switch"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode">
-
-        <TextView
-            style="@style/TextAppearance.BottomSheet.Setting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/fragment_bottom_sheet_multi_column_mode"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/fragment_bottom_sheet_multi_column_mode_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:trackTint="@color/material_switch_color_list" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/bottom_sheet_divider_color"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_bottom_sheet_text_size_settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/bottom_sheet_setting_padding_horizontal"
-            android:paddingEnd="@dimen/bottom_sheet_setting_padding_horizontal"
-            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            >
-
-        <TextView
-                style="@style/TextAppearance.BottomSheet.Setting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/fragment_bottom_sheet_text_size_settings"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-                android:layout_width="@dimen/fragment_bottom_sheet_icon_size"
-                android:layout_height="@dimen/fragment_bottom_sheet_icon_size"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/setting_night_mode"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:srcCompat="@drawable/ic_settings"
-                tools:ignore="ContentDescription" />
+                app:layout_constraintStart_toEndOf="@id/setting_day_mode">
 
+                <ImageView
+                    android:id="@+id/setting_night_mode_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:contentDescription="@string/fragment_bottom_sheet_text_night_mode"
+                    android:src="@drawable/ic_dark_mode"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/setting_night_mode_text"
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_text_night_mode"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/fragment_bottom_sheet_column_description"
+            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            android:layout_width="245dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="@string/fragment_bottom_sheet_column_description"
+            app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode"
+            app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_multi_column_mode"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fragment_bottom_sheet_multi_column_mode" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_bottom_sheet_multi_column_mode"
+            style="@style/BottomSheetContainer"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_column_description"
+            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_text_size_night_mode">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/setting_single_column"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:layout_constraintEnd_toStartOf="@id/setting_multi_columns"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageView
+                    android:id="@+id/setting_single_column_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:contentDescription="@string/fragment_bottom_sheet_single_column_mode"
+                    android:src="@drawable/ic_single_column"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/setting_single_column_text"
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_single_column_mode"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/setting_multi_columns"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/setting_single_column">
+
+                <ImageView
+                    android:id="@+id/setting_multi_column_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:contentDescription="@string/fragment_bottom_sheet_multi_column_mode"
+                    android:src="@drawable/ic_multi_columns"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/setting_multi_column_text"
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_bottom_sheet_multi_column_mode"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/fragment_bottom_sheet_text_size_settings_description"
+            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            android:layout_width="245dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="@string/fragment_bottom_sheet_text_size_settings_description"
+            app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_text_size_settings"
+            app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_text_size_settings"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/fragment_bottom_sheet_text_size_settings" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_bottom_sheet_text_size_settings"
+            style="@style/BottomSheetContainer"
+            android:layout_width="0dp"
+            android:layout_height="65dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_text_size_settings_description"
+            app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/go_to_settings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageView
+                    android:id="@+id/icon_settings"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="10dp"
+                    android:contentDescription="@string/fragment_bottom_sheet_text_size_settings"
+                    android:src="@drawable/ic_settings"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/textColor" />
+
+                <TextView
+                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
