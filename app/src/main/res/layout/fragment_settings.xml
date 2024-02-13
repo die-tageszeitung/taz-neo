@@ -52,7 +52,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_max="@dimen/fragment_settings_max_width">
+                app:layout_constraintWidth_max="@dimen/default_max_width">
 
                 <!-- region konto -->
                 <TextView
