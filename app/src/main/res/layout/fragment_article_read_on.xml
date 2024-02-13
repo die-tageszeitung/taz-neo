@@ -2,292 +2,300 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingStart="@dimen/fragment_padding_horizontal"
     android:paddingEnd="@dimen/fragment_padding_horizontal"
     android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/read_on_login_group"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/default_max_width">
 
-        <TextView
-            android:id="@+id/read_on_description"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_login_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
-            android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
-            android:autoLink="all"
-            android:text="@string/fragment_read_on_description"
-            android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/read_on_username_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/read_on_description">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/read_on_username"
+            <TextView
+                android:id="@+id/read_on_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="username|emailAddress"
-                android:hint="@string/login_username_hint"
-                android:imeOptions="actionNext"
-                android:inputType="textEmailAddress"
-                android:nextFocusForward="@id/read_on_password_layout" />
+                android:layout_marginTop="@dimen/fragment_article_read_on_description_margin_top"
+                android:layout_marginBottom="@dimen/fragment_article_read_on_description_margin_bottom"
+                android:autoLink="all"
+                android:text="@string/fragment_read_on_description"
+                android:textAlignment="center"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/read_on_password_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
-            app:passwordToggleEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/read_on_password"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/read_on_username_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="password"
-                android:hint="@string/login_password_hint"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/read_on_description">
 
-        <Button
-            android:id="@+id/read_on_login_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            android:text="@string/login_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/read_on_password_layout"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/read_on_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="username|emailAddress"
+                    android:hint="@string/login_username_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:nextFocusForward="@id/read_on_password_layout" />
 
-        <TextView
-            android:id="@+id/forgot_password"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_forgot_password"
-            app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/show_help"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/help"
-            app:layout_constraintTop_toBottomOf="@id/forgot_password" />
-
-        <TextView
-            android:id="@+id/show_data_policy"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/fragment_login_data_policy"
-            app:layout_constraintTop_toBottomOf="@id/show_help"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/read_on_elapsed_group"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/read_on_elapsed_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_header"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/read_on_elapsed_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:autoLink="email"
-            android:text="@string/popup_login_elapsed_text"
-            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/message_to_subscription_service"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
-            app:hintEnabled="false"
-            app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description">
-
-            <com.google.android.material.textfield.TextInputEditText
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/read_on_password_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/popup_login_elapsed_message_to_abo"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/read_on_username_layout"
+                app:passwordToggleEnabled="true">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/read_on_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="password"
+                    android:hint="@string/login_password_hint"
+                    android:imeOptions="actionDone"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+            <Button
+                android:id="@+id/read_on_login_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+                android:text="@string/login_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/read_on_password_layout"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+            <TextView
+                android:id="@+id/forgot_password"
+                style="@style/TextAppearance.Login.Text.Link"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/login_forgot_password"
+                app:layout_constraintTop_toBottomOf="@id/read_on_login_button" />
+
+            <TextView
+                android:id="@+id/show_help"
+                style="@style/TextAppearance.Login.Text.Link"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/help"
+                app:layout_constraintTop_toBottomOf="@id/forgot_password" />
+
+            <TextView
+                android:id="@+id/show_data_policy"
+                style="@style/TextAppearance.Login.Text.Link"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_login_data_policy"
+                app:layout_constraintTop_toBottomOf="@id/show_help" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_elapsed_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_checkbox_message"
-            app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service" />
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/send_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_positive_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
+            <TextView
+                android:id="@+id/read_on_elapsed_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/popup_login_elapsed_header"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancel_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="0dp"
+            <TextView
+                android:id="@+id/read_on_elapsed_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="email"
+                android:text="@string/popup_login_elapsed_text"
+                app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_title" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/message_to_subscription_service"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/read_on_elapsed_description">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/popup_login_elapsed_message_to_abo"
+                    android:inputType="textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/popup_login_elapsed_checkbox_message"
+                app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/send_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/popup_login_elapsed_positive_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_button"
+                style="@style/AppTheme.ButtonStyle.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/send_button"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel_button"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/send_button"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="read_on_elapsed_group,read_on_login_group" />
+
+
+        <View
+            android:id="@+id/read_on_separator_line"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/login_box_separator_line_height"
+            android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
+            android:background="@color/login_box_separator_line_color"
+            app:layout_constraintTop_toBottomOf="@id/barrier" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_trial_subscription_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_margin_vertical"
+            android:background="@drawable/rectangle_rounded_corners"
+            app:layout_constraintTop_toBottomOf="@id/read_on_separator_line">
+
+            <TextView
+                android:id="@+id/read_on_trial_subscription_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/login_trial_subscription_title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/read_on_trial_subscription_box_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                android:text="@string/login_trial_subscription_body"
+                app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/read_on_trial_subscription_box_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                android:text="@string/login_trial_subscription_button_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_switch_print2digi_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_margin_vertical"
+            android:background="@drawable/rectangle_rounded_corners"
+            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box">
+
+            <TextView
+                android:id="@+id/read_on_switch_print2digi_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/login_switch_print2digi_title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/read_on_switch_print2digi_box_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                android:text="@string/login_switch_print2digi_body"
+                app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/read_on_switch_print2digi_box_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                android:text="@string/login_switch_print2digi_button_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_extend_print_with_digi_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/login_box_margin_vertical"
+            android:background="@drawable/rectangle_rounded_corners"
+            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box">
+
+            <TextView
+                android:id="@+id/read_on_extend_print_with_digi_box_title"
+                style="@style/TextAppearance.Login.Text.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/login_extend_print_with_digi_title"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/read_on_extend_print_with_digi_box_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                android:text="@string/login_extend_print_with_digi_body"
+                app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/read_on_extend_print_with_digi_box_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                android:text="@string/login_extend_print_with_digi_button_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="read_on_elapsed_group,read_on_login_group" />
-
-
-    <View
-        android:id="@+id/read_on_separator_line"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/login_box_separator_line_height"
-        android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
-        android:background="@color/login_box_separator_line_color"
-        app:layout_constraintTop_toBottomOf="@id/barrier" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/read_on_trial_subscription_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/login_box_margin_vertical"
-        android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_separator_line">
-
-        <TextView
-            android:id="@+id/read_on_trial_subscription_box_title"
-            style="@style/TextAppearance.Login.Text.Headline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_trial_subscription_title"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/read_on_trial_subscription_box_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            android:text="@string/login_trial_subscription_body"
-            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_title" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/read_on_trial_subscription_box_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            android:text="@string/login_trial_subscription_button_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box_text"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/read_on_switch_print2digi_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/login_box_margin_vertical"
-        android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_trial_subscription_box">
-
-        <TextView
-            android:id="@+id/read_on_switch_print2digi_box_title"
-            style="@style/TextAppearance.Login.Text.Headline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_switch_print2digi_title"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/read_on_switch_print2digi_box_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            android:text="@string/login_switch_print2digi_body"
-            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_title" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/read_on_switch_print2digi_box_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            android:text="@string/login_switch_print2digi_button_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box_text"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/read_on_extend_print_with_digi_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/login_box_margin_vertical"
-        android:background="@drawable/rectangle_rounded_corners"
-        app:layout_constraintTop_toBottomOf="@id/read_on_switch_print2digi_box">
-
-        <TextView
-            android:id="@+id/read_on_extend_print_with_digi_box_title"
-            style="@style/TextAppearance.Login.Text.Headline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_extend_print_with_digi_title"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/read_on_extend_print_with_digi_box_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-            android:text="@string/login_extend_print_with_digi_body"
-            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_title" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/read_on_extend_print_with_digi_box_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-            android:text="@string/login_extend_print_with_digi_button_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

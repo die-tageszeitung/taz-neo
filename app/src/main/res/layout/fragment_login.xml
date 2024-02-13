@@ -14,213 +14,221 @@
         android:paddingHorizontal="@dimen/fragment_padding_horizontal"
         tools:context="de.taz.app.android.ui.login.LoginActivity">
 
-        <TextView
-            android:id="@+id/fragment_login_description"
-            style="@style/TextAppearance.Fragment.Title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/fragment_login_description"
-            android:textAlignment="textStart"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_login_username_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_username_margin_top"
-            android:hint="@string/login_username_hint"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_description">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_login_username"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="emailAddress"
-                android:imeOptions="actionNext"
-                android:inputType="textEmailAddress"
-                android:nextFocusForward="@id/fragment_login_password" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/fragment_login_password_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/login_password_hint"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_username_layout"
-            app:passwordToggleEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragment_login_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="password"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/fragment_login_login_button"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            android:text="@string/login_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout"
-            app:layout_constraintWidth_max="@dimen/button_max_width" />
-
-        <Button
-            android:id="@+id/cancel_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button"
-            android:text="@string/cancel_button" />
-
-        <TextView
-            android:id="@+id/fragment_login_missing_subscription_forgot_password"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_forgot_password"
-            app:layout_constraintTop_toBottomOf="@id/cancel_button" />
-
-        <TextView
-            android:id="@+id/fragment_login_forgotten_help"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/help"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
-
-        <TextView
-            android:id="@+id/fragment_login_show_data_policy"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/fragment_login_data_policy"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_forgotten_help"/>
-
-        <View
-            android:id="@+id/fragment_login_separator_line"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/login_box_separator_line_height"
-            android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
-            android:background="@color/login_box_separator_line_color"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_show_data_policy" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_login_trial_subscription_box"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_margin_vertical"
-            android:background="@drawable/rectangle_rounded_corners"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_separator_line">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/default_max_width">
 
             <TextView
-                android:id="@+id/fragment_login_trial_subscription_box_title"
-                style="@style/TextAppearance.Login.Text.Headline"
+                android:id="@+id/fragment_login_description"
+                style="@style/TextAppearance.Fragment.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/login_trial_subscription_title"
+                android:text="@string/fragment_login_description"
+                android:textAlignment="textStart"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/fragment_login_trial_subscription_box_text"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_login_username_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-                android:text="@string/login_trial_subscription_body"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_title" />
+                android:layout_marginTop="@dimen/login_username_margin_top"
+                android:hint="@string/login_username_hint"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_description">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_login_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="emailAddress"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:nextFocusForward="@id/fragment_login_password" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/fragment_login_password_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/login_password_hint"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_username_layout"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fragment_login_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="password"
+                    android:imeOptions="actionDone"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/fragment_login_trial_subscription_box_button"
+                android:id="@+id/fragment_login_login_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-                android:text="@string/login_trial_subscription_button_text"
+                android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+                android:text="@string/login_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_text"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_password_layout"
                 app:layout_constraintWidth_max="@dimen/button_max_width" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_login_switch_print2digi_box"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_margin_vertical"
-            android:background="@drawable/rectangle_rounded_corners"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box">
-
-            <TextView
-                android:id="@+id/fragment_login_switch_print2digi_box_title"
-                style="@style/TextAppearance.Login.Text.Headline"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/login_switch_print2digi_title"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/fragment_login_switch_print2digi_box_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-                android:text="@string/login_switch_print2digi_body"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_title" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/fragment_login_switch_print2digi_box_button"
+            <Button
+                android:id="@+id/cancel_button"
+                style="@style/AppTheme.ButtonStyle.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-                android:text="@string/login_switch_print2digi_button_text"
+                android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+                android:text="@string/cancel_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_text"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_login_button"
                 app:layout_constraintWidth_max="@dimen/button_max_width" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_login_extend_print_with_digi_box"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/login_box_margin_vertical"
-            android:background="@drawable/rectangle_rounded_corners"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box">
 
             <TextView
-                android:id="@+id/fragment_login_extend_print_with_digi_box_title"
-                style="@style/TextAppearance.Login.Text.Headline"
+                android:id="@+id/fragment_login_missing_subscription_forgot_password"
+                style="@style/TextAppearance.Login.Text.Link"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/login_extend_print_with_digi_title"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:text="@string/login_forgot_password"
+                app:layout_constraintTop_toBottomOf="@id/cancel_button" />
 
             <TextView
-                android:id="@+id/fragment_login_extend_print_with_digi_box_text"
+                android:id="@+id/fragment_login_forgotten_help"
+                style="@style/TextAppearance.Login.Text.Link"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
-                android:text="@string/login_extend_print_with_digi_body"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_title" />
+                android:text="@string/help"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_forgot_password" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/fragment_login_extend_print_with_digi_box_button"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/fragment_login_show_data_policy"
+                style="@style/TextAppearance.Login.Text.Link"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
-                android:text="@string/login_extend_print_with_digi_button_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_text"
-                app:layout_constraintWidth_max="@dimen/button_max_width" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:text="@string/fragment_login_data_policy"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_forgotten_help" />
 
+            <View
+                android:id="@+id/fragment_login_separator_line"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/login_box_separator_line_height"
+                android:layout_marginVertical="@dimen/login_separator_line_margin_vertical"
+                android:background="@color/login_box_separator_line_color"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_show_data_policy" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_login_trial_subscription_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_margin_vertical"
+                android:background="@drawable/rectangle_rounded_corners"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_separator_line">
+
+                <TextView
+                    android:id="@+id/fragment_login_trial_subscription_box_title"
+                    style="@style/TextAppearance.Login.Text.Headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_trial_subscription_title"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_login_trial_subscription_box_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                    android:text="@string/login_trial_subscription_body"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragment_login_trial_subscription_box_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                    android:text="@string/login_trial_subscription_button_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_text"
+                    app:layout_constraintWidth_max="@dimen/button_max_width" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_login_switch_print2digi_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_margin_vertical"
+                android:background="@drawable/rectangle_rounded_corners"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box">
+
+                <TextView
+                    android:id="@+id/fragment_login_switch_print2digi_box_title"
+                    style="@style/TextAppearance.Login.Text.Headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_switch_print2digi_title"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_login_switch_print2digi_box_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                    android:text="@string/login_switch_print2digi_body"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragment_login_switch_print2digi_box_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                    android:text="@string/login_switch_print2digi_button_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_text"
+                    app:layout_constraintWidth_max="@dimen/button_max_width" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fragment_login_extend_print_with_digi_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_margin_vertical"
+                android:background="@drawable/rectangle_rounded_corners"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box">
+
+                <TextView
+                    android:id="@+id/fragment_login_extend_print_with_digi_box_title"
+                    style="@style/TextAppearance.Login.Text.Headline"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_extend_print_with_digi_title"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/fragment_login_extend_print_with_digi_box_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_content_margin_vertical"
+                    android:text="@string/login_extend_print_with_digi_body"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragment_login_extend_print_with_digi_box_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="@dimen/login_box_button_margin_vertical"
+                    android:text="@string/login_extend_print_with_digi_button_text"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_text"
+                    app:layout_constraintWidth_max="@dimen/button_max_width" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
