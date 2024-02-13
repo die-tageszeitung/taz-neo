@@ -51,7 +51,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
-import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsFragment
+import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
@@ -433,7 +433,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
             R.id.bottom_navigation_action_size -> {
-                showBottomSheet(TextSettingsFragment())
+                showBottomSheet(TextSettingsBottomSheetFragment())
                 lifecycleScope.launch {
                     ArticleSizeCoachMark.setFunctionAlreadyDiscovered(requireContext())
                 }

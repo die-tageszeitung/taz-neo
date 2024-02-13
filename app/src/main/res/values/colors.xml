@@ -10,6 +10,7 @@
     <color name="superDarkGrey">#121212</color>
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
+    <color name="superSuperSuperLightGrey">#F4F4F4</color>
     <color name="anotherLightGrey">#E9E9EA</color>
     <color name="anotherDarkGrey">#3C3C43</color>
     <color name="lightRed">#FF1919</color>
@@ -62,6 +63,9 @@
     <color name="drawer_sections_header_action">@color/black</color>
 
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
+    <color name="bottom_sheet_background_box_color">@color/superSuperSuperLightGrey</color>
+    <color name="bottom_sheet_background_selected_bg_color">@color/black</color>
+    <color name="bottom_sheet_background_selected_text_color">@color/white</color>
 
     <color name="coverflow_background">@color/superDarkGrey</color>
     <color name="coverflow_text_color">@color/lightGrey</color>

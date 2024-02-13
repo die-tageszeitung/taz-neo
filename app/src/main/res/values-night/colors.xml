@@ -11,6 +11,9 @@
     <color name="search_field_background_color">@color/darkGrey</color>
 
     <color name="bottom_sheet_divider_color">@color/lightGrey</color>
+    <color name="bottom_sheet_background_box_color">@color/darkGrey</color>
+    <color name="bottom_sheet_background_selected_bg_color">@color/white</color>
+    <color name="bottom_sheet_background_selected_text_color">@color/black</color>
     <color name="bottom_sheet_text_color">@color/lightGrey</color>
     <color name="drawer_sections_date">@color/lightGrey</color>
     <color name="drawer_sections_item">@color/lightGrey</color>

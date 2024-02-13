@@ -242,17 +242,6 @@
         <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
     </style>
 
-    <style name="TextAppearance.BottomSheet.TextSize.Decrease" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/bottom_sheet_text_color</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TextAppearance.BottomSheet.TextSize.Increase" parent="TextAppearance.BottomSheet.TextSize.Decrease">
-        <item name="android:textColor">@color/bottom_sheet_text_color</item>
-        <item name="android:textSize">25sp</item>
-    </style>
-
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
@@ -510,6 +499,7 @@
         <item name="android:textColor">@color/lightGrey</item>
     </style>
 
+    <!-- region:  Default styles from the styleguide: -->
     <style name="TextAppearance.ModalTopline" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">14sp</item>
@@ -541,12 +531,27 @@
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
     </style>
 
-    <style name="TextAppearance.Date.Small" parent="TextAppearance.AppCompat">
+    <style name="TextAppearance.Date.Small" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
+
+    <style name="TextAppearance.Settings" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:lineSpacingExtra">5sp</item>
+    </style>
+
+    <style name="TextAppearance.IconText" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">9.4sp</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <!-- endregion -->
 
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
@@ -561,6 +566,16 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:lineSpacingExtra">3sp</item>
+    </style>
+
+    <style name="BottomSheetContainer">
+        <item name="android:background">@drawable/text_settings_rounded_bg</item>
+    </style>
+
+    <style name="TextAppearance.BottomSheet.TextSize.Description" parent="TextAppearance.Settings" />
+
+    <style name="TextAppearance.BottomSheet.TextSize.IconText" parent="TextAppearance.IconText">
+        <item name="android:paddingBottom">8dp</item>
     </style>
 
 </resources>
