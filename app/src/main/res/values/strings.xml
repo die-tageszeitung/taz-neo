@@ -474,10 +474,6 @@
     <string name="coach_mark_horizontal_swipe_title">Unbestimmte Artikel</string>
     <string name="coach_mark_horizontal_swipe_text">Ressorts und Artikel einfach genüsslich durchstöbern, indem man nach links und rechts wischt.</string>
 
-    <string name="coach_mark_article_tap_to_scroll_title">Tippen am Rand zum Blättern</string>
-    <string name="coach_mark_article_tap_to_scroll_text">Hier wird die Navigation um tippen am Rand erweitert. Let’s go tipping</string>
-    <string name="coach_mark_article_tap_to_scroll_icon_description">Icon, das einen Tipp symbolisiert</string>
-
     <string name="coach_mark_article_audio_title">Lesen und lesen lassen.</string>
     <string name="coach_mark_article_audio_text">Wer hören will, muss klicken: Hinter diesem Symbol verbirgt sich unsere tolle Vorlesefunktion – einfach mal ausprobieren!</string>
 

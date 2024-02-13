@@ -57,9 +57,6 @@ class CoachMarkDataStore private constructor(applicationContext: Context) {
     val horizontalArticleSwipeCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(HORIZONTAL_ARTICLE_SWIPE_COACH_MARK_SHOWN), 0
     )
-    val articleTapToScrollCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
-        dataStore, longPreferencesKey(ARTICLE_TAP_TO_SCROLL_COACH_MARK_SHOWN), 0
-    )
     val articleAudioCoachMarkShown: DataStoreEntry<Long> = SimpleDataStoreEntry(
         dataStore, longPreferencesKey(ARTICLE_AUDIO_COACH_MARK_SHOWN), 0
     )
