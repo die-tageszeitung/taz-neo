@@ -49,6 +49,7 @@ private const val GOAL_TEST_TRACKING_ID = 2
 // endregion
 
 private const val SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1_000 // 2h
+private const val APPLICATION_URL = "https://app.taz.de/"
 
 class MatomoTracker(applicationContext: Context) : Tracker {
 
@@ -60,7 +61,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     private val matomo = Matomo.getInstance(applicationContext)
     private val config = TrackerBuilder
         .createDefault("https://gazpacho.taz.de/matomo.php", 113)
-        .setApplicationBaseUrl("https://${applicationContext.packageName}/")
+        .setApplicationBaseUrl(APPLICATION_URL)
     private val matomoTracker = SessionAwareTracker(matomo, config, ::onNewSession)
 
     init {
