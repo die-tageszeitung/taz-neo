@@ -32,7 +32,6 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
 import de.taz.app.android.coachMarks.ArticleSizeCoachMark
-import de.taz.app.android.coachMarks.ArticleTapToScrollCoachMark
 import de.taz.app.android.coachMarks.HorizontalArticleSwipeCoachMark
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -194,13 +193,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                         tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) { isMultiColumn ->
                             viewBinding.webviewPagerViewpager.isUserInputEnabled = !isMultiColumn
                             pinCollapsingToolBar(isMultiColumn)
-                            if (isMultiColumn) {
-                                lifecycleScope.launch {
-                                    ArticleTapToScrollCoachMark(
-                                        this@ArticlePagerFragment
-                                    ).maybeShow()
-                                }
-                            }
                         }
                         // Maybe show multi column bottom sheet
                         lifecycleScope.launch {
