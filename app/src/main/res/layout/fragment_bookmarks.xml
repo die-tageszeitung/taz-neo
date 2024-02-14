@@ -78,10 +78,13 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/drawer_menu_list"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/fragment_bookmarks_list_margin_top"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_max="@dimen/default_max_width"
             tools:listitem="@layout/fragment_bookmarks_article_item" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
