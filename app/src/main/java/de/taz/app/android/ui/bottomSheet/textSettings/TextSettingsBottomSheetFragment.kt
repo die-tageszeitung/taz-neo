@@ -11,10 +11,12 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBottomSheetTextSizeBinding
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.SingleColumnModeBottomSheetFragment
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlinx.coroutines.launch
 
@@ -28,12 +30,14 @@ class TextSettingsBottomSheetFragment :
     }
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tracker: Tracker
     private val viewModel by viewModels<TextSettingsViewModel>()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
@@ -75,6 +79,7 @@ class TextSettingsBottomSheetFragment :
             if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
                 viewBinding.settingSingleColumn.setOnClickListener {
                     setMultiColumnMode(active = false)
+                    maybeShowSingleColumnBottomSheet()
                 }
                 viewBinding.settingMultiColumns.setOnClickListener {
                     setMultiColumnMode(active = true)
@@ -100,7 +105,6 @@ class TextSettingsBottomSheetFragment :
             } else {
                 setSingleColumnModeSelected()
             }
-            setMultiColumnMode(activated)
         }
 
         viewModel.observeFontSize(viewLifecycleOwner) { textSizePercentage ->
@@ -319,6 +323,20 @@ class TextSettingsBottomSheetFragment :
             fragmentBottomSheetNightModeDescription.isVisible = false
             fragmentBottomSheetColumnDescription.isVisible = false
             fragmentBottomSheetTextSizeSettingsDescription.isVisible = false
+        }
+    }
+
+    private fun maybeShowSingleColumnBottomSheet() {
+        lifecycleScope.launch {
+            val doNotShowAgain = generalDataStore.singleColumnModeBottomSheetDoNotShowAgain.get()
+            if (!doNotShowAgain)
+                if (childFragmentManager.findFragmentByTag(
+                        SingleColumnModeBottomSheetFragment.TAG) == null) {
+                    SingleColumnModeBottomSheetFragment().show(
+                        childFragmentManager,
+                        SingleColumnModeBottomSheetFragment.TAG
+                    )
+                }
         }
     }
 }

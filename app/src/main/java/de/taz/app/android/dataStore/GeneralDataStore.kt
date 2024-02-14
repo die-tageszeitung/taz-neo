@@ -31,6 +31,7 @@ private const val CONSENT_TO_TRACKING = "consent_to_tracking"
 private const val HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED = "has_internal_taz_user_goal_been_tracked"
 private const val TEST_GOAL_TRACKING_ENABLED = "test_goal_tracking_enabled"
 private const val MULTI_COLUMN_MODE_BOTTOM_SHEET_SHOWN = "multi_column_mode_bottom_sheet_shown"
+private const val SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "single_column_mode_bottom_sheet_do_not_show_again"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -110,6 +111,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val multiColumnModeBottomSheetAlreadyShown: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(MULTI_COLUMN_MODE_BOTTOM_SHEET_SHOWN), false
+    )
+
+    val singleColumnModeBottomSheetDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
     )
 
 
