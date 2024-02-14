@@ -102,9 +102,14 @@
     <string name="fragment_bottom_sheet_notifications_no">Nein, Einstellungen so lassen</string>
 
     <string name="fragment_bottom_sheet_multi_column_mode_title">Lesemodus ändern?</string>
-    <string name="fragment_bottom_sheet_multi_column_mode_description">Ihr Bildschirm hat eine Größe von %d px. Wir empfehlen für Ihr Lesevergnügen hier ein Spalten Layout. Sie können die Einstellung jederzeit unter Layoutänderungen in der Toolbar wieder ändern.</string>
+    <string name="fragment_bottom_sheet_multi_column_mode_description">Ihr Bildschirm hat eine Größe von %d px. Wir empfehlen für Ihr Lesevergnügen hier ein Spalten Layout. Sie können die Einstellung jederzeit unter Layoutänderungen in der Toolbar wieder ändern.\n\nNavigieren können Sie mit der Funktion \"Tippen am Rand\".</string>
     <string name="fragment_bottom_sheet_multi_column_mode_positive_button">Alles so lassen, wie es ist</string>
     <string name="fragment_bottom_sheet_multi_column_mode_negative_button">Mehrspaltigkeit aktivieren</string>
+
+    <string name="fragment_bottom_sheet_single_column_mode_title">Vertikale Navigation wieder aktiv</string>
+    <string name="fragment_bottom_sheet_single_column_mode_description">Dadurch, dass Sie die Spaltigkeit ausgeschaltet haben, folgt die Navigation in den Artikeln wieder der Scrollrichtung vertikal (oben nach unten).</string>
+    <string name="fragment_bottom_sheet_single_column_mode_positive_button">Verstanden</string>
+    <string name="fragment_bottom_sheet_single_column_mode_negative_button">Nicht wieder anzeigen</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>

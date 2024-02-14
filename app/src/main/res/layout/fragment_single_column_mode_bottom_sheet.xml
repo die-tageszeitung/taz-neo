@@ -29,7 +29,7 @@
             android:layout_gravity="top|start"
             android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_outer_margin"
             android:layout_marginBottom="@dimen/bottom_sheet_with_two_columns_title_margin_bottom"
-            android:text="@string/fragment_bottom_sheet_multi_column_mode_title" />
+            android:text="@string/fragment_bottom_sheet_single_column_mode_title" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -43,7 +43,7 @@
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_outer_margin"
                 android:layout_marginEnd="@dimen/bottom_sheet_with_two_columns_inner_margin"
                 android:layout_weight="1"
-                android:src="@drawable/horizontal_swipe_preview" />
+                android:src="@drawable/vertical_swipe_preview" />
 
             <TextView
                 android:id="@+id/description"
@@ -53,7 +53,7 @@
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_inner_margin"
                 android:layout_marginEnd="@dimen/bottom_sheet_with_two_columns_outer_margin"
                 android:layout_weight="1"
-                android:text="@string/fragment_bottom_sheet_multi_column_mode_description" />
+                android:text="@string/fragment_bottom_sheet_single_column_mode_description" />
         </LinearLayout>
 
         <LinearLayout
@@ -71,7 +71,7 @@
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_outer_margin"
                 android:layout_marginEnd="@dimen/bottom_sheet_with_two_columns_inner_margin"
                 android:layout_weight="1"
-                android:text="@string/fragment_bottom_sheet_multi_column_mode_positive_button" />
+                android:text="@string/fragment_bottom_sheet_single_column_mode_negative_button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/positive_button"
@@ -80,7 +80,7 @@
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_inner_margin"
                 android:layout_marginEnd="@dimen/bottom_sheet_with_two_columns_outer_margin"
                 android:layout_weight="1"
-                android:text="@string/fragment_bottom_sheet_multi_column_mode_negative_button" />
+                android:text="@string/fragment_bottom_sheet_single_column_mode_positive_button" />
         </LinearLayout>
     </LinearLayout>
 
