@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -38,6 +39,9 @@ class SubscriptionElapsedBottomSheetFragment :
     override fun onStart() {
         super.onStart()
         setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_HALF_EXPANDED)
+        // this removes the translucent status of the status bar which causes some weird flickering
+        // FIXME (johannes): refactor to get see why the flag is deprecated and move to general style
+        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     }
 
     override fun onAttach(context: Context) {
