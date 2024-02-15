@@ -16,7 +16,8 @@
         android:layout_height="match_parent"
         android:background="@color/backgroundColor"
         android:paddingBottom="@dimen/fragment_webview_loading_screen_padding_bottom"
-        android:translationZ="@dimen/loading_screen_translationZ">
+        android:translationZ="@dimen/loading_screen_translationZ"
+        tools:visibility="gone">
 
         <ProgressBar
             android:layout_width="wrap_content"
@@ -72,40 +73,58 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </de.taz.app.android.util.LockableNestedScrollView>
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/fragment_webview_loading_screen_padding_bottom">
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/go_next_article"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_marginEnd="@dimen/fragment_webview_article_fab_margin_horizontal"
-            android:layout_marginBottom="@dimen/fragment_webview_article_fab_margin_bottom"
-            android:text="@string/fragment_webview_article_fab_go_next_article"
-            android:textColor="@color/white"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/left_tap_icon"
+            android:layout_width="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_height="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_marginStart="@dimen/fragment_webview_article_tap_button_margin_horizontal"
+            android:background="@null"
             android:visibility="gone"
-            app:backgroundTint="@color/blackEightyPercentOpacity"
-            app:icon="@drawable/ic_arrow_right"
-            app:iconGravity="end"
-            app:iconTint="@color/white"
-            app:maxImageSize="@dimen/bottom_navigation_icon_size"
-            app:tint="@color/white" />
+            app:cardBackgroundColor="@color/fragment_article_web_view_tap_icon_color"
+            app:cardCornerRadius="@dimen/fragment_webview_article_tap_button_size"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/go_prev_article"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|bottom"
-            android:layout_marginStart="@dimen/fragment_webview_article_fab_margin_horizontal"
-            android:layout_marginBottom="@dimen/fragment_webview_article_fab_margin_bottom"
-            android:text="@string/fragment_webview_article_fab_go_prev_article"
-            android:textColor="@color/white"
+            <ImageView
+                android:layout_width="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_height="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_marginStart="@dimen/fragment_webview_article_tap_button_inner_margin_start"
+                android:layout_marginTop="@dimen/fragment_webview_article_tap_button_inner_margin_top"
+                android:contentDescription="@string/fragment_webview_article_tap_left"
+                android:src="@drawable/ic_tap_to_scroll" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/right_tap_icon"
+            android:layout_width="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_height="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_marginEnd="@dimen/fragment_webview_article_tap_button_margin_horizontal"
+            android:background="@null"
             android:visibility="gone"
-            app:backgroundTint="@color/blackEightyPercentOpacity"
-            app:icon="@drawable/ic_arrow_left"
-            app:iconTint="@color/white"
-            app:maxImageSize="@dimen/bottom_navigation_icon_size" />
-    </FrameLayout>
+            app:cardBackgroundColor="@color/fragment_article_web_view_tap_icon_color"
+            app:cardCornerRadius="@dimen/fragment_webview_article_tap_button_size"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_height="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_marginStart="@dimen/fragment_webview_article_tap_button_inner_margin_start"
+                android:layout_marginTop="@dimen/fragment_webview_article_tap_button_inner_margin_top"
+                android:contentDescription="@string/fragment_webview_article_tap_right"
+                android:src="@drawable/ic_tap_to_scroll" />
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </de.taz.app.android.util.NestedCoordinatorLayout>

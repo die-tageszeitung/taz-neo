@@ -70,11 +70,8 @@
     <string name="order_note_text">Hinweise zum taz Probeabo</string>
     <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per E-Mail um Bestätigung gebeten. Sollten Sie diese E-Mail nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer:in sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
-    <string name="feeds">Publikationen</string>
     <string name="imprint">Impressum</string>
     <string name="settings">Einstellungen</string>
-
-    <string name="fragment_archive_navigation_end_item_image_active">aktiv</string>
 
     <string name="fragment_bottom_sheet_text_size_description">Textgröße</string>
     <string name="fragment_bottom_sheet_text_size_decrease">kleinere Schrift</string>
@@ -497,7 +494,7 @@
     <string name="coach_marks_debug_settings">Coachmarks immer anzeigen</string>
     <!-- endregion -->
 
-    <string name="fragment_webview_article_fab_go_prev_article">vorheriger Artikel</string>
-    <string name="fragment_webview_article_fab_go_next_article">nächster Artikel</string>
+    <string name="fragment_webview_article_tap_left">Hier tippen um nach links zu kommen</string>
+    <string name="fragment_webview_article_tap_right">Hier tippen um nach rechts zu kommen</string>
 
 </resources>
