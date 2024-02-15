@@ -22,7 +22,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.ViewBorder
+import de.taz.app.android.ui.HorizontalDirection
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +66,11 @@ class ArticleWebViewFragment :
         }
     }
 
+    override fun onPause() {
+        hideTapIcons()
+        super.onPause()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
@@ -99,7 +104,7 @@ class ArticleWebViewFragment :
     }
 
     override fun onDestroyView() {
-        webView.onBorderListener = null
+        webView.showTapIcon = null
         super.onDestroyView()
     }
 
@@ -224,16 +229,14 @@ class ArticleWebViewFragment :
         }
 
         // show the navigation buttons when on border
-        webView.onBorderListener = { border ->
+        webView.showTapIcon = { border ->
             when (border) {
-                ViewBorder.LEFT -> showPrevArticleButton()
-                ViewBorder.RIGHT -> showNextArticleButton()
-                ViewBorder.BOTH -> showBothArticleButton()
-                ViewBorder.NONE -> showNoneArticleButton()
+                HorizontalDirection.LEFT -> showLeftTapIcon()
+                HorizontalDirection.RIGHT -> showRightTapIcon()
+                HorizontalDirection.BOTH -> showBothTapIcons()
+                HorizontalDirection.NONE -> hideTapIcons()
             }
         }
-        bindArticleButtons()
-
         webView.callTazApi(
             "enableArticleColumnMode",
             calculateColumnHeight(),
@@ -257,8 +260,8 @@ class ArticleWebViewFragment :
 
         log.verbose("Change text settings: switch off multi column mode")
         viewBinding.nestedScrollView.scrollingEnabled = true
-        showNoneArticleButton()
-        webView.onBorderListener = null
+        hideTapIcons()
+        webView.showTapIcon = null
 
         webView.updateLayoutParams<MarginLayoutParams> {
             topMargin =
@@ -268,41 +271,28 @@ class ArticleWebViewFragment :
         webView.callTazApi("disableArticleColumnMode")
     }
 
-    private fun showNextArticleButton() {
+    private fun showRightTapIcon() {
         viewBinding.apply {
-            goNextArticle.show()
-            goPrevArticle.hide()
+            rightTapIcon.visibility = View.VISIBLE
+            leftTapIcon.visibility = View.GONE
         }
     }
-    private fun showPrevArticleButton() {
+    private fun showLeftTapIcon() {
         viewBinding.apply {
-            goPrevArticle.show()
-            goNextArticle.hide()
+            leftTapIcon.visibility = View.VISIBLE
+            rightTapIcon.visibility = View.GONE
         }
     }
-    private fun showBothArticleButton() {
+    private fun showBothTapIcons() {
         viewBinding.apply {
-            goPrevArticle.show()
-            goNextArticle.show()
+            leftTapIcon.visibility = View.VISIBLE
+            rightTapIcon.visibility = View.VISIBLE
         }
     }
-    private fun showNoneArticleButton() {
+    private fun hideTapIcons() {
         viewBinding.apply {
-            goPrevArticle.hide()
-            goNextArticle.hide()
-        }
-    }
-
-    private fun bindArticleButtons() {
-        viewBinding.apply {
-            goPrevArticle.setOnClickListener {
-                issueViewerViewModel.goPreviousArticle.value = true
-                showNoneArticleButton()
-            }
-            goNextArticle.setOnClickListener {
-                issueViewerViewModel.goNextArticle.value = true
-                showNoneArticleButton()
-            }
+            leftTapIcon.visibility = View.GONE
+            rightTapIcon.visibility = View.GONE
         }
     }
 

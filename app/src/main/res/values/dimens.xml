@@ -148,8 +148,11 @@
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
     <dimen name="fragment_webview_article_little_margin_top">8dp</dimen>
-    <dimen name="fragment_webview_article_fab_margin_horizontal">10dp</dimen>
-    <dimen name="fragment_webview_article_fab_margin_bottom">60dp</dimen>
+    <dimen name="fragment_webview_article_tap_button_size">75dp</dimen>
+    <dimen name="fragment_webview_article_tap_button_margin_horizontal">10dp</dimen>
+    <dimen name="fragment_webview_article_tap_button_inner_size">50dp</dimen>
+    <dimen name="fragment_webview_article_tap_button_inner_margin_start">17.27dp</dimen>
+    <dimen name="fragment_webview_article_tap_button_inner_margin_top">12.5dp</dimen>
     <!-- The webView is below the appBar.
     To have the loading screen of the articles' web view and the article pager on the same position,
     we need to translate it upwards the amount of the appBarHeight:
@@ -172,12 +175,8 @@
     <dimen name="fragment_cover_flow_guideline_top">100dp</dimen>
     <dimen name="fragment_cover_flow_min_width_long_date">155dp</dimen>
 
-    <dimen name="fragment_archive_navigation_end_item_height">30dp</dimen>
-    <dimen name="fragment_archive_navigation_end_padding_top">63dp</dimen>
-    <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
-    <dimen name="fragment_archive_navigation_end_heading_margin_bottom">12dp</dimen>
-    <dimen name="fragment_archive_navigation_end_item_text_margin_start">8dp</dimen>
     <dimen name="fragment_archive_margin_horizontal">15dp</dimen>
+    <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
 
     <dimen name="bottom_sheet_setting_padding_horizontal">20dp</dimen>
     <dimen name="bottom_sheet_setting_padding_horizontal_switch">10dp</dimen>
@@ -244,7 +243,6 @@
     <dimen name="fragment_article_padding_bottom">40dp</dimen>
 
     <dimen name="icon_size">24dp</dimen>
-    <dimen name="ic_circle_size">12dp</dimen>
 
     <dimen name="ic_close_button_padding">15dp</dimen>
 
