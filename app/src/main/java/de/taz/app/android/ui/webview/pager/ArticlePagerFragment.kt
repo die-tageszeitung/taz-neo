@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
@@ -21,8 +22,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.KNILE_REGULAR_RESOURCE_FILE_NAME
-import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
@@ -44,7 +43,6 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.AuthHelper
-import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -60,10 +58,8 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
@@ -85,7 +81,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private lateinit var tracker: Tracker
     private lateinit var issueRepository: IssueRepository
     private lateinit var pageRepository: PageRepository
-    private lateinit var fontHelper: FontHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
 
@@ -112,7 +107,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
-        fontHelper = FontHelper.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
     }
@@ -580,10 +574,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                     setHeaderForSection(index, count, sectionStub)
                 }
 
-                issueStub?.apply {
-                    if (isWeekend) {
-                        applyWeekendTypefacesToHeader()
-                    }
+                if (issueStub?.isWeekend == true) {
+                    applyWeekendTypefacesToHeader()
                 }
             }
         }
@@ -642,29 +634,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
     }
 
-    private suspend fun applyWeekendTypefacesToHeader() {
-        val weekendTypefaceFileEntry =
-            fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
-        val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
-        weekendTypefaceFile?.let {
-            fontHelper
-                .getTypeFace(it)?.let { typeface ->
-                    withContext(Dispatchers.Main) {
-                        viewBinding.header.section.typeface = typeface
-                    }
-                }
-        }
-        val weekendTypefaceFileEntryRegular =
-            fileEntryRepository.get(KNILE_REGULAR_RESOURCE_FILE_NAME)
-        val weekendTypefaceFileRegular =
-            weekendTypefaceFileEntryRegular?.let(storageService::getFile)
-        weekendTypefaceFileRegular?.let {
-            fontHelper
-                .getTypeFace(it)?.let { typeface ->
-                    withContext(Dispatchers.Main) {
-                        viewBinding.header.articleNum.typeface = typeface
-                    }
-                }
+    private fun applyWeekendTypefacesToHeader() {
+        val context = context ?: return
+        viewBinding.header.apply {
+            section.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
+            articleNum.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileRegular)
         }
     }
     // endregion
