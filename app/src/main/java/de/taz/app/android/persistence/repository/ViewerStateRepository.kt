@@ -20,7 +20,7 @@ class ViewerStateRepository private constructor(applicationContext: Context) :
         )
     }
 
-    suspend fun save(viewerState: ViewerState) {
+    private suspend fun save(viewerState: ViewerState) {
         appDatabase.viewerStateDao().insertOrReplace(viewerState)
     }
 

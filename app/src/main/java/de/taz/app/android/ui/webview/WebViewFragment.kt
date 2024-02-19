@@ -3,8 +3,10 @@ package de.taz.app.android.ui.webview
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.View.OnScrollChangeListener
 import android.webkit.WebSettings
 import android.widget.LinearLayout
 import androidx.annotation.IntDef
@@ -84,27 +86,11 @@ abstract class WebViewFragment<
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
+    // FIXME (johannes): consider not doing a findViewById every time this property i accessed for saving some cpu cycles
     protected val webView: AppWebView
         get() = viewBinding.root.findViewById(R.id.web_view)
 
     abstract fun reloadAfterCssChange()
-
-    private fun saveScrollPositionDebounced(scrollPosition: Int = 0, scrollPositionHorizontal: Int = 0) {
-        viewModel.displayable?.let {
-            val oldJob = saveScrollPositionJob
-            saveScrollPositionJob = lifecycleScope.launch {
-                oldJob?.cancelAndJoin()
-                delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
-                viewModel.scrollPosition = scrollPosition
-                viewModel.scrollPositionHorizontal = scrollPositionHorizontal
-                viewerStateRepository.save(
-                    it.key,
-                    scrollPosition,
-                    scrollPositionHorizontal,
-                )
-            }
-        }
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -136,7 +122,7 @@ abstract class WebViewFragment<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.displayableLiveData.distinctUntilChanged().observe(this.viewLifecycleOwner) {
+        viewModel.displayableLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it != null) {
                 log.debug("Received a new displayable ${it.key}")
                 lifecycleScope.launch {
@@ -147,27 +133,8 @@ abstract class WebViewFragment<
             }
         }
 
-        viewModel.tazApiCssDataStore.multiColumnMode.asLiveData().observe(this.viewLifecycleOwner) {
-            if (it) {
-                view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
-                    setOnScrollChangeListener { _: NestedScrollView?, scrollX: Int, _: Int, _: Int, _: Int ->
-                        saveScrollPositionDebounced(scrollPositionHorizontal = scrollX)
-                    }
-                }
-            } else {
-                view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
-                    setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-                        saveScrollPositionDebounced(scrollPosition = scrollY)
-                    }
-                }
-
-            }
-        }
-
-        view.findViewById<NestedScrollView>(nestedScrollViewId).apply {
-            setOnScrollChangeListener { _: NestedScrollView?, _: Int, scrollY: Int, _: Int, _: Int ->
-                saveScrollPositionDebounced(scrollPosition = scrollY)
-            }
+        viewModel.tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) {
+            setupScrollPositionListener(it)
         }
 
         savedInstanceState?.apply {
@@ -202,6 +169,47 @@ abstract class WebViewFragment<
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
             setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundColor))
+        }
+    }
+
+
+    private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
+        val nestedScrollView: NestedScrollView? = view?.findViewById(nestedScrollViewId)
+        if (isMultiColumnMode) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                webView.setOnScrollChangeListener { _: View, scrollX: Int, _: Int, _: Int, _: Int ->
+                    saveScrollPositionDebounced(scrollPositionHorizontal = scrollX)
+                }
+            }
+            // View defines the setOnScrollChangeListener with a type of View.OnScrollChangeListener
+            // NestedScrollView adds its own setOnScrollChangeListener with a type of NestedScrollView.OnScrollChangeListener
+            // To let the compiler know which method to call when passing null we have to set this explicit type hint
+            nestedScrollView?.setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                webView.setOnScrollChangeListener(null)
+            }
+            nestedScrollView?.setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
+                saveScrollPositionDebounced(scrollPosition = scrollY)
+            }
+        }
+    }
+
+    private fun saveScrollPositionDebounced(scrollPosition: Int = 0, scrollPositionHorizontal: Int = 0) {
+        viewModel.displayable?.let {
+            val oldJob = saveScrollPositionJob
+            saveScrollPositionJob = lifecycleScope.launch {
+                oldJob?.cancelAndJoin()
+                delay(SAVE_SCROLL_POS_DEBOUNCE_MS)
+                viewModel.scrollPosition = scrollPosition
+                viewModel.scrollPositionHorizontal = scrollPositionHorizontal
+                viewerStateRepository.save(
+                    it.key,
+                    scrollPosition,
+                    scrollPositionHorizontal,
+                )
+            }
         }
     }
 
