@@ -215,6 +215,9 @@ app/src/nonfree/res/font/aktiv_grotesk_regular.ttf
 app/src/nonfree/res/font/aktiv_grotesk_bold.ttf
 app/src/nonfree/res/font/quatext_regular.ttf
 app/src/nonfree/res/font/american_typewriter_condensed_bold.ttf
+app/src/nonfree/res/font/knile_light.ttf
+app/src/nonfree/res/font/knile_regular.ttf
+app/src/nonfree/res/font/knile_semibold.ttf
 
 app/src/nonfree/res/font/charis_sil_regular.ttf
 

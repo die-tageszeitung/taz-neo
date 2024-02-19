@@ -4,24 +4,21 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
-import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.databinding.FragmentWebviewImprintBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ImprintWebViewFragment : WebViewFragment<
         Article,
@@ -69,34 +66,18 @@ class ImprintWebViewFragment : WebViewFragment<
 
     override fun setHeader(displayable: Article) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val title = getString(R.string.imprint)
-            view?.findViewById<TextView>(R.id.section)?.apply {
-                text = title
-            }
-
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the
             // Fragment was already being destroyed.
             // If there is no more context available we return from the coroutine immediately.
-            val context = this@ImprintWebViewFragment.context ?: return@launch
+            val context = context ?: return@launch
+
+            val sectionView = view?.findViewById<TextView>(R.id.section)
+            sectionView?.setText(R.string.imprint)
 
             val issueStub = displayable.getIssueStub(context.applicationContext)
-            issueStub?.apply {
-                if (isWeekend) {
-                    val weekendTypefaceFileEntry =
-                        fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
-                    val weekendTypefaceFile = weekendTypefaceFileEntry?.let(storageService::getFile)
-                    weekendTypefaceFile?.let {
-                        FontHelper.getInstance(context.applicationContext)
-                            .getTypeFace(it)?.let { typeface ->
-                                withContext(Dispatchers.Main) {
-                                    view?.findViewById<TextView>(R.id.section)?.typeface = typeface
-                                    view?.findViewById<TextView>(R.id.article_num)?.typeface =
-                                        typeface
-                                }
-                            }
-                    }
-                }
+            if (issueStub?.isWeekend == true) {
+                sectionView?.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
             }
         }
     }

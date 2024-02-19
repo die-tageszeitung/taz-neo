@@ -5,4 +5,8 @@
     <item name="appFontAlternative" format="reference" type="font">@font/quatext_regular</item>
     <item name="appFontCoachMarkHeader" format="reference" type="font">@font/american_typewriter_condensed_bold</item>
     <item name="appFontCoachMarkText" format="reference" type="font">@font/aktiv_grotesk_regular</item>
+
+    <item name="appFontKnileRegular" format="reference" type="font">@font/knile_regular</item>
+    <item name="appFontKnileSemiBold" format="reference" type="font">@font/knile_semibold</item>
+    <item name="appFontKnileLight" format="reference" type="font">@font/knile_light</item>
 </resources>

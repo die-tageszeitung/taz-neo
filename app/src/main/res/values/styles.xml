@@ -506,6 +506,12 @@
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
+    <style name="TextAppearance.Marketing.Head" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontKnileLight</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
     <style name="TextAppearance.Marketing.Head.Aktiv" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">25sp</item>
@@ -578,16 +584,7 @@
         <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <style name="TextAppearance.BottomSheetWithTwoColumns.Title" parent="TextAppearance.AppCompat">
-        <!-- Defined in Figma as GUI/marketing-head -->
-        <item name="android:textSize">30sp</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
-
-    <style name="TextAppearance.BottomSheetWithTwoColumns.Description" parent="TextAppearance.Settings">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:lineSpacingExtra">4.5sp</item>
-    </style>
+    <style name="TextAppearance.BottomSheetWithTwoColumns.Title" parent="TextAppearance.Marketing.Head" />
+    <style name="TextAppearance.BottomSheetWithTwoColumns.Description" parent="TextAppearance.Info.BodyText" />
 
 </resources>

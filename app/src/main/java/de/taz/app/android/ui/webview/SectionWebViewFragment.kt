@@ -17,6 +17,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.UiThread
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.marginLeft
@@ -29,7 +30,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import de.taz.app.android.KNILE_SEMIBOLD_RESOURCE_FILE_NAME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
@@ -40,7 +40,6 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
-import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -167,21 +166,7 @@ class SectionWebViewFragment : WebViewFragment<
 
             // Change typeface (to Knile) if it is weekend issue but not on title section:
             if (isWeekend || (isWochentaz && !isFirst)) {
-                val weekendTypeface = withContext(Dispatchers.IO) {
-                    val weekendTypefaceFileEntry =
-                        fileEntryRepository.get(KNILE_SEMIBOLD_RESOURCE_FILE_NAME)
-                    val weekendTypefaceFile =
-                        weekendTypefaceFileEntry?.let(storageService::getFile)
-                    weekendTypefaceFile?.let {
-                        FontHelper.getInstance(context.applicationContext)
-                            .getTypeFace(it)
-                    }
-                }
-
-                withContext(Dispatchers.Main) {
-                    sectionTextView?.typeface =
-                        weekendTypeface
-                }
+                sectionTextView?.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
             }
 
 
