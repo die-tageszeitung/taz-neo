@@ -11,7 +11,6 @@
     <color name="superLightGrey">#E3E3E3</color>
     <color name="superSuperLightGrey">#F0F0F0</color>
     <color name="superSuperSuperLightGrey">#F4F4F4</color>
-    <color name="anotherLightGrey">#E9E9EA</color>
     <color name="againSomeLightGreyWith70PercentOpacity">#B3979797</color>
     <color name="anotherDarkGrey">#3C3C43</color>
     <color name="lightRed">#FF1919</color>
@@ -133,7 +132,7 @@
     <color name="password_hint_strength_low">@color/darkOrange</color>
 
     <color name="ic_close_button_foreground_color">@color/anotherDarkGrey</color>
-    <color name="ic_close_button_background_color">@color/anotherLightGrey</color>
+    <color name="ic_close_button_background_color">#E6E6E8</color>
 
     <color name="fragment_article_web_view_tap_icon_color">@color/againSomeLightGreyWith70PercentOpacity</color>
 </resources>

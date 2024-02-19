@@ -38,4 +38,7 @@
     <color name="settings_plus_minus_icon_circle_color">@color/mediumLightGrey</color>
     <color name="read_minutes">@color/mediumLightGrey</color>
     <color name="material_switch_color_unchecked">@color/darkGrey</color>
+
+    <color name="ic_close_button_foreground_color">#9FA1A7</color>
+    <color name="ic_close_button_background_color">#373739</color>
 </resources>
