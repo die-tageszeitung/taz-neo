@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import de.taz.app.android.R
+import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
 import de.taz.app.android.api.models.*
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
@@ -64,11 +65,6 @@ class ArticleWebViewFragment :
                 arguments = args
             }
         }
-    }
-
-    override fun onPause() {
-        hideTapIcons()
-        super.onPause()
     }
 
     override fun onAttach(context: Context) {
@@ -273,26 +269,34 @@ class ArticleWebViewFragment :
 
     private fun showRightTapIcon() {
         viewBinding.apply {
-            rightTapIcon.visibility = View.VISIBLE
-            leftTapIcon.visibility = View.GONE
+            rightTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            leftTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
         }
     }
     private fun showLeftTapIcon() {
         viewBinding.apply {
-            leftTapIcon.visibility = View.VISIBLE
-            rightTapIcon.visibility = View.GONE
+            leftTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            rightTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
         }
     }
     private fun showBothTapIcons() {
         viewBinding.apply {
-            leftTapIcon.visibility = View.VISIBLE
-            rightTapIcon.visibility = View.VISIBLE
+            leftTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            rightTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
         }
     }
     private fun hideTapIcons() {
         viewBinding.apply {
-            leftTapIcon.visibility = View.GONE
-            rightTapIcon.visibility = View.GONE
+            leftTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            rightTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
         }
     }
 

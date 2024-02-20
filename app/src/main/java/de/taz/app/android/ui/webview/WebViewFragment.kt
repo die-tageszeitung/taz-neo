@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.View.OnScrollChangeListener
 import android.webkit.WebSettings
 import android.widget.LinearLayout
 import androidx.annotation.IntDef
@@ -36,6 +35,7 @@ import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.TazApiCssHelper
+import de.taz.app.android.ui.HorizontalDirection
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
@@ -242,6 +242,8 @@ abstract class WebViewFragment<
                 SCROLL_FORWARD -> issueViewerViewModel.goNextArticle.postValue(true)
             }
         }
+        // When scrolling hide the tap icons
+        currentWebView.showTapIcon?.invoke(HorizontalDirection.NONE)
     }
 
     /**
