@@ -419,7 +419,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
             R.id.bottom_navigation_action_size -> {
-                TextSettingsBottomSheetFragment()
+                TextSettingsBottomSheetFragment.newInstance()
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
                 lifecycleScope.launch {
                     ArticleSizeCoachMark.setFunctionAlreadyDiscovered(requireContext())

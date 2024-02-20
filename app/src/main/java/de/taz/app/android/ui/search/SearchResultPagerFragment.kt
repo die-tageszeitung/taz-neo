@@ -251,7 +251,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 share()
 
             R.id.bottom_navigation_action_size ->
-                TextSettingsBottomSheetFragment()
+                TextSettingsBottomSheetFragment.newInstance(hideMultiColumnModeSwitch = true)
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
         }
     }

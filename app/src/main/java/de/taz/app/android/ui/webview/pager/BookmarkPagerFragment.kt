@@ -245,7 +245,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 share()
 
             R.id.bottom_navigation_action_size ->
-                TextSettingsBottomSheetFragment()
+                TextSettingsBottomSheetFragment.newInstance()
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
 
             R.id.bottom_navigation_action_audio -> audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()
