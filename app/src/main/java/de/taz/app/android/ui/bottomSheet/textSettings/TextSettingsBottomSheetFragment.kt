@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -27,12 +28,23 @@ class TextSettingsBottomSheetFragment :
 
     companion object {
         const val TAG = "textSettingsBottomSheetFragment"
+        private const val ARGUMENT_HIDE_MULTI_COLUMN_MODE_SWITCH = "hideMultiColumnModeSwitch"
+
+        fun newInstance(hideMultiColumnModeSwitch: Boolean = false) =
+            TextSettingsBottomSheetFragment().apply {
+                arguments = bundleOf(
+                    ARGUMENT_HIDE_MULTI_COLUMN_MODE_SWITCH to hideMultiColumnModeSwitch
+                )
+            }
     }
 
     private lateinit var authHelper: AuthHelper
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tracker: Tracker
     private val viewModel by viewModels<TextSettingsViewModel>()
+
+    private val hideMultiColumnModeSwitch: Boolean
+        get() = arguments?.getBoolean(ARGUMENT_HIDE_MULTI_COLUMN_MODE_SWITCH) ?: false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -76,7 +88,7 @@ class TextSettingsBottomSheetFragment :
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
         lifecycleScope.launch {
-            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid() && hideMultiColumnModeSwitch) {
                 viewBinding.settingSingleColumn.setOnClickListener {
                     setMultiColumnMode(active = false)
                     maybeShowSingleColumnBottomSheet()
