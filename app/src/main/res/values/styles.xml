@@ -67,14 +67,14 @@
 
     <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">true</item>
         <item name="backgroundTint">@color/buttonColor</item>
         <item name="maxWidth">@dimen/button_max_width</item>
     </style>
 
     <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="fontFamily">@font/appFontBold</item>
         <item name="backgroundTint">@color/backgroundColor</item>
         <item name="android:includeFontPadding">true</item>
         <item name="strokeColor">@color/buttonColor</item>

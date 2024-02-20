@@ -9,7 +9,7 @@
 
     <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
         <item name="android:includeFontPadding">false</item>
         <item name="backgroundTint">@color/buttonColor</item>
@@ -17,7 +17,7 @@
     </style>
 
     <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="backgroundTint">@color/backgroundColor</item>
         <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
         <item name="android:includeFontPadding">false</item>
