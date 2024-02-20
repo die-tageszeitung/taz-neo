@@ -53,8 +53,13 @@
     </style>
 
     <style name="AppTheme.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
-        <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/AppTheme.BottomSheetStyle</item>
+        <!--
+            The BottomSheet animation shows some status bar artifacts when it has some transparency.
+            Somehow when lying to Android about the windowTranslucentStatus the animation effect is
+            much nicer on most screens.
+        -->
+        <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>

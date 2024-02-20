@@ -314,6 +314,8 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
-    private fun openDatePicker() = showBottomSheet(DatePickerFragment())
+    private fun openDatePicker() {
+        DatePickerFragment().show(childFragmentManager, DatePickerFragment.TAG)
+    }
 
 }

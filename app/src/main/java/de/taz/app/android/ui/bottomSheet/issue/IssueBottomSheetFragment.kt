@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -64,6 +63,8 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private val homeViewModel: IssueFeedViewModel by activityViewModels()
 
     companion object {
+        const val TAG = "IssueBottomSheetFragment"
+
         fun newInstance(
             issuePublication: AbstractIssuePublication
         ): IssueBottomSheetFragment {
@@ -165,9 +166,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         //this forces the sheet to appear at max height even on landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        // this removes the translucent status of the status bar which causes some weird flickering
-        // FIXME (johannes): refactor to get see why the flag is deprecated and move to general style
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     }
 
     override fun onResume() {

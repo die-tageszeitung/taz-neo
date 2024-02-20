@@ -250,9 +250,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             R.id.bottom_navigation_action_share ->
                 share()
 
-            R.id.bottom_navigation_action_size -> {
-                showBottomSheet(TextSettingsBottomSheetFragment())
-            }
+            R.id.bottom_navigation_action_size ->
+                TextSettingsBottomSheetFragment()
+                    .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
         }
     }
 

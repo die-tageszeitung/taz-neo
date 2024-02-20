@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
-import android.view.WindowManager
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.BuildConfig
@@ -29,6 +28,10 @@ import java.util.*
 
 
 class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDatePickerBinding>() {
+
+    companion object {
+        val TAG = "DatePickerBottomSheetFragment"
+    }
 
     private val log by Log
 
@@ -56,9 +59,6 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         //this forces the sheet to appear at max height even on landscape
         val behavior = BottomSheetBehavior.from(requireView().parent as View)
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        // this removes the translucent status of the status bar which causes some weird flickering
-        // FIXME (johannes): refactor to get see why the flag is deprecated and move to general style
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
     }
 
     override fun onResume() {
