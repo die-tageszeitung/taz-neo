@@ -26,11 +26,9 @@ open class HomeMomentViewActionListener(
 
     override fun onLongClicked(coverPublication: AbstractCoverPublication) {
         issueFeedFragment.lifecycleScope.launch(Dispatchers.Main) {
-            issueFeedFragment.showBottomSheet(
-                IssueBottomSheetFragment.newInstance(
-                    IssuePublication(coverPublication)
-                )
-            )
+            IssueBottomSheetFragment
+                .newInstance(IssuePublication(coverPublication))
+                .show(issueFeedFragment.childFragmentManager, IssueBottomSheetFragment.TAG)
         }
     }
 
