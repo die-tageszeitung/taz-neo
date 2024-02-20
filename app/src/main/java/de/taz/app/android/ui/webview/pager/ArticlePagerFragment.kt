@@ -36,6 +36,7 @@ import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewPagerBinding
+import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -186,7 +187,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                         // Observer multi column mode only when tablet and logged in
                         tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) { isMultiColumn ->
                             viewBinding.webviewPagerViewpager.isUserInputEnabled = !isMultiColumn
-                            pinCollapsingToolBar(isMultiColumn)
+                            viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
                         }
                         // Maybe show multi column bottom sheet
                         lifecycleScope.launch {
@@ -204,12 +205,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                 }
             }
         }
+
         issueContentViewModel.goNextArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it) {
                 viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
                 issueContentViewModel.goNextArticle.value = false
             }
         }
+
         issueContentViewModel.goPreviousArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it) {
                 viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
