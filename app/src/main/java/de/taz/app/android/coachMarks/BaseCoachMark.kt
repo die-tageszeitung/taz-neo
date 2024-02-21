@@ -39,7 +39,7 @@ abstract class BaseCoachMark(private val context: Context, private val lifecycle
     protected val tracker = Tracker.getInstance(context.applicationContext)
     private val isPortrait =
         context.resources.displayMetrics.heightPixels > context.resources.displayMetrics.widthPixels
-    private val isTabletMode = context.resources.getBoolean(R.bool.isTablet)
+    protected val isTabletMode = context.resources.getBoolean(R.bool.isTablet)
     private val showConditions = isPortrait || isTabletMode
 
     protected val log by Log

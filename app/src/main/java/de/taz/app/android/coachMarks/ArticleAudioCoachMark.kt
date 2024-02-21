@@ -31,8 +31,9 @@ class ArticleAudioCoachMark(articlePagerFragment: ArticlePagerFragment, private 
 
         val currentAppSession = generalDataStore.appSessionCount.get()
         val thisCoachMarkShownOnSession = coachMarkDataStore.articleAudioCoachMarkShown.get()
+        val multiColumnBottomSheetAlreadyShown = generalDataStore.multiColumnModeBottomSheetAlreadyShown.get()
 
-        if (thisCoachMarkShownOnSession == 0L) {
+        if (thisCoachMarkShownOnSession == 0L && (!isTabletMode || multiColumnBottomSheetAlreadyShown )) {
             getLocationAndShowLayout(menuItem, R.layout.coach_mark_article_audio)
             coachMarkDataStore.articleAudioCoachMarkShown.set(
                 currentAppSession
