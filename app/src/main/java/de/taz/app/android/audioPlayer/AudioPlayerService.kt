@@ -25,6 +25,7 @@ import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -397,6 +398,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             try {
                 val audioItem = audioPlayerItemInitHelper.initAudioPlayerItem(initItem)
                 onAudioPlayerItemInit(initItem, audioItem)
+            } catch (e: CancellationException) {
+                log.verbose("AudioPlayer initialization was canceled")
             } catch (e: Exception) {
                 onAudioPlayerItemError(initItem, e)
             }
