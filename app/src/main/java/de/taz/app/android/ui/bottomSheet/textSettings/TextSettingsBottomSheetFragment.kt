@@ -88,7 +88,7 @@ class TextSettingsBottomSheetFragment :
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
         lifecycleScope.launch {
-            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid() && hideMultiColumnModeSwitch) {
+            if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid() && !hideMultiColumnModeSwitch) {
                 viewBinding.settingSingleColumn.setOnClickListener {
                     setMultiColumnMode(active = false)
                     maybeShowSingleColumnBottomSheet()
