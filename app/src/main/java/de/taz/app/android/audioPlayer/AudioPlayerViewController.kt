@@ -1,6 +1,5 @@
 package de.taz.app.android.audioPlayer
 
-import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -21,14 +20,20 @@ import androidx.media3.ui.TimeBar.OnScrubListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
-import de.taz.app.android.audioPlayer.DisplayMode.*
+import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
+import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
+import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET
+import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -83,6 +88,7 @@ class AudioPlayerViewController(
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
     private lateinit var glideRequestManager: RequestManager
+    private lateinit var generalDataStore: GeneralDataStore
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
@@ -101,6 +107,7 @@ class AudioPlayerViewController(
         // FIXME (johannes): Re-consider adding the player views here if it prevents flickering during Activity changes
         isTabletMode = activity.resources.getBoolean(R.bool.isTablet)
         glideRequestManager = Glide.with(activity)
+        generalDataStore = GeneralDataStore.getInstance(activity.applicationContext)
     }
 
     private fun onStart() {
@@ -634,16 +641,27 @@ class AudioPlayerViewController(
         audioPlayerService.setPlayerExpanded(expanded)
         when (openItemSpec) {
             is UiState.OpenItemSpec.OpenIssueItemSpec -> {
-                val intent = IssueViewerActivity.newIntent(
-                    activity,
-                    IssuePublication(openItemSpec.issueKey),
-                    openItemSpec.displayableKey
-                )
+                launch {
+                    val isPdfMode = generalDataStore.pdfMode.get()
+                    val intent = if (isPdfMode) {
+                        PdfPagerActivity.newIntent(
+                            activity,
+                            IssuePublicationWithPages(openItemSpec.issueKey),
+                            openItemSpec.displayableKey
+                        )
+                    } else {
+                        IssueViewerActivity.newIntent(
+                            activity,
+                            IssuePublication(openItemSpec.issueKey),
+                            openItemSpec.displayableKey
+                        )
+                    }
 
-                if (activity is IssueViewerActivity) {
-                    activity.finish()
+                    if (activity is IssueViewerActivity || activity is PdfPagerActivity) {
+                        activity.finish()
+                    }
+                    activity.startActivity(intent)
                 }
-                activity.startActivity(intent)
             }
         }
     }
