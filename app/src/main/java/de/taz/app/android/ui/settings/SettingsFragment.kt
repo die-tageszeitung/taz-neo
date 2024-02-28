@@ -201,9 +201,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
 
             fragmentSettingsTapToScroll.setOnCheckedChangeListener { _, isChecked ->
-                if (viewModel.multiColumnModeLiveData.value == false) {
-                    setTapToScroll(isChecked)
-                }
+                setTapToScroll(isChecked)
             }
 
             fragmentSettingsKeepScreenOn.setOnCheckedChangeListener { _, isChecked ->
@@ -331,7 +329,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 showMultiColumnMode(enabled)
             }
             tapToScrollLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showTapToScroll(enabled || multiColumnModeLiveData.value == true)
+                showTapToScroll(enabled)
             }
             keepScreenOnLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { screenOn ->
                 showKeepScreenOn(screenOn)
@@ -644,12 +642,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun showMultiColumnMode(multiColumnModeEnabled: Boolean) {
         viewBinding.fragmentSettingsMultiColumnMode.isChecked =
             multiColumnModeEnabled
-        viewBinding.fragmentSettingsTapToScroll.isEnabled = !multiColumnModeEnabled
-        if (!multiColumnModeEnabled) {
-            showTapToScroll(viewModel.tapToScrollLiveData.value == true)
-        } else {
-            showTapToScroll(true)
-        }
     }
 
     private fun showTapToScroll(enabled: Boolean) {
