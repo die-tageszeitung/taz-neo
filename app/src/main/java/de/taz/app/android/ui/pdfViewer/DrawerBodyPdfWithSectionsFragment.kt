@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -13,6 +14,7 @@ import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -35,6 +37,7 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
+    private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
     private lateinit var adapter: PageWithArticlesAdapter
     private lateinit var toastHelper: ToastHelper
@@ -72,6 +75,7 @@ class DrawerBodyPdfWithSectionsFragment :
         }
 
         pdfPagerViewModel.issueStubLiveData.observe(viewLifecycleOwner) { issueStub ->
+            drawerAudioPlayerViewModel.setIssueStub(issueStub)
             val dateString = DateHelper.stringToLocalizedMonthAndYearString(issueStub.date)
             viewBinding.fragmentDrawerBodyPdfWithSectionsTitle.text = dateString
         }
@@ -93,6 +97,9 @@ class DrawerBodyPdfWithSectionsFragment :
         viewBinding.fragmentDrawerBodyPdfWithSectionsCurrentPageTitle.setOnClickListener {
             tracker.trackDrawerTapPageEvent()
             goToCurrentPage()
+        }
+        viewBinding.playIssueLayout.setOnClickListener {
+            drawerAudioPlayerViewModel.handleOnPlayAllClicked()
         }
     }
 

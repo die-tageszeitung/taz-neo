@@ -47,6 +47,28 @@
         </androidx.cardview.widget.CardView>
 
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/play_issue_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
+            app:layout_constraintEnd_toStartOf="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
+            app:layout_constraintTop_toTopOf="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header">
+
+            <ImageView
+                android:id="@+id/fragment_drawer_play_issue_icon"
+                android:layout_width="@dimen/drawer_play_issue_icon_size"
+                android:layout_height="@dimen/drawer_play_issue_icon_size"
+                android:contentDescription="@string/drawer_play_issue"
+                android:src="@drawable/ic_audio"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/drawer_sections_header_action" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <TextView
             android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
             android:layout_width="wrap_content"
