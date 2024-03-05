@@ -49,7 +49,6 @@ import java.util.Calendar
 import java.util.Date
 
 
-private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
 private const val SEARCH_RESULT_PAGER_BACKSTACK_NAME = "search_result_pager"
 
 class SearchActivity :
@@ -143,14 +142,14 @@ class SearchActivity :
             }
 
             searchTitle.editText?.doAfterTextChanged {
-                val searchTitle: String? = it?.toString()
+                val searchTitle: String? = it?.toString()?.takeUnless { it.isBlank() }
                 viewModel.setSelectedAdvancedOptions(
                     viewModel.selectedSearchOptions.value.advancedOptions.copy(title = searchTitle)
                 )
             }
 
             searchAuthor.editText?.doAfterTextChanged {
-                val searchAuthor: String? = it?.toString()
+                val searchAuthor: String? = it?.toString()?.takeUnless { it.isBlank() }
                 viewModel.setSelectedAdvancedOptions(
                     viewModel.selectedSearchOptions.value.advancedOptions.copy(author = searchAuthor)
                 )
@@ -185,20 +184,14 @@ class SearchActivity :
                 }
 
                 launch {
-                    viewModel.isAdvancedSearchOpen.collect {
-                        setAdvancedSearchLayoutVisibility(it)
-                    }
-                }
-
-                launch {
                     viewModel.isAdvancedSearchHighlighted.collect {
                         setAdvancedSearchIndicator(it)
                     }
                 }
 
                 launch {
-                    viewModel.searchUiState.collect {
-                        updateUiState(it)
+                    viewModel.searchUiStateWithAdvancedSearchOpen.collect { (searchUiState, isAdvancedSearchOpen) ->
+                        updateUiState(searchUiState, isAdvancedSearchOpen)
                     }
                 }
 
@@ -339,7 +332,7 @@ class SearchActivity :
         }
     }
 
-    private fun updateUiState(state: SearchUiState) {
+    private fun updateUiState(state: SearchUiState, isAdvancedSearchOpen: Boolean) {
         when (state) {
             SearchUiState.Init -> {
                 hideSoftInputKeyboard()
@@ -350,7 +343,10 @@ class SearchActivity :
                         editText?.text?.clear()
                         clearFocus()
                     }
-                    searchResultAmount.isVisible = false
+                    searchResultAmount.apply {
+                        text = null
+                        isVisible = false
+                    }
                     searchCancelButton.isVisible = false
                 }
                 showSearchDescription()
@@ -398,6 +394,16 @@ class SearchActivity :
                 }
                 updateSearchResults(state.searchResults)
             }
+        }
+
+        // Set the visibility of the advanced search views,
+        if (isAdvancedSearchOpen) {
+            // Hide all the views that might overlap with the advanced search overlay
+            hideSearchDescription()
+            viewBinding.searchResultAmount.isVisible = false
+            showAdvancedSearchLayout()
+        } else {
+            hideAdvancedSearchLayout()
         }
     }
 
@@ -471,24 +477,18 @@ class SearchActivity :
         )
     }
 
-    private fun setAdvancedSearchLayoutVisibility(isVisible: Boolean) {
+    private fun hideAdvancedSearchLayout() {
         viewBinding.apply {
-            if (!isVisible) {
-                val showSearchDescription = viewModel.searchUiState.value is SearchUiState.Init
-                searchDescription.isVisible = showSearchDescription
-                searchDescriptionIcon.isVisible = showSearchDescription
+            expandableAdvancedSearch.isVisible = false
+            advancedSearchTitle.isVisible = false
+        }
+    }
 
-                searchResultAmount.isVisible = true
-                expandableAdvancedSearch.isVisible = false
-                advancedSearchTitle.isVisible = false
-            } else {
-                searchDescription.isVisible = false
-                searchDescriptionIcon.isVisible = false
-                searchResultAmount.isVisible = false
-                expandableAdvancedSearch.isVisible = true
-                advancedSearchTitle.isVisible = true
-                searchInput.error = null
-            }
+    private fun showAdvancedSearchLayout() {
+        viewBinding.apply {
+            expandableAdvancedSearch.isVisible = true
+            advancedSearchTitle.isVisible = true
+            searchInput.error = null
         }
     }
 

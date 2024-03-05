@@ -58,7 +58,6 @@ class SearchResultViewModel(
 
     // Ui state for the search result list
     private val _searchUiState = MutableStateFlow<SearchUiState>(SearchUiState.Init)
-    val searchUiState: StateFlow<SearchUiState> = _searchUiState.asStateFlow()
 
     // Error state for toasts/popups
     // might be merged to _searchUiState if needed for better handling
@@ -235,7 +234,7 @@ class SearchResultViewModel(
     // region advanced search ui state
     // The current input/ui state of the advanced search options.
     private val _selectedSearchOptions =
-        MutableStateFlow(SearchOptions("", AdvancedSearchOptions.Default))
+        MutableStateFlow(SearchOptions("", defaultAdvancedSearchOptions))
     val selectedSearchOptions: StateFlow<SearchOptions> = _selectedSearchOptions.asStateFlow()
 
     fun setSelectedSearchText(searchText: String) {
@@ -249,6 +248,12 @@ class SearchResultViewModel(
 
     private val _isAdvancedSearchOpen: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isAdvancedSearchOpen: StateFlow<Boolean> = _isAdvancedSearchOpen.asStateFlow()
+
+    // Ui state for the search result list with the additional open state of the advanced search overlay
+    val searchUiStateWithAdvancedSearchOpen: Flow<Pair<SearchUiState, Boolean>> =
+        _searchUiState.combine(_isAdvancedSearchOpen) { searchUiState, isAdvancedSearchOpen ->
+            searchUiState to isAdvancedSearchOpen
+        }
 
     fun toggleAdvancedSearchOpen() {
         // Reset the UI state to the currently shown search results (if there are any)

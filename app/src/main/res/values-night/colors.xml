@@ -9,6 +9,7 @@
     <color name="bottom_sheet_background">@color/darkGrey</color>
     <color name="navigation_drawer_background">@color/darkGrey</color>
     <color name="search_field_background_color">@color/darkGrey</color>
+    <color name="activity_search_field_background_color">@color/darkGrey</color>
 
     <color name="bottom_sheet_divider_color">@color/lightGrey</color>
     <color name="bottom_sheet_background_box_color">@color/darkGrey</color>
