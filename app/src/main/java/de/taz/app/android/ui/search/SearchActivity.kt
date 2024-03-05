@@ -45,7 +45,8 @@ import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 
 private const val DEFAULT_SEARCH_RESULTS_TO_FETCH = 20
