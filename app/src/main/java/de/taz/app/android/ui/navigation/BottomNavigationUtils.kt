@@ -119,6 +119,7 @@ fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavi
 // Always navigate back to Home (MainActivity)
 // To be used from the root bottom navigation activities.
 fun Activity.bottomNavigationBack() {
+    finish()
     navigateToMain()
 }
 
