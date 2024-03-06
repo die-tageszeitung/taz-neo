@@ -286,6 +286,7 @@
 
     <string name="login_email_hint">E-Mail-Adresse</string>
     <string name="login_email_error_empty">E-Mail-Adresse muss angegeben sein.</string>
+    <string name="login_email_message_empty">Darf nicht leer sein.</string>
     <string name="login_email_error_invalid">E-Mail-Adresse ungültig.</string>
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
     <string name="login_subscription_id_error_not_numeric">Ihre Abo-Nummer muss aus Ziffern bestehen.</string>

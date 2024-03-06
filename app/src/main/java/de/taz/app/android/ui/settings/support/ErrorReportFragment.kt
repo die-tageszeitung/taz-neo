@@ -13,13 +13,14 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
 import io.sentry.Sentry
 import kotlinx.coroutines.launch
-import java.util.*
 
 @Suppress("UNUSED")
 class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
@@ -72,18 +73,29 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
             val conditions = viewBinding.fragmentErrorReportConditions.text.toString().trim()
 
             lifecycleScope.launch {
-                if (emailValidator(email)) {
+                var inputErrors = false
+
+                if (message.isBlank()) {
+                    inputErrors = true
+                    viewBinding.fragmentErrorReportMessage.error =
+                        requireContext().getString(R.string.login_email_message_empty)
+                }
+
+                var errorReportEmail: String? = null
+                // Ignore provided mail if we are logged in
+                if (!authHelper.isLoggedIn()) {
+                    if (emailValidator(email)) {
+                        errorReportEmail = email
+                    } else {
+                        inputErrors = true
+                        viewBinding.fragmentErrorReportEmail.error =
+                            requireContext().getString(R.string.login_email_error_empty)
+                    }
+                }
+
+                if (!inputErrors) {
                     sendErrorReport(
-                        email,
-                        message,
-                        lastAction,
-                        conditions,
-                        uploadedFileName,
-                        base64String
-                    )
-                } else if (authHelper.isLoggedIn()) {
-                    sendErrorReport(
-                        email = null,
+                        errorReportEmail,
                         message,
                         lastAction,
                         conditions,
@@ -91,8 +103,6 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
                         base64String
                     )
                 } else {
-                    viewBinding.fragmentErrorReportEmail.error =
-                        requireContext().getString(R.string.login_email_error_empty)
                     viewBinding.loadingScreen.root.visibility = View.GONE
                 }
             }
