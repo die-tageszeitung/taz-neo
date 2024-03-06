@@ -174,8 +174,7 @@ android {
         }
     }
 
-    // Adds only the resource folders nonfreeLmd [and freeLmd] to the the source sets of all possible
-    // build variants nonfreeLmdProductionDebug, nonfreeLmdProductionRelease, ...
+    // Adds explicit nonfreeTaz and nonfreeLmd resource folders to all nonfree* build variants.
     // This does not add stuff like AndroidManifest.xml, etc.
     sourceSets.configureEach { sourceSet ->
         def name = sourceSet.name.toLowerCase()
@@ -191,8 +190,6 @@ android {
             sourceSet.res.srcDirs += files("$projectDir/src/nonfreeTaz/res")
         } else if (name.contains('nonfreelmd')) {
             sourceSet.res.srcDirs += files("$projectDir/src/nonfreeLmd/res")
-        } else if (name.contains('freelmd')) {
-            sourceSet.res.srcDirs += files("$projectDir/src/freeLmd/res")
         }
     }
 
@@ -250,7 +247,8 @@ android {
                 || buildType == "manualUpdateRelease" && flavorNames.contains("staging")
                 || buildType == "unminifiedRelease" && flavorNames.contains("nonfree")
                 || buildType == "unminifiedRelease" && flavorNames.contains("staging")
-                || buildType == "leakCanary") {
+                || buildType == "leakCanary"
+                || flavorNames.contains("lmd") && flavorNames.contains("free")) {
             variant.setIgnore(true)
         }
     }
