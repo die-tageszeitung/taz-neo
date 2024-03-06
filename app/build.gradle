@@ -177,12 +177,29 @@ android {
     // Adds only the resource folders nonfreeLmd [and freeLmd] to the the source sets of all possible
     // build variants nonfreeLmdProductionDebug, nonfreeLmdProductionRelease, ...
     // This does not add stuff like AndroidManifest.xml, etc.
-    sourceSets.all { sourceSet ->
-        if (sourceSet.name.toLowerCase().contains('nonfreelmd')) {
+    sourceSets.configureEach { sourceSet ->
+        def name = sourceSet.name.toLowerCase()
+
+        // The test variants are not using the resource sourceSets from the main variant at all,
+        // so we must not add additional resource dirs, as they can't resolve references to values
+        // defined for example the main dimens.xml
+        if (name.startsWith("test") || name.startsWith("androidtest")) {
+            return
+        }
+
+        if (name.contains('nonfreetaz')) {
+            sourceSet.res.srcDirs += files("$projectDir/src/nonfreeTaz/res")
+        } else if (name.contains('nonfreelmd')) {
             sourceSet.res.srcDirs += files("$projectDir/src/nonfreeLmd/res")
-        } else if (sourceSet.name.toLowerCase().contains('freelmd')) {
+        } else if (name.contains('freelmd')) {
             sourceSet.res.srcDirs += files("$projectDir/src/freeLmd/res")
         }
+    }
+
+
+    // Add the SQL schema files to the androidTest assets to allow for testing the migrations
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     buildTypes {
@@ -236,10 +253,6 @@ android {
                 || buildType == "leakCanary") {
             variant.setIgnore(true)
         }
-    }
-
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     // Publish the app to the Google Play store using https://github.com/Triple-T/gradle-play-publisher
