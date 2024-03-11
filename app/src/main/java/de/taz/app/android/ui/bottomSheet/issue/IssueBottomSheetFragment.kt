@@ -14,6 +14,7 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
 import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
@@ -57,6 +58,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private lateinit var toastHelper: ToastHelper
     private lateinit var authHelper: AuthHelper
     private lateinit var tracker: Tracker
+    private lateinit var generalDataStore: GeneralDataStore
 
     private val loadingScreen by lazy { view?.findViewById<View>(R.id.loading_screen) }
 
@@ -87,6 +89,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,7 +147,13 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
             applicationScope.launch {
                 try {
-                    contentService.downloadIssuePublicationToCache(issuePublication)
+                    val isPdfMode = generalDataStore.pdfMode.get()
+                    val abstractIssuePublication = if (isPdfMode) {
+                        IssuePublicationWithPages(issuePublication)
+                    } else {
+                        issuePublication
+                    }
+                    contentService.downloadIssuePublicationToCache(abstractIssuePublication)
                 } catch (e: CacheOperationFailedException) {
                     // Errors are handled in CoverViewBinding
                 } catch (e: CannotDetermineBaseUrlException) {
