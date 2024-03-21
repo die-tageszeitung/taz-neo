@@ -6,11 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
-import android.view.GestureDetector
 import android.view.MotionEvent
 import android.webkit.WebView
 import androidx.annotation.UiThread
-import androidx.core.view.GestureDetectorCompat
 import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.HorizontalDirection
@@ -23,6 +21,8 @@ import kotlin.math.abs
 
 private const val MAILTO_PREFIX = "mailto:"
 private const val SCROLL_DETECT_DISTANCE = 150L
+private const val TAP_DOWN_DETECT_TIME_MS = 500L
+private const val TAP_DISTANCE_TOLERANCE = 50L
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
@@ -43,7 +43,6 @@ class AppWebView @JvmOverloads constructor(
     private var lastTapIconShownOnSide: HorizontalDirection? = null
 
     private var overrideTouchListener: OnTouchListener? = null
-    private val gestureDetector: GestureDetectorCompat
 
     /**
      * Override the [AppWebView] touch handling with the given [OnTouchListener].
@@ -72,10 +71,6 @@ class AppWebView @JvmOverloads constructor(
             return currentTouchListener.onTouch(this, event)
         }
 
-        if (gestureDetector.onTouchEvent(event)) {
-            return true
-        }
-
         if (event.pointerCount > 1) {
             // We do not want to handle multi touch events
             return super.onTouchEvent(event)
@@ -85,6 +80,14 @@ class AppWebView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 initialX = event.x
                 initialY = event.y
+            }
+            MotionEvent.ACTION_UP -> {
+                val downTime = event.eventTime - event.downTime
+                val distanceX = abs(event.x - initialX)
+                val distanceY = abs(event.y - initialY)
+                if (downTime < TAP_DOWN_DETECT_TIME_MS && distanceX < TAP_DISTANCE_TOLERANCE && distanceY < TAP_DISTANCE_TOLERANCE) {
+                    handleTap(event.x)
+                }
             }
             MotionEvent.ACTION_MOVE -> {
                 val canScrollLeft = this.canScrollHorizontally(-1)
@@ -144,18 +147,6 @@ class AppWebView @JvmOverloads constructor(
             showTapIcon?.invoke(direction)
             lastTapIconShownOnSide = direction
         }
-    }
-
-    private val onGestureListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(event: MotionEvent): Boolean {
-            // Handle the tap, but don't consume the event
-            handleTap(event.x)
-            return false
-        }
-    }
-
-    init {
-        gestureDetector = GestureDetectorCompat(context, onGestureListener)
     }
 
     override fun loadUrl(url: String) {
