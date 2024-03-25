@@ -164,6 +164,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     decreaseAmountOfIssues()
 
                 }
+                settingsKeepIssues.setOnClickListener {
+                    resetAmountOfIssues()
+                }
                 settingsKeepMoreIssues.setOnClickListener {
                     increaseAmountOfIssues()
                 }
@@ -774,6 +777,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun decreaseAmountOfIssues() {
         viewModel.decreaseKeepIssueNumber()
+    }
+
+    private fun resetAmountOfIssues() {
+        viewModel.resetKeepIssueNumber()
     }
 
     private fun reportBug() {
