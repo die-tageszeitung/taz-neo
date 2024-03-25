@@ -60,6 +60,10 @@ class StorageDataStore private constructor(applicationContext: Context) {
         { it.toInt().coerceAtLeast(KEEP_ISSUES_MINIMUM) }
     )
 
+    suspend fun resetKeepIssuesNumber(){
+        keepIssuesNumber.set(KEEP_ISSUES_DEFAULT)
+    }
+
     val storageLocation = MappingDataStoreEntry(
         dataStore,
         intPreferencesKey(STORAGE_LOCATION),

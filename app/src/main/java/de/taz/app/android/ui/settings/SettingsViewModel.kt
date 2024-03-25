@@ -86,6 +86,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun resetKeepIssueNumber() {
+        viewModelScope.launch {
+            storageDataStore.resetKeepIssuesNumber()
+        }
+    }
+
     fun setOnlyWifi(onlyWifi: Boolean) {
         viewModelScope.launch {
             downloadDataStore.onlyWifi.set(onlyWifi)
@@ -227,7 +233,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-     fun setAlwaysShowCoachMarks(value: Boolean) {
+    fun setAlwaysShowCoachMarks(value: Boolean) {
         viewModelScope.launch {
             log.verbose("always show coach marks set to $value")
             coachMarkDataStore.alwaysShowCoachMarks.set(value)
