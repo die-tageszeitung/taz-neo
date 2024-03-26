@@ -383,6 +383,9 @@
     <string name="dialog_no_internet_title">Warnung</string>
     <string name="dialog_no_internet_message">Ich kann den taz-Server nicht erreichen, möglicherweise besteht keine Verbindung zum Internet. Oder Sie haben der App die Verwendung mobiler Daten nicht gestattet.\nSie können allerdings bereits heruntergeladene Ausgaben auch ohne Internet-Zugriff lesen.</string>
 
+    <string name="dialog_sd_card_issue_title">Fehler</string>
+    <string name="dialog_sd_card_issue_message">Einige Dateien konnten nicht geladen werden. Es scheint, dass Sie eine SD-Karte verwenden. Bitte nutzen Sie für die taz App den internen Speicher für ein reibungsloses Leseerlebnis.\n\nFalls das Problem weiterhin besteht melden Sie sich bei unserem Service unter <a href="mailto:app@taz.de">app@taz.de</a>.</string>
+
     <string name="search_advanced">erweiterte suche</string>
     <string name="search_advanced_timeslot">zeitraum</string>
     <string name="search_advanced_timeslot_until"> bis </string>

@@ -50,6 +50,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.showSdCardIssueDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
@@ -290,50 +291,57 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     private suspend fun showNavButton(navButton: Image) {
         if (this.navButton != navButton) {
             this.navButton = navButton
-            val imageDrawable = withContext(Dispatchers.IO) {
-                Glide
-                    .with(this@PdfPagerActivity)
-                    .load(storageService.getAbsolutePath(navButton))
-                    .submit()
-                    .get()
-            }
-
-            // scale factor determined in resources
-            val scaleFactor = resources.getFraction(
-                R.fraction.nav_button_scale_factor,
-                1,
-                33
-            )
-            val logicalWidth = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                imageDrawable.intrinsicWidth.toFloat(),
-                resources.displayMetrics
-            ) * scaleFactor
-
-            drawerViewController.drawerLogoWidth = logicalWidth.toInt()
-            val logicalHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                imageDrawable.intrinsicHeight.toFloat(),
-                resources.displayMetrics
-            ) * scaleFactor
-
-            withContext(Dispatchers.Main) {
-                drawerLogo.apply {
-                    setImageDrawable(imageDrawable)
-                    updateLayoutParams<LayoutParams> {
-                        width = logicalWidth.toInt()
-                        height = logicalHeight.toInt()
-                    }
+            try {
+                val imageDrawable = withContext(Dispatchers.IO) {
+                    Glide
+                        .with(this@PdfPagerActivity)
+                        .load(storageService.getAbsolutePath(navButton))
+                        .submit()
+                        .get()
                 }
-                pdfDrawerLayout.requestLayout()
+
+                // scale factor determined in resources
+                val scaleFactor = resources.getFraction(
+                    R.fraction.nav_button_scale_factor,
+                    1,
+                    33
+                )
+                val logicalWidth = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    imageDrawable.intrinsicWidth.toFloat(),
+                    resources.displayMetrics
+                ) * scaleFactor
+
+                drawerViewController.drawerLogoWidth = logicalWidth.toInt()
+                val logicalHeight = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    imageDrawable.intrinsicHeight.toFloat(),
+                    resources.displayMetrics
+                ) * scaleFactor
+
+                withContext(Dispatchers.Main) {
+                    drawerLogo.apply {
+                        setImageDrawable(imageDrawable)
+                        updateLayoutParams<LayoutParams> {
+                            width = logicalWidth.toInt()
+                            height = logicalHeight.toInt()
+                        }
+                    }
+                    pdfDrawerLayout.requestLayout()
+                }
+                // Update the clickable bounding box:
+                pdfDrawerLayout.updateDrawerLogoBoundingBox(
+                    logicalWidth.toInt(),
+                    drawerLogoWrapper.height
+                )
+                LmdLogoCoachMark(this, drawerLogo, imageDrawable)
+                    .maybeShow()
+            } catch (e: Exception) {
+                val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
+                log.error(hint, e)
+                Sentry.captureException(e)
+                showSdCardIssueDialog()
             }
-            // Update the clickable bounding box:
-            pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                logicalWidth.toInt(),
-                drawerLogoWrapper.height
-            )
-            LmdLogoCoachMark(this, drawerLogo, imageDrawable)
-                .maybeShow()
         }
     }
 

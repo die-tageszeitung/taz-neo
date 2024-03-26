@@ -25,9 +25,12 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.drawer.DrawerViewController
+import de.taz.app.android.util.Log
+import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ExecutionException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
@@ -57,6 +60,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var viewerFragment: Fragment? = null
+    private val log by Log
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -193,49 +197,56 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         val navButtonPath = storageService.getAbsolutePath(navButton)
         if (this.navButton != navButton && navButtonPath != null) {
             this.navButton = navButton
-            val imageDrawable = withContext(Dispatchers.IO) {
-                Glide
-                    .with(this@TazViewerFragment)
-                    .load(navButtonPath)
-                    .submit()
-                    .get()
-            }
+            try {
+                val imageDrawable = withContext(Dispatchers.IO) {
+                    Glide
+                        .with(this@TazViewerFragment)
+                        .load(navButtonPath)
+                        .submit()
+                        .get()
+                }
 
-            // scale factor determined in resources
-            val scaleFactor = resources.getFraction(
-                R.fraction.nav_button_scale_factor,
-                1,
-                33
-            )
-            val logicalWidth = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                imageDrawable.intrinsicWidth.toFloat(),
-                resources.displayMetrics
-            ) * scaleFactor
+                // scale factor determined in resources
+                val scaleFactor = resources.getFraction(
+                    R.fraction.nav_button_scale_factor,
+                    1,
+                    33
+                )
+                val logicalWidth = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    imageDrawable.intrinsicWidth.toFloat(),
+                    resources.displayMetrics
+                ) * scaleFactor
 
-            drawerViewController.drawerLogoWidth = logicalWidth.toInt()
+                drawerViewController.drawerLogoWidth = logicalWidth.toInt()
 
-            val logicalHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                imageDrawable.intrinsicHeight.toFloat(),
-                resources.displayMetrics
-            ) * scaleFactor
-            withContext(Dispatchers.Main) {
-                viewBinding.apply {
-                    drawerLogo.setImageDrawable(imageDrawable)
-                    drawerLogo.alpha = navButtonAlpha
-                    drawerLogo.imageAlpha = (navButton.alpha * 255).toInt()
-                    drawerLogo.layoutParams.width = logicalWidth.toInt()
-                    drawerLogo.layoutParams.height = logicalHeight.toInt()
-                    drawerLayout.requestLayout()
+                val logicalHeight = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    imageDrawable.intrinsicHeight.toFloat(),
+                    resources.displayMetrics
+                ) * scaleFactor
+                withContext(Dispatchers.Main) {
+                    viewBinding.apply {
+                        drawerLogo.setImageDrawable(imageDrawable)
+                        drawerLogo.alpha = navButtonAlpha
+                        drawerLogo.imageAlpha = (navButton.alpha * 255).toInt()
+                        drawerLogo.layoutParams.width = logicalWidth.toInt()
+                        drawerLogo.layoutParams.height = logicalHeight.toInt()
+                        drawerLayout.requestLayout()
 
-                    if (drawerLayout.isOpen) {
-                        translateDrawerLogo(logicalWidth)
+                        if (drawerLayout.isOpen) {
+                            translateDrawerLogo(logicalWidth)
+                        }
                     }
                 }
+                TazLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
+                    .maybeShow()
+            } catch (e: ExecutionException) {
+                val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
+                log.error(hint, e)
+                Sentry.captureException(e)
+                showSdCardIssueDialog()
             }
-            TazLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
-                .maybeShow()
         }
     }
 
