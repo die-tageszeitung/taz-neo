@@ -310,7 +310,7 @@ class DownloadObserver constructor(
 
     private suspend fun maybeShowAutomaticDownloadDialog() {
         val showDialog =
-            !downloadDataStore.pdfDialogDoNotShowAgain.get() && issuePublication is IssuePublication
+            !downloadDataStore.pdfDialogDoNotShowAgain.get() && issuePublication is IssuePublication && !downloadDataStore.pdfAdditionally.get()
 
         if (showDialog) {
             val dialogView = LayoutInflater.from(fragment.context)
@@ -330,7 +330,7 @@ class DownloadObserver constructor(
                     .setPositiveButton(R.string.settings_dialog_download_load_pdf) { dialog, _ ->
                         setDownloadDataStoreEntriesAndDownloadIssuePublication(
                             doNotShowAgain = doNotShowAgainCheckboxView?.isChecked == true,
-                            pdfAdditionally = true,
+                            pdfAdditionally = doNotShowAgainCheckboxView?.isChecked == true,
                             issuePublication = IssuePublicationWithPages(issuePublication)
                         )
                         dialog.dismiss()
