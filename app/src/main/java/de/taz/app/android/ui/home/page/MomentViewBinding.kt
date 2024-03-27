@@ -9,11 +9,9 @@ import de.taz.app.android.api.models.Moment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.download.DownloadPriority
-import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
 
 
 class MomentViewBinding(
@@ -31,11 +29,9 @@ class MomentViewBinding(
     onMomentViewActionListener,
     observeDownload
 ) {
-    private val feedRepository = FeedRepository.getInstance(applicationContext)
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
-    private val toastHelper = ToastHelper.getInstance(applicationContext)
 
     override suspend fun prepareData(): CoverViewData {
         return try {
@@ -44,19 +40,11 @@ class MomentViewBinding(
                 // After 7 retries show the fallback
                 maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
             ) as Moment
-            try {
-                contentService.downloadToCache(
-                    moment,
-                    priority = DownloadPriority.High
-                )
-            } catch (e: CacheOperationFailedException) {
-                toastHelper.showConnectionToServerFailedToast()
-            }
-            // refresh moment after download
-            val downloadedMoment =
-                contentService.downloadMetadata(
-                    coverPublication,
-                ) as Moment
+            contentService.downloadToCache(moment, priority = DownloadPriority.High)
+
+            // Refresh the Moment from the db after download
+            val downloadedMoment = contentService.downloadMetadata(coverPublication) as Moment
+
             val momentImageUri = downloadedMoment.getMomentImage()?.let {
                 storageService.getFileUri(FileEntry(it))
             }
@@ -82,6 +70,7 @@ class MomentViewBinding(
                 momentUri,
                 moment.dateDownload
             )
+
         } catch (e: CacheOperationFailedException) {
             // maxRetries reached - so show the fallback cover view:
             val moment = fileEntryRepository.get(DEFAULT_MOMENT_FILE)
