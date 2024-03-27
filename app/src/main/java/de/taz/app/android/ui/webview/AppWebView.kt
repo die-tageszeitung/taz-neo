@@ -41,7 +41,6 @@ class AppWebView @JvmOverloads constructor(
     private var initialY = 0f
     private var initialOnLeftBorder = false
     private var initialOnRightBorder = false
-    private var tapIconsAlreadyShown: Boolean? = null
 
     private var overrideTouchListener: OnTouchListener? = null
 
@@ -111,19 +110,12 @@ class AppWebView @JvmOverloads constructor(
                 val triedUpOrDown = scrollUpDetected || scrollDownDetected
 
                 when {
-                    triedLeft || triedRight || triedUpOrDown -> invokeShowTapIcon(show = true)
-                    else -> invokeShowTapIcon(show = false)
+                    triedLeft || triedRight || triedUpOrDown -> showTapIconsListener?.invoke(true)
+                    else -> showTapIconsListener?.invoke(false)
                 }
             }
         }
         return super.onTouchEvent(event)
-    }
-
-    private fun invokeShowTapIcon(show: Boolean) {
-        if (show != tapIconsAlreadyShown) {
-            showTapIconsListener?.invoke(show)
-            tapIconsAlreadyShown = show
-        }
     }
 
     override fun loadUrl(url: String) {
