@@ -35,7 +35,6 @@ import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.ui.HorizontalDirection
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
@@ -243,7 +242,7 @@ abstract class WebViewFragment<
             }
         }
         // When scrolling hide the tap icons
-        currentWebView.showTapIcon?.invoke(HorizontalDirection.NONE)
+        currentWebView.showTapIconsListener?.invoke(false)
     }
 
     /**

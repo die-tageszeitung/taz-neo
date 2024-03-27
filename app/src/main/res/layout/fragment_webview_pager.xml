@@ -49,6 +49,60 @@
         android:layout_height="match_parent"
         tools:visibility="invisible" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/left_tap_icon"
+            android:layout_width="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_height="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_marginStart="@dimen/fragment_webview_article_tap_button_margin_horizontal"
+            android:background="@null"
+            android:alpha="0"
+            app:cardBackgroundColor="@color/fragment_article_web_view_tap_icon_color"
+            app:cardCornerRadius="@dimen/fragment_webview_article_tap_button_size"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1">
+
+            <ImageView
+                android:layout_width="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_height="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_marginStart="@dimen/fragment_webview_article_tap_button_inner_margin_start"
+                android:layout_marginTop="@dimen/fragment_webview_article_tap_button_inner_margin_top"
+                android:contentDescription="@string/fragment_webview_article_tap_left"
+                android:src="@drawable/ic_tap_to_scroll" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/right_tap_icon"
+            android:layout_width="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_height="@dimen/fragment_webview_article_tap_button_size"
+            android:layout_marginEnd="@dimen/fragment_webview_article_tap_button_margin_horizontal"
+            android:background="@null"
+            android:alpha="0"
+            app:cardBackgroundColor="@color/fragment_article_web_view_tap_icon_color"
+            app:cardCornerRadius="@dimen/fragment_webview_article_tap_button_size"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:alpha="1">
+
+            <ImageView
+                android:layout_width="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_height="@dimen/fragment_webview_article_tap_button_inner_size"
+                android:layout_marginStart="@dimen/fragment_webview_article_tap_button_inner_margin_start"
+                android:layout_marginTop="@dimen/fragment_webview_article_tap_button_inner_margin_top"
+                android:contentDescription="@string/fragment_webview_article_tap_right"
+                android:src="@drawable/ic_tap_to_scroll" />
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <!-- This layout might always be made visible by the BottomNavigationBehavior when the user scrolls.  -->
     <LinearLayout
@@ -68,6 +122,8 @@
             android:layout_height="@dimen/nav_bottom_height"
             style="@style/BottomNavigationToolBar"/>
     </LinearLayout>
+
+
 
 
     <!--

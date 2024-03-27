@@ -7,6 +7,7 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -19,6 +20,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.SingleColumnModeBottomSheetFragment
 import de.taz.app.android.ui.settings.SettingsActivity
+import de.taz.app.android.ui.webview.TapIconsViewModel
 import kotlinx.coroutines.launch
 
 private const val MIN_WIDTH_TO_SHOW_DESCRIPTION_TEXTS_DP = 600
@@ -42,6 +44,7 @@ class TextSettingsBottomSheetFragment :
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tracker: Tracker
     private val viewModel by viewModels<TextSettingsViewModel>()
+    private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
     private val hideMultiColumnModeSwitch: Boolean
         get() = arguments?.getBoolean(ARGUMENT_HIDE_MULTI_COLUMN_MODE_SWITCH) ?: false
@@ -92,6 +95,7 @@ class TextSettingsBottomSheetFragment :
                 viewBinding.settingSingleColumn.setOnClickListener {
                     setMultiColumnMode(active = false)
                     maybeShowSingleColumnBottomSheet()
+                    tapIconsViewModel.hideTapIcons()
                 }
                 viewBinding.settingMultiColumns.setOnClickListener {
                     setMultiColumnMode(active = true)

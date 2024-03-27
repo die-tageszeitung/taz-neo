@@ -11,7 +11,6 @@ import android.webkit.WebView
 import androidx.annotation.UiThread
 import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
-import de.taz.app.android.ui.HorizontalDirection
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +19,7 @@ import java.net.URLDecoder
 import kotlin.math.abs
 
 private const val MAILTO_PREFIX = "mailto:"
-private const val SCROLL_DETECT_DISTANCE = 150L
+private const val SCROLL_DETECT_DISTANCE = 250L
 private const val TAP_DOWN_DETECT_TIME_MS = 500L
 private const val TAP_DISTANCE_TOLERANCE = 50L
 
@@ -30,7 +29,7 @@ class AppWebView @JvmOverloads constructor(
     defStyle: Int = 0
 ) : WebView(context, attributeSet, defStyle) {
     var onBorderTapListener: ((ViewBorder) -> Unit)? = null
-    var showTapIcon: ((HorizontalDirection) -> Unit)? = null
+    var showTapIconsListener: ((Boolean) -> Unit)? = null
     private val log by Log
 
     init {
@@ -40,7 +39,9 @@ class AppWebView @JvmOverloads constructor(
 
     private var initialX = 0f
     private var initialY = 0f
-    private var lastTapIconShownOnSide: HorizontalDirection? = null
+    private var initialOnLeftBorder = false
+    private var initialOnRightBorder = false
+    private var tapIconsAlreadyShown: Boolean? = null
 
     private var overrideTouchListener: OnTouchListener? = null
 
@@ -80,6 +81,8 @@ class AppWebView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 initialX = event.x
                 initialY = event.y
+                initialOnLeftBorder  = !this.canScrollHorizontally(-1)
+                initialOnRightBorder  = !this.canScrollHorizontally(1)
             }
             MotionEvent.ACTION_UP -> {
                 val downTime = event.eventTime - event.downTime
@@ -94,58 +97,32 @@ class AppWebView @JvmOverloads constructor(
                 val canScrollRight = this.canScrollHorizontally(1)
                 val horizontalScrollDistance = event.x - initialX
                 val verticalScrollDistance = event.y - initialY
-                val anyScrollDetected =
-                    abs(horizontalScrollDistance) > SCROLL_DETECT_DISTANCE || abs(verticalScrollDistance) > SCROLL_DETECT_DISTANCE
+
+                val scrollToLeft = horizontalScrollDistance > SCROLL_DETECT_DISTANCE
+                val scrollToRight = -horizontalScrollDistance > SCROLL_DETECT_DISTANCE
                 val verticalScrollDetected =
                     abs(verticalScrollDistance) > SCROLL_DETECT_DISTANCE && abs(verticalScrollDistance) > 3 * abs(horizontalScrollDistance)
 
                 val scrollUpDetected = verticalScrollDetected && verticalScrollDistance > 0
                 val scrollDownDetected = verticalScrollDetected && verticalScrollDistance < 0
 
-                val onBordersAndScrolled = !canScrollLeft && !canScrollRight && anyScrollDetected
-                val onLeftAndScrollDown = !canScrollLeft && scrollDownDetected
-                val onRightAndScrollUp = !canScrollRight && scrollUpDetected
-
-                val showBothCondition =
-                    onBordersAndScrolled || onLeftAndScrollDown || onRightAndScrollUp
-                val showLeftCondition = !canScrollLeft || scrollUpDetected
-                val showRightCondition = !canScrollRight || scrollDownDetected
+                val triedLeft = !canScrollLeft && scrollToLeft && initialOnLeftBorder
+                val triedRight =  !canScrollRight && scrollToRight && initialOnRightBorder
+                val triedUpOrDown = scrollUpDetected || scrollDownDetected
 
                 when {
-                    showBothCondition -> invokeShowTapIcon(HorizontalDirection.BOTH)
-                    showLeftCondition -> invokeShowTapIcon(HorizontalDirection.LEFT)
-                    showRightCondition -> invokeShowTapIcon(HorizontalDirection.RIGHT)
-                    else -> invokeShowTapIcon(HorizontalDirection.NONE)
+                    triedLeft || triedRight || triedUpOrDown -> invokeShowTapIcon(show = true)
+                    else -> invokeShowTapIcon(show = false)
                 }
             }
         }
         return super.onTouchEvent(event)
     }
 
-    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
-        super.onScrollChanged(l, t, oldl, oldt)
-        // only update if horizontal scroll is detected (eg by tapping):
-        if (l != oldl) {
-            val canScrollLeft =  this.canScrollHorizontally(-1)
-            val canScrollRight = this.canScrollHorizontally(1)
-
-            if (!canScrollLeft && !canScrollRight) {
-                invokeShowTapIcon(HorizontalDirection.BOTH)
-            } else if (!canScrollRight) {
-                invokeShowTapIcon(HorizontalDirection.RIGHT)
-            } else if (!canScrollLeft) {
-                invokeShowTapIcon(HorizontalDirection.LEFT)
-            } else {
-                invokeShowTapIcon(HorizontalDirection.NONE)
-            }
-        }
-    }
-
-
-    private fun invokeShowTapIcon(direction: HorizontalDirection) {
-        if (direction != lastTapIconShownOnSide) {
-            showTapIcon?.invoke(direction)
-            lastTapIconShownOnSide = direction
+    private fun invokeShowTapIcon(show: Boolean) {
+        if (show != tapIconsAlreadyShown) {
+            showTapIconsListener?.invoke(show)
+            tapIconsAlreadyShown = show
         }
     }
 

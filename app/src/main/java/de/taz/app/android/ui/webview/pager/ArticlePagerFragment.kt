@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -19,10 +18,10 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
+import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SectionStub
@@ -57,6 +56,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
+import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.flow.filterNotNull
@@ -71,6 +71,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val audioPlayerViewModel: IssueAudioPlayerViewModel by viewModels()
+    private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var authHelper: AuthHelper
@@ -250,8 +251,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                         audioPlayerViewModel.clearErrorMessage()
                     }
                 }
+
+                launch {
+                    tapIconsViewModel.showTapIconsFlow.collect {
+                        if (it) {
+                            showTapIcons()
+                        } else {
+                            hideTapIcons()
+                        }
+                    }
+                }
             }
         }
+
         setupHeader()
     }
 
@@ -266,6 +278,24 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         val percentToHide =
             -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
         drawerAndLogoViewModel.hideLogoByPercent(percentToHide.coerceIn(0f, 1f))
+    }
+
+    private fun showTapIcons() {
+        viewBinding.apply {
+            leftTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            rightTapIcon.animate().alpha(1f).duration =
+                TAP_ICON_FADE_OUT_TIME
+        }
+    }
+
+    private fun hideTapIcons() {
+        viewBinding.apply {
+            leftTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
+            rightTapIcon.animate().alpha(0f).duration =
+                TAP_ICON_FADE_OUT_TIME
+        }
     }
 
     override fun onStart() {
@@ -288,6 +318,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
         }
 
         override fun onPageSelected(position: Int) {
+            tapIconsViewModel.hideTapIcons()
             val nextStub =
                 (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter).articleStubs[position]
             if (lastPage != null && lastPage != position) {
@@ -656,19 +687,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), Ba
                         sectionStub.sectionFileName
                     )
                 }
-            }
-        }
-    }
-
-    /**
-     * Pins the collapsing toolbar so it does not collapse on scroll down action.
-     */
-    private fun pinCollapsingToolBar(pin: Boolean = true) {
-        viewBinding.collapsingToolbarLayout.updateLayoutParams<AppBarLayout.LayoutParams> {
-            scrollFlags = if (pin) {
-                AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
-            } else {
-                AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
             }
         }
     }
