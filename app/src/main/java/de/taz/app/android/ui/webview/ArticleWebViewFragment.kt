@@ -9,21 +9,21 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.EditText
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import de.taz.app.android.R
-import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.HorizontalDirection
 import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +35,7 @@ class ArticleWebViewFragment :
     MultiColumnLayoutReadyCallback {
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
+    private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
     override val nestedScrollViewId: Int = R.id.nested_scroll_view
 
@@ -100,7 +101,7 @@ class ArticleWebViewFragment :
     }
 
     override fun onDestroyView() {
-        webView.showTapIcon = null
+        webView.showTapIconsListener = null
         super.onDestroyView()
     }
 
@@ -224,15 +225,13 @@ class ArticleWebViewFragment :
                 resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
         }
 
-        // show the navigation buttons when on border
-        webView.showTapIcon = { border ->
-            when (border) {
-                HorizontalDirection.LEFT -> showLeftTapIcon()
-                HorizontalDirection.RIGHT -> showRightTapIcon()
-                HorizontalDirection.BOTH -> showBothTapIcons()
-                HorizontalDirection.NONE -> hideTapIcons()
+        webView.showTapIconsListener = {
+            when (it) {
+                true -> tapIconsViewModel.showTapIcons()
+                false -> tapIconsViewModel.hideTapIcons()
             }
         }
+
         webView.callTazApi(
             "enableArticleColumnMode",
             calculateColumnHeight(),
@@ -256,8 +255,8 @@ class ArticleWebViewFragment :
 
         log.verbose("Change text settings: switch off multi column mode")
         viewBinding.nestedScrollView.scrollingEnabled = true
-        hideTapIcons()
-        webView.showTapIcon = null
+        webView.showTapIconsListener = null
+        tapIconsViewModel.hideTapIcons()
 
         webView.updateLayoutParams<MarginLayoutParams> {
             topMargin =
@@ -265,39 +264,6 @@ class ArticleWebViewFragment :
         }
 
         webView.callTazApi("disableArticleColumnMode")
-    }
-
-    private fun showRightTapIcon() {
-        viewBinding.apply {
-            rightTapIcon.animate().alpha(1f).duration =
-                TAP_ICON_FADE_OUT_TIME
-            leftTapIcon.animate().alpha(0f).duration =
-                TAP_ICON_FADE_OUT_TIME
-        }
-    }
-    private fun showLeftTapIcon() {
-        viewBinding.apply {
-            leftTapIcon.animate().alpha(1f).duration =
-                TAP_ICON_FADE_OUT_TIME
-            rightTapIcon.animate().alpha(0f).duration =
-                TAP_ICON_FADE_OUT_TIME
-        }
-    }
-    private fun showBothTapIcons() {
-        viewBinding.apply {
-            leftTapIcon.animate().alpha(1f).duration =
-                TAP_ICON_FADE_OUT_TIME
-            rightTapIcon.animate().alpha(1f).duration =
-                TAP_ICON_FADE_OUT_TIME
-        }
-    }
-    private fun hideTapIcons() {
-        viewBinding.apply {
-            leftTapIcon.animate().alpha(0f).duration =
-                TAP_ICON_FADE_OUT_TIME
-            rightTapIcon.animate().alpha(0f).duration =
-                TAP_ICON_FADE_OUT_TIME
-        }
     }
 
     private fun calculateColumnHeight(): Float {

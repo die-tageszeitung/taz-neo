@@ -22,4 +22,6 @@
     <dimen name="coach_mark_text_layout_padding_bottom">300dp</dimen>
     <dimen name="coach_mark_drawer_logo_text_layout_padding_top">105dp</dimen>
     <!-- end region  -->
+
+    <dimen name="tap_bar_width">110dp</dimen>
 </resources>
