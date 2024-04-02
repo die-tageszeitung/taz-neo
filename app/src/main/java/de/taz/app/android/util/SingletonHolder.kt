@@ -5,8 +5,7 @@ import androidx.annotation.VisibleForTesting
 /**
  * Singleton base class
  */
-open class SingletonHolder<T, in A>(creator: (A) -> T) {
-    private var creator: ((A) -> T)? = creator
+open class SingletonHolder<T, in A>(private val creator: (A) -> T) {
     @Volatile private var instance: T? = null
 
     protected val log by Log
@@ -28,16 +27,15 @@ open class SingletonHolder<T, in A>(creator: (A) -> T) {
             if (i2 != null) {
                 i2
             } else {
-                val created = creator!!(arg)
+                val created = creator(arg)
                 instance = created
-                creator = null
                 created
             }
         }
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun inject(injectedInstance: T) {
+    fun inject(injectedInstance: T?) {
         this.instance = injectedInstance
     }
 }

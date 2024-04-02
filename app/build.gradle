@@ -1,11 +1,19 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
+
+    id 'org.jetbrains.kotlin.plugin.parcelize'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'org.jetbrains.kotlin.plugin.allopen'
+
+    // Must be in sync with the "def room_version" below
+    id 'androidx.room' version '2.6.1'
     id 'com.github.triplet.play' version '3.9.1'
     id 'io.sentry.android.gradle' version '3.14.0'
-    id 'com.google.devtools.ksp'
-    id 'kotlin-android'
-    id 'kotlin-parcelize'
-    id 'kotlinx-serialization'
+
+    // Only define the google-services globally, and apply them only for nonfree variants
+    id 'com.google.gms.google-services' version "4.3.14" apply false
 }
 
 // WARNING: this will apply the Google Services plugin based on the gradle command,
@@ -45,20 +53,10 @@ android {
         minSdkVersion 21
         targetSdkVersion 34
 
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        // The following argument makes the Android Test Orchestrator run its
-        // "pm clear" command after each test invocation. This command ensures
-        // that the app's state is completely cleared between tests.
-        testInstrumentationRunnerArguments clearPackageData: 'true'
-
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas".toString())
-            arg("room.incremental", "true")
-        }
-
         testOptions {
-            execution 'ANDROIDX_TEST_ORCHESTRATOR'
+            unitTests {
+                includeAndroidResources = true
+            }
         }
 
         vectorDrawables.useSupportLibrary = true
@@ -194,10 +192,15 @@ android {
         }
     }
 
+    // Configure room library
+    room {
+        schemaDirectory "$projectDir/schemas"
+    }
 
-    // Add the SQL schema files to the androidTest assets to allow for testing the migrations
     sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        // Add the SQL schema files to the debug assets to allow for testing the migrations in unitTests with robolectric
+        // Unfortunately adding them to test.assets.srcDirs does not work as the Android-Gradle-Plugin is ignoring them
+        debug.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 
     buildTypes {
@@ -353,7 +356,6 @@ dependencies {
     implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
-    androidTestImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
@@ -385,52 +387,26 @@ dependencies {
 
     // testing
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    androidTestImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'junit:junit:4.13.2'
+
+    testImplementation 'org.robolectric:robolectric:4.11.1'
+    testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
-    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
-
-    androidTestImplementation "androidx.work:work-testing:$work_version"
-    testImplementation "androidx.room:room-testing:$room_version"
+    testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
     def mockito_version = '5.11.0'
     def mockito_kotlin_version = '5.2.1'
     testImplementation "org.mockito:mockito-core:$mockito_version"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin_version"
-    androidTestImplementation "org.mockito:mockito-android:$mockito_version"
-    androidTestImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin_version"
 
     // Core library
+    testImplementation 'androidx.test:core-ktx:1.5.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
-    androidTestImplementation 'androidx.test:core:1.5.0'
-    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
-
-    // AndroidJUnitRunner and JUnit Rules
-    androidTestImplementation 'androidx.test:runner:1.5.2'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestUtil 'androidx.test:orchestrator:1.4.2'
-
-
-    // Assertions
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-
-    def espressoVersion = '3.5.1'
-    // Espresso dependencies
-    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-accessibility:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-web:$espressoVersion"
-    androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
-
-    // Idling resources are also in production code
-    implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 
     // room
-    androidTestImplementation "androidx.room:room-testing:$room_version"
+    testImplementation "androidx.room:room-testing:$room_version"
 
     // leak canary
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.13'
@@ -450,13 +426,9 @@ sentry {
     autoUpload = true
 }
 
-
-
-apply plugin: 'kotlin-allopen'
 allOpen {
     annotation('de.taz.app.android.annotation.Mockable')
 }
-
 
 task generateStaticVersionInBuildGradle {
     doLast {

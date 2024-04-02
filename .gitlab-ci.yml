@@ -76,8 +76,15 @@ unitTests:
   interruptible: true
   script:
     - ./gradlew --no-daemon --console=plain :app:testNonfreeTazProductionDebugUnitTest
+  artifacts:
+    when: on_failure
+    reports:
+      junit: [
+        app/build/test-results/testNonfreeTazProductionDebugUnitTest/TEST-*.xml,
+      ]
 
-integrationTests:
+
+.integrationTests:
   stage: test
   extends: .prepareEnv
   interruptible: true
