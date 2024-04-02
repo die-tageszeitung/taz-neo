@@ -8,11 +8,10 @@ import androidx.datastore.preferences.core.Preferences
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.dto.AppNameDto
 import de.taz.app.android.api.dto.AppTypeDto
-import de.taz.app.android.api.models.AppName
-import de.taz.app.android.api.models.AppType
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Json
+import de.taz.test.SingletonsUtil
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -74,6 +73,8 @@ class GraphQlClientTest {
     @ObsoleteCoroutinesApi
     @Before
     fun setUp() {
+        SingletonsUtil.resetAll()
+
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(mainThreadSurrogate)
 
