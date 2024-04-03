@@ -11,7 +11,7 @@ import de.taz.app.android.api.dto.AppTypeDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.Json
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -73,7 +73,7 @@ class GraphQlClientTest {
     @ObsoleteCoroutinesApi
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(mainThreadSurrogate)

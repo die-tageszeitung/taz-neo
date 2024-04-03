@@ -4,6 +4,7 @@ import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.mappers.IssueMapper
 import de.taz.app.android.api.mappers.ResourceInfoMapper
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -25,13 +26,14 @@ object TestDataUtil {
         return ResourceInfoMapper.from(productDto)
     }
 
-    fun createDefaultNavButton(imageRepository: ImageRepository) {
+    fun createDefaultNavButton(imageRepository: ImageRepository): Image {
         val issue = getIssue()
         // Assumes every navButton in the testdata is the defaultNavButton
         val defaultNavButton = issue.sectionList.first().navButton
         runBlocking {
             imageRepository.saveInternal(defaultNavButton)
         }
+        return defaultNavButton
     }
 
     private fun getInputStream(fileName: String): InputStream {

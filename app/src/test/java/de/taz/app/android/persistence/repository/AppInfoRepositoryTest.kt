@@ -8,7 +8,7 @@ import de.taz.app.android.api.models.AppType
 import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.test.runTest
 import java.io.IOException
 import org.junit.After
@@ -27,7 +27,7 @@ class AppInfoRepositoryTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         appInfoRepository = AppInfoRepository.getInstance(context)

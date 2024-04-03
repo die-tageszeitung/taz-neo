@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -29,7 +29,7 @@ class ResourceInfoRepositoryTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(

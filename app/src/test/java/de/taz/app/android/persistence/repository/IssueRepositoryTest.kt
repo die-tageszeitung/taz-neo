@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
 import java.io.IOException
@@ -31,7 +31,7 @@ class IssueRepositoryTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         context = ApplicationProvider.getApplicationContext()
         db = Room.inMemoryDatabaseBuilder(

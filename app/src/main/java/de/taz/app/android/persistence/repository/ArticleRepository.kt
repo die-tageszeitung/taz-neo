@@ -194,31 +194,18 @@ class ArticleRepository private constructor(applicationContext: Context) :
             if (it.bookmarkedTime == null) {
                 val articleFileName = article.articleHtml.name
 
-                // delete authors
-                appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(
-                    articleFileName
-                ).forEach { articleAuthorImageJoin ->
-                    val amountOfArticlesOfAuthor =
-                        articleAuthorImageJoin.authorFileName?.let { author ->
-                            appDatabase.articleAuthorImageJoinDao().getArticlesForAuthor(
-                                author
-                            )
-                        }?.size ?: 2
-                    appDatabase.articleAuthorImageJoinDao().delete(articleAuthorImageJoin)
-                    if (amountOfArticlesOfAuthor == 1) {
-                        articleAuthorImageJoin.authorFileName?.let { authorFileName ->
-                            try {
-                                fileEntryRepository.delete(
-                                    fileEntryRepository.getOrThrow(
-                                        authorFileName
-                                    )
-                                )
-                            } catch (e: SQLiteConstraintException) {
-                                // do nothing as author is still referenced by another article
-                            } catch (e: NotFoundException) {
-                                log.warn("tried to delete non-existent file: $authorFileName")
-                            }
-                        }
+                // Delete all author relations of this Article
+                appDatabase.articleAuthorImageJoinDao().deleteRelationToArticle(articleFileName)
+
+                // Delete no-longer referenced Author entries
+                for (author in article.authorList) {
+                    if (author.imageAuthor != null &&
+                        appDatabase.articleAuthorImageJoinDao()
+                            .getArticlesForAuthor(author.imageAuthor.name).isEmpty()
+                    ) {
+                        // The Author Image might also be referenced by Section.imageList as an actual Image,
+                        // so we try to delete it via the ImageRepository, which will also delete the FileEntry
+                        imageRepository.delete(author.imageAuthor)
                     }
                 }
 

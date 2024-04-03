@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.FileEntry
 
 @Entity(
     tableName = "ArticleAuthor",
@@ -13,6 +14,11 @@ import de.taz.app.android.api.models.ArticleStub
             entity = ArticleStub::class,
             parentColumns = ["articleFileName"],
             childColumns = ["articleFileName"]
+        ),
+        ForeignKey(
+            entity = FileEntry::class,
+            parentColumns = ["name"],
+            childColumns = ["authorFileName"]
         )
     ],
     indices = [Index("authorFileName"), Index("articleFileName")]

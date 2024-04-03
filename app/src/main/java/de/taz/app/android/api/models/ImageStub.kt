@@ -1,8 +1,22 @@
 package de.taz.app.android.api.models
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 
-@Entity(tableName = "Image", primaryKeys = ["fileEntryName"])
+
+@Entity(
+    tableName = "Image",
+    primaryKeys = ["fileEntryName"],
+    foreignKeys = [
+        ForeignKey(
+            entity = FileEntry::class,
+            parentColumns = ["name"],
+            childColumns = ["fileEntryName"]
+        )
+    ],
+    indices = [Index("fileEntryName")]
+)
 data class ImageStub(
     val fileEntryName: String,
     val type: ImageType,

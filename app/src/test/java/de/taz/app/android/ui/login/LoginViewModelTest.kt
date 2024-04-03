@@ -1,27 +1,23 @@
 package de.taz.app.android.ui.login
 
 import android.app.Application
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.firebase.FirebaseHelper
-import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.NoOpTracker
 import de.taz.app.android.tracking.Tracker
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.runTest
 import org.junit.*
@@ -124,7 +120,7 @@ class LoginViewModelTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         // Setup mocks of implicit AuthHelper dependencies
         Tracker.inject(NoOpTracker())

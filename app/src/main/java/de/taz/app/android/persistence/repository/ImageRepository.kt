@@ -24,8 +24,8 @@ class ImageRepository private constructor(
      * This method must be called as part of a transaction, for example when saving an [Article].
      */
     suspend fun saveInternal(image: Image) {
-        appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
         fileEntryRepository.save(FileEntry(image))
+        appDatabase.imageStubDao().insertOrReplace(ImageStub(image))
     }
 
     /**
@@ -59,14 +59,18 @@ class ImageRepository private constructor(
     }
 
     suspend fun delete(image: Image) {
-        FileEntryRepository.getInstance(applicationContext).apply {
-            get(image.name)?.let { delete(it) }
-        }
+        fileEntryRepository.delete(FileEntry(image))
         appDatabase.imageStubDao().delete(ImageStub(image))
+    }
+
+    suspend fun delete(imageFileEntry: FileEntry) {
+        fileEntryRepository.delete(imageFileEntry)
+        getStub(imageFileEntry.name)?.let { imageStub ->
+            appDatabase.imageStubDao().delete(imageStub)
+        }
     }
 
     suspend fun delete(fileEntries: List<Image>) {
         fileEntries.map { delete(it) }
     }
-
 }
