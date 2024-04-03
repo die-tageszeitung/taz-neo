@@ -7,7 +7,7 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.util.Log
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -35,7 +35,7 @@ class SectionRepositoryTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(

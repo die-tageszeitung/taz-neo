@@ -3,7 +3,7 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Test
@@ -21,7 +21,7 @@ class QueryServiceTest {
 
     @Before
     fun beforeEach() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         queryService = QueryService.getInstance(context)

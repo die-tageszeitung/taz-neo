@@ -43,7 +43,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.SingletonHolder
 
-object SingletonsUtil {
+object SingletonTestUtil {
 
     private val allSingletons = listOf<SingletonHolder<*, *>>(
         ApiService,

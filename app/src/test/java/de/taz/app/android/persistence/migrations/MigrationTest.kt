@@ -285,4 +285,96 @@ class MigrationTest {
         db.close()
     }
 
+    @Test
+    fun migrate31to32() {
+        val values = ContentValues()
+        var db = helper.createDatabase(testDb, 31).apply {
+            execSQL("PRAGMA foreign_keys = ON")
+        }
+
+        val articleFileName = "article.html"
+        val imageFileName = "image.png"
+
+        // Prepare the database at version 31 by inserting to be migrated data
+        db.apply {
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName)
+                put("issueFeedName", "test")
+                put("issueDate", "2023-10-11")
+                put("pageNameList", "[]")
+                put("articleType", "STANDARD")
+                put("position", 0)
+                put("percentage", 0)
+            }
+            insert("Article", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("name", imageFileName)
+                put("storageType", "issue")
+                put("moTime", 0L)
+                put("sha256", "")
+                put("size", 0L)
+                put("folder", "")
+                put("path", "")
+                put("storageLocation", "NOT_STORED")
+            }
+            insert("FileEntry", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("fileEntryName", imageFileName)
+                put("type", "picture")
+                put("alpha", 0f)
+                put("resolution", "normal")
+            }
+            insert("Image", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName)
+                put("authorFileName", imageFileName)
+                put("`index`", 1)
+            }
+            insert("ArticleAuthor", CONFLICT_ABORT, values)
+
+            // Insert a faulty ArticleAuthor relation which references a File that does not exist
+            // As FK support is _disabled_ during Android Room Migrations it should still remain
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName)
+                put("authorFileName", "nonexistentImage.png")
+                put("`index`", 2)
+            }
+            insert("ArticleAuthor", CONFLICT_ABORT, values)
+        }
+
+        // Migrate the database to version 32
+        db = helper.runMigrationsAndValidate(testDb, 32, true, Migration31to32())
+
+        // Verify that the data was migrated correctly
+        db.query(
+            "SELECT fileEntryName FROM `Image` WHERE fileEntryName=?",
+            arrayOf(imageFileName)
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(imageFileName, cursor.getString(0))
+        }
+
+        db.query(
+            "SELECT articleFileName, authorFileName FROM `ArticleAuthor` ORDER BY `index`"
+        ).use { cursor ->
+            assertEquals(2, cursor.count)
+            assertTrue(cursor.moveToFirst())
+            assertEquals(articleFileName, cursor.getString(0))
+            assertEquals(imageFileName, cursor.getString(1))
+
+            assertTrue(cursor.moveToNext())
+            assertEquals(articleFileName, cursor.getString(0))
+            assertEquals("nonexistentImage.png", cursor.getString(1))
+        }
+
+        db.close()
+    }
 }

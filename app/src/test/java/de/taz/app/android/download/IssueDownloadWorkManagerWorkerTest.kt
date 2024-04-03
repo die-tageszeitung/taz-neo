@@ -8,10 +8,9 @@ import androidx.work.workDataOf
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
-import de.taz.app.android.ui.splash.ResourceInitUtil
 import de.taz.app.android.util.NewIssuePollingScheduler
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
@@ -42,7 +41,7 @@ class IssueDownloadWorkManagerWorkerTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         context = ApplicationProvider.getApplicationContext()
         executor = Executors.newSingleThreadExecutor()

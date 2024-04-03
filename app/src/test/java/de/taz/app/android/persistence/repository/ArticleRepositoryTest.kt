@@ -5,9 +5,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
+import de.taz.test.Fixtures
+import de.taz.test.Fixtures.copyWithFileName
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
-import de.taz.test.TestDataUtil
+import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
@@ -26,29 +28,18 @@ class ArticleRepositoryTest {
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
 
-    private val issue = TestDataUtil.getIssue()
-    private val article = issue.sectionList.first().articleList.first()
-    private val article2 = issue.sectionList[1].articleList.first()
-
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
-
-        val fileEntryRepository = FileEntryRepository.getInstance(context)
-        fileEntryRepository.appDatabase = db
+        AppDatabase.inject(db)
 
         articleRepository = ArticleRepository.getInstance(context)
-        articleRepository.appDatabase = db
-
         sectionRepository = SectionRepository.getInstance(context)
-        sectionRepository.appDatabase = db
-
         bookmarkRepository = BookmarkRepository.getInstance(context)
-        bookmarkRepository.appDatabase = db
     }
 
     @After
@@ -60,6 +51,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndRead() = runTest {
+        val article = Fixtures.article01
         articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
 
@@ -69,6 +61,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun readBase() = runTest {
+        val article = Fixtures.article01
         articleRepository.saveInternal(article)
         val fromDB = articleRepository.getStub(article.articleHtml.name)
 
@@ -78,6 +71,9 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun writeAndReadMultiple() = runTest {
+        val article = Fixtures.article01
+        val article2 = Fixtures.article02
+
         articleRepository.saveInternal(article)
         articleRepository.saveInternal(article2)
         val fromDB = articleRepository.get(article.articleHtml.name)
@@ -90,6 +86,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun delete() = runTest {
+        val article = Fixtures.article01
         articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
@@ -102,6 +99,7 @@ class ArticleRepositoryTest {
     @Test
     @Throws(Exception::class)
     fun deleteBookmarkedFails() = runTest {
+        val article = Fixtures.article01
         articleRepository.saveInternal(article)
         val fromDB = articleRepository.get(article.articleHtml.name)
         assertEquals(fromDB, article)
@@ -112,4 +110,67 @@ class ArticleRepositoryTest {
         assertNotNull(articleRepository.get(fromDBNew.articleHtml.name))
     }
 
+    @Test
+    fun `When Article is deleted then no longer referenced Authors are deleted`() = runTest {
+        //
+        // Given
+        //
+        val author = Fixtures.authorWithImage01
+        val authorImageFileName = requireNotNull(author.imageAuthor).name
+        val article = Fixtures.articleBase.copy(
+            authorList = listOf(author),
+        )
+
+        articleRepository.saveInternal(article)
+
+        val authorJoins = db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName)
+        assertEquals(1, authorJoins.size)
+        assertEquals(article.key, authorJoins[0].articleFileName)
+
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(article)
+
+
+        //
+        // THEN
+        //
+        assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article.key))
+        assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName))
+    }
+
+    @Test
+    fun `When Article is deleted then still referenced Authors are kept`() = runTest {
+        //
+        // Given
+        //
+        val author = Fixtures.authorWithImage01
+        val authorImageFileName = requireNotNull(author.imageAuthor).name
+        val article01 = Fixtures.articleBase.copyWithFileName("article01.html").copy(
+            authorList = listOf(author),
+        )
+        val article02 = article01.copyWithFileName("article02.html")
+
+
+        // Save both articles sharing the same author
+        articleRepository.saveInternal(article01)
+        articleRepository.saveInternal(article02)
+
+        assertEquals(2, db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName).size)
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(article01)
+
+
+        //
+        // THEN
+        //
+        assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article01.key))
+        assertEquals(1, db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article02.key).size)
+        assertEquals(1, db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName).size)
+    }
 }

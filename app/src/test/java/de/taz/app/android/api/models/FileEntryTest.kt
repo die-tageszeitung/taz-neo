@@ -8,7 +8,7 @@ import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import io.ktor.utils.io.jvm.javaio.*
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -31,7 +31,7 @@ class FileEntryTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(

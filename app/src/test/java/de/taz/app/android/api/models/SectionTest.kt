@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.test.RobolectricTestApplication
-import de.taz.test.SingletonsUtil
+import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -35,7 +35,7 @@ class SectionTest {
 
     @Before
     fun setUp() {
-        SingletonsUtil.resetAll()
+        SingletonTestUtil.resetAll()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
