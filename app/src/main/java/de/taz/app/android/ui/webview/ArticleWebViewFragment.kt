@@ -9,17 +9,21 @@ import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.EditText
 import androidx.core.view.updateLayoutParams
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
+import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
@@ -37,8 +41,6 @@ class ArticleWebViewFragment :
     override val viewModel by viewModels<ArticleWebViewViewModel>()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
-    override val nestedScrollViewId: Int = R.id.nested_scroll_view
-
     private lateinit var articleFileName: String
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tazApiCssHelper: TazApiCssHelper
@@ -46,6 +48,23 @@ class ArticleWebViewFragment :
     private lateinit var tracker: Tracker
 
     private var isMultiColumnMode = false
+
+    override val webView: AppWebView
+        get() = viewBinding.webView
+
+    override val nestedScrollView: NestedScrollView
+        get() = viewBinding.nestedScrollView
+
+    override val loadingScreen: View
+        get() = viewBinding.loadingScreen
+
+    override val appBarLayout: AppBarLayout? = null
+
+    // The navigation_bottom_layout is no longer part of each [ArticleWebViewFragment],
+    // but is now part of the enclosing [ArticlePagerFragment] and [SearchResultPagerFragment].
+    // To keep the refactorings small, we try to get the view from the parentFragment
+    override val navigationBottomLayout: ViewGroup?
+        get() = parentFragment?.view?.findViewById(R.id.navigation_bottom_layout)
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -269,7 +288,8 @@ class ArticleWebViewFragment :
     private fun calculateColumnHeight(): Float {
         val webViewMarginTop =
             resources.getDimensionPixelSize(R.dimen.fragment_webview_article_margin_top)
-        return viewBinding.nestedScrollView.height.toFloat() / resources.displayMetrics.density - webViewMarginTop
+
+        return viewBinding.container.height.toFloat() / resources.displayMetrics.density - webViewMarginTop
     }
 
 
@@ -282,7 +302,7 @@ class ArticleWebViewFragment :
             3
         }
         val webViewWidth =
-            viewBinding.nestedScrollView.width.toFloat() / resources.displayMetrics.density
+            viewBinding.container.width.toFloat() / resources.displayMetrics.density
         return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
     }
 

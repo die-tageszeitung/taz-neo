@@ -143,7 +143,10 @@
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
+    <dimen name="fragment_header_title_padding_top">0dp</dimen>
+    <dimen name="fragment_weekend_header_title_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
+    <dimen name="fragment_weekend_header_title_padding_bottom">12dp</dimen>
     <dimen name="fragment_header_search_result_published_date_margin_top">6dp</dimen>
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>

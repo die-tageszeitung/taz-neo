@@ -15,7 +15,7 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.HorizontalSectionSwipeCoachMark
-import de.taz.app.android.databinding.FragmentWebviewPagerBinding
+import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -30,7 +30,7 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.launch
 
 
-class SectionPagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>() {
+class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding>() {
     private val log by Log
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()

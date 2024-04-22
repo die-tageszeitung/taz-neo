@@ -34,7 +34,7 @@ import de.taz.app.android.coachMarks.HorizontalArticleSwipeCoachMark
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
-import de.taz.app.android.databinding.FragmentWebviewPagerBinding
+import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -63,7 +63,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class ArticlePagerFragment : BaseMainFragment<FragmentWebviewPagerBinding>(), BackFragment {
+class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment {
 
     private val log by Log
 

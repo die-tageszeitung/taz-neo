@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<de.taz.app.android.util.NestedCoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
@@ -23,8 +23,69 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:scrimAnimationDuration="0">
 
-            <include android:id="@+id/header"
-                layout="@layout/fragment_webview_header_section" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/headerToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/backgroundColor">
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/headerToolbarContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
+                    android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
+                    android:paddingBottom="@dimen/fragment_header_title_padding_bottom">
+
+                    <TextView
+                        android:id="@+id/section"
+                        style="@style/TextAppearance.Header.Section"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/fragment_header_default_height"
+                        android:gravity="bottom|end"
+                        android:maxLines="1"
+                        android:translationY="@dimen/fragment_header_default_title_y_translation"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/weekend_issue_date"
+                        style="@style/TextAppearance.Header.Date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/title_barrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="bottom"
+                        app:constraint_referenced_ids="weekend_issue_date, section" />
+
+                    <de.taz.app.android.ui.DottedLineView
+                        android:id="@+id/dotted_line"
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        app:barrierAllowsGoneWidgets="false"
+                        app:color="@color/textColor"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/title_barrier" />
+
+                    <TextView
+                        android:id="@+id/issue_date"
+                        style="@style/TextAppearance.Header.Date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewEnd"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/dotted_line" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.appbar.MaterialToolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -33,13 +94,10 @@
         android:id="@+id/loading_screen"
         layout="@layout/include_loading_screen" />
 
-    <!-- This needs the layout_marginBottom="@dimen/nav_bottom_height" because we still use
-         a overlapping toolbar in fragment_webview_pager.xml due to our BottomNavigationBehavior implementation -->
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/web_view_wrapper"
+        android:id="@+id/nested_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/nav_bottom_height"
         android:background="@android:color/transparent"
         android:scrollbars="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -66,4 +124,4 @@
             android:layout_marginTop="@dimen/fragment_webview_section_margin_top"
             android:overScrollMode="never" />
     </androidx.core.widget.NestedScrollView>
-</de.taz.app.android.util.NestedCoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

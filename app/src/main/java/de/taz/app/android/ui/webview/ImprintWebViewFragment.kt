@@ -1,32 +1,29 @@
 package de.taz.app.android.ui.webview
 
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.widget.TextView
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenCreated
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.databinding.FragmentWebviewImprintBinding
-import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.launch
 
 class ImprintWebViewFragment : WebViewFragment<
         Article,
         WebViewViewModel<Article>,
-        FragmentWebviewImprintBinding
+        FragmentWebviewSectionBinding
         >() {
-
-    override val nestedScrollViewId = R.id.web_view_wrapper
 
     override val viewModel by lazy {
         ViewModelProvider(
@@ -37,14 +34,20 @@ class ImprintWebViewFragment : WebViewFragment<
     }
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
-    private lateinit var storageService: StorageService
-    private lateinit var fileEntryRepository: FileEntryRepository
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        storageService = StorageService.getInstance(context.applicationContext)
-        fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
-    }
+    override val webView: AppWebView
+        get() = viewBinding.webView
+
+    override val nestedScrollView: NestedScrollView
+        get() = viewBinding.nestedScrollView
+
+    override val loadingScreen: View
+        get() = viewBinding.loadingScreen.root
+
+    override val appBarLayout: AppBarLayout
+        get() = viewBinding.appBarLayout
+
+    override val navigationBottomLayout: ViewGroup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,14 +59,6 @@ class ImprintWebViewFragment : WebViewFragment<
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        requireActivity().setupBottomNavigation(
-            viewBinding.navigationBottomImprint,
-            BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
-        )
-    }
-
     override fun setHeader(displayable: Article) {
         viewLifecycleOwner.lifecycleScope.launch {
             // Keep a copy of the current context while running this coroutine.
@@ -71,13 +66,19 @@ class ImprintWebViewFragment : WebViewFragment<
             // Fragment was already being destroyed.
             // If there is no more context available we return from the coroutine immediately.
             val context = context ?: return@launch
-
-            val sectionView = view?.findViewById<TextView>(R.id.section)
-            sectionView?.setText(R.string.imprint)
-
             val issueStub = displayable.getIssueStub(context.applicationContext)
-            if (issueStub?.isWeekend == true) {
-                sectionView?.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
+
+            viewBinding.apply {
+                issueDate.isVisible = true
+                weekendIssueDate.isVisible = false
+                section.apply {
+                    isVisible = true
+                    setText(R.string.imprint)
+
+                    if (issueStub?.isWeekend == true) {
+                        typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
+                    }
+                }
             }
         }
     }
