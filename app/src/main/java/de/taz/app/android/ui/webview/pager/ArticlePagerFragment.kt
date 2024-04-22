@@ -265,6 +265,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
 
         setupHeader()
+        setupViewPager()
     }
 
     override fun onResume() {
@@ -298,10 +299,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        setupViewPager()
-    }
 
     private fun setupViewPager() {
         viewBinding.webviewPagerViewpager.apply {

@@ -40,7 +40,7 @@ const val LOGIN_EXTRA_FROM_HOME = "LOGIN_EXTRA_FROM_HOME"
  *
  * This activity can be called via [LoginContract] with [LoginContract.Input] to login or register a
  * user from another part of the app
- * e.g. [de.taz.app.android.ui.login.fragments.ArticleLoginFragment]
+ * e.g. [de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment]
  *
  */
 class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {

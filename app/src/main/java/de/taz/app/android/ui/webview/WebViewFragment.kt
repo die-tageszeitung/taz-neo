@@ -11,9 +11,7 @@ import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
@@ -374,28 +372,28 @@ abstract class WebViewFragment<
      * This function checks if there is enough room that allow the tool bar to collapse.
      * Otherwise it is not possible to scroll down to the bottom
      */
-    protected fun addPaddingBottomIfNecessary() {
-        val webViewHeight = webView.height
+    protected fun calculatePaddingNecessaryForCollapsingToolbar(webViewHeight: Int): Int {
         val screenHeight = this.resources.displayMetrics.heightPixels
-        val difference = webViewHeight - screenHeight
         val navBottomHeight = this.resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
-        val collapsingToolBarHeight = this.resources.getDimensionPixelSize(R.dimen.fragment_header_default_height)
-        val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5*collapsingToolBarHeight
+        val collapsingToolBarHeight =
+            this.resources.getDimensionPixelSize(R.dimen.fragment_header_default_height)
+        val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5 * collapsingToolBarHeight
+        val difference = webViewHeight - screenHeight
+        return if (difference < spaceNeededThatTheToolBarCanCollapse) {
+            spaceNeededThatTheToolBarCanCollapse.toInt()
+        } else {
+            0
+        }
+    }
 
-        if (difference < spaceNeededThatTheToolBarCanCollapse) {
-            log.debug("Add paddingBottom to allow the tool bar to collapse")
+    protected fun calculatePaddingNecessaryForScrolling(webViewHeight: Int): Int {
+        val screenHeight = this.resources.displayMetrics.heightPixels
 
-            val readOnContainerView = view?.findViewById<FragmentContainerView>(R.id.fragment_article_bottom_fragment_placeholder)
-            if (readOnContainerView?.isVisible == true) {
-                readOnContainerView.updatePadding(
-                    0,0,0, spaceNeededThatTheToolBarCanCollapse.toInt()
-                )
-            } else {
-                nestedScrollView.updatePadding(
-                    0, 0, 0, spaceNeededThatTheToolBarCanCollapse.toInt()
-                )
-            }
-
+        val difference = screenHeight - webViewHeight
+        return if (difference > 0) {
+            difference + 1
+        } else {
+            0
         }
     }
 

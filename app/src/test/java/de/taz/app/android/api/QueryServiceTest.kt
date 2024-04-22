@@ -6,9 +6,8 @@ import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
-import org.junit.Test
-
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config

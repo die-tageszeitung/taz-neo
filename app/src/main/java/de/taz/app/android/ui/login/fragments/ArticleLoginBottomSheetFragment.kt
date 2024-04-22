@@ -8,13 +8,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
-import de.taz.app.android.base.ViewBindingFragment
-import de.taz.app.android.databinding.FragmentArticleReadOnBinding
+import de.taz.app.android.base.ViewBindingBottomSheetFragment
+import de.taz.app.android.databinding.FragmentArticleLoginBottomSheetBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
+import de.taz.app.android.monkey.setBehaviorState
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
@@ -35,7 +37,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>(),
+class ArticleLoginBottomSheetFragment :
+    ViewBindingBottomSheetFragment<FragmentArticleLoginBottomSheetBinding>(),
     ActivityResultCallback<LoginContract.Output> {
 
     private val log by Log
@@ -48,10 +51,11 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
     private lateinit var tracker: Tracker
 
     companion object {
-        fun create(articleFileName: String): ArticleLoginFragment {
-            val fragment = ArticleLoginFragment()
-            fragment.articleFileName = articleFileName
-            return fragment
+        const val TAG = "articleLoginBottomSheetFragment"
+        fun newInstance(articleFileName: String): ArticleLoginBottomSheetFragment {
+            val articleLoginBottomSheetFragment = ArticleLoginBottomSheetFragment()
+            articleLoginBottomSheetFragment.articleFileName = articleFileName
+            return articleLoginBottomSheetFragment
         }
     }
 
@@ -65,7 +69,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        setBehaviorState(BottomSheetBehavior.STATE_EXPANDED)
         setupInteractionHandlers()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -116,7 +120,15 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             // Elapsed form cancel button
             cancelButton.setOnClickListener {
                 // FIXME (johannes): Add tracking events for the integrated elapsed form
-                hideAllViews()
+               dismiss()
+            }
+
+            buttonClose.setOnClickListener {
+                dismiss()
+            }
+
+            cancelButtonBottom.setOnClickListener {
+                dismiss()
             }
 
             if (BuildConfig.IS_LMD){
@@ -237,12 +249,14 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
                 readOnTrialSubscriptionBox.visibility = View.GONE
                 readOnSwitchPrint2digiBox.visibility = View.GONE
                 readOnExtendPrintWithDigiBox.visibility = View.GONE
+                readOnCancelButton.visibility = View.GONE
             }
             else {
                 readOnSeparatorLine.visibility = View.VISIBLE
                 readOnTrialSubscriptionBox.visibility = View.VISIBLE
                 readOnSwitchPrint2digiBox.visibility = View.VISIBLE
                 readOnExtendPrintWithDigiBox.visibility = View.VISIBLE
+                readOnCancelButton.visibility = View.VISIBLE
             }
         }
     }
@@ -260,6 +274,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             readOnTrialSubscriptionBox.visibility = View.GONE
             readOnSwitchPrint2digiBox.visibility = View.GONE
             readOnExtendPrintWithDigiBox.visibility = View.GONE
+            readOnCancelButton.visibility = View.GONE
             readOnElapsedGroup.visibility = View.VISIBLE
 
             readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
@@ -274,6 +289,7 @@ class ArticleLoginFragment : ViewBindingFragment<FragmentArticleReadOnBinding>()
             readOnTrialSubscriptionBox.visibility = View.GONE
             readOnSwitchPrint2digiBox.visibility = View.GONE
             readOnExtendPrintWithDigiBox.visibility = View.GONE
+            readOnCancelButton.visibility = View.GONE
             readOnElapsedGroup.visibility = View.GONE
         }
     }

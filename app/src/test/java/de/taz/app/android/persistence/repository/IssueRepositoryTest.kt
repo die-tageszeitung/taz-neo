@@ -9,7 +9,6 @@ import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
-import java.io.IOException
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -17,6 +16,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.IOException
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = RobolectricTestApplication::class)

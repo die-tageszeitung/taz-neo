@@ -34,8 +34,12 @@ fun <V : View> BottomSheetBehavior<V>.doNotFlattenCorners() {
 fun BottomSheetDialogFragment.setBehaviorStateOnLandscape(@BottomSheetBehavior.StableState state: Int) {
     val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
     if (isLandscape) {
-        (dialog as? BottomSheetDialog)?.apply {
-            behavior.state = state
-        }
+        setBehaviorState(state)
+    }
+}
+
+fun BottomSheetDialogFragment.setBehaviorState(@BottomSheetBehavior.StableState state: Int) {
+    (dialog as? BottomSheetDialog)?.apply {
+        behavior.state = state
     }
 }
