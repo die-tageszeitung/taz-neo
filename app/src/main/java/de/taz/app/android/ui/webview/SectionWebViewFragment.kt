@@ -10,9 +10,9 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
 import android.view.GestureDetector.SimpleOnGestureListener
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
@@ -20,8 +20,11 @@ import androidx.annotation.UiThread
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
+import androidx.core.view.updatePadding
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
@@ -29,7 +32,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
-import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
@@ -89,11 +92,25 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
-    override val nestedScrollViewId: Int = R.id.web_view_wrapper
-
     private lateinit var sectionFileName: String
     private val isFirst: Boolean
         get() = requireArguments().getBoolean(SECTION_IS_FIRST)
+
+    private var bookmarkJob: Job? = null
+
+    override val webView: AppWebView
+        get() = viewBinding.webView
+
+    override val nestedScrollView: NestedScrollView
+        get() = viewBinding.nestedScrollView
+
+    override val loadingScreen: View
+        get() = viewBinding.loadingScreen.root
+
+    override val appBarLayout: AppBarLayout
+        get() = viewBinding.appBarLayout
+
+    override val navigationBottomLayout: ViewGroup? = null
 
     companion object {
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
@@ -139,9 +156,11 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun setHeader(displayable: Section) {
         viewLifecycleOwner.lifecycleScope.launch {
+            val viewBinding = this@SectionWebViewFragment.viewBinding
+
             val issueStub = viewModel.issueStubFlow.first()
             val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
-            val isWochentaz =  issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
+            val isWochentaz = issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the
@@ -149,59 +168,78 @@ class SectionWebViewFragment : WebViewFragment<
             // If there is no more context available we return from the coroutine immediately.
             val context = this@SectionWebViewFragment.context ?: return@launch
 
-            val toolbar =
-                view?.findViewById<CollapsingToolbarLayout>(R.id.collapsing_toolbar_layout)
-            toolbar?.removeAllViews()
 
-            // The first page of the weekend taz should not display the title but the date instead
-            val layout =
-                if (isWeekend && isFirst) {
-                    R.layout.fragment_webview_header_title_weekend_section
-                } else {
-                    R.layout.fragment_webview_header_section
-                }
+            if (isWeekend && isFirst) {
+                // The first page of the weekend taz should not display the title but the date instead
+                viewBinding.apply {
+                    headerToolbarContent.updatePadding(
+                        top = resources.getDimensionPixelSize(R.dimen.fragment_header_title_weekend_padding_top),
+                        bottom = resources.getDimensionPixelSize(R.dimen.fragment_header_title_weekend_padding_top),
+                    )
+                    section.isVisible = false
+                    issueDate.isVisible = false
 
-            val headerView = LayoutInflater.from(context).inflate(layout, toolbar, true)
-            val sectionTextView = headerView.findViewById<TextView>(R.id.section)
-
-            // Change typeface (to Knile) if it is weekend issue but not on title section:
-            if (isWeekend || (isWochentaz && !isFirst)) {
-                sectionTextView?.typeface = ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
-            }
-
-
-            sectionTextView?.text = displayable.getHeaderTitle()
-            DateHelper.stringToDate(displayable.issueDate)?.let { date ->
-                headerView.findViewById<TextView>(R.id.issue_date)?.apply {
-                    text = when {
-                        isWeekend ->
-                            // Regular Weekend Issue
-                            DateHelper.dateToWeekendNotation(date)
-                        isWochentaz ->
-                            // Wochentaz Issue
-                            DateHelper.dateToWeekNotation(date, requireNotNull(issueStub.validityDate))
-                        else ->
-                            DateHelper.dateToLowerCaseString(date)
+                    weekendIssueDate.apply {
+                        isVisible = true
+                        DateHelper.stringToDate(displayable.issueDate)?.let { date ->
+                            text = DateHelper.dateToWeekendNotation(date)
+                        }
                     }
                 }
-            }
 
-            // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
-            if (isFirst && (isWeekend || isWochentaz)) {
-                val textPixelSize =
-                    resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
-                val textSpSize =
-                    resources.getDimension(R.dimen.fragment_header_title_section_text_size)
-                sectionTextView?.apply {
-                    setTextSize(COMPLEX_UNIT_SP, textSpSize)
-                    TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
-                        this,
-                        TextViewCompat.getAutoSizeMinTextSize(this),
-                        textPixelSize,
-                        ceil(0.1 * resources.displayMetrics.density).toInt(),
-                        TypedValue.COMPLEX_UNIT_PX
-                    )
-                    translationY = resources.getDimension(R.dimen.fragment_header_section_title_y_translation)
+            } else {
+                viewBinding.apply {
+                    weekendIssueDate.isVisible = false
+
+                    section.apply {
+                        isVisible = true
+                        text = displayable.getHeaderTitle()
+                    }
+                }
+
+                // Change typeface (to Knile) if it is weekend issue but not on title section:
+                if (isWeekend || (isWochentaz && !isFirst)) {
+                    viewBinding.section.typeface =
+                        ResourcesCompat.getFont(context, R.font.appFontKnileSemiBold)
+                }
+
+                // On first section "die tageszeitung" or "wochentaz" the header should be bigger:
+                if (isFirst && (isWeekend || isWochentaz)) {
+                    val textPixelSize =
+                        resources.getDimensionPixelSize(R.dimen.fragment_header_title_section_text_size)
+                    val textSpSize =
+                        resources.getDimension(R.dimen.fragment_header_title_section_text_size)
+                    viewBinding.section.apply {
+                        setTextSize(COMPLEX_UNIT_SP, textSpSize)
+                        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                            this,
+                            TextViewCompat.getAutoSizeMinTextSize(this),
+                            textPixelSize,
+                            ceil(0.1 * resources.displayMetrics.density).toInt(),
+                            TypedValue.COMPLEX_UNIT_PX
+                        )
+                        translationY =
+                            resources.getDimension(R.dimen.fragment_header_section_title_y_translation)
+                    }
+                }
+
+                DateHelper.stringToDate(displayable.issueDate)?.let { date ->
+                    viewBinding.issueDate.apply {
+                        isVisible = true
+                        text = when {
+                            isWeekend ->
+                                // Regular Weekend Issue
+                                DateHelper.dateToWeekendNotation(date)
+
+                            isWochentaz ->
+                                // Wochentaz Issue
+                                DateHelper.dateToWeekNotation(
+                                    date, requireNotNull(issueStub.validityDate)
+                                )
+
+                            else -> DateHelper.dateToLowerCaseString(date)
+                        }
+                    }
                 }
             }
 
@@ -231,6 +269,11 @@ class SectionWebViewFragment : WebViewFragment<
             resizeDrawerLogoListener
         )
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        bookmarkJob?.cancel()
+        super.onDestroyView()
     }
 
     override fun onPageRendered() {
@@ -281,13 +324,17 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-
-    override fun onDestroyView() {
-        bookmarkJob?.cancel()
-        super.onDestroyView()
+    /**
+     * Adjust padding when we have cutout display
+     */
+    private fun applyExtraPaddingOnCutoutDisplay() {
+        lifecycleScope.launch {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
+            }
+        }
     }
-
-    private var bookmarkJob: Job? = null
 
     private fun setupBookmarkStateFlows(articleFileNames: List<String>) {
         // Create a new coroutine scope to listen to bookmark changes
@@ -307,18 +354,6 @@ class SectionWebViewFragment : WebViewFragment<
                         setWebViewBookmarkState(articleFileName, it)
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Adjust padding when we have cutout display
-     */
-    private fun applyExtraPaddingOnCutoutDisplay() {
-        lifecycleScope.launch {
-            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
             }
         }
     }

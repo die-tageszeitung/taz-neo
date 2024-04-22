@@ -30,7 +30,7 @@ import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
-import de.taz.app.android.databinding.FragmentWebviewPagerBinding
+import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
 import de.taz.app.android.monkey.pinToolbar
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
@@ -51,7 +51,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewPagerBinding>() {
+class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewArticlePagerBinding>() {
 
     val log by Log
 

@@ -6,8 +6,8 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.WebSettings
-import android.widget.LinearLayout
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -66,8 +66,6 @@ abstract class WebViewFragment<
 
     protected val log by Log
 
-    abstract val nestedScrollViewId: Int
-
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -85,11 +83,14 @@ abstract class WebViewFragment<
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
-    // FIXME (johannes): consider not doing a findViewById every time this property i accessed for saving some cpu cycles
-    protected val webView: AppWebView
-        get() = viewBinding.root.findViewById(R.id.web_view)
-
     abstract fun reloadAfterCssChange()
+
+    abstract val nestedScrollView: NestedScrollView
+    abstract val webView: AppWebView
+    abstract val loadingScreen: View
+    abstract val appBarLayout: AppBarLayout?
+    abstract val navigationBottomLayout: ViewGroup?
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -137,7 +138,7 @@ abstract class WebViewFragment<
         }
 
         savedInstanceState?.apply {
-            view.findViewById<AppBarLayout>(R.id.app_bar_layout)?.setExpanded(true, false)
+            appBarLayout?.setExpanded(true, false)
         }
 
     }
@@ -173,7 +174,6 @@ abstract class WebViewFragment<
 
 
     private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
-        val nestedScrollView: NestedScrollView? = view?.findViewById(nestedScrollViewId)
         if (isMultiColumnMode) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 webView.setOnScrollChangeListener { _: View, scrollX: Int, _: Int, _: Int, _: Int ->
@@ -183,13 +183,13 @@ abstract class WebViewFragment<
             // View defines the setOnScrollChangeListener with a type of View.OnScrollChangeListener
             // NestedScrollView adds its own setOnScrollChangeListener with a type of NestedScrollView.OnScrollChangeListener
             // To let the compiler know which method to call when passing null we have to set this explicit type hint
-            nestedScrollView?.setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+            nestedScrollView.setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
 
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 webView.setOnScrollChangeListener(null)
             }
-            nestedScrollView?.setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
+            nestedScrollView.setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
                 saveScrollPositionDebounced(scrollPosition = scrollY)
             }
         }
@@ -261,39 +261,36 @@ abstract class WebViewFragment<
         val scrollByValue = view?.height?.minus(WEBVIEW_TAP_TO_SCROLL_OFFSET) ?: 0
         val scrollHeight = direction * scrollByValue
         view?.let {
-            val scrollView = it.findViewById<NestedScrollView>(nestedScrollViewId)
             // if on bottom and tap on right side go to next article
-            if (!scrollView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
+            if (!nestedScrollView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
                 issueViewerViewModel.goNextArticle.postValue(true)
             }
             // if on bottom and tap on right side go to previous article
-            else if (!scrollView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
+            else if (!nestedScrollView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
                 issueViewerViewModel.goPreviousArticle.postValue(true)
             } else {
-                lifecycleScope.launch {
-                    val navBarHeight = parentFragment?.view?.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
-                        ?.let {
-                            if (it.visibility == View.VISIBLE) {
-                                it.height - it.translationY.toInt()
-                            } else {
-                                0
-                            }
-                        } ?: 0
-                    var offset = navBarHeight
+                var offset = 0
 
-                    val appBarLayout = it.findViewById<AppBarLayout>(R.id.app_bar_layout)
-                    val isExpanded = appBarLayout?.height?.minus(appBarLayout.bottom) == 0
+                navigationBottomLayout?.let { navigationBottomLayout ->
+                    if (navigationBottomLayout.isVisible) {
+                        offset = it.height - it.translationY.toInt()
+                    }
+                }
+
+                appBarLayout?.let { appBarLayout ->
+                    val isExpanded = appBarLayout.height.minus(appBarLayout.bottom) == 0
                     if (scrollHeight > 0) {
                         // hide app bar bar when scrolling down
                         if (isExpanded) {
                             offset += appBarLayout.height
-                            appBarLayout?.setExpanded(false, true)
+                            appBarLayout.setExpanded(false, true)
                         }
                     } else {
-                        appBarLayout?.setExpanded(true, true)
+                        appBarLayout.setExpanded(true, true)
                     }
-                    scrollView.smoothScrollBy(0, scrollHeight - offset)
                 }
+
+                nestedScrollView.smoothScrollBy(0, scrollHeight - offset)
             }
         }
     }
@@ -326,8 +323,7 @@ abstract class WebViewFragment<
 
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
-            view?.findViewById<View>(R.id.loading_screen)?.animate()?.alpha(0f)?.duration =
-                LOADING_SCREEN_FADE_OUT_TIME
+            loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
         }
     }
 
@@ -387,7 +383,6 @@ abstract class WebViewFragment<
         val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5*collapsingToolBarHeight
 
         if (difference < spaceNeededThatTheToolBarCanCollapse) {
-            val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
             log.debug("Add paddingBottom to allow the tool bar to collapse")
 
             val readOnContainerView = view?.findViewById<FragmentContainerView>(R.id.fragment_article_bottom_fragment_placeholder)
@@ -396,7 +391,7 @@ abstract class WebViewFragment<
                     0,0,0, spaceNeededThatTheToolBarCanCollapse.toInt()
                 )
             } else {
-                scrollView?.updatePadding(
+                nestedScrollView.updatePadding(
                     0, 0, 0, spaceNeededThatTheToolBarCanCollapse.toInt()
                 )
             }
@@ -405,16 +400,14 @@ abstract class WebViewFragment<
     }
 
     suspend fun restoreLastScrollPosition() {
-        val scrollView = view?.findViewById<NestedScrollView>(nestedScrollViewId)
         viewModel.displayable?.let {
             val persistedScrollPosition = viewerStateRepository.get(it.key)?.scrollPosition
             viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
         }
         viewModel.scrollPosition?.let {
-            scrollView?.scrollY = it
+            nestedScrollView.scrollY = it
         } ?: run {
-            view?.findViewById<AppBarLayout>(R.id.app_bar_layout)
-                ?.setExpanded(true, false)
+            appBarLayout?.setExpanded(true, false)
         }
     }
 
