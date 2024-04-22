@@ -3,10 +3,8 @@ package de.taz.test
 import de.taz.app.android.api.dto.IssueDto
 import de.taz.app.android.api.dto.WrapperDto
 import de.taz.app.android.api.mappers.IssueMapper
-import de.taz.app.android.api.mappers.ResourceInfoMapper
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.util.Json
 import kotlinx.coroutines.runBlocking
@@ -19,11 +17,6 @@ object TestDataUtil {
         val issueDto: IssueDto =
             Json.decodeFromStream<WrapperDto>(getInputStream(fullFilePath)).data!!.product!!.feedList!!.first().issueList!!.first()
         return IssueMapper.from("taz", issueDto)
-    }
-
-    fun getResourceInfo(): ResourceInfo {
-        val productDto = Json.decodeFromStream<WrapperDto>(getInputStream("resourceInfo")).data!!.product!!
-        return ResourceInfoMapper.from(productDto)
     }
 
     fun createDefaultNavButton(imageRepository: ImageRepository): Image {

@@ -60,3 +60,10 @@ const val APP_SESSION_TIMEOUT_MS = 4L * 60L * 60L * 1_000L
 
 // Default playback speed used for the AudioPlayer
 const val DEFAULT_AUDIO_PLAYBACK_SPEED = 1F
+
+// Number of moments and FrontPages to keep while scrubbing
+// Note that this is the overall number, so when a user logs in/out it does not keep them per IssueStatus
+const val KEEP_LATEST_MOMENTS_COUNT = 15
+
+// The scrubber will be started every X days
+const val SCRUBBER_INTERVAL_DAYS = 30L

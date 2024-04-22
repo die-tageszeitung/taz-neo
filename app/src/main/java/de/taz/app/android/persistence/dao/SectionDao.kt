@@ -57,4 +57,13 @@ interface SectionDao : BaseDao<SectionStub> {
 
     @Query("SELECT dateDownload FROM Section WHERE sectionFileName == :sectionFileName")
     suspend fun getDownloadDate(sectionFileName: String): Date?
+
+    @Query(
+        """SELECT Section.* FROM Section
+            WHERE NOT EXISTS (
+                SELECT 1 FROM IssueSectionJoin WHERE IssueSectionJoin.sectionFileName = Section.sectionFileName
+            )
+        """
+    )
+    suspend fun getOrphanedSections(): List<SectionStub>
 }

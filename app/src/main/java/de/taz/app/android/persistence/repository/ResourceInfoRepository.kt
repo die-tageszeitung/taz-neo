@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.ResourceInfoStub
 import de.taz.app.android.persistence.join.ResourceInfoFileEntryJoin
 import de.taz.app.android.util.SingletonHolder
+import org.jetbrains.annotations.VisibleForTesting
 import java.util.Date
 
 
@@ -96,7 +97,12 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         return appDatabase.resourceInfoDao().getNewest()?.let { resourceInfoStubToResourceInfo(it) }
     }
 
-    private suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
+    @VisibleForTesting
+    suspend fun getAll(): List<ResourceInfo> {
+        return appDatabase.resourceInfoDao().getAll().map { resourceInfoStubToResourceInfo(it) }
+    }
+
+    suspend fun resourceInfoStubToResourceInfo(resourceInfoStub: ResourceInfoStub): ResourceInfo {
         val resourceList = appDatabase.resourceInfoFileEntryJoinDao().getFileEntriesForResourceInfo(
             resourceInfoStub.resourceVersion
         )

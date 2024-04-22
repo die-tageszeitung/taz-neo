@@ -17,6 +17,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageType
+import de.taz.app.android.api.models.ResourceInfo
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.api.models.StorageType
@@ -151,6 +152,13 @@ object Fixtures {
         podcast = null
     )
 
+    val resourceInfoBase: ResourceInfo = ResourceInfo(
+        resourceVersion = 1,
+        "resourceBaseUrl",
+        "resourceZip",
+        resourceList = emptyList(),
+        dateDownload = null
+    )
 
     val authorBase: Author = Author(
         "Author 01",
@@ -169,6 +177,7 @@ object Fixtures {
     val authorWithImage02: Author = authorBase.copy(
         name = "Author With Image 02", imageAuthor = FileEntry(authorImage02)
     )
+
     val article01 = articleBase.copyWithFileName("article01.html")
         .copy(
             imageList = listOf(
