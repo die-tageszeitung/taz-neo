@@ -83,6 +83,14 @@ interface ArticleDao : BaseDao<ArticleStub> {
     )
     suspend fun getDownloadedArticleImageReferenceCount(articleImageFileName: String): Int
 
+    @Query("""
+        SELECT Article.* FROM Article
+         WHERE NOT EXISTS ( SELECT 1 FROM SectionArticleJoin WHERE SectionArticleJoin.articleFileName = Article.articleFileName )
+           AND NOT EXISTS ( SELECT 1 FROM IssueImprintJoin WHERE IssueImprintJoin.articleFileName = Article.articleFileName )
+    """)
+    suspend fun getOrphanedArticles(): List<ArticleStub>
+
+
     // region Bookmarks
 
     @Query(

@@ -40,4 +40,13 @@ interface MomentDao: BaseDao<MomentStub> {
 
     suspend fun get(issueOperations: IssueOperations) =
         get(issueOperations.feedName, issueOperations.date, issueOperations.status)
+
+    @Query("""
+        SELECT Moment.* From Moment
+         WHERE NOT EXISTS ( SELECT 1 FROM Issue 
+                                    WHERE Issue.feedName = Moment.issueFeedName 
+                                      AND Issue.date = Moment.issueDate
+                                      AND Issue.status = Moment.issueStatus )
+    """)
+    suspend fun getOrphanedMoments(): List<MomentStub>
 }

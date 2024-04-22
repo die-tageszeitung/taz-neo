@@ -45,4 +45,10 @@ interface PageDao : BaseDao<PageStub> {
         issueDate: String,
         issueStatus: IssueStatus,
     ): List<PageStub>
+
+    @Query(""" 
+        SELECT Page.* FROM Page
+         WHERE NOT EXISTS ( SELECT 1 FROM IssuePageJoin WHERE IssuePageJoin.pageKey = Page.pdfFileName )
+    """)
+    suspend fun getOrphanedPages(): List<PageStub>
 }

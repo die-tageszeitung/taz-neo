@@ -34,4 +34,16 @@ interface IssuePageJoinDao : BaseDao<IssuePageJoin> {
 
     @Query("DELETE FROM IssuePageJoin WHERE issueFeedName = :feedName AND issueDate = :date AND issueStatus = :status")
     suspend fun deleteRelationToIssue(feedName: String, date: String, status: IssueStatus)
+
+
+    @Query("""
+        SELECT IssuePageJoin.* FROM IssuePageJoin
+         WHERE IssuePageJoin.`index` = 0
+           AND NOT EXISTS ( SELECT 1 FROM Issue
+                                    WHERE Issue.feedName = IssuePageJoin.issueFeedName 
+                                      AND Issue.date = IssuePageJoin.issueDate
+                                      AND Issue.status = IssuePageJoin.issueStatus )
+        """)
+    // A FrontPage is the Page with the index 0. It might exist without a related Issue
+    suspend fun getOrphanedFrontPages(): List<IssuePageJoin>
 }

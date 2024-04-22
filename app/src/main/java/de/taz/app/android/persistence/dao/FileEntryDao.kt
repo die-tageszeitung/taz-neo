@@ -29,4 +29,19 @@ interface FileEntryDao : BaseDao<FileEntry> {
 
     @Query("DELETE FROM FileEntry WHERE name in (:fileNames)")
     suspend fun deleteList(fileNames: List<String>)
+
+    @Query("""
+        SELECT FileEntry.* FROM FileEntry 
+         WHERE NOT EXISTS ( SELECT 1 FROM Image WHERE Image.fileEntryName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM Section WHERE Section.sectionFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM Article WHERE Article.articleFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM ArticleAuthor WHERE ArticleAuthor.authorFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM Audio WHERE Audio.fileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM Page WHERE Page.pdfFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM MomentFilesJoin WHERE MomentFilesJoin.momentFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM MomentImageJoin WHERE MomentImageJoin.momentFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM MomentCreditJoin WHERE MomentCreditJoin.momentFileName = FileEntry.name )
+           AND NOT EXISTS ( SELECT 1 FROM ResourceInfoFileEntryJoin WHERE ResourceInfoFileEntryJoin.fileEntryName = FileEntry.name )
+    """)
+    suspend fun getOrphanedFileEntries(): List<FileEntry>
 }

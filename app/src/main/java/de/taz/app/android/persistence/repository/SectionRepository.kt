@@ -9,6 +9,8 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.annotations.VisibleForTesting
 import java.util.Date
 
 
@@ -22,8 +24,14 @@ class SectionRepository private constructor(applicationContext: Context) :
     private val imageRepository = ImageRepository.getInstance(applicationContext)
     private val audioRepository = AudioRepository.getInstance(applicationContext)
 
-    private val defaultNavDrawerFileName =
+    private var defaultNavDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
+
+    @VisibleForTesting
+    fun injectDefaultNavButton(navButton: Image) = runBlocking {
+        imageRepository.saveInternal(navButton)
+        defaultNavDrawerFileName = navButton.name
+    }
 
     /**
      * Save the [Section] to the database and replace any existing [Section] with the same key.

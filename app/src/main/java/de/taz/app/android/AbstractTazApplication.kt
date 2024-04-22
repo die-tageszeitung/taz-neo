@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.firebase.FirebaseHelper
+import de.taz.app.android.scrubber.enqueueScrubberWorker
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
@@ -75,6 +76,7 @@ abstract class AbstractTazApplication : Application() {
         }
 
         setupTracker()
+        enqueueScrubberWorker(this)
 
         FirebaseHelper.getInstance(this)
         NightModeHelper.getInstance(this)

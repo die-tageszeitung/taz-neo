@@ -11,4 +11,12 @@ interface AudioDao : BaseDao<AudioStub> {
 
     @Query("DELETE FROM Audio WHERE Audio.fileName = :audioFileName")
     suspend fun delete(audioFileName: String)
+
+    @Query("""
+        SELECT Audio.* FROM Audio
+         WHERE NOT EXISTS ( SELECT 1 FROM Page WHERE Page.podcastFileName = Audio.fileName )
+           AND NOT EXISTS ( SELECT 1 FROM Section WHERE Section.podcastFileName = Audio.fileName )
+           AND NOT EXISTS ( SELECT 1 FROM Article WHERE Article.audioFileName = Audio.fileName )
+    """)
+    suspend fun getOrphanedAudios(): List<AudioStub>
 }
