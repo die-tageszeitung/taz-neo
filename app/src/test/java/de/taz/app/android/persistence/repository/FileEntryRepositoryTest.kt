@@ -3,9 +3,9 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.StorageType
-import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil

@@ -64,13 +64,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragment_article_bottom_fragment_placeholder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/web_view" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </de.taz.app.android.util.LockableNestedScrollView>
-
 </FrameLayout>

@@ -1,18 +1,22 @@
 package de.taz.app.android.ui.search
 
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
+import androidx.core.view.get
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.ui.webview.AppWebViewClient
 import de.taz.app.android.ui.webview.AppWebViewClientCallBack
@@ -99,23 +103,48 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
 
     private fun onWebViewRendered() {
         viewLifecycleOwner.lifecycleScope.launch {
-            addLoginFragmentIfRequired()
             viewBinding.loadingScreen.visibility = View.GONE
+            delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
+            addPaddingIfNecessaryForScrolling()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                setScrollChangeListenerForArticleLoginBottomSheetFragment()
+            }
         }
     }
 
+    private fun addPaddingIfNecessaryForScrolling() {
+        val webViewWrapper = viewBinding.webViewWrapper
+        val webViewWrapperHeight = webViewWrapper.height
+        val screenHeight = resources.displayMetrics.heightPixels
+        val difference = screenHeight - webViewWrapperHeight
+        val oldPadding = webViewWrapper.paddingBottom
+        if (difference > 0) {
+            webViewWrapper.updatePadding(bottom = difference + oldPadding)
+        }
+    }
 
-    private suspend fun addLoginFragmentIfRequired() {
-        val showLoginFragment = searchResult.articleFileName.contains("public")
-        if (showLoginFragment) {
-            // Add a little delay to give the WebView a better chance to finish rendering
-            // before showing the login and maybe prevent view jumpiness.
-            delay(LOGIN_FRAGMENT_SHOW_DELAY_MS)
-            childFragmentManager.commit {
-                replace(
-                    R.id.fragment_article_bottom_fragment_placeholder,
-                    ArticleLoginFragment.create(searchResult.articleFileName)
-                )
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun setScrollChangeListenerForArticleLoginBottomSheetFragment() {
+        val isPublic = searchResult.articleFileName.contains("public")
+
+        val scrollView = viewBinding.nestedScrollView
+        val lastChildOfScrollView = scrollView[scrollView.childCount - 1]
+
+        if (isPublic) {
+            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                val bottomDetector = lastChildOfScrollView.bottom - (scrollView.height + scrollY)
+                val isScrolledToBottom: Boolean = (bottomDetector == 0)
+
+                // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
+                // and only if this pager item is currently shown (the Fragment is resumed)
+                if (isScrolledToBottom && isResumed) {
+                    parentFragmentManager.apply {
+                        if (findFragmentByTag(ArticleLoginBottomSheetFragment.TAG) == null) {
+                            ArticleLoginBottomSheetFragment.newInstance(searchResult.articleFileName)
+                                .show(this, ArticleLoginBottomSheetFragment.TAG)
+                        }
+                    }
+                }
             }
         }
     }

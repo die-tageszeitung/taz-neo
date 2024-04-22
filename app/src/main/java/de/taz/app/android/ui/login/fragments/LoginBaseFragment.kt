@@ -43,7 +43,12 @@ abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment
     }
 
     protected fun back() {
-        requireActivity().supportFragmentManager.popBackStack()
+        val fragmentManager = requireActivity().supportFragmentManager
+        if (fragmentManager.backStackEntryCount != 1) {
+            fragmentManager.popBackStack()
+        } else {
+            requireActivity().finish()
+        }
     }
 
     protected fun finish() {

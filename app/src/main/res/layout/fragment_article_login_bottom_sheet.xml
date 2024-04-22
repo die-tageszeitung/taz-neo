@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingStart="@dimen/fragment_padding_horizontal"
-    android:paddingEnd="@dimen/fragment_padding_horizontal"
-    android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
+    android:layout_height="wrap_content">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_max="@dimen/default_max_width">
+        android:paddingStart="@dimen/fragment_padding_horizontal"
+        android:paddingEnd="@dimen/fragment_padding_horizontal"
+        android:paddingBottom="@dimen/fragment_article_read_on_padding_bottom">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/read_on_login_group"
@@ -32,11 +28,25 @@
                 android:textAlignment="center"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <ImageButton
+                android:id="@+id/button_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="32dp"
+                android:background="@null"
+                android:contentDescription="@string/button_close_text"
+                android:padding="@dimen/ic_close_button_padding"
+                android:src="@drawable/ic_close"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/read_on_description"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/read_on_username_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/read_on_description">
+                app:layout_constraintTop_toBottomOf="@id/button_close">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/read_on_username"
@@ -296,6 +306,26 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box_text"
                 app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/read_on_cancel_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/read_on_extend_print_with_digi_box">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_button_bottom"
+                style="@style/AppTheme.ButtonStyle.Outlined"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/login_box_margin_vertical"
+                android:text="@string/cancel_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

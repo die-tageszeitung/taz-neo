@@ -8,7 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.EditText
+import androidx.annotation.RequiresApi
+import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -17,20 +20,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
+import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
-import de.taz.app.android.databinding.SearchResultWebviewPagerBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.login.fragments.ArticleLoginFragment
+import de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -124,28 +126,6 @@ class ArticleWebViewFragment :
         super.onDestroyView()
     }
 
-    override fun hideLoadingScreen() {
-        lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.displayable?.let { article ->
-                try {
-                    val issueStub =
-                        article.getIssueStub(requireContext().applicationContext)
-                    if (issueStub?.issueKey?.status == IssueStatus.public && !article.isImprint() && !isMultiColumnMode) {
-
-                        childFragmentManager.beginTransaction().replace(
-                            R.id.fragment_article_bottom_fragment_placeholder,
-                            ArticleLoginFragment.create(article.key)
-                        ).commit()
-                    }
-                } catch (e: IllegalStateException) {
-                    // there is no more Fragment.Context as requireContext() threw up.
-                    // that means the Fragment is already being destroyed and we don't have to do anything
-                }
-            }
-            super.hideLoadingScreen()
-        }
-    }
-
     override fun reloadAfterCssChange() {
         lifecycleScope.launch {
             whenCreated {
@@ -226,9 +206,30 @@ class ArticleWebViewFragment :
                 setupMultiColumnMode()
             } else {
                 restoreLastScrollPosition()
-                addPaddingBottomIfNecessary()
                 hideLoadingScreen()
+                delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
+                setPaddingIfNecessary()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    setupOnScrollChangeListenerForArticleLoginBottomSheetFragment()
+                }
             }
+        }
+    }
+
+    private suspend fun setPaddingIfNecessary() {
+        val article = viewModel.articleFlow.first()
+        val isPublic =
+            article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public
+        val webViewWrapper = viewBinding.webViewWrapper
+        val webViewWrapperHeight = webViewWrapper.height
+        val oldPadding = webViewWrapper.paddingBottom
+        var paddingToAdd = 0
+        if (isPublic && !article.isImprint()) {
+            paddingToAdd = calculatePaddingNecessaryForScrolling(webViewWrapperHeight)
+        }
+        paddingToAdd += calculatePaddingNecessaryForCollapsingToolbar(webViewWrapperHeight + paddingToAdd)
+        if (paddingToAdd != 0) {
+            webViewWrapper.updatePadding(bottom = paddingToAdd + oldPadding)
         }
     }
 
@@ -246,7 +247,7 @@ class ArticleWebViewFragment :
 
         webView.showTapIconsListener = {
             when (it) {
-                true -> tapIconsViewModel.showTapIcons()
+                true  -> tapIconsViewModel.showTapIcons()
                 false -> tapIconsViewModel.hideTapIcons()
             }
         }
@@ -292,7 +293,6 @@ class ArticleWebViewFragment :
         return viewBinding.container.height.toFloat() / resources.displayMetrics.density - webViewMarginTop
     }
 
-
     private fun calculateColumnWidth(): Float {
         val isPortrait =
             resources.displayMetrics.widthPixels < resources.displayMetrics.heightPixels
@@ -306,5 +306,32 @@ class ArticleWebViewFragment :
         return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
     }
 
-}
+    @RequiresApi(Build.VERSION_CODES.M)
+    private suspend fun setupOnScrollChangeListenerForArticleLoginBottomSheetFragment() {
+        val article = viewModel.articleFlow.first()
+        val isPublic =
+            article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public
 
+        val scrollView = viewBinding.nestedScrollView
+        val lastChildOfScrollView = scrollView[scrollView.childCount - 1]
+
+        if (isPublic && !article.isImprint()) {
+            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+                val bottomDetector = lastChildOfScrollView.bottom - (scrollView.height + scrollY)
+                val isScrolledToBottom: Boolean = (bottomDetector == 0)
+
+                // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
+                // and only if this pager item is currently shown (the Fragment is resumed)
+                if (isScrolledToBottom && isResumed) {
+                    parentFragmentManager.apply {
+                        if (findFragmentByTag(ArticleLoginBottomSheetFragment.TAG) == null) {
+                            ArticleLoginBottomSheetFragment.newInstance(articleFileName)
+                                .show(this, ArticleLoginBottomSheetFragment.TAG)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

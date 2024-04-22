@@ -33,6 +33,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
+import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
@@ -50,6 +51,7 @@ import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -280,8 +282,19 @@ class SectionWebViewFragment : WebViewFragment<
         super.onPageRendered()
         lifecycleScope.launch {
             restoreLastScrollPosition()
-            addPaddingBottomIfNecessary()
             hideLoadingScreen()
+            delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
+            setPaddingIfNecessary()
+        }
+    }
+
+    private fun setPaddingIfNecessary() {
+        val webViewHeight = webView.height
+        val scrollView = viewBinding.nestedScrollView
+        val oldPadding = scrollView.paddingBottom
+        val paddingToAdd = calculatePaddingNecessaryForCollapsingToolbar(webViewHeight)
+        if (paddingToAdd != 0) {
+            scrollView.updatePadding(bottom = paddingToAdd + oldPadding)
         }
     }
 
