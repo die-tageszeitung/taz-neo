@@ -128,21 +128,6 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
-        log.debug("Creating a SectionWebViewFragment for $sectionFileName")
-
-        lifecycleScope.launch {
-            // FIXME (johannes): this is loading the full section WITH all its articles and everything
-            //  within for EACH section pager fragment. This DOES have a performance impact
-            viewModel.displayableLiveData.postValue(
-                sectionRepository.get(sectionFileName)
-            )
-            maybeHandlePodcast()
-        }
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -156,20 +141,32 @@ class SectionWebViewFragment : WebViewFragment<
         audioPlayerService = AudioPlayerService.getInstance(context.applicationContext)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
+        log.debug("Creating a SectionWebViewFragment for $sectionFileName")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // FIXME (johannes): this is loading the full section WITH all its articles and everything
+            //  within for EACH section pager fragment. This DOES have a performance impact
+            viewModel.displayableLiveData.postValue(
+                sectionRepository.get(sectionFileName)
+            )
+            maybeHandlePodcast()
+        }
+    }
+
     override fun setHeader(displayable: Section) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val viewBinding = this@SectionWebViewFragment.viewBinding
-
-            val issueStub = viewModel.issueStubFlow.first()
-            val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
-            val isWochentaz = issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
-
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the
             // Fragment was already being destroyed.
             // If there is no more context available we return from the coroutine immediately.
             val context = this@SectionWebViewFragment.context ?: return@launch
 
+            val issueStub = viewModel.issueStubFlow.first()
+            val isWeekend = issueStub.isWeekend && issueStub.validityDate.isNullOrBlank()
+            val isWochentaz = issueStub.isWeekend && !issueStub.validityDate.isNullOrBlank()
 
             if (isWeekend && isFirst) {
                 // The first page of the weekend taz should not display the title but the date instead
@@ -280,7 +277,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun onPageRendered() {
         super.onPageRendered()
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             restoreLastScrollPosition()
             hideLoadingScreen()
             delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
@@ -299,7 +296,7 @@ class SectionWebViewFragment : WebViewFragment<
     }
 
     override fun reloadAfterCssChange() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             whenCreated {
                 if (!isRendered) {
                     return@whenCreated
@@ -341,7 +338,7 @@ class SectionWebViewFragment : WebViewFragment<
      * Adjust padding when we have cutout display
      */
     private fun applyExtraPaddingOnCutoutDisplay() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
             if (extraPadding > 0 && resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)

@@ -175,7 +175,7 @@
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht immer mitladen</string>
     <string name="settings_notifications">mitteilungen erlauben</string>
-    <string name="settings_notifications_caution_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> deaktiviert.Diese müssen aktiviert sein, um Mitteilungen zu erhalten.</string>
+    <string name="settings_notifications_caution_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> deaktiviert. Diese müssen aktiviert sein, um Mitteilungen zu erhalten.</string>
     <string name="settings_notifications_info_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> ebenfalls zu aktivieren.</string>
     <string name="settings_notifications_allowed_by_system">Bleiben Sie immer informiert mit einem täglichen Push-Hinweis auf die aktuelle Ausgabe.</string>
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
