@@ -24,6 +24,5 @@
         style="@style/BottomNavigationTabBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/nav_bottom_height"
-        android:layout_gravity="bottom"
-        android:visibility="gone" />
+        android:layout_gravity="bottom" />
 </FrameLayout>

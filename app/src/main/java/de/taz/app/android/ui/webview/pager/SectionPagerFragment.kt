@@ -23,7 +23,7 @@ import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import de.taz.app.android.ui.webview.ImprintWebViewFragment
+import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -141,7 +141,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
 
     override fun onResume() {
         super.onResume()
-        viewBinding.navigationBottomWebviewPager.visibility = View.VISIBLE
         requireActivity().setupBottomNavigation(
             viewBinding.navigationBottomWebviewPager,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
@@ -154,7 +153,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         override fun createFragment(position: Int): Fragment {
             val isImprint = position == sectionStubs.size
             val fragment = if (isImprint) {
-                ImprintWebViewFragment()
+                SectionImprintWebViewFragment()
             } else {
                 val sectionStub = sectionStubs[position]
                 val isFirstSection = position == 0
