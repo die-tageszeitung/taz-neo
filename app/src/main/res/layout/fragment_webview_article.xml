@@ -34,8 +34,8 @@
         android:layout_height="match_parent"
         android:scrollbars="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_wrapper"
+        <de.taz.app.android.ui.webview.AppWebViewHorizontalBorderPager
+            android:id="@+id/web_view_border_pager"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="@dimen/fragment_article_padding_bottom">
@@ -60,10 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_webview_article_margin_top"
                 android:nestedScrollingEnabled="false"
-                android:overScrollMode="never"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:overScrollMode="never" />
+        </de.taz.app.android.ui.webview.AppWebViewHorizontalBorderPager>
     </de.taz.app.android.util.LockableNestedScrollView>
 </FrameLayout>

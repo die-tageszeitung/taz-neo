@@ -113,7 +113,7 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
     }
 
     private fun addPaddingIfNecessaryForScrolling() {
-        val webViewWrapper = viewBinding.webViewWrapper
+        val webViewWrapper = viewBinding.webViewBorderPager
         val webViewWrapperHeight = webViewWrapper.height
         val screenHeight = resources.displayMetrics.heightPixels
         val difference = screenHeight - webViewWrapperHeight

@@ -122,7 +122,7 @@ class ArticleWebViewFragment :
     }
 
     override fun onDestroyView() {
-        webView.showTapIconsListener = null
+        viewBinding.webViewBorderPager.showTapIconsListener = null
         super.onDestroyView()
     }
 
@@ -220,7 +220,7 @@ class ArticleWebViewFragment :
         val article = viewModel.articleFlow.first()
         val isPublic =
             article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public
-        val webViewWrapper = viewBinding.webViewWrapper
+        val webViewWrapper = viewBinding.webViewBorderPager
         val webViewWrapperHeight = webViewWrapper.height
         val oldPadding = webViewWrapper.paddingBottom
         var paddingToAdd = 0
@@ -239,13 +239,17 @@ class ArticleWebViewFragment :
             return
         }
 
-        viewBinding.nestedScrollView.scrollingEnabled = false
+        viewBinding.apply {
+            nestedScrollView.scrollingEnabled = false
+            webViewBorderPager.pagingEnabled = true
+        }
+
         webView.updateLayoutParams<MarginLayoutParams> {
             topMargin =
                 resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
         }
 
-        webView.showTapIconsListener = {
+        viewBinding.webViewBorderPager.showTapIconsListener = {
             when (it) {
                 true  -> tapIconsViewModel.showTapIcons()
                 false -> tapIconsViewModel.hideTapIcons()
@@ -274,8 +278,13 @@ class ArticleWebViewFragment :
         }
 
         log.verbose("Change text settings: switch off multi column mode")
-        viewBinding.nestedScrollView.scrollingEnabled = true
-        webView.showTapIconsListener = null
+        viewBinding.apply {
+            nestedScrollView.scrollingEnabled = true
+            webViewBorderPager.apply {
+                pagingEnabled = false
+                showTapIconsListener = null
+            }
+        }
         tapIconsViewModel.hideTapIcons()
 
         webView.updateLayoutParams<MarginLayoutParams> {

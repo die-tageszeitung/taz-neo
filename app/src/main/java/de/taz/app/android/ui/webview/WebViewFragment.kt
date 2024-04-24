@@ -239,8 +239,6 @@ abstract class WebViewFragment<
                 SCROLL_FORWARD -> issueViewerViewModel.goNextArticle.postValue(true)
             }
         }
-        // When scrolling hide the tap icons
-        currentWebView.showTapIconsListener?.invoke(false)
     }
 
     /**
