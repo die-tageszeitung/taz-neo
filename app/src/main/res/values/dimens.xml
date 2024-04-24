@@ -389,4 +389,12 @@
     <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <!-- endregion -->
+
+
+    <!-- region dimens used for the multicolumn border swipe handling -->
+    <dimen name="webview_multicolumn_pager_border_buffer">50dp</dimen>
+    <dimen name="webview_multicolumn_pager_min_scroll_distance">300dp</dimen>
+    <dimen name="webview_multicolumn_pager_min_vertical_scroll_detect_distance">250dp</dimen>
+    <item name="webview_multicolumn_pager_min_fling_velocity" format="float" type="dimen">3000</item>
+    <!-- endregion -->
 </resources>

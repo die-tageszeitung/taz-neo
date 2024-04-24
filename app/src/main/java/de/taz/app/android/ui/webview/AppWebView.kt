@@ -19,7 +19,6 @@ import java.net.URLDecoder
 import kotlin.math.abs
 
 private const val MAILTO_PREFIX = "mailto:"
-private const val SCROLL_DETECT_DISTANCE = 250L
 private const val TAP_DOWN_DETECT_TIME_MS = 500L
 private const val TAP_DISTANCE_TOLERANCE = 50L
 
@@ -28,14 +27,15 @@ class AppWebView @JvmOverloads constructor(
     attributeSet: AttributeSet? = null,
     defStyle: Int = 0
 ) : WebView(context, attributeSet, defStyle) {
-    var onBorderTapListener: ((ViewBorder) -> Unit)? = null
-    var showTapIconsListener: ((Boolean) -> Unit)? = null
-    private val log by Log
 
     init {
         isHorizontalScrollBarEnabled = false
         settings.allowFileAccess = true
     }
+
+    private val log by Log
+
+    var onBorderTapListener: ((ViewBorder) -> Unit)? = null
 
     private var initialX = 0f
     private var initialY = 0f
@@ -91,29 +91,6 @@ class AppWebView @JvmOverloads constructor(
                     handleTap(event.x)
                 }
             }
-            MotionEvent.ACTION_MOVE -> {
-                val canScrollLeft = this.canScrollHorizontally(-1)
-                val canScrollRight = this.canScrollHorizontally(1)
-                val horizontalScrollDistance = event.x - initialX
-                val verticalScrollDistance = event.y - initialY
-
-                val scrollToLeft = horizontalScrollDistance > SCROLL_DETECT_DISTANCE
-                val scrollToRight = -horizontalScrollDistance > SCROLL_DETECT_DISTANCE
-                val verticalScrollDetected =
-                    abs(verticalScrollDistance) > SCROLL_DETECT_DISTANCE && abs(verticalScrollDistance) > 3 * abs(horizontalScrollDistance)
-
-                val scrollUpDetected = verticalScrollDetected && verticalScrollDistance > 0
-                val scrollDownDetected = verticalScrollDetected && verticalScrollDistance < 0
-
-                val triedLeft = !canScrollLeft && scrollToLeft && initialOnLeftBorder
-                val triedRight =  !canScrollRight && scrollToRight && initialOnRightBorder
-                val triedUpOrDown = scrollUpDetected || scrollDownDetected
-
-                when {
-                    triedLeft || triedRight || triedUpOrDown -> showTapIconsListener?.invoke(true)
-                    else -> showTapIconsListener?.invoke(false)
-                }
-            }
         }
         return super.onTouchEvent(event)
     }
@@ -138,6 +115,35 @@ class AppWebView @JvmOverloads constructor(
             putExtra(Intent.EXTRA_EMAIL, arrayOf(mail))
         }
         context?.startActivity(intent)
+    }
+
+
+
+    /**
+     * Check if the WebView content is scrolled to a horizontal border.
+     * In contrast to [WebView.canScrollHorizontally] it will return true,
+     * even if the border is only within the [bufferPx] distance.
+     *
+     * @param direction Negative to check scrolling left, positive to check scrolling right.
+     * @param bufferPx Allowed buffer scroll distance to interpret the WebView to be at the border
+     *
+     * @return true if the WebView is scrolled to the border in the specified direction, false otherwise.
+     */
+    fun isScrolledToHorizontalBorder(direction: Int, bufferPx: Int): Boolean {
+        // Attention: the HorizontalScroll values must not be in Px as per Android docs.
+        // but currently they are for WebViews, so we can use the buffer in px to compare them
+        val offset = computeHorizontalScrollOffset()
+        val range = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
+
+        if (range == 0) {
+            return true
+        }
+
+        return if (direction < 0) {
+            offset - bufferPx < 0
+        } else {
+            offset + bufferPx >= range
+        }
     }
 
     /**
