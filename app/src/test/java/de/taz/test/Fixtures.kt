@@ -51,7 +51,9 @@ object Fixtures {
      * The actual default navButton is configured via the Android resources and not accessible without a context
      */
     val fakeNavButton: Image = image.copy(
-        name = "navButton.taz.normal.png"
+        name = "navButton.taz.normal.png",
+        type = ImageType.button,
+        alpha = 1f,
     )
 
     val audio: Audio = Audio(

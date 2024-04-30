@@ -137,7 +137,6 @@ class Scrubber(applicationContext: Context) {
         }
 
         deleteFile(section.sectionHtml)
-        deleteImage(section.navButton)
         section.podcast?.let { deleteAudio(it) }
 
         section.imageList.forEach { deleteImage(it) }

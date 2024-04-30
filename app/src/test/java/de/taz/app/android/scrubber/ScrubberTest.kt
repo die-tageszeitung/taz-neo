@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.KEEP_LATEST_MOMENTS_COUNT
+import de.taz.app.android.api.interfaces.StorageLocation
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.AudioRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.PageRepository
@@ -43,6 +46,8 @@ class ScrubberTest {
     private lateinit var articleRepository: ArticleRepository
     private lateinit var pageRepository: PageRepository
     private lateinit var momentRepository: MomentRepository
+    private lateinit var sectionRepository: SectionRepository
+    private lateinit var imageRepository: ImageRepository
 
     @Before
     fun setUp() {
@@ -61,6 +66,8 @@ class ScrubberTest {
         articleRepository = ArticleRepository.getInstance(context)
         pageRepository = PageRepository.getInstance(context)
         momentRepository = MomentRepository.getInstance(context)
+        sectionRepository = SectionRepository.getInstance(context)
+        imageRepository = ImageRepository.getInstance(context)
 
         SectionRepository.getInstance(context).apply {
             injectDefaultNavButton(Fixtures.fakeNavButton)
@@ -381,6 +388,40 @@ class ScrubberTest {
         scrubber.scrub()
 
         assertEquals(frontPage, pageRepository.getFrontPage(issue.issueKey))
+    }
+
+    @Test
+    fun `NavButton Image is kept if Section is scrubbed`() = runTest {
+        // Given a navButton
+        // that is (fake) stored on the disk
+        val navButton = Fixtures.fakeNavButton.copy(
+            storageLocation = StorageLocation.INTERNAL,
+            moTime = Fixtures.fakeNavButton.moTime + 1
+        )
+        val navButtonFileEntry = FileEntry(navButton)
+        imageRepository.saveInternal(navButton)
+
+        // and referenced from the latest Resourced
+        val resourceInfo = Fixtures.resourceInfoBase.copy(
+            resourceList = listOf(navButtonFileEntry)
+        )
+        resourceInfoRepository.save(resourceInfo)
+
+        // and part of an orphaned Section
+        val section = Fixtures.sectionBase.copy(
+            navButton = navButton
+        )
+        sectionRepository.saveInternal(section)
+
+        // When the scrubber deletes the orphaned Section
+        scrubber.scrub()
+
+        // Then the section is deleted
+        assertNull(sectionRepository.get(section.key))
+
+        // but the navButton Image and FileEntry are kept and its storage location is not changed
+        assertEquals(navButtonFileEntry, fileEntryRepository.get(navButtonFileEntry.name))
+        assertEquals(navButton, imageRepository.get(navButton.name))
     }
 
 }
