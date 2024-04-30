@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
@@ -23,19 +20,9 @@ import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginContract
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.FormInvalidMessageLength
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.Init
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.Sent
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.SubmissionError
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState.UnexpectedFailure
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
 import io.sentry.Sentry
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ArticleLoginBottomSheetFragment :
     ViewBindingBottomSheetFragment<FragmentArticleLoginBottomSheetBinding>(),
@@ -44,7 +31,6 @@ class ArticleLoginBottomSheetFragment :
     private val log by Log
 
     private var articleFileName: String? = null
-    private val elapsedViewModel by viewModels<SubscriptionElapsedBottomSheetViewModel>()
     private val activityResultLauncher: ActivityResultLauncher<LoginContract.Input> =
         registerForActivityResult(LoginContract(), this)
     private lateinit var toastHelper: ToastHelper
@@ -56,6 +42,17 @@ class ArticleLoginBottomSheetFragment :
             val articleLoginBottomSheetFragment = ArticleLoginBottomSheetFragment()
             articleLoginBottomSheetFragment.articleFileName = articleFileName
             return articleLoginBottomSheetFragment
+        }
+
+        /**
+         * Show the [ArticleLoginBottomSheetFragment] with its default [TAG].
+         * Does nothing if a fragment with [TAG] is already present in the fragmentManger.
+         */
+        fun showSingleInstance(fragmentManager: FragmentManager, articleFileName: String) {
+            if (fragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
+                newInstance(articleFileName)
+                    .show(fragmentManager, SubscriptionElapsedBottomSheetFragment.TAG)
+            }
         }
     }
 
@@ -71,19 +68,7 @@ class ArticleLoginBottomSheetFragment :
         super.onViewCreated(view, savedInstanceState)
         setBehaviorState(BottomSheetBehavior.STATE_EXPANDED)
         setupInteractionHandlers()
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                elapsedViewModel.isElapsedFlow.collect { isElapsed ->
-                    if (isElapsed) {
-                        startElapsedHandling()
-                    } else {
-                        stopElapsedHandling()
-                        showLoginSubscribeUi()
-                    }
-                }
-            }
-        }
+        showLoginSubscribeUi()
     }
 
     private fun setupInteractionHandlers() {
@@ -109,18 +94,6 @@ class ArticleLoginBottomSheetFragment :
 
             readOnExtendPrintWithDigiBoxButton.setOnClickListener {
                 extendPrintWithDigi()
-            }
-
-            // Elapsed form send button
-            sendButton.setOnClickListener {
-                // FIXME (johannes): Add tracking events for the integrated elapsed form
-                onSubmitElapsedForm()
-            }
-            
-            // Elapsed form cancel button
-            cancelButton.setOnClickListener {
-                // FIXME (johannes): Add tracking events for the integrated elapsed form
-               dismiss()
             }
 
             buttonClose.setOnClickListener {
@@ -191,58 +164,10 @@ class ArticleLoginBottomSheetFragment :
         }
     }
 
-    private fun onSubmitElapsedForm() {
-        viewBinding.apply {
-            elapsedViewModel.sendMessage(
-                messageToSubscriptionService.editText?.text.toString(),
-                letTheSubscriptionServiceContactYouCheckbox.isChecked
-            )
-        }
-    }
-
-    private var elapsedFlowJob: Job? = null
-    private fun startElapsedHandling() {
-        elapsedFlowJob?.cancel()
-        elapsedFlowJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main.immediate) {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                elapsedViewModel.uiStateFlow.collect {
-                    when (it) {
-                        Init -> showElapsedUi()
-                        FormInvalidMessageLength -> showMessageLengthErrorHint()
-                        UnexpectedFailure -> handleUnexpectedElapsedFormSendFailure()
-                        Sent -> handleElapsedFormSend()
-                        is SubmissionError -> handleElapsedFormSubmissionError(it.message)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun stopElapsedHandling() {
-        elapsedFlowJob?.cancel()
-    }
-
-    private fun handleUnexpectedElapsedFormSendFailure() {
-        toastHelper.showToast(R.string.something_went_wrong_try_later)
-        elapsedViewModel.errorWasHandled()
-    }
-
-    private fun handleElapsedFormSend() {
-        stopElapsedHandling()
-        toastHelper.showToast(R.string.subscription_inquiry_send_success_toast, long = true)
-        hideAllViews()
-    }
-
-    private fun handleElapsedFormSubmissionError(message: String) {
-        val toastMessage = getString(R.string.subscription_inquiry_submission_error, message)
-        toastHelper.showToast(toastMessage, long = true)
-        elapsedViewModel.errorWasHandled()
-    }
 
     private fun showLoginSubscribeUi() {
         viewBinding.apply {
             readOnLoginGroup.visibility = View.VISIBLE
-            readOnElapsedGroup.visibility = View.GONE
 
             if (BuildConfig.IS_LMD) {
                 readOnSeparatorLine.visibility = View.GONE
@@ -261,38 +186,6 @@ class ArticleLoginBottomSheetFragment :
         }
     }
 
-    private fun showMessageLengthErrorHint() {
-        viewBinding.apply {
-            messageToSubscriptionService.error = getString(R.string.popup_login_elapsed_message_to_short)
-        }
-    }
-
-    private suspend fun showElapsedUi() = withContext(Dispatchers.Main) {
-        viewBinding.apply {
-            readOnLoginGroup.visibility = View.GONE
-            readOnSeparatorLine.visibility = View.GONE
-            readOnTrialSubscriptionBox.visibility = View.GONE
-            readOnSwitchPrint2digiBox.visibility = View.GONE
-            readOnExtendPrintWithDigiBox.visibility = View.GONE
-            readOnCancelButton.visibility = View.GONE
-            readOnElapsedGroup.visibility = View.VISIBLE
-
-            readOnElapsedTitle.text = elapsedViewModel.elapsedTitleStringFlow.first()
-            readOnElapsedDescription.text = elapsedViewModel.elapsedDescriptionStringFlow.first()
-        }
-    }
-
-    private fun hideAllViews() {
-        viewBinding.apply {
-            readOnLoginGroup.visibility = View.GONE
-            readOnSeparatorLine.visibility = View.GONE
-            readOnTrialSubscriptionBox.visibility = View.GONE
-            readOnSwitchPrint2digiBox.visibility = View.GONE
-            readOnExtendPrintWithDigiBox.visibility = View.GONE
-            readOnCancelButton.visibility = View.GONE
-            readOnElapsedGroup.visibility = View.GONE
-        }
-    }
     private fun showHelpDialog() {
         context?.let {
             val dialog = MaterialAlertDialogBuilder(it)

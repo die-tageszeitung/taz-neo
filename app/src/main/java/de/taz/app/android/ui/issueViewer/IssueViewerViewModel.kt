@@ -7,12 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -24,10 +26,17 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.util.ArticleName
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
@@ -144,6 +153,10 @@ class IssueViewerViewModel(
     val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
         savedStateHandle.getLiveData(KEY_DISPLAY_MODE, IssueContentDisplayMode.Loading)
 
+    private val issueKeyFlow: Flow<IssueKey> = issueKeyAndDisplayableKeyLiveData.asFlow()
+        .filterNotNull()
+        .map { it.issueKey }
+
     private val issueKeyLiveData: LiveData<IssueKey?> =
         issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }.distinctUntilChanged()
 
@@ -192,10 +205,17 @@ class IssueViewerViewModel(
         }
     }
 
-
-    val elapsedSubscription = authHelper.status.asFlow()
-    val elapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.asFlow()
-
+    /**
+     * Flow that indicates if the subscription elapsed dialog should be shown.
+     * Will not emit anything until a issue is loaded.
+     */
+    val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
+        issueKeyFlow,
+        authHelper.getShouldShowSubscriptionElapsedDialogFlow()
+    ) { issueKey, shouldShowSubscriptionElapsedDialog ->
+        val isPublic = issueKey.status == IssueStatus.public
+        isPublic && shouldShowSubscriptionElapsedDialog
+    }
 
     fun findArticleStubByArticleName(articleName: String): ArticleStub? {
         val articleStub = articleListLiveData.value?.find {

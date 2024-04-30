@@ -10,7 +10,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.Image
@@ -21,6 +20,7 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -30,6 +30,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
@@ -80,9 +81,10 @@ class PdfPagerViewModel(
 
     private var issuePublication: IssuePublicationWithPages? = null
 
-    private var issueStubFlow = MutableStateFlow<IssueStub?>(null)
+    private val issueStubFlow = MutableStateFlow<IssueStub?>(null)
 
     val issueStubLiveData = issueStubFlow.filterNotNull().asLiveData()
+    val issueKeyFlow: Flow<AbstractIssueKey?> = issueStubFlow.map { it?.issueKey }
 
     val issueStub: IssueStub?
         get() = issueStubFlow.value
@@ -308,13 +310,10 @@ class PdfPagerViewModel(
      */
     val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
         issueStubFlow.filterNotNull(),
-        authHelper.status.asFlow(),
-        authHelper.elapsedFormAlreadySent.asFlow()
-    ) { issue, authStatus, isElapsedFormAlreadySent ->
+        authHelper.getShouldShowSubscriptionElapsedDialogFlow()
+    ) { issue, shouldShowSubscriptionElapsedDialog ->
         val isPublic = issue.issueKey.status == IssueStatus.public
-        val isElapsed = authStatus == AuthStatus.elapsed
-
-        isPublic && isElapsed && !isElapsedFormAlreadySent
+        isPublic && shouldShowSubscriptionElapsedDialog
     }
 
     private val itemsToCFlow =

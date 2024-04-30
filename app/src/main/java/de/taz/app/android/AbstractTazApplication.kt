@@ -38,9 +38,6 @@ abstract class AbstractTazApplication : Application() {
     // a fragment or activity is finished
     val applicationScope = CoroutineScope(SupervisorJob())
 
-    // Global flag used to ensure that the elapsed popup is only shown once across all Fragments/Activities
-    var elapsedPopupAlreadyShown = false
-
     override fun onCreate() {
         super.onCreate()
 

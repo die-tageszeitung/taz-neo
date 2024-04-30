@@ -146,12 +146,18 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch {
             // FIXME (johannes): this is loading the full section WITH all its articles and everything
             //  within for EACH section pager fragment. This DOES have a performance impact
             viewModel.displayableLiveData.postValue(
                 sectionRepository.get(sectionFileName)
             )
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
             maybeHandlePodcast()
         }
     }

@@ -138,12 +138,7 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
                 // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
                 // and only if this pager item is currently shown (the Fragment is resumed)
                 if (isScrolledToBottom && isResumed) {
-                    parentFragmentManager.apply {
-                        if (findFragmentByTag(ArticleLoginBottomSheetFragment.TAG) == null) {
-                            ArticleLoginBottomSheetFragment.newInstance(searchResult.articleFileName)
-                                .show(this, ArticleLoginBottomSheetFragment.TAG)
-                        }
-                    }
+                    ArticleLoginBottomSheetFragment.showSingleInstance(parentFragmentManager, searchResult.articleFileName)
                 }
             }
         }
