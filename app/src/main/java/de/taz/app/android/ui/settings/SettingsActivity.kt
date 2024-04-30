@@ -5,16 +5,17 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySettingsBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
 class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
@@ -30,7 +31,12 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                checkIfSubscriptionElapsed()
+                authHelper.getShouldShowSubscriptionElapsedDialogFlow()
+                    .distinctUntilChanged()
+                    .filter { it }
+                    .collect {
+                        SubscriptionElapsedBottomSheetFragment.showSingleInstance(supportFragmentManager)
+                    }
             }
         }
     }
@@ -54,25 +60,6 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
             supportFragmentManager.popBackStack()
         } else {
             bottomNavigationBack()
-        }
-    }
-
-    private suspend fun checkIfSubscriptionElapsed() {
-        val authStatus = authHelper.status.get()
-        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
-        val alreadyShown = getTazApplication().elapsedPopupAlreadyShown
-        if (authStatus == AuthStatus.elapsed && !isElapsedButWaiting && !alreadyShown && !isElapsedFormAlreadySent) {
-            showSubscriptionElapsedBottomSheet()
-        }
-    }
-
-    private fun showSubscriptionElapsedBottomSheet() {
-        if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
-            SubscriptionElapsedBottomSheetFragment().show(
-                supportFragmentManager,
-                SubscriptionElapsedBottomSheetFragment.TAG
-            )
         }
     }
 }

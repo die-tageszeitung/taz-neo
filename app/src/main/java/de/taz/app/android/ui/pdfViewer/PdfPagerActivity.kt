@@ -212,22 +212,12 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // show bottom sheet if user's subscription is elapsed and the issue status is public
                 launch {
                     pdfPagerViewModel.showSubscriptionElapsedFlow
                         .distinctUntilChanged()
-                        .filter { it }.collect {
-                            // Do not show th the bottom sheet if it is already shown
-                            // (maybe because the activity was re-recreated and it was restored from the bundle)
-                            if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
-                                // Prevent a crash that occurs if the show() method is called after onSaveInstanceState.
-                                if (!supportFragmentManager.isStateSaved) {
-                                    SubscriptionElapsedBottomSheetFragment().show(
-                                        supportFragmentManager,
-                                        SubscriptionElapsedBottomSheetFragment.TAG
-                                    )
-                                }
-                            }
+                        .filter { it }
+                        .collect {
+                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(supportFragmentManager)
                         }
                 }
 

@@ -17,7 +17,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.APP_SESSION_TIMEOUT_MS
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
-import de.taz.app.android.TazApplication
 import de.taz.app.android.appReview.ReviewFlow
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
@@ -25,7 +24,6 @@ import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
-import de.taz.app.android.getTazApplication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
@@ -36,6 +34,7 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
 import de.taz.app.android.ui.login.LoginActivity
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.delay
@@ -125,10 +124,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             return
         }
 
-
-        val isElapsedButWaiting = authHelper.elapsedButWaiting.get()
-        val isElapsedFormAlreadySent = authHelper.elapsedFormAlreadySent.get()
-        val elapsedAlreadyShown = (application as TazApplication).elapsedPopupAlreadyShown
         val isPdfMode = generalDataStore.pdfMode.get()
         val allowNotificationsDoNotShowAgain =
             generalDataStore.allowNotificationsDoNotShowAgain.get()
@@ -138,8 +133,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 lastShown > DateHelper.lastTenDays()
             } ?: false
 
-        val elapsedBottomSheetConditions =
-            authHelper.isElapsed() && !isElapsedButWaiting && !elapsedAlreadyShown && !isElapsedFormAlreadySent
+        val elapsedBottomSheetConditions = authHelper.shouldShowSubscriptionElapsedDialog()
 
         val allowNotificationsBottomSheetConditions =
             !checkNotificationsAllowed() && !allowNotificationsDoNotShowAgain && !allowNotificationsShownLastMonth && BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
@@ -219,14 +213,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private fun showSubscriptionElapsedBottomSheet() {
-        getTazApplication().elapsedPopupAlreadyShown = true
-
-        if (supportFragmentManager.findFragmentByTag(SubscriptionElapsedBottomSheetFragment.TAG) == null) {
-            SubscriptionElapsedBottomSheetFragment().show(
-                supportFragmentManager,
-                SubscriptionElapsedBottomSheetFragment.TAG
-            )
-        }
+        SubscriptionElapsedBottomSheetFragment.showSingleInstance(supportFragmentManager)
     }
 
     private fun showAllowNotificationsBottomSheet() {

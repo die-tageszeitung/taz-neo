@@ -3,16 +3,16 @@ package de.taz.app.android.ui.issueViewer
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
@@ -29,9 +29,8 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
@@ -145,6 +144,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         get() = arguments?.getString(KEY_DISPLAYABLE)
 
     private lateinit var contentService: ContentService
+    private lateinit var authHelper: AuthHelper
 
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -168,6 +168,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,21 +184,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                     IssueKey(cachedIssueKey)
                 } else {
                     // If the Issue metadata is not downloaded yet, we try to download it
-                    suspend fun downloadMetadata(maxRetries: Int = -1) =
-                        contentService.downloadMetadata(
-                            issuePublication,
-                            maxRetries = maxRetries
-                        ) as Issue
-
-                    val issue = try {
-                        downloadMetadata(maxRetries = 3)
-                    } catch (e: CacheOperationFailedException) {
-                        // show error then retry infinitely
-                        issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
-                        downloadMetadata()
-                    }
-
-                    issue.issueKey
+                    downloadIssuePublication(issuePublication)
                 }
 
                 if (displayableKey != null) {
@@ -210,38 +197,63 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
                     issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
                 }
             }
-            checkElapsedAndShowBottomSheet()
         }
-
-        // show an error if downloading the metadata, the issue, or another file fails
-        issueViewerViewModel.issueLoadingFailedErrorFlow
-            .filter { isError -> isError }
-            .asLiveData()
-            .observe(this) {
-                checkElapsedAndShowBottomSheet(
-                    showDownloadFailedDialogOnNotElapsed = true
-                )
-            }
     }
 
-    /**
-     * Show bottom sheet if user's subscription is elapsed and the issue status is public.
-     * @param showDownloadFailedDialogOnNotElapsed Set true will show generic [showIssueDownloadFailedDialog].
-     */
-    private fun checkElapsedAndShowBottomSheet(showDownloadFailedDialogOnNotElapsed: Boolean = false) {
-        lifecycleScope.launch {
-            val subscriptionElapsed =
-                issueViewerViewModel.elapsedSubscription.first() == AuthStatus.elapsed
-            val isElapsedFormAlreadySent = issueViewerViewModel.elapsedFormAlreadySent.first()
-            val issueKey = issueViewerViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                .mapNotNull { it }.first().issueKey
-            if (issueKey.status == IssueStatus.public && subscriptionElapsed && !isElapsedFormAlreadySent) {
-                SubscriptionElapsedBottomSheetFragment().show(
-                    childFragmentManager,
-                    SubscriptionElapsedBottomSheetFragment.TAG
-                )
-            } else if (showDownloadFailedDialogOnNotElapsed) {
-                requireActivity().showIssueDownloadFailedDialog(issuePublication)
+    private suspend fun downloadIssuePublication(issuePublication: IssuePublication): IssueKey {
+        val wasElapsed = authHelper.isElapsed()
+
+        val issue = try {
+            contentService.downloadIssueMetadata(issuePublication, maxRetries = 3)
+
+        } catch (e: CacheOperationFailedException) {
+            // In case of an error, we might show an error then retry infinitely
+
+            // If an elapsed status is just found during the download of this issue,
+            // then we won't show the issue loading error here, but let the code responsible to show
+            // the [SubscriptionElapsedBottomSheetFragment] take over.
+            val elapsedOnDownload = !wasElapsed && authHelper.isElapsed()
+            if (!elapsedOnDownload) {
+                issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
+            }
+            contentService.downloadIssueMetadata(issuePublication, METADATA_DOWNLOAD_RETRY_INDEFINITELY)
+        }
+
+
+        return issue.issueKey
+    }
+
+    private suspend fun ContentService.downloadIssueMetadata(
+        issuePublication: IssuePublication,
+        maxRetries: Int
+    ): Issue =
+        downloadMetadata(
+            issuePublication,
+            maxRetries = maxRetries
+        ) as Issue
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    // show an error if downloading the metadata, the issue, or another file fails
+                    issueViewerViewModel.issueLoadingFailedErrorFlow
+                        .filter { it }
+                        .collect {
+                            activity?.showIssueDownloadFailedDialog(issuePublication)
+                        }
+                }
+
+                launch {
+                    issueViewerViewModel.showSubscriptionElapsedFlow
+                        .distinctUntilChanged()
+                        .filter { it }
+                        .collect {
+                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(childFragmentManager)
+                        }
+                }
             }
         }
     }

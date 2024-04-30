@@ -27,10 +27,12 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -48,6 +50,7 @@ class ArticleWebViewFragment :
     private lateinit var tazApiCssHelper: TazApiCssHelper
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tracker: Tracker
+    private lateinit var authHelper: AuthHelper
 
     private var isMultiColumnMode = false
 
@@ -95,6 +98,7 @@ class ArticleWebViewFragment :
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         tazApiCssHelper = TazApiCssHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -332,10 +336,11 @@ class ArticleWebViewFragment :
                 // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
                 // and only if this pager item is currently shown (the Fragment is resumed)
                 if (isScrolledToBottom && isResumed) {
-                    parentFragmentManager.apply {
-                        if (findFragmentByTag(ArticleLoginBottomSheetFragment.TAG) == null) {
-                            ArticleLoginBottomSheetFragment.newInstance(articleFileName)
-                                .show(this, ArticleLoginBottomSheetFragment.TAG)
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        if (authHelper.isElapsed()) {
+                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(parentFragmentManager)
+                        } else {
+                            ArticleLoginBottomSheetFragment.showSingleInstance(parentFragmentManager, articleFileName)
                         }
                     }
                 }
