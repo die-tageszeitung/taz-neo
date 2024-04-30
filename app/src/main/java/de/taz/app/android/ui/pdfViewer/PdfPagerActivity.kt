@@ -289,13 +289,13 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     }
 
     private suspend fun showNavButton(navButton: Image) {
-        if (this.navButton != navButton) {
-            this.navButton = navButton
+        val navButtonPath = storageService.getAbsolutePath(navButton)
+        if (this.navButton != navButton && navButtonPath != null) {
             try {
                 val imageDrawable = withContext(Dispatchers.IO) {
                     Glide
                         .with(this@PdfPagerActivity)
-                        .load(storageService.getAbsolutePath(navButton))
+                        .load(navButtonPath)
                         .submit()
                         .get()
                 }
@@ -313,6 +313,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 ) * scaleFactor
 
                 drawerViewController.drawerLogoWidth = logicalWidth.toInt()
+
                 val logicalHeight = TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP,
                     imageDrawable.intrinsicHeight.toFloat(),
@@ -327,15 +328,20 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                             height = logicalHeight.toInt()
                         }
                     }
-                    pdfDrawerLayout.requestLayout()
+                    pdfDrawerLayout.apply {
+                        // Update the clickable bounding box:
+                        pdfDrawerLayout.updateDrawerLogoBoundingBox(
+                            logicalWidth.toInt(),
+                            drawerLogoWrapper.height
+                        )
+                        requestLayout()
+                    }
                 }
-                // Update the clickable bounding box:
-                pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                    logicalWidth.toInt(),
-                    drawerLogoWrapper.height
-                )
+                this.navButton = navButton
+
                 LmdLogoCoachMark(this, drawerLogo, imageDrawable)
                     .maybeShow()
+
             } catch (e: Exception) {
                 val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                 log.error(hint, e)

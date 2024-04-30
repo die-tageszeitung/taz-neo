@@ -5,7 +5,9 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup.LayoutParams
 import android.webkit.WebView
+import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
 import androidx.fragment.app.Fragment
@@ -196,7 +198,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
     private suspend fun showNavButton(navButton: Image) {
         val navButtonPath = storageService.getAbsolutePath(navButton)
         if (this.navButton != navButton && navButtonPath != null) {
-            this.navButton = navButton
             try {
                 val imageDrawable = withContext(Dispatchers.IO) {
                     Glide
@@ -225,13 +226,18 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                     imageDrawable.intrinsicHeight.toFloat(),
                     resources.displayMetrics
                 ) * scaleFactor
+
                 withContext(Dispatchers.Main) {
                     viewBinding.apply {
-                        drawerLogo.setImageDrawable(imageDrawable)
-                        drawerLogo.alpha = navButtonAlpha
-                        drawerLogo.imageAlpha = (navButton.alpha * 255).toInt()
-                        drawerLogo.layoutParams.width = logicalWidth.toInt()
-                        drawerLogo.layoutParams.height = logicalHeight.toInt()
+                        drawerLogo.apply {
+                            setImageDrawable(imageDrawable)
+                            alpha = navButtonAlpha
+                            imageAlpha = (navButton.alpha * 255).toInt()
+                            updateLayoutParams<LayoutParams> {
+                                width = logicalWidth.toInt()
+                                height = logicalHeight.toInt()
+                            }
+                        }
                         drawerLayout.requestLayout()
 
                         if (drawerLayout.isOpen) {
@@ -239,8 +245,11 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                         }
                     }
                 }
+                this.navButton = navButton
+
                 TazLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
                     .maybeShow()
+
             } catch (e: ExecutionException) {
                 val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                 log.error(hint, e)
