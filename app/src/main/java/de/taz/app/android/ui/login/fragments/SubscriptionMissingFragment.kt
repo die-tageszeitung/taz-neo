@@ -38,11 +38,11 @@ class SubscriptionMissingFragment :
         }
 
         viewBinding.backButton.setOnClickListener {
-            back()
+            loginFlowBack()
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
 
         viewBinding.fragmentLoginMissingSubscriptionPassword.setOnEditorActionListener(

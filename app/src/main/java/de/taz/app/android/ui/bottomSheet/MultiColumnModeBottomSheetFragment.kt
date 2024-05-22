@@ -11,7 +11,6 @@ import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentMultiColumnModeBottomSheetBinding
-import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
@@ -68,7 +67,5 @@ class MultiColumnModeBottomSheetFragment :
 
         viewBinding.negativeButton.setOnClickListener { dismiss() }
         viewBinding.buttonClose.setOnClickListener { dismiss() }
-
-        (dialog as BottomSheetDialog).behavior.doNotFlattenCorners()
     }
 }

@@ -109,15 +109,18 @@ class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
         setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
     }
 
-    override fun onLogInSuccessful(articleName: String) {
+    override fun onLogInSuccessful(articleName: String?) {
         // Launch the Activity restarting logic from the application scope to prevent it from being
         // accidentally canceled due the the activity being finished
         getApplicationScope().launch {
             // Restart the activity if this is *not* a Week/Wochentaz abo
             val authHelper = AuthHelper.getInstance(applicationContext)
             if (!authHelper.isLoginWeek.get()) {
+                val articleNameRegular = articleName
+                    ?.takeIf { authHelper.isValid() }
+                    ?.replace("public.", "")
                 finish()
-                startActivity(intent.putExtra(KEY_DISPLAYABLE, articleName))
+                startActivity(intent.putExtra(KEY_DISPLAYABLE, articleNameRegular))
             } else {
                 finish()
                 val toastHelper = ToastHelper.getInstance(applicationContext)

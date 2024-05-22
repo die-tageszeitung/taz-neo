@@ -7,7 +7,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.monkey.doNotFlattenCorners
 
 class AllowNotificationsBottomSheetFragment :
     BottomSheetDialogFragment(R.layout.fragment_container), AllowNotificationsFragmentCallback {
@@ -29,7 +28,6 @@ class AllowNotificationsBottomSheetFragment :
         return super.onCreateDialog(savedInstanceState).apply {
             if (this is BottomSheetDialog) {
                 behavior.apply {
-                    doNotFlattenCorners()
                     state = BottomSheetBehavior.STATE_EXPANDED
                 }
             }

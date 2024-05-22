@@ -12,7 +12,6 @@
     <color name="superSuperLightGrey">#F0F0F0</color>
     <color name="superSuperSuperLightGrey">#F4F4F4</color>
     <color name="againSomeLightGreyWith70PercentOpacity">#B3979797</color>
-    <color name="anotherDarkGrey">#3C3C43</color>
     <color name="lightRed">#FF1919</color>
     <color name="tazRed">#d50d2e</color>
     <!-- Prepending 16 to hexcode results in 10% transparency in colors
@@ -26,6 +25,12 @@
     <color name="darkGreyEightyPercentOpacity">#CC242424</color>
     <color name="blackEightyPercentOpacity">#CC000000</color>
 
+    <!-- Named colors as defined by the UI team - okay to use outside of colors.xml a little -->
+    <!-- FIXME: background_forms is also referred to as form_sheet_background in figma -->
+    <color name="background_forms">#EBEBEB</color>
+    <color name="text_icon_grey">#565656</color>
+    
+    
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
     <color name="bottom_sheet_text_color">@color/black</color>
@@ -49,7 +54,6 @@
     <color name="buttonTextColor">@color/white</color>
 
     <color name="colorEdgeEffect">@color/lightGrey</color>
-    <color name="icon_tint">@color/lightGrey</color>
 
     <color name="splashBackground">@color/tazRed</color>
 
@@ -62,6 +66,7 @@
     <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
     <color name="drawer_sections_header_action">@color/black</color>
 
+    <color name="bottom_sheet_background">@color/white</color>
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
     <color name="bottom_sheet_background_box_color">@color/superSuperSuperLightGrey</color>
     <color name="bottom_sheet_background_selected_bg_color">@color/black</color>
@@ -87,7 +92,6 @@
 
     <color name="archive_navigation_end_list_item">@color/white</color>
     <color name="backgroundColor">@color/white</color>
-    <color name="bottom_sheet_background">@color/white</color>
     <color name="data_policy_background">@color/white</color>
     <color name="drawer_pdf_sections_text">@color/white</color>
     <color name="fragment_bookmarks_delete">@color/white</color>
@@ -102,8 +106,7 @@
     <color name="pdf_section_font">@android:color/black</color>
     <color name="scrollbar_color">@color/lightGrey</color>
 
-    <color name="login_box_background">@color/superLightGrey</color>
-    <color name="login_box_separator_line_color">@color/lightGrey</color>
+    <color name="login_form_background">#EBEBEB</color>
 
     <color name="settings_separator_view_color">@color/superLightGrey</color>
     <color name="settings_plus_minus_icon_color">@color/textColorAccent</color>
@@ -131,8 +134,9 @@
     <color name="password_hint_strength_medium">@color/darkGreen</color>
     <color name="password_hint_strength_low">@color/darkOrange</color>
 
-    <color name="ic_close_button_foreground_color">@color/anotherDarkGrey</color>
-    <color name="ic_close_button_background_color">#E6E6E8</color>
-
     <color name="fragment_article_web_view_tap_icon_color">@color/againSomeLightGreyWith70PercentOpacity</color>
+
+    <!-- Colors used in drawables - defined as colors to be able to adapt them in dark mode -->
+    <color name="ic_close_button_foreground_color">#9c9c9c</color>
+    <color name="ic_close_button_background_color">#f2f2f7</color>
 </resources>

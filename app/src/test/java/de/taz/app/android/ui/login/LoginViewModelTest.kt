@@ -144,7 +144,7 @@ class LoginViewModelTest {
             feedService = feedService,
             subscriptionPollHelper = subscriptionPollHelper,
             tracker = NoOpTracker()
-        ).apply { status.postValue(LoginViewModelState.INITIAL) }
+        ).apply { status = LoginViewModelState.INITIAL }
     }
 
     @After
@@ -155,79 +155,79 @@ class LoginViewModelTest {
 
     @Test
     fun getNoInternet() {
-        assertTrue(loginViewModel.noInternet.value == false)
-        loginViewModel.noInternet.value = true
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertTrue(loginViewModel.noInternet == false)
+        loginViewModel.noInternet = true
+        assertTrue(loginViewModel.noInternet == true)
     }
 
     @Test
     fun loginWithoutUsername() = runTest {
         loginViewModel.login(null, password)
-        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginWithEmptyUsername() = runTest {
         loginViewModel.login("", password)
-        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsWithEmptyPassword() = runTest {
         loginViewModel.login(username, "")
-        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsWithoutPassword() = runTest {
         loginViewModel.login(username, null)
-        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginWithEmtpyUsernameAndPassword() = runTest {
         loginViewModel.login(null, null)
-        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.USERNAME_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginSubscriptionWithEmptyPassword() = runTest {
         loginViewModel.login(subscriptionId.toString(), "")
-        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginSubscriptionWithoutPassword() = runTest {
         loginViewModel.login(subscriptionId.toString(), null)
-        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_MISSING, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsSuccessful() = runTest {
         doReturn(validAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
-        assertEquals(LoginViewModelState.DONE, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.DONE, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsElapsed() = runTest {
         doReturn(elapsedAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsNotValid() = runTest {
         doReturn(invalidAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
-        assertEquals(LoginViewModelState.CREDENTIALS_INVALID, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_INVALID, loginViewModel.status)
     }
 
     @Test
     fun loginCredentialsNoSubscriptionId() = runTest {
         doReturn(idNotLinkedAuthTokenInfo).`when`(apiService).authenticate(username, password)
         loginViewModel.login(username, password)?.join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_MISSING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_MISSING, loginViewModel.status)
     }
 
     @Test
@@ -285,14 +285,14 @@ class LoginViewModelTest {
     @Test
     fun loginNull() = runTest {
         loginViewModel.login(subscriptionId.toString(), subscriptionPassword)?.join()
-        assertEquals(LoginViewModelState.INITIAL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.INITIAL, loginViewModel.status)
     }
 
     @Test
     fun requestSubscription() = runTest {
         loginViewModel.requestSubscription(username)
         assertTrue(loginViewModel.username == username)
-        assertEquals(LoginViewModelState.SUBSCRIPTION_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -301,7 +301,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.REGISTRATION_SUCCESSFUL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_SUCCESSFUL, loginViewModel.status)
     }
 
     @Test
@@ -311,7 +311,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.EMAIL_ALREADY_LINKED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.EMAIL_ALREADY_LINKED, loginViewModel.status)
     }
 
     @Test
@@ -320,7 +320,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status)
     }
 
     @Test
@@ -330,7 +330,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_TAKEN, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_TAKEN, loginViewModel.status)
     }
 
     @Test
@@ -340,7 +340,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status)
     }
 
     @Test
@@ -365,7 +365,7 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
     }
 
     @Test
@@ -375,15 +375,15 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(LoginViewModelState.LOADING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.LOADING, loginViewModel.status)
         // polling logic tested separately
     }
 
     @Test
     fun registerNull() = runTest {
-        val status = loginViewModel.status.value
+        val status = loginViewModel.status
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(status, loginViewModel.status.value)
+        assertEquals(status, loginViewModel.status)
     }
 
     @Test
@@ -396,8 +396,8 @@ class LoginViewModelTest {
         loginViewModel.username = username
         loginViewModel.password = password
         loginViewModel.register(LoginViewModelState.INITIAL, viewModelState)?.join()
-        assertEquals(status, loginViewModel.status.value)
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertEquals(status, loginViewModel.status)
+        assertTrue(loginViewModel.noInternet == true)
     }
 
     @Test
@@ -410,7 +410,7 @@ class LoginViewModelTest {
     fun pollNoPollEntry() = runTest {
         doReturn(noPollEntrySubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(LoginViewModelState.INITIAL, 0)
-        assertEquals(LoginViewModelState.POLLING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.POLLING_FAILED, loginViewModel.status)
     }
 
     @Ignore("Flaky due to coroutine concurrency")
@@ -430,7 +430,7 @@ class LoginViewModelTest {
     fun pollWaitForMail() = runTest {
         doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL, 0)
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
     }
 
     @Ignore("Flaky due to coroutine concurrency")
@@ -441,7 +441,7 @@ class LoginViewModelTest {
         loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL, 0)
 
         verify(apiService, times(3)).subscriptionPoll()
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
     }
 
     @Ignore("Flaky due to coroutine concurrency")
@@ -450,7 +450,7 @@ class LoginViewModelTest {
         doReturn(null).doReturn(waitForMailSubscriptionInfo).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(LoginViewModelState.REGISTRATION_EMAIL, 0)
         verify(apiService, times(2)).subscriptionPoll()
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
     }
 
     @Ignore("Flaky due to coroutine concurrency")
@@ -461,28 +461,28 @@ class LoginViewModelTest {
         ).`when`(apiService).subscriptionPoll()
         loginViewModel.poll(LoginViewModelState.INITIAL, 0)
         verify(apiService, times(2)).subscriptionPoll()
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
+        assertTrue(loginViewModel.noInternet == true)
     }
 
     @Test
     fun requestCredentialsPasswordResetEmptyEmail() {
         loginViewModel.requestCredentialsPasswordReset("")
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
     fun requestCredentialsPasswordResetOk() = runTest {
         doReturn(PasswordResetInfo.ok).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status)
     }
 
     @Test
     fun requestCredentialsPasswordResetError() = runTest {
         doReturn(PasswordResetInfo.error).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -490,7 +490,7 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.invalidMail).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL, loginViewModel.status)
     }
 
     @Test
@@ -498,14 +498,14 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.mailError).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
     fun requestCredentialsPasswordResetNull() = runTest {
         doReturn(null).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -513,7 +513,7 @@ class LoginViewModelTest {
         doReturn(subscriptionResetInfoOk).`when`(apiService)
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status)
     }
 
     @Test
@@ -521,7 +521,7 @@ class LoginViewModelTest {
         doReturn(subscriptionResetInfoInvalidId).`when`(apiService)
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID, loginViewModel.status)
     }
 
     @Test
@@ -529,7 +529,7 @@ class LoginViewModelTest {
         doReturn(subscriptionResetInfoNoMail).`when`(apiService)
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL, loginViewModel.status)
     }
 
     @Test
@@ -537,14 +537,14 @@ class LoginViewModelTest {
         doReturn(subscriptionResetInfoInvalidConnection).`when`(apiService)
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.INITIAL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.INITIAL, loginViewModel.status)
     }
 
     @Test
     fun requestSubscriptionPasswordNull() = runTest {
         doReturn(null).`when`(apiService).requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -554,15 +554,15 @@ class LoginViewModelTest {
         )
             .requestSubscriptionPassword(subscriptionId)
         loginViewModel.requestSubscriptionPassword(subscriptionId).join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
+        assertTrue(loginViewModel.noInternet == true)
     }
 
     @Test
     fun requestCredentialsPasswordOk() = runTest {
         doReturn(PasswordResetInfo.ok).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_DONE, loginViewModel.status)
     }
 
     @Test
@@ -570,7 +570,7 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.mailError).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -578,21 +578,21 @@ class LoginViewModelTest {
         doReturn(PasswordResetInfo.invalidMail).`when`(apiService)
             .requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL, loginViewModel.status)
     }
 
     @Test
     fun requestCredentialsPasswordError() = runTest {
         doReturn(PasswordResetInfo.error).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
     fun requestCredentialsPasswordNull() = runTest {
         doReturn(null).`when`(apiService).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
     }
 
     @Test
@@ -601,8 +601,8 @@ class LoginViewModelTest {
             apiService
         ).requestCredentialsPasswordReset(email)
         loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status.value)
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
+        assertTrue(loginViewModel.noInternet == true)
     }
 
     @Test
@@ -614,7 +614,7 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.REGISTRATION_SUCCESSFUL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_SUCCESSFUL, loginViewModel.status)
     }
 
     @Test
@@ -626,7 +626,7 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.EMAIL_ALREADY_LINKED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.EMAIL_ALREADY_LINKED, loginViewModel.status)
     }
 
     @Test
@@ -638,7 +638,7 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_ELAPSED, loginViewModel.status)
     }
 
     @Test
@@ -650,20 +650,20 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_TAKEN, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_TAKEN, loginViewModel.status)
     }
 
     @Test
     fun connectInvalidMail() = runTest {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
-        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
+        loginViewModel.status = LoginViewModelState.CREDENTIALS_MISSING_LOGIN
         loginViewModel.username = email
         loginViewModel.password = password
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status)
     }
 
     @Test
@@ -671,26 +671,26 @@ class LoginViewModelTest {
         doReturn(invalidMailSubscriptionInfo).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
 
-        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
+        loginViewModel.status = LoginViewModelState.CREDENTIALS_MISSING_REGISTER
         loginViewModel.username = email
         loginViewModel.password = password
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status)
     }
 
     @Test
     fun connectInvalidTazID() = runTest {
         doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
-        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_LOGIN)
+        loginViewModel.status = LoginViewModelState.CREDENTIALS_MISSING_LOGIN
         loginViewModel.username = email
         loginViewModel.password = password
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status)
     }
 
     @Test
@@ -698,13 +698,13 @@ class LoginViewModelTest {
         doReturn(tazIdNotValidSubscriptionInfo).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
 
-        loginViewModel.status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
+        loginViewModel.status = LoginViewModelState.CREDENTIALS_MISSING_REGISTER
         loginViewModel.username = email
         loginViewModel.password = password
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.CREDENTIALS_MISSING_FAILED, loginViewModel.status)
     }
 
     @Test
@@ -721,7 +721,7 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID, loginViewModel.status)
     }
 
     @Test
@@ -733,7 +733,7 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.REGISTRATION_EMAIL, loginViewModel.status)
     }
 
     @Test
@@ -745,12 +745,12 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(LoginViewModelState.LOADING, loginViewModel.status.value)
+        assertEquals(LoginViewModelState.LOADING, loginViewModel.status)
     }
 
     @Test
     fun connectNull() = runTest {
-        val status = loginViewModel.status.value
+        val status = loginViewModel.status
         doReturn(null).`when`(apiService)
             .subscriptionId2TazId(email, password, subscriptionId, subscriptionPassword)
         loginViewModel.username = email
@@ -758,12 +758,12 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(status, loginViewModel.status.value)
+        assertEquals(status, loginViewModel.status)
     }
 
     @Test
     fun connectNoInternet() = runTest {
-        val status = loginViewModel.status.value
+        val status = loginViewModel.status
         doThrow(ConnectivityException.NoInternetException(cause = ConnectException())).`when`(
             apiService
         )
@@ -773,8 +773,8 @@ class LoginViewModelTest {
         loginViewModel.subscriptionId = subscriptionId
         loginViewModel.subscriptionPassword = subscriptionPassword
         loginViewModel.connect().join()
-        assertEquals(status, loginViewModel.status.value)
-        assertTrue(loginViewModel.noInternet.value == true)
+        assertEquals(status, loginViewModel.status)
+        assertTrue(loginViewModel.noInternet == true)
     }
 
 }

@@ -537,7 +537,7 @@ class SearchActivity :
     }
     // endregion
 
-    override fun onLogInSuccessful(articleName: String) {
+    override fun onLogInSuccessful(articleName: String?) {
         // Close the result pager
         supportFragmentManager.popBackStack(
             SEARCH_RESULT_PAGER_BACKSTACK_NAME,

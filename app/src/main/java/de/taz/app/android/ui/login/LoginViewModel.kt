@@ -3,7 +3,7 @@ package de.taz.app.android.ui.login
 import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
@@ -26,6 +26,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
@@ -48,20 +52,43 @@ class LoginViewModel @JvmOverloads constructor(
     private var statusBeforePasswordRequest: LoginViewModelState? = null
     var statusBeforeEmailAlreadyLinked: LoginViewModelState? = null
 
-    val status = MutableLiveData<LoginViewModelState>()
-    val noInternet by lazy { MutableLiveData(false) }
+
+    // We can't use a MutableStateFlow because the implementation expects a non-distinct behavior
+    // Thus we have to use a MutableSharedFlow and an extra _status to hold the current value for
+    // access out of a coroutine.
+    private val _statusFlow = MutableSharedFlow<LoginViewModelState>(replay = 1)
+        .apply { tryEmit(LoginViewModelState.INITIAL) }
+    private var _status: LoginViewModelState = LoginViewModelState.INITIAL
+    val statusFlow = _statusFlow.asSharedFlow()
+    var status: LoginViewModelState
+        get() = _status
+        set(value) {
+            _status = value
+            viewModelScope.launch { _statusFlow.emit(value) }
+        }
+
+    private val _noInternet = MutableStateFlow<Boolean>(false)
+    val noInternetFlow = _noInternet.asStateFlow()
+    var noInternet: Boolean
+        get() = _noInternet.value
+        set(value) {
+            _noInternet.value = value
+        }
 
     var username: String? = runBlocking { authHelper.email.get() }
     var backToSettingsAfterEmailSent = false
+    val backToArticle: Boolean
+        get() = articleName != null
 
     var password: String? = null
     var subscriptionId: Int? = null
     var subscriptionPassword: String? = null
-    var backToArticle: Boolean = true
     var backToHome: Boolean = false
 
     var firstName: String? = null
     var surName: String? = null
+
+    var articleName: String? = null
 
     var createNewAccount: Boolean = true
     var validCredentials: Boolean = false
@@ -69,7 +96,7 @@ class LoginViewModel @JvmOverloads constructor(
     var waitForMailSinceMs: Long = 0L
 
     fun setDone() {
-        status.postValue(LoginViewModelState.DONE)
+        status = LoginViewModelState.DONE
     }
 
     suspend fun setPolling(startPolling: Boolean = true) {
@@ -80,7 +107,7 @@ class LoginViewModel @JvmOverloads constructor(
     fun backToMissingSubscription() {
         resetSubscriptionId()
         resetSubscriptionPassword()
-        status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+        status = LoginViewModelState.SUBSCRIPTION_MISSING
     }
 
     fun login(initialUsername: String? = null, initialPassword: String? = null): Job? {
@@ -92,13 +119,13 @@ class LoginViewModel @JvmOverloads constructor(
             subscriptionId = initialSubscriptionId
             subscriptionPassword = initialPassword
 
-            status.postValue(LoginViewModelState.LOADING)
+            status = LoginViewModelState.LOADING
             if (!initialPassword.isNullOrBlank()) {
                 launch {
                     handleSubscriptionIdLogin(initialSubscriptionId, initialPassword)
                 }
             } else {
-                status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                status = LoginViewModelState.PASSWORD_MISSING
                 null
             }
 
@@ -106,16 +133,16 @@ class LoginViewModel @JvmOverloads constructor(
             initialUsername?.let { username = it }
             initialPassword?.let { password = it }
 
-            status.postValue(LoginViewModelState.LOADING)
+            status = LoginViewModelState.LOADING
 
             val tmpUsername = username ?: ""
             val tmpPassword = password
 
             if (tmpUsername.isBlank()) {
-                status.postValue(LoginViewModelState.USERNAME_MISSING)
+                status = LoginViewModelState.USERNAME_MISSING
                 null
             } else if (tmpPassword.isNullOrBlank()) {
-                status.postValue(LoginViewModelState.PASSWORD_MISSING)
+                status = LoginViewModelState.PASSWORD_MISSING
                 null
             } else {
                 launch { handleCredentialsLogin(tmpUsername, tmpPassword) }
@@ -136,32 +163,32 @@ class LoginViewModel @JvmOverloads constructor(
             when (subscriptionAuthInfo?.status) {
                 AuthStatus.alreadyLinked -> {
                     username = subscriptionAuthInfo.message
-                    status.postValue(LoginViewModelState.INITIAL)
+                    status = LoginViewModelState.INITIAL
                     toastHelper.showToast(R.string.toast_login_with_email)
                 }
                 AuthStatus.tazIdNotLinked -> {
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_REGISTER
                 }
                 AuthStatus.elapsed -> {
                     username?.let { authHelper.email.set(it) }
                     authHelper.status.set(AuthStatus.elapsed)
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    status = LoginViewModelState.SUBSCRIPTION_ELAPSED
                 }
                 AuthStatus.notValidMail,
                 AuthStatus.notValid -> {
                     resetSubscriptionPassword()
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_INVALID)
+                    status = LoginViewModelState.SUBSCRIPTION_INVALID
                 }
                 AuthStatus.valid ->
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_REGISTER)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_REGISTER
                 null -> {
-                    status.postValue(LoginViewModelState.INITIAL)
-                    noInternet.postValue(true)
+                    status = LoginViewModelState.INITIAL
+                    noInternet = true
                 }
             }
         } catch (e: ConnectivityException) {
-            status.postValue(LoginViewModelState.INITIAL)
-            noInternet.postValue(true)
+            status = LoginViewModelState.INITIAL
+            noInternet = true
         }
     }
 
@@ -189,32 +216,32 @@ class LoginViewModel @JvmOverloads constructor(
                             }
                         }
                     }
-                    status.postValue(LoginViewModelState.DONE)
+                    status = LoginViewModelState.DONE
                 }
                 AuthStatus.notValid -> {
                     resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_INVALID)
+                    status = LoginViewModelState.CREDENTIALS_INVALID
                 }
                 AuthStatus.tazIdNotLinked ->
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+                    status = LoginViewModelState.SUBSCRIPTION_MISSING
                 AuthStatus.elapsed -> {
                     authHelper.email.set(username)
                     token?.let { authHelper.token.set(it) }
                     authHelper.status.set(AuthStatus.elapsed)
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    status = LoginViewModelState.SUBSCRIPTION_ELAPSED
                 }
                 null -> {
-                    status.postValue(LoginViewModelState.INITIAL)
-                    noInternet.postValue(true)
+                    status = LoginViewModelState.INITIAL
+                    noInternet = true
                 }
                 else -> {
                     toastHelper.showSomethingWentWrongToast()
-                    status.postValue(LoginViewModelState.INITIAL)
+                    status = LoginViewModelState.INITIAL
                 }
             }
         } catch (e: ConnectivityException.Recoverable) {
-            status.postValue(LoginViewModelState.INITIAL)
-            noInternet.postValue(true)
+            status = LoginViewModelState.INITIAL
+            noInternet = true
         }
     }
 
@@ -222,15 +249,15 @@ class LoginViewModel @JvmOverloads constructor(
         if (!username.isNullOrEmpty() && username.toIntOrNull() == null) {
             this.username = username
         }
-        status.postValue(LoginViewModelState.SUBSCRIPTION_REQUEST)
+        status = LoginViewModelState.SUBSCRIPTION_REQUEST
     }
 
     fun requestSwitchPrint2Digi() {
-        status.postValue(LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST)
+        status = LoginViewModelState.SWITCH_PRINT_2_DIGI_REQUEST
     }
 
     fun requestExtendPrintWithDigi() {
-        status.postValue(LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST)
+        status = LoginViewModelState.EXTEND_PRINT_WITH_DIGI_REQUEST
     }
 
     fun getTrialSubscriptionForExistingCredentials(previousState: LoginViewModelState) {
@@ -247,7 +274,7 @@ class LoginViewModel @JvmOverloads constructor(
         invalidMailState: LoginViewModelState
     ): Job? {
         return runIfNotNull(this.username, this.password) { username1, password1 ->
-            status.postValue(LoginViewModelState.LOADING)
+            status = LoginViewModelState.LOADING
             launch {
                 handleRegistration(
                     username1,
@@ -280,27 +307,27 @@ class LoginViewModel @JvmOverloads constructor(
             when (subscriptionInfo?.status) {
                 SubscriptionStatus.tazIdNotValid -> {
                     // should not happen
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     statusBeforeEmailAlreadyLinked = previousState
-                    status.postValue(LoginViewModelState.EMAIL_ALREADY_LINKED)
+                    status = LoginViewModelState.EMAIL_ALREADY_LINKED
                 }
                 SubscriptionStatus.invalidMail -> {
-                    status.postValue(invalidMailState)
+                    status = invalidMailState
                 }
                 SubscriptionStatus.elapsed -> {
                     authHelper.email.set(username)
                     subscriptionInfo.token?.let { authHelper.token.set(it) }
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    status = LoginViewModelState.SUBSCRIPTION_ELAPSED
                 }
                 SubscriptionStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                    status = LoginViewModelState.SUBSCRIPTION_TAKEN
                 }
                 SubscriptionStatus.noPollEntry -> {
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
-                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                    status = LoginViewModelState.POLLING_FAILED
                 }
                 SubscriptionStatus.valid -> {
                     val token = requireNotNull(subscriptionInfo.token) {
@@ -309,14 +336,14 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.status.set(AuthStatus.valid)
                     authHelper.token.set(token)
                     authHelper.email.set(username)
-                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    status = LoginViewModelState.REGISTRATION_SUCCESSFUL
                     tracker.trackSubscriptionTrialConfirmedEvent()
                 }
                 SubscriptionStatus.waitForMail -> {
                     if (waitForMailSinceMs == 0L) {
                         waitForMailSinceMs = System.currentTimeMillis()
                     }
-                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                    status = LoginViewModelState.REGISTRATION_EMAIL
                 }
                 SubscriptionStatus.waitForProc -> {
                     if (waitForMailSinceMs == 0L) {
@@ -325,32 +352,32 @@ class LoginViewModel @JvmOverloads constructor(
                     poll(previousState)
                 }
                 SubscriptionStatus.noFirstName, SubscriptionStatus.noSurname -> {
-                    status.postValue(LoginViewModelState.NAME_MISSING)
+                    status = LoginViewModelState.NAME_MISSING
                 }
                 else -> {
-                    status.postValue(previousState)
+                    status = previousState
                     Sentry.captureMessage("trialSubscription returned ${subscriptionInfo?.status}")
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
         } catch (e: ConnectivityException) {
-            status.postValue(previousState)
-            noInternet.postValue(true)
+            status = previousState
+            noInternet = true
         }
     }
 
 
     fun connect(): Job {
-        val previousState = requireNotNull(status.value) { "a state must be set" }
-        status.postValue(LoginViewModelState.LOADING)
+        val previousState = status
+        status = LoginViewModelState.LOADING
         return launch {
             if (!createNewAccount) {
                 val checkCredentials = checkCredentials()
                 if (checkCredentials == false) {
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                     return@launch
                 } else if (checkCredentials == null) {
-                    status.postValue(previousState)
+                    status = previousState
                     return@launch
                 }
             }
@@ -380,63 +407,62 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.status.set(AuthStatus.valid)
                     authHelper.token.set(token)
                     authHelper.email.set(username ?: "")
-                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    status = LoginViewModelState.REGISTRATION_SUCCESSFUL
                 }
                 SubscriptionStatus.subscriptionIdNotValid -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID)
+                    status = LoginViewModelState.SUBSCRIPTION_MISSING_INVALID_ID
                 }
                 SubscriptionStatus.noFirstName,
                 SubscriptionStatus.noSurname,
                 SubscriptionStatus.nameTooLong,
                 SubscriptionStatus.invalidMail -> {
                     resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                 }
                 SubscriptionStatus.waitForProc -> {
                     poll(previousState)
                 }
                 SubscriptionStatus.waitForMail -> {
-                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                    status = LoginViewModelState.REGISTRATION_EMAIL
                 }
                 SubscriptionStatus.tazIdNotValid -> {
                     resetCredentialsPassword()
-                    status.postValue(LoginViewModelState.CREDENTIALS_MISSING_FAILED)
+                    status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                 }
                 SubscriptionStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                    status = LoginViewModelState.SUBSCRIPTION_TAKEN
                 }
                 SubscriptionStatus.elapsed -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    status = LoginViewModelState.SUBSCRIPTION_ELAPSED
                 }
                 SubscriptionStatus.noPollEntry -> {
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
-                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                    status = LoginViewModelState.POLLING_FAILED
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     statusBeforeEmailAlreadyLinked = previousState
-                    status.postValue(
+                    status =
                         if (validCredentials) {
                             LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
                         } else {
                             LoginViewModelState.EMAIL_ALREADY_LINKED
                         }
-                    )
                 }
                 null -> {
-                    status.postValue(previousState)
-                    noInternet.postValue(true)
+                    status = previousState
+                    noInternet = true
                 }
                 else -> {
                     // should not happen
                     Sentry.captureMessage("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
-                    status.postValue(previousState)
+                    status = previousState
                 }
             }
         } catch (e: ConnectivityException) {
-            status.postValue(previousState)
-            noInternet.postValue(true)
+            status = previousState
+            noInternet = true
         }
     }
 
@@ -445,7 +471,7 @@ class LoginViewModel @JvmOverloads constructor(
         previousState: LoginViewModelState,
         timeoutMillis: Long = 100
     ) {
-        status.postValue(LoginViewModelState.LOADING)
+        status = LoginViewModelState.LOADING
 
         launch {
             delay(timeoutMillis)
@@ -471,29 +497,28 @@ class LoginViewModel @JvmOverloads constructor(
                     authHelper.email.set(username ?: "")
 
                     tracker.trackSubscriptionTrialConfirmedEvent()
-                    status.postValue(LoginViewModelState.REGISTRATION_SUCCESSFUL)
+                    status = LoginViewModelState.REGISTRATION_SUCCESSFUL
                 }
                 SubscriptionStatus.elapsed -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_ELAPSED)
+                    status = LoginViewModelState.SUBSCRIPTION_ELAPSED
                 }
                 SubscriptionStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.SUBSCRIPTION_TAKEN)
+                    status = LoginViewModelState.SUBSCRIPTION_TAKEN
                 }
                 SubscriptionStatus.alreadyLinked -> {
                     statusBeforeEmailAlreadyLinked = previousState
-                    status.postValue(
+                    status =
                         if (validCredentials) {
                             LoginViewModelState.SUBSCRIPTION_ALREADY_LINKED
                         } else {
                             LoginViewModelState.EMAIL_ALREADY_LINKED
                         }
-                    )
                 }
                 SubscriptionStatus.waitForMail -> {
                     if (waitForMailSinceMs == 0L) {
                         waitForMailSinceMs = System.currentTimeMillis()
                     }
-                    status.postValue(LoginViewModelState.REGISTRATION_EMAIL)
+                    status = LoginViewModelState.REGISTRATION_EMAIL
                 }
                 null,
                 SubscriptionStatus.waitForProc -> {
@@ -505,11 +530,11 @@ class LoginViewModel @JvmOverloads constructor(
                 SubscriptionStatus.noPollEntry -> {
                     resetCredentialsPassword()
                     resetSubscriptionPassword()
-                    status.postValue(LoginViewModelState.POLLING_FAILED)
+                    status = LoginViewModelState.POLLING_FAILED
                 }
                 SubscriptionStatus.noSurname,
                 SubscriptionStatus.noFirstName -> {
-                    status.postValue(LoginViewModelState.NAME_MISSING)
+                    status = LoginViewModelState.NAME_MISSING
                 }
                 SubscriptionStatus.tooManyPollTries -> {
                     authHelper.isPolling.set(false)
@@ -522,34 +547,32 @@ class LoginViewModel @JvmOverloads constructor(
                 }
             }
         } catch (e: ConnectivityException) {
-            noInternet.postValue(true)
+            noInternet = true
             poll(previousState, timeoutMillis)
         }
     }
 
     fun requestPasswordReset(subscriptionId: Boolean = false) {
-        status.value?.let {
-            if (it !in listOf(
-                    LoginViewModelState.PASSWORD_REQUEST,
-                    LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL,
-                    LoginViewModelState.PASSWORD_REQUEST_INVALID_ID,
-                    LoginViewModelState.PASSWORD_REQUEST_NO_MAIL,
-                    LoginViewModelState.PASSWORD_REQUEST_DONE
-                )
-            ) {
-                statusBeforePasswordRequest = status.value
-            }
+        if (status !in listOf(
+                LoginViewModelState.PASSWORD_REQUEST,
+                LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL,
+                LoginViewModelState.PASSWORD_REQUEST_INVALID_ID,
+                LoginViewModelState.PASSWORD_REQUEST_NO_MAIL,
+                LoginViewModelState.PASSWORD_REQUEST_DONE
+            )
+        ) {
+            statusBeforePasswordRequest = status
         }
         if (subscriptionId) {
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID)
+            status = LoginViewModelState.PASSWORD_REQUEST_SUBSCRIPTION_ID
         } else {
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+            status = LoginViewModelState.PASSWORD_REQUEST
         }
     }
 
     fun requestSubscriptionPassword(subscriptionId: Int): Job {
         log.debug("forgotCredentialsPassword $subscriptionId")
-        status.postValue(LoginViewModelState.LOADING)
+        status = LoginViewModelState.LOADING
         return launch { handleSubscriptionPassword(subscriptionId) }
     }
 
@@ -559,36 +582,36 @@ class LoginViewModel @JvmOverloads constructor(
             log.debug("handleSubscriptionPassword returned: subscriptionResetInfo: $subscriptionResetInfo")
             when (subscriptionResetInfo?.status) {
                 SubscriptionResetStatus.ok ->
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                    status = LoginViewModelState.PASSWORD_REQUEST_DONE
                 SubscriptionResetStatus.invalidConnection -> {
-                    status.postValue(LoginViewModelState.INITIAL)
+                    status = LoginViewModelState.INITIAL
                     toastHelper.showToast(R.string.toast_login_with_email)
                 }
                 SubscriptionResetStatus.invalidSubscriptionId -> {
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_ID)
+                    status = LoginViewModelState.PASSWORD_REQUEST_INVALID_ID
                 }
                 SubscriptionResetStatus.noMail -> {
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_NO_MAIL)
+                    status = LoginViewModelState.PASSWORD_REQUEST_NO_MAIL
                 }
                 SubscriptionResetStatus.UNKNOWN_RESPONSE,
                     // FIXME (johannes): show a generic message in case of unknown responses
                 null -> {
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                    status = LoginViewModelState.PASSWORD_REQUEST
                 }
             }
         } catch (e: ConnectivityException) {
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
-            noInternet.postValue(true)
+            status = LoginViewModelState.PASSWORD_REQUEST
+            noInternet = true
         }
     }
 
     fun requestCredentialsPasswordReset(email: String): Job? {
         log.debug("forgotCredentialsPassword $email")
         return if (email.isEmpty()) {
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+            status = LoginViewModelState.PASSWORD_REQUEST
             null
         } else {
-            status.postValue(LoginViewModelState.LOADING)
+            status = LoginViewModelState.LOADING
             launch { handlePasswordReset(email) }
         }
     }
@@ -597,32 +620,32 @@ class LoginViewModel @JvmOverloads constructor(
         try {
             when (apiService.requestCredentialsPasswordReset(email)) {
                 PasswordResetInfo.ok -> {
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_DONE)
+                    status = LoginViewModelState.PASSWORD_REQUEST_DONE
                 }
                 PasswordResetInfo.invalidMail -> {
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL)
+                    status = LoginViewModelState.PASSWORD_REQUEST_INVALID_MAIL
                 }
                 null,
                 PasswordResetInfo.error,
                 PasswordResetInfo.mailError -> {
                     toastHelper.showToast(R.string.something_went_wrong_try_later, long = true)
-                    status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+                    status = LoginViewModelState.PASSWORD_REQUEST
                 }
             }
         } catch (e: ConnectivityException) {
-            noInternet.postValue(true)
-            status.postValue(LoginViewModelState.PASSWORD_REQUEST)
+            noInternet = true
+            status = LoginViewModelState.PASSWORD_REQUEST
         }
     }
 
     fun backAfterEmailSent() {
-        status.postValue(LoginViewModelState.LOADING)
+        status = LoginViewModelState.LOADING
         val statusBefore = if (backToSettingsAfterEmailSent) {
             LoginViewModelState.DONE
         } else {
             statusBeforePasswordRequest ?: LoginViewModelState.INITIAL
         }
-        status.postValue(statusBefore)
+        status = statusBefore
         statusBeforePasswordRequest = null
     }
 
@@ -643,22 +666,22 @@ class LoginViewModel @JvmOverloads constructor(
             val authTokenInfo = apiService.authenticate(username ?: "", password ?: "")
             authTokenInfo?.authInfo?.status != AuthStatus.notValid
         } catch (e: ConnectivityException) {
-            status.postValue(LoginViewModelState.INITIAL)
-            noInternet.postValue(true)
+            status = LoginViewModelState.INITIAL
+            noInternet = true
             null
         }
     }
 
     fun requestSubscription() = launch {
-        val previousState = requireNotNull(status.value) { "There should always be a state" }
-        status.postValue(LoginViewModelState.LOADING)
+        val previousState = status
+        status = LoginViewModelState.LOADING
         if (!createNewAccount) {
             val checkCredentials = checkCredentials()
             if (checkCredentials == false) {
-                status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID)
+                status = LoginViewModelState.SUBSCRIPTION_ACCOUNT_INVALID
                 return@launch
             } else if (checkCredentials == null) {
-                status.postValue(previousState)
+                status = previousState
                 return@launch
             }
         }

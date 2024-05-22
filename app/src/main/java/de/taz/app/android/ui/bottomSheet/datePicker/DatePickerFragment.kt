@@ -12,7 +12,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
-import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.*
@@ -119,8 +118,6 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
             view.findViewById<View>(R.id.loading_screen)?.visibility = View.VISIBLE
             confirmButton.isClickable = false
             log.debug("new date set: $day.$month.$year")
-
-            preventDismissal()
 
             setIssue("$year-$month-$day")
         }

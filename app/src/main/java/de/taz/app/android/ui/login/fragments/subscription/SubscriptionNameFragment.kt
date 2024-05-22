@@ -66,11 +66,11 @@ class SubscriptionNameFragment :
             }
 
             backButton.setOnClickListener {
-                back()
+                loginFlowBack()
             }
 
             cancelButton.setOnClickListener {
-                finish()
+                loginFlowCancel()
             }
 
             if (nameTooLong) {
@@ -125,7 +125,7 @@ class SubscriptionNameFragment :
     }
 
     override fun next() {
-        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_ACCOUNT)
+        viewModel.status = LoginViewModelState.SUBSCRIPTION_ACCOUNT
     }
 
     private fun setFirstNameError(@StringRes stringRes: Int) {

@@ -20,7 +20,7 @@ class SubscriptionTakenFragment: LoginBaseFragment<FragmentLoginSubscriptionTake
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
     }
 }

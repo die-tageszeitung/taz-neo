@@ -1,13 +1,11 @@
 package de.taz.app.android.ui.webview
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
@@ -31,9 +29,8 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
-import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -171,35 +168,11 @@ class ArticleWebViewFragment :
                 }
             }
         }
-        hideKeyboardOnAllViewsExceptEditText(view)
     }
 
     override fun setHeader(displayable: Article) {
         // The article header is handled by the ArticlePagerFragment
         // to enable custom header behavior when swiping articles of different sections.
-    }
-
-    /**
-     * This function adds hideKeyboard as touchListener on non EditTExt views recursively.
-     * Inspired from SO: https://stackoverflow.com/a/11656129
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    fun hideKeyboardOnAllViewsExceptEditText(view: View) {
-        // Set up touch listener for non-text box views to hide keyboard.
-        if (view !is EditText) {
-            view.setOnTouchListener { _, _ ->
-                hideSoftInputKeyboard()
-                false
-            }
-        }
-
-        // If a layout container, iterate over children and seed recursion.
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                val innerView = view.getChildAt(i)
-                hideKeyboardOnAllViewsExceptEditText(innerView)
-            }
-        }
     }
 
     override fun onPageRendered() {
@@ -338,9 +311,14 @@ class ArticleWebViewFragment :
                 if (isScrolledToBottom && isResumed) {
                     viewLifecycleOwner.lifecycleScope.launch {
                         if (authHelper.isElapsed()) {
-                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(parentFragmentManager)
+                            SubscriptionElapsedBottomSheetFragment
+                                .showSingleInstance(parentFragmentManager)
                         } else {
-                            ArticleLoginBottomSheetFragment.showSingleInstance(parentFragmentManager, articleFileName)
+                            LoginBottomSheetFragment
+                                .showSingleInstance(
+                                    parentFragmentManager,
+                                    articleName = articleFileName
+                                )
                         }
                     }
                 }

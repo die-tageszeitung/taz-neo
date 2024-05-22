@@ -6,8 +6,8 @@ import android.view.View
 import android.webkit.WebSettings
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
-import androidx.core.view.get
 import androidx.core.view.updatePadding
+import androidx.core.view.get
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
@@ -16,7 +16,7 @@ import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.ui.webview.AppWebViewClient
 import de.taz.app.android.ui.webview.AppWebViewClientCallBack
@@ -29,7 +29,6 @@ import kotlinx.coroutines.launch
 
 private const val NO_POSITION = -1
 private const val ARGUMENT_PAGER_POSITION = "pager_position"
-private const val LOGIN_FRAGMENT_SHOW_DELAY_MS = 400L
 
 /**
  * Fragment used to show search result articles in the pager.
@@ -138,7 +137,10 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
                 // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
                 // and only if this pager item is currently shown (the Fragment is resumed)
                 if (isScrolledToBottom && isResumed) {
-                    ArticleLoginBottomSheetFragment.showSingleInstance(parentFragmentManager, searchResult.articleFileName)
+                    LoginBottomSheetFragment.showSingleInstance(
+                        parentFragmentManager,
+                        articleName = searchResult.articleFileName
+                    )
                 }
             }
         }

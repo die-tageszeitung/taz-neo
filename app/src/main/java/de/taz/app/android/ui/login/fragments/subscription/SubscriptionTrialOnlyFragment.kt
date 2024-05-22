@@ -47,9 +47,9 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
         viewBinding.cancelButton.setOnClickListener {
             if (viewModel.backToArticle) {
                 // finish LoginActivity when coming from article
-                finish()
+                loginFlowCancel()
             } else {
-                back()
+                loginFlowBack()
             }
         }
     }
@@ -68,6 +68,6 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     }
 
     override fun next() {
-        viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_NAME)
+        viewModel.status = LoginViewModelState.SUBSCRIPTION_NAME
     }
 }

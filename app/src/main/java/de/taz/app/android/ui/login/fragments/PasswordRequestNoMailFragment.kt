@@ -16,7 +16,7 @@ class PasswordRequestNoMailFragment :
             writeEmail(it.text?.toString() ?: "")
         }
         viewBinding.fragmentLoginForgotPasswordNoMailCancel.setOnClickListener {
-            viewModel.status.postValue(LoginViewModelState.INITIAL)
+            viewModel.status = LoginViewModelState.INITIAL
         }
     }
 }

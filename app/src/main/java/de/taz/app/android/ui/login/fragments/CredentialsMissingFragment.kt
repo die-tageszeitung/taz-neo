@@ -96,17 +96,15 @@ class CredentialsMissingFragment :
 
         viewBinding.fragmentLoginMissingCredentialsSwitch.setOnClickListener {
             viewModel.createNewAccount = !viewModel.createNewAccount
-            viewModel.status.postValue(
-                if (viewModel.createNewAccount) {
-                    LoginViewModelState.CREDENTIALS_MISSING_REGISTER
-                } else {
-                    LoginViewModelState.CREDENTIALS_MISSING_LOGIN
-                }
-            )
+            viewModel.status = if (viewModel.createNewAccount) {
+                LoginViewModelState.CREDENTIALS_MISSING_REGISTER
+            } else {
+                LoginViewModelState.CREDENTIALS_MISSING_LOGIN
+            }
         }
 
-        viewBinding.backButton.setOnClickListener { back() }
-        viewBinding.cancelButton.setOnClickListener { finish() }
+        viewBinding.backButton.setOnClickListener { loginFlowBack() }
+        viewBinding.cancelButton.setOnClickListener { loginFlowCancel() }
 
         if (viewModel.createNewAccount) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

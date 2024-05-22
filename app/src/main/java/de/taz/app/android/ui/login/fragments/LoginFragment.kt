@@ -4,9 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.core.view.isVisible
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentLoginBinding
 import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.tracking.Tracker
@@ -16,6 +18,7 @@ import de.taz.app.android.util.hideSoftInputKeyboard
 class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     private lateinit var tracker: Tracker
+    private lateinit var generalDataStore: GeneralDataStore
 
     @StringRes
     private var usernameErrorId: Int? = null
@@ -38,99 +41,86 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.fragmentLoginUsername.apply {
-            setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+        viewBinding.apply {
+            viewModel.password?.let {
+                fragmentLoginPassword.setText(it)
+            }
+
+            fragmentLoginUsername.apply {
+                setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+            }
+
+            usernameErrorId?.let {
+                fragmentLoginUsernameLayout.error = getString(it)
+                usernameErrorId = null
+            }
+
+            passwordErrorId?.let {
+                fragmentLoginPasswordLayout.error = getString(it)
+                passwordErrorId = null
+            }
+
+            if (BuildConfig.IS_LMD) {
+                fragmentLoginPasswordHelpForgot.isVisible = false
+                fragmentLoginSubscriptions.root.isVisible = false
+            } else {
+                fragmentLoginPasswordHelpForgot.setOnClickListener {
+                    viewModel.requestPasswordReset()
+                }
+            }
+
+            fragmentLoginUsernameHelp.setOnClickListener {
+                showHelpDialog(R.string.fragment_login_help)
+                tracker.trackLoginHelpDialog()
+            }
+
+            fragmentLoginPassword.setOnEditorActionListener(
+                OnEditorActionDoneListener {
+                    login(this)
+                }
+            )
         }
 
-        viewModel.password?.let {
-            viewBinding.fragmentLoginPassword.setText(it)
-        }
+        viewBinding.fragmentLoginActionButtons.apply {
+            fragmentLoginActionPositive.setOnClickListener {
+                login(viewBinding)
+            }
 
-        usernameErrorId?.let {
-            showUserNameError(it)
-            usernameErrorId = null
-        }
-        passwordErrorId?.let {
-            showPasswordError(it)
-            passwordErrorId = null
-        }
-
-        viewBinding.fragmentLoginLoginButton.setOnClickListener {
-            login()
-        }
-
-        viewBinding.cancelButton.setOnClickListener {
-            finish()
-        }
-
-        viewBinding.fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
-            viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
-        }
-
-        viewBinding.fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
-            viewModel.requestSwitchPrint2Digi()
-        }
-
-        viewBinding.fragmentLoginExtendPrintWithDigiBoxButton.setOnClickListener {
-            viewModel.requestExtendPrintWithDigi()
-        }
-
-        if (BuildConfig.IS_LMD) {
-            viewBinding.fragmentLoginMissingSubscriptionForgotPassword.visibility = View.GONE
-        } else {
-            viewBinding.fragmentLoginMissingSubscriptionForgotPassword.setOnClickListener {
-                viewModel.requestPasswordReset()
+            fragmentLoginActionCancel.setOnClickListener {
+                loginFlowCancel()
             }
         }
 
-        viewBinding.fragmentLoginForgottenHelp.setOnClickListener {
-            showHelpDialog(R.string.fragment_login_help)
-            tracker.trackLoginHelpDialog()
-        }
+        viewBinding.fragmentLoginSubscriptions.apply {
 
-        viewBinding.fragmentLoginShowDataPolicy.setOnClickListener {
-            showDataPolicy()
-        }
-
-        viewBinding.fragmentLoginPassword.setOnEditorActionListener(
-            OnEditorActionDoneListener {
-                login()
+            fragmentLoginTrialSubscriptionBoxButton.setOnClickListener {
+                viewModel.requestSubscription(viewBinding.fragmentLoginUsername.text.toString().trim().lowercase())
             }
-        )
 
-        if (BuildConfig.IS_LMD) {
-            hideSubscriptionBoxes()
+            fragmentLoginSwitchPrint2digiBoxButton.setOnClickListener {
+                viewModel.requestSwitchPrint2Digi()
+            }
+
+            fragmentLoginExtendPrintWithDigiBoxButton.setOnClickListener {
+                viewModel.requestExtendPrintWithDigi()
+            }
         }
     }
 
-    private fun login() {
+    private fun login(viewBinding: FragmentLoginBinding) {
         val username = viewBinding.fragmentLoginUsername.text.toString().trim().lowercase()
         val password = viewBinding.fragmentLoginPassword.text.toString()
         viewModel.login(username, password)
         hideSoftInputKeyboard()
     }
 
-    private fun showPasswordError(passwordErrorId: Int) {
-        viewBinding.fragmentLoginPasswordLayout.error = getString(passwordErrorId)
-    }
-
-    private fun showUserNameError(@StringRes usernameErrorId: Int) {
-        viewBinding.fragmentLoginUsernameLayout.error = getString(usernameErrorId)
-    }
-
-    private fun hideSubscriptionBoxes() {
-        viewBinding.fragmentLoginSeparatorLine.visibility = View.GONE
-        viewBinding.fragmentLoginTrialSubscriptionBox.visibility = View.GONE
-        viewBinding.fragmentLoginSwitchPrint2digiBox.visibility = View.GONE
-        viewBinding.fragmentLoginExtendPrintWithDigiBox.visibility = View.GONE
-    }
-
-
+    // FIXME (johannes): clarify with taz if it is needed or not - currently missing from layouts
     private fun showDataPolicy() {
         activity?.apply {
             val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)

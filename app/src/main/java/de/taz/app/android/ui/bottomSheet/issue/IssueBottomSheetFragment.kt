@@ -16,7 +16,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
-import de.taz.app.android.monkey.preventDismissal
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -127,7 +126,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
 
         viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener {
-            preventDismissal()
             viewBinding.fragmentBottomSheetIssueRead.setOnClickListener(null)
             viewBinding.fragmentBottomSheetIssueShare.setOnClickListener(null)
             viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener(null)

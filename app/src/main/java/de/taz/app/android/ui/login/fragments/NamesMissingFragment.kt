@@ -31,7 +31,7 @@ class NamesMissingFragment : LoginBaseFragment<FragmentLoginMissingNamesBinding>
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
    }
 
@@ -60,7 +60,7 @@ class NamesMissingFragment : LoginBaseFragment<FragmentLoginMissingNamesBinding>
         if (somethingWrong) {
             return
         } else {
-            viewModel.status.value?.let { viewModel.getTrialSubscriptionForExistingCredentials(it) }
+            viewModel.getTrialSubscriptionForExistingCredentials(viewModel.status)
         }
     }
 

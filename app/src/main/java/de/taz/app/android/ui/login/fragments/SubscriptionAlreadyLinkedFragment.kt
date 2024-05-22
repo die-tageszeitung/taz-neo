@@ -12,13 +12,13 @@ class SubscriptionAlreadyLinkedFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.fragmentLoginSubscriptionAlreadyTakenInsertNew.setOnClickListener {
-            viewModel.status.postValue(LoginViewModelState.SUBSCRIPTION_MISSING)
+            viewModel.status = LoginViewModelState.SUBSCRIPTION_MISSING
         }
         viewBinding.fragmentLoginSubscriptionAlreadyTakenContactEmail.setOnClickListener {
             writeEmail()
         }
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
     }
 

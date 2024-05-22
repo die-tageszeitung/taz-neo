@@ -73,7 +73,7 @@ abstract class SubscriptionInquiryFragment :
             }
 
             cancelButton.setOnClickListener {
-                back()
+                loginFlowBack()
             }
 
             nestedScrollView.setOnTouchListener(object :
