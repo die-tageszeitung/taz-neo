@@ -13,7 +13,9 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment<FragmentLoginEmailAlreadyTa
             viewModel.apply {
                 username = ""
                 password = ""
-                viewModel.status.postValue(viewModel.statusBeforeEmailAlreadyLinked)
+                viewModel.statusBeforeEmailAlreadyLinked?.let {
+                    viewModel.status = it
+                }
                 viewModel.statusBeforeEmailAlreadyLinked = null
             }
         }
@@ -21,7 +23,7 @@ class EmailAlreadyLinkedFragment : LoginBaseFragment<FragmentLoginEmailAlreadyTa
             writeEmail()
         }
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
     }
 

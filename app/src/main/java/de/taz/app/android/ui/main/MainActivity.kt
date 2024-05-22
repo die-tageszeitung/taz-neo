@@ -31,8 +31,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -183,10 +182,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 dialog.dismiss()
             }
             .setNegativeButton(R.string.login_button) { dialog, _ ->
-                startActivityForResult(
-                    Intent(this@MainActivity, LoginActivity::class.java),
-                    ACTIVITY_LOGIN_REQUEST_CODE
-                )
+                LoginBottomSheetFragment.newInstance().show(supportFragmentManager, LoginBottomSheetFragment.TAG)
                 dialog.dismiss()
             }
             .create()

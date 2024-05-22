@@ -17,14 +17,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="@string/subscription_inquiry_switch_title"
-            android:textAppearance="@style/TextAppearance.Fragment.Title"
+            android:textAppearance="@style/TextAppearance.Login.Title"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_login_text_padding_vertical"
+            android:layout_marginTop="@dimen/fragment_subscription_inquiry_description_margin_top"
             tools:text="@string/subscription_inquiry_switch_description"
             app:layout_constraintTop_toBottomOf="@id/title" />
 

@@ -24,4 +24,10 @@
     <!-- end region  -->
 
     <dimen name="tap_bar_width">110dp</dimen>
+
+
+    <dimen name="fragment_login_padding_horizontal">35dp</dimen>
+    <dimen name="login_form_padding_bottom">35dp</dimen>
+    <dimen name="login_form_button_margin_top">20dp</dimen>
+    <dimen name="login_box_content_margin_top">18dp</dimen>
 </resources>

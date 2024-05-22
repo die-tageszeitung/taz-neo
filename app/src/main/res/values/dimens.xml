@@ -84,21 +84,23 @@
     <dimen name="fragment_cover_flow_arrow_margin_start">3dp</dimen>
     <dimen name="fragment_cover_flow_arrow_translation_y">-3dp</dimen>
 
-    <dimen name="fragment_login_description_margin_bottom">30dp</dimen>
-    <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
-    <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
-    <dimen name="fragment_login_text_link_padding_bottom">10dp</dimen>
-    <dimen name="login_description_text_size">20sp</dimen>
-    <dimen name="login_username_margin_top">45dp</dimen>
-    <dimen name="login_separator_line_margin_vertical">10dp</dimen>
-    <dimen name="login_box_margin_vertical">20dp</dimen>
-    <dimen name="login_box_title_text_size">20sp</dimen>
-    <dimen name="login_box_content_margin_vertical">5dp</dimen>
-    <dimen name="login_box_button_margin_vertical">10dp</dimen>
-    <dimen name="login_box_separator_line_height">0.5dp</dimen>
-
+    <dimen name="fragment_login_padding_horizontal">@dimen/fragment_padding_horizontal</dimen>
     <dimen name="fragment_login_padding_top">45dp</dimen>
     <dimen name="fragment_login_padding_bottom">10dp</dimen>
+
+    <dimen name="fragment_login_text_padding_vertical">10dp</dimen>
+    <dimen name="fragment_login_text_margin_horizontal">5dp</dimen>
+    <dimen name="login_box_title_text_size">30sp</dimen>
+    <dimen name="login_box_title_margin_top">20dp</dimen>
+    <dimen name="login_box_content_margin_top">5dp</dimen>
+    <dimen name="login_box_img_margin_top">20dp</dimen>
+    <dimen name="login_text_input_margin_top">20dp</dimen>
+    <dimen name="login_form_help_margin_top">0dp</dimen>
+    <dimen name="login_form_button_margin_top">26dp</dimen>
+    <dimen name="login_form_padding_bottom">26dp</dimen>
+    <dimen name="login_box_button_margin_top">20dp</dimen>
+    <dimen name="login_dotted_line_margin_top">40dp</dimen>
+    <dimen name="login_horizontal_inner_min_margin">18dp</dimen>
 
     <dimen name="fragment_subscription_trial_only_margin_top">30dp</dimen>
 
@@ -123,6 +125,10 @@
 
     <dimen name="settings_separator_view_line_height">1dp</dimen>
     <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
+
+    <dimen name="fragment_error_report_description_margin_top">10dp</dimen>
+    <dimen name="fragment_error_report_email_title_margin_top">30dp</dimen>
+    <dimen name="fragment_subscription_inquiry_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_header_default_height">76dp</dimen>
     <dimen name="fragment_header_default_margin_top">36dp</dimen>
@@ -181,6 +187,7 @@
     <dimen name="fragment_archive_margin_horizontal">15dp</dimen>
     <dimen name="fragment_archive_navigation_end_padding_horizontal">25dp</dimen>
 
+    <dimen name="bottom_sheet_corner_size">28dp</dimen>
     <dimen name="bottom_sheet_setting_padding_horizontal">20dp</dimen>
     <dimen name="bottom_sheet_setting_padding_horizontal_switch">10dp</dimen>
     <dimen name="bottom_sheet_setting_padding_vertical">20dp</dimen>
@@ -247,7 +254,8 @@
 
     <dimen name="icon_size">24dp</dimen>
 
-    <dimen name="ic_close_button_padding">15dp</dimen>
+    <dimen name="ic_close_button_padding">16dp</dimen>
+    <dimen name="ic_close_login_button_padding_top">19dp</dimen>
 
     <dimen name="activity_welcome_button_text_size">22sp</dimen>
 

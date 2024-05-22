@@ -31,9 +31,6 @@
 
     <color name="scrollbar_color">@color/mediumLightGrey</color>
 
-    <color name="login_box_background">@color/mediumLightGrey</color>
-    <color name="login_box_separator_line_color">@color/lightGrey</color>
-
     <color name="settings_separator_view_color">@color/mediumLightGrey</color>
     <color name="settings_plus_minus_icon_color">@color/superSuperLightGrey</color>
     <color name="settings_plus_minus_icon_circle_color">@color/mediumLightGrey</color>

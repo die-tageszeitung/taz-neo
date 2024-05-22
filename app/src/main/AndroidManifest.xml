@@ -63,9 +63,6 @@
             android:theme="@style/noAnimationOnActivityChange"/>
         <activity android:name=".ui.settings.ErrorReportActivity"
             android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.login.LoginActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/noAnimationOnActivityChange"/>
         <activity
             android:name=".ui.splash.SplashActivity"
             android:noHistory="true"

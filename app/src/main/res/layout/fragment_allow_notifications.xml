@@ -31,7 +31,6 @@
             android:id="@+id/button_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
             android:background="@null"
             android:contentDescription="@string/button_close_text"
             android:src="@drawable/ic_close"

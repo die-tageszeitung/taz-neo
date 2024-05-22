@@ -3,7 +3,6 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -26,15 +25,13 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
-import de.taz.app.android.ui.login.LOGIN_EXTRA_FROM_HOME
-import de.taz.app.android.ui.login.LoginActivity
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Date
 import kotlin.math.abs
 
 class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
@@ -297,10 +294,9 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
                 } else {
                     homeLoginButton.visibility = View.VISIBLE
                     homeLoginButton.setOnClickListener {
-                         Intent(activity, LoginActivity::class.java).apply {
-                            this.putExtra(LOGIN_EXTRA_FROM_HOME, true)
-                            activity?.startActivity(this)
-                        }
+                        LoginBottomSheetFragment
+                            .newInstance()
+                            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
                     }
                 }
 

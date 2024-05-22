@@ -10,7 +10,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.R
-import de.taz.app.android.monkey.doNotFlattenCorners
 
 class TrackingConsentBottomSheet : BottomSheetDialogFragment(R.layout.fragment_container),
     TrackingConsentFragmentCallback, AllowNotificationsFragmentCallback {
@@ -48,7 +47,6 @@ class TrackingConsentBottomSheet : BottomSheetDialogFragment(R.layout.fragment_c
                     onBackPressedCallback
                 )
                 behavior.apply {
-                    doNotFlattenCorners()
                     state = BottomSheetBehavior.STATE_EXPANDED
                 }
             }

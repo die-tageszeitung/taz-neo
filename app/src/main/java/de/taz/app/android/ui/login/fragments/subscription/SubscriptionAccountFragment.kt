@@ -79,11 +79,11 @@ class SubscriptionAccountFragment :
         }
 
         viewBinding.backButton.setOnClickListener {
-            back()
+            loginFlowBack()
         }
 
         viewBinding.cancelButton.setOnClickListener {
-            finish()
+            loginFlowCancel()
         }
 
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {

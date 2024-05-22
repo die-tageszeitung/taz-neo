@@ -16,7 +16,6 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentSubscriptionElapsedBottomSheetBinding
-import de.taz.app.android.monkey.doNotFlattenCorners
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -115,8 +114,6 @@ class SubscriptionElapsedBottomSheetFragment :
                 return false
             }
         })
-
-        (dialog as BottomSheetDialog).behavior.doNotFlattenCorners()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

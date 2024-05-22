@@ -90,9 +90,9 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
 
         viewBinding.fragmentLoginForgotPasswordCancelButton.setOnClickListener {
            if (viewModel.backToSettingsAfterEmailSent) {
-               finish()
+               loginFlowCancel()
            } else {
-               back()
+               loginFlowBack()
            }
         }
     }

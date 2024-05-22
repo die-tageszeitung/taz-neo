@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Normally the background color of material BottomSheets should be set with the `backgroundTint` attribute
+as documented at:
+https://github.com/material-components/material-components-android/blob/master/docs/components/BottomSheet.md#sheet-attributes
+
+In case of BottomSheets with scrollable content, that contains Views with different background colors,
+the normally rounded corners of the BottomSheet will be drawn over by the rectangle background.
+As a fallback we can set the background of the topmost View to this drawable and set its
+color via backgroundTint.
+Furthermore all other views of the scroll area must set a (normally the default) background color.
+
+As a result the BottomSheet will have a rounded corner when the content is scrolled to the top, but
+the borders will scroll out of the view with the content and the BottomSheet will get rectangle corners.
+
+For devices running on > API 31 it is possible to set the clipToOutline on the BottomSheets
+internal `design_bottom_sheet` container and preserve the rounded corners while scrolling.
+In this case it would not be necessary to use this fallback background image.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- The default background color -->
+    <solid
+        android:width="1dp"
+        android:color="@color/bottom_sheet_background" />
+
+    <!-- The corner should be the same as defined for the default material bottom sheets -->
+    <corners
+        android:topLeftRadius="@dimen/bottom_sheet_corner_size"
+        android:topRightRadius="@dimen/bottom_sheet_corner_size" />
+</shape>

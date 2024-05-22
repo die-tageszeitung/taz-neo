@@ -51,9 +51,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.WelcomeActivity
-import de.taz.app.android.ui.login.ACTIVITY_LOGIN_REQUEST_CODE
-import de.taz.app.android.ui.login.LoginActivity
-import de.taz.app.android.ui.login.LoginContract
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
@@ -90,7 +88,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
     private lateinit var tracker: Tracker
-    private val loginActivityLauncher = registerForActivityResult(LoginContract()) {}
 
     private val emailValidator = EmailValidator()
 
@@ -116,10 +113,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.apply {
             fragmentSettingsSupportReportBug.setOnClickListener { reportBug() }
             fragmentSettingsAccountManageAccount.setOnClickListener {
-                activity?.startActivityForResult(
-                    Intent(activity, LoginActivity::class.java),
-                    ACTIVITY_LOGIN_REQUEST_CODE
-                )
+                LoginBottomSheetFragment.newInstance()
+                    .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
             }
             fragmentSettingsWelcomeSlides.setOnClickListener {
                 activity?.startActivity(
@@ -220,14 +215,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             if (!BuildConfig.IS_LMD) {
                 fragmentSettingsAccountResetPassword.setOnClickListener {
-                    lifecycleScope.launch {
-                        loginActivityLauncher.launch(
-                            LoginContract.Input(
-                                option = LoginContract.Option.REQUEST_PASSWORD_RESET,
-                                username = authHelper.email.get()
-                            )
-                        )
-                    }
+                    LoginBottomSheetFragment
+                        .newInstance(requestPassword = true)
+                        .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
                 }
 
                 fragmentSettingsManageAccountOnline.setOnClickListener {
