@@ -1,0 +1,2 @@
+<p>Reader for subscribers of the german version of Le Monde diplomatique</p>
+<p>Please note that the language of the app is german!</p>

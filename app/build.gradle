@@ -251,8 +251,7 @@ android {
                 || buildType == "manualUpdateRelease" && flavorNames.contains("staging")
                 || buildType == "unminifiedRelease" && flavorNames.contains("nonfree")
                 || buildType == "unminifiedRelease" && flavorNames.contains("staging")
-                || buildType == "leakCanary"
-                || flavorNames.contains("lmd") && flavorNames.contains("free")) {
+                || buildType == "leakCanary") {
             variant.setIgnore(true)
         }
     }
