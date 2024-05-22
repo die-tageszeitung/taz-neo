@@ -87,8 +87,6 @@ abstract class WebViewFragment<
     abstract val webView: AppWebView
     abstract val loadingScreen: View
     abstract val appBarLayout: AppBarLayout?
-    abstract val navigationBottomLayout: ViewGroup?
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -266,13 +264,6 @@ abstract class WebViewFragment<
                 issueViewerViewModel.goPreviousArticle.postValue(true)
             } else {
                 var offset = 0
-
-                navigationBottomLayout?.let { navigationBottomLayout ->
-                    if (navigationBottomLayout.isVisible) {
-                        offset = it.height - it.translationY.toInt()
-                    }
-                }
-
                 appBarLayout?.let { appBarLayout ->
                     val isExpanded = appBarLayout.height.minus(appBarLayout.bottom) == 0
                     if (scrollHeight > 0) {

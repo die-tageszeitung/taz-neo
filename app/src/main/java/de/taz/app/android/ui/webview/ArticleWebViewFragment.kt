@@ -62,12 +62,6 @@ class ArticleWebViewFragment :
 
     override val appBarLayout: AppBarLayout? = null
 
-    // The navigation_bottom_layout is no longer part of each [ArticleWebViewFragment],
-    // but is now part of the enclosing [ArticlePagerFragment] and [SearchResultPagerFragment].
-    // To keep the refactorings small, we try to get the view from the parentFragment
-    override val navigationBottomLayout: ViewGroup?
-        get() = parentFragment?.view?.findViewById(R.id.navigation_bottom_layout)
-
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
         private const val PAGER_POSITION = "PAGER_POSITION"

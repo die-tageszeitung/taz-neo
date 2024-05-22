@@ -112,8 +112,6 @@ class SectionWebViewFragment : WebViewFragment<
     override val appBarLayout: AppBarLayout
         get() = viewBinding.appBarLayout
 
-    override val navigationBottomLayout: ViewGroup? = null
-
     companion object {
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
         private const val SECTION_IS_FIRST = "SECTION_IS_FIRST"
