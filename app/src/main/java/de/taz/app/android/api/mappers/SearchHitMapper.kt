@@ -7,12 +7,12 @@ object SearchHitMapper {
     fun from (searchHitDto: SearchHitDto) : SearchHit {
         val articleFileName = searchHitDto.article.articleHtml.name
         val authorList = searchHitDto.article.authorList?.map { AuthorMapper.from(it) } ?: emptyList()
-        val onlineLink = searchHitDto.article.onlineLink
 
         return SearchHit(
-            articleFileName ,
+            articleFileName,
+            searchHitDto.article.mediaSyncId,
             authorList,
-            onlineLink,
+            searchHitDto.article.onlineLink,
             searchHitDto.baseUrl,
             searchHitDto.snippet,
             searchHitDto.title,

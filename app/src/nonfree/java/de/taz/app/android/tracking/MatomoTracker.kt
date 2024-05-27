@@ -458,17 +458,24 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         trackShareArticleEvent(article.key, article.mediaSyncId)
     }
 
-    private fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {
+    override fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {
         TrackHelper.track()
             .event(CATEGORY_SHARE, "Share Article")
             .name(articlePath(articleFileName, mediaSyncId))
             .with(matomoTracker)
     }
 
-    override fun trackShareSearchHitEvent(onlineLink: String) {
+    override fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?) {
         TrackHelper.track()
-            .event(CATEGORY_SHARE, "Share Search Hit")
-            .name(onlineLink)
+            .event(CATEGORY_SHARE, "Share Article PDF")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Share Article Link")
+            .name(articlePath(articleFileName, mediaSyncId))
             .with(matomoTracker)
     }
 

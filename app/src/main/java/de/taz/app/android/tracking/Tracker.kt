@@ -117,8 +117,11 @@ interface Tracker {
 
     fun trackShareArticleEvent(article: Article)
     fun trackShareArticleEvent(articleStub: ArticleStub)
-    fun trackShareSearchHitEvent(onlineLink: String)
+    fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
+    fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
+    fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareMomentEvent(issueKey: AbstractIssuePublication)
+
     fun trackDrawerOpenEvent(dragged: Boolean)
 
     fun trackDrawerTapPageEvent()

@@ -308,7 +308,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun share() {
         getCurrentSearchHit()?.let { hit ->
-            hit.onlineLink?.let { tracker.trackShareSearchHitEvent(it) }
+            tracker.trackShareArticleEvent(hit.articleFileName, hit.mediaSyncId)
             ShareArticleBottomSheet.newInstance(hit).show(parentFragmentManager, ShareArticleBottomSheet.TAG)
         }
     }
