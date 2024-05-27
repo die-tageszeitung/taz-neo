@@ -31,6 +31,7 @@ import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.ui.share.ShareArticleDownloadHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
 import java.io.IOException
@@ -48,10 +49,20 @@ class Scrubber(applicationContext: Context) {
     private val audioRepository = AudioRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
+    private val shareArticleDownloadHelper = ShareArticleDownloadHelper(applicationContext)
 
     private val defaultNavDrawerFileName = applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
+    /**
+     * Start a minimal scrub run.
+     * Might run in the background on app start.
+     */
+    suspend fun scrubMinimal() {
+        shareArticleDownloadHelper.cleanup()
+    }
+
     suspend fun scrub() {
+        shareArticleDownloadHelper.cleanup()
 
         val orphanedSectionStubs: List<SectionStub> = getOrphanedSectionStubs()
         for (sectionStub in orphanedSectionStubs) {

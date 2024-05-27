@@ -11,4 +11,5 @@ data class SearchHit(
     val sectionTitle: String?,
     val date: String,
     val articleHtml: String?,
+    val articlePdfFileName: String?,
 )

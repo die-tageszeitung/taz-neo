@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.search
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
@@ -39,6 +38,7 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
 import io.sentry.Sentry
@@ -190,7 +190,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
-            val currentSearchHit = getCurrentSearchHit()
+            val currentSearchHit = getCurrentSearchHit() ?: return
 
             updateHeader()
 
@@ -200,10 +200,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             articleBottomActionBarNavigationHelper.apply {
                 // show the share icon always when in public article
                 // OR when an onLink link is provided
-                setShareIconVisibility(
-                    currentSearchHit?.onlineLink,
-                    currentSearchHit?.articleFileName
-                )
+                setShareIconVisibility(currentSearchHit)
 
                 // ensure the action bar is showing when the article changes
                 expand(true)
@@ -311,25 +308,9 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun share() {
         getCurrentSearchHit()?.let { hit ->
-            hit.onlineLink?.let {
-                tracker.trackShareSearchHitEvent(it)
-                shareArticle(it, hit.title)
-            } ?: showSharingNotPossibleDialog()
+            hit.onlineLink?.let { tracker.trackShareSearchHitEvent(it) }
+            ShareArticleBottomSheet.newInstance(hit).show(parentFragmentManager, ShareArticleBottomSheet.TAG)
         }
-    }
-
-    private fun shareArticle(url: String, title: String?) {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, url)
-            title?.let {
-                putExtra(Intent.EXTRA_SUBJECT, title)
-            }
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(shareIntent)
     }
 
     private fun getCurrentPagerPosition(): Int {

@@ -46,6 +46,7 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
@@ -222,10 +223,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
     private fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
-        articleBottomActionBarNavigationHelper.setShareIconVisibility(
-            articleToBindTo.onlineLink,
-            articleToBindTo.key
-        )
+        articleBottomActionBarNavigationHelper.setShareIconVisibility(articleToBindTo)
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
         isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(articleToBindTo.articleFileName).asLiveData()
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
@@ -283,11 +281,9 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     private fun share() {
         getCurrentlyDisplayedArticleStub()?.let { articleStub ->
-            val url = articleStub.onlineLink
-            url?.let {
-                tracker.trackShareArticleEvent(articleStub)
-                shareArticle(url, articleStub.title)
-            } ?: showSharingNotPossibleDialog()
+            tracker.trackShareArticleEvent(articleStub)
+            ShareArticleBottomSheet.newInstance(articleStub)
+                .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
         }
     }
 

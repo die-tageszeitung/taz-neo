@@ -25,7 +25,8 @@ data class Article(
     val bookmarkedTime: Date?,
     val position: Int,
     val percentage: Int,
-    override val dateDownload: Date?
+    override val dateDownload: Date?,
+    val pdf: FileEntry?,
 ) : ArticleOperations, WebViewDisplayable {
 
     override val path: String

@@ -94,6 +94,13 @@ query SearchQuery(
                 chars
                 words
                 readMinutes
+                pdf {
+                    name
+                    storageType
+                    moTime
+                    sha256
+                    size
+                }
             }
             snippet
             sectionTitle

@@ -15,10 +15,16 @@ import java.util.Date
             entity = AudioStub::class,
             parentColumns = ["fileName"],
             childColumns = ["audioFileName"]
+        ),
+        ForeignKey(
+            entity = FileEntry::class,
+            parentColumns = ["name"],
+            childColumns = ["pdfFileName"]
         )
     ],
     indices = [
-        Index("audioFileName")
+        Index("audioFileName"),
+        Index("pdfFileName"),
     ]
 )
 data class ArticleStub(
@@ -36,9 +42,10 @@ data class ArticleStub(
     val percentage: Int,
     override val dateDownload: Date?,
     val mediaSyncId: Int?,
-    val chars: Int? ,
+    val chars: Int?,
     val words: Int?,
     val readMinutes: Int?,
+    val pdfFileName: String?,
 ) : ArticleOperations {
 
     val hasAudio: Boolean
@@ -62,6 +69,7 @@ data class ArticleStub(
         article.chars,
         article.words,
         article.readMinutes,
+        article.pdf?.name,
     )
 
     @Ignore

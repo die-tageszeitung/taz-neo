@@ -124,7 +124,8 @@ object Fixtures {
         bookmarkedTime = null,
         position = 0,
         percentage = 0,
-        dateDownload = null
+        dateDownload = null,
+        pdf = null,
     )
 
     val pageBase: Page = Page(

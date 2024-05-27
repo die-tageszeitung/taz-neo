@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -245,9 +246,13 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                     putExtra(Intent.EXTRA_STREAM, imageUriNew)
                     type = "image/jpg"
                 }
+
                 tracker.trackShareMomentEvent(issueStub.issueKey)
-                val shareIntent = Intent.createChooser(sendIntent, null)
-                requireContext().startActivity(shareIntent)
+
+                ShareCompat.IntentBuilder(requireContext())
+                    .setType("image/jpg")
+                    .setStream(imageUriNew)
+                    .startChooser()
             }
             loadingScreen?.visibility = View.GONE
             dismiss()

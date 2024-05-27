@@ -50,6 +50,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
             audioRepository.saveInternal(audio)
         }
 
+        articleToSave.pdf?.let { pdf ->
+            fileEntryRepository.save(pdf)
+        }
+
         appDatabase.articleDao().insertOrReplace(ArticleStub(articleToSave))
 
         // save html file
@@ -132,6 +136,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
         val audio = articleStub.audioFileName?.let { audioRepository.get(it) }
+        val articlePdf = articleStub.pdfFileName?.let { fileEntryRepository.get(it) }
 
         // get authors
         val authorImageJoins =
@@ -180,7 +185,8 @@ class ArticleRepository private constructor(applicationContext: Context) :
             articleStub.bookmarkedTime,
             articleStub.position,
             articleStub.percentage,
-            articleStub.dateDownload
+            articleStub.dateDownload,
+            articlePdf,
         )
     }
 
