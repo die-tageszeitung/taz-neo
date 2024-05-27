@@ -177,6 +177,13 @@ query IssueByFeedAndDateQuery($feedName: String, $issueDate: String!, $limit: In
                         chars
                         words
                         readMinutes
+                        pdf {
+                            name
+                            storageType
+                            moTime
+                            sha256
+                            size
+                        }
                     }
                     imageList {
                         name

@@ -30,6 +30,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.scrubber.Scrubber
 import de.taz.app.android.singletons.*
 import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
@@ -433,6 +434,7 @@ class SplashActivity : StartupActivity() {
             checkForNewestIssue(feedService, toastHelper)
             generalDataStore.clearRemovedEntries()
             clearCustomPDFThumbnailLoaderCache(applicationContext)
+            Scrubber(applicationContext).scrubMinimal()
         }
     }
 

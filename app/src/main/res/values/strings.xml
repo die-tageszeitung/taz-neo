@@ -503,5 +503,8 @@
     <string name="login_help"><u>Hilfe?</u></string>
     <string name="show_help_login"><u>Wo finde ich die Abo-ID</u></string>
 
+    <string name="article_share_options_url">Link zum Artikel teilen</string>
+    <string name="article_share_options_pdf">Artikel als PDF teilen</string>
+    <string name="article_share_options_text">Artikel Text teilen</string>
 
 </resources>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bottom_sheet_background"
+    android:elevation="@dimen/bottom_sheet_elevation"
+    android:theme="@style/AppTheme">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share_url"
+        style="@style/TextAppearance.BottomSheet.Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/article_share_options_url"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <View
+        android:id="@+id/share_url_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/share_url" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/share_url_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="share_url,share_url_divider"
+        tools:visibility="visible" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share_pdf"
+        style="@style/TextAppearance.BottomSheet.Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/article_share_options_pdf"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/share_url_divider"
+        tools:visibility="visible" />
+
+    <View
+        android:id="@+id/share_pdf_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/share_pdf" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/share_pdf_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="share_pdf,share_pdf_divider"
+        tools:visibility="visible" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share_text"
+        style="@style/TextAppearance.BottomSheet.Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:text="@string/article_share_options_text"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/share_pdf_divider" />
+
+    <View
+        android:id="@+id/share_text_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/share_text" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/share_text_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="share_text,share_text_divider"
+        tools:visibility="visible" />
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/share_error"
+        style="@style/TextAppearance.BottomSheet.Setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bottom_sheet_background"
+        android:clickable="true"
+        android:focusable="true"
+        android:textAlignment="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/loading_screen"
+        layout="@layout/include_loading_screen"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/bottom_sheet_background"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,7 +27,8 @@ object ArticleMapper {
             bookmarkedTime = null,
             0,
             0,
-            null
+            null,
+            articleDto.pdf?.let { FileEntryMapper.from(issueKey, it) },
         )
     }
 }

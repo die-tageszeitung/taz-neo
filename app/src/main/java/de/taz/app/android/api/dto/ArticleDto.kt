@@ -16,4 +16,5 @@ data class ArticleDto (
     val chars: Int? = null,
     val words: Int? = null,
     val readMinutes: Int? = null,
+    val pdf: FileEntryDto? = null,
 )

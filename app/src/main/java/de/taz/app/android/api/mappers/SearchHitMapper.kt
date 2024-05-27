@@ -20,6 +20,7 @@ object SearchHitMapper {
             searchHitDto.sectionTitle,
             searchHitDto.date,
             searchHitDto.articleHtml,
+            searchHitDto.article.pdf?.name,
         )
     }
 }

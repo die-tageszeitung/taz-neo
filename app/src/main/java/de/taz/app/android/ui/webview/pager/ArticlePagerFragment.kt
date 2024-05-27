@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
@@ -56,6 +55,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
+import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -362,10 +362,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             viewLifecycleOwner.lifecycleScope.launch {
                 // show the share icon always when in public issues (as it shows a popup that the user should log in)
                 // OR when an onLink link is provided
-                articleBottomActionBarNavigationHelper.setShareIconVisibility(
-                    nextStub.onlineLink,
-                    nextStub.key
-                )
+                articleBottomActionBarNavigationHelper.setShareIconVisibility(nextStub)
 
                 isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
                 isBookmarkedLiveData =
@@ -429,6 +426,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             false
         }
     }
+
     private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
@@ -449,6 +447,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     ArticleShareCoachMark.setFunctionAlreadyDiscovered(requireContext())
                 }
             }
+
             R.id.bottom_navigation_action_size -> {
                 TextSettingsBottomSheetFragment.newInstance()
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
@@ -471,35 +470,19 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
-            }
-            else {
+            } else {
                 toastHelper.showToast(R.string.toast_article_debookmarked)
             }
         }
     }
 
     private fun share() {
+        issueContentViewModel.issueKeyAndDisplayableKeyLiveData
         getCurrentArticleStub()?.let { articleStub ->
-            val url = articleStub.onlineLink
-            url?.let {
-                tracker.trackShareArticleEvent(articleStub)
-                shareArticle(url, articleStub.title)
-            } ?: showSharingNotPossibleDialog()
+            tracker.trackShareArticleEvent(articleStub)
+            ShareArticleBottomSheet.newInstance(articleStub)
+                .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
         }
-    }
-
-    private fun shareArticle(url: String, title: String?) {
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, url)
-            title?.let {
-                putExtra(Intent.EXTRA_SUBJECT, title)
-            }
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, null)
-        startActivity(shareIntent)
     }
 
     private fun tryScrollToArticle(articleKey: String) {

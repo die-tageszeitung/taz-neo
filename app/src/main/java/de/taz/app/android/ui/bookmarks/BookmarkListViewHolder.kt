@@ -110,7 +110,8 @@ class BookmarkListViewHolder(
                 itemView.context.startActivity(intent)
             }
 
-            if (ArticleBottomActionBarNavigationHelper.shouldShareIconBeVisible(article.onlineLink, article.key)) {
+
+            if (ArticleBottomActionBarNavigationHelper.shouldShareIconBeVisible(article)) {
                 bookmarkShare.isVisible = true
                 bookmarkShare.setOnClickListener {
                     shareArticle(article)

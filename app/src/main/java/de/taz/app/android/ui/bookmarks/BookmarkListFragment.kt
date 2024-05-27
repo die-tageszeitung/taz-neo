@@ -12,6 +12,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
@@ -25,6 +26,7 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -100,17 +102,9 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     }
 
     private fun shareArticle(article: Article) {
-        article.onlineLink?.let { url ->
-            tracker.trackShareArticleEvent(article)
-            val sendIntent: Intent = Intent().apply {
-                action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_TEXT, url)
-                putExtra(Intent.EXTRA_SUBJECT, article.title)
-                type = "text/plain"
-            }
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            startActivity(shareIntent)
-        } ?: showSharingNotPossibleDialog()
+        tracker.trackShareArticleEvent(article)
+        ShareArticleBottomSheet.newInstance(ArticleStub(article))
+            .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
     }
 
     private fun goToIssueInCoverFlow(dateString: String) {
