@@ -16,6 +16,7 @@ import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetShareOptionsBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import kotlinx.coroutines.delay
@@ -26,10 +27,13 @@ class ShareArticleBottomSheet :
     ViewBindingBottomSheetFragment<FragmentBottomSheetShareOptionsBinding>() {
 
     companion object {
+        // Shared arguments
+        private const val ARGUMENT_ARTICLE_KEY = "articleKey"
+        private const val ARGUMENT_ARTICLE_MEDIA_SYNC_ID = "articleMediaSyncId"
         private const val ARGUMENT_ARTICLE_TITLE = "articleTitle"
         private const val ARGUMENT_ARTICLE_ONLINE_URL = "articleOnlineUrl"
 
-        private const val ARGUMENT_ARTICLE_KEY = "articleKey"
+        // SearchHit arguments
         private const val ARGUMENT_ARTICLE_PDF_NAME = "articlePdfName"
         private const val ARGUMENT_ARTICLE_PDF_BASE_URL = "articlePdfBaseUrl"
 
@@ -46,6 +50,7 @@ class ShareArticleBottomSheet :
                         ARGUMENT_ARTICLE_KEY to articleStub.key,
                         ARGUMENT_ARTICLE_TITLE to articleStub.title,
                         ARGUMENT_ARTICLE_ONLINE_URL to articleStub.onlineLink,
+                        ARGUMENT_ARTICLE_MEDIA_SYNC_ID to articleStub.mediaSyncId,
                     )
                 }
             } else {
@@ -56,8 +61,10 @@ class ShareArticleBottomSheet :
             if (isShareable(searchHit)) {
                 ShareArticleBottomSheet().apply {
                     arguments = bundleOf(
+                        ARGUMENT_ARTICLE_KEY to searchHit.articleFileName,
                         ARGUMENT_ARTICLE_TITLE to searchHit.title,
                         ARGUMENT_ARTICLE_ONLINE_URL to searchHit.onlineLink,
+                        ARGUMENT_ARTICLE_MEDIA_SYNC_ID to searchHit.mediaSyncId,
                         ARGUMENT_ARTICLE_PDF_BASE_URL to searchHit.baseUrl,
                         ARGUMENT_ARTICLE_PDF_NAME to searchHit.articlePdfFileName,
                     )
@@ -80,18 +87,19 @@ class ShareArticleBottomSheet :
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var shareArticleDownloadHelper: ShareArticleDownloadHelper
+    private lateinit var tracker: Tracker
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
         shareArticleDownloadHelper = ShareArticleDownloadHelper(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val articleKey = arguments?.getString(ARGUMENT_ARTICLE_KEY)
-        val articleTitle = arguments?.getString(ARGUMENT_ARTICLE_TITLE)
         val articleOnlineUrl = arguments?.getString(ARGUMENT_ARTICLE_ONLINE_URL)
         val articlePdfName = arguments?.getString(ARGUMENT_ARTICLE_PDF_NAME)
         val articlePdfBaseUrl = arguments?.getString(ARGUMENT_ARTICLE_PDF_BASE_URL)
@@ -102,7 +110,7 @@ class ShareArticleBottomSheet :
             viewBinding.apply {
                 shareUrlGroup.isVisible = true
                 shareUrl.setOnClickListener {
-                    shareUrl(articleOnlineUrl, articleTitle)
+                    shareUrl(articleOnlineUrl)
                 }
             }
             sharingAvailable = true
@@ -113,7 +121,7 @@ class ShareArticleBottomSheet :
                 sharePdfGroup.isVisible = true
                 sharePdf.setOnClickListener {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        sharePdf(articlePdfName, articlePdfBaseUrl, articleTitle)
+                        shareSearchHitPdf(articlePdfName, articlePdfBaseUrl)
                     }
                 }
             }
@@ -124,7 +132,7 @@ class ShareArticleBottomSheet :
                 sharePdfGroup.isVisible = true
                 sharePdf.setOnClickListener {
                     viewLifecycleOwner.lifecycleScope.launch {
-                        sharePdf(articleKey)
+                        shareArticlePdf(articleKey)
                     }
                 }
             }
@@ -138,15 +146,23 @@ class ShareArticleBottomSheet :
         }
     }
 
-
-    private fun shareUrl(url: String, title: String?) {
+    private fun shareUrl(url: String) {
         val context = requireContext()
+
+        val articleFileName = arguments?.getString(ARGUMENT_ARTICLE_KEY)
+        val articleMediaSyncId =
+            arguments?.getInt(ARGUMENT_ARTICLE_MEDIA_SYNC_ID)?.takeIf { it > 0 }
+        val articleTitle = arguments?.getString(ARGUMENT_ARTICLE_TITLE)
+
+        if (articleFileName != null) {
+            tracker.trackShareArticleLinkEvent(articleFileName, articleMediaSyncId)
+        }
 
         ShareCompat.IntentBuilder(context)
             .setType("text/plain")
             .setText(url)
-            .setChooserTitle(title)
-            .setSubject(title)
+            .setChooserTitle(articleTitle)
+            .setSubject(articleTitle)
             .startChooser()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -154,12 +170,14 @@ class ShareArticleBottomSheet :
         }
     }
 
-    private suspend fun sharePdf(articleKey: String) {
+    private suspend fun shareArticlePdf(articleKey: String) {
         showLoading()
 
         try {
             val articleStub = articleRepository.getStub(articleKey)
                 ?: throw Exception("No ArticleStub for $articleKey")
+
+            tracker.trackShareArticlePdfEvent(articleStub.articleFileName, articleStub.mediaSyncId)
 
             val cachedArticlePdfFile = shareArticleDownloadHelper.downloadArticlePdf(articleStub)
             shareCachedPdfFile(cachedArticlePdfFile, articleStub.title)
@@ -171,10 +189,17 @@ class ShareArticleBottomSheet :
     }
 
 
-    private suspend fun sharePdf(
-        articlePdfName: String, articlePdfBaseUrl: String, articleTitle: String?
-    ) {
+    private suspend fun shareSearchHitPdf(articlePdfName: String, articlePdfBaseUrl: String) {
         showLoading()
+
+        val articleKey = arguments?.getString(ARGUMENT_ARTICLE_KEY)
+        val articleMediaSyncId =
+            arguments?.getInt(ARGUMENT_ARTICLE_MEDIA_SYNC_ID)?.takeIf { it > 0 }
+        val articleTitle = arguments?.getString(ARGUMENT_ARTICLE_TITLE)
+
+        if (articleKey != null) {
+            tracker.trackShareArticlePdfEvent(articleKey, articleMediaSyncId)
+        }
 
         try {
             val cachedArticlePdfFile =

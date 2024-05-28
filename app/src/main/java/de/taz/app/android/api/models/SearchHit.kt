@@ -2,6 +2,7 @@ package de.taz.app.android.api.models
 
 data class SearchHit(
     val articleFileName: String,
+    val mediaSyncId: Int?,
     val authorList: List<Author>,
     val onlineLink: String?,
     val baseUrl: String,

@@ -61,7 +61,9 @@ class NoOpTracker : Tracker {
     override fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticleEvent(article: Article) {}
     override fun trackShareArticleEvent(articleStub: ArticleStub) {}
-    override fun trackShareSearchHitEvent(onlineLink: String) {}
+    override fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {}
+    override fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?) {}
+    override fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareMomentEvent(issueKey: AbstractIssuePublication) {}
     override fun trackDrawerOpenEvent(dragged: Boolean) {}
     override fun trackDrawerTapPageEvent() {}
