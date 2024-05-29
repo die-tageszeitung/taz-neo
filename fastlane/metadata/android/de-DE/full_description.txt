@@ -1,13 +1,7 @@
-<p>taz. die tageszeitung</p>
-<p>Kritischer, unabhängiger Journalismus der linken tageszeitung: Nachrichten, Analysen, Hintergründe, Kommentare, Interviews, Reportagen. Genossenschaft seit 1992.</p>
-<ul>
-<p>Features:</p>
-<li>Lesen Sie die tageszeitung schon am Vorabend</li>
-<li>Einmal heruntergeladen können sie Ausgaben offline lesen</li>
-<li>Speichern in der Leseliste</li>
-<li>Texte mit anderen teilen</li>
-<li>Schrifteinstellung direkt am Artikel ändern</li>
-<li>Navigation durch die Ausgaben im Karussell oder Archiv</li>
-<li>Navigieren durch eine Ausgabe mit neuen Ressortübersichten</li>
-</ul>
-<p>Beachten Sie bitte: Vorerst wird es keinen direkten Support für die App im F-Droid-Store geben. Unter <a href="https://blogs.taz.de/app-faq/haeufige-fragen-und-antwortenzur-neuen-taz-app/">Taz app FAQ</a> finden Sie häufig gestellte Fragen und Antworten.</p>
+<p>In unserer App bekommen Sie die deutsche Ausgabe von LE MONDE diplomatique als ePaper und im Audio-Format zum Anhören. Digital lassen sich unsere Inhalte mit anderen teilen und Sie erhalten LMd bereits am Vorabend des Erscheinungstermins. Um sich einen Eindruck von unserem ePaper inklusive MP3 zu verschaffen, können Sie in der App einige bereits erschienene LMd-Ausgaben lesen und hören.</p>
+
+<p>Als ePaper inklusive Audio bekommen Sie Le Monde diplomatique in der Einzelausgabe für 5,70 Euro, im Jahresabonnement Digital für 45,60 Euro oder in Kombination mit der Print-Ausgabe für 66,00 Euro. Für das Jahresabonnement gilt jeweils eine Kündigungsfrist von 14 Tagen vor Ende des Zahlungszeitraums.</p>
+
+<p>Mehr Informationen finden Sie in den Hilfetexten unserer App oder auf der LMd-Website: https://monde-diplomatique.de/abo</p>
+
+<p>Haben Sie Fragen, Anregungen oder Hinweise zu unserer App? Gerne an app@monde-diplomatique.de Wir freuen uns über Ihre Nachricht.</p>
