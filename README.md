@@ -68,6 +68,11 @@ keyAlias=keyAlias
 
 ## Releasing / Versioning
 
+We have a `release` branch where the tagged releases should happen.
+
+To roll out the release at F-Droid we need to have a `fastlane` folder in our root.
+So for LMd releases rename the `fastlane_lmd` to `fastlane`. For taz releases `fastlane_taz` to `fastlane` accordingly.
+
 Our gradle build scripts automatically create versions based on the git tag. To reduce an integer we follow a strict pattern for release tags, that are a subset of [semver](https://semver.org/lang/de/):
 MAJOR.MINOR.PATCH[-PRE-RELEASE-TYPE].[PRE-RELEASE-VERSION]. Valid prerelease types are 'alpha', 'beta', 'rc'
 For example:
