@@ -95,8 +95,8 @@ class ShareArticleDownloadHelper(private val applicationContext: Context) {
      */
     suspend fun cleanup() = withContext(Dispatchers.IO) {
         val shareCacheDir = applicationContext.cacheDir.resolve(ARTICLE_SHARE_CACHE_PATH)
-        if (shareCacheDir.deleteRecursively()) {
-            log.error("Could not delete clear the the share cache directory")
+        if (!shareCacheDir.deleteRecursively()) {
+            log.error("Could not clear the the share cache directory")
         }
     }
 }
