@@ -12,7 +12,6 @@ import android.util.TypedValue.COMPLEX_UNIT_SP
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
@@ -33,7 +32,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
-import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
@@ -51,7 +49,6 @@ import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -111,6 +108,8 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val appBarLayout: AppBarLayout
         get() = viewBinding.appBarLayout
+
+    override val bottomNavigationLayout: View? = null
 
     companion object {
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
@@ -284,18 +283,6 @@ class SectionWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             restoreLastScrollPosition()
             hideLoadingScreen()
-            delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
-            setPaddingIfNecessary()
-        }
-    }
-
-    private fun setPaddingIfNecessary() {
-        val webViewHeight = webView.height
-        val scrollView = viewBinding.nestedScrollView
-        val oldPadding = scrollView.paddingBottom
-        val paddingToAdd = calculatePaddingNecessaryForCollapsingToolbar(webViewHeight)
-        if (paddingToAdd != 0) {
-            scrollView.updatePadding(bottom = paddingToAdd + oldPadding)
         }
     }
 

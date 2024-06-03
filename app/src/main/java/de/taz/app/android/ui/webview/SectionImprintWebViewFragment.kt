@@ -53,6 +53,8 @@ class SectionImprintWebViewFragment : WebViewFragment<
     override val appBarLayout: AppBarLayout
         get() = viewBinding.appBarLayout
 
+    override val bottomNavigationLayout: View? = null
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)

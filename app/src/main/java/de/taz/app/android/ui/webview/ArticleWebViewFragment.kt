@@ -4,10 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
-import androidx.annotation.RequiresApi
-import androidx.core.view.get
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
@@ -31,6 +28,7 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
+import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -60,7 +58,11 @@ class ArticleWebViewFragment :
     override val loadingScreen: View
         get() = viewBinding.loadingScreen
 
-    override val appBarLayout: AppBarLayout? = null
+    override val appBarLayout: AppBarLayout?
+        get() = (parentFragment as? ArticlePagerFragment)?.getAppBarLayout()
+
+    override val bottomNavigationLayout: View?
+        get() = (parentFragment as? ArticlePagerFragment)?.getBottomNavigationLayout()
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
@@ -171,36 +173,17 @@ class ArticleWebViewFragment :
 
     override fun onPageRendered() {
         super.onPageRendered()
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             // setting multi column mode is only possible after page is rendered so the webView can compute its scroll width
             if (isMultiColumnMode) {
                 setupMultiColumnMode()
             } else {
                 restoreLastScrollPosition()
                 hideLoadingScreen()
-                delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
-                setPaddingIfNecessary()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    setupOnScrollChangeListenerForArticleLoginBottomSheetFragment()
-                }
-            }
-        }
-    }
 
-    private suspend fun setPaddingIfNecessary() {
-        val article = viewModel.articleFlow.first()
-        val isPublic =
-            article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public
-        val webViewWrapper = viewBinding.webViewBorderPager
-        val webViewWrapperHeight = webViewWrapper.height
-        val oldPadding = webViewWrapper.paddingBottom
-        var paddingToAdd = 0
-        if (isPublic && !article.isImprint()) {
-            paddingToAdd = calculatePaddingNecessaryForScrolling(webViewWrapperHeight)
-        }
-        paddingToAdd += calculatePaddingNecessaryForCollapsingToolbar(webViewWrapperHeight + paddingToAdd)
-        if (paddingToAdd != 0) {
-            webViewWrapper.updatePadding(bottom = paddingToAdd + oldPadding)
+                delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
+                ensurePublicArticlesCanBeScrolled()
+            }
         }
     }
 
@@ -286,34 +269,43 @@ class ArticleWebViewFragment :
         return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private suspend fun setupOnScrollChangeListenerForArticleLoginBottomSheetFragment() {
-        val article = viewModel.articleFlow.first()
-        val isPublic =
-            article.getIssueStub(requireContext().applicationContext)?.status == IssueStatus.public
 
-        val scrollView = viewBinding.nestedScrollView
-        val lastChildOfScrollView = scrollView[scrollView.childCount - 1]
+    private suspend fun ensurePublicArticlesCanBeScrolled() {
+        val article = viewModel.articleFlow.first()
+        val issueStub = viewModel.issueStubFlow.first()
+        val isPublic = issueStub.status == IssueStatus.public
 
         if (isPublic && !article.isImprint()) {
-            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-                val bottomDetector = lastChildOfScrollView.bottom - (scrollView.height + scrollY)
-                val isScrolledToBottom: Boolean = (bottomDetector == 0)
+            // Ensure the scrolling content is at least 1px higher then the scroll view
+            val delta = viewBinding.nestedScrollView.height - viewBinding.webViewBorderPager.height
+            if (delta >= 0) {
+                viewBinding.webViewBorderPager.apply {
+                    updatePadding(
+                        bottom = paddingBottom + delta + 1
+                    )
+                }
+            }
 
-                // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
-                // and only if this pager item is currently shown (the Fragment is resumed)
-                if (isScrolledToBottom && isResumed) {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        if (authHelper.isElapsed()) {
-                            SubscriptionElapsedBottomSheetFragment
-                                .showSingleInstance(parentFragmentManager)
-                        } else {
-                            LoginBottomSheetFragment
-                                .showSingleInstance(
-                                    parentFragmentManager,
-                                    articleName = articleFileName
-                                )
-                        }
+        }
+    }
+
+    override fun onScrolledToBottom() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val article = viewModel.articleFlow.first()
+            val issueStub = viewModel.issueStubFlow.first()
+            val isPublic = issueStub.status == IssueStatus.public
+
+            if (isPublic && !article.isImprint() && isResumed) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    if (authHelper.isElapsed()) {
+                        SubscriptionElapsedBottomSheetFragment
+                            .showSingleInstance(parentFragmentManager)
+                    } else {
+                        LoginBottomSheetFragment
+                            .showSingleInstance(
+                                parentFragmentManager,
+                                articleName = articleFileName
+                            )
                     }
                 }
             }
