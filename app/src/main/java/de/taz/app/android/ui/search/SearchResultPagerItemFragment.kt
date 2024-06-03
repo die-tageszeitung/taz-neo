@@ -1,13 +1,13 @@
 package de.taz.app.android.ui.search
 
-import android.os.Build
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
-import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.core.view.updatePadding
 import androidx.core.view.get
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
@@ -15,8 +15,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
+import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.ui.webview.AppWebViewClient
 import de.taz.app.android.ui.webview.AppWebViewClientCallBack
@@ -43,9 +45,16 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
 
     private val log by Log
 
+    private lateinit var authHelper: AuthHelper
+
     val viewModel by activityViewModels<SearchResultViewModel>()
     private var position: Int = NO_POSITION
     private lateinit var searchResult: SearchHit
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -103,45 +112,49 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
     private fun onWebViewRendered() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewBinding.loadingScreen.visibility = View.GONE
+
             delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
-            addPaddingIfNecessaryForScrolling()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                setScrollChangeListenerForArticleLoginBottomSheetFragment()
+            setupBottomScrollLogin()
+        }
+    }
+
+    private fun setupBottomScrollLogin() {
+        val isPublic = searchResult.articleFileName.contains("public")
+        if (isPublic) {
+            ensurePublicArticlesCanBeScrolled()
+
+            viewBinding.nestedScrollView.setOnScrollChangeListener { nestedScrollView: NestedScrollView, _, scrollY, _, _ ->
+                val lastChild = nestedScrollView[nestedScrollView.childCount - 1]
+                val isScrolledToBottom = lastChild.bottom <= (nestedScrollView.height + scrollY)
+                if (isScrolledToBottom) {
+                    onScrolledToBottom()
+                }
             }
         }
     }
 
-    private fun addPaddingIfNecessaryForScrolling() {
-        val webViewWrapper = viewBinding.webViewBorderPager
-        val webViewWrapperHeight = webViewWrapper.height
-        val screenHeight = resources.displayMetrics.heightPixels
-        val difference = screenHeight - webViewWrapperHeight
-        val oldPadding = webViewWrapper.paddingBottom
-        if (difference > 0) {
-            webViewWrapper.updatePadding(bottom = difference + oldPadding)
+    private fun ensurePublicArticlesCanBeScrolled() {
+        val delta = viewBinding.nestedScrollView.height - viewBinding.webViewBorderPager.height
+        if (delta >= 0) {
+            viewBinding.webViewBorderPager.apply {
+                updatePadding(
+                    bottom = paddingBottom + delta + 1
+                )
+            }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun setScrollChangeListenerForArticleLoginBottomSheetFragment() {
-        val isPublic = searchResult.articleFileName.contains("public")
-
-        val scrollView = viewBinding.nestedScrollView
-        val lastChildOfScrollView = scrollView[scrollView.childCount - 1]
-
-        if (isPublic) {
-            scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-                val bottomDetector = lastChildOfScrollView.bottom - (scrollView.height + scrollY)
-                val isScrolledToBottom: Boolean = (bottomDetector == 0)
-
-                // Show the Login BottomSheet if the scrollable Content (WebView) is at the bottom,
-                // and only if this pager item is currently shown (the Fragment is resumed)
-                if (isScrolledToBottom && isResumed) {
-                    LoginBottomSheetFragment.showSingleInstance(
+    private fun onScrolledToBottom() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (authHelper.isElapsed()) {
+                SubscriptionElapsedBottomSheetFragment
+                    .showSingleInstance(parentFragmentManager)
+            } else {
+                LoginBottomSheetFragment
+                    .showSingleInstance(
                         parentFragmentManager,
                         articleName = searchResult.articleFileName
                     )
-                }
             }
         }
     }

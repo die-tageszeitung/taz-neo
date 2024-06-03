@@ -16,7 +16,6 @@ const val WEBVIEW_HTML_FILE_TERMS = "welcomeTerms.html"
 const val WEBVIEW_HTML_FILE_REVOCATION = "welcomeRevocation.html"
 const val WEBVIEW_HTML_FILE_DATA_POLICY = "welcomeSlidesDataPolicy.html"
 const val WEBVIEW_HTML_FILE_SEARCH_HELP = "searchHelp.html"
-const val WEBVIEW_TAP_TO_SCROLL_OFFSET = 350
 const val COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE = 15
 const val HIDE_LOGO_DELAY_MS = 200L
 const val LOGO_ANIMATION_DURATION_MS = 300L

@@ -18,6 +18,19 @@ private const val ANIMATION_DURATION_MS = 150L
 private const val SCROLL_UP_THRESHOLD = 0.01f
 private const val SCROLL_DOWN_THRESHOLD = 0.5f
 
+fun View.setBottomNavigationBehavior(behavior: BottomNavigationBehavior<View>?) {
+    val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
+    if (coordinatorLayoutParams != null) {
+        coordinatorLayoutParams.behavior = behavior
+        layoutParams = coordinatorLayoutParams
+    }
+}
+
+fun View.getBottomNavigationBehavior(): BottomNavigationBehavior<View>? {
+    val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
+    return coordinatorLayoutParams?.behavior as? BottomNavigationBehavior
+}
+
 class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) :
     CoordinatorLayout.Behavior<V>(context, attrs) {
 
@@ -39,6 +52,19 @@ class BottomNavigationBehavior<V : View>(context: Context, attrs: AttributeSet) 
         } else {
             view.translationY = 0f
         }
+    }
+
+    fun collapse(view: View, animate: Boolean) {
+        offsetAnimator.cancel()
+        if (animate) {
+            animateBarVisibility(view, false)
+        } else {
+            view.translationY = view.height.toFloat()
+        }
+    }
+
+    fun getVisibleHeight(view: View): Int {
+        return (view.height - view.translationY).toInt()
     }
 
     override fun onStartNestedScroll(

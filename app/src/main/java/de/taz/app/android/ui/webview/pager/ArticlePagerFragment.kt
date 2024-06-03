@@ -17,6 +17,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -670,4 +671,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             }
         }
     }
+
+    // Helper functions used on from the ArticleWebViewFragment to control the collapsible elements while scrolling programmatically
+    fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
+    fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
 }

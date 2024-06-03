@@ -6,11 +6,10 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
+import androidx.core.view.get
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.distinctUntilChanged
@@ -19,7 +18,6 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.WEBVIEW_TAP_TO_SCROLL_OFFSET
 import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
@@ -36,6 +34,7 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.getBottomNavigationBehavior
 import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -50,6 +49,7 @@ private const val TAP_LOCK_DELAY_MS = 100L
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(SCROLL_BACKWARDS, SCROLL_FORWARD)
 private annotation class ScrollDirection
+
 private const val SCROLL_FORWARD = 1
 private const val SCROLL_BACKWARDS = -1
 
@@ -86,7 +86,12 @@ abstract class WebViewFragment<
     abstract val nestedScrollView: NestedScrollView
     abstract val webView: AppWebView
     abstract val loadingScreen: View
+
+    // When scrolling programmatically, the nested scrolling events are not triggered.
+    // We have to collapse/hide the bar manually, when tapToScroll is used.
+    // Must be null if there is no collapsible app bar in the WebViewFragment implementations view.
     abstract val appBarLayout: AppBarLayout?
+    abstract val bottomNavigationLayout: View?
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -133,10 +138,9 @@ abstract class WebViewFragment<
             setupScrollPositionListener(it)
         }
 
-        savedInstanceState?.apply {
+        if (savedInstanceState != null) {
             appBarLayout?.setExpanded(true, false)
         }
-
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
@@ -158,7 +162,7 @@ abstract class WebViewFragment<
             }
             onBorderTapListener = { border ->
                 when (border) {
-                    ViewBorder.LEFT ->  maybeScroll(SCROLL_BACKWARDS)
+                    ViewBorder.LEFT -> maybeScroll(SCROLL_BACKWARDS)
                     ViewBorder.RIGHT -> maybeScroll(SCROLL_FORWARD)
                     else -> Unit
                 }
@@ -185,13 +189,25 @@ abstract class WebViewFragment<
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 webView.setOnScrollChangeListener(null)
             }
-            nestedScrollView.setOnScrollChangeListener { _: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
+
+            nestedScrollView.setOnScrollChangeListener { nestedScrollView: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
                 saveScrollPositionDebounced(scrollPosition = scrollY)
+
+                val lastChild = nestedScrollView[nestedScrollView.childCount - 1]
+                val isScrolledToBottom = lastChild.bottom <= (nestedScrollView.height + scrollY)
+                if (isScrolledToBottom) {
+                    onScrolledToBottom()
+                }
             }
         }
     }
 
-    private fun saveScrollPositionDebounced(scrollPosition: Int = 0, scrollPositionHorizontal: Int = 0) {
+    open fun onScrolledToBottom() = Unit
+
+    private fun saveScrollPositionDebounced(
+        scrollPosition: Int = 0,
+        scrollPositionHorizontal: Int = 0
+    ) {
         viewModel.displayable?.let {
             val oldJob = saveScrollPositionJob
             saveScrollPositionJob = lifecycleScope.launch {
@@ -252,32 +268,87 @@ abstract class WebViewFragment<
      * scroll article into [direction]. If at the top or the end - go to previous or next article
      */
     private fun scrollVertically(@ScrollDirection direction: Int) {
-        val scrollByValue = view?.height?.minus(WEBVIEW_TAP_TO_SCROLL_OFFSET) ?: 0
-        val scrollHeight = direction * scrollByValue
-        view?.let {
-            // if on bottom and tap on right side go to next article
-            if (!nestedScrollView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
-                issueViewerViewModel.goNextArticle.postValue(true)
-            }
-            // if on bottom and tap on right side go to previous article
-            else if (!nestedScrollView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
-                issueViewerViewModel.goPreviousArticle.postValue(true)
+        // if on bottom and tap on right side go to next article
+        if (!nestedScrollView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
+            issueViewerViewModel.goNextArticle.postValue(true)
+        }
+
+        // if on bottom and tap on right side go to previous article
+        else if (!nestedScrollView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
+            issueViewerViewModel.goPreviousArticle.postValue(true)
+
+        } else {
+            val appBarLayout = this.appBarLayout
+            val bottomNavigationLayout = this.bottomNavigationLayout
+            val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
+
+            val systemBarHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                nestedScrollView.rootWindowInsets?.systemWindowInsetTop ?: 0
             } else {
-                var offset = 0
-                appBarLayout?.let { appBarLayout ->
-                    val isExpanded = appBarLayout.height.minus(appBarLayout.bottom) == 0
-                    if (scrollHeight > 0) {
-                        // hide app bar bar when scrolling down
-                        if (isExpanded) {
-                            offset += appBarLayout.height
-                            appBarLayout.setExpanded(false, true)
-                        }
-                    } else {
-                        appBarLayout.setExpanded(true, true)
+                0
+            }
+
+            when (direction) {
+                SCROLL_FORWARD -> {
+                    var visibleBottom = nestedScrollView.height
+                    var targetTop = 0
+                    // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
+                    targetTop += resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
+
+                    if (appBarLayout != null) {
+                        // The app bar is pushing the whole content screen down, so our visible bottom is higher up
+                        visibleBottom -= appBarLayout.bottom
+
+                        // The app bar will be hidden, so we want the scrolled content to align below the status bar
+                        targetTop += systemBarHeight
+
+                        appBarLayout.setExpanded(false, true)
                     }
+
+                    if (bottomNavigationLayout != null) {
+                        if (bottomNavigationBehavior != null) {
+                            // If the bottom navigation is shown, the visible content bottom is higher up
+                            visibleBottom -= bottomNavigationBehavior.getVisibleHeight(bottomNavigationLayout)
+                            bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
+                        } else {
+                            // If the bottom navigation does not have a behavior, it is expanded
+                            visibleBottom -= bottomNavigationLayout.height
+                        }
+
+                    }
+
+                    val scrollDelta = visibleBottom - targetTop
+                    nestedScrollView.smoothScrollBy(0, scrollDelta)
                 }
 
-                nestedScrollView.smoothScrollBy(0, scrollHeight - offset)
+                SCROLL_BACKWARDS -> {
+                    var visibleTop = 0
+                    var targetBottom = nestedScrollView.height
+                    // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
+                    targetBottom -= resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
+
+                    if (appBarLayout != null) {
+                        if (appBarLayout.bottom == 0) {
+                            // If the app bar is currently hidden, we still want to ignore the content below the translucent status bar for scrolling
+                            visibleTop += systemBarHeight
+                        }
+
+                        // The app bar will be shown after scrolling, and pushing the content down.
+                        // So our visible target bottom will be higher up
+                        targetBottom -= appBarLayout.height
+
+                        appBarLayout.setExpanded(true, true)
+                    }
+
+                    if (bottomNavigationLayout != null) {
+                        // The bottom navigation will be shown after scrolling, so we have to adjust our visible target bottom
+                        targetBottom -= bottomNavigationLayout.height
+                        bottomNavigationBehavior?.expand(bottomNavigationLayout, true)
+                    }
+
+                    val scrollDelta = targetBottom - visibleTop
+                    nestedScrollView.smoothScrollBy(0, -scrollDelta)
+                }
             }
         }
     }
@@ -357,35 +428,6 @@ abstract class WebViewFragment<
         }
     }
 
-    /**
-     * This function checks if there is enough room that allow the tool bar to collapse.
-     * Otherwise it is not possible to scroll down to the bottom
-     */
-    protected fun calculatePaddingNecessaryForCollapsingToolbar(webViewHeight: Int): Int {
-        val screenHeight = this.resources.displayMetrics.heightPixels
-        val navBottomHeight = this.resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
-        val collapsingToolBarHeight =
-            this.resources.getDimensionPixelSize(R.dimen.fragment_header_default_height)
-        val spaceNeededThatTheToolBarCanCollapse = navBottomHeight + 0.5 * collapsingToolBarHeight
-        val difference = webViewHeight - screenHeight
-        return if (difference < spaceNeededThatTheToolBarCanCollapse) {
-            spaceNeededThatTheToolBarCanCollapse.toInt()
-        } else {
-            0
-        }
-    }
-
-    protected fun calculatePaddingNecessaryForScrolling(webViewHeight: Int): Int {
-        val screenHeight = this.resources.displayMetrics.heightPixels
-
-        val difference = screenHeight - webViewHeight
-        return if (difference > 0) {
-            difference + 1
-        } else {
-            0
-        }
-    }
-
     suspend fun restoreLastScrollPosition() {
         viewModel.displayable?.let {
             val persistedScrollPosition = viewerStateRepository.get(it.key)?.scrollPosition
@@ -419,10 +461,10 @@ abstract class WebViewFragment<
     }
 
     private fun maybeScroll(@ScrollDirection direction: Int) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
             val multiColumnMode = viewModel.tazApiCssDataStore.multiColumnMode.get()
-            if (tapToScroll || multiColumnMode) {
+            if ((tapToScroll || multiColumnMode) && view != null) {
                 if (!tapLock) {
                     tapLock = true
                     scrollToDirection(multiColumnMode, direction)

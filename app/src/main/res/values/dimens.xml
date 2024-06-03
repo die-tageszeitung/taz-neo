@@ -167,6 +167,8 @@
     we need to translate it upwards the amount of the appBarHeight:
     (appBarHeight (107) is calculated by fragment_header_default_height and different paddings) -->
     <dimen name="fragment_webview_loading_screen_padding_bottom">107dp</dimen>
+    <dimen name="fragment_webview_tap_to_scroll_offset">24dp</dimen>
+
     <dimen name="fragment_archive_padding_top">22dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_top">0dp</dimen>
     <dimen name="fragment_archive_moment_date_padding_bottom">0dp</dimen>
@@ -250,7 +252,7 @@
     <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
 
     <dimen name="fragment_article_read_on_padding_bottom">20dp</dimen>
-    <dimen name="fragment_article_padding_bottom">40dp</dimen>
+    <dimen name="fragment_article_padding_bottom">@dimen/nav_bottom_height</dimen>
 
     <dimen name="icon_size">24dp</dimen>
 

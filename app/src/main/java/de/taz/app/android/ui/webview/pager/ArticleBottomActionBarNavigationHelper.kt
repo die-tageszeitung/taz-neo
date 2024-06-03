@@ -12,6 +12,8 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.util.BottomNavigationBehavior
+import de.taz.app.android.util.getBottomNavigationBehavior
+import de.taz.app.android.util.setBottomNavigationBehavior
 
 class ArticleBottomActionBarNavigationHelper(
     private val onClickHandler: (MenuItem) -> Unit
@@ -48,7 +50,7 @@ class ArticleBottomActionBarNavigationHelper(
     }
 
     private fun initializeBehaviorView(view: View) {
-        val behavior = view.getBehavior()
+        val behavior = view.getBottomNavigationBehavior()
         behavior?.initialize(view)
     }
 
@@ -118,16 +120,24 @@ class ArticleBottomActionBarNavigationHelper(
 
     fun expand(animate: Boolean) {
         val view = behaviorView
-        val behavior = view?.getBehavior()
+        val behavior = view?.getBottomNavigationBehavior()
         if (view != null && behavior != null) {
             behavior.expand(view, animate)
+        }
+    }
+
+    fun collapse(animate: Boolean) {
+        val view = behaviorView
+        val behavior = view?.getBottomNavigationBehavior()
+        if (view != null && behavior != null) {
+            behavior.collapse(view, animate)
         }
     }
 
     fun fixToolbar() {
         expand(animate = false)
         if (!isFixed && !isFixedForever) {
-            defaultBehavior = behaviorView?.getBehavior()
+            defaultBehavior = behaviorView?.getBottomNavigationBehavior()
             behaviorView?.setBehavior(null)
             isFixed = true
         }
@@ -135,7 +145,7 @@ class ArticleBottomActionBarNavigationHelper(
 
     fun releaseToolbar() {
         if (isFixed && !isFixedForever) {
-            behaviorView?.setBehavior(defaultBehavior)
+            behaviorView?.setBottomNavigationBehavior(defaultBehavior)
             isFixed = false
         }
     }
@@ -143,11 +153,6 @@ class ArticleBottomActionBarNavigationHelper(
     fun fixToolbarForever() {
         fixToolbar()
         isFixedForever = true
-    }
-
-    private fun View.getBehavior(): BottomNavigationBehavior<View>? {
-        val coordinatorLayoutParams = layoutParams as? CoordinatorLayout.LayoutParams
-        return coordinatorLayoutParams?.behavior as? BottomNavigationBehavior
     }
 
     private fun View.setBehavior(behavior: BottomNavigationBehavior<View>?) {
