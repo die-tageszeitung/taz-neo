@@ -32,7 +32,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -182,7 +182,7 @@ class PdfPagerViewModel(
                     val hint =
                         "Issue of ${issuePublicationWithPages.date} that was just downloaded is not found in the database."
                     log.error(hint)
-                    Sentry.captureMessage(hint)
+                    SentryWrapper.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
                     return@launch
                 }
@@ -194,7 +194,7 @@ class PdfPagerViewModel(
                 if (issueStub.dateDownloadWithPages == null) {
                     val hint = "Issue ${issueStub.issueKey} was not fully downloaded."
                     log.error(hint)
-                    Sentry.captureMessage(hint)
+                    SentryWrapper.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
                     return@launch
                 }
@@ -254,7 +254,7 @@ class PdfPagerViewModel(
         } else {
             val hint = "Don't know how to open $link"
             log.warn(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
         }
     }
 
@@ -417,7 +417,7 @@ class PdfPagerViewModel(
             if (publicArticle == null) {
                 val hint = "Could not get the public article for frame link ${frame.link}"
                 log.warn(hint)
-                Sentry.captureMessage(hint)
+                SentryWrapper.captureMessage(hint)
             }
             return publicArticle
         }

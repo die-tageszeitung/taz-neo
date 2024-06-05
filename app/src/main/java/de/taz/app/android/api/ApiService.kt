@@ -18,7 +18,7 @@ import de.taz.app.android.persistence.repository.NotFoundException
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import java.util.*
 
 /**
@@ -477,7 +477,7 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         return if (pushToken.isNullOrBlank()) {
             val hint = "No pushToken is found. It is necessary to use when enabling notifications"
             log.warn(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
             false
         } else {
             transformToConnectivityException {

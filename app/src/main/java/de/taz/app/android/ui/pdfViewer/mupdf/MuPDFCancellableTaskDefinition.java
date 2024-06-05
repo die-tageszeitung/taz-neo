@@ -2,8 +2,9 @@ package de.taz.app.android.ui.pdfViewer.mupdf;
 
 import com.artifex.mupdf.fitz.Cookie;
 
+import de.taz.app.android.sentry.SentryWrapper;
 import de.taz.app.android.util.Log;
-import io.sentry.Sentry;
+
 
 public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements CancellableTaskDefinition<Params, Result>
 {
@@ -57,7 +58,7 @@ public abstract class MuPDFCancellableTaskDefinition<Params, Result> implements 
 			String hint = "Render task failed [tag: " + debugTag + "]\n" +
 					"Exception will be ignored";
 			log.error(hint , e);
-			Sentry.captureException(e);
+			SentryWrapper.INSTANCE.captureException(e);
 			return null;
 		}
 	}

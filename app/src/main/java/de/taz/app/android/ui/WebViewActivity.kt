@@ -11,13 +11,13 @@ import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityWebviewBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showFatalErrorDialog
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,7 +76,7 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
             showHtmlFile(htmlFile)
         } catch (e: HTMLFileNotFoundException) {
             log.warn("Html file $htmlFile not found", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             showFatalErrorDialog()
         }
     }

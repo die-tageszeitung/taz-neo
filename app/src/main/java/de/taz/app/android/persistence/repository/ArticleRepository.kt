@@ -11,7 +11,7 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import java.util.Date
 
 
@@ -156,7 +156,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
                             .map { it.authorFileName!! }
                     }"
             log.warn(hint, nfe)
-            Sentry.captureException(nfe)
+            SentryWrapper.captureException(nfe)
             null
         }
 

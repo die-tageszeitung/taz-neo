@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.RESOURCE_FOLDER
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.WoffConverter
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -70,7 +70,7 @@ class FontHelper private constructor(applicationContext: Context) : ViewModel() 
             }
         } catch (e: FileNotFoundException) {
             log.warn("Accessing ${file.name} threw $e", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             null
         }
     }

@@ -19,7 +19,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 
 @Suppress("UNUSED")
@@ -116,7 +116,7 @@ class ErrorReportFragment : BaseMainFragment<FragmentErrorReportBinding>() {
                     requireContext().contentResolver.openInputStream(uri)
                 } catch (e: Exception) {
                     log.warn("Something went wrong opening input stream: ${e.localizedMessage}")
-                    Sentry.captureException(e)
+                    SentryWrapper.captureException(e)
                     null
                 }
 

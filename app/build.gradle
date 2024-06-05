@@ -10,10 +10,12 @@ plugins {
     // Must be in sync with the "def room_version" below
     id 'androidx.room' version '2.6.1'
     id 'com.github.triplet.play' version '3.9.1'
-    id 'io.sentry.android.gradle' version '3.14.0'
 
     // Only define the google-services globally, and apply them only for nonfree variants
     id 'com.google.gms.google-services' version "4.4.2" apply false
+
+    // Only define the sentry version globally, and apply it only for nonfree variants
+    id 'io.sentry.android.gradle' version '3.14.0' apply false
 }
 
 // WARNING: this will apply the Google Services plugin based on the gradle command,
@@ -26,6 +28,17 @@ if (taskNames.any { it.contains('Nonfree')}) {
 
     println 'Applying Google Services Plugin'
     apply plugin: 'com.google.gms.google-services'
+
+
+    println 'Applying Sentry Plugin'
+    apply plugin: 'io.sentry.android.gradle'
+    sentry {
+        // Enables or disables the automatic upload of mapping files
+        // during a build.  If you disable this you'll need to manually
+        // upload the mapping files with sentry-cli when you do a release.
+        autoUpload = true
+    }
+
 }
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -368,7 +381,7 @@ dependencies {
     implementation 'com.artifex.mupdf:fitz:1.23.7'
 
     // error reports
-    implementation('io.sentry:sentry-android:6.34.0') {
+    nonfreeImplementation('io.sentry:sentry-android:6.34.0') {
         because "Our self hosted sentry server is not running >22.12.0 yet which is required for >7.0.0"
         // update plugins { id 'io.sentry.android.gradle' ... } too
     }
@@ -415,13 +428,6 @@ dependencies {
 
     // add Java 8+ API desugaring support
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
-}
-
-sentry {
-    // Enables or disables the automatic upload of mapping files
-    // during a build.  If you disable this you'll need to manually
-    // upload the mapping files with sentry-cli when you do a release.
-    autoUpload = true
 }
 
 allOpen {

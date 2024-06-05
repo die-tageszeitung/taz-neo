@@ -14,13 +14,13 @@ import de.taz.app.android.api.models.SubscriptionResetStatus
 import de.taz.app.android.api.models.SubscriptionStatus
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -356,7 +356,7 @@ class LoginViewModel @JvmOverloads constructor(
                 }
                 else -> {
                     status = previousState
-                    Sentry.captureMessage("trialSubscription returned ${subscriptionInfo?.status}")
+                    SentryWrapper.captureMessage("trialSubscription returned ${subscriptionInfo?.status}")
                     toastHelper.showToast(R.string.toast_unknown_error)
                 }
             }
@@ -455,7 +455,7 @@ class LoginViewModel @JvmOverloads constructor(
                 }
                 else -> {
                     // should not happen
-                    Sentry.captureMessage("connect returned ${subscriptionInfo.status}")
+                    SentryWrapper.captureMessage("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
                     status = previousState
                 }
@@ -538,11 +538,11 @@ class LoginViewModel @JvmOverloads constructor(
                 }
                 SubscriptionStatus.tooManyPollTries -> {
                     authHelper.isPolling.set(false)
-                    Sentry.captureMessage("ToManyPollTrys")
+                    SentryWrapper.captureMessage("ToManyPollTrys")
                 }
                 else -> {
                     // should not happen
-                    Sentry.captureMessage("connect returned ${subscriptionInfo.status}")
+                    SentryWrapper.captureMessage("connect returned ${subscriptionInfo.status}")
                     toastHelper.showSomethingWentWrongToast()
                 }
             }

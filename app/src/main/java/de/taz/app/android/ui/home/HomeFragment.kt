@@ -22,7 +22,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -74,7 +74,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                         val message =
                             "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
                         log.error(message)
-                        Sentry.captureMessage(message)
+                        SentryWrapper.captureMessage(message)
                         toastHelper.showSomethingWentWrongToast()
                     }
                 }

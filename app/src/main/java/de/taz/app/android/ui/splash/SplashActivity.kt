@@ -36,7 +36,7 @@ import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import java.util.*
@@ -108,7 +108,7 @@ class SplashActivity : StartupActivity() {
         val splashTimeMs = System.currentTimeMillis() - splashStartMs
         if (!initComplete && splashTimeMs > 1_000) {
             log.warn("SplashActivity stopped after ${splashTimeMs}ms")
-            Sentry.captureMessage("SplashActivity was closed before the initialization was complete")
+            SentryWrapper.captureMessage("SplashActivity was closed before the initialization was complete")
         }
     }
 
@@ -402,7 +402,7 @@ class SplashActivity : StartupActivity() {
         // hide splash screen so dialog can be shown
         showSplashScreen = false
         showConnectionErrorDialog()
-        Sentry.captureException(e)
+        SentryWrapper.captureException(e)
     }
 
     /**

@@ -28,7 +28,7 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerState
 import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -253,7 +253,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
             } catch (e: ExecutionException) {
                 val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                 log.error(hint, e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 showSdCardIssueDialog()
             }
         }

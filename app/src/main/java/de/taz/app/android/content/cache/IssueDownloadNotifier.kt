@@ -6,7 +6,7 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import java.util.Date
 
 /**
@@ -36,7 +36,7 @@ class IssueDownloadNotifier(
             notifyIssueDownloadStart()
         } catch (e: Exception) {
             log.warn("Error while notifying download start for $issueKey", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
         }
     }
 
@@ -50,7 +50,7 @@ class IssueDownloadNotifier(
             notifyIssueDownloadStop()
         } catch (e: Exception) {
             log.warn("Error while notifying download stop for $issueKey",e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
         }
     }
 

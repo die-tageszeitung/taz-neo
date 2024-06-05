@@ -27,7 +27,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -271,7 +271,7 @@ class DownloadObserver constructor(
                 } catch (e: CacheOperationFailedException) {
                     fragment.requireActivity().showIssueDownloadFailedDialog(issuePublication)
                     log.warn("Download of Issue $issuePublication failed", e)
-                    Sentry.captureException(e)
+                    SentryWrapper.captureException(e)
                 }
             }
         }
@@ -364,7 +364,7 @@ class DownloadObserver constructor(
             contentService.downloadIssuePublicationToCache(issuePublication)
         } catch (e: Exception) {
             log.warn("Exception while downloading an issue publication from the download observer", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
         }
     }
 }

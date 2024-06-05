@@ -6,7 +6,7 @@ import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewException
 import com.google.android.play.core.review.ReviewManagerFactory
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 
 class PlaystoreReviewFlow : ReviewFlow {
     private val log by Log
@@ -22,7 +22,7 @@ class PlaystoreReviewFlow : ReviewFlow {
             startReviewFlow(activity)
         } catch (e: ReviewException) {
             log.error("Could not launch the Playstore review flow (${e.errorCode}", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
         }
     }
 }

@@ -15,12 +15,12 @@ import de.taz.app.android.databinding.ActivityStorageMigrationBinding
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -207,7 +207,7 @@ class StorageOrganizationActivity : StartupActivity() {
                 contentService.deleteIssue(issueStub.issueKey)
             } catch (e: CacheOperationFailedException) {
                 log.warn("Issue deleting public issues during startup storage organization", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 errors++
             }
             withContext(Dispatchers.Main) {

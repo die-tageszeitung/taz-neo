@@ -24,17 +24,15 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
-import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.util.ArticleName
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -111,7 +109,7 @@ class IssueViewerViewModel(
                     startBackgroundIssueDownload(issueKey)
                 } else {
                     log.error("Could not get displayable issueKey=$issueKey and displayableKey=$displayableKey")
-                    Sentry.captureMessage("Error while loading displayable")
+                    SentryWrapper.captureMessage("Error while loading displayable")
                     issueLoadingFailedErrorFlow.emit(true)
                 }
             } catch (e: CacheOperationFailedException) {
@@ -137,7 +135,7 @@ class IssueViewerViewModel(
                 // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
                 issueLoadingFailedErrorFlow.emit(true)
                 log.warn("Could not determine baseurl for issue with key $issueKey", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
             }
         }
     }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import de.taz.app.android.R
 import de.taz.app.android.api.mappers.MappingException
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlin.system.exitProcess
 
 class UncaughtExceptionHandler(private val applicationContext: Context) :
@@ -38,7 +38,7 @@ class UncaughtExceptionHandler(private val applicationContext: Context) :
 
     private fun handleMappingException(e: Throwable) {
         log.warn("Could not map a response from the API. User probably needs to update", e)
-        Sentry.captureException(e)
+        SentryWrapper.captureException(e)
         Toast.makeText(
             applicationContext, R.string.toast_error_mapping_update, Toast.LENGTH_LONG
         ).show()

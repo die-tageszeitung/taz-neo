@@ -12,7 +12,7 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ class BookmarkListAdapter(
         if (article == null) {
             val msg = "Something went wrong. Could not restore bookmark at position $position."
             log.error(msg)
-            Sentry.captureMessage(msg)
+            SentryWrapper.captureMessage(msg)
             return
         }
 

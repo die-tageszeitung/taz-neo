@@ -1,7 +1,7 @@
 package de.taz.app.android.util
 
 import android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import java.text.SimpleDateFormat
 import java.util.ArrayDeque
 import java.util.Calendar
@@ -69,7 +69,7 @@ class Log(private val tag: String) {
         if (throwable != null) {
             breadCrumb += "\n${throwable.toString()}"
         }
-        Sentry.addBreadcrumb(breadCrumb)
+        SentryWrapper.addBreadcrumb(breadCrumb)
     }
 
     /**

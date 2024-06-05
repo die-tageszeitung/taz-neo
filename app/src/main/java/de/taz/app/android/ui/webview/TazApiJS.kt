@@ -16,7 +16,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
@@ -184,6 +184,6 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     fun logMissingJsFeature(name: String) {
         val message = "Missing JavaScript feature: $name"
         log.warn(message);
-        Sentry.captureMessage(message)
+        SentryWrapper.captureMessage(message)
     }
 }

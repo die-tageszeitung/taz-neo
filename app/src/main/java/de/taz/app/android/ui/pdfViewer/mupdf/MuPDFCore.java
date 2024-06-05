@@ -14,8 +14,8 @@ import com.artifex.mupdf.fitz.RectI;
 import com.artifex.mupdf.fitz.SeekableInputStream;
 import com.artifex.mupdf.fitz.android.AndroidDrawDevice;
 
+import de.taz.app.android.sentry.SentryWrapper;
 import de.taz.app.android.util.Log;
-import io.sentry.Sentry;
 
 public class MuPDFCore {
     private int resolution;
@@ -172,7 +172,7 @@ public class MuPDFCore {
             if (message != null && message.startsWith("items left on stack in draw device:")) {
                 Log log = new Log(MuPDFCore.class.getName());
                 log.error("MuPDFCore crashed on close()", e);
-                Sentry.captureException(e);
+                SentryWrapper.INSTANCE.captureException(e);
             } else {
                 throw e;
             }

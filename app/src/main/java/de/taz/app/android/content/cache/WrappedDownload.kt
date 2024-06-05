@@ -12,7 +12,7 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -170,7 +170,7 @@ class WrappedDownload(
                             "Exception during processing a WrappedDownload of ${parent.getDownloadTag()}",
                             e
                         )
-                        Sentry.captureException(e)
+                        SentryWrapper.captureException(e)
                     }
                 }
             }.joinAll()

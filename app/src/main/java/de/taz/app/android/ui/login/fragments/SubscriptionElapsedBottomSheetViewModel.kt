@@ -11,7 +11,7 @@ import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -84,7 +84,7 @@ class SubscriptionElapsedBottomSheetViewModel(
 
         } catch (e: Exception) {
             log.warn("Could not submit subscriptionFormData", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             _uiStateFlow.emit(UIState.UnexpectedFailure)
         }
     }
