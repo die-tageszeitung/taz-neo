@@ -29,6 +29,7 @@ import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -41,7 +42,6 @@ import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -300,7 +300,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {
             log.warn("Error while trying to download a full article because of a bookmark request", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             ToastHelper.getInstance(requireActivity().applicationContext)
                 .showToast(R.string.toast_problem_bookmarking_article, long = true)
         }

@@ -20,7 +20,7 @@ import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.runBlocking
 
 
@@ -52,7 +52,7 @@ class ImagePagerActivity : ViewBindingActivity<ActivityImagePagerBinding>() {
         } catch (e: NullPointerException) {
             val hint = "DISPLAYABLE_NAME not set, finishing ImagePagerActivity"
             log.error(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
             finish()
         }
 

@@ -9,21 +9,28 @@ import de.taz.app.android.api.models.AppInfo
 import de.taz.app.android.api.models.AppInfoKey
 import de.taz.app.android.api.transformToConnectivityException
 import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.cache.*
+import de.taz.app.android.content.cache.ContentDownload
+import de.taz.app.android.content.cache.FileCacheItem
+import de.taz.app.android.content.cache.FileEntryOperation
 import de.taz.app.android.data.HTTP_CLIENT_ENGINE
+import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.utils.io.*
-import io.sentry.Sentry
-import io.sentry.SentryLevel
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readAvailable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import java.io.File
-import java.lang.Exception
 import java.security.MessageDigest
-import java.util.*
+import java.util.Date
 import java.util.concurrent.Executors
 
 /**
@@ -108,7 +115,7 @@ class FileDownloader(
                                 "Local hash $hash vs remote hash ${download.fileEntryOperation.fileEntry.sha256}"
                         log.warn(hint
                         )
-                        Sentry.captureMessage(hint, SentryLevel.WARNING)
+                        SentryWrapper.captureMessage(hint, SentryWrapperLevel.WARNING)
                     }
                     download.fileEntryOperation.fileEntry.setDownloadDate(Date(), applicationContext)
                     operations.map {
@@ -126,7 +133,7 @@ class FileDownloader(
                         response
                     )
                     operations.map { it.notifyFailedItem(exception) }
-                    Sentry.captureException(exception)
+                    SentryWrapper.captureException(exception)
                 }
                 in 500..599 -> {
                     val hint =
@@ -134,7 +141,7 @@ class FileDownloader(
                     log.warn(hint)
                     val exception = ConnectivityException.ServerUnavailableException(hint)
                     operations.map { it.notifyFailedItem(exception) }
-                    Sentry.captureException(exception)
+                    SentryWrapper.captureException(exception)
                 }
                 else -> {
                     val hint = "Unexpected code ${response.status.value} for  $fileName"
@@ -145,7 +152,7 @@ class FileDownloader(
 
         } catch (e: Exception) {
             operations.map { it.notifyFailedItem(e) }
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
         } finally {
             operations.map { it.checkIfItemsCompleteAndNotifyResult(Unit) }
         }

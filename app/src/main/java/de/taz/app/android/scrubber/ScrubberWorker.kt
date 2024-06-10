@@ -10,7 +10,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import de.taz.app.android.SCRUBBER_INTERVAL_DAYS
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import java.util.concurrent.TimeUnit
 
 private const val SCRUBBER_WORK_NAME = "ScrubberWorker"
@@ -48,7 +48,7 @@ class ScrubberWorker(applicationContext: Context, workerParameters: WorkerParame
         } catch (e: Exception) {
             val message = "Scrubber failed"
             log.warn(message, e)
-            Sentry.captureMessage(message)
+            SentryWrapper.captureMessage(message)
 
             Result.failure()
         }

@@ -35,7 +35,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.showNoInternetDialog
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -162,7 +162,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                         "Could not determine baseurl for issue with publication $issuePublication",
                         e
                     )
-                    Sentry.captureException(e)
+                    SentryWrapper.captureException(e)
                 }
             }
             dismiss()

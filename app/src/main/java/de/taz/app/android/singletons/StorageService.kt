@@ -16,7 +16,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
@@ -262,7 +262,7 @@ class StorageService private constructor(private val applicationContext: Context
                     checksum?.let { it == getSHA256(file) } ?: true
                 } catch (e: FileNotFoundException) {
                     log.warn("File not found during integrity check", e)
-                    Sentry.captureException(e)
+                    SentryWrapper.captureException(e)
                     false
                 }
             } else {

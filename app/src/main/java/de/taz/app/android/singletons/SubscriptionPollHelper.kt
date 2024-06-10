@@ -6,10 +6,14 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SubscriptionStatus
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 private const val POLLING_TIMEOUT_INITIAL_MS = 100L
 private const val POLLING_TIMEOUT_MAX_MS = 3600000L // 1 hour
@@ -93,11 +97,11 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                     }
                     SubscriptionStatus.tooManyPollTries -> {
                         authHelper.isPolling.set(false)
-                        Sentry.captureMessage("TooManyPollTries")
+                        SentryWrapper.captureMessage("TooManyPollTries")
                     }
                     else -> {
                         // should not happen
-                        Sentry.captureMessage("subscriptionPoll returned ${subscriptionInfo.status}")
+                        SentryWrapper.captureMessage("subscriptionPoll returned ${subscriptionInfo.status}")
                     }
                 }
             } catch (e: ConnectivityException) {

@@ -35,7 +35,7 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -410,7 +410,7 @@ abstract class WebViewFragment<
                 // FIXME (johannes): Workaround to #14367
                 // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
                 log.warn("Could not determine baseurl for the displayable ${displayable.key}", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             }
         }

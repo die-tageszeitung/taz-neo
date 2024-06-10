@@ -11,7 +11,7 @@ import de.taz.app.android.persistence.join.IssueImprintJoin
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.join.IssueSectionJoin
 import de.taz.app.android.util.SingletonHolder
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.parcelize.Parcelize
 import java.util.*
@@ -312,7 +312,7 @@ class IssueRepository private constructor(applicationContext: Context) :
                     // TODO: We observed consistency errors in sentry but werent able to pin down the issue. Capture and ignore any expected section
                     val isNull = section == null
                     if (isNull) {
-                        Sentry.captureMessage("Expected section ${sectionNames[index]} not found in Database")
+                        SentryWrapper.captureMessage("Expected section ${sectionNames[index]} not found in Database")
                     }
                     !isNull
                 }.filterNotNull()
@@ -326,14 +326,14 @@ class IssueRepository private constructor(applicationContext: Context) :
         } catch (nfe: NotFoundException) {
             val hint = "No imprint file for ${issueStub.issueKey} was found, this is unexpected"
             log.error(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
             null
         }
 
         val moment = momentRepository.get(issueStub) ?: run {
             val hint = "No moment for ${issueStub.issueKey} was found, this is unexpected"
             log.error(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
             // use dummy moment
             Moment(
                 issueStub.feedName,

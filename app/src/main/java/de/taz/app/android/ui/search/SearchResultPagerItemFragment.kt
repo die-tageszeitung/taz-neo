@@ -25,7 +25,7 @@ import de.taz.app.android.ui.webview.AppWebViewClientCallBack
 import de.taz.app.android.ui.webview.SearchTazApiJS
 import de.taz.app.android.ui.webview.TAZ_API_JS
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -68,7 +68,7 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
             toastHelper.showToast(R.string.toast_unknown_error)
             val hint = "Could not load search result item at position $position"
             log.error(hint)
-            Sentry.captureMessage(hint)
+            SentryWrapper.captureMessage(hint)
             return
         }
         this.searchResult = searchResult

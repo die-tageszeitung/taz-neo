@@ -31,7 +31,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.*
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -236,7 +236,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 contentService.downloadMetadata(momentPublication) as Moment
             } catch (e: CacheOperationFailedException) {
                 log.warn("Cache miss and failed download for moment $momentPublication", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 return@withContext
             }
             try {

@@ -42,7 +42,7 @@ import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -596,7 +596,7 @@ class SearchActivity :
                 "Error while trying to download a full article because of a bookmark request",
                 e
             )
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             toastHelper.showToast(R.string.toast_problem_bookmarking_article, long = true)
         }
     }

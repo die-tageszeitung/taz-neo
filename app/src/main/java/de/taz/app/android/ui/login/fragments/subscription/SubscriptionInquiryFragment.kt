@@ -17,7 +17,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 
 class SubscriptionExtendPrintPlusDigiFragment : SubscriptionInquiryFragment() {
@@ -205,7 +205,7 @@ abstract class SubscriptionInquiryFragment :
 
             } catch (e: Exception) {
                 log.warn("Could not submit subscriptionFormData", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
 
                 toastHelper.showToast(R.string.something_went_wrong_try_later)
                 finishParentLoginActivity()

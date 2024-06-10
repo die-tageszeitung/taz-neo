@@ -12,9 +12,9 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URLDecoder
@@ -156,7 +156,7 @@ class AppWebViewClient(
             data.inputStream()
         } catch (e: Exception) {
             log.warn("trying to open non-existent file $url (internal: $internalUrl)", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             return null
         }
 

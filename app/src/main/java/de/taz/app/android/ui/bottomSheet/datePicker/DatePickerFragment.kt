@@ -13,17 +13,20 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.*
+import de.taz.app.android.singletons.AppTimeZone
+import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
 import de.taz.app.android.util.getSuccessor
-import io.sentry.Sentry
-import io.sentry.SentryLevel
-import java.util.*
+import java.util.Calendar
+import java.util.Date
 
 
 class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDatePickerBinding>() {
@@ -132,7 +135,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         if (dayPickerId == 0) {
             val hint = "Could not get the day picker view with the id 'day'. Ensure this id is still used on all API Versions"
             log.error(hint)
-            Sentry.captureMessage(hint, SentryLevel.ERROR)
+            SentryWrapper.captureMessage(hint, SentryWrapperLevel.ERROR)
             return null
         }
 

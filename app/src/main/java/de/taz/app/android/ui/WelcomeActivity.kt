@@ -20,7 +20,7 @@ import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import de.taz.app.android.util.showFatalErrorDialog
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -91,7 +91,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
             showConnectionErrorDialog()
         } catch (e: HTMLFileNotFoundException) {
             log.warn("Html file for data policy not found", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             showFatalErrorDialog()
         }
     }

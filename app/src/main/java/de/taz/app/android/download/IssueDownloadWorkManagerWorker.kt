@@ -11,10 +11,10 @@ import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.ui.splash.ResourceInitUtil
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.NewIssuePollingScheduler
-import io.sentry.Sentry
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 
@@ -76,7 +76,7 @@ class IssueDownloadWorkManagerWorker(
             return@coroutineScope Result.failure()
         } catch (e: Exception) {
             log.error("Error during automatic download")
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             return@coroutineScope Result.failure()
         }
     }

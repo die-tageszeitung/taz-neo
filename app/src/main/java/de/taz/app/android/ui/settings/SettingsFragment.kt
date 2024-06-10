@@ -45,6 +45,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentSettingsBinding
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -56,7 +57,6 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getStorageLocationCaption
 import de.taz.app.android.util.validation.EmailValidator
-import io.sentry.Sentry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -480,7 +480,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 deletionProgress.progress = counter
             } catch (e: CacheOperationFailedException) {
                 log.warn("Error while deleting ${issueStub.issueKey}", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 toastHelper.showSomethingWentWrongToast()
                 break
             }

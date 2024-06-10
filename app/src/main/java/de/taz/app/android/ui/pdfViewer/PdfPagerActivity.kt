@@ -54,7 +54,7 @@ import de.taz.app.android.ui.showSdCardIssueDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -128,7 +128,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 ?: throw IllegalStateException("PdfPagerActivity needs to be started with KEY_ISSUE_KEY in Intent extras of type IssueKey")
         } catch (e: ClassCastException) {
             log.warn("Somehow we got IssuePublication instead of IssuePublicationWithPages, so we wrap it it", e)
-            Sentry.captureException(e)
+            SentryWrapper.captureException(e)
             IssuePublicationWithPages(
                 intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)!!
             )
@@ -338,7 +338,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
             } catch (e: Exception) {
                 val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                 log.error(hint, e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
                 showSdCardIssueDialog()
             }
         }

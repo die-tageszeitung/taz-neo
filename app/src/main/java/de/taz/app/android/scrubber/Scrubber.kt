@@ -30,10 +30,10 @@ import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.share.ShareArticleDownloadHelper
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
 import java.io.IOException
 
 class Scrubber(applicationContext: Context) {
@@ -333,7 +333,7 @@ class Scrubber(applicationContext: Context) {
             true
         } catch (e: IOException) {
             log.error("Could not delete file from disk: $fileEntry")
-            Sentry.captureMessage("Could not delete file from disk")
+            SentryWrapper.captureMessage("Could not delete file from disk")
             false
         }
     }

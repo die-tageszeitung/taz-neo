@@ -6,13 +6,13 @@ import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.tracking.Tracker
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 
 fun <T> reportAndRethrowExceptions(block: () -> T): T {
     try {
         return block()
     } catch (e: Exception) {
-        Sentry.captureException(e)
+        SentryWrapper.captureException(e)
         throw e
     }
 }

@@ -11,14 +11,13 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.firebase.FirebaseHelper
 import de.taz.app.android.scrubber.enqueueScrubberWorker
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
 import de.taz.app.android.singletons.NightModeHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.UncaughtExceptionHandler
-import io.sentry.Sentry
-import io.sentry.protocol.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -104,11 +103,9 @@ abstract class AbstractTazApplication : Application() {
     }
 
     private suspend fun setUpSentry() = withContext(Dispatchers.IO) {
-        SentryProvider.initSentry(this@AbstractTazApplication)
-
-        val user = User()
-        user.id = authHelper.installationId.get()
-        Sentry.setUser(user)
+        SentryWrapper.init(this@AbstractTazApplication)
+        val userId = authHelper.installationId.get()
+        SentryWrapper.setUser(userId)
     }
 
 

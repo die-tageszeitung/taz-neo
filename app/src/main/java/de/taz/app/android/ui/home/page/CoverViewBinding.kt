@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.cover.CoverView
 import de.taz.app.android.ui.home.page.coverflow.DownloadObserver
 import de.taz.app.android.util.Log
-import io.sentry.Sentry
+import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.*
 
 interface CoverViewActionListener {
@@ -51,7 +51,7 @@ abstract class CoverViewBinding(
                 bindView(view)
             } catch (e: CoverBindingException) {
                 log.warn("Binding cover failed on $coverPublication", e)
-                Sentry.captureException(e)
+                SentryWrapper.captureException(e)
             }
         }
     }
