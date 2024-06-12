@@ -311,14 +311,51 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
+        private var wasUserInputEnabledOnArticles: Boolean = true
+
         private var isBookmarkedObserver = Observer<Boolean> { isBookmarked ->
             articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked)
         }
 
         override fun onPageSelected(position: Int) {
             tapIconsViewModel.hideTapIcons()
-            val nextStub =
-                (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter).articleStubs[position]
+
+            val adapter = (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter)
+            val selectedItem = adapter.articlePagerItems[position]
+            val prevItem = lastPage?.let { adapter.articlePagerItems[it] }
+
+            when (selectedItem) {
+                is ArticlePagerItem.ArticleRepresentation -> {
+                    onArticleSelected(
+                        position, selectedItem.art.articleStub
+                    )
+
+                    if (prevItem !is ArticlePagerItem.ArticleRepresentation) {
+                        // Restore the default behavior for the pager
+                        // Must be called after the [onArticleSelected] block, so that the displayable is correct
+                        issueContentViewModel.currentDisplayable?.let { setHeader(it) }
+                        viewBinding.webviewPagerViewpager.isUserInputEnabled = wasUserInputEnabledOnArticles
+                    }
+                    wasUserInputEnabledOnArticles = viewBinding.webviewPagerViewpager.isUserInputEnabled
+                }
+
+                is ArticlePagerItem.Tom -> {
+                    if (prevItem !is ArticlePagerItem.Tom) {
+                        // If the previous page was not a tom, we have to setup the header
+                        setHeaderForTom()
+                        // and ensure the viewpager is enabled
+                        viewBinding.webviewPagerViewpager.isUserInputEnabled = true
+                        // ensure the action bar is showing when the tom is views
+                        // as tom is not vertically scrollable the coordinator layout won't trigger to show/hide it
+                        articleBottomActionBarNavigationHelper.expand(animate = true)
+                        expandAppBarIfCollapsed()
+                    }
+                    lastPage = position
+                }
+            }
+        }
+
+        private fun onArticleSelected(position: Int, nextStub: ArticleStub) {
             if (lastPage != null && lastPage != position) {
                 // if position has been changed by 1 (swipe to left or right)
                 if (abs(position - lastPage!!) == 1) {
@@ -384,6 +421,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             expandAppBarIfCollapsed()
         }
 
+
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
@@ -419,8 +457,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun onBackPressed(): Boolean {
-        val isImprint = getCurrentArticleStub()?.isImprint() ?: false
-        return if (isImprint) {
+        val isImprint = (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint() ?: false
+        val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
+        return if (isImprint || isTom) {
             requireActivity().finish()
             true
         } else {
@@ -433,12 +472,15 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
 
             R.id.bottom_navigation_action_bookmark -> {
-                getCurrentArticleStub()?.let { articleStub ->
-                    if (articleStub.isImprint()) {
-                        toastHelper.showToast(R.string.toast_imprint_not_possibile_to_bookmark)
-                    } else {
-                        toggleBookmark(articleStub)
-                    }
+                when (val currentItem = getCurrentArticlePagerItem()) {
+                    is ArticlePagerItem.ArticleRepresentation ->
+                        if (currentItem.art.articleStub.isImprint()) {
+                            toastHelper.showToast(R.string.toast_imprint_not_possible_to_bookmark)
+                        } else {
+                            toggleBookmark(currentItem.art.articleStub)
+                        }
+
+                    is ArticlePagerItem.Tom -> toastHelper.showToast(R.string.toast_tom_not_possible_to_bookmark)
                 }
             }
 
@@ -478,11 +520,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun share() {
-        issueContentViewModel.issueKeyAndDisplayableKeyLiveData
-        getCurrentArticleStub()?.let { articleStub ->
-            tracker.trackShareArticleEvent(articleStub)
-            ShareArticleBottomSheet.newInstance(articleStub)
-                .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+        when (val currentItem = getCurrentArticlePagerItem()) {
+            is ArticlePagerItem.ArticleRepresentation -> {
+                val articleStub = currentItem.art.articleStub
+                tracker.trackShareArticleEvent(articleStub)
+                ShareArticleBottomSheet.newInstance(articleStub)
+                    .show(parentFragmentManager, ShareArticleBottomSheet.TAG)
+            }
+
+            is ArticlePagerItem.Tom ->
+                toastHelper.showToast(R.string.toast_tom_not_possible_to_share)
         }
     }
 
@@ -521,8 +568,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
+    private fun getCurrentArticlePagerItem(): ArticlePagerItem {
+        return (viewBinding.webviewPagerViewpager.adapter as ArticlePagerAdapter).articlePagerItems[getCurrentPagerPosition()]
+    }
+
     private fun getCurrentArticleStub(): ArticleStub? {
-        return issueContentViewModel.articleListLiveData.value?.get(getCurrentPagerPosition())?.articleStub
+        return (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub
     }
 
     override fun onDestroyView() {
@@ -594,6 +645,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     applyWeekendTypefacesToHeader()
                 }
             }
+        }
+    }
+
+    private fun setHeaderForTom() {
+        viewBinding.header.apply {
+            section.apply {
+                text = getString(R.string.article_tom_at_the_end_title)
+                setOnClickListener(null)
+            }
+            articleNum.text = ""
         }
     }
 
@@ -669,6 +730,29 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Scroll to the next page/item.
+     * Does nothing if the pager is already on the last page.
+     */
+    fun pageRight() {
+        val currentPosition = getCurrentPagerPosition()
+        val total = viewBinding.webviewPagerViewpager.adapter?.itemCount ?: 0
+        if (currentPosition < total - 1) {
+            viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition + 1, false)
+        }
+    }
+
+    /**
+     * Scroll to the previous page/item, if there is one.
+     * Does nothing if the pager is already on the first page.
+     */
+    fun pageLeft() {
+        val currentPosition = getCurrentPagerPosition()
+        if (currentPosition > 0) {
+            viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition - 1, false)
         }
     }
 
