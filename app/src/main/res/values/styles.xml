@@ -28,6 +28,7 @@
         <item name="android:scrollbarSize">5dp</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
         <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
+        <item name="navigationViewStyle">@style/AppTheme.Widget.NavigationView</item>
         <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
         <item name="android:autofilledHighlight" tools:ignore="NewApi">@color/colorAutofillBackground</item>
     </style>
@@ -95,6 +96,10 @@
         <item name="android:textColorHint">@color/textColorAccent</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
         <item name="boxBackgroundColor">@color/backgroundColor</item>
+    </style>
+
+    <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
+        <item name="drawerLayoutCornerSize">0dp</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.SplashScreen">

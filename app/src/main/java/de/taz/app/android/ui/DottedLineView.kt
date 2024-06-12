@@ -10,9 +10,8 @@ import de.taz.app.android.R
 
 class DottedLineView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+    attrs: AttributeSet? = null
+) : View(context, attrs) {
     companion object {
         const val DOT_SIZE_PX = 4.07625f
         const val DOT_TO_SPACE_RELATION = 4.9f

@@ -24,9 +24,8 @@ private const val TAP_DISTANCE_TOLERANCE = 50L
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
-    attributeSet: AttributeSet? = null,
-    defStyle: Int = 0
-) : WebView(context, attributeSet, defStyle) {
+    attributeSet: AttributeSet? = null
+) : WebView(context, attributeSet) {
 
     init {
         isHorizontalScrollBarEnabled = false

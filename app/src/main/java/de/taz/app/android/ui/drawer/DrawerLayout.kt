@@ -13,8 +13,8 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 
 class DrawerLayout @JvmOverloads constructor(
-    context: Context, attributeSet: AttributeSet? = null, defStyle: Int = 0
-) : DrawerLayout(context, attributeSet, defStyle) {
+    context: Context, attributeSet: AttributeSet? = null
+) : DrawerLayout(context, attributeSet) {
 
     private val log by Log
     private val tracker: Tracker = Tracker.getInstance(context.applicationContext)
