@@ -31,9 +31,8 @@ private const val LOADING_FADE_OUT_DURATION_MS = 500L
 @SuppressLint("ClickableViewAccessibility")
 class CoverView @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr) {
+    attrs: AttributeSet? = null
+) : RelativeLayout(context, attrs) {
 
     var shouldNotShowDownloadIcon: Boolean = false
         private set

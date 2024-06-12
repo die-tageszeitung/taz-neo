@@ -11,8 +11,8 @@ import android.webkit.WebView
  * and propagate them to the parent
  */
 class MomentWebView @JvmOverloads constructor(
-    context: Context, attributeSet: AttributeSet? = null, defStyle: Int = 0
-) : WebView(context, attributeSet, defStyle) {
+    context: Context, attributeSet: AttributeSet? = null
+) : WebView(context, attributeSet) {
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return false

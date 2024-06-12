@@ -8,8 +8,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import de.taz.app.android.R
 
 class StorageSelectionListItem @JvmOverloads constructor(
-    context: Context, attributeSet: AttributeSet? = null, defStyle: Int = 0
-) : ConstraintLayout(context, attributeSet, defStyle), Checkable {
+    context: Context, attributeSet: AttributeSet? = null
+) : ConstraintLayout(context, attributeSet), Checkable {
     private val itemCheckbox: RadioButton
     init {
         this.descendantFocusability = FOCUS_BLOCK_DESCENDANTS

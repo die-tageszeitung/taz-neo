@@ -372,7 +372,9 @@ dependencies {
 
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
 
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation('com.google.android.material:material:1.11.0') {
+        because "1.12.0 forces shape clipping on the NavigationView which prevents from showing the taz logo outside of it"
+    }
 
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'

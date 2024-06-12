@@ -16,9 +16,8 @@ enum class PdfDrawerWidth {
 @SuppressLint("ClickableViewAccessibility")
 class PdfDrawerItem @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : LinearLayout(context, attrs, defStyleAttr) {
+    attrs: AttributeSet? = null
+) : LinearLayout(context, attrs) {
 
     init {
         LayoutInflater.from(context).inflate(R.layout.view_pdf_drawer_item, this, true)
