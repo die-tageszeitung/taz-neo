@@ -71,36 +71,68 @@ class SectionChangeHandler(
             return
         }
 
-        val (_, currentSection) = adapter.articleStubsWithSectionKey[position]
-        val (_, nextSection) = adapter.articleStubsWithSectionKey[position + 1]
+        val currentItem = adapter.articlePagerItems[position]
+        val nextItem = adapter.articlePagerItems[position + 1]
 
-        if (currentSection != nextSection) {
-            // The original article border is where both views would touch without the translation
-            val borderOffsetFromParent = recyclerView.width - positionOffsetPixels
+        if (currentItem is ArticlePagerItem.ArticleRepresentation && nextItem is ArticlePagerItem.Tom) {
+            addOffsetTransitionBetweenPagerItems(
+                positionOffsetPixels,
+                positionOffset,
+                currentView,
+                nextView
+            )
+        } else if (currentItem is ArticlePagerItem.ArticleRepresentation && nextItem is ArticlePagerItem.ArticleRepresentation) {
+            val currentSection = currentItem.art.sectionKey
+            val nextSection = nextItem.art.sectionKey
 
-            val currentTransformOffset = -positionOffset
-            currentView.translationX = currentTransformOffset * sectionMargin
-
-            val nextTransformOffset = 1f - positionOffset
-            nextView.translationX = nextTransformOffset * sectionMargin
-
-            val dividerCenterTransformOffset = (currentTransformOffset + nextTransformOffset) / 2f
-            val dividerCenterTranslationFromBorder = dividerCenterTransformOffset * sectionMargin
-            divider.apply {
-                translationX =
-                    borderOffsetFromParent + dividerCenterTranslationFromBorder - (divider.width / 2f)
-                visibility = View.VISIBLE
-            }
-            // Add translation for the header on the right side or left side:
-            if (positionOffset < 0.5f) {
-                appBarLayout.translationX = -(recyclerView.width + dividerWidth) * positionOffset
+            if (currentSection != nextSection) {
+                addOffsetTransitionBetweenPagerItems(
+                    positionOffsetPixels,
+                    positionOffset,
+                    currentView,
+                    nextView
+                )
             } else {
-                appBarLayout.translationX =
-                    borderOffsetFromParent.toFloat() + dividerCenterTranslationFromBorder * nextTransformOffset
+                // remove the translationX if we are not in between sections:
+                appBarLayout.translationX = 0f
             }
         } else {
             // remove the translationX if we are not in between sections:
             appBarLayout.translationX = 0f
+        }
+    }
+
+    private fun addOffsetTransitionBetweenPagerItems(
+        positionOffsetPixels: Int,
+        positionOffset: Float,
+        currentView: View,
+        nextView: View,
+    ) {
+        // The original article border is where both views would touch without the translation
+        val borderOffsetFromParent = recyclerView.width - positionOffsetPixels
+
+        val currentTransformOffset = -positionOffset
+        currentView.translationX = currentTransformOffset * sectionMargin
+
+        val nextTransformOffset = 1f - positionOffset
+        nextView.translationX = nextTransformOffset * sectionMargin
+
+        val dividerCenterTransformOffset =
+            (currentTransformOffset + nextTransformOffset) / 2f
+        val dividerCenterTranslationFromBorder =
+            dividerCenterTransformOffset * sectionMargin
+        divider.apply {
+            translationX =
+                borderOffsetFromParent + dividerCenterTranslationFromBorder - (divider.width / 2f)
+            visibility = View.VISIBLE
+        }
+        // Add translation for the header on the right side or left side:
+        if (positionOffset < 0.5f) {
+            appBarLayout.translationX =
+                -(recyclerView.width + dividerWidth) * positionOffset
+        } else {
+            appBarLayout.translationX =
+                borderOffsetFromParent.toFloat() + dividerCenterTranslationFromBorder * nextTransformOffset
         }
     }
 
