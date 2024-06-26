@@ -112,6 +112,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private val mediaItemHelper = MediaItemHelper(applicationContext, uiStateHelper)
     private val audioPlayerItemInitHelper = AudioPlayerItemInitHelper(applicationContext)
 
+    // Play the disclaimer only once per app session:
+    private var disclaimerPlayed = false
+
     // Central internal state of the Service
     private val state: MutableStateFlow<State> = MutableStateFlow(State.Init)
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Hidden)
@@ -490,6 +493,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             prepare()
             playWhenReady = true
         }
+        disclaimerPlayed = true
     }
 
     private fun connectController() {
@@ -763,7 +767,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             AudioSpeaker.HUMAN, AudioSpeaker.PODCAST, AudioSpeaker.UNKNOWN, null -> false
         }
 
-        if (currentState is State.AudioReady && currentItemSpeakerIsMachine) {
+        if (currentState is State.AudioReady && currentItemSpeakerIsMachine && !disclaimerPlayed) {
             enqueueAndPlayDisclaimer(currentState.controller, currentState.item)
         } else {
             // Once the Audio has stopped, dismiss the player
