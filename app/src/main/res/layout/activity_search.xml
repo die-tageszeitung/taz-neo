@@ -137,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/search_advanced_radio_sort_by_relevance" />
 
-                <com.google.android.material.button.MaterialButton
+                <Button
                     android:id="@+id/advanced_search_start_search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

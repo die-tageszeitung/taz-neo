@@ -82,10 +82,6 @@ class SubscriptionAccountFragment :
             loginFlowBack()
         }
 
-        viewBinding.cancelButton.setOnClickListener {
-            loginFlowCancel()
-        }
-
         viewBinding.fragmentSubscriptionAccountForgotPasswordText.setOnClickListener {
             done()
             viewModel.requestPasswordReset()

@@ -5,6 +5,7 @@
     <string name="cancel_button">Abbrechen</string>
     <string name="back_button">Zurück</string>
     <string name="close_okay">Alles klar</string>
+    <string name="roger_that">Verstanden</string>
 
     <string name="toast_no_internet">Keine Internetverbindung.</string>
     <string name="toast_no_connection_to_server">Es konnte keine Verbindung zum Server hergestellt werden.</string>
@@ -69,7 +70,7 @@
 
 
     <string name="order_button">Bestellen</string>
-    <string name="order_note_text">Hinweise zum taz Probeabo</string>
+    <string name="order_note_text"><u>Hinweise zum taz Probeabo</u></string>
     <string name="order_note_text_detail">Nach einer Bestellung erfolgt eine Bestätigung auf Ihrem Bildschirm. Sie werden sofort nach Eingang Ihrer Bestellung per E-Mail um Bestätigung gebeten. Sollten Sie diese E-Mail nicht erhalten, dann schauen Sie (vor allem, falls Sie AOL-Nutzer:in sind) auch mal in Ihren Spam-Ordner, vielleicht finden Sie sie dort. Die App-Ausgabe der taz steht Ihnen bereits am Vorabend des Erscheinungstages in der Ansicht und zur Verfügung. Das Probeabo endet automatisch.</string>
 
     <string name="imprint">Impressum</string>
@@ -107,7 +108,6 @@
 
     <string name="fragment_bottom_sheet_single_column_mode_title">Vertikale Navigation wieder aktiv</string>
     <string name="fragment_bottom_sheet_single_column_mode_description">Dadurch, dass Sie die Spaltigkeit ausgeschaltet haben, folgt die Navigation in den Artikeln wieder der Scrollrichtung vertikal (oben nach unten).</string>
-    <string name="fragment_bottom_sheet_single_column_mode_positive_button">Verstanden</string>
     <string name="fragment_bottom_sheet_single_column_mode_negative_button">Nicht wieder anzeigen</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
@@ -255,8 +255,9 @@
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
     <string name="fragment_login_description">Anmeldung für \nDigital-Abonnent:innen</string>
-    <string name="fragment_login_help">Geben Sie bitte entweder Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort oder — falls Ihre E-Mail-Adresse bei uns registriert ist — diese und das von Ihnen bei der Registrierung gewählte Passwort ein.</string>
-    <string name="fragment_login_data_policy">Hier finden Sie unsere <u>Datenschutzbestimmungen</u>.</string>
+    <string name="fragment_login_data_policy">Hier finden Sie unsere <u>Datenschutzbestimmungen</u></string>
+    <string name="fragment_login_help">Wenn Sie sich schon einmal mit einer <b>E-Mail</b> registriert und dabei ein <b>Passwort erstellt</b> haben, nutzen Sie bitte diese E-Mail und Ihr persönliches Passwort zur Anmeldung.\nSollte dies nicht der Fall sein:\nWir haben Ihnen zum Start Ihres Abos eine E-Mail gesendet. In dieser E-Mail finden Sie Ihre <b>Abo-ID (Nummer) und ein Passwort.</b>\nFalls Sie diese Informationen nicht finden können, helfen wir Ihnen gerne weiter. Bitte kontaktieren Sie uns unter app@taz.de.</string>
+    <string name="fragment_login_help_more_info_faq">Mehr Infos in den FAQ</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
     <string name="login_trial_subscription_body">Testen Sie uns doch einfach mal 6 Wochen kostenlos! Und wenn Sie danach weiterlesen wollen – was wir natürlich stark hoffen – können Sie unseren unabhängigen Journalismus in verschiedenen Abo-Modellen lesen.</string>
@@ -264,7 +265,7 @@
     <string name="login_switch_print2digi_title">Papierlos glücklich lesen</string>
     <string name="login_switch_print2digi_body">Sie haben ein Print-Abo und wollen aber nur noch digital lesen? Auf in die Zukunft! Machen Sie es wie bereits 45.000 andere digitale Leser:innen. Wie? Kontaktieren Sie einfach unser Service-Team.</string>
     <string name="login_switch_print2digi_button_text">Jetzt informieren</string>
-    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print \nund möchten diese um Digital erweitern?</string>
+    <string name="login_extend_print_with_digi_title">Sie haben die taz im Print und möchten diese um Digital erweitern?</string>
     <string name="login_extend_print_with_digi_body">Kontaktieren Sie zur Aktivierung einfach unser Service-Team.</string>
     <string name="login_extend_print_with_digi_button_text">Jetzt Infos anfordern</string>
 
@@ -306,7 +307,7 @@
     <string name="fragment_subscription_name_title">Persönliche Daten</string>
     <string name="fragment_subscription_trial_only_title">Kostenloses Probeabo</string>
     <string name="fragment_subscription_trial_only_description">Testen Sie uns für 6 Wochen!\nWegen der neuen Google-Richtlinie können Sie in der App derzeit kein Abo abschliessen.\nAber wir haben etwas für Sie: Testen Sie uns ganz kostenlos für 6 Wochen. Ohne automatische Verlängerung. Wir tricksen nicht. Versprochen.\nFalls Sie gleich das Abo wollen, können Sie aber auch unter www.taz.de/abo\neins unsere tollen Abos kostenpflichtig abschliessen. Dafür werden wir Sie lieben!</string>
-    <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen  bekommen haben.</string>
+    <string name="fragment_subscription_trial_only_description_elapsed">Ihr kostenloses Probeabo ist abgelaufen, Sie können über taz.de ein kostenpflichtiges Abo abschließen.\nVor einigen Tagen sollten Sie eine E-Mail-Benachrichtigung mit weiteren Informationen bekommen haben.</string>
 
     <string name="street_error_empty">Adresse wird benötigt.</string>
     <string name="city_error_empty">Adresse wird benötigt.</string>
@@ -319,15 +320,14 @@
     <string name="fragment_login_missing_credentials_header_login">Sollten Sie bereits bei taz.de mit E-Mail-Adresse und Passwort registriert sein, geben Sie hier bitte diese Daten an.</string>
     <string name="login_forgot_password"><u>Haben Sie Ihr Passwort vergessen?</u></string>
     <string name="fragment_login_missing_credentials_login">Anmelden</string>
-    <string name="fragment_login_missing_credentials_switch_to_login">Ich habe schon ein taz-Konto</string>
-    <string name="fragment_login_missing_credentials_switch_to_registration">Ich habe noch keine taz-Konto</string>
+    <string name="fragment_login_missing_credentials_switch_to_login"><u>Ich habe schon ein taz-Konto</u></string>
+    <string name="fragment_login_missing_credentials_switch_to_registration"><u>Ich habe noch kein taz-Konto</u></string>
     <string name="fragment_login_missing_credentials_help">Wir möchten Ihnen den Zugang zu unseren digitalen Produkten erleichtern und stellen deshalb unser Anmeldeverfahren in einem zweistufigen Verfahren um.\nGeben Sie bitte hier eine gültige E-Mail-Adresse und ein selbst gewähltes Passwort ein.\nDanach können sich in Zukunft mit Ihrer E-Mail-Adresse in der App anmelden.</string>
 
     <string name="fragment_login_missing__names_header">Zu Ihrem taz-Konto ist noch kein Vor- und Nachname registriert. Dies ist zur Erstellung eines Probeabos notwendig.</string>
 
     <string name="fragment_login_email_already_taken_header">Ihre E-Mail-Adresse ist bereits mit anderen Digiabo-Zugangsdaten verknüpft.</string>
     <string name="fragment_login_email_already_taken_insert_new">Andere E-Mail-Adresse eingeben</string>
-    <string name="login_or_contact_support">Oder wenden Sie sich an unseren Service unter</string>
     <string name="fragment_login_subscription_already_taken_insert_new">Andere Digiabo-Zugangsdaten eingeben</string>
 
     <string name="fragment_login_forgot_password_header">Sie haben Ihr Passwort vergessen? Geben Sie hier Ihre E-Mail-Adresse an und Sie erhalten eine E-Mail zum weiteren Vorgehen.\n\nSollten Sie keine E-Mail von uns erhalten, prüfen Sie bitte Ihren Spam-Ordner. Wenn auch dort nichts eingegangen ist, stimmt die von Ihnen eingegebene E-Mail-Adresse evtl. nicht mit der bei uns für Sie gespeicherten Adresse überein.</string>
@@ -358,8 +358,8 @@
     <string name="fragment_login_subscription_taken_retry">Andere Digiabo-Zugangsdaten eingeben</string>
 
     <string name="fragment_login_forgot_password_no_mail_body">Wir konnten ihnen keine E-Mail senden.\nBitte wenden Sie sich an den Support:</string>
-    <string name="fragment_login_taz_mail">app@taz.de</string>
-    <string name="fragment_login_taz_mail_underlined"><u>app@taz.de</u></string>
+    <string name="fragment_login_taz_mail"><u>app@taz.de</u></string>
+    <string name="fragment_login_or_contact_support">Oder wenden Sie sich an unseren Service unter\n<u>app@taz.de</u></string>
 
     <string name="dialog_fatal_error_description">Beim anzeigen dieses Inhaltes ist ein Fehler aufgetreten. Die Entwickler:innen sind informiert.</string>
 
@@ -502,8 +502,7 @@
 
     <string name="fragment_webview_article_tap_left">Hier tippen um nach links zu kommen</string>
     <string name="fragment_webview_article_tap_right">Hier tippen um nach rechts zu kommen</string>
-    <string name="login_help"><u>Hilfe?</u></string>
-    <string name="show_help_login"><u>Wo finde ich die Abo-ID</u></string>
+    <string name="login_help"><u>Hilfe</u></string>
 
     <string name="article_share_options_url">Link zum Artikel teilen</string>
     <string name="article_share_options_pdf">Artikel als PDF teilen</string>

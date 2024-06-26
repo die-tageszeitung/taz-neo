@@ -69,10 +69,6 @@ class SubscriptionNameFragment :
                 loginFlowBack()
             }
 
-            cancelButton.setOnClickListener {
-                loginFlowCancel()
-            }
-
             if (nameTooLong) {
                 setNameTooLongError()
             }

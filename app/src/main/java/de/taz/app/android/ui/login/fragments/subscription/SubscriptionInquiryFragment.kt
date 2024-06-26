@@ -12,12 +12,12 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.databinding.FragmentSubscriptionInquiryFormBinding
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 
 class SubscriptionExtendPrintPlusDigiFragment : SubscriptionInquiryFragment() {
@@ -72,7 +72,7 @@ abstract class SubscriptionInquiryFragment :
                 validateAndSubmitForm()
             }
 
-            cancelButton.setOnClickListener {
+            backButton.setOnClickListener {
                 loginFlowBack()
             }
 

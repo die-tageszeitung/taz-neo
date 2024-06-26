@@ -1,71 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:background="@color/login_form_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_padding_top"
-        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
-        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
+        android:layout_marginTop="@dimen/bottom_sheet_padding_top"
+        android:layout_marginBottom="@dimen/bottom_sheet_padding_bottom"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal">
 
         <TextView
             android:id="@+id/fragment_subscription_trial_only_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_subscription_trial_only_title"
-            app:layout_constraintTop_toTopOf="parent"
-            android:textAppearance="@style/TextAppearance.Login.Title" />
+            android:textAppearance="@style/TextAppearance.Login.Title"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/fragment_subscription_trial_only_description_group"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_trial_only_title"
+        <TextView
+            android:id="@+id/fragment_subscription_trial_only_description"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_content_margin_top"
+            android:textAppearance="@style/TextAppearance.Login.Content"
+            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_trial_only_title"
+            tools:text="@string/fragment_subscription_trial_only_description" />
 
-            <TextView
-                android:id="@+id/fragment_subscription_trial_only_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-                android:text="@string/fragment_subscription_trial_only_description" />
-
-            <TextView
-                android:id="@+id/fragment_subscription_trial_only_description_elapsed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-                android:text="@string/fragment_subscription_trial_only_description_elapsed"
-                android:visibility="gone" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/fragment_subscription_trial_only_proceed"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_subscription_trial_only_margin_top"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_trial_only_description_group"
-            android:text="@string/next_button" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_subscription_trial_only_description"
+            app:layout_constraintWidth_max="@dimen/button_max_width"
+            tools:text="@string/next_button" />
 
         <Button
-            android:id="@+id/cancel_button"
+            android:id="@+id/back_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
+            android:text="@string/back_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_trial_only_proceed"
-            android:text="@string/cancel_button" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

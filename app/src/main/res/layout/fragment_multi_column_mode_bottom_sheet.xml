@@ -63,7 +63,7 @@
             android:layout_marginBottom="@dimen/bottom_sheet_with_two_columns_buttons_margin_bottom"
             android:orientation="horizontal">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/negative_button"
                 style="@style/AppTheme.ButtonStyle.Outlined"
                 android:layout_width="0dp"
@@ -73,7 +73,7 @@
                 android:layout_weight="1"
                 android:text="@string/fragment_bottom_sheet_multi_column_mode_positive_button" />
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/positive_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

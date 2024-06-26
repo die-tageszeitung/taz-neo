@@ -80,20 +80,18 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             )
         }
 
-        viewBinding.fragmentLoginForgotPasswordButton.setOnClickListener {
-            ifDoneNext()
-        }
+        viewBinding.apply {
+            fragmentLoginForgotPasswordButton.setOnClickListener {
+                ifDoneNext()
+            }
 
-        viewBinding.fragmentLoginForgotPasswordUsername.setOnEditorActionListener(
-            OnEditorActionDoneListener(::ifDoneNext)
-        )
+            fragmentLoginForgotPasswordUsername.setOnEditorActionListener(
+                OnEditorActionDoneListener(::ifDoneNext)
+            )
 
-        viewBinding.fragmentLoginForgotPasswordCancelButton.setOnClickListener {
-           if (viewModel.backToSettingsAfterEmailSent) {
-               loginFlowCancel()
-           } else {
-               loginFlowBack()
-           }
+            backButton.setOnClickListener {
+                loginFlowBack()
+            }
         }
     }
 

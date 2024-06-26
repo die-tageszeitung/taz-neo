@@ -7,27 +7,15 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
-        <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="fontFamily">@font/appFontBold</item>
+    <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle">
         <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
         <item name="android:includeFontPadding">false</item>
-        <item name="backgroundTint">@color/buttonColor</item>
-        <item name="maxWidth">@dimen/button_max_width</item>
-    </style>
-            <!-- strokeWidth is not working ???-->
-    <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="backgroundTint">@android:color/transparent</item>
-        <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="strokeColor">@color/buttonColor</item>
-        <item name="android:textColor">@color/textColor</item>
-        <item name="rippleColor">@color/outline_button_ripple_color</item>
-        <item name="android:maxWidth">@dimen/button_max_width</item>
-        <item name="strokeWidth">2dp</item>
     </style>
 
+    <style name="AppTheme.ButtonStyle.Outlined" parent="AppTheme.Base.ButtonStyle.Outlined">
+        <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
 
     <style name="TextAppearance.BottomSheet.TextSize.Description" parent="TextAppearance.Settings">
         <item name="android:layout_marginBottom">-10dp</item>
