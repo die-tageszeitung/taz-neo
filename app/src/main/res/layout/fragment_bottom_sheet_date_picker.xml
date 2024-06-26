@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/fragment_padding_horizontal"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
         android:paddingBottom="@dimen/bottom_sheet_setting_padding_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 

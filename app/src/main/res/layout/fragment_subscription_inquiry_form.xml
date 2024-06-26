@@ -4,35 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nested_scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/login_form_background">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_padding_top"
-        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
-        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
+        android:layout_marginTop="@dimen/bottom_sheet_padding_top"
+        android:layout_marginBottom="@dimen/bottom_sheet_padding_bottom"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="@string/subscription_inquiry_switch_title"
             android:textAppearance="@style/TextAppearance.Login.Title"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@string/subscription_inquiry_switch_title" />
 
         <TextView
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_subscription_inquiry_description_margin_top"
-            tools:text="@string/subscription_inquiry_switch_description"
-            app:layout_constraintTop_toBottomOf="@id/title" />
+            android:textAppearance="@style/TextAppearance.Login.Content"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:text="@string/subscription_inquiry_switch_description" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_description_input_margin"
+            android:layout_marginTop="@dimen/bottom_sheet_forms_margin_top"
             app:layout_constraintTop_toBottomOf="@id/description">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -181,11 +184,11 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/send_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
             android:text="@string/subscription_inquiry_send_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -193,16 +196,16 @@
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <Button
-            android:id="@+id/cancel_button"
+            android:id="@+id/back_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
+            android:text="@string/back_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/send_button"
-            android:text="@string/cancel_button" />
+            app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <include
             android:id="@+id/loading_screen"

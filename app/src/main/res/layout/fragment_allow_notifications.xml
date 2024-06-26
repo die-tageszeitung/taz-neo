@@ -11,9 +11,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/bottom_sheet_round_padding_horizontal"
-        android:paddingTop="@dimen/bottom_sheet_round_padding_top"
-        android:paddingBottom="@dimen/bottom_sheet_round_padding_bottom">
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+        android:paddingTop="@dimen/bottom_sheet_compact_title_padding_top"
+        android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
 
         <TextView
             android:id="@+id/pagerTitle"
@@ -66,7 +66,7 @@
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="@string/fragment_bottom_sheet_notifications_description_01" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/enable_notifications_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"
@@ -78,7 +78,7 @@
             app:layout_constraintTop_toBottomOf="@id/description"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/retain_notifications_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"

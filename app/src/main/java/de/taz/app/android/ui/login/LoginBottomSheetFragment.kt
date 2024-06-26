@@ -19,7 +19,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.FullscreenViewBindingBottomSheetFragment
-import de.taz.app.android.databinding.FragmentLoginBottomSheetBinding
+import de.taz.app.android.databinding.FragmentBottomSheetLoginBinding
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -44,7 +44,7 @@ import de.taz.app.android.ui.login.fragments.subscription.SubscriptionTrialOnlyF
 import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.launch
 
-class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<FragmentLoginBottomSheetBinding>() {
+class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<FragmentBottomSheetLoginBinding>() {
     companion object {
         const val TAG: String = "LoginBottomSheetFragment"
         private const val ARG_REQUEST_PASSWORD = "requestPassword"
@@ -241,7 +241,22 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
         hideSoftInputKeyboard()
         if (viewBinding.loadingScreen.root.isVisible) {
             hideLoadingScreen()
-        } else if (childFragmentManager.backStackEntryCount > 1) {
+        } else if (childFragmentManager.backStackEntryCount == 2) {
+            // FIXME (johannes): as we don't have a history within the LoginViewModel,
+            //   we are relying on the FragmentManger backstack for going back.
+            //   Unfortunately this will result in a wrong behavior when first back was used,
+            //   and then second the Activity is switched. As the LoginBottomSheetFragment will
+            //   restart the status Flow collector on STARTED, it will pick up the previous state
+            //   from the the LoginViewModel and the according Fragment will be shown.
+            //   A clean solution would add a backstack to the LoginViewModel, but for a quick fix
+            //   we can simply reset to INITIAL if there is only the LoginFragment and exactly 1
+            //   other Fragment on the backstack.
+            //   Note: that this will still loose the additional info shown on the login form,
+            //   with the states USERNAME_MISSING and PASSWORD_MISSING
+            //   Another option would be to change the Flow collection restart to CREATED which
+            //   would mitigate most of the visible problems (while the state would still be wrong)
+            viewModel.status = LoginViewModelState.INITIAL
+        } else if (childFragmentManager.backStackEntryCount > 2) {
             childFragmentManager.popBackStack()
         } else {
             cancel()

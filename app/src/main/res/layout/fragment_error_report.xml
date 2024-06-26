@@ -143,7 +143,7 @@
                     android:id="@+id/action_buttons_flow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+                    android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
                     app:constraint_referenced_ids="fragment_error_report_upload,fragment_error_report_send_button"
                     app:flow_horizontalAlign="start"
                     app:flow_horizontalBias="0"
@@ -152,13 +152,13 @@
                     app:flow_wrapMode="chain"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions" />
 
-                <com.google.android.material.button.MaterialButton
+                <Button
                     android:id="@+id/fragment_error_report_send_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_error_report_send_button" />
 
-                <com.google.android.material.button.MaterialButton
+                <Button
                     android:id="@+id/fragment_error_report_upload"
                     style="@style/AppTheme.ButtonStyle.Outlined"
                     android:layout_width="wrap_content"

@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/login_form_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/fragment_login_padding_bottom">
-
+        android:background="@drawable/fallback_bottom_sheet_background"
+        android:backgroundTint="@color/login_form_background">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_login_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/fallback_bottom_sheet_background"
-            android:backgroundTint="@color/login_form_background"
-            android:paddingHorizontal="@dimen/fragment_login_padding_horizontal"
-            android:paddingTop="@dimen/fragment_login_padding_top"
+            android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+            android:paddingTop="@dimen/bottom_sheet_padding_top"
             android:paddingBottom="@dimen/login_form_padding_bottom"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -52,14 +52,13 @@
 
             <TextView
                 android:id="@+id/fragment_login_username_help"
-                style="@style/TextAppearance.Login.Text.Help"
+                style="@style/Widget.TextInputLayout.Help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_form_help_margin_top"
                 android:clickable="true"
                 android:focusable="true"
-                android:text="@string/show_help_login"
-                android:textAlignment="textStart"
+                android:text="@string/login_help"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_layout" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -83,23 +82,41 @@
 
             <TextView
                 android:id="@+id/fragment_login_password_help_forgot"
-                style="@style/TextAppearance.Login.Text.Help"
+                style="@style/Widget.TextInputLayout.Help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_form_help_margin_top"
                 android:clickable="true"
                 android:focusable="true"
                 android:text="@string/login_forgot_password"
-                android:textAlignment="textStart"
                 app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_layout" />
 
-
-            <include
-                android:id="@+id/fragment_login_action_buttons"
-                layout="@layout/include_login_action_buttons"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/fragment_login_action_login"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_password_help_forgot" />
+                android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
+                android:text="@string/login_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_password_help_forgot"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+            <TextView
+                android:id="@+id/fragment_login_action_data_policy"
+                style="@style/Widget.Login.Action.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:text="@string/fragment_login_data_policy"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_action_login"
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -27,7 +27,7 @@
         <item name="android:scrollbarThumbVertical">@color/scrollbar_color</item>
         <item name="android:scrollbarSize">5dp</item>
         <item name="colorOnPrimary">@color/backgroundColor</item>
-        <item name="bottomSheetDialogTheme">@style/AppTheme.BottomSheetDialog</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.AppTheme.BottomSheetDialog</item>
         <item name="navigationViewStyle">@style/AppTheme.Widget.NavigationView</item>
         <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
         <item name="android:autofilledHighlight" tools:ignore="NewApi">@color/colorAutofillBackground</item>
@@ -50,7 +50,7 @@
     </style>
 
     <style name="AppTheme.BottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
-        <item name="android:backgroundTint">@color/backgroundColor</item>
+        <item name="backgroundTint">@color/bottom_sheet_background</item>
         <item name="behavior_fitToContents">true</item>
         <item name="shapeAppearance">@style/ShapeAppearance.AppTheme.BottomSheet</item>
     </style>
@@ -60,7 +60,7 @@
         <item name="cornerSize">@dimen/bottom_sheet_corner_size</item>
     </style>
 
-    <style name="AppTheme.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+    <style name="ThemeOverlay.AppTheme.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppTheme.BottomSheetStyle</item>
         <!--
             The BottomSheet animation shows some status bar artifacts when it has some transparency.
@@ -71,26 +71,27 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
         <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
-        <item name="backgroundTint">@color/bottom_sheet_background</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle" parent="Widget.Material3.Button">
+    <style name="AppTheme.Base.ButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
         <item name="fontFamily">@font/appFontBold</item>
         <item name="android:includeFontPadding">true</item>
         <item name="backgroundTint">@color/buttonColor</item>
-        <item name="maxWidth">@dimen/button_max_width</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+    <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle" />
+
+    <style name="AppTheme.Base.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
         <item name="fontFamily">@font/appFontBold</item>
         <item name="backgroundTint">@android:color/transparent</item>
         <item name="android:includeFontPadding">true</item>
         <item name="strokeColor">@color/buttonColor</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="rippleColor">@color/outline_button_ripple_color</item>
-        <item name="android:maxWidth">@dimen/button_max_width</item>
     </style>
+
+    <style name="AppTheme.ButtonStyle.Outlined" parent="AppTheme.Base.ButtonStyle.Outlined" />
 
     <style name="AppTheme.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/textColorAccent</item>
@@ -106,12 +107,6 @@
         <item name="windowSplashScreenBackground">@color/splashBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_simple</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
-    </style>
-
-    <style name="TextAppearance.Fragment.Header.Default.Title" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize" tools:ignore="SpUsage">32.5dp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.AppCompat">
@@ -131,15 +126,6 @@
         <item name="android:lineSpacingExtra">-3dp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Article" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:lineSpacingExtra">0dp</item>
-    </style>
-
     <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
         <item name="android:textColor">@color/drawer_pdf_sections_text</item>
     </style>
@@ -149,11 +135,6 @@
         <item name="android:textStyle">italic</item>
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
-
-    <style name="TextAppearance.Drawer.PDF.Entry.ReadMinutes" parent="TextAppearance.Bookmarks.Entry.ReadMinutes">
-        <item name="android:textSize">13.5sp</item>
-    </style>
-
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
@@ -190,22 +171,6 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:maxLines">1</item>
         <item name="android:includeFontPadding">true</item>
-    </style>
-
-    <style name="TextAppearance.Archive.NavigationEnd.Heading" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/colorAccent</item>
-        <item name="android:textSize">23sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TextAppearance.Archive.NavigationEnd.ListItem" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/archive_navigation_end_list_item</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="Widget.Design.BottomNavigationView.Dark" parent="Widget.Design.BottomNavigationView">
-        <item name="backgroundTint">@color/navigation_bottom_background</item>
     </style>
 
     <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
@@ -296,15 +261,6 @@
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
         <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
-    </style>
-
-    <style name="TextAppearance.Settings.Category.Switch" parent="TextAppearance.Settings.Category">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
-        <item name="android:layout_marginBottom">0dp</item>
-        <item name="trackTint">@color/material_switch_color_list</item>
     </style>
 
     <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
@@ -410,12 +366,7 @@
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="TextAppearance.Bookmarks.Entry.Date" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
+    <!-- FIXME: remove -->
     <style name="TextAppearance.Dialog.Title" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">21sp</item>
@@ -423,57 +374,20 @@
         <item name="android:paddingBottom">9dp</item>
     </style>
 
-    <style name="TextAppearance.Dialog.Description" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-    </style>
+    <style name="TextAppearance.Login.Title" parent="TextAppearance.Info.SubHead" />
+    <style name="TextAppearance.Login.Content" parent="TextAppearance.Info.BodyText" />
 
-    <style name="TextAppearance.Login.Link" parent="TextAppearance.AppCompat">
-        <item name="android:textSize" tools:ignore="SpUsage">23dp</item>
-        <item name="android:textColor">@color/link</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+    <style name="Widget.Login.Action.Text" parent="android:Widget">
+        <item name="android:textAppearance">@style/TextAppearance.M.Link</item>
         <item name="android:textAlignment">center</item>
-        <item name="android:lineSpacingExtra">7dp</item>
-    </style>
-
-    <style name="TextAppearance.Login.Title" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:lineSpacingExtra">2dp</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
-    </style>
-
-    <style name="TextAppearance.Login.Text" parent="TextAppearance.AppCompat">
-        <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
-
-    <style name="TextAppearance.Login.Text.Help" parent="TextAppearance.AppCompat">
-        <!-- Figma reference to M/link which is not part of the Android styleguide -->
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/text_icon_grey</item>
-    </style>
-
-    <style name="TextAppearance.Login.Text.Link" parent="TextAppearance.Login.Text">
-        <item name="android:layout_marginTop">@dimen/fragment_login_text_padding_vertical</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:textColor">@color/link</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:paddingBottom">@dimen/fragment_login_text_padding_vertical</item>
+        <item name="android:textColor">@color/login_action_text_color</item>
+        <!-- Add paddingTop to simulate single line line height -->
+        <item name="android:paddingTop">7sp</item>
+        <item name="android:clipToPadding">false</item>
     </style>
 
     <style name="TextAppearance.Login.Subscription.Title" parent="TextAppearance.Marketing.Head" />
     <style name="TextAppearance.Login.Subscription.Content" parent="TextAppearance.Info.BodyText" />
-
-    <style name="TextAppearance.BottomSheet" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
 
     <style name="TextAppearance.AudioPlayer" parent="TextAppearance.AppCompat">
         <!-- Defined in Figma as GUI/Audio-author-mini -->
@@ -539,6 +453,12 @@
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
+    <style name="TextAppearance.Info.SubHead" parent="TextAppearance">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">21sp</item>
+        <item name="android:lineSpacingExtra">4sp</item>
+    </style>
+
     <style name="TextAppearance.Info.BodyText" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">18sp</item>
@@ -557,6 +477,14 @@
         <item name="android:lineSpacingExtra">15sp</item>
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
     </style>
+
+    <style name="TextAppearance.M.Link" parent="TextAppearance">
+        <!-- Figma reference to M/link which is not part of the Android styleguide -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">14sp</item>
+    </style>
+    <!-- endregion -->
 
     <style name="TextAppearance.Date.Small" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontRegular</item>
@@ -577,8 +505,6 @@
         <item name="android:textSize">9.4sp</item>
         <item name="android:textColor">@color/textColor</item>
     </style>
-
-    <!-- endregion -->
 
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
@@ -607,5 +533,15 @@
 
     <style name="TextAppearance.BottomSheetWithTwoColumns.Title" parent="TextAppearance.Marketing.Head" />
     <style name="TextAppearance.BottomSheetWithTwoColumns.Description" parent="TextAppearance.Info.BodyText" />
+
+    <!-- region: taz specific text input styles -->
+    <style name="Widget.TextInputLayout.Help" parent="android:Widget">
+        <item name="android:textAppearance">@style/TextAppearance.M.Link</item>
+        <!-- Add paddingTop to simulate single line line height -->
+        <item name="android:paddingTop">7sp</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:textColor">@color/text_input_help_text_color</item>
+    </style>
+    <!-- endregion -->
 
 </resources>

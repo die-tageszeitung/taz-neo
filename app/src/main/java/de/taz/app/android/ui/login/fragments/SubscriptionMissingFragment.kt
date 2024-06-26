@@ -41,10 +41,6 @@ class SubscriptionMissingFragment :
             loginFlowBack()
         }
 
-        viewBinding.cancelButton.setOnClickListener {
-            loginFlowCancel()
-        }
-
         viewBinding.fragmentLoginMissingSubscriptionPassword.setOnEditorActionListener(
             OnEditorActionDoneListener(::ifDoneNext)
         )

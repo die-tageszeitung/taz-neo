@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rounded_corner_wrapper"
@@ -11,12 +10,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/fallback_bottom_sheet_background"
+        android:backgroundTint="@color/login_form_background"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/bottom_sheet_round_padding_horizontal"
-        android:paddingTop="@dimen/bottom_sheet_round_padding_top"
-        android:paddingBottom="@dimen/bottom_sheet_round_padding_bottom">
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+        android:paddingTop="@dimen/bottom_sheet_compact_title_padding_top"
+        android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,6 +47,7 @@
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_content_margin_top"
             android:autoLink="email"
             android:text="@string/popup_login_elapsed_text" />
 
@@ -54,7 +56,7 @@
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_setting_text_box_margin_top"
+            android:layout_marginTop="@dimen/bottom_sheet_forms_margin_top"
             app:hintEnabled="false">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -70,11 +72,11 @@
             android:layout_height="wrap_content"
             android:text="@string/popup_login_elapsed_checkbox_message" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/send_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
             android:text="@string/popup_login_elapsed_positive_button" />
 
     </LinearLayout>

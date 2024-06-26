@@ -39,6 +39,7 @@ abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment
         helpDialog = null
     }
 
+    // FIXME (johannes): maybe migrate to to LoginHelpBottomSheetDialogFragment - but atm we are missing useful designs for that
     fun showHelpDialog(@StringRes stringRes: Int) {
         context?.let {
             helpDialog = MaterialAlertDialogBuilder(it)
@@ -59,9 +60,5 @@ abstract class LoginBaseFragment<VIEW_BINDING: ViewBinding>: ViewBindingFragment
 
     protected fun loginFlowBack() {
         (parentFragment as? LoginBottomSheetFragment)?.back()
-    }
-
-    protected fun loginFlowCancel() {
-        (parentFragment as? LoginBottomSheetFragment)?.cancel()
     }
 }

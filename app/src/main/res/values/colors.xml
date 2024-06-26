@@ -28,8 +28,11 @@
     <!-- Named colors as defined by the UI team - okay to use outside of colors.xml a little -->
     <!-- FIXME: background_forms is also referred to as form_sheet_background in figma -->
     <color name="background_forms">#EBEBEB</color>
+    <color name="background_forms_darkmode">#353535</color>
     <color name="text_icon_grey">#565656</color>
-    
+    <color name="text_icon_grey_darkmode">#BDBDBD</color>
+    <color name="background">@color/white</color>
+    <color name="background_darkmode">@color/superDarkGrey</color>
     
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
@@ -66,7 +69,7 @@
     <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
     <color name="drawer_sections_header_action">@color/black</color>
 
-    <color name="bottom_sheet_background">@color/white</color>
+    <color name="bottom_sheet_background">@color/background</color>
     <color name="bottom_sheet_divider_color">@color/mediumLightGrey</color>
     <color name="bottom_sheet_background_box_color">@color/superSuperSuperLightGrey</color>
     <color name="bottom_sheet_background_selected_bg_color">@color/black</color>
@@ -106,7 +109,6 @@
     <color name="pdf_section_font">@android:color/black</color>
     <color name="scrollbar_color">@color/lightGrey</color>
 
-    <color name="login_form_background">#EBEBEB</color>
 
     <color name="settings_separator_view_color">@color/superLightGrey</color>
     <color name="settings_plus_minus_icon_color">@color/textColorAccent</color>
@@ -136,7 +138,11 @@
 
     <color name="fragment_article_web_view_tap_icon_color">@color/againSomeLightGreyWith70PercentOpacity</color>
 
+    <color name="login_action_text_color">@color/text_icon_grey</color>
+    <color name="login_form_background">@color/background_forms</color>
+    <color name="text_input_help_text_color">@color/text_icon_grey</color>
+
     <!-- Colors used in drawables - defined as colors to be able to adapt them in dark mode -->
-    <color name="ic_close_button_foreground_color">#9c9c9c</color>
-    <color name="ic_close_button_background_color">#f2f2f7</color>
+    <color name="ic_close_button_foreground_color">#85858B</color>
+    <color name="ic_close_button_background_color">#E0E0E0</color>
 </resources>

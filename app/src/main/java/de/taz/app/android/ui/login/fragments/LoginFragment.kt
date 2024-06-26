@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -76,8 +77,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             }
 
             fragmentLoginUsernameHelp.setOnClickListener {
-                showHelpDialog(R.string.fragment_login_help)
-                tracker.trackLoginHelpDialog()
+                LoginHelpBottomSheetDialogFragment().show(parentFragmentManager, LoginHelpBottomSheetDialogFragment.TAG)
             }
 
             fragmentLoginPassword.setOnEditorActionListener(
@@ -85,16 +85,20 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
                     login(this)
                 }
             )
-        }
 
-        viewBinding.fragmentLoginActionButtons.apply {
-            fragmentLoginActionPositive.setOnClickListener {
-                login(viewBinding)
+            fragmentLoginActionLogin.setOnClickListener {
+                login(this)
             }
 
-            fragmentLoginActionCancel.setOnClickListener {
-                loginFlowCancel()
+            fragmentLoginActionDataPolicy.apply {
+                // Show data policy link only on free variants
+                isGone = BuildConfig.IS_NON_FREE
+                setOnClickListener {
+                    showDataPolicy()
+                }
             }
+
+
         }
 
         viewBinding.fragmentLoginSubscriptions.apply {

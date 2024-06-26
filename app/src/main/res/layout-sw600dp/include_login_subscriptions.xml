@@ -5,14 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/bottom_sheet_background"
+    android:paddingBottom="@dimen/bottom_sheet_padding_bottom"
     tools:showIn="@layout/fragment_login">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/fragment_login_trial_subscription_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/fragment_login_padding_horizontal"
-        android:paddingTop="12dp"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="@dimen/login_box_padding_bottom"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -20,7 +22,7 @@
             style="@style/TextAppearance.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_box_title_margin_top"
+            android:layout_marginTop="@dimen/login_box_padding_top"
             android:text="@string/login_trial_subscription_title"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -55,7 +57,7 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="fragment_login_trial_subscription_box_text, fragment_login_trial_subscription_box_img" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/fragment_login_trial_subscription_box_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"
@@ -73,8 +75,7 @@
         android:id="@+id/fragment_login_dotted_line_one"
         android:layout_width="match_parent"
         android:layout_height="@dimen/fragment_header_dotted_line_height"
-        android:layout_marginHorizontal="@dimen/fragment_login_padding_horizontal"
-        android:layout_marginTop="@dimen/login_dotted_line_margin_top"
+        android:layout_marginHorizontal="@dimen/bottom_sheet_padding_horizontal"
         app:color="@color/textColor"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box" />
 
@@ -82,7 +83,8 @@
         android:id="@+id/fragment_login_switch_print2digi_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/fragment_login_padding_horizontal"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
+        android:paddingBottom="@dimen/login_box_padding_bottom"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_dotted_line_one">
 
         <TextView
@@ -90,33 +92,34 @@
             style="@style/TextAppearance.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_box_title_margin_top"
+            android:layout_marginTop="@dimen/login_box_padding_top"
             android:text="@string/login_switch_print2digi_title"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/fragment_login_switch_print2digi_box_img"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_box_content_margin_top"
-            android:src="@drawable/switch_print2digi_img"
-            app:layout_constraintEnd_toStartOf="@id/fragment_login_switch_print2digi_box_text"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_title" />
 
         <TextView
             android:id="@+id/fragment_login_switch_print2digi_box_text"
             style="@style/TextAppearance.Login.Subscription.Content"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/login_horizontal_inner_min_margin"
             android:layout_marginTop="@dimen/login_box_content_margin_top"
             android:text="@string/login_switch_print2digi_body"
             app:layout_constraintBottom_toBottomOf="@id/fragment_login_switch_print2digi_box_img"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/fragment_login_switch_print2digi_box_img"
+            app:layout_constraintEnd_toStartOf="@id/fragment_login_switch_print2digi_box_img"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_title" />
+
+        <ImageView
+            android:id="@+id/fragment_login_switch_print2digi_box_img"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/login_horizontal_inner_min_margin"
+            android:layout_marginTop="@dimen/login_box_content_margin_top"
+            android:src="@drawable/switch_print2digi_img"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toEndOf="@id/fragment_login_switch_print2digi_box_text"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_title" />
+
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/fragment_login_switch_print2digi_box_content_barrier"
@@ -125,7 +128,7 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="fragment_login_switch_print2digi_box_text, fragment_login_switch_print2digi_box_img" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/fragment_login_switch_print2digi_box_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"
@@ -142,8 +145,7 @@
         android:id="@+id/fragment_login_dotted_line_two"
         android:layout_width="match_parent"
         android:layout_height="@dimen/fragment_header_dotted_line_height"
-        android:layout_marginHorizontal="@dimen/fragment_login_padding_horizontal"
-        android:layout_marginTop="@dimen/login_dotted_line_margin_top"
+        android:layout_marginHorizontal="@dimen/bottom_sheet_padding_horizontal"
         app:color="@color/textColor"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box" />
 
@@ -151,7 +153,7 @@
         android:id="@+id/fragment_login_extend_print_with_digi_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/fragment_login_padding_horizontal"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
         app:layout_constraintTop_toBottomOf="@id/fragment_login_dotted_line_two">
 
         <TextView
@@ -159,7 +161,7 @@
             style="@style/TextAppearance.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_box_title_margin_top"
+            android:layout_marginTop="@dimen/login_box_padding_top"
             android:text="@string/login_extend_print_with_digi_title"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -194,7 +196,7 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="fragment_login_extend_print_with_digi_box_text, fragment_login_extend_print_with_digi_box_img" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/fragment_login_extend_print_with_digi_box_button"
             style="@style/AppTheme.ButtonStyle.Outlined"
             android:layout_width="0dp"

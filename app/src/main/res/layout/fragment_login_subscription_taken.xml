@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:background="@color/login_form_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/fragment_login_padding_top"
-        android:layout_marginBottom="@dimen/fragment_login_padding_bottom"
-        android:paddingHorizontal="@dimen/fragment_padding_horizontal">
+        android:layout_marginTop="@dimen/bottom_sheet_padding_top"
+        android:layout_marginBottom="@dimen/bottom_sheet_padding_bottom"
+        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal">
 
         <TextView
             android:id="@+id/fragment_login_subscription_taken_header"
-            style="@style/TextAppearance.Login.Text"
+            style="@style/TextAppearance.Login.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_subscription_taken_header"
@@ -24,7 +26,7 @@
             android:id="@+id/fragment_login_subscription_taken_retry"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
             android:text="@string/fragment_login_subscription_taken_retry"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,33 +34,18 @@
             app:layout_constraintWidth_max="@dimen/button_max_width" />
 
         <TextView
-            android:id="@+id/fragment_login_subscription_taken_body"
-            style="@style/TextAppearance.Login.Text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login_or_contact_support"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_retry" />
-
-        <TextView
             android:id="@+id/fragment_login_subscription_taken_email"
-            style="@style/TextAppearance.Login.Text.Link"
-            android:layout_width="match_parent"
+            style="@style/Widget.Login.Action.Text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0dp"
-            android:text="@string/fragment_login_taz_mail_underlined"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_body" />
-
-        <Button
-            android:id="@+id/cancel_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/login_action_button_margin_vertical"
-            app:layout_constraintWidth_max="@dimen/button_max_width"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/fragment_login_or_contact_support"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_email"
-            android:text="@string/cancel_button" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_subscription_taken_retry" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

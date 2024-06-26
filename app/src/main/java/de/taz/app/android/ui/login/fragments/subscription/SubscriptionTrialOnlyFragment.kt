@@ -32,25 +32,29 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (elapsed) {
-            viewBinding.fragmentSubscriptionTrialOnlyDescription.visibility = View.GONE
-            viewBinding.fragmentSubscriptionTrialOnlyDescriptionElapsed.visibility = View.VISIBLE
-            viewBinding.fragmentSubscriptionTrialOnlyProceed.text =
-                getString(R.string.close_okay)
-            viewBinding.fragmentSubscriptionTrialOnlyProceed.setOnClickListener {
-                this.activity?.finish()
+            viewBinding.apply {
+                fragmentSubscriptionTrialOnlyDescription.setText(R.string.fragment_subscription_trial_only_description_elapsed)
+                fragmentSubscriptionTrialOnlyProceed.apply {
+                    setText(R.string.close_okay)
+                    setOnClickListener {
+                        loginFlowDone()
+                    }
+                }
             }
         } else {
-            viewBinding.fragmentSubscriptionTrialOnlyProceed.setOnClickListener {
-                ifDoneNext()
+            viewBinding.apply {
+                fragmentSubscriptionTrialOnlyDescription.setText(R.string.fragment_subscription_trial_only_description)
+                fragmentSubscriptionTrialOnlyProceed.apply {
+                    setText(R.string.next_button)
+                    setOnClickListener {
+                        ifDoneNext()
+                    }
+                }
             }
         }
-        viewBinding.cancelButton.setOnClickListener {
-            if (viewModel.backToArticle) {
-                // finish LoginActivity when coming from article
-                loginFlowCancel()
-            } else {
-                loginFlowBack()
-            }
+
+        viewBinding.backButton.setOnClickListener {
+            loginFlowBack()
         }
     }
 

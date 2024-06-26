@@ -29,10 +29,6 @@ class NamesMissingFragment : LoginBaseFragment<FragmentLoginMissingNamesBinding>
             viewBinding.fragmentLoginMissingFirstNameLayout.counterMaxLength =
                 (MAX_NAME_LENGTH - (text?.length ?: 0)).coerceIn(1, MAX_NAME_LENGTH - 1)
         }
-
-        viewBinding.cancelButton.setOnClickListener {
-            loginFlowCancel()
-        }
    }
 
     private fun getTrialSubscriptionWithFullName() {

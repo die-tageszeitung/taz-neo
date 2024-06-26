@@ -19,7 +19,7 @@
             android:id="@+id/fragment_bookmark_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/fragment_padding_horizontal"
+            android:layout_marginEnd="@dimen/fragment_bookmarks_padding_horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -59,8 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/backgroundColor"
-            android:paddingStart="@dimen/fragment_padding_horizontal"
-            android:paddingEnd="@dimen/fragment_padding_horizontal"
+            android:paddingHorizontal="@dimen/fragment_bookmarks_padding_horizontal"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -77,7 +76,7 @@
                     style="@style/TextAppearance.Bookmarks.Entry.Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/fragment_bookmarks_padding_horizontal"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -88,7 +87,7 @@
                     style="@style/TextAppearance.Bookmarks.Entry.Teaser"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/fragment_bookmarks_padding_horizontal"
                     app:layout_constraintEnd_toStartOf="@id/fragment_bookmark_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_title"
@@ -170,14 +169,14 @@
             android:layout_marginTop="@dimen/fragment_bookmarks_issue_header_dotted_line_margin_top"
             android:src="@drawable/dotted_line_bookmarks"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginHorizontal="@dimen/fragment_padding_horizontal"
+            android:layout_marginHorizontal="@dimen/fragment_bookmarks_padding_horizontal"
             tools:ignore="ContentDescription" />
 
         <View
             android:id="@+id/fragment_bookmark_separator_line_solid"
             android:layout_width="match_parent"
             android:layout_height="@dimen/fragment_drawer_separator_line_height"
-            android:layout_marginHorizontal="@dimen/fragment_padding_horizontal"
+            android:layout_marginHorizontal="@dimen/fragment_bookmarks_padding_horizontal"
             android:visibility="gone"
             android:background="@color/textColor"
             app:layout_constraintBottom_toBottomOf="parent"

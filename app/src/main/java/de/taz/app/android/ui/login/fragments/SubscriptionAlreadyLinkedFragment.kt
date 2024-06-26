@@ -17,9 +17,6 @@ class SubscriptionAlreadyLinkedFragment :
         viewBinding.fragmentLoginSubscriptionAlreadyTakenContactEmail.setOnClickListener {
             writeEmail()
         }
-        viewBinding.cancelButton.setOnClickListener {
-            loginFlowCancel()
-        }
     }
 
 }
