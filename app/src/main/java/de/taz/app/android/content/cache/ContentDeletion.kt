@@ -3,6 +3,7 @@ package de.taz.app.android.content.cache
 import android.content.Context
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.StorageService
@@ -33,20 +34,28 @@ class ContentDeletion(
          * the [collection]. Filter out files that might be worth to retain.
          * @param applicationContext An android application context object
          * @param collection The collection the content of which should be deleted
+         * @param storageTypes Only FileEntry of these storage types will be deleted
          * @param tag A tag on which this operation should be registered
          */
         suspend fun prepare(
             applicationContext: Context,
             collection: DownloadableCollection,
+            storageTypes: List<StorageType>,
             tag: String
         ): ContentDeletion {
             val articleRepository = ArticleRepository.getInstance(applicationContext)
+
+            // Only delete files with a matching storage type.
+            // For example when deleting an Issue only FileEntries StorageType.issue should be deleted.
+            val collectionFilesWithValidStorageType = collection.getAllFiles().filter {
+                it.storageType in storageTypes
+            }
 
             val filesToDelete = if (collection is Article) {
                 // If the collection is an article we need to make sure that it is the last
                 // article referencing a file. If the reference count is 1 (or less) the
                 // article that is about to get delete is the last one, so it's ok to delete
-                collection.getAllFiles()
+                collectionFilesWithValidStorageType
                     .filter {
                         articleRepository.getDownloadedArticleAuthorReferenceCount(it.name) < 2 &&
                         articleRepository.getDownloadedArticleImageReferenceCount(it.name) < 2
@@ -54,7 +63,7 @@ class ContentDeletion(
             } else {
                 // If the collection is a section (or page or anything) check if an article is still referencing
                 // it. (Most likely a bookmark)
-                collection.getAllFiles()
+                collectionFilesWithValidStorageType
                     .filter {
                         articleRepository.getDownloadedArticleAuthorReferenceCount(it.name) < 1 &&
                         articleRepository.getDownloadedArticleImageReferenceCount(it.name) < 1

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.test.Fixtures
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -27,6 +29,8 @@ class ArticleRepositoryTest {
     private lateinit var sectionRepository: SectionRepository
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var imageRepository: ImageRepository
 
     @Before
     fun setUp() {
@@ -40,6 +44,8 @@ class ArticleRepositoryTest {
         articleRepository = ArticleRepository.getInstance(context)
         sectionRepository = SectionRepository.getInstance(context)
         bookmarkRepository = BookmarkRepository.getInstance(context)
+        fileEntryRepository = FileEntryRepository.getInstance(context)
+        imageRepository = ImageRepository.getInstance(context)
     }
 
     @After
@@ -111,36 +117,32 @@ class ArticleRepositoryTest {
     }
 
     @Test
-    fun `When Article is deleted then no longer referenced Authors are deleted`() = runTest {
+    fun `When Article is deleted Author FileEntries are kept`() = runTest {
         //
         // Given
         //
         val author = Fixtures.authorWithImage01
-        val authorImageFileName = requireNotNull(author.imageAuthor).name
+        val authorImage = Fixtures.authorImage01
+        val authorImageFile = requireNotNull(author.imageAuthor)
+        assertEquals(authorImage.name, authorImageFile.name)
         val article = Fixtures.articleBase.copy(
             authorList = listOf(author),
         )
 
         articleRepository.saveInternal(article)
 
-        val authorJoins = db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName)
-        assertEquals(1, authorJoins.size)
-        assertEquals(article.key, authorJoins[0].articleFileName)
-
-
         //
         // WHEN
         //
         articleRepository.deleteArticle(article)
 
-
         //
         // THEN
         //
-        assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article.key))
-        assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName))
+        assertNotNull(fileEntryRepository.get(authorImageFile.name))
     }
 
+    @Ignore("This case is no longer needed as long as all Author Images are kept. See other test")
     @Test
     fun `When Article is deleted then still referenced Authors are kept`() = runTest {
         //
@@ -172,5 +174,130 @@ class ArticleRepositoryTest {
         assertEquals(emptyList<ArticleAuthorImageJoin>(), db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article01.key))
         assertEquals(1, db.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(article02.key).size)
         assertEquals(1, db.articleAuthorImageJoinDao().getArticlesForAuthor(authorImageFileName).size)
+    }
+
+
+    @Ignore("This case is no longer needed as long as all Author Images are kept. See other test")
+    @Test
+    fun `When Author Image is referenced additionally from Article Image List, the Article can be deleted`() = runTest {
+        //
+        // Given
+        //
+        val author = Fixtures.authorWithImage01
+        val authorImage = Fixtures.authorImage01
+        val authorImageFile = requireNotNull(author.imageAuthor)
+        assertEquals(authorImage.name, authorImageFile.name)
+        val article = Fixtures.articleBase.copy(
+            authorList = listOf(author),
+            imageList = listOf(authorImage)
+        )
+
+        articleRepository.saveInternal(article)
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(article)
+
+        //
+        // THEN
+        //
+        assertNull(articleRepository.get(article.key))
+    }
+
+    @Test
+    fun `When Author Image is referenced additionally from Section Image List, the Article can be deleted`() = runTest {
+        //
+        // Given
+        //
+        val author = Fixtures.authorWithImage01
+        val authorImage = Fixtures.authorImage01
+        val authorImageFile = requireNotNull(author.imageAuthor)
+        assertEquals(authorImage.name, authorImageFile.name)
+        val article = Fixtures.articleBase.copy(
+            authorList = listOf(author),
+        )
+
+        val section = Fixtures.sectionBase.copy(
+            imageList = listOf(authorImage),
+        )
+
+        sectionRepository.saveInternal(section)
+        articleRepository.saveInternal(article)
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(article)
+
+
+        //
+        // THEN
+        //
+        assertNull(articleRepository.get(article.key))
+    }
+
+    @Test
+    fun `When Article Images are referenced additionally from another Article, the Article can be deleted`() = runTest {
+        // This case might occur for example when a user logs in and the regular Issues are downloaded
+        // in addition to the public ones. The public ones reference the same Images.
+
+        //
+        // Given
+        //
+        val image = Fixtures.image
+        val publicArticle = Fixtures.articleBase
+            .copyWithFileName("public.html")
+            .copy(
+                imageList = listOf(image)
+            )
+        val regularArticle = publicArticle.copyWithFileName("regular.html")
+
+        articleRepository.saveInternal(publicArticle)
+        articleRepository.saveInternal(regularArticle)
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(publicArticle)
+
+        //
+        // THEN
+        //
+        assertNull(articleRepository.get(publicArticle.key))
+        assertNotNull(articleRepository.get(regularArticle.key))
+    }
+
+    @Test
+    fun `When Article is deleted global Images are kept`() = runTest {
+        //
+        // Given
+        //
+        val image = Fixtures.image
+        val globalImage = Fixtures.image.copy(name="global.png", storageType = StorageType.global)
+        val article = Fixtures.articleBase.copy(
+            imageList = listOf(
+                image,
+                globalImage,
+            )
+        )
+
+        //
+        // Prepare
+        //
+        articleRepository.saveInternal(article)
+        assertNotNull(fileEntryRepository.get(globalImage.name))
+        assertNotNull(imageRepository.get(image.name))
+
+        //
+        // WHEN
+        //
+        articleRepository.deleteArticle(article)
+
+        //
+        // THEN
+        //
+        assertNotNull(fileEntryRepository.get(globalImage.name))
+        assertNull(imageRepository.get(image.name))
     }
 }

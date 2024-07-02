@@ -159,40 +159,17 @@ class MomentRepository private constructor(applicationContext: Context) :
     suspend fun deleteMoment(issueFeedName: String, issueDate: String, issueStatus: IssueStatus) {
         val moment = get(issueFeedName, issueDate, issueStatus)
         moment?.let {
-            appDatabase.momentImageJoinJoinDao().delete(
-                moment.imageList.mapIndexed { index, fileEntry ->
-                    MomentImageJoin(
-                        issueFeedName,
-                        issueDate,
-                        issueStatus,
-                        fileEntry.name,
-                        index
-                    )
-                }
-            )
-            appDatabase.momentCreditJoinDao().delete(
-                moment.creditList.mapIndexed { index, fileEntry ->
-                    MomentCreditJoin(
-                        issueFeedName,
-                        issueDate,
-                        issueStatus,
-                        fileEntry.name,
-                        index
-                    )
-                }
-            )
-            appDatabase.momentFilesJoinDao().delete(
-                moment.momentList.mapIndexed { index, fileEntry ->
-                    MomentFilesJoin(
-                        issueFeedName,
-                        issueDate,
-                        issueStatus,
-                        fileEntry.name,
-                        index
-                    )
-                }
-            )
+            appDatabase.momentImageJoinJoinDao()
+                .deleteRelationToMoment(issueFeedName, issueDate, issueStatus)
+            appDatabase.momentCreditJoinDao()
+                .deleteRelationToMoment(issueFeedName, issueDate, issueStatus)
+            appDatabase.momentFilesJoinDao()
+                .deleteRelationToMoment(issueFeedName, issueDate, issueStatus)
+
             try {
+                // FIXME (johannes): this will always delete the Image entry, as the FK relations rom the momentImageJoin are not correct.
+                //    The SQLiteConstraintException will be thrown when the FileEntry is tried to be deleted, as this one is referenced by a FK.
+                //    Thus we end up in a in undefined state: Moment Image can not be get() anymore as the SQL is trying to access the Image table without having the FK
                 imageRepository.delete(moment.imageList)
             } catch (e: SQLiteConstraintException) {
                 log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")

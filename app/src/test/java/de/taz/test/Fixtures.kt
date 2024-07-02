@@ -41,7 +41,11 @@ object Fixtures {
     )
 
     val image: Image = Image(
-        fileEntry.copy(name = "image01.png"), ImageStub(
+        fileEntry.copy(
+            name = "image01.png",
+            storageType = StorageType.issue,
+        )
+        , ImageStub(
             "image01.png", ImageType.picture, alpha = 0f, ImageResolution.normal
         )
     )

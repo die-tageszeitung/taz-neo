@@ -36,6 +36,12 @@ import de.taz.app.android.ui.share.ShareArticleDownloadHelper
 import de.taz.app.android.util.Log
 import java.io.IOException
 
+/**
+ * The Scrubber must not be called when the App is active, as we assume no concurrent database changes.
+ * The general idea is to find orphaned database entries and delete them recursively.
+ * The Scrubber heavily relies on correct foreign key definitions for the database, to prevent
+ * entities still being referenced from being deleted - especially when deleting FileEntry data.
+ */
 class Scrubber(applicationContext: Context) {
 
     private val log by Log
@@ -51,7 +57,8 @@ class Scrubber(applicationContext: Context) {
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val shareArticleDownloadHelper = ShareArticleDownloadHelper(applicationContext)
 
-    private val defaultNavDrawerFileName = applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
+    private val defaultNavDrawerFileName =
+        applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
 
     /**
      * Start a minimal scrub run.
@@ -96,7 +103,8 @@ class Scrubber(applicationContext: Context) {
         // ResourceInfo
         val orphanedResourceInfo: List<ResourceInfoStub> = getOrphanedResourceInfoStubs()
         for (resourceInfoStub in orphanedResourceInfo) {
-            val resourceInfo: ResourceInfo = resourceInfoRepository.resourceInfoStubToResourceInfo(resourceInfoStub)
+            val resourceInfo: ResourceInfo =
+                resourceInfoRepository.resourceInfoStubToResourceInfo(resourceInfoStub)
             deleteResourceInfo(resourceInfo)
         }
 
@@ -313,28 +321,33 @@ class Scrubber(applicationContext: Context) {
     }
 
     private suspend fun deleteFile(fileEntry: FileEntry) {
-        fileEntryRepository.resetDownloadDate(fileEntry)
-        if (deleteFileFromDisk(fileEntry)) {
-            try {
+        try {
+            // Ensure that the file contents are only deleted if the FileEntry is not referenced as a ForeignKey anymore.
+            appDatabase.withTransaction {
                 fileEntryRepository.delete(fileEntry)
-            } catch (e: SQLiteConstraintException) {
-                log.error("Could not delete FileEntry Metadata after content deletion: $fileEntry", e)
+                deleteFileFromDisk(fileEntry)
             }
-        }
-    }
+        } catch (e: SQLiteConstraintException) {
+            log.warn("Could not delete FileEntry Metadata: $fileEntry", e)
 
-    private suspend fun deleteFileFromDisk(fileEntry: FileEntry): Boolean {
-        if (fileEntry.storageLocation == StorageLocation.NOT_STORED) {
-            return true
-        }
-
-        return try {
-            storageService.deleteFile(fileEntry)
-            true
-        } catch (e: IOException) {
-            log.error("Could not delete file from disk: $fileEntry")
+        } catch (e: FileDeletionException) {
+            log.error(e.message ?: "", e.cause)
             SentryWrapper.captureMessage("Could not delete file from disk")
-            false
         }
     }
+
+    private suspend fun deleteFileFromDisk(fileEntry: FileEntry) {
+        if (fileEntry.storageLocation == StorageLocation.NOT_STORED) {
+            return
+        }
+
+        try {
+            storageService.deleteFile(fileEntry)
+        } catch (e: IOException) {
+            throw FileDeletionException("Could not delete file from disk: $fileEntry", e)
+        }
+    }
+
+    private class FileDeletionException(message: String, cause: Throwable) :
+        Exception(message, cause)
 }

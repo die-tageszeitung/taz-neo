@@ -99,9 +99,6 @@ class LoginViewModelTest {
     lateinit var apiService: ApiService
 
     @Mock
-    lateinit var authHelper: AuthHelper
-
-    @Mock
     lateinit var dataStore: DataStore<Preferences>
 
     @Mock
@@ -134,7 +131,9 @@ class LoginViewModelTest {
         dataStore = PreferenceDataStoreFactory.create {
             File.createTempFile("test", ".preferences_pb", null)
         }
-        authHelper = AuthHelper(application, dataStore)
+
+        val authHelper = AuthHelper(application, dataStore)
+        AuthHelper.inject(authHelper)
 
         loginViewModel = LoginViewModel(
             application = application,
