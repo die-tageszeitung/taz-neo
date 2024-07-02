@@ -11,6 +11,7 @@ import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.api.models.ImageType
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.test.Fixtures
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.test.runTest
@@ -106,5 +107,34 @@ class ImageRepositoryTest {
 
         imageRepository.delete(fileEntry)
         assertNull(fileEntryRepository.get(fileEntry.name))
+    }
+
+    @Test
+    fun `Image Entry can be deleted`() = runTest {
+        //
+        // GIVEN
+        //
+        val image = Fixtures.image
+        imageRepository.saveInternal(image)
+
+        //
+        // WHEN, THEN
+        //
+        imageRepository.delete(image)
+    }
+
+    @Test
+    fun `Image Entry can be deleted when passed as a FileEntry`() = runTest {
+        //
+        // GIVEN
+        //
+        val image = Fixtures.image
+        imageRepository.saveInternal(image)
+
+        //
+        // WHEN, THEN
+        //
+        val imageFileEntry = FileEntry(image)
+        imageRepository.delete(imageFileEntry)
     }
 }

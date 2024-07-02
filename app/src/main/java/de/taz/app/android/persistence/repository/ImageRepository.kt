@@ -59,15 +59,15 @@ class ImageRepository private constructor(
     }
 
     suspend fun delete(image: Image) {
-        fileEntryRepository.delete(FileEntry(image))
         appDatabase.imageStubDao().delete(ImageStub(image))
+        fileEntryRepository.delete(FileEntry(image))
     }
 
     suspend fun delete(imageFileEntry: FileEntry) {
-        fileEntryRepository.delete(imageFileEntry)
         getStub(imageFileEntry.name)?.let { imageStub ->
             appDatabase.imageStubDao().delete(imageStub)
         }
+        fileEntryRepository.delete(imageFileEntry)
     }
 
     suspend fun delete(fileEntries: List<Image>) {

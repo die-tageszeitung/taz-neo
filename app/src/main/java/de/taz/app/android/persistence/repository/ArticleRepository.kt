@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.Author
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
 import de.taz.app.android.util.SingletonHolder
@@ -200,44 +201,35 @@ class ArticleRepository private constructor(applicationContext: Context) :
             if (it.bookmarkedTime == null) {
                 val articleFileName = article.articleHtml.name
 
-                // Delete all author relations of this Article
+                // Delete all author relations of this Article,
+                // but keep the actual FileEntries and rely on the Scrubber to clean them later
                 appDatabase.articleAuthorImageJoinDao().deleteRelationToArticle(articleFileName)
-
-                // Delete no-longer referenced Author entries
-                for (author in article.authorList) {
-                    if (author.imageAuthor != null &&
-                        appDatabase.articleAuthorImageJoinDao()
-                            .getArticlesForAuthor(author.imageAuthor.name).isEmpty()
-                    ) {
-                        // The Author Image might also be referenced by Section.imageList as an actual Image,
-                        // so we try to delete it via the ImageRepository, which will also delete the FileEntry
-                        imageRepository.delete(author.imageAuthor)
-                    }
-                }
 
                 // delete html file
                 fileEntryRepository.delete(article.articleHtml)
 
-                // delete images and relations
-                article.imageList.forEachIndexed { index, image ->
-                    appDatabase.articleImageJoinDao().delete(
-                        ArticleImageJoin(articleFileName, image.name, index)
-                    )
-                    try {
-                        imageRepository.delete(image)
-                    } catch (e: SQLiteConstraintException) {
-                        // do not delete - still used by section/otherIssue/bookmarked article
+                // Delete related images
+                appDatabase.articleImageJoinDao().deleteRelationToArticle(articleFileName)
+                article.imageList
+                    // Only delete Image Metadata if they are associated with this Articles Issue
+                    .filter { image ->
+                        image.storageType == StorageType.issue
                     }
-                }
+                    .forEach { image ->
+                        try {
+                            imageRepository.delete(image)
+                        } catch (e: SQLiteConstraintException) {
+                            // do not delete - still used by section/otherIssue/bookmarked article
+                            log.info("Could not delete Image ${image.name} as it is still referenced")
+                        }
+                    }
 
                 try {
                     appDatabase.articleDao().delete(articleStub)
                 } catch (e: Exception) {
-                    log.warn(
-                        "article ${articleStub.articleFileName} not deleted. Maybe it is an imprint used by another issue",
-                        e
-                    )
                     // if an issue has no imprint, it uses an imprint of an older issue. That is why it cannot be deleted here.
+                    log.error("Could not delete Article ${articleStub.articleFileName} as it is still referenced")
+                    SentryWrapper.captureMessage("Could not delete Article")
                     // TODO need to refactor this
                 }
 

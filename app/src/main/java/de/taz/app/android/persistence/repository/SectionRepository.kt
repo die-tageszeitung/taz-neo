@@ -6,8 +6,10 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.SectionArticleJoin
 import de.taz.app.android.persistence.join.SectionImageJoin
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.annotations.VisibleForTesting
@@ -132,7 +134,7 @@ class SectionRepository private constructor(applicationContext: Context) :
             "navigation button is essential for the app running"
         }
 
-        val podcast = sectionStub.podcastFileName?.let { audioRepository.get(it)  }
+        val podcast = sectionStub.podcastFileName?.let { audioRepository.get(it) }
 
         return Section(
             sectionHtml = sectionFile,
@@ -166,25 +168,24 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         fileEntryRepository.delete(section.sectionHtml)
 
-        appDatabase.sectionImageJoinDao().delete(
-            section.imageList.mapIndexed { index, fileEntry ->
-                SectionImageJoin(section.sectionHtml.name, fileEntry.name, index)
+        appDatabase.sectionImageJoinDao().deleteRelationToSection(section.sectionHtml.name)
+        section.imageList
+            .filter { it.storageType == StorageType.issue }
+            .forEach {
+                try {
+                    imageRepository.delete(it)
+                } catch (e: SQLiteConstraintException) {
+                    // do not delete still used by (presumably bookmarked) article
+                    log.info("Could not delete Image ${it.name} as it is still referenced")
+                }
             }
-        )
-
-        section.imageList.forEach {
-            try {
-                imageRepository.delete(it)
-            } catch (e: SQLiteConstraintException) {
-                log.warn("FileEntry ${it.name} not deleted, maybe still used by a bookmarked article?")
-                // do not delete still used by (presumably bookmarked) article
-            }
-        }
 
         try {
             appDatabase.sectionDao().delete(SectionStub(section))
         } catch (e: SQLiteConstraintException) {
             // do not delete still used
+            log.error("Could not delete Section ${section.key} as it is still referenced")
+            SentryWrapper.captureMessage("Could not delete Section")
         }
 
         // After the section has been deleted (and the foreign key reference is removed), we try to delete the audio entry

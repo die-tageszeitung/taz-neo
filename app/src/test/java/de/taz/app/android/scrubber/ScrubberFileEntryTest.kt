@@ -25,14 +25,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.IOException
 import java.util.Calendar
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = RobolectricTestApplication::class)
 class ScrubberFileEntryTest {
 
+    private lateinit var context: Context
     private lateinit var db: AppDatabase
 
     private lateinit var scrubber: Scrubber
@@ -45,7 +50,7 @@ class ScrubberFileEntryTest {
     fun setUp() {
         SingletonTestUtil.resetAll()
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
 
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         AppDatabase.inject(db)
@@ -88,6 +93,25 @@ class ScrubberFileEntryTest {
         scrubber.scrub()
 
         assertFalse(storageService.ensureFileExists(fileEntry1))
+    }
+
+    @Test
+    fun `Orphaned FileEntry is kept if file could not be deleted due to an IOException`() = runTest {
+        val mockStorageService = mock<StorageService> {
+            onBlocking { deleteFile(any()) } doAnswer {
+                throw IOException("Mocked exception")
+            }
+        }
+        // Mock the StorageService and initialize a new Scrubber that will use it
+        StorageService.inject(mockStorageService)
+        val scrubber = Scrubber(context)
+
+        val fileEntry1 = Fixtures.fileEntry.copy(storageLocation = StorageLocation.INTERNAL)
+        fileEntryRepository.save(fileEntry1)
+
+        scrubber.scrub()
+
+        assertEquals(fileEntry1, fileEntryRepository.get(fileEntry1.name))
     }
 
     @Test
