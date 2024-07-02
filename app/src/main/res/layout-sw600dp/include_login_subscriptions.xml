@@ -37,7 +37,8 @@
             app:layout_constraintEnd_toStartOf="@id/fragment_login_trial_subscription_box_img"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_title" />
+            app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_title"
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/fragment_login_trial_subscription_box_img"
@@ -64,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_button_margin_top"
             android:text="@string/login_trial_subscription_button_text"
-            app:layout_constraintEnd_toEndOf="@id/fragment_login_trial_subscription_box_text"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_trial_subscription_box_content_barrier"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
@@ -136,7 +137,7 @@
             android:layout_marginTop="@dimen/login_box_button_margin_top"
             android:text="@string/login_switch_print2digi_button_text"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/fragment_login_switch_print2digi_box_text"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_switch_print2digi_box_content_barrier"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -203,7 +204,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_button_margin_top"
             android:text="@string/login_extend_print_with_digi_button_text"
-            app:layout_constraintEnd_toEndOf="@id/fragment_login_extend_print_with_digi_box_text"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_extend_print_with_digi_box_content_barrier"
             app:layout_constraintWidth_max="@dimen/button_max_width" />
