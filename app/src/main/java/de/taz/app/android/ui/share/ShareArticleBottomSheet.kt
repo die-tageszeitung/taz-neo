@@ -10,11 +10,13 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetShareOptionsBinding
+import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
@@ -88,6 +90,11 @@ class ShareArticleBottomSheet :
     private lateinit var articleRepository: ArticleRepository
     private lateinit var shareArticleDownloadHelper: ShareArticleDownloadHelper
     private lateinit var tracker: Tracker
+
+    override fun onStart() {
+        super.onStart()
+        setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_EXPANDED)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

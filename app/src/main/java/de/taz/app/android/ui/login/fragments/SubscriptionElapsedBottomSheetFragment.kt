@@ -11,7 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
@@ -81,7 +80,7 @@ class SubscriptionElapsedBottomSheetFragment :
 
     override fun onStart() {
         super.onStart()
-        setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_HALF_EXPANDED)
+        setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_EXPANDED)
     }
 
     override fun onAttach(context: Context) {
