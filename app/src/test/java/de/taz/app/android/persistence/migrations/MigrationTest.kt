@@ -377,4 +377,159 @@ class MigrationTest {
 
         db.close()
     }
+
+    @Test
+    fun migrate33to34() {
+        val values = ContentValues()
+        var db = helper.createDatabase(testDb, 33).apply {
+            execSQL("PRAGMA foreign_keys = ON")
+        }
+
+        val sectionFileName = "section.html"
+        val articleFileName = "article.html"
+        val issueFeedName = "feed"
+        val issueDate = "2024-01-02"
+        val issueStatus = "regular"
+        val imageFileName = "image.png"
+
+
+        // Prepare the database at version 33 by inserting to be migrated data
+        db.apply {
+            values.apply {
+                clear()
+                put("sectionFileName", sectionFileName)
+                put("issueDate", issueDate)
+                put("title", "Title")
+                put("type", "articles")
+            }
+            insert("Section", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName)
+                put("issueFeedName", issueFeedName)
+                put("issueDate", issueDate)
+                put("pageNameList", "[]")
+                put("articleType", "STANDARD")
+                put("position", 0)
+                put("percentage", 0)
+            }
+            insert("Article", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("issueFeedName", issueFeedName)
+                put("issueDate", issueDate)
+                put("issueStatus", issueStatus)
+                put("baseUrl", "/")
+            }
+            insert("Moment", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("name", imageFileName)
+                put("storageType", "issue")
+                put("moTime", 0L)
+                put("sha256", "")
+                put("size", 0L)
+                put("folder", "")
+                put("path", "")
+                put("storageLocation", "NOT_STORED")
+            }
+            insert("FileEntry", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("fileEntryName", imageFileName)
+                put("type", "picture")
+                put("alpha", 0f)
+                put("resolution", "normal")
+            }
+            insert("Image", CONFLICT_ABORT, values)
+
+
+            // Put data into the join tables to be migrated
+            values.apply {
+                clear()
+                put("sectionFileName", sectionFileName)
+                put("imageFileName", imageFileName)
+                put("`index`", 0)
+            }
+            insert("SectionImageJoin", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("articleFileName", articleFileName)
+                put("imageFileName", imageFileName)
+                put("`index`", 0)
+            }
+            insert("ArticleImageJoin", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("issueFeedName", issueFeedName)
+                put("issueDate", issueDate)
+                put("issueStatus", issueStatus)
+                put("momentFileName", imageFileName)
+                put("`index`", 0)
+            }
+            insert("MomentCreditJoin", CONFLICT_ABORT, values)
+
+            values.apply {
+                clear()
+                put("issueFeedName", issueFeedName)
+                put("issueDate", issueDate)
+                put("issueStatus", issueStatus)
+                put("momentFileName", imageFileName)
+                put("`index`", 0)
+            }
+            insert("MomentImageJoin", CONFLICT_ABORT, values)
+        }
+
+        // Migrate the database to version 34
+        db = helper.runMigrationsAndValidate(testDb, 34, true, Migration33to34())
+
+        // Verify that the data was migrated correctly
+        db.query(
+            "SELECT sectionFileName, imageFileName, `index` FROM `SectionImageJoin`"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(sectionFileName, cursor.getString(0))
+            assertEquals(imageFileName, cursor.getString(1))
+            assertEquals(0, cursor.getInt(2))
+        }
+
+        db.query(
+            "SELECT articleFileName, imageFileName, `index` FROM `ArticleImageJoin`"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(articleFileName, cursor.getString(0))
+            assertEquals(imageFileName, cursor.getString(1))
+            assertEquals(0, cursor.getInt(2))
+        }
+
+        db.query(
+            "SELECT issueFeedName, issueDate, issueStatus, momentFileName, `index` FROM `MomentCreditJoin`"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(issueFeedName, cursor.getString(0))
+            assertEquals(issueDate, cursor.getString(1))
+            assertEquals(issueStatus, cursor.getString(2))
+            assertEquals(imageFileName, cursor.getString(3))
+            assertEquals(0, cursor.getInt(4))
+        }
+
+        db.query(
+            "SELECT issueFeedName, issueDate, issueStatus, momentFileName, `index` FROM `MomentImageJoin`"
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            assertEquals(issueFeedName, cursor.getString(0))
+            assertEquals(issueDate, cursor.getString(1))
+            assertEquals(issueStatus, cursor.getString(2))
+            assertEquals(imageFileName, cursor.getString(3))
+            assertEquals(0, cursor.getInt(4))
+        }
+
+        db.close()
+    }
 }

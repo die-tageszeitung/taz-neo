@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.ImageStub
 
 @Entity(
     tableName = "ArticleImageJoin",
@@ -15,8 +15,8 @@ import de.taz.app.android.api.models.FileEntry
             childColumns = ["articleFileName"]
         ),
         ForeignKey(
-            entity = FileEntry::class,
-            parentColumns = ["name"],
+            entity = ImageStub::class,
+            parentColumns = ["fileEntryName"],
             childColumns = ["imageFileName"]
         )
     ],
