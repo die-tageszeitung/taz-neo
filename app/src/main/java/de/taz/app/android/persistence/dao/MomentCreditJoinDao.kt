@@ -22,17 +22,6 @@ interface MomentCreditJoinDao : BaseDao<MomentCreditJoin> {
     )
     suspend fun getMomentFiles(feedName: String, date: String, status: IssueStatus): List<Image>
 
-
-    @Query(
-        """ SELECT Issue.* FROM Issue INNER JOIN MomentCreditJoin
-            ON Issue.feedName == MomentCreditJoin.issueFeedName
-            AND Issue.date == MomentCreditJoin.issueDate
-            WHERE MomentCreditJoin.momentFileName == :momentFileName 
-            
-        """
-    )
-    suspend fun getIssueStub(momentFileName: String): IssueStub?
-
     /**
      * Delete all the entries related to the given issue from this join table.
      * Note: this does not delete any data in the related Moment or FileEntry table.

@@ -22,16 +22,6 @@ interface MomentImageJoinDao : BaseDao<MomentImageJoin> {
     )
     suspend fun getMomentFiles(feedName: String, date: String, status: IssueStatus): List<Image>
 
-    @Query(
-        """ SELECT Issue.* FROM Issue INNER JOIN MomentImageJoin
-            ON Issue.feedName == MomentImageJoin.issueFeedName
-            AND Issue.date == MomentImageJoin.issueDate
-            WHERE MomentImageJoin.momentFileName == :momentFileName 
-            
-        """
-    )
-    suspend fun getIssueStub(momentFileName: String): IssueStub?
-
 
     /**
      * Delete all the entries related to the given issue from this join table.

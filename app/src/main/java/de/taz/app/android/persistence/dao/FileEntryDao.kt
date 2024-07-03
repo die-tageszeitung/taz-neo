@@ -39,8 +39,6 @@ interface FileEntryDao : BaseDao<FileEntry> {
            AND NOT EXISTS ( SELECT 1 FROM Audio WHERE Audio.fileName = FileEntry.name )
            AND NOT EXISTS ( SELECT 1 FROM Page WHERE Page.pdfFileName = FileEntry.name )
            AND NOT EXISTS ( SELECT 1 FROM MomentFilesJoin WHERE MomentFilesJoin.momentFileName = FileEntry.name )
-           AND NOT EXISTS ( SELECT 1 FROM MomentImageJoin WHERE MomentImageJoin.momentFileName = FileEntry.name )
-           AND NOT EXISTS ( SELECT 1 FROM MomentCreditJoin WHERE MomentCreditJoin.momentFileName = FileEntry.name )
            AND NOT EXISTS ( SELECT 1 FROM ResourceInfoFileEntryJoin WHERE ResourceInfoFileEntryJoin.fileEntryName = FileEntry.name )
     """)
     suspend fun getOrphanedFileEntries(): List<FileEntry>

@@ -3,7 +3,7 @@ package de.taz.app.android.persistence.join
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.ImageStub
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.MomentStub
 
@@ -16,8 +16,8 @@ import de.taz.app.android.api.models.MomentStub
             childColumns = ["issueFeedName", "issueDate", "issueStatus"]
         ),
         ForeignKey(
-            entity = FileEntry::class,
-            parentColumns = ["name"],
+            entity = ImageStub::class,
+            parentColumns = ["fileEntryName"],
             childColumns = ["momentFileName"]
         )
     ],

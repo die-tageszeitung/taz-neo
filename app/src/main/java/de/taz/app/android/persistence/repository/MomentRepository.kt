@@ -166,15 +166,30 @@ class MomentRepository private constructor(applicationContext: Context) :
             appDatabase.momentFilesJoinDao()
                 .deleteRelationToMoment(issueFeedName, issueDate, issueStatus)
 
-            try {
-                // FIXME (johannes): this will always delete the Image entry, as the FK relations rom the momentImageJoin are not correct.
-                //    The SQLiteConstraintException will be thrown when the FileEntry is tried to be deleted, as this one is referenced by a FK.
-                //    Thus we end up in a in undefined state: Moment Image can not be get() anymore as the SQL is trying to access the Image table without having the FK
-                imageRepository.delete(moment.imageList)
-            } catch (e: SQLiteConstraintException) {
-                log.warn("FileEntry ${moment.imageList} not deleted, maybe still used by another issue?")
-                // do not delete is used by another issue
+            moment.imageList.forEach { image ->
+                try {
+                    imageRepository.delete(image)
+                } catch (e: SQLiteConstraintException) {
+                    log.warn("Image ${image.name} not deleted, maybe still used by another issue?")
+                }
             }
+
+            moment.creditList.forEach { image ->
+                try {
+                    imageRepository.delete(image)
+                } catch (e: SQLiteConstraintException) {
+                    log.warn("Image ${image.name} not deleted, maybe still used by another issue?")
+                }
+            }
+
+            moment.momentList.forEach { file ->
+                try {
+                    fileEntryRepository.delete(file)
+                } catch (e: SQLiteConstraintException) {
+                    log.warn("FileEntry ${file.name} not deleted, maybe still used by another issue?")
+                }
+            }
+
             appDatabase.momentDao().delete(MomentStub(moment))
         }
     }
