@@ -7,7 +7,6 @@ import androidx.annotation.StringRes
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import de.taz.app.android.BuildConfig
-import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_HTML_FILE_DATA_POLICY
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentLoginBinding
@@ -124,7 +123,6 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
         hideSoftInputKeyboard()
     }
 
-    // FIXME (johannes): clarify with taz if it is needed or not - currently missing from layouts
     private fun showDataPolicy() {
         activity?.apply {
             val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)

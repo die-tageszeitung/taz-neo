@@ -229,6 +229,8 @@ class SubscriptionAccountFragment :
 
         if (!done) {
             tracker.trackSubscriptionInquiryFormValidationErrorEvent()
+            // Scroll to the top:
+            viewBinding.scrollView.scrollY = 0
         }
         return done
     }

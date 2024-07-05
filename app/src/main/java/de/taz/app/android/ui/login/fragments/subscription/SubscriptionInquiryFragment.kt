@@ -153,6 +153,8 @@ abstract class SubscriptionInquiryFragment :
         } else {
             tracker.trackSubscriptionInquiryFormValidationErrorEvent()
             hideLoadingState()
+            // Scroll to the top:
+            viewBinding.nestedScrollView.scrollY = 0
         }
     }
 
