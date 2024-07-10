@@ -41,6 +41,8 @@
     <color name="login_form_background">@color/background_forms_darkmode</color>
     <color name="text_input_help_text_color">@color/text_icon_grey_darkmode</color>
 
+    <color name="text_input_hint_color">@color/text_icon_grey_darkmode</color>
+
     <color name="ic_close_button_foreground_color">#B3B3B5</color>
     <color name="ic_close_button_background_color">#48484A</color>
 </resources>

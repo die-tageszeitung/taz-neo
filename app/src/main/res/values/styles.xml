@@ -94,9 +94,12 @@
     <style name="AppTheme.ButtonStyle.Outlined" parent="AppTheme.Base.ButtonStyle.Outlined" />
 
     <style name="AppTheme.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
-        <item name="android:textColorHint">@color/textColorAccent</item>
+        <item name="android:textColorHint">@color/text_input_hint_color</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
+        <item name="cursorColor">@color/textColor</item>
         <item name="boxBackgroundColor">@color/backgroundColor</item>
+        <item name="expandedHintEnabled">false</item>
+        <item name="hintTextColor">@color/text_input_hint_color</item>
     </style>
 
     <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">

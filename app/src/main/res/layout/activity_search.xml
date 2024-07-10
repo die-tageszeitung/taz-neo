@@ -54,7 +54,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/search_title"
-                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/search_results_small_margin"
@@ -73,7 +72,6 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/search_author"
-                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/search_results_small_margin"
