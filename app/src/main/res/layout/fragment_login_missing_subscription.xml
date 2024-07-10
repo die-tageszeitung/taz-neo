@@ -46,7 +46,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/fragment_login_missing_subscription_layout"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:passwordToggleDrawable="@drawable/show_password_selector">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_login_missing_subscription_password"

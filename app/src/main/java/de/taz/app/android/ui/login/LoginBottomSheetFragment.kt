@@ -20,6 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import de.taz.app.android.R
 import de.taz.app.android.base.FullscreenViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetLoginBinding
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -340,6 +341,8 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
     private fun showMissingCredentials(failed: Boolean = false) {
         log.verbose("showMissingCredentials - failed: $failed")
+        // Pretty sure this is never being called. so we inform sentry now to see later on if this will be called:
+        SentryWrapper.captureMessage("WE THOUGHT THIS NEVER HAPPENED: show CredentialsMissingFragment")
         showFragment(
             CredentialsMissingFragment.create(
                 failed = failed
@@ -417,6 +420,8 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
     private fun showNamesMissing() {
         log.verbose("showNamesMissing")
+        // Pretty sure this is never being called. so we inform sentry now to see later on if this will be called:
+        SentryWrapper.captureMessage("WE THOUGHT THIS NEVER HAPPENED: show NamesMissingFragment")
         showFragment(NamesMissingFragment())
     }
 

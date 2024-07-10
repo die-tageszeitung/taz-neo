@@ -142,6 +142,8 @@
     <color name="login_form_background">@color/background_forms</color>
     <color name="text_input_help_text_color">@color/text_icon_grey</color>
 
+    <color name="text_input_hint_color">@color/text_icon_grey</color>
+
     <!-- Colors used in drawables - defined as colors to be able to adapt them in dark mode -->
     <color name="ic_close_button_foreground_color">#85858B</color>
     <color name="ic_close_button_background_color">#E0E0E0</color>

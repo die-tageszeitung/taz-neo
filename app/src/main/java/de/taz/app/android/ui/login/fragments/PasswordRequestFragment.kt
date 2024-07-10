@@ -60,9 +60,9 @@ class PasswordRequestFragment : SubscriptionBaseFragment<FragmentLoginForgotPass
             viewBinding.fragmentLoginForgotPasswordHeader
                 .setText(R.string.fragment_login_forgot_password_for_subscription_header)
         } else {
+            viewBinding.fragmentLoginForgotPasswordUsernameLayout.setHint(R.string.login_username_hint)
             viewBinding.fragmentLoginForgotPasswordUsername.apply {
                 setText(viewModel.username ?: viewModel.subscriptionId?.toString())
-                setHint(R.string.login_username_hint)
             }
         }
 
