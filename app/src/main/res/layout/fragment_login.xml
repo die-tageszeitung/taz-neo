@@ -68,7 +68,8 @@
                 android:layout_marginTop="@dimen/login_text_input_margin_top"
                 android:hint="@string/login_password_hint"
                 app:layout_constraintTop_toBottomOf="@id/fragment_login_username_help"
-                app:passwordToggleEnabled="true">
+                app:passwordToggleEnabled="true"
+                app:passwordToggleDrawable="@drawable/show_password_selector">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_login_password"

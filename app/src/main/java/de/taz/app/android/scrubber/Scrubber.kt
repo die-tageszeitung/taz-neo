@@ -311,7 +311,14 @@ class Scrubber(applicationContext: Context) {
 
     private suspend fun deleteResourceInfo(resourceInfo: ResourceInfo) {
         val resourceInfoStub = ResourceInfoStub(resourceInfo)
-        appDatabase.resourceInfoDao().delete(resourceInfoStub)
+        try {
+            appDatabase.resourceInfoFileEntryJoinDao().deleteRelationToResourceInfo(resourceInfo.resourceVersion)
+            appDatabase.resourceInfoDao().delete(resourceInfoStub)
+
+        } catch (e: SQLiteConstraintException) {
+            log.warn("Could not delete ResourceInfo Metadata: ${resourceInfo.resourceVersion}", e)
+            return
+        }
 
         resourceInfo.resourceList.forEach { deleteFile(it) }
     }

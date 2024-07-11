@@ -110,31 +110,31 @@ abstract class SubscriptionInquiryFragment :
             isValid = false
         }
         if (email.isEmpty()) {
-            viewBinding.email.error = getString(R.string.login_email_error_empty)
+            viewBinding.emailLayout.error = getString(R.string.login_email_error_empty)
             isValid = false
         }
         if (surname.isEmpty()) {
-            viewBinding.surname.error = getString(R.string.login_surname_error_empty)
+            viewBinding.surnameLayout.error = getString(R.string.login_surname_error_empty)
             isValid = false
         }
         if (firstname.isEmpty()) {
-            viewBinding.firstName.error = getString(R.string.login_first_name_error_empty)
+            viewBinding.firstNameLayout.error = getString(R.string.login_first_name_error_empty)
             isValid = false
         }
         if (addressStreetNr.isEmpty()) {
-            viewBinding.addressStreet.error = getString(R.string.street_error_empty)
+            viewBinding.addressStreetLayout.error = getString(R.string.street_error_empty)
             isValid = false
         }
         if (addressZipCode.isEmpty()) {
-            viewBinding.addressZipcode.error = getString(R.string.postcode_error_empty)
+            viewBinding.addressZipcodeLayout.error = getString(R.string.postcode_error_empty)
             isValid = false
         }
         if (addressCity.isEmpty()) {
-            viewBinding.addressCity.error = getString(R.string.city_error_empty)
+            viewBinding.addressCityLayout.error = getString(R.string.city_error_empty)
             isValid = false
         }
         if (addressCountry.isEmpty()) {
-            viewBinding.addressCountry.error = getString(R.string.country_error_empty)
+            viewBinding.addressCountryLayout.error = getString(R.string.country_error_empty)
             isValid = false
         }
 
@@ -153,6 +153,8 @@ abstract class SubscriptionInquiryFragment :
         } else {
             tracker.trackSubscriptionInquiryFormValidationErrorEvent()
             hideLoadingState()
+            // Scroll to the top:
+            viewBinding.nestedScrollView.scrollY = 0
         }
     }
 

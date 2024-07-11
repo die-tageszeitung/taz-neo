@@ -53,6 +53,7 @@
             android:id="@+id/surname_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/email_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -70,6 +71,7 @@
             android:id="@+id/first_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/surname_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -87,6 +89,7 @@
             android:id="@+id/address_street_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/first_name_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -104,6 +107,7 @@
             android:id="@+id/address_city_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/address_street_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -121,6 +125,7 @@
             android:id="@+id/address_zipcode_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/address_city_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -138,6 +143,7 @@
             android:id="@+id/address_country_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/address_zipcode_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -155,6 +161,7 @@
             android:id="@+id/subscription_id_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/address_country_layout">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -172,6 +179,7 @@
             android:id="@+id/message_title_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:layout_constraintTop_toBottomOf="@id/subscription_id_layout">
 
             <com.google.android.material.textfield.TextInputEditText

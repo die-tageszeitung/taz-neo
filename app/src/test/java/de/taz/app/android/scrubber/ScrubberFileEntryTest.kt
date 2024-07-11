@@ -129,6 +129,25 @@ class ScrubberFileEntryTest {
     }
 
     @Test
+    fun `FileEntry is kept if referenced from a Section Image`() = runTest {
+        val image = Fixtures.image
+        val imageFileEntry = FileEntry(image)
+        val issue = Fixtures.issueBase.copy(
+            sectionList = listOf(
+                Fixtures.sectionBase.copy(
+                    imageList = listOf(Fixtures.image)
+                )
+            )
+        )
+        issueRepository.save(issue)
+        assertEquals(imageFileEntry, fileEntryRepository.get(imageFileEntry.name))
+
+        scrubber.scrub()
+
+        assertEquals(imageFileEntry, fileEntryRepository.get(imageFileEntry.name))
+    }
+
+    @Test
     fun `FileEntry is kept if referenced from an Article`() = runTest {
         val issue = Fixtures.issueBase.copy(
             sectionList = listOf(
@@ -168,6 +187,29 @@ class ScrubberFileEntryTest {
         scrubber.scrub()
 
         assertEquals(authorImageFileEntry, fileEntryRepository.get(authorImageFileEntry.name))
+    }
+
+    @Test
+    fun `FileEntry is kept if referenced from an Article Image`() = runTest {
+        val image = Fixtures.image
+        val imageFileEntry = FileEntry(image)
+        val issue = Fixtures.issueBase.copy(
+            sectionList = listOf(
+                Fixtures.sectionBase.copy(
+                    articleList = listOf(
+                        Fixtures.articleBase.copy(
+                            imageList = listOf(image)
+                        )
+                    )
+                )
+            )
+        )
+        issueRepository.save(issue)
+        assertEquals(imageFileEntry, fileEntryRepository.get(imageFileEntry.name))
+
+        scrubber.scrub()
+
+        assertEquals(imageFileEntry, fileEntryRepository.get(imageFileEntry.name))
     }
 
     @Test

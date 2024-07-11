@@ -15,7 +15,7 @@ interface ImageStubDao: BaseDao<ImageStub> {
          WHERE NOT EXISTS ( SELECT 1 FROM ArticleImageJoin WHERE ArticleImageJoin.imageFileName = Image.fileEntryName )
            AND NOT EXISTS ( SELECT 1 FROM ArticleAuthor WHERE ArticleAuthor.authorFileName = Image.fileEntryName )
            AND NOT EXISTS ( SELECT 1 FROM MomentImageJoin WHERE MomentImageJoin.momentFileName = Image.fileEntryName )
-           AND NOT EXISTS ( SELECT 1 FROM MomentCreditJoin WHERE MomentCreditJoin.momentFileName = Image.fileEntryName ) 
+           AND NOT EXISTS ( SELECT 1 FROM MomentCreditJoin WHERE MomentCreditJoin.momentFileName = Image.fileEntryName )
            AND NOT EXISTS ( SELECT 1 FROM SectionImageJoin WHERE SectionImageJoin.imageFileName = Image.fileEntryName )
            AND NOT EXISTS ( SELECT 1 FROM ResourceInfoFileEntryJoin WHERE ResourceInfoFileEntryJoin.fileEntryName = Image.fileEntryName )
     """)

@@ -45,9 +45,11 @@
             android:id="@+id/fragment_subscription_account_password_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_email_layout"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:passwordToggleDrawable="@drawable/show_password_selector">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password"
@@ -63,9 +65,11 @@
             android:id="@+id/fragment_subscription_account_password_confirm_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_password_layout"
-            app:passwordToggleEnabled="true">
+            app:passwordToggleEnabled="true"
+            app:passwordToggleDrawable="@drawable/show_password_selector">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password_confirm"

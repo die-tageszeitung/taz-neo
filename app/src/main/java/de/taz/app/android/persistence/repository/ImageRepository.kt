@@ -69,8 +69,4 @@ class ImageRepository private constructor(
         }
         fileEntryRepository.delete(imageFileEntry)
     }
-
-    suspend fun delete(fileEntries: List<Image>) {
-        fileEntries.map { delete(it) }
-    }
 }

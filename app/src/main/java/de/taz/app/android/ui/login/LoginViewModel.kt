@@ -219,7 +219,6 @@ class LoginViewModel @JvmOverloads constructor(
                     status = LoginViewModelState.DONE
                 }
                 AuthStatus.notValid -> {
-                    resetCredentialsPassword()
                     status = LoginViewModelState.CREDENTIALS_INVALID
                 }
                 AuthStatus.tazIdNotLinked ->
@@ -416,7 +415,6 @@ class LoginViewModel @JvmOverloads constructor(
                 SubscriptionStatus.noSurname,
                 SubscriptionStatus.nameTooLong,
                 SubscriptionStatus.invalidMail -> {
-                    resetCredentialsPassword()
                     status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                 }
                 SubscriptionStatus.waitForProc -> {
@@ -426,7 +424,6 @@ class LoginViewModel @JvmOverloads constructor(
                     status = LoginViewModelState.REGISTRATION_EMAIL
                 }
                 SubscriptionStatus.tazIdNotValid -> {
-                    resetCredentialsPassword()
                     status = LoginViewModelState.CREDENTIALS_MISSING_FAILED
                 }
                 SubscriptionStatus.invalidConnection -> {

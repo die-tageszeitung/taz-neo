@@ -169,13 +169,16 @@ class ScrubberTest {
     @Test
     fun `ResourceInfo older then the latest downloaded are removed`() = runTest {
         val dateDownload = requireNotNull(DateHelper.stringToDate("2000-12-13"))
+        val file = Fixtures.fileEntry
         val outdatedResourceInfo = Fixtures.resourceInfoBase.copy(
             resourceVersion = 1,
-            dateDownload = dateDownload
+            dateDownload = dateDownload,
+            resourceList = listOf(file),
         )
         val latestResourceInfo = Fixtures.resourceInfoBase.copy(
             resourceVersion = 2,
-            dateDownload = dateDownload
+            dateDownload = dateDownload,
+            resourceList = listOf(file),
         )
 
         resourceInfoRepository.save(outdatedResourceInfo)
