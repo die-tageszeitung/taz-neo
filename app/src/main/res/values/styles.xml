@@ -98,7 +98,7 @@
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
         <item name="cursorColor">@color/textColor</item>
         <item name="boxBackgroundColor">@color/backgroundColor</item>
-        <item name="expandedHintEnabled">false</item>
+        <item name="expandedHintEnabled">true</item>
         <item name="hintTextColor">@color/text_input_hint_color</item>
     </style>
 

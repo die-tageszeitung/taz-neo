@@ -16,10 +16,10 @@
 
         <TextView
             android:id="@+id/fragment_subscription_name_title"
+            style="@style/TextAppearance.Login.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_subscription_name_title"
-            android:textAppearance="@style/TextAppearance.Login.Title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
