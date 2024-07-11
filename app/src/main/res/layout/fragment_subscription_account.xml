@@ -16,10 +16,10 @@
 
         <TextView
             android:id="@+id/fragment_login_title"
+            style="@style/TextAppearance.Login.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_title"
-            android:textAppearance="@style/TextAppearance.Login.Title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -48,8 +48,8 @@
             android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_email_layout"
-            app:passwordToggleEnabled="true"
-            app:passwordToggleDrawable="@drawable/show_password_selector">
+            app:passwordToggleDrawable="@drawable/show_password_selector"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password"
@@ -68,8 +68,8 @@
             android:layout_marginTop="@dimen/default_text_input_margin_top"
             app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/fragment_subscription_account_password_layout"
-            app:passwordToggleEnabled="true"
-            app:passwordToggleDrawable="@drawable/show_password_selector">
+            app:passwordToggleDrawable="@drawable/show_password_selector"
+            app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fragment_subscription_account_password_confirm"
