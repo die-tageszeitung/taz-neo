@@ -16,12 +16,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
+import de.taz.app.android.WARN_LONG_LOADING_SCREEN_AFTER_MS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.TazApiCssHelper
@@ -48,6 +50,12 @@ class ArticleWebViewFragment :
     private lateinit var authHelper: AuthHelper
 
     private var isMultiColumnMode = false
+
+    private val informSentryAfterDelayJob =
+        lifecycleScope.launch {
+            delay(WARN_LONG_LOADING_SCREEN_AFTER_MS)
+            SentryWrapper.captureMessage("loading screen of ArticleWebViewFragment took more than 30 seconds")
+        }
 
     override val webView: AppWebView
         get() = viewBinding.webView
@@ -150,6 +158,7 @@ class ArticleWebViewFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        informSentryAfterDelayJob.start()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 tazApiCssDataStore.multiColumnMode.asFlow().collect {
@@ -173,6 +182,7 @@ class ArticleWebViewFragment :
 
     override fun onPageRendered() {
         super.onPageRendered()
+        informSentryAfterDelayJob.cancel()
         viewLifecycleOwner.lifecycleScope.launch {
             // setting multi column mode is only possible after page is rendered so the webView can compute its scroll width
             if (isMultiColumnMode) {

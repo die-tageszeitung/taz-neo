@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.WARN_LONG_LOADING_SCREEN_AFTER_MS
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Page
@@ -13,6 +14,7 @@ import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentPdfPagerBinding
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.navigation.BottomNavigationItem
@@ -21,6 +23,7 @@ import de.taz.app.android.ui.pdfViewer.mupdf.OnCoordinatesClickedListener
 import de.taz.app.android.ui.pdfViewer.mupdf.PageAdapter
 import de.taz.app.android.ui.pdfViewer.mupdf.PageView
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -37,6 +40,12 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private val log by Log
 
+    private val informSentryAfterDelayJob =
+        lifecycleScope.launch {
+            delay(WARN_LONG_LOADING_SCREEN_AFTER_MS)
+            SentryWrapper.captureMessage("loading screen of PdfPagerFragment took more than 30 seconds")
+        }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
@@ -46,7 +55,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        informSentryAfterDelayJob.start()
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pdfPageList ->
             if (pdfPageList.isNotEmpty()) {
                 viewBinding.readerView.apply {
@@ -188,6 +197,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             }
         }
         drawerAndLogoViewModel.hideLogo()
+        informSentryAfterDelayJob.cancel()
     }
 
     private fun trackOnPageChange(position: Int) {
