@@ -16,6 +16,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.appbar.AppBarLayout
+import de.taz.app.android.WARN_LONG_LOADING_SCREEN_AFTER_MS
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.WebViewDisplayable
@@ -27,6 +28,7 @@ import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
@@ -35,7 +37,6 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -93,6 +94,12 @@ abstract class WebViewFragment<
     abstract val appBarLayout: AppBarLayout?
     abstract val bottomNavigationLayout: View?
 
+    private val informSentryAfterDelayJob =
+        lifecycleScope.launch {
+            delay(WARN_LONG_LOADING_SCREEN_AFTER_MS)
+            SentryWrapper.captureMessage("loading screen of WebViewFragment took more than 30 seconds")
+        }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
@@ -106,7 +113,6 @@ abstract class WebViewFragment<
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         viewModel.displayableLiveData.distinctUntilChanged().observe(this) { displayable ->
             if (displayable != null) {
                 setHeader(displayable)
@@ -123,6 +129,7 @@ abstract class WebViewFragment<
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        informSentryAfterDelayJob.start()
         viewModel.displayableLiveData.distinctUntilChanged().observe(viewLifecycleOwner) {
             if (it != null) {
                 log.debug("Received a new displayable ${it.key}")
@@ -382,6 +389,7 @@ abstract class WebViewFragment<
     open fun hideLoadingScreen() {
         activity?.runOnUiThread {
             loadingScreen.animate()?.alpha(0f)?.duration = LOADING_SCREEN_FADE_OUT_TIME
+            informSentryAfterDelayJob.cancel()
         }
     }
 
