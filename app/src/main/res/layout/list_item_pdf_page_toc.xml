@@ -11,7 +11,7 @@
         android:id="@+id/article_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/appFontBold"
+        android:fontFamily="@font/appFontOldBold"
         android:textSize="@dimen/list_item_pdf_page_toc_text_size"
         android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
         app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
