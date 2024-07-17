@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
-            android:fontFamily="@font/appFontRegular"
+            android:fontFamily="@font/appFontOldRegular"
             android:textColor="@color/pdf_section_font"
             android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_pagina"
             android:textStyle="bold"

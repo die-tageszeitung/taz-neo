@@ -13,7 +13,7 @@
         android:id="@+id/search_result_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/appFontBold"
+        android:fontFamily="@font/appFontOldBold"
         android:lineSpacingExtra="@dimen/search_result_title_line_spacing_extra"
         android:textSize="@dimen/search_result_title_text_size"
         app:layout_constraintStart_toStartOf="parent"

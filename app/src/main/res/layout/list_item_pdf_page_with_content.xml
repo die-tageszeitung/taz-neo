@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
         android:ellipsize="end"
-        android:fontFamily="@font/appFontRegular"
+        android:fontFamily="@font/appFontOldRegular"
         android:maxLines="1"
         android:textColor="@color/pdf_section_font"
         android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_pagina"

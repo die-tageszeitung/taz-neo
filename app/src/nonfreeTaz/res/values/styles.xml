@@ -4,7 +4,7 @@
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:lineSpacingExtra">32pt</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle">

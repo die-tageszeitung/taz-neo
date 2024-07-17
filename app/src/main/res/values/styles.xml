@@ -75,7 +75,7 @@
 
     <style name="AppTheme.Base.ButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="fontFamily">@font/appFontBold</item>
+        <item name="fontFamily">@font/appFontOldBold</item>
         <item name="android:includeFontPadding">true</item>
         <item name="backgroundTint">@color/buttonColor</item>
     </style>
@@ -83,7 +83,7 @@
     <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle" />
 
     <style name="AppTheme.Base.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="fontFamily">@font/appFontBold</item>
+        <item name="fontFamily">@font/appFontOldBold</item>
         <item name="backgroundTint">@android:color/transparent</item>
         <item name="android:includeFontPadding">true</item>
         <item name="strokeColor">@color/buttonColor</item>
@@ -117,11 +117,11 @@
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">@dimen/fragment_drawer_sections_item_text_size</item>
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:maxLines">1</item>
@@ -141,7 +141,7 @@
 
     <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:lineSpacingExtra">0dp</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:includeFontPadding">false</item>
@@ -154,14 +154,14 @@
 
     <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
     </style>
 
     <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
@@ -171,7 +171,7 @@
     <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:maxLines">1</item>
         <item name="android:includeFontPadding">true</item>
     </style>
@@ -205,13 +205,13 @@
 
     <!-- inactive tab icon style -->
     <style name="TextAppearance.BottomNavigationView.Inactive">
-        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
     <!-- active tab icon style -->
     <style name="TextAppearance.BottomNavigationView.Active">
-        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
@@ -226,26 +226,26 @@
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
         <item name="android:paddingBottom">5dp</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.Settings.Detail" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColorAccent</item>
         <item name="android:textSize">@dimen/fragment_settings_text_detail_font_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:gravity">top</item>
     </style>
 
     <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
@@ -261,7 +261,7 @@
     <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
         <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
     </style>
@@ -269,7 +269,7 @@
     <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/search_advanced_text_size</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:paddingTop">@dimen/search_advanced_category_padding_top</item>
         <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
     </style>
@@ -293,20 +293,20 @@
 
     <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
         <item name="android:textSize">@dimen/search_result_author_text_size</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">3sp</item>
         <item name="android:includeFontPadding">false</item>
@@ -319,7 +319,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">14.5sp</item>
         <item name="android:lineSpacingExtra">3.63sp</item>
         <item name="android:includeFontPadding">false</item>
@@ -329,7 +329,7 @@
 
     <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
         <item name="android:lineSpacingExtra">3sp</item>
         <item name="android:includeFontPadding">false</item>
@@ -342,7 +342,7 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:maxLines">3</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
         <item name="android:lineSpacingExtra">3.75sp</item>
         <item name="android:includeFontPadding">false</item>
@@ -352,20 +352,20 @@
 
     <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">13.5sp</item>
     </style>
 
     <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/read_minutes</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">12sp</item>
     </style>
 
@@ -373,7 +373,7 @@
     <style name="TextAppearance.Dialog.Title" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">21sp</item>
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:paddingBottom">9dp</item>
     </style>
 
@@ -395,7 +395,7 @@
     <style name="TextAppearance.AudioPlayer" parent="TextAppearance.AppCompat">
         <!-- Defined in Figma as GUI/Audio-author-mini -->
         <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">13sp</item>
         <item name="android:lineSpacingExtra">2.6sp</item>
         <item name="android:includeFontPadding">false</item>
@@ -403,7 +403,7 @@
 
     <style name="TextAppearance.AudioPlayer.Bold">
         <!-- Defined in Figma as GUI/Audio-head-mini -->
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">13.5sp</item>
         <item name="android:lineSpacingExtra">2.7sp</item>
     </style>
@@ -416,7 +416,7 @@
 
     <style name="TextAppearance.AudioPlayer.Expanded.Bold">
         <!-- Defined in Figma as: GUI/Info-bodytext-bold -->
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
     </style>
 
     <style name="TextAppearance.AudioPlayer.Expanded.Light">
@@ -439,7 +439,7 @@
 
     <!-- region:  Default styles from the styleguide: -->
     <style name="TextAppearance.ModalTopline" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
@@ -451,31 +451,31 @@
     </style>
 
     <style name="TextAppearance.Marketing.Head.Aktiv" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">25sp</item>
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
     <style name="TextAppearance.Info.SubHead" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">21sp</item>
         <item name="android:lineSpacingExtra">4sp</item>
     </style>
 
     <style name="TextAppearance.Info.BodyText" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">18sp</item>
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
     <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
     <style name="TextAppearance.Link.Large" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">15sp</item>
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
@@ -483,28 +483,28 @@
 
     <style name="TextAppearance.M.Link" parent="TextAppearance">
         <!-- Figma reference to M/link which is not part of the Android styleguide -->
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">14sp</item>
     </style>
     <!-- endregion -->
 
     <style name="TextAppearance.Date.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
     <style name="TextAppearance.Settings" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
     <style name="TextAppearance.IconText" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">9.4sp</item>
         <item name="android:textColor">@color/textColor</item>
     </style>

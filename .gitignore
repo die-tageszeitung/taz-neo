@@ -213,6 +213,8 @@ taz-play-publish.json
 # nonfree fonts should not be put in the repo
 app/src/nonfree/res/font/aktiv_grotesk_regular.ttf
 app/src/nonfree/res/font/aktiv_grotesk_bold.ttf
+app/src/nonfree/res/font/aktiv_grotesk_old_regular.ttf
+app/src/nonfree/res/font/aktiv_grotesk_old_bold.ttf
 app/src/nonfree/res/font/quatext_regular.ttf
 app/src/nonfree/res/font/american_typewriter_condensed_bold.ttf
 app/src/nonfree/res/font/knile_light.ttf

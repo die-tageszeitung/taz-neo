@@ -243,7 +243,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/search_separator_line_margin"
-            android:fontFamily="@font/appFontBold"
+            android:fontFamily="@font/appFontOldBold"
             android:lineSpacingExtra="@dimen/search_description_text_line_spacing_extra"
             android:text="@string/search_description"
             android:textAlignment="center"
