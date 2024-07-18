@@ -16,7 +16,8 @@ plugins {
 
     // Only define the sentry version globally, and apply it only for nonfree variants
     // When updating this you must also update the nonfreeImplementation('io.sentry:sentry-android:XXX') below
-    id 'io.sentry.android.gradle' version '4.9.0' apply false
+    // see https://github.com/getsentry/sentry-android-gradle-plugin/releases for release notes
+    id 'io.sentry.android.gradle' version '4.10.0' apply false
 }
 
 // WARNING: this will apply the Google Services plugin based on the gradle command,
@@ -337,7 +338,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.core:core-ktx:1.13.1'
 
-    implementation 'androidx.collection:collection-ktx:1.4.0'
+    implementation 'androidx.collection:collection-ktx:1.4.1'
     implementation 'androidx.datastore:datastore-preferences:1.1.1'
 
     implementation 'androidx.fragment:fragment-ktx:1.8.1'
@@ -387,13 +388,13 @@ dependencies {
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
     // mupdf
-    implementation 'com.artifex.mupdf:fitz:1.23.7'
+    implementation 'com.artifex.mupdf:fitz:1.24.6'
 
     // error reports
     // While the Sentry gradle plugin adds the dependency to the build itself, Android Studio does
     // work with how we include it within an if. Thus we have to explicitly add the dependency too.
     // When updating this you must also update the "id 'io.sentry.android.gradle' version XXX" above.
-    nonfreeImplementation('io.sentry:sentry-android:7.11.0')
+    nonfreeImplementation('io.sentry:sentry-android:7.12.0')
 
     // semver parsing
     implementation 'com.vdurmont:semver4j:3.1.0'
@@ -410,7 +411,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.robolectric:robolectric:4.12.2'
+    testImplementation 'org.robolectric:robolectric:4.13'
     testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
@@ -418,7 +419,7 @@ dependencies {
 
     // mocking
     testImplementation 'org.mockito:mockito-core:5.12.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.3.1'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
 
     // Core library
     testImplementation 'androidx.test:core-ktx:1.6.1'
