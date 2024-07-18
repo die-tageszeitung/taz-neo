@@ -4,7 +4,7 @@ These files are copied from https://github.com/ArtifexSoftware/mupdf-android-vie
 modified to be used from within this project.
 Especially PageView has been heavily rewritten and migrated to kotlin.
 
-The latest merge was from tag `1.23.7a`.
+The latest merge was from tag `1.24.6a`.
 
 ## License
 
