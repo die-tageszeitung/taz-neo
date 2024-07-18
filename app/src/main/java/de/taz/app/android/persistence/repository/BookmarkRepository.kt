@@ -28,7 +28,7 @@ import java.util.Date
  */
 class BookmarkRepository(
     applicationContext: Context,
-    private val articleStubToArticle: suspend (ArticleStub) -> Article,
+    private val articleStubToArticle: suspend (ArticleStub) -> Article?,
     private val coroutineScope: CoroutineScope,
     private val tracker: Tracker
 ) : RepositoryBase(applicationContext) {
@@ -201,7 +201,7 @@ class BookmarkRepository(
     fun getBookmarkedArticlesFlow(): Flow<List<Article>> {
         return stateChangeFlow.map {
             getBookmarkedArticleStubs()
-                .map { articleStubToArticle(it) }
+                .mapNotNull { articleStubToArticle(it) }
         }
     }
 

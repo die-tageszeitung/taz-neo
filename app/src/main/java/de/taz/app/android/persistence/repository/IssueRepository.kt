@@ -349,8 +349,13 @@ class IssueRepository private constructor(applicationContext: Context) :
         val pageList =
             appDatabase.issuePageJoinDao()
                 .getPageNamesForIssue(issueStub.feedName, issueStub.date, issueStub.status)
-                .map {
-                    pageRepository.getOrThrow(it)
+                .mapNotNull {
+                    try {
+                        pageRepository.getOrThrow(it)
+                    } catch (e: NotFoundException) {
+                        log.error("Could not get Page(${it}) of Issue (${issueStub.issueKey})", e)
+                        null
+                    }
                 }
 
         return Issue(

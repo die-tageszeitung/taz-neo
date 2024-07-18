@@ -125,7 +125,7 @@ class SectionRepository private constructor(applicationContext: Context) :
 
         val articles =
             appDatabase.sectionArticleJoinDao().getArticlesForSection(sectionFileName)
-                ?.map { articleRepository.articleStubToArticle(it) }
+                ?.mapNotNull { articleRepository.articleStubToArticle(it) }
                 ?: emptyList()
 
         val images = appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)

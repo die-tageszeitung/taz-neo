@@ -132,7 +132,20 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleImageJoinDao().getImagesForArticle(articleFileName)
     }
 
-    suspend fun articleStubToArticle(articleStub: ArticleStub): Article {
+    suspend fun articleStubToArticle(articleStub: ArticleStub): Article? {
+        return try {
+            articleStubToArticleOrThrow(articleStub)
+        } catch (e: NotFoundException) {
+            log.error("Could not get Article (${articleStub.articleFileName}), because some critical data can't be loaded.", e)
+            null
+        }
+    }
+
+    /**
+     * Tries convert the ArticleStub to an Article
+     * or throws an [NotFoundException] if some of the critical data can't be loaded.
+     */
+    private suspend fun articleStubToArticleOrThrow(articleStub: ArticleStub): Article {
         val articleName = articleStub.articleFileName
         val articleHtml = fileEntryRepository.getOrThrow(articleName)
         val articleImages = appDatabase.articleImageJoinDao().getImagesForArticle(articleName)
@@ -267,7 +280,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     suspend fun getArticleListForIssue(issueKey: IssueKey): List<Article> =
         getArticleStubListForIssue(issueKey)
-            .map { articleStubToArticle(it.articleStub) }
+            .mapNotNull { articleStubToArticle(it.articleStub) }
 
     suspend fun setDownloadDate(
         articleStub: ArticleStub,
