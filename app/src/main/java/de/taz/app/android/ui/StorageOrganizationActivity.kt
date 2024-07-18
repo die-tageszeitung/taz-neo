@@ -6,20 +6,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.room.withTransaction
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.base.StartupActivity
-import de.taz.app.android.content.ContentService
-import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.databinding.ActivityStorageMigrationBinding
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.sentry.SentryWrapper
-import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,10 +28,6 @@ class StorageOrganizationActivity : StartupActivity() {
     private lateinit var database: AppDatabase
 
     private lateinit var storageDataStore: StorageDataStore
-    private lateinit var issueRepository: IssueRepository
-    private lateinit var contentService: ContentService
-    private lateinit var authHelper: AuthHelper
-    private lateinit var toastHelper: ToastHelper
 
     private lateinit var viewBinding: ActivityStorageMigrationBinding
 
@@ -52,23 +41,13 @@ class StorageOrganizationActivity : StartupActivity() {
         storageService = StorageService.getInstance(applicationContext)
         database = AppDatabase.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
-        contentService = ContentService.getInstance(applicationContext)
-        authHelper = AuthHelper.getInstance(applicationContext)
-        toastHelper = ToastHelper.getInstance(applicationContext)
 
         lifecycleScope.launch {
             migrateToSelectableStorage()
             migrateFilesToDesiredStorage()
 
-            if (authHelper.getMinStatus() == IssueStatus.regular) {
-                deletePublicIssues()
-            }
-
-            withContext(Dispatchers.Main) {
-                startActualApp()
-                finish()
-            }
+            startActualApp()
+            finish()
         }
     }
 
@@ -181,43 +160,6 @@ class StorageOrganizationActivity : StartupActivity() {
                     viewBinding.numericProgress.text = "${index + 1} / $fileCount"
                 }
             }
-        }
-    }
-
-    /**
-     * This function will prune all data associated to public / demo issues
-     */
-    private suspend fun deletePublicIssues() {
-        val issueStubsToDelete = issueRepository.getAllPublicAndDemoIssueStubs()
-        val issueCount = issueStubsToDelete.size
-        log.info("Will delete $issueCount public issues")
-
-        withContext(Dispatchers.Main) {
-            viewBinding.apply {
-                description.text = getString(R.string.storage_migration_help_text_delete_issues)
-                numericProgress.text = "0 / $issueCount"
-                migrationProgress.progress = 0
-                migrationProgress.max = issueCount
-            }
-        }
-        var count = 0
-        var errors = 0
-        for (issueStub in issueStubsToDelete) {
-            try {
-                contentService.deleteIssue(issueStub.issueKey)
-            } catch (e: CacheOperationFailedException) {
-                log.warn("Issue deleting public issues during startup storage organization", e)
-                SentryWrapper.captureException(e)
-                errors++
-            }
-            withContext(Dispatchers.Main) {
-                count++
-                viewBinding.migrationProgress.progress = count
-                viewBinding.numericProgress.text = "$count / $issueCount"
-            }
-        }
-        if (errors > 0) {
-            toastHelper.showToast(R.string.storage_migration_help_text_delete_issues_error)
         }
     }
 }

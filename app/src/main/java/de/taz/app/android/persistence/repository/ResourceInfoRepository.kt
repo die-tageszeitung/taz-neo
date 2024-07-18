@@ -124,7 +124,7 @@ class ResourceInfoRepository private constructor(applicationContext: Context) :
         try {
             appDatabase.fileEntryDao().delete(resourceInfo.resourceList)
         } catch (e: SQLiteConstraintException) {
-            log.warn("Error occurred: $e")
+            log.info("Could not delete some FileEntry related to ResourceInfo(${resourceInfo.resourceVersion}) because they are still referenced")
         }
 
         appDatabase.resourceInfoDao().delete(ResourceInfoStub(resourceInfo))

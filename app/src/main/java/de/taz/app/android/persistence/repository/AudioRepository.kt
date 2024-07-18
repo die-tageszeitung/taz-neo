@@ -46,7 +46,7 @@ class AudioRepository private constructor(applicationContext: Context) :
         try {
             delete(AudioStub(audio))
         } catch (e: SQLiteConstraintException) {
-            log.info("Did not delete audio ${audio.file.name} because it is still referenced", e)
+            log.info("Did not delete audio ${audio.file.name} because it is still referenced")
         }
     }
 

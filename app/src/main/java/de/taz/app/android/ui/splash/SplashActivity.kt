@@ -18,28 +18,41 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.vdurmont.semver4j.Semver
 import com.vdurmont.semver4j.SemverException
-import de.taz.app.android.*
+import de.taz.app.android.BuildConfig
+import de.taz.app.android.DEBUG_VERSION_DOWNLOAD_ENDPOINT
+import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.AppInfoKey
+import de.taz.app.android.api.models.ResourceInfoKey
 import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.persistence.repository.FeedRepository
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.scrubber.Scrubber
-import de.taz.app.android.singletons.*
+import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.NotificationHelper
+import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
-import de.taz.app.android.sentry.SentryWrapper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
-import java.util.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 const val CHANNEL_ID_NEW_VERSION = "NEW_VERSION"
 const val NEW_VERSION_REQUEST_CODE = 0
@@ -59,7 +72,6 @@ class SplashActivity : StartupActivity() {
     private lateinit var storageDataStore: StorageDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var contentService: ContentService
-    private lateinit var issueRepository: IssueRepository
     private lateinit var feedService: FeedService
     private lateinit var appInfoRepository: AppInfoRepository
     private lateinit var feedRepository: FeedRepository
@@ -87,7 +99,6 @@ class SplashActivity : StartupActivity() {
         contentService = ContentService.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
-        issueRepository = IssueRepository.getInstance(applicationContext)
         feedService = FeedService.getInstance(applicationContext)
         appInfoRepository = AppInfoRepository.getInstance(applicationContext)
         feedRepository = FeedRepository.getInstance(applicationContext)
@@ -440,8 +451,7 @@ class SplashActivity : StartupActivity() {
 
 
     /**
-     * Returns true if some migrations are pending, due to leftover public artifacts
-     * or when the app data should be moved from/to the SD card.
+     * Returns true if some migrations are pending or when the app data should be moved from/to the SD card.
      */
     private suspend fun areMigrationsRequired(): Boolean {
         val currentStorageLocation = storageDataStore.storageLocation.get()
@@ -452,13 +462,7 @@ class SplashActivity : StartupActivity() {
             fileEntryRepository.getExceptStorageLocation(
                 listOf(StorageLocation.NOT_STORED, currentStorageLocation)
             )
-
-
-        val publicIssuesNeedDeletion =
-            (issueRepository.getAllPublicAndDemoIssueStubs().isNotEmpty()
-                    && authHelper.getMinStatus() == IssueStatus.regular)
-
-        return unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty() || publicIssuesNeedDeletion
+        return unmigratedFiles.isNotEmpty() || filesWithBadStorage.isNotEmpty()
     }
 
     /**

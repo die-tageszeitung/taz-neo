@@ -401,10 +401,6 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getAllDownloadedIssueStubs()
     }
 
-    suspend fun getAllPublicAndDemoIssueStubs(): List<IssueStub> {
-        return appDatabase.issueDao().getAllPublicAndDemoIssueStubs()
-    }
-
     suspend fun getMostValuableIssueStubForPublication(
         issuePublication: AbstractIssuePublication
     ): IssueStub? {
