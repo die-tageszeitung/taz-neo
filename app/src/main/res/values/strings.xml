@@ -192,9 +192,6 @@
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
     <string name="settings_accept_tracking">Nutzungsdaten senden (anonym und sicher)</string>
 
-    <string name="storage_migration_help_text_delete_issues">Es sind einige ungenutze Dateien entdeckt worden. Räume auf.</string>
-    <string name="storage_migration_help_text_delete_issues_error">Beim Löschen von ungenutzten Ausgaben trat ein Fehler auf.</string>
-
     <string name="settings_dialog_download_additionally_title">Möchtest du zusätzlich auch die ePaper Version mit auf dein Gerät laden?</string>
     <string name="settings_dialog_download_additionally_description">Für das klassische Zeitungsfeeling kannst du das ePaper gleich mit auf dein Gerät laden. Das heisst aber auch mehr Datenvolumen auf deinem Handy. Wenn du es nicht möchtest und dich zu einem späteren Zeitpunkt umentscheidest, musst du die ePaper separat laden. Das automatische Mitladen kannst du in deinen Einstellungen ein- und ausstellen.</string>
     <string name="settings_dialog_download_do_not_ask_again">Nicht mehr fragen</string>

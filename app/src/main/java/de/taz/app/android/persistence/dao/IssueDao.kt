@@ -32,12 +32,6 @@ interface IssueDao : BaseDao<IssueStub> {
     @Query("SELECT lastDisplayableName FROM Issue WHERE strftime('%s', date) = strftime('%s', :fromDate) AND feedName = :feedName AND status == :status")
     suspend fun getLastDisplayable(feedName: String, fromDate: String, status: IssueStatus): String?
 
-    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) ORDER BY date DESC LIMIT 1 ")
-    suspend fun getLatestByDate(date: String): IssueStub?
-
-    @Query("SELECT * FROM Issue WHERE strftime('%s', date) <= strftime('%s', :date) AND Issue.status == 'regular' ORDER BY date DESC LIMIT 1 ")
-    suspend fun getLatestRegularByDate(date: String): IssueStub?
-
     @Query("SELECT * FROM Issue WHERE feedName == :feedName AND date == :date AND status == :status ")
     fun getByFeedDateAndStatusFlow(
         feedName: String,
@@ -48,17 +42,12 @@ interface IssueDao : BaseDao<IssueStub> {
     @Query("SELECT * FROM Issue ORDER BY date DESC LIMIT 1")
     suspend fun getLatest(): IssueStub?
 
-    @Query("SELECT * FROM Issue WHERE Issue.status == :status AND Issue.feedName == :feedName ORDER BY date DESC LIMIT 1")
-    suspend fun getLatestByFeedAndStatus(status: IssueStatus, feedName: String): IssueStub?
-
     @Query("SELECT * FROM Issue ORDER BY date DESC")
     suspend fun getAllIssueStubs(): List<IssueStub>
 
     @Query("SELECT * FROM Issue WHERE dateDownload IS NOT NULL ORDER BY date DESC")
     suspend fun getAllDownloadedIssueStubs(): List<IssueStub>
 
-    @Query("SELECT * FROM Issue WHERE status IN (\"public\", \"demo\") ORDER BY date DESC")
-    suspend fun getAllPublicAndDemoIssueStubs(): List<IssueStub>
 
     /**
      * We exclude the last viewed issue from deletion, otherwise we might end up deleting an issue
@@ -74,9 +63,6 @@ interface IssueDao : BaseDao<IssueStub> {
         ORDER BY dateDownload ASC LIMIT 1
         """)
     suspend fun getIssueToDelete(): IssueStub?
-
-    @Query("SELECT * FROM Issue ORDER BY date ASC LIMIT 1")
-    suspend fun getEarliest(): IssueStub?
 
     @Query("SELECT COUNT(date) FROM Issue WHERE dateDownload IS NOT NULL")
     fun getDownloadedIssuesCountFlow(): Flow<Int>

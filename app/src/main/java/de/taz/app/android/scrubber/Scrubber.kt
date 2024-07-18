@@ -13,6 +13,9 @@ import de.taz.app.android.api.models.AudioStub
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.ImageStub
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.MomentStub
 import de.taz.app.android.api.models.Page
@@ -26,11 +29,14 @@ import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.AudioRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.share.ShareArticleDownloadHelper
 import de.taz.app.android.util.Log
@@ -47,6 +53,7 @@ class Scrubber(applicationContext: Context) {
     private val log by Log
 
     private val appDatabase = AppDatabase.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
@@ -56,6 +63,7 @@ class Scrubber(applicationContext: Context) {
     private val momentRepository = MomentRepository.getInstance(applicationContext)
     private val resourceInfoRepository = ResourceInfoRepository.getInstance(applicationContext)
     private val shareArticleDownloadHelper = ShareArticleDownloadHelper(applicationContext)
+    private val authHelper = AuthHelper.getInstance(applicationContext)
 
     private val defaultNavDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
@@ -70,6 +78,12 @@ class Scrubber(applicationContext: Context) {
 
     suspend fun scrub() {
         shareArticleDownloadHelper.cleanup()
+
+        val orphanedIssueStubs: List<IssueStub> = getOrphanedIssueStubs()
+        for (issueStub in orphanedIssueStubs) {
+            val issue = issueRepository.get(issueStub.issueKey)
+            issue?.let { deleteIssue(it) }
+        }
 
         val orphanedSectionStubs: List<SectionStub> = getOrphanedSectionStubs()
         for (sectionStub in orphanedSectionStubs) {
@@ -128,17 +142,64 @@ class Scrubber(applicationContext: Context) {
         }
     }
 
+    private suspend fun getOrphanedIssueStubs(): List<IssueStub> {
+        val allIssueStubs = appDatabase.issueDao().getAllIssueStubs()
+
+        // Only keep the most valueable issue
+        // compare with [IssueRepository.getMostValuableIssueStubForPublication()]
+        val duplicatedIssueStubs = allIssueStubs
+            .groupBy { IssuePublication(it.feedName, it.date) }
+            .flatMap { (_, issueStubs) ->
+                issueStubs
+                    .sortedBy { it.status.ordinal }
+                    .dropLast(1)
+            }
+
+        // Delete all public and demo Issues when logged in with valid subscription
+        val publicIssueStubs = if (authHelper.isValid()) {
+            allIssueStubs.filter { it.status == IssueStatus.public || it.status == IssueStatus.demo }
+        } else {
+            emptyList()
+        }
+
+        val orphanedIssueStubs = duplicatedIssueStubs + publicIssueStubs
+        return orphanedIssueStubs.distinct()
+    }
+
+    private suspend fun deleteIssue(issue: Issue) {
+        try {
+            appDatabase.withTransaction {
+                appDatabase.issueImprintJoinDao()
+                    .deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+                appDatabase.issuePageJoinDao()
+                    .deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+                appDatabase.issueSectionJoinDao()
+                    .deleteRelationToIssue(issue.feedName, issue.date, issue.status)
+
+                appDatabase.issueDao().delete(IssueStub(issue))
+            }
+        } catch (e: SQLiteConstraintException) {
+            log.warn("Could not delete orphaned Issue: ${issue.issueKey}", e)
+            return
+        }
+
+        deleteMoment(issue.moment)
+        issue.imprint?.let { deleteArticle(it) }
+        issue.pageList.forEach { deletePage(it) }
+        issue.sectionList.forEach { deleteSection(it, ignoreBookmarkedArticles = true) }
+    }
+
     private suspend fun getOrphanedSectionStubs(): List<SectionStub> {
         return appDatabase.sectionDao().getOrphanedSections()
     }
 
-    private suspend fun deleteSection(section: Section) {
+    private suspend fun deleteSection(section: Section, ignoreBookmarkedArticles: Boolean = false) {
         val sectionStub = SectionStub(section)
 
-        // As orphaned sections are not part of any Issue, they should not have any Bookmarks,
+        // An orphaned sections are not part of any Issue, they should not have any Bookmarks,
         // but if we have some, we should not delete it
         val hasBookmarkedArticle = section.articleList.any { it.bookmarked }
-        if (hasBookmarkedArticle) {
+        if (!ignoreBookmarkedArticles && hasBookmarkedArticle) {
             log.warn("Found Section without an Issue that has a bookmarked Article: ${section.key}")
             return
         }
@@ -312,7 +373,8 @@ class Scrubber(applicationContext: Context) {
     private suspend fun deleteResourceInfo(resourceInfo: ResourceInfo) {
         val resourceInfoStub = ResourceInfoStub(resourceInfo)
         try {
-            appDatabase.resourceInfoFileEntryJoinDao().deleteRelationToResourceInfo(resourceInfo.resourceVersion)
+            appDatabase.resourceInfoFileEntryJoinDao()
+                .deleteRelationToResourceInfo(resourceInfo.resourceVersion)
             appDatabase.resourceInfoDao().delete(resourceInfoStub)
 
         } catch (e: SQLiteConstraintException) {

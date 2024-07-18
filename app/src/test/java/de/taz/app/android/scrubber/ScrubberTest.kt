@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.KEEP_LATEST_MOMENTS_COUNT
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.AudioRepository
@@ -16,6 +17,7 @@ import de.taz.app.android.persistence.repository.MomentRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.test.Fixtures
 import de.taz.test.Fixtures.copyWithFileName
@@ -24,10 +26,14 @@ import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.wheneverBlocking
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
@@ -48,6 +54,7 @@ class ScrubberTest {
     private lateinit var momentRepository: MomentRepository
     private lateinit var sectionRepository: SectionRepository
     private lateinit var imageRepository: ImageRepository
+    private lateinit var mockAuthHelper: AuthHelper
 
     @Before
     fun setUp() {
@@ -57,6 +64,12 @@ class ScrubberTest {
 
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
         AppDatabase.inject(db)
+
+        mockAuthHelper = mock {
+            onBlocking { isValid() }.doReturn(false)
+        }
+        AuthHelper.inject(mockAuthHelper)
+
 
         scrubber = Scrubber(context)
         fileEntryRepository = FileEntryRepository.getInstance(context)
@@ -427,4 +440,52 @@ class ScrubberTest {
         assertEquals(navButton, imageRepository.get(navButton.name))
     }
 
+    @Test
+    fun `Less valuable Issues are deleted`() = runTest {
+        // Given
+        val issuePublic = Fixtures.issueBase.copy(status = IssueStatus.public)
+        val issueDemo = Fixtures.issueBase.copy(status = IssueStatus.demo)
+        val issueRegular = Fixtures.issueBase.copy(status = IssueStatus.regular)
+
+        issueRepository.save(issuePublic)
+        issueRepository.save(issueDemo)
+        issueRepository.save(issueRegular)
+
+        assertNotNull(issueRepository.getStub(issuePublic.issueKey))
+        assertNotNull(issueRepository.getStub(issueDemo.issueKey))
+        assertNotNull(issueRepository.getStub(issueRegular.issueKey))
+
+        // When
+        scrubber.scrub()
+
+        // Then
+        assertNull(issueRepository.getStub(issuePublic.issueKey))
+        assertNull(issueRepository.getStub(issueDemo.issueKey))
+        assertNotNull(issueRepository.getStub(issueRegular.issueKey))
+    }
+
+    @Test
+    fun `Public and demo Issues are deleted if logged in with valid subscription`() = runTest {
+        // Given
+        val issuePublic = Fixtures.issueBase.copy(status = IssueStatus.public, date = "2000-12-13")
+        val issueDemo = Fixtures.issueBase.copy(status = IssueStatus.demo, date = "2001-12-13")
+        val issueRegular = Fixtures.issueBase.copy(status = IssueStatus.regular, date = "2002-12-13")
+
+        issueRepository.save(issuePublic)
+        issueRepository.save(issueDemo)
+        issueRepository.save(issueRegular)
+
+        assertNotNull(issueRepository.getStub(issuePublic.issueKey))
+        assertNotNull(issueRepository.getStub(issueDemo.issueKey))
+        assertNotNull(issueRepository.getStub(issueRegular.issueKey))
+
+        // When
+        wheneverBlocking { mockAuthHelper.isValid() }.doReturn(true)
+        scrubber.scrub()
+
+        // Then
+        assertNull(issueRepository.getStub(issuePublic.issueKey))
+        assertNull(issueRepository.getStub(issueDemo.issueKey))
+        assertNotNull(issueRepository.getStub(issueRegular.issueKey))
+    }
 }
