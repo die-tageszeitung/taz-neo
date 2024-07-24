@@ -154,6 +154,27 @@ public class ReaderView
             mapper.applyToView(mChildViews.valueAt(i));
     }
 
+    public void refresh(Boolean[] updatedPages) {
+        int numPages = updatedPages.length;
+        if (0 <= mCurrent && mCurrent < numPages && updatedPages[mCurrent]) {
+            // We do a full refresh as the currently shown page is changed
+            refresh();
+
+        } else {
+            // Otherwise just remove all the changed views from the cache and let them be re-rendered when needed
+            for (int i = 0; i < numPages; i++) {
+                View v = mChildViews.get(i);
+                if (v != null && updatedPages[i]) {
+                    mChildViews.delete(i);
+                    onNotInUse(v);
+                    removeViewInLayout(v);
+                    mViewCache.add(v);
+                }
+            }
+        }
+
+    }
+
     public void refresh() {
         mResetLayout = true;
 
@@ -163,7 +184,7 @@ public class ReaderView
          * invalidating both sizes and bitmaps. */
         mAdapter.refresh();
         int numChildren = mChildViews.size();
-        for (int i = 0; i < mChildViews.size(); i++) {
+        for (int i = 0; i < numChildren; i++) {
             View v = mChildViews.valueAt(i);
             onNotInUse(v);
             removeViewInLayout(v);
@@ -777,6 +798,7 @@ public class ReaderView
     @Override
     public boolean onSingleTapConfirmed(MotionEvent e) {
         PageView pageView = (PageView) getDisplayedView();
+
         if (!tapDisabled && pageView != null && mOnCoordinatesClickedListener != null) {
             float docX = e.getX() - pageView.getLeft();
             float docY = e.getY() - pageView.getTop();
@@ -785,7 +807,11 @@ public class ReaderView
             float docRatioY = docY / pageView.getHeight();
 
             Page page = pageView.getPage();
-            mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY, e.getX(), e.getY());
+            if (page != null) {
+                // Only call the listener when a Page is loaded.
+                // Note: This will prevent from using tap-to-scroll on loading pages.
+                mOnCoordinatesClickedListener.onClick(page, docRatioX, docRatioY, e.getX(), e.getY());
+            }
         }
         return true;
     }
