@@ -32,7 +32,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
-import de.taz.app.android.WARN_LONG_LOADING_SCREEN_AFTER_MS
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionType
@@ -42,7 +41,6 @@ import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -51,7 +49,6 @@ import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -91,11 +88,6 @@ class SectionWebViewFragment : WebViewFragment<
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var audioPlayerService: AudioPlayerService
 
-    private val informSentryAfterDelayJob =
-        lifecycleScope.launch {
-            delay(WARN_LONG_LOADING_SCREEN_AFTER_MS)
-            SentryWrapper.captureMessage("loading screen of SectionWebViewFragment took more than 30 seconds")
-        }
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
@@ -162,7 +154,6 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        informSentryAfterDelayJob.start()
         viewLifecycleOwner.lifecycleScope.launch {
             maybeHandlePodcast()
         }
@@ -292,7 +283,6 @@ class SectionWebViewFragment : WebViewFragment<
         viewLifecycleOwner.lifecycleScope.launch {
             restoreLastScrollPosition()
             hideLoadingScreen()
-            informSentryAfterDelayJob.cancel()
         }
     }
 

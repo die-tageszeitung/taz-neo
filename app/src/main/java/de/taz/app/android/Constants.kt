@@ -69,6 +69,3 @@ const val KEEP_LATEST_MOMENTS_COUNT = 15
 
 // The scrubber will be started every X days
 const val SCRUBBER_INTERVAL_DAYS = 30L
-
-// This delay is used when the loading screen isn't hidden after that amount
-const val WARN_LONG_LOADING_SCREEN_AFTER_MS = 30 * 1000L
