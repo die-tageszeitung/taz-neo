@@ -2,6 +2,7 @@ package de.taz.app.android.util
 
 import android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import java.text.SimpleDateFormat
 import java.util.ArrayDeque
 import java.util.Calendar
@@ -34,42 +35,34 @@ class Log(private val tag: String) {
 
     fun verbose(message: String, throwable: Throwable? = null) {
         Log.v(tag, message, throwable)
-        setSentryBreadcrumb(message, throwable)
+        SentryWrapper.addLogcatBreadcrumb(tag, SentryWrapperLevel.DEBUG, message, throwable)
         addToTrace(message, "V")
     }
 
 
     fun debug(message: String, throwable: Throwable? = null) {
         Log.d(tag, message, throwable)
-        setSentryBreadcrumb(message, throwable)
+        SentryWrapper.addLogcatBreadcrumb(tag, SentryWrapperLevel.DEBUG, message, throwable)
         addToTrace(message, "D")
     }
 
 
     fun error(message: String, throwable: Throwable? = null) {
         Log.e(tag, message, throwable)
-        setSentryBreadcrumb(message, throwable)
+        SentryWrapper.addLogcatBreadcrumb(tag, SentryWrapperLevel.ERROR, message, throwable)
         addToTrace(message, "E")
     }
 
     fun info(message: String, throwable: Throwable? = null) {
         Log.i(tag, message, throwable)
-        setSentryBreadcrumb(message, throwable)
+        SentryWrapper.addLogcatBreadcrumb(tag, SentryWrapperLevel.INFO, message, throwable)
         addToTrace(message, "I")
     }
 
     fun warn(message: String, throwable: Throwable? = null) {
         Log.w(tag, message, throwable)
-        setSentryBreadcrumb(message, throwable)
+        SentryWrapper.addLogcatBreadcrumb(tag, SentryWrapperLevel.WARNING, message, throwable)
         addToTrace(message, "W")
-    }
-
-    private fun setSentryBreadcrumb(message: String, throwable: Throwable?) {
-        var breadCrumb = "$tag: $message"
-        if (throwable != null) {
-            breadCrumb += "\n${throwable.toString()}"
-        }
-        SentryWrapper.addBreadcrumb(breadCrumb)
     }
 
     /**

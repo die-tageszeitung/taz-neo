@@ -15,10 +15,9 @@ plugins {
     id 'com.google.gms.google-services' version "4.4.2" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
-    // When updating this you must also update the nonfreeImplementation('io.sentry:sentry-android:XXX') below
-    // see https://github.com/getsentry/sentry-android-gradle-plugin/releases for release notes
     id 'io.sentry.android.gradle' version '4.10.0' apply false
 }
+
 
 // WARNING: this will apply the Google Services plugin based on the gradle command,
 // so we must never call any assembleNonfree... together with any assembleFree... task
@@ -39,9 +38,15 @@ if (taskNames.any { it.contains('Nonfree')}) {
         //                   sentry-cli when you do a release on the CI
         autoUpload = true
 
-        // Automatically install the sentry dependencies
+        // Disable tracing installation.
+        // Sentry implements auto instrumentation through bytecode manipulation.
+        tracingInstrumentation {
+            enabled = false
+        }
+
+        // Do not install additional sentry dependency automatically
         autoInstallation {
-            enabled = true
+            enabled = false
         }
 
         // Better safe then sorry: exclude the free flavors again
@@ -323,6 +328,7 @@ dependencies {
     def room_version = '2.6.1'
     def work_version = '2.9.0'
     def media3_version = '1.3.1'
+    def sentry_version = '7.12.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -391,10 +397,8 @@ dependencies {
     implementation 'com.artifex.mupdf:fitz:1.24.6'
 
     // error reports
-    // While the Sentry gradle plugin adds the dependency to the build itself, Android Studio does
-    // work with how we include it within an if. Thus we have to explicitly add the dependency too.
-    // When updating this you must also update the "id 'io.sentry.android.gradle' version XXX" above.
-    nonfreeImplementation('io.sentry:sentry-android:7.12.0')
+    nonfreeImplementation "io.sentry:sentry-android:$sentry_version"
+    nonfreeImplementation "io.sentry:sentry-android-fragment:$sentry_version"
 
     // semver parsing
     implementation 'com.vdurmont:semver4j:3.1.0'
