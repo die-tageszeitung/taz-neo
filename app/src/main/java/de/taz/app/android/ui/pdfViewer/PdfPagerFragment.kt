@@ -35,6 +35,8 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
     private lateinit var tracker: Tracker
     private lateinit var audioPlayerService: AudioPlayerService
 
+    private var isReaderViewInitialized = false
+
     private val log by Log
 
     override fun onAttach(context: Context) {
@@ -48,19 +50,15 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pdfPageList ->
-            if (pdfPageList.isNotEmpty()) {
-                viewBinding.readerView.apply {
-                    adapter = PageAdapter(context, pdfPageList)
-                    setOnCoordinatesClickedListener(onCoordinatesClickedListener)
-                    setOnPageChangeCallback {
-                        pdfPagerViewModel.updateCurrentItem(it)
-                        trackOnPageChange(it)
-                    }
-                    pdfPagerViewModel.currentItem.value?.let {
-                        displayedViewIndex = it
-                    }
-                }
+            if (pdfPageList.isEmpty()) {
+                return@observe
+            }
+
+            if (!isReaderViewInitialized) {
+                initReaderView(pdfPageList)
                 hideLoadingScreen()
+            } else {
+                updateReaderView(pdfPageList)
             }
         }
 
@@ -78,6 +76,30 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             viewBinding.navigationBottomPdf,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
         )
+    }
+
+    private fun initReaderView(pdfPageList: List<Page>) {
+        isReaderViewInitialized = true
+        // Setup new Adapters
+        viewBinding.readerView.apply {
+            adapter = PageAdapter(requireContext(), pdfPageList)
+            setOnCoordinatesClickedListener(onCoordinatesClickedListener)
+            setOnPageChangeCallback {
+                pdfPagerViewModel.updateCurrentItem(it)
+                trackOnPageChange(it)
+            }
+            pdfPagerViewModel.currentItem.value?.let {
+                displayedViewIndex = it
+            }
+        }
+    }
+
+    private fun updateReaderView(pdfPageList: List<Page>) {
+        val adapter = viewBinding.readerView.adapter as? PageAdapter
+        if (adapter != null) {
+            val updatedPages = adapter.update(pdfPageList)
+            viewBinding.readerView.refresh(updatedPages)
+        }
     }
 
     private val onCoordinatesClickedListener =

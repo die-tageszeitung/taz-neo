@@ -20,7 +20,6 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.monkey.getApplicationScope
-import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
@@ -34,17 +33,15 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -84,14 +81,11 @@ class PdfPagerViewModel(
     private val issueStubFlow = MutableStateFlow<IssueStub?>(null)
 
     val issueStubLiveData = issueStubFlow.filterNotNull().asLiveData()
-    val issueKeyFlow: Flow<AbstractIssueKey?> = issueStubFlow.map { it?.issueKey }
 
     val issueStub: IssueStub?
         get() = issueStubFlow.value
 
-    private val pdfPageListFlow: SharedFlow<List<Page>?> = issueStubFlow
-        .map(::pdfPageListMapper)
-        .shareIn(viewModelScope, SharingStarted.Eagerly, replay = 1)
+    private val pdfPageListFlow: MutableStateFlow<List<Page>?> = MutableStateFlow(null)
     val pdfPageList: LiveData<List<Page>> = pdfPageListFlow.filterNotNull().asLiveData()
 
     val issueDownloadFailedErrorFlow = MutableStateFlow(false)
@@ -110,7 +104,7 @@ class PdfPagerViewModel(
             return@withContext
         }
 
-        val pdfPageList = pdfPageListFlow.first()
+        val pdfPageList = pdfPageListFlow.value
         val validPosition = position.coerceIn(0, pdfPageList?.size ?: DEFAULT_NUMBER_OF_PAGES)
         if (_currentItem.value != validPosition) {
             _currentItem.value = validPosition
@@ -163,24 +157,25 @@ class PdfPagerViewModel(
                         downloadMetadata()
                     }
 
+                    // Start the download of the Issue content on the application scope, so that it
+                    // can finish even if the user leaves the PDF pager again.
                     getApplicationScope().launch {
                         try {
                             contentService.downloadToCache(
                                 download = IssuePublicationWithPages(issue.issueKey)
                             )
                         } catch (e: Exception) {
-                            // Ignore all errors happening during the download in this coroutine.
-                            // The actual check if the issue was downloaded fully, will be done below.
                             log.error("Failed to download full PDF issue", e)
+                            issueDownloadFailedErrorFlow.emit(true)
                         }
-                    }.join()
+                    }
 
                     issueRepository.getStub(issue.issueKey)
                 }
 
                 if (issueStub == null) {
                     val hint =
-                        "Issue of ${issuePublicationWithPages.date} that was just downloaded is not found in the database."
+                        "Issue of ${issuePublicationWithPages.date} metadata that was just downloaded is not found in the database."
                     log.error(hint)
                     SentryWrapper.captureMessage(hint)
                     issueDownloadFailedErrorFlow.emit(true)
@@ -191,16 +186,17 @@ class PdfPagerViewModel(
                 updateCurrentItemInternal(issueStub.lastPagePosition ?: 0)
                 issueRepository.updateLastViewedDate(issueStub)
 
-                if (issueStub.dateDownloadWithPages == null) {
-                    val hint = "Issue ${issueStub.issueKey} was not fully downloaded."
-                    log.error(hint)
-                    SentryWrapper.captureMessage(hint)
-                    issueDownloadFailedErrorFlow.emit(true)
-                    return@launch
-                }
-
-                // Finally store the downloaded issue and its data
+                // Finally store the IssueStub, even it if is not downloaded yet
                 issueStubFlow.value = issueStub
+
+                if (issueStub.dateDownload != null && issueStub.dateDownloadWithPages != null) {
+                    pdfPageListFlow.value = pageRepository.getPagesForIssueKey(issueStub.issueKey)
+
+                } else {
+                    // If the Issue is not fully downloaded we have to observer the download progress
+                    // and update the pageList when new data is available.
+                    handleIssueContentDownloadProgress(issueStub)
+                }
 
             }
         } else {
@@ -208,15 +204,50 @@ class PdfPagerViewModel(
         }
     }
 
-    private suspend fun pdfPageListMapper(issueStub: IssueStub?): List<Page>? {
-        return if (issueStub?.dateDownloadWithPages == null) {
-            null
-        } else {
-            pageRepository.getPagesForIssueKey(issueStub.issueKey).map {
-                val fileEntry = requireNotNull(fileEntryRepository.get(it.pagePdf.name)) {
-                    "Refreshing pagePdf fileEntry failed as fileEntry was null"
+
+    private fun handleIssueContentDownloadProgress(issueStub: IssueStub) {
+        viewModelScope.launch {
+            // Once the Issue is fully downloaded, we have to store it on the flow, so that the
+            // depending operations will start (for example itemsToC)
+            issueStubFlow.value =
+                issueRepository.getStubFlow(issueStub.feedName, issueStub.date, issueStub.status)
+                    .first { it?.dateDownload != null && it.dateDownloadWithPages != null }
+
+            // We could get the pages for the issue here again to be on the safe side.
+            // But it does not seem to be required, so we skip it for now.
+        }
+
+        viewModelScope.launch {
+            // Attention: the following code is n^2: it will get the whole list of Pages
+            // every time a single Page changes. For example when it is downloaded
+            val pagesFlow = pageRepository.getPagesForIssueKeyFlow(issueStub.issueKey)
+            pagesFlow.collect { pages ->
+                val allPagesDownloaded = pages.all { it.dateDownload != null }
+
+                if (allPagesDownloaded) {
+                    // Once all the pages are downloaded, we stop listening for database changes
+                    pdfPageListFlow.value = pages
+                    cancel()
+
+                } else {
+                    // As the PageStub.dateDownloaded is overwritten when the Issue.pageList is saved
+                    // we hack around and look at the pdfs FileEntry dateDownloaded directly.
+                    // This will allow to show the FrontPage immediately without waiting for its re-download.
+                    val pagesWithFileEntryDateDownloaded = pages.map { page ->
+                        if (page.dateDownload == null && page.pagePdf.dateDownload != null) {
+                            page.copy(dateDownload = page.pagePdf.dateDownload)
+                        } else {
+                            page
+                        }
+                    }
+                    val anyPageDownloaded =
+                        pagesWithFileEntryDateDownloaded.any { it.dateDownload != null }
+                    if (anyPageDownloaded) {
+                        pdfPageListFlow.value = pagesWithFileEntryDateDownloaded
+                    } else {
+                        pdfPageListFlow.value = null
+                    }
                 }
-                it.copy(pagePdf = fileEntry)
             }
         }
     }
@@ -239,8 +270,8 @@ class PdfPagerViewModel(
         }
     }
 
-    private suspend fun getPositionOfPdf(fileName: String): Int {
-        val pdfPageList = pdfPageListFlow.firstOrNull()
+    private fun getPositionOfPdf(fileName: String): Int {
+        val pdfPageList = pdfPageListFlow.value
         return pdfPageList?.indexOfFirst { it.pagePdf.name == fileName } ?: 0
     }
 
@@ -318,11 +349,11 @@ class PdfPagerViewModel(
 
     private val itemsToCFlow =
         issueStubFlow.filterNotNull().map { issueStub ->
-            val sortedArticlesOfIssueMap = articleRepository.getArticleListForIssue(issueStub.issueKey)
+            if (issueStub.isDownloaded(application)) {
+                val sortedArticlesOfIssueMap = articleRepository.getArticleListForIssue(issueStub.issueKey)
                     .map { it.key }
                     .withIndex()
                     .associate { it.value to it.index }
-            if (issueStub.isDownloaded(application)) {
                 val pages = mutableListOf<PageWithArticlesListItem>()
                 var imprint: Article? = null
                 pageRepository.getPagesForIssueKey(issueStub.issueKey).forEach { page ->
@@ -432,7 +463,7 @@ class PdfPagerViewModel(
         pdfPageListFlow.filterNotNull(),
         _currentItem.asFlow()
     ) { pdfPageList, currentItem ->
-        pdfPageList[currentItem]
+        pdfPageList.getOrNull(currentItem)
     }
 
     val currentPage = currentPageFlow.filterNotNull().asLiveData()

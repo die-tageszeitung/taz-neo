@@ -15,6 +15,7 @@ import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.*
 import java.util.*
+import kotlin.collections.LinkedHashSet
 
 /**
  * The download of a collection can trigger the download of other collections
@@ -211,32 +212,58 @@ class WrappedDownload(
      * Any [download] might depend on an appropriate [ResourceInfo]
      */
     private suspend fun resolveCollections(download: ObservableDownload): List<DownloadableCollection> {
+        // LinkedHasSets keep the insertion order of the items,
+        // which helps us to have a little better fine graining within a collection.
+        // Note that the order of the this list will not be kept 100% by the download manager as is
+        // starting coroutines for each download in parallel which might get picked up in a different order.    
+        val downloadDependencies = LinkedHashSet<DownloadableCollection>()
+
         // Get the required resource info - if it already is marked as downloaded do not add it to the set of required items
-        val requiredResourceInfo = getRequiredResourceInfo(download)?.let {
-            if (it.isDownloaded(applicationContext)) null else it
+        getRequiredResourceInfo(download)?.let {
+            if (!it.isDownloaded(applicationContext)) {
+                downloadDependencies.add(it)
+            }
         }
 
-        return (when (download) {
+
+        when (download) {
             is Issue -> {
-                setOfNotNull(
-                    download.imprint
-                ) + download.sectionList + download.getArticles() + download.moment
+                downloadDependencies.apply {
+                    addAll(download.sectionList)
+                    addAll(download.getArticles())
+                    add(download.moment)
+                    download.imprint?.let {
+                        add(it)
+                    }
+                }
             }
             is IssueWithPages -> {
                 // Issue with pages also needs the pageList!
-                setOfNotNull(
-                    download.imprint
-                ) + download.sectionList + download.getArticles() + download.moment + download.pageList
+                downloadDependencies.apply {
+                    addAll(download.pageList)
+                    addAll(download.sectionList)
+                    addAll(download.getArticles())
+                    add(download.moment)
+                    download.imprint?.let {
+                        add(it)
+                    }
+                }
+                log.error("pages: ${download.pageList.withIndex().joinToString { (i, p) -> "$i:${p.pagePdf.name}" }}")
             }
             // AppInfo has no collection
-            is AppInfo -> setOf()
+            is AppInfo -> Unit
             is Article,
             is Page,
             is Section,
             is Moment,
-            is ResourceInfo -> setOf(download as DownloadableCollection)
-            else -> throw IllegalArgumentException("Don\'t know how to download $download")
-        } + setOfNotNull(requiredResourceInfo)).toList()
+            is ResourceInfo -> {
+                downloadDependencies.add(download as DownloadableCollection)
+            }
+            else -> throw IllegalArgumentException("Don't know how to download $download")
+        }
+
+
+        return downloadDependencies.toList()
     }
 
     /**

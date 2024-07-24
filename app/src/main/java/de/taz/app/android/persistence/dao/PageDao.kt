@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.PageStub
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -37,7 +38,7 @@ interface PageDao : BaseDao<PageStub> {
         WHERE IssuePageJoin.issueFeedName == :issueFeed 
             AND IssuePageJoin.issueDate == :issueDate 
             AND IssuePageJoin.issueStatus == :issueStatus
-            ORDER BY IssuePageJoin.`index`
+            ORDER BY IssuePageJoin.`index` ASC
     """
     )
     suspend fun getPageStubListForIssue(
@@ -45,6 +46,22 @@ interface PageDao : BaseDao<PageStub> {
         issueDate: String,
         issueStatus: IssueStatus,
     ): List<PageStub>
+
+    @Query(
+        """
+        SELECT Page.* FROM Page
+            INNER JOIN IssuePageJoin ON Page.pdfFileName = IssuePageJoin.pageKey
+        WHERE IssuePageJoin.issueFeedName == :issueFeed
+            AND IssuePageJoin.issueDate == :issueDate
+            AND IssuePageJoin.issueStatus == :issueStatus
+            ORDER BY IssuePageJoin.`index` ASC
+    """
+    )
+    fun getPageStubFlowForIssue(
+        issueFeed: String,
+        issueDate: String,
+        issueStatus: IssueStatus,
+    ): Flow<List<PageStub>>
 
     @Query(""" 
         SELECT Page.* FROM Page

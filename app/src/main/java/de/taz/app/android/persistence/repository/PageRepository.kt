@@ -7,6 +7,9 @@ import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.util.*
 
 class PageRepository private constructor(applicationContext: Context) :
@@ -151,6 +154,14 @@ class PageRepository private constructor(applicationContext: Context) :
             .getPageStubListForIssue(issueKey.feedName, issueKey.date, issueKey.status)
             .map { pageStub ->
                 pageStubToPage(pageStub)
+            }
+    }
+
+    fun getPagesForIssueKeyFlow(issueKey: IssueKey): Flow<List<Page>> {
+        return appDatabase.pageDao()
+            .getPageStubFlowForIssue(issueKey.feedName, issueKey.date, issueKey.status)
+            .map { pageStubs ->
+                pageStubs.map { pageStubToPage(it) }
             }
     }
 }

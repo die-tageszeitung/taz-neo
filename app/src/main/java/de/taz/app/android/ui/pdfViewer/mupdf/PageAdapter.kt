@@ -12,8 +12,10 @@ import de.taz.app.android.api.models.Page
 
 class PageAdapter(
     private val mContext: Context,
-    private val pages: List<Page>
+    initialPages: List<Page>
 ) : BaseAdapter() {
+
+    private var pages = initialPages
 
     private val pageSizesCache = SparseArray<PointF>()
     private var sharedHqBm: Bitmap? = null
@@ -26,6 +28,20 @@ class PageAdapter(
 
     override fun getItemId(position: Int): Long {
         return 0
+    }
+
+    fun update(newPages: List<Page>): Array<Boolean> {
+        require(pages.size == newPages.size) { "You can only update the existing Pages, not remove or add new ones. The new pages size must match the initial pages size." }
+
+        val updated = Array(pages.size) { false }
+        for (i in pages.indices) {
+            val pageWasDownloaded = pages[i].dateDownload == null && newPages[i].dateDownload != null
+            val checksumChanged = pages[i].pagePdf.sha256 != newPages[i].pagePdf.sha256
+            updated[i] = pageWasDownloaded || checksumChanged
+        }
+
+        pages = newPages
+        return updated
     }
 
     fun releaseBitmaps() {
@@ -57,7 +73,10 @@ class PageAdapter(
 
         val page = pages[position]
         val pageSize = pageSizesCache[position]
-        if (pageSize != null) {
+
+        if (page.dateDownload == null) {
+            pageView.blank()
+        } else if (pageSize != null) {
             // We already know the page size. Set it up immediately
             pageView.setPage(page, pageSize)
         } else {

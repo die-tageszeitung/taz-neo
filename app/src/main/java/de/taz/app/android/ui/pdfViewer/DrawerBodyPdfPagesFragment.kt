@@ -45,6 +45,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
     private lateinit var tracker: Tracker
     private lateinit var toastHelper: ToastHelper
 
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         storageService = StorageService.getInstance(context.applicationContext)
@@ -63,8 +64,13 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
         // it seems like a good try to disable the not-needed animations at all.
         viewBinding.navigationRecyclerView.itemAnimator = null
 
-        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) {
-            initDrawAdapter(it)
+        pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pages ->
+            // Keep showing the drawer loading screen until all pages are fully downloaded
+            val allPagesDownloaded = pages.all { it.dateDownload != null }
+            if (allPagesDownloaded && pages.isNotEmpty()) {
+                initDrawAdapter(pages)
+                hideLoadingScreen()
+            }
         }
 
         viewBinding.navigationRecyclerView.addOnItemTouchListener(
@@ -192,7 +198,6 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                 }
             }
             viewBinding.navigationRecyclerView.adapter = adapter
-            hideLoadingScreen()
         }
 
     }
