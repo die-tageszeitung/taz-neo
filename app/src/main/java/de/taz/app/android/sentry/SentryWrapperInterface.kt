@@ -9,4 +9,5 @@ interface SentryWrapperInterface {
     fun captureMessage(message: String, level: SentryWrapperLevel)
     fun captureException(throwable: Throwable)
     fun addBreadcrumb(message: String)
+    fun addLogcatBreadcrumb(tag: String, level: SentryWrapperLevel, message: String, throwable: Throwable?)
 }

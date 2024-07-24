@@ -9,4 +9,5 @@ class NoOpSentryWrapper: SentryWrapperInterface {
     override fun captureMessage(message: String, level: SentryWrapperLevel) {}
     override fun captureException(throwable: Throwable) {}
     override fun addBreadcrumb(message: String) {}
+    override fun addLogcatBreadcrumb(tag: String, level: SentryWrapperLevel, message: String, throwable: Throwable?) {}
 }

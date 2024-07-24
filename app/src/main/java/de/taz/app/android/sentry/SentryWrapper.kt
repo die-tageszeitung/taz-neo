@@ -38,4 +38,13 @@ object SentryWrapper : SentryWrapperInterface {
     override fun addBreadcrumb(message: String) {
         getWrapperInstance().addBreadcrumb(message)
     }
+
+    override fun addLogcatBreadcrumb(
+        tag: String,
+        level: SentryWrapperLevel,
+        message: String,
+        throwable: Throwable?
+    ) {
+        getWrapperInstance().addLogcatBreadcrumb(tag, level, message, throwable)
+    }
 }

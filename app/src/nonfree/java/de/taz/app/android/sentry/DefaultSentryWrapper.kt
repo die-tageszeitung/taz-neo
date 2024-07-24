@@ -2,6 +2,7 @@ package de.taz.app.android.sentry
 
 import android.content.Context
 import de.taz.app.android.BuildConfig
+import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
 import io.sentry.protocol.User
@@ -33,14 +34,7 @@ class DefaultSentryWrapper : SentryWrapperInterface {
     }
 
     override fun captureMessage(message: String, level: SentryWrapperLevel) {
-        val sentryLevel = when (level) {
-            SentryWrapperLevel.DEBUG -> SentryLevel.DEBUG
-            SentryWrapperLevel.INFO -> SentryLevel.INFO
-            SentryWrapperLevel.WARNING -> SentryLevel.WARNING
-            SentryWrapperLevel.ERROR -> SentryLevel.ERROR
-            SentryWrapperLevel.FATAL -> SentryLevel.FATAL
-        }
-        Sentry.captureMessage(message, sentryLevel)
+        Sentry.captureMessage(message, level.asSentryLevel())
     }
 
     override fun captureException(throwable: Throwable) {
@@ -49,5 +43,31 @@ class DefaultSentryWrapper : SentryWrapperInterface {
 
     override fun addBreadcrumb(message: String) {
         Sentry.addBreadcrumb(message)
+    }
+
+    override fun addLogcatBreadcrumb(
+        tag: String,
+        level: SentryWrapperLevel,
+        message: String,
+        throwable: Throwable?
+    ) {
+        val breadcrumb = Breadcrumb().apply {
+            setCategory("Logcat")
+            setMessage(message)
+            setLevel(level.asSentryLevel())
+            setData("tag", tag)
+            if (throwable != null) {
+                setData("throwable", throwable.toString())
+            }
+        }
+        Sentry.addBreadcrumb(breadcrumb)
+    }
+
+    private fun SentryWrapperLevel.asSentryLevel(): SentryLevel = when (this) {
+        SentryWrapperLevel.DEBUG -> SentryLevel.DEBUG
+        SentryWrapperLevel.INFO -> SentryLevel.INFO
+        SentryWrapperLevel.WARNING -> SentryLevel.WARNING
+        SentryWrapperLevel.ERROR -> SentryLevel.ERROR
+        SentryWrapperLevel.FATAL -> SentryLevel.FATAL
     }
 }
