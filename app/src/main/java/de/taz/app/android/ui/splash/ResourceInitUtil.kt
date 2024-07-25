@@ -2,6 +2,8 @@ package de.taz.app.android.ui.splash
 
 import android.content.Context
 import de.taz.app.android.R
+import de.taz.app.android.TAZ_API_CSS_FILENAME
+import de.taz.app.android.TAZ_API_JS_FILENAME
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.ImageResolution
@@ -40,7 +42,7 @@ class ResourceInitUtil(private val applicationContext: Context) {
     }
 
     suspend fun ensureTazApiJsExists() {
-        val existingTazApiJSFileEntry = fileEntryRepository.get("tazApi.js")
+        val existingTazApiJSFileEntry = fileEntryRepository.get(TAZ_API_JS_FILENAME)
         val currentStorageLocation = storageDataStore.storageLocation.get()
         ensureResourceFolderExists(currentStorageLocation)
 
@@ -49,14 +51,14 @@ class ResourceInitUtil(private val applicationContext: Context) {
                 existingTazApiJSFileEntry
             } else {
                 val newFileEntry = FileEntry(
-                    name = "tazApi.js",
+                    name = TAZ_API_JS_FILENAME,
                     storageType = StorageType.resource,
                     moTime = Date().time,
                     sha256 = "",
                     size = 0,
                     folder = RESOURCE_FOLDER,
                     dateDownload = null,
-                    path = "$RESOURCE_FOLDER/tazApi.js",
+                    path = "$RESOURCE_FOLDER/$TAZ_API_JS_FILENAME",
                     storageLocation = currentStorageLocation
                 )
                 val newFile = storageService.getFile(newFileEntry)
@@ -93,12 +95,12 @@ class ResourceInitUtil(private val applicationContext: Context) {
                     sha256 = storageService.getSHA256(tazApiJSFile)
                 )
             )
-            log.verbose("Created/updated tazApi.js")
+            log.verbose("Created/updated $TAZ_API_JS_FILENAME")
         }
     }
 
     suspend fun ensureTazApiCssExists() {
-        val existingTazApiCSSFileEntry = fileEntryRepository.get("tazApi.css")
+        val existingTazApiCSSFileEntry = fileEntryRepository.get(TAZ_API_CSS_FILENAME)
         val currentStorageLocation = storageDataStore.storageLocation.get()
         ensureResourceFolderExists(currentStorageLocation)
 
@@ -107,14 +109,14 @@ class ResourceInitUtil(private val applicationContext: Context) {
                 existingTazApiCSSFileEntry
             } else {
                 val newFileEntry = FileEntry(
-                    name = "tazApi.css",
+                    name = TAZ_API_CSS_FILENAME,
                     storageType = StorageType.resource,
                     moTime = Date().time,
                     sha256 = "",
                     size = 0,
                     folder = RESOURCE_FOLDER,
                     dateDownload = null,
-                    path = "$RESOURCE_FOLDER/tazApi.css",
+                    path = "$RESOURCE_FOLDER/$TAZ_API_CSS_FILENAME",
                     storageLocation = currentStorageLocation
                 )
                 val newFile = storageService.getFile(newFileEntry)
@@ -149,7 +151,7 @@ class ResourceInitUtil(private val applicationContext: Context) {
                 )
             )
             nightModeHelper.notifyTazApiCSSFileReady()
-            log.verbose("Created tazApi.css")
+            log.verbose("Created $TAZ_API_CSS_FILENAME")
         }
     }
 

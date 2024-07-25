@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteConstraintException
 import androidx.room.withTransaction
 import de.taz.app.android.KEEP_LATEST_MOMENTS_COUNT
 import de.taz.app.android.R
+import de.taz.app.android.TAZ_API_CSS_FILENAME
+import de.taz.app.android.TAZ_API_JS_FILENAME
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
@@ -67,6 +69,14 @@ class Scrubber(applicationContext: Context) {
 
     private val defaultNavDrawerFileName =
         applicationContext.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
+
+    // List of FileEntry names that should be ignored when scrubbing
+    // For example files that are created programmatically
+    private val ignoreFileEntryNames = listOf(
+        TAZ_API_JS_FILENAME,
+        TAZ_API_CSS_FILENAME,
+        defaultNavDrawerFileName,
+    )
 
     /**
      * Start a minimal scrub run.
@@ -386,7 +396,11 @@ class Scrubber(applicationContext: Context) {
     }
 
     private suspend fun getOrphanedFileEntries(): List<FileEntry> {
-        return appDatabase.fileEntryDao().getOrphanedFileEntries()
+        return appDatabase.fileEntryDao()
+            .getOrphanedFileEntries()
+            .filterNot { fileEntry ->
+                fileEntry.name in ignoreFileEntryNames
+            }
     }
 
     private suspend fun deleteFile(fileEntry: FileEntry) {

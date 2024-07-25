@@ -69,3 +69,7 @@ const val KEEP_LATEST_MOMENTS_COUNT = 15
 
 // The scrubber will be started every X days
 const val SCRUBBER_INTERVAL_DAYS = 30L
+
+// Resource file names
+const val TAZ_API_JS_FILENAME = "tazApi.js"
+const val TAZ_API_CSS_FILENAME = "tazApi.css"

@@ -2,6 +2,7 @@ package de.taz.app.android.singletons
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import de.taz.app.android.TAZ_API_CSS_FILENAME
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.util.Log
@@ -33,7 +34,7 @@ class NightModeHelper private constructor(private val applicationContext: Contex
 
     private suspend fun generateCssOverride() = withContext(Dispatchers.IO) {
         val cssFileEntry =
-            FileEntryRepository.getInstance(applicationContext).get("tazApi.css")
+            FileEntryRepository.getInstance(applicationContext).get(TAZ_API_CSS_FILENAME)
 
         cssFileEntry?.let {
             val cssFile = StorageService.getInstance(applicationContext).getFile(it)
