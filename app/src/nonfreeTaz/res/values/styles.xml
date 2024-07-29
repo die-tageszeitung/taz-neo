@@ -7,12 +7,12 @@
         <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="TextAppearance.BottomSheet.TextSize.Description" parent="TextAppearance.Settings">
-        <item name="android:layout_marginBottom">-10dp</item>
-    </style>
-
-    <style name="TextAppearance.BottomSheet.TextSize.IconText" parent="TextAppearance.IconText">
-        <item name="android:paddingBottom">4dp</item>
+    <!-- Override title Elements using the Knile font -->
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontKnileLight</item>
+        <item name="android:textSize">30sp</item>
+        <item name="lineHeight">36sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
 </resources>

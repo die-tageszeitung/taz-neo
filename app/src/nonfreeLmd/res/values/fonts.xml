@@ -8,4 +8,9 @@
     <item name="appFontAlternativeItalic" format="reference" type="font">@font/arnhem_pro_blond_italic</item>
     <item name="appFontCoachMarkHeader" format="reference" type="font">@font/benton_sans_bold</item>
     <item name="appFontCoachMarkText" format="reference" type="font">@font/arnhem_pro_blond</item>
+
+    <!-- Knile is not available for LMd: fallback to the default font -->
+    <item name="appFontKnileRegular" format="reference" type="font">@font/benton_sans_regular</item>
+    <item name="appFontKnileSemiBold" format="reference" type="font">@font/benton_sans_bold</item>
+    <item name="appFontKnileLight" format="reference" type="font">@font/benton_sans_regular</item>
 </resources>

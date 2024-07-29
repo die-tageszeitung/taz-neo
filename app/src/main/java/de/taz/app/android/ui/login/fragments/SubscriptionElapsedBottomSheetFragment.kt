@@ -105,15 +105,6 @@ class SubscriptionElapsedBottomSheetFragment :
 
         viewBinding.buttonClose.setOnClickListener { dismiss() }
 
-        viewBinding.roundedCornerWrapper.setOnTouchListener(object :
-            View.OnTouchListener {
-            @SuppressLint("ClickableViewAccessibility")
-            override fun onTouch(view: View, event: MotionEvent): Boolean {
-                hideSoftInputKeyboard()
-                return false
-            }
-        })
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiStateFlow.collectLatest {

@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/fragment_bottom_sheet_text_size_description"
-            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            style="@style/Widget.App.BottomSheet.TextSize.Description"
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -70,7 +70,7 @@
 
                 <TextView
                     android:id="@+id/text_small_a"
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_text_size_decrease"
@@ -102,7 +102,7 @@
 
                 <TextView
                     android:id="@+id/fragment_bottom_sheet_text_size_percentage"
-                    style="@style/TextAppearance.BottomSheet.TextSize.Description"
+                    style="@style/Widget.App.BottomSheet.TextSize.Description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -145,7 +145,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_text_size_increase"
@@ -159,7 +159,7 @@
 
         <TextView
             android:id="@+id/fragment_bottom_sheet_night_mode_description"
-            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            style="@style/Widget.App.BottomSheet.TextSize.Description"
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -202,7 +202,7 @@
 
                 <TextView
                     android:id="@+id/setting_day_mode_text"
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_text_day_mode"
@@ -234,7 +234,7 @@
 
                 <TextView
                     android:id="@+id/setting_night_mode_text"
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_text_night_mode"
@@ -247,7 +247,7 @@
 
         <TextView
             android:id="@+id/fragment_bottom_sheet_column_description"
-            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            style="@style/Widget.App.BottomSheet.TextSize.Description"
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -290,7 +290,7 @@
 
                 <TextView
                     android:id="@+id/setting_single_column_text"
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_single_column_mode"
@@ -322,7 +322,7 @@
 
                 <TextView
                     android:id="@+id/setting_multi_column_text"
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_bottom_sheet_multi_column_mode"
@@ -335,7 +335,7 @@
 
         <TextView
             android:id="@+id/fragment_bottom_sheet_text_size_settings_description"
-            style="@style/TextAppearance.BottomSheet.TextSize.Description"
+            style="@style/Widget.App.BottomSheet.TextSize.Description"
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -380,7 +380,7 @@
                     app:tint="@color/textColor" />
 
                 <TextView
-                    style="@style/TextAppearance.BottomSheet.TextSize.IconText"
+                    style="@style/Widget.App.BottomSheet.TextSize.IconText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/settings"

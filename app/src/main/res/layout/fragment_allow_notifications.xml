@@ -12,14 +12,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
-        android:paddingTop="@dimen/bottom_sheet_compact_title_padding_top"
         android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
 
         <TextView
             android:id="@+id/pagerTitle"
-            style="@style/TextAppearance.ModalTopline"
+            style="@style/Widget.App.BottomSheet.Topline"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_topline_margin_top"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@id/button_close"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,8 +34,9 @@
             android:background="@null"
             android:contentDescription="@string/button_close_text"
             android:src="@drawable/ic_close"
+            app:layout_constraintBottom_toBottomOf="@id/pagerTitle"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/pagerTitle" />
 
         <ImageView
             android:id="@+id/illustration"
@@ -50,7 +51,7 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/TextAppearance.Marketing.Head.Aktiv"
+            style="@style/Widget.App.BottomSheet.Topline.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_illustration_margin_vertical"
@@ -59,7 +60,7 @@
 
         <TextView
             android:id="@+id/description"
-            style="@style/TextAppearance.Info.BodyText"
+            style="@style/Widget.App.BottomSheet.Description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_description_margin_top"

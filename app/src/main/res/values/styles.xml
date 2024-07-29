@@ -215,11 +215,17 @@
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
-    <style name="TextAppearance.BottomSheet.Setting" parent="TextAppearance.AppCompat">
+    <style name="Widget.App.BottomSheet.Menu.Item" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/bottom_sheet_text_color</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAlignment">center</item>
         <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
         <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
     </style>
 
     <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
@@ -369,14 +375,6 @@
         <item name="android:textSize">12sp</item>
     </style>
 
-    <!-- FIXME: remove -->
-    <style name="TextAppearance.Dialog.Title" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">21sp</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:paddingBottom">9dp</item>
-    </style>
-
     <style name="Widget.App.Login.Title" parent="Widget.App.TextView.Info.Subhead" />
     <style name="Widget.App.Login.Content" parent="Widget.App.TextView.Info.BodyText" />
 
@@ -434,30 +432,21 @@
     </style>
 
     <!-- region:  Default styles from the styleguide: -->
-    <style name="TextAppearance.ModalTopline" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.TextView.ModalTopline" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.Marketing.Head" parent="TextAppearance">
-        <!-- FIXME (johannes): to be removed -->
-        <item name="android:fontFamily">@font/appFontKnileLight</item>
-        <item name="android:textSize">30sp</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
-
-    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontKnileLight</item>
-        <item name="android:textSize">30sp</item>
-        <item name="lineHeight">36sp</item>
+        <item name="lineHeight">19sp</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="TextAppearance.Marketing.Head.Aktiv" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldBold</item>
+    <!-- Note: overwritten by nonfree taz with knile font as defined in figma -->
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.App.TextView.Marketing.Head.Aktiv" />
+
+    <style name="Widget.App.TextView.Marketing.Head.Aktiv" arent="Widget.AppCompat.TextView" tools:ignore="ResourceCycle">
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
+        <item name="lineHeight">32sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="Widget.App.TextView.Info.Subhead" parent="Widget.AppCompat.TextView">
@@ -465,13 +454,6 @@
         <item name="android:textSize">21sp</item>
         <item name="lineHeight">25sp</item>
         <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="TextAppearance.Info.BodyText" parent="TextAppearance">
-        <!-- FIXME (johannes): to be removed -->
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">18sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
     <style name="Widget.App.TextView.Info.BodyText" parent="Widget.AppCompat.TextView">
@@ -503,6 +485,19 @@
         <item name="android:paddingTop">7sp</item>
         <item name="android:includeFontPadding">false</item>
     </style>
+
+    <style name="Widget.App.TextView.Settings" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.IconText" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">9.4sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
     <!-- endregion -->
 
     <style name="TextAppearance.Date.Small" parent="TextAppearance">
@@ -510,19 +505,6 @@
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.Settings" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.IconText" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">9.4sp</item>
-        <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
@@ -544,13 +526,22 @@
         <item name="android:background">@drawable/text_settings_rounded_bg</item>
     </style>
 
-    <style name="TextAppearance.BottomSheet.TextSize.Description" parent="TextAppearance.Settings" />
+    <style name="Widget.App.BottomSheet.TextSize.Description" parent="Widget.App.TextView.Settings">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
 
-    <style name="TextAppearance.BottomSheet.TextSize.IconText" parent="TextAppearance.IconText">
+    <style name="Widget.App.BottomSheet.TextSize.IconText" parent="Widget.App.TextView.IconText">
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <style name="TextAppearance.BottomSheetWithTwoColumns.Title" parent="TextAppearance.Marketing.Head" />
-    <style name="TextAppearance.BottomSheetWithTwoColumns.Description" parent="TextAppearance.Info.BodyText" />
+    <style name="Widget.App.BottomSheet.Title" parent="Widget.App.TextView.Info.Subhead" />
+    <style name="Widget.App.BottomSheet.Description" parent="Widget.App.TextView.Info.BodyText" />
+    <style name="Widget.App.BottomSheet.Topline" parent="Widget.App.TextView.ModalTopline" />
+    <style name="Widget.App.BottomSheet.Topline.Title" parent="Widget.App.TextView.Marketing.Head.Aktiv" />
+
+    <style name="Widget.App.BottomSheetWithTwoColumns.Title" parent="Widget.App.TextView.Marketing.Head" />
+    <style name="Widget.App.BottomSheetWithTwoColumns.Description" parent="Widget.App.TextView.Info.BodyText" />
+
 
 </resources>

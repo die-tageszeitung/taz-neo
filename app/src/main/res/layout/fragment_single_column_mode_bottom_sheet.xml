@@ -23,7 +23,7 @@
 
         <TextView
             android:id="@+id/title"
-            android:textAppearance="@style/TextAppearance.BottomSheetWithTwoColumns.Title"
+            style="@style/Widget.App.BottomSheetWithTwoColumns.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|start"
@@ -47,7 +47,7 @@
 
             <TextView
                 android:id="@+id/description"
-                style="@style/TextAppearance.BottomSheetWithTwoColumns.Description"
+                style="@style/Widget.App.BottomSheetWithTwoColumns.Description"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_inner_margin"

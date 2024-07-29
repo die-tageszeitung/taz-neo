@@ -248,8 +248,9 @@ class ShareArticleBottomSheet :
     }
 
     private fun showPdfDownloadError() {
-        activity?.showConnectionErrorDialog()
-        dismiss()
+        activity?.showConnectionErrorDialog {
+            dismiss()
+        }
     }
 
     private fun showError(@StringRes stringId: Int) {
