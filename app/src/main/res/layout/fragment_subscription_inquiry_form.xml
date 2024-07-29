@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/TextAppearance.Login.Title"
+            style="@style/Widget.App.Login.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
@@ -24,7 +24,7 @@
 
         <TextView
             android:id="@+id/description"
-            style="@style/TextAppearance.Login.Content"
+            style="@style/Widget.App.Login.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_subscription_inquiry_description_margin_top"
@@ -205,7 +205,7 @@
 
         <Button
             android:id="@+id/back_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"

@@ -24,11 +24,10 @@
 
             <TextView
                 android:id="@+id/fragment_login_description"
-                style="@style/TextAppearance.Login.Title"
+                style="@style/Widget.App.Login.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/fragment_login_description"
-                android:textAlignment="textStart"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -52,7 +51,7 @@
 
             <TextView
                 android:id="@+id/fragment_login_username_help"
-                style="@style/Widget.TextInputLayout.Help"
+                style="@style/Widget.App.Form.Help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_form_help_margin_top"
@@ -83,7 +82,7 @@
 
             <TextView
                 android:id="@+id/fragment_login_password_help_forgot"
-                style="@style/Widget.TextInputLayout.Help"
+                style="@style/Widget.App.Form.Help"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_form_help_margin_top"
@@ -105,7 +104,7 @@
 
             <TextView
                 android:id="@+id/fragment_login_action_data_policy"
-                style="@style/Widget.Login.Action.Text"
+                style="@style/Widget.App.Login.Action.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"

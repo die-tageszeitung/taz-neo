@@ -5,8 +5,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorError">@color/error</item>
-        <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
-        <item name="materialButtonOutlinedStyle">@style/AppTheme.ButtonStyle.Outlined</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -14,7 +14,7 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
-        <item name="textInputStyle">@style/AppTheme.TextInputLayout</item>
+        <item name="textInputStyle">@style/Widget.App.Form.TextInputLayout</item>
         <!-- FIXME (johannes): this sets the attribute textColor on every view we define in XML.
                The android:textColor should not be part of the themes but only of widget styles etc.
                Android is normally falling back to textColorPrimary if no explicit textColor is set.
@@ -70,36 +70,36 @@
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <!-- Material3.BottomSheetDialog is overwriting materialButtonStyle, therefore we need to reset it here: -->
-        <item name="materialButtonStyle">@style/AppTheme.ButtonStyle</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
     </style>
 
-    <style name="AppTheme.Base.ButtonStyle" parent="Widget.Material3.Button">
+    <style name="Widget.App.Button" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/buttonTextColor</item>
-        <item name="fontFamily">@font/appFontOldBold</item>
-        <item name="android:includeFontPadding">true</item>
+        <item name="fontFamily">@font/appFontBold</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="backgroundTint">@color/buttonColor</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle" />
-
-    <style name="AppTheme.Base.ButtonStyle.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="fontFamily">@font/appFontOldBold</item>
+    <style name="Widget.App.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="fontFamily">@font/appFontBold</item>
         <item name="backgroundTint">@android:color/transparent</item>
-        <item name="android:includeFontPadding">true</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="strokeColor">@color/buttonColor</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="rippleColor">@color/outline_button_ripple_color</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle.Outlined" parent="AppTheme.Base.ButtonStyle.Outlined" />
-
-    <style name="AppTheme.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+    <style name="Widget.App.Form.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/text_input_hint_color</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
         <item name="cursorColor">@color/textColor</item>
         <item name="boxBackgroundColor">@color/backgroundColor</item>
         <item name="expandedHintEnabled">true</item>
         <item name="hintTextColor">@color/text_input_hint_color</item>
+    </style>
+
+    <style name="Widget.App.Form.Help" parent="Widget.App.TextView.M.Link">
+        <item name="android:textColor">@color/text_input_help_text_color</item>
     </style>
 
     <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
@@ -377,20 +377,16 @@
         <item name="android:paddingBottom">9dp</item>
     </style>
 
-    <style name="TextAppearance.Login.Title" parent="TextAppearance.Info.SubHead" />
-    <style name="TextAppearance.Login.Content" parent="TextAppearance.Info.BodyText" />
+    <style name="Widget.App.Login.Title" parent="Widget.App.TextView.Info.Subhead" />
+    <style name="Widget.App.Login.Content" parent="Widget.App.TextView.Info.BodyText" />
 
-    <style name="Widget.Login.Action.Text" parent="android:Widget">
-        <item name="android:textAppearance">@style/TextAppearance.M.Link</item>
+    <style name="Widget.App.Login.Action.Text" parent="Widget.App.TextView.M.Link">
         <item name="android:textAlignment">center</item>
         <item name="android:textColor">@color/login_action_text_color</item>
-        <!-- Add paddingTop to simulate single line line height -->
-        <item name="android:paddingTop">7sp</item>
-        <item name="android:clipToPadding">false</item>
     </style>
 
-    <style name="TextAppearance.Login.Subscription.Title" parent="TextAppearance.Marketing.Head" />
-    <style name="TextAppearance.Login.Subscription.Content" parent="TextAppearance.Info.BodyText" />
+    <style name="Widget.App.Login.Subscription.Title" parent="Widget.App.TextView.Marketing.Head" />
+    <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
 
     <style name="TextAppearance.AudioPlayer" parent="TextAppearance.AppCompat">
         <!-- Defined in Figma as GUI/Audio-author-mini -->
@@ -445,9 +441,17 @@
     </style>
 
     <style name="TextAppearance.Marketing.Head" parent="TextAppearance">
+        <!-- FIXME (johannes): to be removed -->
         <item name="android:fontFamily">@font/appFontKnileLight</item>
         <item name="android:textSize">30sp</item>
         <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontKnileLight</item>
+        <item name="android:textSize">30sp</item>
+        <item name="lineHeight">36sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TextAppearance.Marketing.Head.Aktiv" parent="TextAppearance">
@@ -456,16 +460,25 @@
         <item name="android:lineSpacingExtra">7sp</item>
     </style>
 
-    <style name="TextAppearance.Info.SubHead" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldBold</item>
+    <style name="Widget.App.TextView.Info.Subhead" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">21sp</item>
-        <item name="android:lineSpacingExtra">4sp</item>
+        <item name="lineHeight">25sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TextAppearance.Info.BodyText" parent="TextAppearance">
+        <!-- FIXME (johannes): to be removed -->
         <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">18sp</item>
         <item name="android:lineSpacingExtra">7sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.BodyText" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">25sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
@@ -481,11 +494,14 @@
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
     </style>
 
-    <style name="TextAppearance.M.Link" parent="TextAppearance">
+    <style name="Widget.App.TextView.M.Link" parent="Widget.AppCompat.TextView">
         <!-- Figma reference to M/link which is not part of the Android styleguide -->
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingExtra">14sp</item>
+        <item name="lineHeight">28sp</item>
+        <!-- Add paddingTop to simulate single line line height -->
+        <item name="android:paddingTop">7sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
     <!-- endregion -->
 
@@ -536,15 +552,5 @@
 
     <style name="TextAppearance.BottomSheetWithTwoColumns.Title" parent="TextAppearance.Marketing.Head" />
     <style name="TextAppearance.BottomSheetWithTwoColumns.Description" parent="TextAppearance.Info.BodyText" />
-
-    <!-- region: taz specific text input styles -->
-    <style name="Widget.TextInputLayout.Help" parent="android:Widget">
-        <item name="android:textAppearance">@style/TextAppearance.M.Link</item>
-        <!-- Add paddingTop to simulate single line line height -->
-        <item name="android:paddingTop">7sp</item>
-        <item name="android:clipToPadding">false</item>
-        <item name="android:textColor">@color/text_input_help_text_color</item>
-    </style>
-    <!-- endregion -->
 
 </resources>

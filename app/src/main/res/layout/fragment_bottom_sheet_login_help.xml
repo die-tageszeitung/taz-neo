@@ -18,7 +18,7 @@
 
             <TextView
                 android:id="@+id/title"
-                style="@style/TextAppearance.Login.Title"
+                style="@style/Widget.App.Login.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/help"
@@ -26,10 +26,10 @@
 
             <TextView
                 android:id="@+id/description"
-                style="@style/TextAppearance.Login.Content"
+                style="@style/Widget.App.Login.Content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="@dimen/bottom_sheet_content_margin_top"
+                android:layout_marginTop="@dimen/bottom_sheet_content_margin_top"
                 android:text="@string/fragment_login_help"
                 app:layout_constraintTop_toBottomOf="@id/title" />
 
@@ -46,7 +46,7 @@
 
             <Button
                 android:id="@+id/action_more_info"
-                style="@style/AppTheme.ButtonStyle.Outlined"
+                style="@style/Widget.App.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"

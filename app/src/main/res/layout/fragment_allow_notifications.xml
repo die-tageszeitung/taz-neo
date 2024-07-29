@@ -68,7 +68,7 @@
 
         <Button
             android:id="@+id/enable_notifications_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_buttons_margin_top"
@@ -80,7 +80,7 @@
 
         <Button
             android:id="@+id/retain_notifications_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_buttons_margin_between"

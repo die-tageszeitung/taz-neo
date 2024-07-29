@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/fragment_subscription_name_title"
-            style="@style/TextAppearance.Login.Title"
+            style="@style/Widget.App.Login.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_subscription_name_title"
@@ -96,7 +96,7 @@
 
         <Button
             android:id="@+id/back_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"

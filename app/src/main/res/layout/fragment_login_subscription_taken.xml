@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/fragment_login_subscription_taken_header"
-            style="@style/TextAppearance.Login.Content"
+            style="@style/Widget.App.Login.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_subscription_taken_header"
@@ -35,7 +35,7 @@
 
         <TextView
             android:id="@+id/fragment_login_subscription_taken_email"
-            style="@style/Widget.Login.Action.Text"
+            style="@style/Widget.App.Login.Action.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
