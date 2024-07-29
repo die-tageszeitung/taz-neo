@@ -3,6 +3,8 @@ package de.taz.app.android.scrubber
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import de.taz.app.android.TAZ_API_CSS_FILENAME
+import de.taz.app.android.TAZ_API_JS_FILENAME
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.StorageType
@@ -305,6 +307,27 @@ class ScrubberFileEntryTest {
 
         assertEquals(fileEntry, fileEntryRepository.get(fileEntry.name))
     }
+
+    @Test
+    fun `tazApi_js is kept`() = runTest {
+        val fileEntry = Fixtures.fileEntry.copy(name= TAZ_API_JS_FILENAME)
+        fileEntryRepository.save(fileEntry)
+
+        scrubber.scrub()
+
+        assertEquals(fileEntry, fileEntryRepository.get(fileEntry.name))
+    }
+
+    @Test
+    fun `tazApi_css is kept`() = runTest {
+        val fileEntry = Fixtures.fileEntry.copy(name= TAZ_API_CSS_FILENAME)
+        fileEntryRepository.save(fileEntry)
+
+        scrubber.scrub()
+
+        assertEquals(fileEntry, fileEntryRepository.get(fileEntry.name))
+    }
+
 
     private suspend fun createFileEntryWithContent(name: String): FileEntry {
         val dataString = "Hello World"
