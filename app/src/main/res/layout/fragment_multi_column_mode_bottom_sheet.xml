@@ -65,7 +65,7 @@
 
             <Button
                 android:id="@+id/negative_button"
-                style="@style/AppTheme.ButtonStyle.Outlined"
+                style="@style/Widget.App.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/bottom_sheet_with_two_columns_outer_margin"

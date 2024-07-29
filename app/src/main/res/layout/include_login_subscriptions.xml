@@ -17,7 +17,7 @@
 
         <TextView
             android:id="@+id/fragment_login_trial_subscription_box_title"
-            style="@style/TextAppearance.Login.Subscription.Title"
+            style="@style/Widget.App.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_padding_top"
@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/fragment_login_trial_subscription_box_text"
-            style="@style/TextAppearance.Login.Subscription.Content"
+            style="@style/Widget.App.Login.Subscription.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_content_margin_top"
@@ -44,7 +44,7 @@
 
         <Button
             android:id="@+id/fragment_login_trial_subscription_box_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_button_margin_top"
@@ -74,7 +74,7 @@
 
         <TextView
             android:id="@+id/fragment_login_switch_print2digi_box_title"
-            style="@style/TextAppearance.Login.Subscription.Title"
+            style="@style/Widget.App.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_padding_top"
@@ -83,7 +83,7 @@
 
         <TextView
             android:id="@+id/fragment_login_switch_print2digi_box_text"
-            style="@style/TextAppearance.Login.Subscription.Content"
+            style="@style/Widget.App.Login.Subscription.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_content_margin_top"
@@ -100,7 +100,7 @@
 
         <Button
             android:id="@+id/fragment_login_switch_print2digi_box_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_button_margin_top"
@@ -128,7 +128,7 @@
 
         <TextView
             android:id="@+id/fragment_login_extend_print_with_digi_box_title"
-            style="@style/TextAppearance.Login.Subscription.Title"
+            style="@style/Widget.App.Login.Subscription.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_padding_top"
@@ -137,7 +137,7 @@
 
         <TextView
             android:id="@+id/fragment_login_extend_print_with_digi_box_text"
-            style="@style/TextAppearance.Login.Subscription.Content"
+            style="@style/Widget.App.Login.Subscription.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_content_margin_top"
@@ -154,7 +154,7 @@
 
         <Button
             android:id="@+id/fragment_login_extend_print_with_digi_box_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/login_box_button_margin_top"

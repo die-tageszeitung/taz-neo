@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/fragment_login_missing_subscription_header"
-            style="@style/TextAppearance.Login.Content"
+            style="@style/Widget.App.Login.Content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_missing_subscription_header"
@@ -72,7 +72,7 @@
 
         <Button
             android:id="@+id/back_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
@@ -84,7 +84,7 @@
 
         <TextView
             android:id="@+id/fragment_login_missing_subscription_help"
-            style="@style/Widget.Login.Action.Text"
+            style="@style/Widget.App.Login.Action.Text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"

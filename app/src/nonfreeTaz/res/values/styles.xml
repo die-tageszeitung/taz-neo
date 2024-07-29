@@ -7,16 +7,6 @@
         <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="AppTheme.ButtonStyle" parent="AppTheme.Base.ButtonStyle">
-        <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="AppTheme.ButtonStyle.Outlined" parent="AppTheme.Base.ButtonStyle.Outlined">
-        <item name="android:paddingTop">@dimen/button_custom_padding_to_center_aktiv_grotesk_font</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
     <style name="TextAppearance.BottomSheet.TextSize.Description" parent="TextAppearance.Settings">
         <item name="android:layout_marginBottom">-10dp</item>
     </style>

@@ -16,7 +16,7 @@
 
         <TextView
             android:id="@+id/fragment_login_title"
-            style="@style/TextAppearance.Login.Title"
+            style="@style/Widget.App.Login.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fragment_login_title"
@@ -101,7 +101,7 @@
 
         <Button
             android:id="@+id/back_button"
-            style="@style/AppTheme.ButtonStyle.Outlined"
+            style="@style/Widget.App.Button.Outlined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
@@ -113,7 +113,7 @@
 
         <TextView
             android:id="@+id/fragment_subscription_account_forgot_password_text"
-            style="@style/Widget.Login.Action.Text"
+            style="@style/Widget.App.Login.Action.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
@@ -127,7 +127,7 @@
 
         <TextView
             android:id="@+id/fragment_subscription_order_note"
-            style="@style/Widget.Login.Action.Text"
+            style="@style/Widget.App.Login.Action.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
