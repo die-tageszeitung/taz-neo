@@ -20,7 +20,7 @@ fun <T> reportAndRethrowExceptions(block: () -> T): T {
 fun Activity.showConnectionErrorDialog(onDismiss: () -> Unit = { finish() }) {
     val dialog = MaterialAlertDialogBuilder(this)
         .setMessage(R.string.splash_error_no_connection)
-        .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
+        .setPositiveButton(android.R.string.ok) { _, _ -> onDismiss() }
         .setOnDismissListener {
             onDismiss()
         }
@@ -34,7 +34,7 @@ fun Activity.showConnectionErrorDialog(onDismiss: () -> Unit = { finish() }) {
 fun Activity.showFatalErrorDialog(onDismiss: () -> Unit = { finish() }) {
     val dialog = MaterialAlertDialogBuilder(this)
         .setMessage(R.string.dialog_fatal_error_description)
-        .setPositiveButton(android.R.string.ok) { _, _ -> finish() }
+        .setPositiveButton(android.R.string.ok) { _, _ -> onDismiss() }
         .setOnDismissListener {
             onDismiss()
         }

@@ -10,10 +10,4 @@
         <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">@dimen/fragment_webview_header_page_text_size</item>
     </style>
-
-    <style name="TextAppearance.Marketing.Head" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">25sp</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
 </resources>

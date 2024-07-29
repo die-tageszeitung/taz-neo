@@ -11,14 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
-        android:paddingTop="@dimen/bottom_sheet_compact_title_padding_top"
         android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
 
         <TextView
             android:id="@+id/pagerTitle"
-            style="@style/TextAppearance.ModalTopline"
+            style="@style/Widget.App.BottomSheet.Topline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/bottom_sheet_topline_margin_top"
             android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -38,7 +38,7 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/TextAppearance.Marketing.Head.Aktiv"
+            style="@style/Widget.App.BottomSheet.Topline.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_illustration_margin_vertical"
@@ -47,7 +47,7 @@
 
         <TextView
             android:id="@+id/description"
-            style="@style/TextAppearance.Info.BodyText"
+            style="@style/Widget.App.BottomSheet.Description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_description_margin_top"

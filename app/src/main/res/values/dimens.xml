@@ -27,8 +27,8 @@
 
     <dimen name="bottom_sheet_padding_horizontal">18dp</dimen>
     <dimen name="bottom_sheet_padding_top">45dp</dimen>
-    <!-- Bottom sheets with a compact title have the title and the close button on the same line -->
-    <dimen name="bottom_sheet_compact_title_padding_top">18dp</dimen>
+    <!-- Bottom sheets with a topline have the topline and the close button on the same line closer to the top -->
+    <dimen name="bottom_sheet_topline_margin_top">20dp</dimen>
     <dimen name="bottom_sheet_padding_bottom">40dp</dimen>
     <dimen name="bottom_sheet_corner_size">28dp</dimen>
     <dimen name="bottom_sheet_content_margin_top">10dp</dimen>
@@ -201,7 +201,7 @@
 
     <dimen name="bottom_sheet_text_setting_outer_padding">10dp</dimen>
 
-    <dimen name="fragment_tracking_notifications_illustration_margin_vertical">15dp</dimen>
+    <dimen name="fragment_tracking_notifications_illustration_margin_vertical">25dp</dimen>
     <dimen name="fragment_tracking_notifications_description_margin_top">10dp</dimen>
     <dimen name="fragment_tracking_notifications_buttons_margin_top">30dp</dimen>
     <dimen name="fragment_tracking_notifications_buttons_margin_between">20dp</dimen>

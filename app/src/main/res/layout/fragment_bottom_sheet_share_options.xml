@@ -8,17 +8,13 @@
     android:elevation="@dimen/bottom_sheet_elevation"
     android:theme="@style/AppTheme">
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/share_url"
-        style="@style/TextAppearance.BottomSheet.Setting"
+        style="@style/Widget.App.BottomSheet.Menu.Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/article_share_options_url"
-        android:textAlignment="center"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
@@ -38,17 +34,13 @@
         app:constraint_referenced_ids="share_url,share_url_divider"
         tools:visibility="visible" />
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/share_pdf"
-        style="@style/TextAppearance.BottomSheet.Setting"
+        style="@style/Widget.App.BottomSheet.Menu.Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/article_share_options_pdf"
-        android:textAlignment="center"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/share_url_divider"
         tools:visibility="visible" />
@@ -68,17 +60,13 @@
         app:constraint_referenced_ids="share_pdf,share_pdf_divider"
         tools:visibility="visible" />
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/share_text"
-        style="@style/TextAppearance.BottomSheet.Setting"
+        style="@style/Widget.App.BottomSheet.Menu.Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/article_share_options_text"
-        android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/share_pdf_divider" />
 
     <View
@@ -97,15 +85,11 @@
         tools:visibility="visible" />
 
 
-    <com.google.android.material.textview.MaterialTextView
+    <TextView
         android:id="@+id/share_error"
-        style="@style/TextAppearance.BottomSheet.Setting"
+        style="@style/Widget.App.BottomSheet.Menu.Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bottom_sheet_background"
-        android:clickable="true"
-        android:focusable="true"
-        android:textAlignment="center"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

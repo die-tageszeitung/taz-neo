@@ -1,83 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/rounded_corner_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:maxHeight="@dimen/match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/fallback_bottom_sheet_background"
+    android:backgroundTint="@color/login_form_background">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/fallback_bottom_sheet_background"
-        android:backgroundTint="@color/login_form_background"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal"
-        android:paddingTop="@dimen/bottom_sheet_compact_title_padding_top"
-        android:paddingBottom="@dimen/bottom_sheet_padding_bottom">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="@dimen/bottom_sheet_padding_top"
+            android:layout_marginBottom="@dimen/bottom_sheet_padding_bottom"
+            android:paddingHorizontal="@dimen/bottom_sheet_padding_horizontal">
 
             <TextView
                 android:id="@+id/title"
-                style="@style/TextAppearance.Dialog.Title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|start"
-                android:layout_weight="1"
-                android:text="@string/popup_login_elapsed_header" />
-
-            <ImageButton
-                android:id="@+id/button_close"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|end"
-                android:background="@null"
-                android:contentDescription="@string/button_close_text"
-                android:src="@drawable/ic_close" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_content_margin_top"
-            android:autoLink="email"
-            android:text="@string/popup_login_elapsed_text" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/message_to_subscription_service"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_forms_margin_top"
-            app:hintEnabled="false">
-
-            <com.google.android.material.textfield.TextInputEditText
+                style="@style/Widget.App.BottomSheet.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/popup_login_elapsed_message_to_abo"
-                android:inputType="textMultiLine" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="@string/popup_login_elapsed_header"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/let_the_subscription_service_contact_you_checkbox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/popup_login_elapsed_checkbox_message" />
+            <TextView
+                android:id="@+id/description"
+                style="@style/Widget.App.BottomSheet.Description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/bottom_sheet_content_margin_top"
+                android:autoLink="email"
+                android:text="@string/popup_login_elapsed_text"
+                app:layout_constraintTop_toBottomOf="@id/title" />
 
-        <Button
-            android:id="@+id/send_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
-            android:text="@string/popup_login_elapsed_positive_button" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/message_to_subscription_service"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/bottom_sheet_forms_margin_top"
+                app:hintEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/description">
 
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/popup_login_elapsed_message_to_abo"
+                    android:inputType="textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/let_the_subscription_service_contact_you_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/popup_login_elapsed_checkbox_message"
+                app:layout_constraintTop_toBottomOf="@id/message_to_subscription_service" />
+
+            <Button
+                android:id="@+id/send_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fragment_tracking_notifications_buttons_margin_top"
+                android:text="@string/popup_login_elapsed_positive_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/let_the_subscription_service_contact_you_checkbox"
+                app:layout_constraintWidth_max="@dimen/button_max_width" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ImageButton
+        android:id="@+id/button_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:contentDescription="@string/button_close_text"
+        android:padding="@dimen/ic_close_button_padding"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
