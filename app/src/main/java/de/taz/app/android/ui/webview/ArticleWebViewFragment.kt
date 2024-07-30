@@ -37,6 +37,16 @@ class ArticleWebViewFragment :
     WebViewFragment<Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding>(),
     MultiColumnLayoutReadyCallback {
 
+    /**
+     * Helper functions used to control the collapsible elements while scrolling programmatically.
+     * Should be implemented by every Pager containing ArticleWebViewFragments like
+     * ArticlePagerFragment and BookmarkPagerFragment
+     */
+    interface CollapsibleLayoutProvider {
+        fun getAppBarLayout(): AppBarLayout
+        fun getBottomNavigationLayout(): View
+    }
+
     override val viewModel by viewModels<ArticleWebViewViewModel>()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
@@ -59,10 +69,10 @@ class ArticleWebViewFragment :
         get() = viewBinding.loadingScreen
 
     override val appBarLayout: AppBarLayout?
-        get() = (parentFragment as? ArticlePagerFragment)?.getAppBarLayout()
+        get() = (parentFragment as? CollapsibleLayoutProvider)?.getAppBarLayout()
 
     override val bottomNavigationLayout: View?
-        get() = (parentFragment as? ArticlePagerFragment)?.getBottomNavigationLayout()
+        get() = (parentFragment as? CollapsibleLayoutProvider)?.getBottomNavigationLayout()
 
     companion object {
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
