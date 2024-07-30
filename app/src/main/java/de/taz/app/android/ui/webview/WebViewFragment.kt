@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
+import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
@@ -36,6 +38,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.sentry.SentryWrapperLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -53,6 +56,9 @@ private annotation class ScrollDirection
 private const val SCROLL_FORWARD = 1
 private const val SCROLL_BACKWARDS = -1
 
+// Only log 0 height status bars to sentry once per app start.
+// FIXME (johannes): this global variable should be part of an explicit helper
+private var sentryLoggedStatusBarHeight0 = false
 
 abstract class WebViewFragment<
         DISPLAYABLE : WebViewDisplayable,
@@ -282,12 +288,6 @@ abstract class WebViewFragment<
             val bottomNavigationLayout = this.bottomNavigationLayout
             val bottomNavigationBehavior = bottomNavigationLayout?.getBottomNavigationBehavior()
 
-            val systemBarHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                nestedScrollView.rootWindowInsets?.systemWindowInsetTop ?: 0
-            } else {
-                0
-            }
-
             when (direction) {
                 SCROLL_FORWARD -> {
                     var visibleBottom = nestedScrollView.height
@@ -300,7 +300,7 @@ abstract class WebViewFragment<
                         visibleBottom -= appBarLayout.bottom
 
                         // The app bar will be hidden, so we want the scrolled content to align below the status bar
-                        targetTop += systemBarHeight
+                        targetTop += getStatusBarHeight()
 
                         appBarLayout.setExpanded(false, true)
                     }
@@ -330,7 +330,7 @@ abstract class WebViewFragment<
                     if (appBarLayout != null) {
                         if (appBarLayout.bottom == 0) {
                             // If the app bar is currently hidden, we still want to ignore the content below the translucent status bar for scrolling
-                            visibleTop += systemBarHeight
+                            visibleTop += getStatusBarHeight()
                         }
 
                         // The app bar will be shown after scrolling, and pushing the content down.
@@ -351,6 +351,36 @@ abstract class WebViewFragment<
                 }
             }
         }
+    }
+
+    private fun getStatusBarHeight(): Int {
+        val rootWindowInsets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            view?.rootWindowInsets
+        } else {
+            null
+        }
+
+        val statusBarHeight =
+            if (rootWindowInsets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                rootWindowInsets.getInsets(WindowInsets.Type.systemBars()).top
+            } else if (rootWindowInsets != null) {
+                rootWindowInsets.systemWindowInsetTop
+            } else {
+                val legacyStatusBarHeightDp = 24f
+                TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    legacyStatusBarHeightDp,
+                    resources.displayMetrics
+                ).toInt()
+            }
+
+        if (statusBarHeight <= 0 && sentryLoggedStatusBarHeight0) {
+            sentryLoggedStatusBarHeight0 = true
+            log.warn("Encountered status bar height of $statusBarHeight: \nRootWindowInsets: $rootWindowInsets")
+            SentryWrapper.captureMessage("Encountered status bar height of 0")
+        }
+
+        return statusBarHeight
     }
 
     abstract fun setHeader(displayable: DISPLAYABLE)

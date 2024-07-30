@@ -20,6 +20,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
@@ -48,11 +49,12 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
+import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
-class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewArticlePagerBinding>() {
+class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, FragmentWebviewArticlePagerBinding>(), CollapsibleLayoutProvider {
 
     val log by Log
 
@@ -433,4 +435,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         }
     }
 
+    // Helper functions used on from the ArticleWebViewFragment to control the collapsible elements while scrolling programmatically
+    override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
+    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
 }

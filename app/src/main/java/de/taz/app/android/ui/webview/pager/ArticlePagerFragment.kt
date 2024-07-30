@@ -57,6 +57,7 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
+import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
@@ -64,7 +65,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment {
+class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment, CollapsibleLayoutProvider {
 
     private val log by Log
 
@@ -756,7 +757,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    // Helper functions used on from the ArticleWebViewFragment to control the collapsible elements while scrolling programmatically
-    fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
-    fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
+    override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout
+    override fun getBottomNavigationLayout(): View = viewBinding.navigationBottomLayout
 }
