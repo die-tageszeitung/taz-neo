@@ -256,7 +256,7 @@ class AudioPlayerViewController(
                 glideRequestManager.clear(this)
             }
             expandedAudioImage.apply {
-                isVisible = true
+                isVisible = false
                 glideRequestManager.clear(this)
             }
         }
