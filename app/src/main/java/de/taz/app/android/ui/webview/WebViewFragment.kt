@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowInsets
@@ -38,7 +40,6 @@ import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
 import de.taz.app.android.sentry.SentryWrapper
-import de.taz.app.android.sentry.SentryWrapperLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -83,6 +84,7 @@ abstract class WebViewFragment<
 
     private var currentIssueKey: IssueKey? = null
 
+    private var handleTapToScroll = false
     var tapLock = false
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
@@ -205,6 +207,39 @@ abstract class WebViewFragment<
                     onScrolledToBottom()
                 }
             }
+
+            // Add a touch listener for the nested scroll view.
+            // To provide tap to scroll functionality outside (small) web views we listen on
+            // touches on the nestedScrollView:
+            lifecycleScope.launch {
+                handleTapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
+                if (handleTapToScroll) {
+                    val gestureDetector = GestureDetector(requireContext(), scrollViewTapToScrollGestureListener)
+                    nestedScrollView.setOnTouchListener { _, event ->
+                        gestureDetector.onTouchEvent(event)
+                    }
+                }
+            }
+        }
+    }
+
+    private val scrollViewTapToScrollGestureListener = object : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
+            if (handleTapToScroll) {
+                val tapBarWidth = resources.getDimension(R.dimen.tap_bar_width)
+                val onRightBorder = nestedScrollView.right - event.x < tapBarWidth
+                val onLeftBorder = event.x < tapBarWidth
+
+                if (onRightBorder) {
+                    maybeScroll(SCROLL_FORWARD)
+                    return true
+
+                } else if (onLeftBorder) {
+                    maybeScroll(SCROLL_BACKWARDS)
+                    return true
+                }
+            }
+            return false
         }
     }
 
