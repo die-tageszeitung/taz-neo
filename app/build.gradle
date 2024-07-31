@@ -32,11 +32,10 @@ if (taskNames.any { it.contains('Nonfree')}) {
 
     println 'Applying Sentry Plugin'
     apply plugin: 'io.sentry.android.gradle'
+
     sentry {
-        // Enables automatic upload of mapping files during a build.
-        // FIXME (johannes): We should disable this and manually upload the mapping files with
-        //                   sentry-cli when you do a release on the CI
-        autoUpload = true
+        // Upload proguard mappings if set by the CI
+        includeProguardMapping = System.getenv("SENTRY_INCLUDE_PROGUARD")?.toBoolean() ?: false
 
         // Disable tracing installation.
         // Sentry implements auto instrumentation through bytecode manipulation.
@@ -48,6 +47,9 @@ if (taskNames.any { it.contains('Nonfree')}) {
         autoInstallation {
             enabled = false
         }
+
+        // Do not send telemetry data to Sentry.
+        telemetry = false
 
         // Better safe then sorry: exclude the free flavors again
         ignoredFlavors = ["free"]
@@ -96,8 +98,7 @@ android {
         buildConfigField "Boolean", "IS_LOADING_PDF_ADDITIONALLY", "false"
         buildConfigField "String", "DISPLAYED_FEED", "\"taz\""
 
-        def ENV = System.getenv()
-        def sentryEnvironment = ENV['SENTRY_ENVIRONMENT'] ?: 'local'
+        def sentryEnvironment = System.getenv('SENTRY_ENVIRONMENT') ?: 'local'
         println "Sentry environment: $sentryEnvironment"
         buildConfigField "String", "SENTRY_ENVIRONMENT", "\"${sentryEnvironment}\""
     }
