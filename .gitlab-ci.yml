@@ -137,6 +137,8 @@ assembleAllTazFlavors:
     # Ensure that the git tree is not dirty
     - git diff --name-status --exit-code || GIT_DIRTY=1
     - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Only upload sentry proguard files for releases that are build from git tags
+    - if [ -n "$CI_COMMIT_TAG" ]; then export SENTRY_INCLUDE_PROGUARD="true"; fi
     # Build the app flavors
     - ./gradlew --console=plain assembleNonfreeTazProductionDebug
                                 assembleNonfreeTazProductionRelease
@@ -156,6 +158,8 @@ assembleAllLmdFlavors:
     # Ensure that the git tree is not dirty
     - git diff --name-status --exit-code || GIT_DIRTY=1
     - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Only upload sentry proguard files for releases that are build from git tags
+    - if [ -n "$CI_COMMIT_TAG" ]; then export SENTRY_INCLUDE_PROGUARD="true"; fi
     # Build the app flavors
     - ./gradlew --console=plain assembleNonfreeLmdProductionDebug
                                 assembleNonfreeLmdProductionRelease
@@ -198,6 +202,8 @@ publishTazGooglePlay:
     # Ensure that the git tree is not dirty
     - git diff --name-status --exit-code || GIT_DIRTY=1
     - if [ -n "$GIT_DIRTY" ]; then echo "git tree is dirty. abort the pipeline"; exit 1; fi
+    # Ensure bundles uploaded to Google Play have Sentry proguard mappings
+    - export SENTRY_INCLUDE_PROGUARD="true"
     # Build and submit to Google Play
     - ./gradlew --no-daemon --console=plain publishNonfreeTazProductionReleaseBundle
     - ./scripts/setup_mail.sh
