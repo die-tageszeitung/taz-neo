@@ -2,15 +2,15 @@ package de.taz.app.android.audioPlayer
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import androidx.media3.common.Player.DISCONTINUITY_REASON_AUTO_TRANSITION
-import androidx.media3.common.Player.DiscontinuityReason
 import androidx.media3.common.Player.MediaItemTransitionReason
+import androidx.media3.common.Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
 import androidx.media3.common.Player.REPEAT_MODE_ALL
 import androidx.media3.common.Player.REPEAT_MODE_OFF
-import androidx.media3.common.Player.REPEAT_MODE_ONE
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
@@ -595,6 +595,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         val mediaItems = mediaItemHelper.getMediaItems(issueAudio)
         controller.apply {
             setMediaItems(mediaItems, issueAudio.currentIndex, 0L)
+            repeatMode = REPEAT_MODE_ALL
             setAutoPlayNext(autoPlayNextPreference.value)
             prepare()
             playWhenReady = true
@@ -612,14 +613,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+
+    @OptIn(UnstableApi::class)
     private fun MediaController.setAutoPlayNext(isAutoPlayNext: Boolean) {
-        repeatMode = if (isAutoPlayNext) {
-            REPEAT_MODE_ALL
-        } else {
-            // To stop after the current audio, while still being able to skip manually,
-            // we set the repeat mode to REPEAT_MODE_ONE and pause the player if we detect it
-            REPEAT_MODE_ONE
-        }
+        // While this is currently not using MediaController, we still keep it as an extension
+        // function, as we want to be sure that the ArticleAudioMediaSessionService has already
+        // initialized its mediaSession and the ExoPlayer within
+        ArticleAudioMediaSessionService.exoPlayer?.pauseAtEndOfMediaItems = !isAutoPlayNext
     }
 
     private fun toggleAudioControllerPlaying(controller: MediaController) {
@@ -672,31 +672,21 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             }
         }
 
-        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, @Player.PlayWhenReadyChangeReason reason: Int) {
-            trySetStateIsPlaying(playWhenReady)
-        }
-
-        override fun onPositionDiscontinuity(
-            oldPosition: Player.PositionInfo,
-            newPosition: Player.PositionInfo,
-            @DiscontinuityReason reason: Int
+        override fun onPlayWhenReadyChanged(
+            playWhenReady: Boolean,
+            @Player.PlayWhenReadyChangeReason reason: Int
         ) {
-            // To be able to respect the [autoPlayNext] functionality, we set the player repeat
-            // mode to [REPEAT_MODE_ONE] and immediately pause when we detect the repeat of item due
-            // to an auto transition to the start of the audio.
-            // Note: This is a workaround for MEDIA_ITEM_TRANSITION_REASON_REPEAT which is
-            // unfortunately not triggered for REPEAT_MODE_ONE.
-            if (reason == DISCONTINUITY_REASON_AUTO_TRANSITION
-                && oldPosition.mediaItemIndex == newPosition.mediaItemIndex
-                && newPosition.positionMs == 0L
-                && oldPosition.positionMs != 0L) {
-                getControllerFromState()?.apply{
-                    pause()
-                    seekTo(0L)
-                }
-                onAudioEnded()
+            when (reason) {
+
+                // When autoPlayNext is false, we instruct ExoPlayer.pauseAtEndOfMediaItems
+                // Once the player pauses due to this we receive PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
+                // and end the audio player.
+                PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM -> onAudioEnded()
+
+                else -> trySetStateIsPlaying(playWhenReady)
             }
         }
+
 
         override fun onMediaItemTransition(
             mediaItem: MediaItem?,

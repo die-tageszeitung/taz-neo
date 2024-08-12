@@ -17,7 +17,16 @@ import de.taz.app.android.util.Log
  * see https://developer.android.com/guide/topics/media/media3/getting-started/playing-in-background
  */
 class ArticleAudioMediaSessionService : MediaSessionService() {
-    private var mediaSession: MediaSession? = null
+
+    companion object {
+        // Workaround to be able to call functions directly on the ExoPlayer instead of the more
+        // generic Player interface implemented by MediaController.
+        // We need this to be able to set ExoPlayer#setPauseAtEndOfMediaItems()
+        internal var mediaSession: MediaSession? = null
+            private set
+        internal val exoPlayer: ExoPlayer?
+            get() = mediaSession?.player as? ExoPlayer
+    }
 
     private val mediaSessionCallback = ArticleAudioMediaSessionCallback(this)
 
@@ -81,7 +90,6 @@ private class ArticleAudioMediaSessionCallback(private val mediaSessionService: 
 
         return Futures.immediateFuture(mediaItemsWithLocalUriInfo)
     }
-
 
     override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
         super.onDisconnected(session, controller)
