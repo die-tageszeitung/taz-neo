@@ -61,6 +61,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ExecutionException
 
 class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), SuccessfulLoginAction {
 
@@ -335,7 +336,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                 LmdLogoCoachMark(this, drawerLogo, imageDrawable)
                     .maybeShow()
 
-            } catch (e: Exception) {
+            } catch (e: ExecutionException) {
                 val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                 log.error(hint, e)
                 SentryWrapper.captureException(e)
