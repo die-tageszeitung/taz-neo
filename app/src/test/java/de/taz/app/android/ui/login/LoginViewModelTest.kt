@@ -15,10 +15,12 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SubscriptionPollHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.test.MainDispatcherRule
 import de.taz.app.android.tracking.NoOpTracker
 import de.taz.app.android.tracking.Tracker
 import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.*
 import org.junit.Assert.assertEquals
@@ -32,6 +34,7 @@ import org.mockito.kotlin.mock
 import java.io.File
 import java.net.ConnectException
 
+
 @RunWith(MockitoJUnitRunner::class)
 class LoginViewModelTest {
 
@@ -43,9 +46,9 @@ class LoginViewModelTest {
      *   see https://www.youtube.com/watch?v=hzTU0lh-TIw for a good tutorial
      *   Unfortunately that does not work with infinite recursions as happening on handlePoll()
      *   Thus we simply disable the flaky poll tests for now.
+     */
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule(StandardTestDispatcher())
-    */
 
     private val username = "username"
     private val password = "password"
