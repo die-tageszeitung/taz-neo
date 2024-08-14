@@ -8,6 +8,7 @@
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <item name="materialSwitchStyle">@style/Widget.App.Switch</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">#0F000000</item>
@@ -87,6 +88,10 @@
         <item name="strokeColor">@color/buttonColor</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="rippleColor">@color/outline_button_ripple_color</item>
+    </style>
+
+    <style name="Widget.App.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackTint">@color/material_switch_color_list</item>
     </style>
 
     <style name="Widget.App.Form.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
@@ -386,48 +391,37 @@
     <style name="Widget.App.Login.Subscription.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
 
-    <style name="TextAppearance.AudioPlayer" parent="TextAppearance.AppCompat">
-        <!-- Defined in Figma as GUI/Audio-author-mini -->
+
+    <style name="Widget.App.AudioPlayer.Mini.Title" parent="Widget.App.TextView.Audio.Head.Mini">
         <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">13sp</item>
-        <item name="android:lineSpacingExtra">2.6sp</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Mini.Author" parent="Widget.App.TextView.Audio.Author.Mini">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.Title" parent="Widget.App.TextView.Info.BodyText.Bold">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.Author" parent="Widget.App.TextView.Info.BodyText">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.PlaybackSpeed" parent="Widget.App.TextView.Settings">
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.ProgressTime" parent="Widget.App.TextView.Listing.Metadata" />
+
+    <style name="Widget.App.AudioPlayer.Loading" parent="Widget.App.TextView.Audio.Head.Mini">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
+        <!-- Override text styles not able to use from textAppearance -->
         <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Bold">
-        <!-- Defined in Figma as GUI/Audio-head-mini -->
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">13.5sp</item>
-        <item name="android:lineSpacingExtra">2.7sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Expanded">
-        <!-- Defined in Figma as: GUI/Info-bodytext -->
-        <item name="android:textSize">18sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Expanded.Bold">
-        <!-- Defined in Figma as: GUI/Info-bodytext-bold -->
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Expanded.Light">
-        <!-- Defined in Figma as: GUI/Settings -->
-        <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.ProgressTime">
-        <!-- Defined in Figma as: GUI/Listing-Metadata -->
-        <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Switch" parent="TextAppearance.Settings.Entry">
-        <!-- Defined in Figma as: GUI/Settings with some additional colors -->
         <item name="android:textColor">@color/lightGrey</item>
     </style>
 
@@ -461,6 +455,10 @@
         <item name="android:textSize">18sp</item>
         <item name="lineHeight">25sp</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.BodyText.Bold">
+        <item name="android:fontFamily">@font/appFontBold</item>
     </style>
 
     <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
@@ -497,6 +495,35 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">9.4sp</item>
         <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Head.Mini" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">15.6sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Author.Mini" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">15.6sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Time" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14.4sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Metadata" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14.4sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/lightGrey</item>
     </style>
     <!-- endregion -->
 
