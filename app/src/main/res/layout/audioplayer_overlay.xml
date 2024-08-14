@@ -51,14 +51,13 @@
 
             <TextView
                 android:id="@+id/audio_title"
-                style="@style/TextAppearance.AudioPlayer.Bold"
+                style="@style/Widget.App.AudioPlayer.Mini.Title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
-                android:layout_marginTop="@dimen/audioplayer_small_title_margin_top"
+                android:layout_marginTop="@dimen/audioplayer_small_text_margin_vertical"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
                 app:layout_constraintBottom_toTopOf="@id/audio_author"
                 app:layout_constraintEnd_toStartOf="@id/audio_action_button"
                 app:layout_constraintStart_toEndOf="@id/audio_image"
@@ -68,15 +67,13 @@
 
             <TextView
                 android:id="@+id/audio_author"
-                style="@style/TextAppearance.AudioPlayer"
+                style="@style/Widget.App.AudioPlayer.Mini.Author"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
-                android:layout_marginTop="@dimen/audioplayer_small_author_top_margin"
-                android:layout_marginBottom="@dimen/audioplayer_small_text_bottom_margin"
+                android:layout_marginBottom="@dimen/audioplayer_small_text_margin_vertical"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/audio_action_button"
                 app:layout_constraintStart_toEndOf="@id/audio_image"
@@ -99,9 +96,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    app:indicatorSize="@dimen/audioplayer_small_progress_indicator_size"
                     app:indicatorColor="@color/audio_player_small_progress_played_color"
                     app:indicatorInset="1dp"
+                    app:indicatorSize="@dimen/audioplayer_small_progress_indicator_size"
                     app:trackColor="@color/audio_player_small_progress_unplayed_color"
                     app:trackThickness="@dimen/audioplayer_small_progress_indicator_thickness" />
 
@@ -120,7 +117,7 @@
             <!-- region loading state -->
             <TextView
                 android:id="@+id/loading_message"
-                style="@style/TextAppearance.AudioPlayer.Bold"
+                style="@style/Widget.App.AudioPlayer.Loading"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/audioplayer_small_horizontal_margin"
@@ -201,12 +198,12 @@
 
             <TextView
                 android:id="@+id/expanded_audio_title"
-                style="@style/TextAppearance.AudioPlayer.Expanded.Bold"
+                style="@style/Widget.App.AudioPlayer.Expanded.Title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/audioplayer_expanded_title_margin_top"
                 android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
+                android:paddingTop="0dp"
                 app:layout_constraintEnd_toStartOf="@id/expanded_playback_speed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/expanded_audio_image"
@@ -215,12 +212,11 @@
 
             <TextView
                 android:id="@+id/expanded_audio_author"
-                style="@style/TextAppearance.AudioPlayer.Expanded"
+                style="@style/Widget.App.AudioPlayer.Expanded.Author"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/audioplayer_expanded_author_margin_top"
                 android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
-                android:paddingTop="@dimen/audioplayer_small_custom_padding_top_for_grotesk_font"
+                android:paddingTop="0dp"
                 app:layout_constraintEnd_toStartOf="@id/expanded_playback_speed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/expanded_audio_title"
@@ -229,7 +225,7 @@
 
             <TextView
                 android:id="@+id/expanded_playback_speed"
-                style="@style/TextAppearance.AudioPlayer.Expanded.Light"
+                style="@style/Widget.App.AudioPlayer.Expanded.PlaybackSpeed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="@id/expanded_audio_author"
@@ -283,7 +279,7 @@
 
             <TextView
                 android:id="@+id/expanded_progress_current_time"
-                style="@style/TextAppearance.AudioPlayer.ProgressTime"
+                style="@style/Widget.App.AudioPlayer.Expanded.ProgressTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
@@ -292,7 +288,7 @@
 
             <TextView
                 android:id="@+id/expanded_progress_remaining_time"
-                style="@style/TextAppearance.AudioPlayer.ProgressTime"
+                style="@style/Widget.App.AudioPlayer.Expanded.ProgressTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -371,7 +367,7 @@
 
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/expanded_auto_play_next_switch"
-                style="@style/TextAppearance.AudioPlayer.Switch"
+                style="@style/Widget.App.AudioPlayer.Switch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/audioplayer_expanded_auto_play_next_margin_top"
