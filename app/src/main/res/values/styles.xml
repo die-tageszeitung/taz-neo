@@ -233,17 +233,18 @@
         <item name="android:focusable">true</item>
     </style>
 
-    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/coverflow_text_color</item>
-        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
-        <item name="android:paddingBottom">5dp</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
-
-    <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
+    <style name="Widget.App.CoverFlow.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    </style>
+
+    <style name="Widget.App.CoverFlow.Login" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/coverflow_text_color</item>
+    </style>
+
+    <style name="Widget.App.Archive.Date" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/coverflow_text_color</item>
+        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
     </style>
 
     <style name="TextAppearance.Settings.Detail" parent="TextAppearance.AppCompat">
@@ -522,6 +523,22 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">14.4sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Date.Small" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">20sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Date.Big" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">23sp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/lightGrey</item>
     </style>

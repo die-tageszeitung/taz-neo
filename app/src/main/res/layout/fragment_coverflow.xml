@@ -29,21 +29,22 @@
         android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
         android:clickable="true"
         android:focusable="true"
+        android:gravity="center_vertical"
         android:padding="@dimen/fragment_cover_flow_login_button_padding"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            style="@style/Widget.App.CoverFlow.Login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fragment_home_login"
-            android:textColor="@color/coverflow_text_color" />
+            android:text="@string/fragment_home_login" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:translationY="@dimen/fragment_cover_flow_arrow_translation_y"
             android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
+            android:contentDescription="@string/fragment_home_login"
             android:src="@drawable/ic_arrow_right"
             app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
@@ -72,17 +73,16 @@
 
         <TextView
             android:id="@+id/fragment_cover_flow_date"
-            style="@style/TextAppearance.CoverFlow.Date"
+            style="@style/Widget.App.CoverFlow.Date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
-            android:paddingBottom="@dimen/fragment_archive_moment_date_padding_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            android:translationY="@dimen/fragment_coverflow_date_translation_y"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="13.12.2023"/>
+            tools:text="13.12.2023" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_coverflow_moment_download"
