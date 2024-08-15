@@ -210,33 +210,31 @@
 
     <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
-    <dimen name="fragment_bookmarks_icons_vertical_margin">13.5dp</dimen>
-    <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
-    <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
-    <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
+    <dimen name="fragment_bookmarks_icons_vertical_margin">15dp</dimen>
+    <dimen name="fragment_bookmarks_padding_top">15dp</dimen>
+    <dimen name="fragment_bookmarks_padding_bottom">10dp</dimen>
     <dimen name="fragment_bookmarks_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
     <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
     <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_size">48dp</dimen>
-    <dimen name="fragment_bookmarks_description_text_size">16sp</dimen>
-    <dimen name="fragment_bookmarks_description_text_line_spacing_extra">3.2sp</dimen>
     <dimen name="fragment_bookmarks_description_margin_horizontal">45dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_margin_bottom">20dp</dimen>
     <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
     <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
+    <dimen name="fragment_bookmarks_author_margin_top">3dp</dimen>
+    <dimen name="fragment_bookmarks_separator_line_solid_margin_top">5dp</dimen>
+
     <dimen name="grotesk_font_adjustment">0dp</dimen>
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_moment_margin_top">8dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_moment_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_elevation">4dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_elevation_corners">0dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_date_margin_start">10dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_date_text_size">18sp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_height">3dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">11dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">10dp</dimen>
 
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
