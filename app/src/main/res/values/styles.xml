@@ -316,27 +316,34 @@
         <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">3sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-        <item name="android:paddingBottom">2dp</item>
+    <style name="Widget.App.Bookmarks.Description" parent="Widget.App.TextView.Settings">
+        <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
+        <item name="lineHeight">19.2sp</item>
     </style>
 
-    <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">3</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.Bookmarks.Issue.Header" parent="Widget.App.TextView.Listing.Date" />
+
+    <style name="Widget.App.Bookmarks.Entry.Title" parent="Widget.App.TextView.Listing.Head" />
+
+    <style name="Widget.App.Bookmarks.Entry.Teaser" parent="Widget.App.TextView.Listing.Subline">
+        <!-- Override the textSize defined in Figma so stay in line with the previous app layout -->
         <item name="android:textSize">14.5sp</item>
-        <item name="android:lineSpacingExtra">3.63sp</item>
+    </style>
+
+    <style name="Widget.App.Bookmarks.Entry.Author" parent="Widget.App.TextView.Listing.Author">
+        <item name="lineHeight">13.5sp</item>
+    </style>
+
+    <style name="Widget.App.Bookmarks.Entry.ReadMinutes" parent="Widget.App.TextView.Listing.Metadata">
+        <item name="android:textColor">@color/read_minutes</item>
+    </style>
+
+    <style name="Widget.App.Bookmarks.Entry.Delete" parent="Widget.AppCompat.TextView">
+        <!-- No style found in Figma -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/white</item>
         <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
     </style>
 
     <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
@@ -362,19 +369,14 @@
         <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
     </style>
 
-    <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
-
+    <!-- FIXME: remove once all references are removed. Attention also used from ArticleItemViewHolder and ArticleAdapter -->
     <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
         <item name="android:fontFamily">@font/appFontOldBold</item>
         <item name="android:textSize">13.5sp</item>
     </style>
 
+    <!-- FIXME: remove once all references are removed. Attention also used from ArticleItemViewHolder and ArticleAdapter -->
     <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/read_minutes</item>
         <item name="android:fontFamily">@font/appFontOldRegular</item>
@@ -516,6 +518,36 @@
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">12sp</item>
         <item name="lineHeight">14.4sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Head" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Subline" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18.75sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Date" parent="Widget.AppCompat.TextView">
+        <!-- Referenced style: GUI/Listing-date not found in styleguide.
+             We still use it for easier variant handling -->
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">21.6sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Author" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="lineHeight">20sp</item>
         <item name="android:includeFontPadding">false</item>
     </style>
 
