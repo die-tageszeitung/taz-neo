@@ -120,6 +120,7 @@ interface Tracker {
     fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
+    fun trackShareArticleTextEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareMomentEvent(issueKey: AbstractIssuePublication)
 
     fun trackDrawerOpenEvent(dragged: Boolean)
