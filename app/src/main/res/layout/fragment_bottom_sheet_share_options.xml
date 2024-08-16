@@ -84,16 +84,6 @@
         app:constraint_referenced_ids="share_text,share_text_divider"
         tools:visibility="visible" />
 
-
-    <TextView
-        android:id="@+id/share_error"
-        style="@style/Widget.App.BottomSheet.Menu.Item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <include
         android:id="@+id/loading_screen"
         layout="@layout/include_loading_screen"

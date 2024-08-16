@@ -504,6 +504,7 @@
     <string name="article_share_options_url">Link zum Artikel teilen</string>
     <string name="article_share_options_pdf">Artikel als PDF teilen</string>
     <string name="article_share_options_text">Artikel Text teilen</string>
+    <string name="article_share_text_error_dialog">Fehler beim Versuch den Text des Artikels zu teilen</string>
 
     <string name="article_tom_at_the_end_title">Das Ende ist nah!</string>
 

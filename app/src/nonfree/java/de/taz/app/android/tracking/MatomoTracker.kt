@@ -479,6 +479,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackShareArticleTextEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Share Article Text")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
     override fun trackShareMomentEvent(issueKey: AbstractIssuePublication) {
         TrackHelper.track()
             .event(CATEGORY_SHARE, "Issue Moment")

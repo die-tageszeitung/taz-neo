@@ -4,6 +4,8 @@ import android.app.Dialog
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -64,6 +66,33 @@ class SdCardIssueDialogFragment : DialogFragment() {
                 dialog.dismiss()
                 requireActivity().finish()
             }
+            .create()
+    }
+
+}
+
+
+class SimpleErrorDialog : DialogFragment() {
+
+    companion object {
+        const val TAG = "SimpleErrorDialog"
+        private const val ARG_MESSAGE_RES_ID = "messageResId"
+
+        fun newInstance(@StringRes messageResId: Int) = SimpleErrorDialog().apply {
+            arguments = bundleOf(
+                ARG_MESSAGE_RES_ID to messageResId
+            )
+        }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val activity = requireActivity()
+        val stringId = arguments?.getInt(ARG_MESSAGE_RES_ID) ?: R.string.toast_unknown_error
+        require(stringId != 0)
+
+        return MaterialAlertDialogBuilder(activity)
+            .setMessage(stringId)
+            .setPositiveButton(android.R.string.ok) { _, _ -> dismiss() }
             .create()
     }
 
