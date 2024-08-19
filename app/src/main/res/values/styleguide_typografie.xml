@@ -28,6 +28,13 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
+    <style name="Widget.App.TextView.Info.Subhead.Small" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">25sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="Widget.App.TextView.Info.BodyText" parent="Widget.AppCompat.TextView">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">18sp</item>
@@ -39,7 +46,15 @@
         <item name="android:fontFamily">@font/appFontBold</item>
     </style>
 
+    <style name="Widget.App.TextView.TextButton.Small" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
+        <!-- FIXME: remove once no longer needed -->
         <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:lineSpacingExtra">7sp</item>
@@ -134,6 +149,21 @@
         <item name="android:textColor">@color/lightGrey</item>
     </style>
 
+    <style name="Widget.App.TextView.Listing.Info" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.BodyText" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
     <style name="Widget.App.TextView.Date.Small" parent="Widget.AppCompat.TextView">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">15sp</item>
@@ -148,6 +178,37 @@
         <item name="lineHeight">23sp</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Opening" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">20sp</item>
+        <!-- Defined in Figma as line-height: normal, which should be around 120%
+             Instead using old value of line spacing extra 5.6sp -->
+        <item name="lineHeight">25.6sp</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Author" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Result.Head" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">17.5sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Result.Author" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">17sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
 </resources>
