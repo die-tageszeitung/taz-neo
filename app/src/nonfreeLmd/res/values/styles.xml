@@ -16,16 +16,12 @@
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
 
-    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
-        <item name="android:textSize" >@dimen/search_result_author_text_size</item>
+    <style name="Widget.App.Search.Entry.Author" parent="Widget.App.TextView.Search.Result.Author">
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
 
-    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
+    <style name="TextAppearance.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
-    </style>
-
-    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:textColor">@color/textColor</item>
     </style>
 </resources>

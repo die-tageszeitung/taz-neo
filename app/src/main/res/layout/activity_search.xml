@@ -41,6 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:visibility="gone"
+            android:layout_marginTop="@dimen/search_advanced_margin_top"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHeight_max="wrap"
             app:layout_constraintTop_toBottomOf="@id/advanced_search_title"
@@ -89,14 +90,15 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
-                    style="@style/TextAppearance.Search.Category"
+                    style="@style/Widget.App.Search.Advanced.Category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/search_advanced_category_margin_top"
                     android:text="@string/search_advanced_timeslot" />
 
                 <TextView
                     android:id="@+id/advanced_search_timeslot"
-                    style="@style/TextAppearance.Settings.Entry"
+                    style="@style/Widget.App.Search.Advanced.Entry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/search_advanced_radio_timeslot_any" />
@@ -108,14 +110,15 @@
                     android:orientation="vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Search.Category"
+                        style="@style/Widget.App.Search.Advanced.Category"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/search_advanced_category_margin_top"
                         android:text="@string/search_advanced_published_in" />
 
                     <TextView
                         android:id="@+id/advanced_search_published_in"
-                        style="@style/TextAppearance.Settings.Entry"
+                        style="@style/Widget.App.Search.Advanced.Entry"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/search_advanced_radio_published_in_any" />
@@ -123,14 +126,15 @@
                 </androidx.appcompat.widget.LinearLayoutCompat>
 
                 <TextView
-                    style="@style/TextAppearance.Search.Category"
+                    style="@style/Widget.App.Search.Advanced.Category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/search_advanced_category_margin_top"
                     android:text="@string/search_advanced_sort_by" />
 
                 <TextView
                     android:id="@+id/advanced_search_sort_by"
-                    style="@style/TextAppearance.Settings.Entry"
+                    style="@style/Widget.App.Search.Advanced.Entry"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/search_advanced_radio_sort_by_relevance" />
@@ -144,11 +148,10 @@
 
                 <TextView
                     android:id="@+id/search_help"
-                    style="@style/TextAppearance.Settings.Entry"
+                    style="@style/Widget.App.Search.Advanced.Help"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/search_advanced_help"
-                    android:textColor="@color/linkColor" />
+                    android:text="@string/search_advanced_help" />
 
             </LinearLayout>
         </ScrollView>
@@ -167,11 +170,10 @@
 
         <TextView
             android:id="@+id/advanced_search_title"
-            style="@style/TextAppearance.Search.Category"
+            style="@style/Widget.App.Search.Advanced.Category"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
-            android:layout_marginBottom="@dimen/search_advanced_title_margin_bottom"
             android:text="@string/search_advanced"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/expand_advanced_search_button"
@@ -193,11 +195,13 @@
 
         <TextView
             android:id="@+id/search_result_amount"
+            style="@style/Widget.App.Search.Result.Amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/search_input_field_margin_horizontally"
             app:layout_constraintBottom_toBottomOf="@id/expand_advanced_search_button"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="20 von 1000 Treffer:" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier_separator_line"
@@ -240,15 +244,12 @@
 
         <TextView
             android:id="@+id/search_description"
+            style="@style/Widget.App.Search.Description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/search_separator_line_margin"
-            android:fontFamily="@font/appFontOldBold"
-            android:lineSpacingExtra="@dimen/search_description_text_line_spacing_extra"
             android:text="@string/search_description"
             android:textAlignment="center"
-            android:textColor="@color/textColorAccent"
-            android:textSize="@dimen/search_description_text_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

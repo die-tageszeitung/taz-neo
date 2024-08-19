@@ -2,9 +2,6 @@
 <resources>
     <dimen name="fragment_drawer_date_margin_bottom">-3dp</dimen>
     <dimen name="fragment_drawer_section_title_padding_top">6dp</dimen>
-    <dimen name="search_advanced_title_margin_bottom">-15dp</dimen>
-    <dimen name="search_result_author_margin_top">-15dp</dimen>
-    <dimen name="search_result_snippet_margin_top">-5dp</dimen>
 
     <dimen name="fragment_settings_padding_top">5dp</dimen>
     <dimen name="fragment_settings_category_margin_bottom">-8dp</dimen>

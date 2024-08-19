@@ -273,27 +273,16 @@
     <dimen name="search_input_field_corner_radius">30dp</dimen>
     <dimen name="search_icon_size">38dp</dimen>
     <dimen name="search_icon_padding_vertical">7dp</dimen>
-    <dimen name="search_description_text_size">20sp</dimen>
-    <dimen name="search_description_text_line_spacing_extra">5.6sp</dimen>
     <dimen name="search_description_icon_size">48dp</dimen>
-    <dimen name="search_result_title_text_size">17.5sp</dimen>
-    <dimen name="search_result_title_line_spacing_extra">3.5sp</dimen>
-    <dimen name="search_result_author_margin_top">0dp</dimen>
-    <dimen name="search_result_author_text_size">17sp</dimen>
-    <dimen name="search_result_author_line_spacing_extra">4sp</dimen>
     <dimen name="search_result_item_margin_top">17dp</dimen>
     <dimen name="search_result_bookmark_icon_size">43dp</dimen>
     <dimen name="search_result_bookmark_icon_margin_end">-10dp</dimen>
     <dimen name="search_result_bookmark_icon_padding">9dp</dimen>
-    <dimen name="search_result_snippet_text_size">15sp</dimen>
-    <dimen name="search_result_snippet_line_spacing_extra">21sp</dimen>
     <dimen name="search_result_snippet_margin_top">5dp</dimen>
-    <dimen name="search_result_small_text_size">14sp</dimen>
     <dimen name="search_results_small_margin">4dp</dimen>
-    <dimen name="search_advanced_category_padding_top">13dp</dimen>
-    <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
-    <dimen name="search_advanced_title_margin_bottom">-2dp</dimen>
-    <dimen name="search_advanced_text_size">18sp</dimen>
+
+    <dimen name="search_advanced_margin_top">10dp</dimen>
+    <dimen name="search_advanced_category_margin_top">25dp</dimen>
 
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">16dp</dimen>

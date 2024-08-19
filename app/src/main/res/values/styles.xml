@@ -278,12 +278,28 @@
         <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
     </style>
 
-    <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
+    <!-- region search -->
+    <style name="Widget.App.Search.Description" parent="Widget.App.TextView.Search.Opening" />
+
+    <style name="Widget.App.Search.Advanced.Category" parent="Widget.App.TextView.Info.Subhead.Small">
+        <!-- Use previous textSize even if it is defined smaller in figma -->
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Widget.App.Search.Advanced.Help" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/linkColor</item>
+    </style>
+
+    <style name="Widget.App.Search.Advanced.Entry" parent="Widget.App.TextView.Settings">
+        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="Widget.App.Search.Result.Amount" parent="Widget.App.TextView.Listing.Info">
+        <!-- Element not found in Figma: Guessed from the visual layout -->
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/search_advanced_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:paddingTop">@dimen/search_advanced_category_padding_top</item>
-        <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
     </style>
 
     <style name="TextAppearance.Search.Input" parent="Widget.Material3.TextInputLayout.OutlinedBox">
@@ -303,19 +319,18 @@
         <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
-    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
-        <item name="android:textSize">@dimen/search_result_author_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Title" parent="Widget.App.TextView.Search.Result.Head" />
 
-    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Author" parent="Widget.App.TextView.Search.Result.Author" />
 
-    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Snippet" parent="Widget.App.TextView.Listing.BodyText" />
 
+    <style name="TextAppearance.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+    <!-- end region -->
+
+    <!-- region bookmarks -->
     <style name="Widget.App.Bookmarks.Description" parent="Widget.App.TextView.Settings">
         <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
         <item name="lineHeight">19.2sp</item>
@@ -345,6 +360,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:includeFontPadding">false</item>
     </style>
+    <!-- end region -->
 
     <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
@@ -395,6 +411,7 @@
     <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
 
 
+    <!-- region audioplayer -->
     <style name="Widget.App.AudioPlayer.Mini.Title" parent="Widget.App.TextView.Audio.Head.Mini">
         <item name="android:textColor">@color/white</item>
     </style>
@@ -427,6 +444,7 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:textColor">@color/lightGrey</item>
     </style>
+    <!-- end region -->
 
     <style name="TextAppearance.Date.Small" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontOldRegular</item>
