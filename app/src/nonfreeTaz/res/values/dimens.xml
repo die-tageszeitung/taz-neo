@@ -3,8 +3,5 @@
     <dimen name="fragment_drawer_date_margin_bottom">-3dp</dimen>
     <dimen name="fragment_drawer_section_title_padding_top">6dp</dimen>
 
-    <dimen name="fragment_settings_padding_top">5dp</dimen>
-    <dimen name="fragment_settings_category_margin_bottom">-8dp</dimen>
-
     <dimen name="grotesk_font_adjustment">2dp</dimen>
 </resources>

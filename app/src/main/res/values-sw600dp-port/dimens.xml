@@ -3,5 +3,5 @@
     <dimen name="fragment_cover_flow_guideline_top">200dp</dimen>
     <!-- region coach marks  -->
     <dimen name="coach_mark_drawer_logo_text_layout_padding_top">140dp</dimen>
-    <!-- end region  -->
+    <!-- endregion  -->
 </resources>

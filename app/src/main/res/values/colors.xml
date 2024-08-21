@@ -122,7 +122,6 @@
 
     <color name="drawer_bookmark_icon_tint">@color/lightGrey</color>
 
-    <color name="fragment_settings_value_text">@color/colorAccent</color>
     <color name="colorAutofillBackground">@color/tazRed10Percent</color>
 
     <color name="audio_player_overlay_background">@color/darkGrey</color>

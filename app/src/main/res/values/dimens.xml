@@ -108,25 +108,21 @@
     <dimen name="fragment_article_read_on_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_settings_padding_top">3dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">25dp</dimen>
-    <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
+    <dimen name="fragment_settings_category_margin_top">20dp</dimen>
+    <dimen name="fragment_settings_category_padding_vertical">10dp</dimen>
     <dimen name="fragment_settings_category_font_size">23sp</dimen>
-    <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
-    <dimen name="fragment_settings_text_font_size">16sp</dimen>
-    <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
-    <dimen name="fragment_settings_value_font_size">13sp</dimen>
-    <dimen name="fragment_settings_min_height">40dp</dimen>
-    <dimen name="fragment_settings_version_margin">20dp</dimen>
+    <dimen name="fragment_settings_entry_padding_vertical">15dp</dimen>
+    <dimen name="fragment_settings_entry_switch_margin_vertical">5dp</dimen>
+    <dimen name="fragment_settings_entry_switch_min_height">40dp</dimen>
     <dimen name="fragment_settings_icon_size">25dp</dimen>
     <dimen name="fragment_settings_plus_minus_width">100dp</dimen>
     <dimen name="fragment_settings_caution_icon_margin_end">12dp</dimen>
-    <dimen name="fragment_settings_category_switch_padding_bottom">10dp</dimen>
+    <dimen name="fragment_settings_description_padding_top">5dp</dimen>
 
     <dimen name="settings_separator_view_line_height">1dp</dimen>
-    <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
 
-    <dimen name="fragment_error_report_description_margin_top">10dp</dimen>
+    <dimen name="fragment_error_title_margin_top">20dp</dimen>
+    <dimen name="fragment_error_report_description_margin_top">20dp</dimen>
     <dimen name="fragment_error_report_email_title_margin_top">30dp</dimen>
     <dimen name="fragment_subscription_inquiry_description_margin_top">10dp</dimen>
 
@@ -263,7 +259,9 @@
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
     <dimen name="cover_item_padding">21dp</dimen>
 
-    <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
+    <dimen name="dialog_body_margin_top">10dp</dimen>
+    <dimen name="dialog_checkbox_margin_top">10dp</dimen>
+    <dimen name="dialog_progress_margin_top">20dp</dimen>
 
     <dimen name="search_separator_line_height">0.5dp</dimen>
     <dimen name="search_separator_line_margin">20dp</dimen>
@@ -283,6 +281,7 @@
 
     <dimen name="search_advanced_margin_top">10dp</dimen>
     <dimen name="search_advanced_category_margin_top">25dp</dimen>
+    <dimen name="search_advanced_entry_min_height">40dp</dimen>
 
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">16dp</dimen>

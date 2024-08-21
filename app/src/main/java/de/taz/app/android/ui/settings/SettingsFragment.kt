@@ -166,7 +166,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     increaseAmountOfIssues()
                 }
             }
-            fragmentSettingsStorageLocation.root.setOnClickListener {
+            fragmentSettingsStorageLocation.setOnClickListener {
                 StorageSelectionDialog(requireContext()).show()
             }
             fragmentSettingsTextJustified.setOnCheckedChangeListener { _, isChecked ->

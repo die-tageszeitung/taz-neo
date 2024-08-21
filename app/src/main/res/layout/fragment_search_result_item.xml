@@ -39,7 +39,7 @@
 
     <TextView
         android:id="@+id/search_result_date"
-        style="@style/TextAppearance.Search.Entry.Meta"
+        style="@style/Widget.App.Search.Entry.Meta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_results_small_margin"
@@ -49,7 +49,7 @@
 
     <TextView
         android:id="@+id/search_result_section"
-        style="@style/TextAppearance.Search.Entry.Meta"
+        style="@style/Widget.App.Search.Entry.Meta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_results_small_margin"
