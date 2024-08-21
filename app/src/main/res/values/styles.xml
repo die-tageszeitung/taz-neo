@@ -149,43 +149,6 @@
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
 
-    <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:lineSpacingExtra">0dp</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
-        <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
-        <item name="autoSizeMinTextSize">2dp</item>
-        <item name="autoSizeStepGranularity">0.1dp</item>
-    </style>
-
-    <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
-    </style>
-
-    <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:includeFontPadding">true</item>
-    </style>
-
     <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
@@ -225,6 +188,7 @@
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
+    <!-- region coverflow / archive -->
     <style name="Widget.App.CoverFlow.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
@@ -238,6 +202,7 @@
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
     </style>
+    <!-- endregion -->
 
     <!-- region settings -->
     <style name="Widget.App.Settings.Detail" parent="Widget.App.TextView.Listing.Info">
@@ -547,6 +512,59 @@
     <style name="Widget.App.Dialog.Title" parent="Widget.App.TextView.Info.BodyText.Bold" />
     <style name="Widget.App.Dialog.Body" parent="Widget.App.TextView.Info.BodyText.Small" />
     <style name="Widget.App.Dialog.CheckBox" parent="Widget.App.CheckBox" />
+    <!-- endregion -->
+
+    <!-- region Header -->
+    <style name="Widget.App.Header.Section.Title" parent="Widget.App.TextView.Section.SectionHead">
+        <item name="android:maxLines">1</item>
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
+        <!-- Override the line(height) and letter spacing to be 0 -->
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <!-- Set some autosizing limits options -->
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
+        <item name="autoSizeMinTextSize">2dp</item>
+        <item name="autoSizeStepGranularity">0.1dp</item>
+    </style>
+
+    <style name="Widget.App.Header.Default.Title" parent="Widget.App.Header.Section.Title">
+        <item name="android:textSize">@dimen/fragment_header_default_text_size</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_default_text_size</item>
+    </style>
+
+    <style name="Widget.App.Header.Section.Date" parent="Widget.App.TextView.Date.SectionHead">
+        <item name="android:maxLines">1</item>
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_section_date_text_size</item>
+        <!-- Align the fixed font to the previous fonts paddings to keep the header the same -->
+        <item name="android:layout_marginTop">@dimen/fragment_header_section_date_margin_top</item>
+    </style>
+
+    <style name="Widget.App.Header.Section.Date.Weekend" parent="Widget.App.Header.Section.Date">
+        <item name="android:layout_marginTop">0dp</item>
+    </style>
+
+    <style name="Widget.App.Header.Article.SectionTitle" parent="Widget.App.TextView.Section.ArticleHead">
+        <!-- Override the textSize, so it can be set depending on the display size and for LMd -->
+        <item name="android:textSize">@dimen/fragment_header_article_title_text_size</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Widget.App.Header.Article.Num" parent="Widget.App.TextView.Counter.ArticleHead">
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
+    </style>
+
+    <style name="Widget.App.Header.Custom.SectionTitle" parent="Widget.App.Header.Article.SectionTitle" />
+    <style name="Widget.App.Header.Custom.Num" parent="Widget.App.Header.Article.Num" />
+    <style name="Widget.App.Header.Custom.Date" parent="Widget.App.TextView.Date.SectionHead">
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
+        <!-- Align the fixed font to the previous fonts paddings to keep the header the same -->
+        <item name="android:layout_marginTop">@dimen/fragment_header_custom_date_margin_top</item>
+    </style>
     <!-- endregion -->
 
 </resources>

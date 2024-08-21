@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fragment_webview_header_padding_top">61dp</dimen>
+    <dimen name="fragment_header_default_padding_top">61dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">120dp</dimen>
 
+    <dimen name="fragment_header_default_text_size">32sp</dimen>
     <dimen name="fragment_header_section_text_size">32sp</dimen>
     <dimen name="fragment_header_article_text_size">22sp</dimen>
     <dimen name="fragment_header_title_section_text_size">38sp</dimen>
-    <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
-    <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_webview_section_margin_top">30dp</dimen>
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
     <dimen name="fragment_webview_loading_screen_padding_bottom">102dp</dimen>

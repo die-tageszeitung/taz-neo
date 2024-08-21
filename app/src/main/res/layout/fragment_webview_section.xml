@@ -36,22 +36,21 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/fragment_header_default_margin_horizontal"
                     android:layout_marginEnd="@dimen/fragment_header_default_margin_horizontal"
-                    android:paddingBottom="@dimen/fragment_header_title_padding_bottom">
+                    android:paddingBottom="@dimen/fragment_header_section_title_padding_bottom">
 
                     <TextView
                         android:id="@+id/section"
-                        style="@style/TextAppearance.Header.Section"
+                        style="@style/Widget.App.Header.Section.Title"
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/fragment_header_default_height"
                         android:gravity="bottom|end"
-                        android:maxLines="1"
-                        android:translationY="@dimen/fragment_header_default_title_y_translation"
                         app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="der tag" />
 
                     <TextView
                         android:id="@+id/weekend_issue_date"
-                        style="@style/TextAppearance.Header.Date"
+                        style="@style/Widget.App.Header.Section.Date.Weekend"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewEnd"
@@ -77,12 +76,13 @@
 
                     <TextView
                         android:id="@+id/issue_date"
-                        style="@style/TextAppearance.Header.Date"
+                        style="@style/Widget.App.Header.Section.Date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAlignment="viewEnd"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/dotted_line" />
+                        app:layout_constraintTop_toBottomOf="@id/dotted_line"
+                        tools:text="dienstag, 20. august 2024" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.MaterialToolbar>
@@ -92,7 +92,8 @@
 
     <include
         android:id="@+id/loading_screen"
-        layout="@layout/include_loading_screen" />
+        layout="@layout/include_loading_screen"
+        tools:visibility="gone" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
