@@ -20,7 +20,7 @@
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
     </style>
 
-    <style name="TextAppearance.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
+    <style name="Widget.App.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
         <item name="android:textColor">@color/textColor</item>
     </style>

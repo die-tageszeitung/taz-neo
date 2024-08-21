@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="?dialogPreferredPadding">
 
     <TextView
         android:id="@+id/fragment_settings_delete_all_issues_title"
-        style="@style/TextAppearance.Settings.Entry"
+        style="@style/Widget.App.Dialog.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/settings_delete_all_issues_for_sure"
@@ -15,9 +16,10 @@
 
     <TextView
         android:id="@+id/fragment_settings_delete_all_issues_text"
-        style="@style/TextAppearance.Settings.Entry"
+        style="@style/Widget.App.Dialog.Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dialog_body_margin_top"
         android:text="@string/settings_delete_all_issues_for_sure_detail"
         app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_all_issues_title" />
 
@@ -26,14 +28,19 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dialog_progress_margin_top"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_all_issues_text"/>
+        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_all_issues_text"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/fragment_settings_delete_progress_text"
+        style="@style/Widget.App.Dialog.Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_progress" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_settings_delete_progress"
+        tools:text="@string/settings_delete_progress_text"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
         <item name="materialSwitchStyle">@style/Widget.App.Switch</item>
+        <item name="checkboxStyle">@style/Widget.App.CheckBox</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">#0F000000</item>
@@ -38,6 +39,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
+    <!-- region Material components -->
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="android:background">@color/backgroundColor</item>
         <item name="alertDialogStyle">@style/MaterialAlertDialog.AppTheme</item>
@@ -94,6 +96,13 @@
         <item name="trackTint">@color/material_switch_color_list</item>
     </style>
 
+    <style name="Widget.App.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox" />
+
+    <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
+        <item name="drawerLayoutCornerSize">0dp</item>
+    </style>
+    <!-- endregion -->
+
     <style name="Widget.App.Form.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/text_input_hint_color</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
@@ -105,10 +114,6 @@
 
     <style name="Widget.App.Form.Help" parent="Widget.App.TextView.M.Link">
         <item name="android:textColor">@color/text_input_help_text_color</item>
-    </style>
-
-    <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
-        <item name="drawerLayoutCornerSize">0dp</item>
     </style>
 
     <style name="SplashTheme" parent="Theme.SplashScreen">
@@ -220,19 +225,6 @@
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
-    <style name="Widget.App.BottomSheet.Menu.Item" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/bottom_sheet_text_color</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
-        <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-    </style>
-
     <style name="Widget.App.CoverFlow.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
@@ -247,36 +239,78 @@
         <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
     </style>
 
-    <style name="TextAppearance.Settings.Detail" parent="TextAppearance.AppCompat">
+    <!-- region settings -->
+    <style name="Widget.App.Settings.Detail" parent="Widget.App.TextView.Listing.Info">
         <item name="android:textColor">@color/textColorAccent</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_detail_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:gravity">top</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_entry_padding_vertical</item>
     </style>
 
-    <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.Settings.Entry" parent="Widget.App.TextView.Settings">
         <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_entry_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_entry_padding_vertical</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Action">
+        <!-- This style may only be applied to TextViews with a onClickListener, otherwise it breaks.
+             If the wrapper has the onClickListener the attributes must be set on it instead -->
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Critical">
+        <item name="android:textColor">@color/critical_action</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
         <item name="android:lineSpacingExtra">5sp</item>
-        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
-        <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
-        <item name="trackTint">@color/material_switch_color_list</item>
+
+        <item name="android:layout_marginTop">@dimen/fragment_settings_entry_switch_margin_vertical</item>
+        <item name="android:layout_marginBottom">@dimen/fragment_settings_entry_switch_margin_vertical</item>
+
+        <!-- MaterialSwitch brings a default minHeight of ?attr/minTouchTargetSize=48dp which we override.
+             It has probably no effect as the switch with the padding is already at least 40dp -->
+        <item name="android:minHeight">@dimen/fragment_settings_entry_switch_min_height</item>
     </style>
 
-    <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
-        <item name="android:textColor">@color/fragment_settings_value_text</item>
-        <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
+    <style name="Widget.App.Settings.Value" parent="Widget.App.TextView.Listing.Info">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:gravity">end</item>
     </style>
 
-    <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
+    <style name="Widget.App.Settings.Category" parent="Widget.App.TextView.Info.Subhead">
+        <!-- Override the textSize defined in Figma to keep the previous app behavior and allow for LMd overrides -->
         <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
-        <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:layout_marginTop">@dimen/fragment_settings_category_margin_top</item>
     </style>
+
+    <style name="Widget.App.Settings.Category.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Info.Subhead</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
+        <item name="android:lineSpacingExtra">4sp</item>
+        <!-- Override the textSize defined in Figma to keep the previous app behavior and allow for LMd overrides -->
+        <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:layout_marginTop">@dimen/fragment_settings_category_margin_top</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region error report -->
+    <style name="Widget.App.ErrorReport.Title" parent="Widget.App.TextView.Info.Subhead" />
+    <style name="Widget.App.ErrorReport.Description" parent="Widget.App.TextView.Info.BodyText.Small" />
+    <style name="Widget.App.ErrorReport.Input.Label" parent="Widget.App.TextView.Form.Input.Topline" />
+    <!-- endregion -->
 
     <!-- region search -->
     <style name="Widget.App.Search.Description" parent="Widget.App.TextView.Search.Opening" />
@@ -287,13 +321,13 @@
     </style>
 
     <style name="Widget.App.Search.Advanced.Help" parent="Widget.App.TextView.TextButton.Small">
-        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
+        <item name="android:minHeight">@dimen/search_advanced_entry_min_height</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@color/linkColor</item>
     </style>
 
     <style name="Widget.App.Search.Advanced.Entry" parent="Widget.App.TextView.Settings">
-        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
+        <item name="android:minHeight">@dimen/search_advanced_entry_min_height</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
@@ -325,10 +359,10 @@
 
     <style name="Widget.App.Search.Entry.Snippet" parent="Widget.App.TextView.Listing.BodyText" />
 
-    <style name="TextAppearance.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
+    <style name="Widget.App.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
         <item name="android:textColor">@color/textColor</item>
     </style>
-    <!-- end region -->
+    <!-- endregion -->
 
     <!-- region bookmarks -->
     <style name="Widget.App.Bookmarks.Description" parent="Widget.App.TextView.Settings">
@@ -360,7 +394,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:includeFontPadding">false</item>
     </style>
-    <!-- end region -->
+    <!-- endregion -->
 
     <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
         <item name="android:textColor">@color/textColor</item>
@@ -399,6 +433,7 @@
         <item name="android:textSize">12sp</item>
     </style>
 
+    <!-- region login -->
     <style name="Widget.App.Login.Title" parent="Widget.App.TextView.Info.Subhead" />
     <style name="Widget.App.Login.Content" parent="Widget.App.TextView.Info.BodyText" />
 
@@ -409,7 +444,7 @@
 
     <style name="Widget.App.Login.Subscription.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
-
+    <!-- endregion -->
 
     <!-- region audioplayer -->
     <style name="Widget.App.AudioPlayer.Mini.Title" parent="Widget.App.TextView.Audio.Head.Mini">
@@ -442,9 +477,11 @@
         <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
         <!-- Override text styles not able to use from textAppearance -->
         <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
+        <item name="android:lineSpacingExtra">5sp</item>
         <item name="android:textColor">@color/lightGrey</item>
     </style>
-    <!-- end region -->
+    <!-- endregion -->
 
     <style name="TextAppearance.Date.Small" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontOldRegular</item>
@@ -453,6 +490,7 @@
         <item name="android:lineSpacingExtra">5sp</item>
     </style>
 
+    <!-- region coachmarks -->
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
         <item name="android:textSize">32sp</item>
@@ -467,7 +505,9 @@
         <item name="android:letterSpacing">0</item>
         <item name="android:lineSpacingExtra">3sp</item>
     </style>
+    <!-- endregion -->
 
+    <!-- region BottomSheets -->
     <style name="BottomSheetContainer">
         <item name="android:background">@drawable/text_settings_rounded_bg</item>
     </style>
@@ -489,5 +529,24 @@
     <style name="Widget.App.BottomSheetWithTwoColumns.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.BottomSheetWithTwoColumns.Description" parent="Widget.App.TextView.Info.BodyText" />
 
+    <style name="Widget.App.BottomSheet.Menu.Item" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/bottom_sheet_text_color</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region Dialogs -->
+    <style name="Widget.App.Dialog.Title" parent="Widget.App.TextView.Info.BodyText.Bold" />
+    <style name="Widget.App.Dialog.Body" parent="Widget.App.TextView.Info.BodyText.Small" />
+    <style name="Widget.App.Dialog.CheckBox" parent="Widget.App.CheckBox" />
+    <!-- endregion -->
 
 </resources>

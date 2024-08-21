@@ -48,16 +48,17 @@
 
                 <TextView
                     android:id="@+id/fragment_error_report_title"
+                    style="@style/Widget.App.ErrorReport.Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/fragment_settings_category_padding_top"
+                    android:layout_marginTop="@dimen/fragment_error_title_margin_top"
                     android:text="@string/fragment_error_report_title"
-                    android:textAppearance="@style/TextAppearance.Settings.Category"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/fragment_error_report_description"
+                    style="@style/Widget.App.ErrorReport.Description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_error_report_description_margin_top"
@@ -66,6 +67,7 @@
 
                 <TextView
                     android:id="@+id/fragment_error_report_email_title"
+                    style="@style/Widget.App.ErrorReport.Input.Label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/fragment_error_report_email_title_margin_top"
@@ -85,6 +87,7 @@
 
                 <TextView
                     android:id="@+id/fragment_error_report_message_title"
+                    style="@style/Widget.App.ErrorReport.Input.Label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:labelFor="@id/fragment_error_report_message"
@@ -104,6 +107,7 @@
 
                 <TextView
                     android:id="@+id/fragment_error_report_last_action_title"
+                    style="@style/Widget.App.ErrorReport.Input.Label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:labelFor="@id/fragment_error_report_last_action"
@@ -123,6 +127,7 @@
 
                 <TextView
                     android:id="@+id/fragment_error_report_conditions_title"
+                    style="@style/Widget.App.ErrorReport.Input.Label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:labelFor="@id/fragment_error_report_conditions"
