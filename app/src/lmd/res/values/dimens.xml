@@ -4,13 +4,7 @@
     https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:drawerlayout/drawerlayout/src/main/java/androidx/drawerlayout/widget/DrawerLayout.java;l=170?q=DrawerLayout
     https://stackoverflow.com/questions/16754305/full-width-navigation-drawer -->
     <dimen name="negated_min_drawer_width">-64dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_pagina">14sp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">17sp</dimen>
     <dimen name="drawer_margin_horizontal">18dp</dimen>
-    <dimen name="list_item_pdf_page_toc_text_size">15sp</dimen>
-    <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
-    <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="text_appearance_archive_date_text_size">13sp</dimen>
     <dimen name="coach_mark_header_line_height">32sp</dimen>
     <dimen name="fragment_header_article_title_text_size">15sp</dimen>

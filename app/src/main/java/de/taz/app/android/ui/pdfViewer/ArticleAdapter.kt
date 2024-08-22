@@ -1,10 +1,7 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.LineHeightSpan
 import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -169,7 +166,7 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_Drawer_PDF_Entry_Author
+                        R.style.TextAppearance_App_Drawer_Lmd_Meta_Author
                     ),
                     0,
                     authors.length,
@@ -181,24 +178,12 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                        R.style.TextAppearance_App_Drawer_Lmd_Meta_ReadMinutes
                     ),
                     readMinutesSpanStart,
                     readMinutesSpanEnd,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val newLineHeight =
-                        itemView.context.applicationContext.resources.getDimensionPixelSize(
-                            R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
-                        )
-                    text.setSpan(
-                        LineHeightSpan.Standard(newLineHeight),
-                        readMinutesSpanStart,
-                        readMinutesSpanEnd,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
             }
 
             return text

@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -78,7 +79,10 @@ class ArticleItemViewHolder(
         }
         val twoStyledSpannable = constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-        authorAndReadMinutesTextView.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+        authorAndReadMinutesTextView.apply {
+            isVisible = twoStyledSpannable.isNotEmpty()
+            setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+        }
 
         if (article.imageList.isNotEmpty()) {
             fileHelper.getAbsolutePath(article.imageList.first())?.let {
@@ -154,7 +158,7 @@ class ArticleItemViewHolder(
 
         if (authorSpanStart < authorSpanEnd) {
             text.setSpan(
-                TextAppearanceSpan(itemView.context, R.style.TextAppearance_Bookmarks_Entry_Author),
+                TextAppearanceSpan(itemView.context, R.style.TextAppearance_App_Drawer_Sections_Article_Meta_Author),
                 0,
                 authors.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -165,24 +169,12 @@ class ArticleItemViewHolder(
             text.setSpan(
                 TextAppearanceSpan(
                     itemView.context,
-                    R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                    R.style.TextAppearance_App_Drawer_Sections_Article_Meta_ReadMinutes
                 ),
                 readMinutesSpanStart,
                 readMinutesSpanEnd,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val newLineHeight =
-                    itemView.context.applicationContext.resources.getDimensionPixelSize(
-                        R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
-                    )
-                text.setSpan(
-                    LineHeightSpan.Standard(newLineHeight),
-                    readMinutesSpanStart,
-                    readMinutesSpanEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
         }
 
         return text

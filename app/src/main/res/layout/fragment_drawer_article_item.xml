@@ -20,7 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/fragment_section_drawer_padding_top"
-        android:paddingBottom="@dimen/fragment_section_drawer_padding_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -35,7 +34,7 @@
 
             <TextView
                 android:id="@+id/fragment_drawer_article_title"
-                style="@style/TextAppearance.Drawer.Sections.Article.Title"
+                style="@style/Widget.App.Drawer.Sections.Article.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/fragment_drawer_title_margin_end"
@@ -43,18 +42,21 @@
 
             <TextView
                 android:id="@+id/fragment_drawer_article_teaser"
-                style="@style/TextAppearance.Drawer.Sections.Article.Teaser"
+                style="@style/Widget.App.Drawer.Sections.Article.Teaser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/fragment_drawer_teaser_margin_end"
+                android:layout_marginTop="@dimen/fragment_drawer_teaser_margin_top"
                 tools:text="@tools:sample/lorem/random" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/fragment_drawer_article_author_and_read_minutes"
+            style="@style/Widget.App.Drawer.Sections.Article.Meta"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_vertical"
+            android:layout_marginTop="@dimen/fragment_drawer_author_read_min_margin_top"
+            android:layout_marginBottom="@dimen/fragment_section_drawer_padding_bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/image_and_bookmark_barrier"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,10 +78,14 @@
             android:layout_marginTop="@dimen/fragment_section_drawer_article_image_top_margin"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/fragment_drawer_article_bookmark_icon"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/article_wrapper"
+            app:layout_constraintVertical_bias="0"
+            app:layout_goneMarginTop="0dp"
             tools:ignore="ContentDescription"
-            tools:src="@tools:sample/avatars" />
+            tools:src="@tools:sample/avatars"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/fragment_drawer_article_bookmark_icon"
@@ -91,8 +97,6 @@
             android:src="@drawable/ic_bookmark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/fragment_drawer_article_image"
-            app:layout_constraintVertical_bias="1"
             app:tint="@color/textColorAccent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -41,19 +41,19 @@
     <dimen name="fragment_drawer_padding_end">14dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
-    <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
-    <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
-    <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
+    <dimen name="fragment_drawer_pdf_section_title_margin_top">5dp</dimen>
+    <dimen name="fragment_drawer_pdf_item_padding_top">20dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
     <dimen name="fragment_drawer_header_action_margin_top">18dp</dimen>
+    <dimen name="fragment_drawer_header_action_margin_bottom">10dp</dimen>
     <dimen name="fragment_drawer_title_margin_end">10dp</dimen>
+    <dimen name="fragment_drawer_teaser_margin_top">2dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
-    <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
+    <dimen name="fragment_drawer_author_read_min_margin_top">3dp</dimen>
     <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
-    <dimen name="fragment_section_drawer_padding_bottom">4dp</dimen>
-    <dimen name="fragment_section_drawer_article_image_top_margin">3dp</dimen>
+    <dimen name="fragment_section_drawer_padding_bottom">12dp</dimen>
+    <dimen name="fragment_section_drawer_article_image_top_margin">5dp</dimen>
     <dimen name="fragment_section_drawer_bookmark_padding_horizontal">3dp</dimen>
-    <dimen name="fragment_drawer_section_title_padding_top">0dp</dimen>
     <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
@@ -217,8 +217,6 @@
     <dimen name="fragment_bookmarks_author_margin_top">3dp</dimen>
     <dimen name="fragment_bookmarks_separator_line_solid_margin_top">5dp</dimen>
 
-    <dimen name="grotesk_font_adjustment">0dp</dimen>
-
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_elevation">4dp</dimen>
@@ -229,12 +227,8 @@
 
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
-    <dimen name="fragment_bookmarks_article_item_read_minutes_line_height">18sp</dimen>
 
-    <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">20sp</dimen>
-    <dimen name="fragment_drawer_article_item_text_size">15sp</dimen>
     <dimen name="fragment_drawer_separator_line_height">0.5dp</dimen>
     <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
 
@@ -354,14 +348,12 @@
 
     <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
     <dimen name="fragment_drawer_body_pdf_with_sections_pagina_margin_top">7dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_pagina">14sp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">18sp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_margin_bottom">10dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_padding">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_height">0.5dp</dimen>
-    <dimen name="list_item_pdf_page_toc_text_size">16sp</dimen>
-    <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
+    <dimen name="list_item_pdf_page_toc_teaser_margin_top">5dp</dimen>
+    <dimen name="list_item_pdf_page_toc_meta_margin_top">4dp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <!-- endregion -->
 
