@@ -122,32 +122,122 @@
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.AppCompat">
+    <!-- region drawer -->
+    <style name="Widget.App.Drawer.Sections.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/drawer_sections_date</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">@dimen/fragment_drawer_sections_item_text_size</item>
+    <style name="Widget.App.Drawer.Sections.Play" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:textColor">@color/drawer_sections_header_action</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Sections.Title" parent="Widget.App.Draw.DrawerSection">
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:lineSpacingExtra">-3dp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/drawer_pdf_sections_text</item>
+    <style name="Widget.App.Drawer.Sections.Article.Title" parent="Widget.App.Draw.Head">
+        <!-- Figma overrides to keep behavior in line with previous app layouts -->
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18sp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.PDF.Entry.Author" parent="TextAppearance.Bookmarks.Entry.Author">
-        <item name="android:textSize">@dimen/list_item_pdf_page_toc_text_size</item>
-        <item name="android:textStyle">italic</item>
+    <style name="Widget.App.Drawer.Sections.Article.Teaser" parent="Widget.App.Draw.Subline">
+        <item name="android:maxLines">3</item>
+        <item name="android:ellipsize">end</item>
+
+        <!-- Figma overrides to keep behavior in line with previous app layouts -->
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18.75sp</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Sections.Article.Meta" parent="Widget.AppCompat.TextView">
+        <!-- The actual text will be overriden by Spannable TextAppearances -->
+        <item name="android:includeFontPadding">false</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="TextAppearance.App.Drawer.Sections.Article.Meta.Author" parent="TextAppearance.App.Draw.Autorin.Bold" />
+    <style name="TextAppearance.App.Drawer.Sections.Article.Meta.ReadMinutes" parent="TextAppearance.App.Draw.Metadata">
+        <item name="android:textColor">@color/read_minutes</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Pdf.Header.Date" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/fragment_drawer_date_text_color</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Pdf.Header.Play" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:textColor">@color/pdf_drawer_header_action</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Pdf.Section.Title" parent="Widget.App.Draw.Section.Pdf">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Pdf.Header.Title" parent="Widget.App.Drawer.Pdf.Section.Title">
+        <item name="android:textColor">@color/pdf_drawer_header_action</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region LMd Drawer -->
+    <!-- These are not part of the figma styleguide -->
+    <style name="Widget.App.Drawer.Lmd.Page" parent="Widget.AppCompat.TextView">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/pdf_section_font</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Title" parent="Widget.AppCompat.TextView">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
+        <item name="lineHeight">19sp</item><!-- defined as 21.5sp in figma -->
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Teaser" parent="Widget.AppCompat.TextView">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
+        <item name="lineHeight">19.5sp</item><!-- defined as 21.5sp in figma -->
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Meta" parent="Widget.AppCompat.TextView">
+        <!-- The actual text will be overriden by Spannable TextAppearances -->
+        <item name="android:includeFontPadding">false</item>
+        <item name="lineHeight">19sp</item>
+    </style>
+
+    <style name="TextAppearance.App.Drawer.Lmd.Meta.Author" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
     </style>
+
+    <style name="TextAppearance.App.Drawer.Lmd.Meta.ReadMinutes" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/read_minutes</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Header.Page" parent="Widget.App.Drawer.Lmd.Page" />
+
+    <style name="Widget.App.Drawer.Lmd.Header.Content" parent="Widget.AppCompat.TextView">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/pdf_section_font</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Header.Date" parent="Widget.AppCompat.TextView">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/pdf_section_font</item>
+    </style>
+    <!-- endregion -->
 
     <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
@@ -360,43 +450,6 @@
         <item name="android:includeFontPadding">false</item>
     </style>
     <!-- endregion -->
-
-    <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
-        <item name="android:lineSpacingExtra">3sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-        <item name="android:paddingBottom">2dp</item>
-    </style>
-
-    <style name="TextAppearance.Drawer.Sections.Article.Teaser" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">3</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
-        <item name="android:lineSpacingExtra">3.75sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-    </style>
-
-    <!-- FIXME: remove once all references are removed. Attention also used from ArticleItemViewHolder and ArticleAdapter -->
-    <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">13.5sp</item>
-    </style>
-
-    <!-- FIXME: remove once all references are removed. Attention also used from ArticleItemViewHolder and ArticleAdapter -->
-    <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/read_minutes</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">12sp</item>
-    </style>
 
     <!-- region login -->
     <style name="Widget.App.Login.Title" parent="Widget.App.TextView.Info.Subhead" />

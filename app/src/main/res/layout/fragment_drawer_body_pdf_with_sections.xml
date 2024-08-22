@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:background="@color/navigation_drawer_pdf_background"
     tools:context=".ui.pdfViewer.DrawerBodyPdfWithSectionsFragment">
 
     <include
@@ -71,37 +70,30 @@
 
         <TextView
             android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_title"
+            style="@style/Widget.App.Drawer.Lmd.Header.Page"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
-            android:fontFamily="@font/appFontOldRegular"
-            android:textColor="@color/pdf_section_font"
-            android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_pagina"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@+id/cardView"
             app:layout_constraintEnd_toEndOf="@+id/cardView"
+            app:layout_constraintStart_toStartOf="@+id/cardView"
             app:layout_constraintTop_toBottomOf="@id/cardView"
             tools:text="Seite 5" />
 
         <TextView
             android:id="@+id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
+            style="@style/Widget.App.Drawer.Lmd.Header.Content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_drawer_body_table_of_content_header_margin_top"
-            android:fontFamily="@font/appFontAlternative"
             android:text="@string/table_of_content"
-            android:textColor="@color/pdf_section_font"
-            android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
             app:layout_constraintEnd_toStartOf="@id/fragment_drawer_body_pdf_with_sections_title"
             app:layout_constraintBaseline_toBaselineOf="@id/fragment_drawer_body_pdf_with_sections_current_page_title" />
 
         <TextView
             android:id="@+id/fragment_drawer_body_pdf_with_sections_title"
+            style="@style/Widget.App.Drawer.Lmd.Header.Date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/appFontAlternativeItalic"
-            android:textColor="@color/pdf_section_font"
-            android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_toc_header"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBaseline_toBaselineOf="@id/fragment_drawer_body_pdf_with_sections_current_page_toc_header"
             tools:text="März 2023" />

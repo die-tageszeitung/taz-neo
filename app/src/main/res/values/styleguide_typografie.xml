@@ -256,4 +256,52 @@
     <!-- Widget.App.TextView.Category is exactly the same as Section.SectionHead - which we use instead for simpler style definitions -->
     <style name="Widget.App.TextView.Category" parent="Widget.App.TextView.Section.SectionHead" />
 
+    <style name="Widget.App.Draw.DrawerSection" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="lineHeight">22sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.Draw.Head" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">17.5sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.Draw.Subline" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">17.5sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.App.Draw.Autorin.Bold" parent="TextAppearance.AppCompat">
+        <!-- Only used as TextAppearanceSpan -->
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13.5sp</item>
+        <!-- lineHeight and fontPadding must be set by the TextView containing the Spans
+        <item name="lineHeight">16.2sp</item>
+        <item name="android:includeFontPadding">false</item>
+        -->
+    </style>
+
+    <style name="TextAppearance.App.Draw.Metadata" parent="TextAppearance.AppCompat">
+        <!-- Only used as TextAppearanceSpan -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <!-- lineHeight and fontPadding must be set by the TextView containing the Spans
+        <item name="lineHeight">50sp</item>
+        <item name="android:includeFontPadding">false</item>
+        -->
+    </style>
+
+    <style name="Widget.App.Draw.Section.Pdf" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15.5sp</item>
+        <item name="lineHeight">18.6sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    
 </resources>

@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    tools:context=".ui.pdfViewer.PageWithArticlesAdapter">
-
+    android:orientation="horizontal">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/preview_page_card"
@@ -33,15 +31,12 @@
 
     <TextView
         android:id="@+id/preview_page_pagina"
+        style="@style/Widget.App.Drawer.Lmd.Page"
         android:layout_width="@dimen/match_constraint"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/fragment_drawer_body_pdf_with_sections_pagina_margin_top"
         android:ellipsize="end"
-        android:fontFamily="@font/appFontOldRegular"
         android:maxLines="1"
-        android:textColor="@color/pdf_section_font"
-        android:textSize="@dimen/fragment_drawer_body_pdf_with_sections_pagina"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/preview_page_card"
         app:layout_constraintStart_toStartOf="@id/preview_page_card"
         app:layout_constraintTop_toBottomOf="@id/preview_page_card"
