@@ -80,7 +80,7 @@
 
         <TextView
             android:id="@+id/privacy_policy_text"
-            style="@style/TextAppearance.TextButton.Small"
+            style="@style/Widget.App.TextView.TextButton.Small"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_footnote_margin_top"

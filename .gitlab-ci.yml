@@ -7,7 +7,7 @@ variables:
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
-  BUNDLE_VERSION: "005"
+  BUNDLE_VERSION: "006"
 
 stages:
   - prepare

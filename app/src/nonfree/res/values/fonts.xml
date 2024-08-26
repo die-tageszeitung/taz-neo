@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="appFontOldRegular" format="reference" type="font">@font/aktiv_grotesk_old_regular</item>
-    <item name="appFontOldBold" format="reference" type="font">@font/aktiv_grotesk_old_bold</item>
     <item name="appFontRegular" format="reference" type="font">@font/aktiv_grotesk_regular</item>
     <item name="appFontBold" format="reference" type="font">@font/aktiv_grotesk_bold</item>
     <item name="appFontAlternative" format="reference" type="font">@font/quatext_regular</item>
     <item name="appFontCoachMarkHeader" format="reference" type="font">@font/american_typewriter_condensed_bold</item>
-    <item name="appFontCoachMarkText" format="reference" type="font">@font/aktiv_grotesk_old_regular</item>
+    <item name="appFontCoachMarkText" format="reference" type="font">@font/aktiv_grotesk_regular</item>
 
     <item name="appFontKnileRegular" format="reference" type="font">@font/knile_regular</item>
     <item name="appFontKnileSemiBold" format="reference" type="font">@font/knile_semibold</item>
