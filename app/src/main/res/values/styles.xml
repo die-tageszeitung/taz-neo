@@ -92,6 +92,15 @@
         <item name="rippleColor">@color/outline_button_ripple_color</item>
     </style>
 
+    <style name="Widget.App.TextView.Button" parent="Widget.App.TextView.Link.Large">
+        <!-- Faking a TextButton with a regular TextView -->
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">30dp</item>
+    </style>
+
     <style name="Widget.App.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="trackTint">@color/material_switch_color_list</item>
     </style>
@@ -239,21 +248,23 @@
     </style>
     <!-- endregion -->
 
-    <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
+    <!-- region BottomNavigation -->
+    <style name="Widget.App.BottomNavigation.TabBar" parent="Widget.Design.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
         <item name="itemIconTint">@color/bottom_nav_icon_color</item>
         <item name="itemTextColor">@color/bottom_nav_icon_color</item>
         <item name="labelVisibilityMode">labeled</item>
         <item name="menu">@menu/navigation_bottom_home</item>
-        <item name="itemTextAppearanceActive">@style/TextAppearance.BottomNavigationView.Active
+        <item name="itemTextAppearanceActive">
+            @style/TextAppearance.App.BottomNavigation.Item.Active
         </item>
         <item name="itemTextAppearanceInactive">
-            @style/TextAppearance.BottomNavigationView.Inactive
+            @style/TextAppearance.App.BottomNavigation.Item.Inactive
         </item>
     </style>
 
-    <style name="BottomNavigationToolBar" parent="Widget.Design.BottomNavigationView">
+    <style name="Widget.App.BottomNavigation.ToolBar" parent="Widget.Design.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
         <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
@@ -261,22 +272,14 @@
         <item name="labelVisibilityMode">unlabeled</item>
     </style>
 
-    <!-- blank styles for better code readability-->
-    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
-
-    <style name="TextAppearance.BottomNavigationView" />
-
-    <!-- inactive tab icon style -->
-    <style name="TextAppearance.BottomNavigationView.Inactive">
-        <item name="fontFamily">@font/appFontOldRegular</item>
+    <style name="TextAppearance.App.BottomNavigation.Item.Inactive" parent="TextAppearance.AppCompat">
+        <item name="fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
-    <!-- active tab icon style -->
-    <style name="TextAppearance.BottomNavigationView.Active">
-        <item name="fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
-    </style>
+    <!-- Do not style the active item differently -->
+    <style name="TextAppearance.App.BottomNavigation.Item.Active" parent="TextAppearance.App.BottomNavigation.Item.Inactive" />
+    <!-- endregion -->
 
     <!-- region coverflow / archive -->
     <style name="Widget.App.CoverFlow.Date" parent="Widget.App.TextView.Date.Small">
@@ -501,22 +504,15 @@
     </style>
     <!-- endregion -->
 
-    <style name="TextAppearance.Date.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
     <!-- region coachmarks -->
-    <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
+    <style name="TextAppearance.CoachMark.Header" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
         <item name="android:textSize">32sp</item>
         <item name="android:lineHeight" tools:targetApi="p">@dimen/coach_mark_header_line_height</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TextAppearance.CoachMark.Text" parent="TextAppearance">
+    <style name="TextAppearance.CoachMark.Text" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkText</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>

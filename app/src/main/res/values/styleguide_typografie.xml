@@ -60,18 +60,12 @@
         <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
-        <!-- FIXME: remove once no longer needed -->
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
-    </style>
-
-    <style name="TextAppearance.Link.Large" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.TextView.Link.Large" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">15sp</item>
+        <item name="lineHeight">30sp</item>
         <!-- missing: underline, as it is not available in android and must be applied to the strings -->
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="Widget.App.TextView.M.Link" parent="Widget.AppCompat.TextView">
