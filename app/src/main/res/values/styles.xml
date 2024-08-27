@@ -17,12 +17,6 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
         <item name="textInputStyle">@style/Widget.App.Form.TextInputLayout</item>
-        <!-- FIXME (johannes): this sets the attribute textColor on every view we define in XML.
-               The android:textColor should not be part of the themes but only of widget styles etc.
-               Android is normally falling back to textColorPrimary if no explicit textColor is set.
-               Because of this textColor definiton we cant use textColor when trying to apply textAppearances
-               but must use style=... -->
-        <item name="android:textColor">@color/textColor</item>
         <item name="android:textColorPrimary">@color/textColor</item>
         <item name="android:textColorSecondary">@color/textColorAccent</item>
         <item name="android:ambientShadowAlpha">0.1</item>
@@ -161,9 +155,8 @@
         <item name="lineHeight">18.75sp</item>
     </style>
 
-    <style name="Widget.App.Drawer.Sections.Article.Meta" parent="Widget.AppCompat.TextView">
+    <style name="Widget.App.Drawer.Sections.Article.Meta" parent="Widget.App.TextView">
         <!-- The actual text will be overriden by Spannable TextAppearances -->
-        <item name="android:includeFontPadding">false</item>
         <item name="lineHeight">16sp</item>
     </style>
 
@@ -192,31 +185,27 @@
 
     <!-- region LMd Drawer -->
     <!-- These are not part of the figma styleguide -->
-    <style name="Widget.App.Drawer.Lmd.Page" parent="Widget.AppCompat.TextView">
-        <item name="android:includeFontPadding">false</item>
+    <style name="Widget.App.Drawer.Lmd.Page" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/pdf_section_font</item>
     </style>
 
-    <style name="Widget.App.Drawer.Lmd.Title" parent="Widget.AppCompat.TextView">
-        <item name="android:includeFontPadding">false</item>
+    <style name="Widget.App.Drawer.Lmd.Title" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontBold</item>
         <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
         <item name="lineHeight">19sp</item><!-- defined as 21.5sp in figma -->
     </style>
 
-    <style name="Widget.App.Drawer.Lmd.Teaser" parent="Widget.AppCompat.TextView">
-        <item name="android:includeFontPadding">false</item>
+    <style name="Widget.App.Drawer.Lmd.Teaser" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontAlternative</item>
         <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
         <item name="lineHeight">19.5sp</item><!-- defined as 21.5sp in figma -->
     </style>
 
-    <style name="Widget.App.Drawer.Lmd.Meta" parent="Widget.AppCompat.TextView">
+    <style name="Widget.App.Drawer.Lmd.Meta" parent="Widget.App.TextView">
         <!-- The actual text will be overriden by Spannable TextAppearances -->
-        <item name="android:includeFontPadding">false</item>
         <item name="lineHeight">19sp</item>
     </style>
 
@@ -233,15 +222,13 @@
 
     <style name="Widget.App.Drawer.Lmd.Header.Page" parent="Widget.App.Drawer.Lmd.Page" />
 
-    <style name="Widget.App.Drawer.Lmd.Header.Content" parent="Widget.AppCompat.TextView">
-        <item name="android:includeFontPadding">false</item>
+    <style name="Widget.App.Drawer.Lmd.Header.Content" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontAlternative</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/pdf_section_font</item>
     </style>
 
-    <style name="Widget.App.Drawer.Lmd.Header.Date" parent="Widget.AppCompat.TextView">
-        <item name="android:includeFontPadding">false</item>
+    <style name="Widget.App.Drawer.Lmd.Header.Date" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textColor">@color/pdf_section_font</item>
@@ -445,12 +432,11 @@
         <item name="android:textColor">@color/read_minutes</item>
     </style>
 
-    <style name="Widget.App.Bookmarks.Entry.Delete" parent="Widget.AppCompat.TextView">
+    <style name="Widget.App.Bookmarks.Entry.Delete" parent="Widget.App.TextView">
         <!-- No style found in Figma -->
         <item name="android:fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
     <!-- endregion -->
 
