@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Override title Elements using the Knile font -->
-    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.AppCompat.TextView">
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontKnileLight</item>
         <item name="android:textSize">30sp</item>
         <item name="lineHeight">36sp</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
 </resources>
