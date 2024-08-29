@@ -32,6 +32,7 @@ abstract class AbstractTazApplication : Application() {
     private lateinit var authHelper: AuthHelper
     private lateinit var generalDataStore: GeneralDataStore
     private var _tracker: Tracker? = null
+    var isInitComplete = false
 
     // use this scope if you want to run code which should not terminate if the lifecycle of
     // a fragment or activity is finished

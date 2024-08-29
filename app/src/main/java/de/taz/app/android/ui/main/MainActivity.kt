@@ -3,6 +3,7 @@ package de.taz.app.android.ui.main
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AlertDialog
@@ -24,23 +25,25 @@ import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
+import de.taz.app.android.ui.issueViewer.IssueViewerActivity
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
-const val MAIN_EXTRA_ARTICLE = "MAIN_EXTRA_ARTICLE"
 private const val DOUBLE_BACK_TO_EXIT_INTERVAL = 2000L
 
 
@@ -48,11 +51,31 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+
         fun start(context: Context, flags: Int = 0, issuePublication: IssuePublication? = null) {
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = flags or Intent.FLAG_ACTIVITY_CLEAR_TOP
             issuePublication?.let { intent.putExtra(KEY_ISSUE_PUBLICATION, issuePublication) }
             ContextCompat.startActivity(context, intent, null)
+        }
+
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublicationWithPages,
+            displayableKey: String,
+        ) = Intent(packageContext, MainActivity::class.java).apply {
+            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+            putExtra(KEY_DISPLAYABLE, displayableKey)
+        }
+
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublication,
+            displayableKey: String,
+        ) = Intent(packageContext, MainActivity::class.java).apply {
+            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+            putExtra(KEY_DISPLAYABLE, displayableKey)
         }
     }
 
@@ -75,7 +98,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         toastHelper = ToastHelper.getInstance(applicationContext)
         tracker = Tracker.getInstance(applicationContext)
 
-
+        if (savedInstanceState == null) {
+            checkForIntentAndHandle()
+        }
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -285,6 +310,45 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 if (authHelper.isLoggedIn()) {
                     val reviewFlow = ReviewFlow.createInstance()
                     reviewFlow.tryStartReviewFlow(this@MainActivity)
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if we have an [IssuePublication] (or [IssuePublicationWithPages])
+     * and a [KEY_DISPLAYABLE] in our intent.
+     * If so, open the corresponding activity and show the displayable
+     */
+    private fun checkForIntentAndHandle() {
+        val issuePublication =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(
+                    KEY_ISSUE_PUBLICATION,
+                    AbstractIssuePublication::class.java
+                )
+            }  else {
+                intent.getParcelableExtra<AbstractIssuePublication>(KEY_ISSUE_PUBLICATION)
+            }
+        val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
+        if (issuePublication != null && displayableKey != null) {
+            when (issuePublication) {
+                is IssuePublication -> {
+                    // show issue viewer activity with intent:
+                    val intent = Intent(this, IssueViewerActivity::class.java).apply {
+                        putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+                        putExtra(KEY_DISPLAYABLE, displayableKey)
+                    }
+                    this.startActivity(intent)
+                }
+
+                is IssuePublicationWithPages -> {
+                    // show pdf pager activity with intent:
+                    val intent = Intent(this, PdfPagerActivity::class.java).apply {
+                        putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+                        putExtra(KEY_DISPLAYABLE, displayableKey)
+                    }
+                    this.startActivity(intent)
                 }
             }
         }
