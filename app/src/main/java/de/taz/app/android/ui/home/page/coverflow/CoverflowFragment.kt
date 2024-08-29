@@ -16,6 +16,7 @@ import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.simpleDateFormat
@@ -45,7 +46,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val emailValidator = EmailValidator()
 
     private var downloadObserver: DownloadObserver? = null
-    private var initialIssueDisplay: IssuePublication? = null
+    private var initialIssueDisplay: AbstractIssuePublication? = null
     private var currentlyFocusedDate: Date? = null
     private var firstTimeFragmentIsShown: Boolean = true
 
@@ -274,7 +275,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
-    private fun skipToPublication(issueKey: IssuePublication) {
+    private fun skipToPublication(issueKey: AbstractIssuePublication) {
         simpleDateFormat.parse(issueKey.date)?.let {
             skipToDate(it)
         }

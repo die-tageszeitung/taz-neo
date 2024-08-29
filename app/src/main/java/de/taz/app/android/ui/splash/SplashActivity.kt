@@ -33,9 +33,13 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
+import de.taz.app.android.getTazApplication
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.AppInfoRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.scrubber.Scrubber
 import de.taz.app.android.sentry.SentryWrapper
@@ -44,6 +48,8 @@ import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.StorageOrganizationActivity
+import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.main.MainActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
@@ -80,7 +86,29 @@ class SplashActivity : StartupActivity() {
     private var showSplashScreen = true
 
     private var splashStartMs = 0L
-    private var initComplete = false
+
+    companion object {
+        private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
+        private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublicationWithPages,
+            displayableKey: String,
+        ) = Intent(packageContext, SplashActivity::class.java).apply {
+            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+            putExtra(KEY_DISPLAYABLE, displayableKey)
+        }
+
+        fun newIntent(
+            packageContext: Context,
+            issuePublication: IssuePublication,
+            displayableKey: String,
+        ) = Intent(packageContext, SplashActivity::class.java).apply {
+            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
+            putExtra(KEY_DISPLAYABLE, displayableKey)
+        }
+    }
 
     private var minVersionDialog: AlertDialog? = null
 
@@ -117,7 +145,7 @@ class SplashActivity : StartupActivity() {
         // As Android sometimes seem to start the activity without doing any work in the initialize
         // coroutine we are only tracking times that take longer then 1s to sentry.
         val splashTimeMs = System.currentTimeMillis() - splashStartMs
-        if (!initComplete && splashTimeMs > 1_000) {
+        if (!getTazApplication().isInitComplete && splashTimeMs > 1_000) {
             log.warn("SplashActivity stopped after ${splashTimeMs}ms")
             SentryWrapper.captureMessage("SplashActivity was closed before the initialization was complete")
         }
@@ -168,7 +196,7 @@ class SplashActivity : StartupActivity() {
             // Stop the initialization if the min version is not met.
             // As we did not start the downloads and thus won't end up in a broken state
             // we can mark the initComplete
-            initComplete = true
+            getTazApplication().isInitComplete = true
             return
         }
 
@@ -368,19 +396,25 @@ class SplashActivity : StartupActivity() {
                 R.string.notification_channel_fcm_new_issue_arrived_id,
                 NotificationManager.IMPORTANCE_HIGH
             )
+            generateNotificationChannel(
+                R.string.notification_channel_fcm_special_article_title,
+                R.string.notification_channel_fcm_special_article_description,
+                R.string.notification_channel_fcm_special_article_id,
+                NotificationManager.IMPORTANCE_HIGH
+            )
         }
     }
 
     @TargetApi(26)
     private fun generateNotificationChannel(
         @StringRes channelName: Int,
-        @StringRes channeldDescription: Int,
+        @StringRes channelDescription: Int,
         @StringRes channelId: Int,
         importance: Int
     ) {
         generateNotificationChannel(
             channelName,
-            channeldDescription,
+            channelDescription,
             getString(channelId),
             importance
         )
@@ -421,11 +455,18 @@ class SplashActivity : StartupActivity() {
      * Will finish the SplashActivity, start background tasks and continue to the next Activity
      */
     private suspend fun finishOnInitCompleteAndContinue() {
-        initComplete = true
+        getTazApplication().isInitComplete = true
         startBackgroundTasks()
 
+        // Check if we got an intent from notification.
+        val issuePublication =
+            intent.getParcelableExtra<AbstractIssuePublication>(MainActivity.KEY_ISSUE_PUBLICATION)
+        val displayableKey = intent.getStringExtra(MainActivity.KEY_DISPLAYABLE)
+        if (issuePublication != null && displayableKey != null) {
+            handlePassedIntent(issuePublication, displayableKey)
+        }
         // Explicitly selectable storage migration, if there is any file to migrate start migration activity
-        if (areMigrationsRequired()) {
+        else if (areMigrationsRequired()) {
             Intent(this@SplashActivity, StorageOrganizationActivity::class.java).apply {
                 startActivity(this)
             }
@@ -564,6 +605,30 @@ class SplashActivity : StartupActivity() {
                     Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
                 )
             )
+        }
+    }
+
+    /**
+     * Check if we have an [IssuePublication] (or [IssuePublicationWithPages])
+     * and a [KEY_DISPLAYABLE] in our intent.
+     * If so, pass it to MainACctivity
+     */
+    private fun handlePassedIntent(issuePublication: AbstractIssuePublication, displayableKey: String) {
+        when (issuePublication) {
+            is IssuePublication -> {
+                val intent = MainActivity.newIntent(
+                    applicationContext,
+                    issuePublication,
+                    displayableKey)
+                this.startActivity(intent)
+            }
+            is IssuePublicationWithPages -> {
+                val intent = MainActivity.newIntent(
+                    applicationContext,
+                    issuePublication,
+                    displayableKey)
+                this.startActivity(intent)
+            }
         }
     }
 }

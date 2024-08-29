@@ -249,6 +249,10 @@
     <string name="notification_channel_fcm_new_issue_arrived_description">Benachrichtigen, falls eine neue Ausgabe verfügbar ist</string>
     <string name="notification_channel_fcm_new_issue_arrived_id">FCM_CHANNEL_NEW_ISSUE_ARRIVED</string>
 
+    <string name="notification_channel_fcm_special_article_title">Besonderer Artikel</string>
+    <string name="notification_channel_fcm_special_article_description">Benachrichtigen, wenn auf besondere Artikel hingewiesen wird</string>
+    <string name="notification_channel_fcm_special_article_id">FCM_CHANNEL_SPECIAL_ARTICLE</string>
+
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
     <string name="fragment_login_description">Anmeldung für \nDigital-Abonnent:innen</string>

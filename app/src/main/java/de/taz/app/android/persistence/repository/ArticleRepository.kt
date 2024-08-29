@@ -11,8 +11,8 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
-import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.util.SingletonHolder
 import java.util.Date
 
 
@@ -90,6 +90,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
 
     suspend fun getStub(articleFileName: String): ArticleStub? {
         return appDatabase.articleDao().get(articleFileName)
+    }
+
+    suspend fun getStubByMediaSyncId(articleMediaSyncId: String): ArticleStub? {
+        return appDatabase.articleDao().getByMediaSyncId(articleMediaSyncId)
     }
 
     /* currently not used. see [TazApiJS] for further information
