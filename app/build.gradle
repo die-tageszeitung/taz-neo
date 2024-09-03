@@ -322,13 +322,13 @@ android {
 
 dependencies {
     def coroutines_version = '1.8.1'
-    def serialization_version = '1.7.1'
+    def serialization_version = '1.7.2'
     def glide_version = '4.16.0'
     def ktor_version = '2.3.12'
     def lifecycle_version = '2.8.4'
     def room_version = '2.6.1'
     def work_version = '2.9.1'
-    def media3_version = '1.4.0'
+    def media3_version = '1.4.1'
     def sentry_version = '7.14.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -385,7 +385,7 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
 
     implementation 'com.google.android.material:material:1.12.0'
 
@@ -421,7 +421,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.12.0'
+    testImplementation 'org.mockito:mockito-core:5.13.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
 
     // Core library
@@ -435,11 +435,11 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.0.0'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.0.1'
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.1'
 }
 
 allOpen {
