@@ -99,7 +99,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         if (enableDrawer) {
             setupDrawer()
         } else {
-            viewBinding.drawer.visibility = View.GONE
+            viewBinding.drawerLogo.visibility = View.GONE
             viewBinding.drawerLayout.setDrawerLockMode(LOCK_MODE_LOCKED_CLOSED)
         }
     }

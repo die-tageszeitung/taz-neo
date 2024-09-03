@@ -34,16 +34,14 @@ class DrawerLayout @JvmOverloads constructor(
      * catch touch events on floating logo and open drawer
      * TODO Verify this approach handles accessibility correctly
      */
-    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        ev?.let {
-            val drawerLogo = findViewById<View>(R.id.drawer_logo)
-            if (!isDrawerOpen(GravityCompat.START) && drawerLogo?.visibility == View.VISIBLE) {
-                if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
-                    log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
-                    openDrawer(GravityCompat.START)
-                    tracker.trackDrawerOpenEvent(dragged = false)
-                    return true
-                }
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        val drawerLogo = findViewById<View>(R.id.drawer_logo)
+        if (!isDrawerOpen(GravityCompat.START) && drawerLogo?.visibility == View.VISIBLE) {
+            if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
+                log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
+                openDrawer(GravityCompat.START)
+                tracker.trackDrawerOpenEvent(dragged = false)
+                return true
             }
         }
         return super.onInterceptTouchEvent(ev)

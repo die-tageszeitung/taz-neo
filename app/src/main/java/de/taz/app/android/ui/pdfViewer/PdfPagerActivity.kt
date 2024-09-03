@@ -324,7 +324,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
                     }
                     pdfDrawerLayout.apply {
                         // Update the clickable bounding box:
-                        pdfDrawerLayout.updateDrawerLogoBoundingBox(
+                        updateDrawerLogoBoundingBox(
                             logicalWidth.toInt(),
                             drawerLogoWrapper.height
                         )
