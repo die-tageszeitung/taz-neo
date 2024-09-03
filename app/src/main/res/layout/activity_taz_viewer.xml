@@ -15,33 +15,24 @@
         android:layout_height="match_parent"
         tools:showIn="@layout/activity_taz_viewer" />
 
-    <de.taz.app.android.ui.drawer.NavigationView
+    <de.taz.app.android.ui.drawer.DrawerContainer
         android:id="@+id/nav_view"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/fragment_drawer_margin_end"
         android:layout_gravity="start"
+        android:layout_marginEnd="@dimen/fragment_drawer_margin_end"
         android:background="@color/navigation_drawer_background"
         android:clipChildren="false"
         android:clipToPadding="false"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:id="@+id/nav_bar"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/drawer_menu_fragment_placeholder"
+            android:name="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipChildren="false"
-            android:orientation="vertical">
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/drawer_menu_fragment_placeholder"
-                android:name="de.taz.app.android.ui.drawer.sectionList.SectionDrawerFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="false"
-                />
-        </LinearLayout>
+            android:clipChildren="false" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/drawer"
@@ -74,6 +65,5 @@
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </de.taz.app.android.ui.drawer.NavigationView>
+    </de.taz.app.android.ui.drawer.DrawerContainer>
 </de.taz.app.android.ui.drawer.DrawerLayout>

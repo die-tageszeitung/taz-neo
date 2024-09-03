@@ -20,7 +20,7 @@ class DrawerViewController(
     context: Context,
     private val drawerLayout: DrawerLayout,
     private val drawerLogoWrapper: View,
-    private val navView: NavigationView,
+    private val navView: View,
     private val setLogoHiddenState: (Boolean) -> Unit
 ) {
 
