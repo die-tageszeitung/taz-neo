@@ -32,6 +32,7 @@ class BookmarkViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         supportFragmentManager.beginTransaction().add(
             android.R.id.content,
             BookmarkViewerFragment.newInstance(
