@@ -25,6 +25,7 @@ import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
+import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -97,6 +98,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         toastHelper = ToastHelper.getInstance(applicationContext)
         tracker = Tracker.getInstance(applicationContext)
+
+        disableActivityAnimations()
 
         if (savedInstanceState == null) {
             checkForIntentAndHandle()

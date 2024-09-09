@@ -28,9 +28,11 @@ import de.taz.app.android.coachMarks.SearchFilterCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -42,7 +44,6 @@ import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -72,6 +73,9 @@ class SearchActivity :
     // region Activity functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        disableActivityAnimations()
+
         apiService = ApiService.getInstance(this)
         articleRepository = ArticleRepository.getInstance(applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(applicationContext)

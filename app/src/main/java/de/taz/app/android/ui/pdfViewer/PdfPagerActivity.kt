@@ -38,6 +38,7 @@ import de.taz.app.android.databinding.ActivityPdfDrawerLayoutBinding
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.singletons.StorageService
@@ -54,7 +55,6 @@ import de.taz.app.android.ui.showSdCardIssueDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

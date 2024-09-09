@@ -8,6 +8,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivitySettingsBinding
+import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
@@ -27,6 +28,9 @@ class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        disableActivityAnimations()
+
         authHelper = AuthHelper.getInstance(applicationContext)
 
         lifecycleScope.launch {
