@@ -17,6 +17,7 @@ data class SubscriptionId2TazIdVariables(
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
     val appVersion: String = BuildConfig.VERSION_NAME,
+    val appVersionCode: Int = BuildConfig.VERSION_CODE,
     val deviceType: DeviceType = DeviceType.android,
     val deviceOS: String? = System.getProperty("os.version"),
 ) : Variables
