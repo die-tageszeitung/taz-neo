@@ -24,7 +24,6 @@ data class ErrorReportVariables(
             "(taz)"
         }
     }",
-    val appVersionCode: Int = BuildConfig.VERSION_CODE,
     val storageAvailable: String? = "${StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
     val storageUsed: String? = "${StatFs(Environment.getDataDirectory().path).totalBytes - StatFs(Environment.getDataDirectory().path).availableBytes} Bytes",
     val ramAvailable: String?,
