@@ -297,8 +297,6 @@ class ShareArticleBottomSheet :
 
             val articleTitle = articleStub.title
 
-            tracker.trackShareArticleTextEvent(articleStub.articleFileName, articleStub.mediaSyncId)
-
             ShareCompat.IntentBuilder(context)
                 .setType("text/plain")
                 .setText(articleText)
