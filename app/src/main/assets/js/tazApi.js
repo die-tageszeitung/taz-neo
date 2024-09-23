@@ -164,9 +164,9 @@ var tazApi = (function() {
 
         // Helper that ensures the callback is called at most once
         var onMultiColumnLayoutReadyCalled = false;
-        function callOnMultiColumnLayoutReady() {
+        function callOnMultiColumnLayoutReady(width) {
             if (!onMultiColumnLayoutReadyCalled) {
-                ANDROIDAPI.onMultiColumnLayoutReady();
+                ANDROIDAPI.onMultiColumnLayoutReady(width);
                 onMultiColumnLayoutReadyCalled = true;
             }
         }
@@ -196,7 +196,7 @@ var tazApi = (function() {
                 // Wait for the next cycle before indicating ready, to give the WebView the
                 // chance to render the changes.
                 setTimeout(function() {
-                    callOnMultiColumnLayoutReady();
+                    callOnMultiColumnLayoutReady(contentWidth);
                 });
             } else {
                 // Wait for the next cycle to set the width.
@@ -214,7 +214,7 @@ var tazApi = (function() {
             // Ensure that the callback is called eventually after 1s, even if the ResizeObserver didn't settle
             setTimeout(function() {
                 disconnectContentResizeObserver();
-                callOnMultiColumnLayoutReady();
+                callOnMultiColumnLayoutReady(content.style.width);
             }, 1000);
 
         } else {
@@ -225,7 +225,9 @@ var tazApi = (function() {
             ANDROIDAPI.logMissingJsFeature("ResizeObserver");
             setTimeout(setContentWidthForColumns);
             setTimeout(setContentWidthForColumns, 250);
-            setTimeout(callOnMultiColumnLayoutReady, 500);
+            setTimeout(function() {
+                callOnMultiColumnLayoutReady(content.style.width);
+            }, 500);
         }
     }
 
@@ -234,6 +236,7 @@ var tazApi = (function() {
         var content = document.getElementById("content");
         content.style.height = null;
         content.style.width = null;
+        content.style.paddingRight = null;
         content.style.columnWidth = null;
         content.classList.remove("article--multi-column");
         document.body.classList.remove("no-horizontal-padding");
@@ -244,6 +247,11 @@ var tazApi = (function() {
             contentResizeObserver.disconnect();
             contentResizeObserver = null;
         }
+    }
+
+    function addPaddingRight(padding) {
+        var content = document.getElementById("content");
+        content.style.paddingRight = padding+"px";
     }
 
     return {
@@ -259,5 +267,6 @@ var tazApi = (function() {
         setBookmark: setBookmark,
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
+        addPaddingRight: addPaddingRight,
     };
 }());

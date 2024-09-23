@@ -12,11 +12,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
@@ -173,10 +173,21 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         }
     }
 
+    /**
+     * Parse the given [contentWidth] String to an Integer.
+     * Mostly it will be something like "1627.33px" and should pass then 1627
+     * to the [MultiColumnLayoutReadyCallback.onMultiColumnLayoutReady].
+     */
     @JavascriptInterface
-    fun onMultiColumnLayoutReady() {
+    fun onMultiColumnLayoutReady(contentWidth: String?) {
+        val parsedContentWidth = try {
+            contentWidth?.replace("px", "")?.toFloat()
+        } catch (e: NumberFormatException) {
+            log.warn("Could not parse $contentWidth to int. Passing null")
+            null
+        }
         if (webViewFragment is MultiColumnLayoutReadyCallback) {
-            webViewFragment.onMultiColumnLayoutReady()
+            webViewFragment.onMultiColumnLayoutReady(parsedContentWidth?.toInt())
         }
     }
 
