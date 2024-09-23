@@ -116,9 +116,28 @@ class FirebaseMessagingService : FirebaseMessagingService() {
 
                     val mediaSyncId = remoteMessage.data.getValue(REMOTE_MESSAGE_ARTICLE_MEDIA_SYNC_ID)
                     val articleDate = remoteMessage.data.getValue(REMOTE_MESSAGE_ARTICLE_DATE)
+                    val notificationTitle = try {
+                        remoteMessage.data.getValue(REMOTE_MESSAGE_ARTICLE_TITLE)
+                    } catch (e: NoSuchElementException) {
+                        log.warn("Could not read article title from remoteMessage.data", e)
+                        SentryWrapper.captureException(e)
+                        null
+                    }
+                    val notificationTeaser = try {
+                        remoteMessage.data.getValue(REMOTE_MESSAGE_ARTICLE_BODY)
+                    } catch (e: NoSuchElementException) {
+                        log.warn("Could not read article teaser from remoteMessage.data", e)
+                        SentryWrapper.captureException(e)
+                        null
+                    }
 
                     CoroutineScope(Dispatchers.Default).launch {
-                        handleArticleToNotification(mediaSyncId, articleDate)
+                        handleArticleToNotification(
+                            mediaSyncId,
+                            articleDate,
+                            notificationTitle,
+                            notificationTeaser,
+                        )
                         // After 20 seconds silent push will not be handled anymore,
                         // so we show a fallback notification (without proper article) then.
                         delay(WAITING_TIME_UNTIL_FALLBACK_NOTIFICATION_WILL_BE_SHOWN)
@@ -191,31 +210,45 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     /**
      * We try to get the [ArticleStub] from the given [mediaSyncId].
      * If we don't get it, we need to download the issues metadata first.
-     * Then we can call [generateArticleNotification] with the [ArticleStub] and [IssueKey]
+     * Then we can call [generateArticleNotification].
      */
-    private suspend fun handleArticleToNotification(mediaSyncId: String, articleDate: String) {
-        val articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId)
+    private suspend fun handleArticleToNotification(
+        mediaSyncId: String,
+        articleDate: String,
+        articleTitle: String?,
+        articleTeaser: String?,
+    ) {
+        log.error("handling $articleTitle !!!")
+        var articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId)
+        if (articleStub == null) {
+            downloadIssueMetadata(articleDate)
+        }
+        articleStub = articleStub ?: articleRepository.getStubByMediaSyncId(mediaSyncId)
 
         if (articleStub == null) {
-            val issue = downloadIssueMetadata(articleDate)
-            val article =
-                issue?.getArticles()?.firstOrNull { it.mediaSyncId.toString() == mediaSyncId }
-            if (article == null) {
-                val message = "Could not download issue and fetch article for articleMediaSyncId $mediaSyncId"
-                log.warn(message)
-                SentryWrapper.captureMessage(message)
-            } else {
-                generateArticleNotification(ArticleStub(article), issue.issueKey)
+            val message = "Could not download issue and fetch article for articleMediaSyncId $mediaSyncId"
+            log.warn(message)
+            SentryWrapper.captureMessage(message)
+            // Do not show fallback notification for wochentaz. Set handled to true then:
+            if (authHelper.isLoginWeek.get()) {
+                silentArticleNotificationHandled = true
             }
-        } else {
-            val issueKey =
-                issueRepository.getIssueStubForArticle(articleStub.articleFileName)?.issueKey
-            if (issueKey == null) {
-                log.warn("Could not fetch issueKey")
-            } else {
-                generateArticleNotification(articleStub, issueKey)
-            }
+            return
         }
+
+        val issueKey = issueRepository.getIssueStubForArticle(articleStub.articleFileName)?.issueKey
+        if (issueKey == null) {
+            log.warn("Could not fetch issueKey")
+            return
+        }
+
+        generateArticleNotification(
+            articleStub.key,
+            issueKey,
+            articleTitle ?: articleStub.title,
+            articleTeaser ?: articleStub.teaser,
+        )
+
     }
 
     private suspend fun downloadIssueMetadata(articleDate: String): Issue? {
@@ -234,8 +267,10 @@ class FirebaseMessagingService : FirebaseMessagingService() {
      * make it a [PendingIntent] and use [NotificationHelper] to build and show a notification.
      */
     private suspend fun generateArticleNotification(
-        articleStub: ArticleStub,
+        articleKey: String,
         issueKey: IssueKey,
+        notificationTitle: String?,
+        notificationTeaser: String?,
     ) {
         val isPdfMode = generalDataStore.pdfMode.get()
         val isInitComplete = (application as AbstractTazApplication).isInitComplete
@@ -245,13 +280,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 MainActivity.newIntent(
                     applicationContext,
                     IssuePublicationWithPages(issueKey),
-                    articleStub.key
+                    articleKey
                 )
             } else {
                 MainActivity.newIntent(
                     applicationContext,
                     IssuePublication(issueKey),
-                    articleStub.key
+                    articleKey
                 )
             }
         } else {
@@ -259,13 +294,13 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 SplashActivity.newIntent(
                     applicationContext,
                     IssuePublicationWithPages(issueKey),
-                    articleStub.key
+                    articleKey
                 )
             } else {
                 SplashActivity.newIntent(
                     applicationContext,
                     IssuePublication(issueKey),
-                    articleStub.key
+                    articleKey
                 )
             }
         }
@@ -278,7 +313,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        runIfNotNull(articleStub.title, articleStub.teaser) { title, teaser ->
+        runIfNotNull(notificationTitle, notificationTeaser) { title, teaser ->
             if (!silentArticleNotificationHandled) {
                 silentArticleNotificationHandled = true
                 notificationHelper.showNotification(

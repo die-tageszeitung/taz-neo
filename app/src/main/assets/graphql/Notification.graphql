@@ -4,6 +4,7 @@ mutation notification(
     $textNotification: Boolean!,
     $oldToken: String,
     $appVersion: String!,
+    $appVersionCode: Int,
     $deviceFormat: DeviceFormat!,
     $deviceName: String,
     $deviceType: DeviceType!,
@@ -16,6 +17,7 @@ mutation notification(
         textNotification: $textNotification,
         oldToken: $oldToken
         appVersion: $appVersion,
+        appVersionCode: $appVersionCode,
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
