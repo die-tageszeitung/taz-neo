@@ -4,6 +4,7 @@ mutation DownloadStart(
     $isPush: Boolean!,
     $installationId: String!
     $appVersion: String!,
+    $appVersionCode: Int,
     $deviceFormat: DeviceFormat!,
     $deviceName: String!,
     $deviceType: DeviceType!,
@@ -20,6 +21,7 @@ mutation DownloadStart(
         isPush: $isPush,
         installationId: $installationId
         appVersion: $appVersion,
+        appVersionCode: $appVersionCode,
         deviceFormat: $deviceFormat,
         deviceName: $deviceName,
         deviceType: $deviceType,
