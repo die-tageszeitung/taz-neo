@@ -5,9 +5,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.util.TypedValue
 import android.view.View
 import android.view.WindowInsets
 import android.webkit.WebSettings
@@ -31,6 +31,7 @@ import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.ViewerStateRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
@@ -39,7 +40,6 @@ import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getBottomNavigationBehavior
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -65,7 +65,9 @@ abstract class WebViewFragment<
         DISPLAYABLE : WebViewDisplayable,
         VIEW_MODEL : WebViewViewModel<DISPLAYABLE>,
         VIEW_BINDING : ViewBinding,
-        > : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(), AppWebViewClientCallBack {
+        > : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(),
+    AppWebViewClientCallBack,
+    MultiColumnLayoutReadyCallback {
 
     abstract override val viewModel: VIEW_MODEL
 
@@ -94,6 +96,8 @@ abstract class WebViewFragment<
     abstract val nestedScrollView: NestedScrollView
     abstract val webView: AppWebView
     abstract val loadingScreen: View
+
+    var webViewInnerWidth: Int? = null
 
     // When scrolling programmatically, the nested scrolling events are not triggered.
     // We have to collapse/hide the bar manually, when tapToScroll is used.
@@ -148,6 +152,17 @@ abstract class WebViewFragment<
 
         if (savedInstanceState != null) {
             appBarLayout?.setExpanded(true, false)
+        }
+    }
+
+    override fun onMultiColumnLayoutReady(contentWidth: Int?) {
+        if (contentWidth != null) {
+            // The inner width of the web view is the sum of:
+            // + the contentWidth we receive from the tazApi.js
+            // + 2 times the column gap (at the very left and the very right)
+            // That need to be multiplied by the density so we have it in our "dp" value:
+            webViewInnerWidth =
+                ((contentWidth + 2 * DEFAULT_COLUMN_GAP_PX) * resources.displayMetrics.density).toInt()
         }
     }
 
@@ -275,17 +290,36 @@ abstract class WebViewFragment<
      * If at the top or the end - go to previous or next article
      */
     private fun scrollHorizontally(@ScrollDirection direction: Int) {
-        val scrollWidth = view?.width ?: 0
+        val viewWidth = view?.width ?: 0
         val scrollBy =
-            (direction * (scrollWidth - DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density)).toInt()
+            (direction * (viewWidth - DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density)).toInt()
         val currentWebView = webView
         if (currentWebView.canScrollHorizontally(direction)) {
-            val amountBeingScrolled = calculateSwipeOffset()
+            // remove the already scrolled offset
+            val amountToScroll = scrollBy - calculateSwipeOffset()
+
+            // Check if scrolling would overscroll - if so add padding
+            if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
+                webViewInnerWidth?.let { articleWidth ->
+
+                    val targetWidth = currentWebView.scrollX + scrollBy + viewWidth
+                    val isOverscroll = targetWidth > articleWidth
+
+                    if (isOverscroll) {
+                        val overScroll = targetWidth - articleWidth
+                        webView.callTazApi(
+                            "addPaddingRight",
+                            overScroll / resources.displayMetrics.density + DEFAULT_COLUMN_GAP_PX
+                        )
+                    }
+                }
+            }
+
             val scrollAnimation = ObjectAnimator.ofInt(
                 currentWebView,
                 "scrollX",
                 currentWebView.scrollX,
-                currentWebView.scrollX + scrollBy - amountBeingScrolled
+                currentWebView.scrollX + amountToScroll
             )
             scrollAnimation.start()
         } else {

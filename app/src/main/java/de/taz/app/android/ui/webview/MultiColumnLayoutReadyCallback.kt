@@ -5,5 +5,5 @@ package de.taz.app.android.ui.webview
  * and has set all the sizes and classes on the DOM elements.
  */
 interface MultiColumnLayoutReadyCallback {
-    fun onMultiColumnLayoutReady()
+    fun onMultiColumnLayoutReady(contentWidth: Int?)
 }

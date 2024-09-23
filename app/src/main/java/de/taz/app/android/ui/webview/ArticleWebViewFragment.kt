@@ -28,7 +28,6 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -228,11 +227,12 @@ class ArticleWebViewFragment :
         )
     }
 
-    override fun onMultiColumnLayoutReady() {
+    override fun onMultiColumnLayoutReady(contentWidth: Int?) {
         lifecycleScope.launch {
             restoreLastHorizontalScrollPosition()
             hideLoadingScreen()
         }
+        super.onMultiColumnLayoutReady(contentWidth)
     }
 
     private fun disableMultiColumnMode() {
