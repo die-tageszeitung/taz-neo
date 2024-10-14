@@ -48,6 +48,7 @@ stages:
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> tazkeystore.properties
     - echo "keystorePassword=${ANDROID_LMD_KEYSTORE_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
     - echo "keyPassword=${ANDROID_LMD_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 buildMupdf:
   stage: prepare
