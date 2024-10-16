@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
@@ -25,6 +26,7 @@ import java.io.IOException
 @RunWith(RobolectricTestRunner::class)
 @Config(application = RobolectricTestApplication::class)
 class ArticleRepositoryTest {
+    private lateinit var context: Context
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
     private lateinit var articleRepository: ArticleRepository
@@ -36,7 +38,7 @@ class ArticleRepositoryTest {
     fun setUp() {
         SingletonTestUtil.resetAll()
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
                 context, AppDatabase::class.java).build()
         AppDatabase.inject(db)
@@ -300,4 +302,36 @@ class ArticleRepositoryTest {
         assertNotNull(fileEntryRepository.get(globalImage.name))
         assertNull(imageRepository.get(image.name))
     }
-}
+
+    @Test
+    fun `ArticleStub and Article getAllFiles returns the same`() = runTest {
+        //
+        // Given
+        //
+        val image = Fixtures.image
+        val globalImage = Fixtures.image.copy(name="global.png", storageType = StorageType.global)
+        val article = Fixtures.articleBase.copy(
+            imageList = listOf(
+                image,
+                globalImage,
+            )
+        )
+
+        //
+        // Prepare
+        //
+        articleRepository.saveInternal(article)
+        assertNotNull(fileEntryRepository.get(globalImage.name))
+        assertNotNull(imageRepository.get(image.name))
+
+        //
+        // WHEN
+        //
+        val stubFromDB = articleRepository.getStub(article.key)!!
+
+        //
+        // THEN
+        //
+        assertEquals(article.getAllFiles(context), stubFromDB.getAllFiles(context))
+        assertNotEquals(article.getAllFiles(context), emptyList<FileEntry>())
+    }}

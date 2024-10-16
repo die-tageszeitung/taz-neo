@@ -24,6 +24,7 @@ import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
@@ -382,9 +383,9 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
 
     private fun setHeader(displayableKey: String) {
         lifecycleScope.launch {
-            val article = articleRepository.get(displayableKey)
-            article?.let { art ->
-                val issueStub = issueRepository.getIssueStubForArticle(art.key)
+            val articleStub = articleRepository.getStub(displayableKey)
+            articleStub?.let { stub ->
+                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
 
                 viewBinding.header.root.isVisible = false
 
@@ -397,19 +398,19 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                     indexIndicator.text =
                         getString(R.string.fragment_header_custom_index_indicator, position, total)
                     sectionTitle.text =
-                        art.getSectionStub(requireContext().applicationContext)?.title
+                        stub.getSectionStub(requireContext().applicationContext)?.title
                     publishedDate.text = getString(
                         R.string.fragment_header_custom_published_date,
-                        determineDateString(art, issueStub)
+                        determineDateString(stub, issueStub)
                     )
                 }
             }
         }
     }
 
-    private fun determineDateString(article: Article, issueStub: IssueStub?): String {
+    private fun determineDateString(articleOperations: ArticleOperations, issueStub: IssueStub?): String {
         if (BuildConfig.IS_LMD) {
-            return DateHelper.stringToLocalizedMonthAndYearString(article.issueDate) ?: ""
+            return DateHelper.stringToLocalizedMonthAndYearString(articleOperations.issueDate) ?: ""
         } else {
             val fromDate = issueStub?.date?.let { DateHelper.stringToDate(it) }
             val toDate = issueStub?.validityDate?.let { DateHelper.stringToDate(it) }
@@ -417,7 +418,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             return if (fromDate != null && toDate != null) {
                 DateHelper.dateToMediumRangeString(fromDate, toDate)
             } else {
-                DateHelper.stringToMediumLocalizedString(article.issueDate) ?: ""
+                DateHelper.stringToMediumLocalizedString(articleOperations.issueDate) ?: ""
             }
         }
     }

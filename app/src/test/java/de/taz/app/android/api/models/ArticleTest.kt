@@ -22,6 +22,7 @@ import org.robolectric.annotation.Config
 @Config(application = RobolectricTestApplication::class)
 class ArticleTest {
 
+    private lateinit var applicationContext: Context
     private lateinit var db: AppDatabase
     private lateinit var articleRepository: ArticleRepository
 
@@ -34,14 +35,14 @@ class ArticleTest {
     fun setUp() {
         SingletonTestUtil.resetAll()
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        applicationContext = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java
+            applicationContext, AppDatabase::class.java
         ).build()
-        val fileEntryRepository = FileEntryRepository.getInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         fileEntryRepository.appDatabase = db
 
-        articleRepository = ArticleRepository.getInstance(context)
+        articleRepository = ArticleRepository.getInstance(applicationContext)
         articleRepository.appDatabase = db
     }
 
@@ -53,7 +54,7 @@ class ArticleTest {
     @Test
     fun getAllFiles() = runBlocking {
         articleRepository.saveInternal(article)
-        val fileList = article.getAllFiles()
+        val fileList = article.getAllFiles(applicationContext)
 
         assertTrue(fileList.filter { it == article.articleHtml }.size == 1)
 

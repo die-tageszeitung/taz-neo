@@ -1,6 +1,7 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
@@ -210,7 +211,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "section/${section.key}"
     }
 
-    private fun articlePath(article: Article): String =
+    private fun articlePath(article: ArticleOperations): String =
         articlePath(article.key, article.mediaSyncId)
 
     private fun articlePath(articleFileName: String, mediaSyncId: Int?): String {
@@ -237,7 +238,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     override fun trackArticleScreen(
         issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: Article
+        article: ArticleOperations
     ) {
         val path =
             "/${issuePath(issueKey)}/${sectionPath(sectionOperations)}/${articlePath(article)}"

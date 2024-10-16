@@ -145,6 +145,22 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
+    public suspend fun getFileNamesForArticle(articleName: String): List<String> {
+        val list = mutableListOf(articleName)
+        list.addAll(appDatabase.articleImageJoinDao().getNormalImageFileNamesForArticle(articleName))
+
+        // get authors
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+
+        val authorImageNames = authorImageJoins
+                .filter { !it.authorFileName.isNullOrEmpty() }
+                .mapNotNull { it.authorFileName }
+
+        list.addAll(authorImageNames)
+        return list.distinct()
+    }
+
     /**
      * Tries convert the ArticleStub to an Article
      * or throws an [NotFoundException] if some of the critical data can't be loaded.

@@ -620,24 +620,24 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private fun setHeader(displayableKey: String) {
         lifecycleScope.launch {
-            val article = articleRepository.get(displayableKey)
-            article?.let { art ->
-                val issueStub = issueRepository.getIssueStubForArticle(art.key)
-                val sectionStub = art.getSectionStub(requireContext().applicationContext)
+            val articleStub = articleRepository.getStub(displayableKey)
+            articleStub?.let { stub ->
+                val issueStub = issueRepository.getIssueStubForArticle(stub.key)
+                val sectionStub = stub.getSectionStub(requireContext().applicationContext)
                 // only the imprint should have no section
                 if (sectionStub?.title == null) {
                     setHeaderForImprint()
                 } else if (BuildConfig.IS_LMD) {
-                    val firstPage = art.pageNameList.firstOrNull()
+                    val firstPage = stub.pageNameList.firstOrNull()
                     if (firstPage !== null) {
                         setHeaderWithPage(firstPage)
                     } else {
                         hideHeaderWithPage()
                     }
                 } else {
-                    val index = art.getIndexInSection(requireContext().applicationContext) ?: 0
+                    val index = stub.getIndexInSection(requireContext().applicationContext) ?: 0
                     val count = articleRepository.getSectionArticleStubListByArticleName(
-                        art.key
+                        stub.key
                     ).size
                     setHeaderForSection(index, count, sectionStub)
                 }
