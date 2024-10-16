@@ -10,7 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.map
 import de.taz.app.android.R
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStatus
@@ -204,11 +204,11 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         bookmarkRepository.migratePublicBookmarks()
     }
 
-    private suspend fun getArticleIssue(articleStub: ArticleStub): Issue {
+    private suspend fun getArticleIssue(article: ArticleOperations): Issue {
         return contentService.downloadMetadata(
             IssuePublication(
-                articleStub.issueFeedName,
-                articleStub.issueDate
+                article.issueFeedName,
+                article.issueDate
             )
         ) as Issue
     }

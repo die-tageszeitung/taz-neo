@@ -3,8 +3,6 @@ package de.taz.app.android.tracking
 import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -451,11 +449,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackShareArticleEvent(articleStub: ArticleStub) {
-        trackShareArticleEvent(articleStub.articleFileName, articleStub.mediaSyncId)
-    }
-
-    override fun trackShareArticleEvent(article: Article) {
+    override fun trackShareArticleEvent(article: ArticleOperations) {
         trackShareArticleEvent(article.key, article.mediaSyncId)
     }
 
@@ -565,7 +559,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerPlayArticleEvent(article: Article) {
+    override fun trackAudioPlayerPlayArticleEvent(article: ArticleOperations) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Article")
             .name(articlePath(article.key, article.mediaSyncId))

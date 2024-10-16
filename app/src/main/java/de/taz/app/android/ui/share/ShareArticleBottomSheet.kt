@@ -14,8 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetShareOptionsBinding
@@ -53,7 +52,7 @@ class ShareArticleBottomSheet :
 
         const val TAG = "ShareArticleBottomSheet"
 
-        fun newInstance(articleStub: ArticleStub): DialogFragment =
+        fun newInstance(articleStub: ArticleOperations): DialogFragment =
             if (isShareable(articleStub)) {
                 ShareArticleBottomSheet().apply {
                     arguments = bundleOf(
@@ -85,14 +84,11 @@ class ShareArticleBottomSheet :
             }
 
         // something from an articleStub is always sharable, either the online link, the pdf or the text
-        fun isShareable(articleStub: ArticleStub): Boolean =
-            true
-
         fun isShareable(searchHit: SearchHit): Boolean =
             searchHit.onlineLink != null || searchHit.articlePdfFileName != null || searchHit.articleHtml != null
 
         // something from an article is always sharable, either the online link, the pdf or the text
-        fun isShareable(article: Article): Boolean =
+        fun isShareable(article: ArticleOperations): Boolean =
             true
     }
 
