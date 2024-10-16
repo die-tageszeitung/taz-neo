@@ -26,6 +26,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
@@ -374,7 +375,7 @@ class PdfPagerActivity : ViewBindingActivity<ActivityPdfDrawerLayoutBinding>(), 
     /**
      * May be used from child fragments to show an Article within the [ArticlePagerFragment]
      */
-    fun showArticle(article: Article) {
+    fun showArticle(article: ArticleOperations) {
         lifecycleScope.launch {
             pdfPagerViewModel.issueStub?.let { issueStub ->
                 val displayableKey = article.key

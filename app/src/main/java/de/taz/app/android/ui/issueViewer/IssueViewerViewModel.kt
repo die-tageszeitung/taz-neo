@@ -11,6 +11,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
@@ -193,11 +194,11 @@ class IssueViewerViewModel(
             }
         }
 
-    val imprintArticleLiveData: LiveData<Article?> = MediatorLiveData<Article?>().apply {
+    val imprintArticleLiveData: LiveData<ArticleOperations?> = MediatorLiveData<ArticleOperations?>().apply {
         addSource(issueKeyLiveData) {
             it?.let {
                 viewModelScope.launch {
-                    postValue(issueRepository.getImprint(it))
+                    postValue(issueRepository.getImprintStub(it))
                 }
             }
         }

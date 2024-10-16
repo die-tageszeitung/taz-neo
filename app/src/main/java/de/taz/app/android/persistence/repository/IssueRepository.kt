@@ -217,6 +217,21 @@ class IssueRepository private constructor(applicationContext: Context) :
         return imprintName?.let { articleRepository.get(it) }
     }
 
+    suspend fun getImprintStub(issueKey: IssueKey): ArticleStub? {
+        return getImprintStub(issueKey.feedName, issueKey.date, issueKey.status)
+    }
+
+    suspend fun getImprintStub (
+            issueFeedName: String,
+            issueDate: String,
+            issueStatus: IssueStatus
+    ): ArticleStub? {
+        val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
+            issueFeedName, issueDate, issueStatus
+        )
+        return imprintName?.let { articleRepository.getStub(it) }
+    }
+
     suspend fun getDownloadDate(issue: IssueOperations): Date? {
         return when (issue) {
             is IssueStub -> getDownloadDate(issue)

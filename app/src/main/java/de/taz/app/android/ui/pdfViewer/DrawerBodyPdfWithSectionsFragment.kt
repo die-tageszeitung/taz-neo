@@ -13,7 +13,7 @@ import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
@@ -129,23 +129,23 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param pagePosition Absolute adapter position of article page.
      * @param article Article that was clicked.
      */
-    private fun handleArticleClick(pagePosition: Int, article: Article) {
+    private fun handleArticleClick(pagePosition: Int, article: ArticleOperations) {
         tracker.trackDrawerTapArticleEvent()
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         drawerAndLogoViewModel.closeDrawer()
         (activity as? PdfPagerActivity)?.showArticle(article)
     }
 
-    private fun handleArticleBookmarkClick(article: Article) {
+    private fun handleArticleBookmarkClick(article: ArticleOperations) {
         tracker.trackDrawerTapBookmarkEvent()
         toggleBookmark(article)
     }
 
-    private fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+    private fun createArticleBookmarkStateFlow(article: ArticleOperations): Flow<Boolean> {
         return bookmarkRepository.createBookmarkStateFlow(article.key)
     }
 
-    private fun toggleBookmark(article: Article) {
+    private fun toggleBookmark(article: ArticleOperations) {
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
