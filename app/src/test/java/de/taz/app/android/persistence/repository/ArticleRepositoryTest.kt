@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.AppDatabase
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
@@ -12,6 +13,7 @@ import de.taz.test.Fixtures
 import de.taz.test.Fixtures.copyWithFileName
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
+import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.*
@@ -33,6 +35,8 @@ class ArticleRepositoryTest {
     private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var imageRepository: ImageRepository
+
+    private var testIssue: Issue = TestDataUtil.getIssue()
 
     @Before
     fun setUp() {
@@ -304,34 +308,49 @@ class ArticleRepositoryTest {
     }
 
     @Test
-    fun `ArticleStub and Article getAllFiles returns the same`() = runTest {
-        //
-        // Given
-        //
-        val image = Fixtures.image
-        val globalImage = Fixtures.image.copy(name="global.png", storageType = StorageType.global)
-        val article = Fixtures.articleBase.copy(
-            imageList = listOf(
-                image,
-                globalImage,
-            )
-        )
+    fun `ArticleStub and Article getAllFiles return always the same`() = runTest {
+        testIssue.getArticles().forEach { article ->
+            //
+            // Prepare
+            //
+            articleRepository.saveInternal(article)
 
-        //
-        // Prepare
-        //
-        articleRepository.saveInternal(article)
-        assertNotNull(fileEntryRepository.get(globalImage.name))
-        assertNotNull(imageRepository.get(image.name))
+            //
+            // WHEN
+            //
+            val stubFromDB = articleRepository.getStub(article.key)!!
 
-        //
-        // WHEN
-        //
-        val stubFromDB = articleRepository.getStub(article.key)!!
+            //
+            // THEN
+            //
+            val fileList = article.getAllFiles(context)
+            assertEquals(fileList, stubFromDB.getAllFiles(context))
+            assertNotEquals(fileList, emptyList<FileEntry>())
+        }
+    }
 
-        //
-        // THEN
-        //
-        assertEquals(article.getAllFiles(context), stubFromDB.getAllFiles(context))
-        assertNotEquals(article.getAllFiles(context), emptyList<FileEntry>())
-    }}
+
+    @Test
+    fun `ArticleStub and Article getAuthorNames returns always the same`() = runTest {
+        testIssue.getArticles().forEach { article ->
+            //
+            // Prepare
+            //
+            articleRepository.saveInternal(article)
+
+            //
+            // WHEN
+            //
+            val stubFromDB = articleRepository.getStub(article.key)!!
+
+            //
+            // THEN
+            //
+            val authorNames = article.getAuthorNames(context)
+            assertEquals(authorNames, stubFromDB.getAuthorNames(context))
+            assertNotEquals(authorNames, emptyList<FileEntry>())
+        }
+    }
+
+
+}
