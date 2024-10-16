@@ -223,12 +223,12 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
         })
     }
 
-    private fun rebindBottomNavigation(articleToBindTo: ArticleStub) {
+    private fun rebindBottomNavigation(articleToBindTo: ArticleOperations) {
         // show the share icon always when in public issues (as it shows a popup that the user should log in)
         // OR when an onLink link is provided
         articleBottomActionBarNavigationHelper.setShareIconVisibility(articleToBindTo)
         isBookmarkedLiveData?.removeObserver(isBookmarkedObserver)
-        isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(articleToBindTo.articleFileName).asLiveData()
+        isBookmarkedLiveData = bookmarkRepository.createBookmarkStateFlow(articleToBindTo.key).asLiveData()
         isBookmarkedLiveData?.observe(this@BookmarkPagerFragment, isBookmarkedObserver)
 
     }

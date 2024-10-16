@@ -23,6 +23,7 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.IssueAudioPlayerViewModel
@@ -509,9 +510,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun toggleBookmark(articleStub: ArticleStub) {
+    private fun toggleBookmark(article: ArticleOperations) {
         lifecycleScope.launch {
-            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
+            val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
                 toastHelper.showToast(R.string.toast_article_bookmarked)
             } else {

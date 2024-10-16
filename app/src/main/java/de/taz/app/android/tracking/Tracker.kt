@@ -3,8 +3,6 @@ package de.taz.app.android.tracking
 import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
@@ -116,8 +114,7 @@ interface Tracker {
     fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
 
-    fun trackShareArticleEvent(article: Article)
-    fun trackShareArticleEvent(articleStub: ArticleStub)
+    fun trackShareArticleEvent(article: ArticleOperations)
     fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
@@ -136,7 +133,7 @@ interface Tracker {
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(article: Article)
+    fun trackAudioPlayerPlayArticleEvent(article: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
         issueKey: AbstractIssuePublication,
         title: String

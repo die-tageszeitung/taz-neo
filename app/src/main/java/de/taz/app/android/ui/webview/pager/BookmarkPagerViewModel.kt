@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
@@ -63,15 +64,15 @@ class BookmarkPagerViewModel(
     val currentIssue: IssueStub?
         get() = currentIssueAndArticleLiveData.value?.first
 
-    fun toggleBookmark(articleStub: ArticleStub) {
-        bookmarkRepository.toggleBookmarkAsync(articleStub)
+    fun toggleBookmark(article: ArticleOperations) {
+        bookmarkRepository.toggleBookmarkAsync(article)
     }
 
-    fun bookmarkArticle(article: Article) {
+    fun bookmarkArticle(article: ArticleOperations) {
         bookmarkRepository.addBookmarkAsync(article)
     }
 
-    fun debookmarkArticle(article: Article) {
+    fun debookmarkArticle(article: ArticleOperations) {
         bookmarkRepository.removeBookmarkAsync(article)
     }
 }

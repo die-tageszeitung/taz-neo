@@ -2,8 +2,6 @@ package de.taz.app.android.tracking
 
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 
@@ -60,8 +58,7 @@ class NoOpTracker : Tracker {
     override fun trackSwitchToMobileModeEvent() {}
     override fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?) {}
-    override fun trackShareArticleEvent(article: Article) {}
-    override fun trackShareArticleEvent(articleStub: ArticleStub) {}
+    override fun trackShareArticleEvent(article: ArticleOperations) {}
     override fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?) {}
     override fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?) {}
@@ -77,7 +74,7 @@ class NoOpTracker : Tracker {
     override fun trackDrawerTapPlayIssueEvent() {}
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
-    override fun trackAudioPlayerPlayArticleEvent(article: Article) {}
+    override fun trackAudioPlayerPlayArticleEvent(article: ArticleOperations) {}
     override fun trackAudioPlayerPlayPodcastEvent(issueKey: AbstractIssuePublication, title: String) {}
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}
     override fun trackAudioPlayerMaximizeEvent() {}

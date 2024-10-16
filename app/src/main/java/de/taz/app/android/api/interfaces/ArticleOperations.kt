@@ -19,6 +19,13 @@ interface ArticleOperations: WebViewDisplayable {
     val title: String?
     val teaser: String?
     val readMinutes: Int?
+    val onlineLink: String?
+    val pageNameList: List<String>
+    val bookmarkedTime: Date?
+    val position: Int
+    val percentage: Int
+    val chars: Int?
+    val words: Int?
 
     suspend fun getSectionStub(applicationContext: Context): SectionStub? {
         return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)

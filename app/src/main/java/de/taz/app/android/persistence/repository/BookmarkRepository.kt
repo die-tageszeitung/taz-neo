@@ -101,11 +101,8 @@ class BookmarkRepository(
         return !wasBookmarked
     }
 
-    fun addBookmarkAsync(article: Article): Deferred<Unit> =
+    fun addBookmarkAsync(article: ArticleOperations): Deferred<Unit> =
         addBookmarkAsync(article.key, article.mediaSyncId)
-
-    fun addBookmarkAsync(articleStub: ArticleStub): Deferred<Unit> =
-        addBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
 
     private fun addBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Unit> {
         return coroutineScope.async { addBookmark(articleFileName, mediaSyncId) }
@@ -122,11 +119,8 @@ class BookmarkRepository(
         triggerStateFlowUpdate()
     }
 
-    fun removeBookmarkAsync(article: Article): Deferred<Unit> =
+    fun removeBookmarkAsync(article: ArticleOperations): Deferred<Unit> =
         removeBookmarkAsync(article.key, article.mediaSyncId)
-
-    fun removeBookmarkAsync(articleStub: ArticleStub): Deferred<Unit> =
-        removeBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
 
     private fun removeBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Unit> {
         return coroutineScope.async { removeBookmark(articleFileName, mediaSyncId) }
