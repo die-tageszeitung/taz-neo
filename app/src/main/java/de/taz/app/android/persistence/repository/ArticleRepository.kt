@@ -145,7 +145,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         }
     }
 
-    public suspend fun getFileNamesForArticle(articleName: String): List<String> {
+    suspend fun getFileNamesForArticle(articleName: String): List<String> {
         val list = mutableListOf(articleName)
         list.addAll(appDatabase.articleImageJoinDao().getNormalImageFileNamesForArticle(articleName))
 
@@ -160,6 +160,14 @@ class ArticleRepository private constructor(applicationContext: Context) :
         list.addAll(authorImageNames)
         return list.distinct()
     }
+
+    suspend fun getAuthorNamesForArticle(articleName: String): List<String> {
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+
+        return authorImageJoins.mapNotNull { it.authorName }.distinct()
+    }
+
 
     /**
      * Tries convert the ArticleStub to an Article

@@ -36,7 +36,7 @@ data class ArticleStub(
     override val issueFeedName: String,
     override val issueDate: String,
     override val title: String?,
-    val teaser: String?,
+    override val teaser: String?,
     val onlineLink: String?,
     val pageNameList: List<String>,
     val bookmarkedTime: Date?,
@@ -48,7 +48,7 @@ data class ArticleStub(
     override val mediaSyncId: Int?,
     val chars: Int?,
     val words: Int?,
-    val readMinutes: Int?,
+    override val readMinutes: Int?,
     val pdfFileName: String?,
 ) : ArticleOperations {
 
@@ -127,6 +127,11 @@ data class ArticleStub(
         return ArticleRepository.getInstance(applicationContext).getFileNamesForArticle(articleFileName).mapNotNull {
             FileEntryRepository.getInstance(applicationContext).get(it)
         }
+    }
+
+    override suspend fun getAuthorNames(applicationContext: Context): String {
+        val authorNames = ArticleRepository.getInstance(applicationContext).getAuthorNamesForArticle(articleFileName)
+        return authorNames.joinToString(", ")
     }
 
 }

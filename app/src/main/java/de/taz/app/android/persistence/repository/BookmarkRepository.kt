@@ -70,11 +70,8 @@ class BookmarkRepository(
         stateChangeFlow.emit(Unit)
     }
 
-    fun toggleBookmarkAsync(article: Article): Deferred<Boolean> =
+    fun toggleBookmarkAsync(article: ArticleOperations): Deferred<Boolean> =
         toggleBookmarkAsync(article.key, article.mediaSyncId)
-
-    fun toggleBookmarkAsync(articleStub: ArticleStub): Deferred<Boolean> =
-        toggleBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
 
     private fun toggleBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Boolean> {
         return coroutineScope.async { toggleBookmark(articleFileName, mediaSyncId) }

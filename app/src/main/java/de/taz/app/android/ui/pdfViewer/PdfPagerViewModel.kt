@@ -9,7 +9,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
 import de.taz.app.android.api.models.Image
@@ -33,7 +33,6 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,7 +50,7 @@ private const val KEY_CURRENT_ITEM = "KEY_CURRENT_ITEM"
 data class PageWithArticles(
     val pagePdf: FileEntry,
     val pagina: String?,
-    val articles: List<Article>? = null
+    val articles: List<ArticleOperations>? = null
 )
 
 sealed class OpenLinkEvent {
@@ -324,7 +323,7 @@ class PdfPagerViewModel(
         _openLinkEventFlow.value = null
     }
 
-    private suspend fun getCorrectArticle(link: String): Article? {
+    private suspend fun getCorrectArticle(link: String): ArticleOperations? {
         val correctLink = if (issueStubFlow.value?.status == IssueStatus.regular) {
             link
         } else {
@@ -332,7 +331,7 @@ class PdfPagerViewModel(
             // unfortunately it is not delivered via [page.frameList] so we need to modify it here:
             link.replace(".html", ".public.html")
         }
-        return articleRepository.get(correctLink)
+        return articleRepository.getStub(correctLink)
     }
 
     /**
@@ -355,9 +354,9 @@ class PdfPagerViewModel(
                     .withIndex()
                     .associate { it.value to it.index }
                 val pages = mutableListOf<PageWithArticlesListItem>()
-                var imprint: Article? = null
+                var imprint: ArticleOperations? = null
                 pageRepository.getPagesForIssueKey(issueStub.issueKey).forEach { page ->
-                    val articlesOfPage = mutableListOf<Article>()
+                    val articlesOfPage = mutableListOf<ArticleOperations>()
                     page.frameList?.forEach { frame ->
                         frame.link?.let { link ->
                             if (link.startsWith("art") && link.endsWith(".html")) {
@@ -414,7 +413,7 @@ class PdfPagerViewModel(
      * @param itemsToC items of ToC either Page or Imprint
      */
     private fun isArticleListed(
-        article: Article,
+        article: ArticleOperations,
         itemsToC: List<PageWithArticlesListItem>
     ): Boolean {
         return itemsToC.any { item ->
@@ -424,16 +423,16 @@ class PdfPagerViewModel(
     }
 
     /**
-     * Get [Article] of page [Frame].
+     * Get [ArticleOperations] of page [Frame].
      *
      * If no non-public article is found it tries to get the public article.
      *
      * @param frame - Frame to look for an article
-     * @return [Article]
+     * @return [ArticleOperations]
      */
-    private suspend fun getArticleForFrame(frame: Frame): Article? {
+    private suspend fun getArticleForFrame(frame: Frame): ArticleOperations? {
         if (frame.link?.startsWith("art") == true && frame.link.endsWith(".html")) {
-            val article = articleRepository.get(frame.link)
+            val article = articleRepository.getStub(frame.link)
             if (article != null) {
                 return article
             }
@@ -443,7 +442,7 @@ class PdfPagerViewModel(
             // with their names, which are not accessible for not logged-in users.
             // To fix this, the ".public." sub string is added to the article link.
             val publicArticleName = frame.link.replace(".html", ".public.html")
-            val publicArticle = articleRepository.get(publicArticleName)
+            val publicArticle = articleRepository.getStub(publicArticleName)
 
             if (publicArticle == null) {
                 val hint = "Could not get the public article for frame link ${frame.link}"

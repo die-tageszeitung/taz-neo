@@ -189,7 +189,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
-                val imprint = issueRepository.getImprint(issueKey)
+                val imprint = issueRepository.getImprintStub(issueKey)
                 if (imprint != null) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE

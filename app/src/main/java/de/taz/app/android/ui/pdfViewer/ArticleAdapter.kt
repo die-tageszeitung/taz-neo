@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.*
@@ -26,15 +26,15 @@ private const val TYPE_ARTICLE_LAST = 1
  * @property onArticleClick Callback that should be triggered, when user clicks on an article
  */
 class ArticleAdapter(
-    var articles: List<Article>,
-    private val onArticleClick: (article: Article) -> Unit,
-    private val onArticleBookmarkClick: (article: Article) -> Unit,
-    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
+    var articles: List<ArticleOperations>,
+    private val onArticleClick: (article: ArticleOperations) -> Unit,
+    private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
     inner class ArticleHolder(
         view: View,
-        private val onArticleClick: (article: Article) -> Unit,
+        private val onArticleClick: (article: ArticleOperations) -> Unit,
         private val showDivider: Boolean
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
@@ -54,7 +54,7 @@ class ArticleAdapter(
          *
          * @param article Article to be displayed.
          */
-        fun bind(article: Article) {
+        fun bind(article: ArticleOperations) {
 
             articleTitle.text = article.title
             if (!article.teaser.isNullOrBlank()) {
@@ -66,26 +66,25 @@ class ArticleAdapter(
                 articleTeaser.visibility = View.GONE
             }
 
-            val authorsString = if (article.authorList.isNotEmpty()) {
-                itemView.context.getString(
+            launch {
+                val authorNames: String = article.getAuthorNames(itemView.context.applicationContext)
+                val authorsString = if (authorNames.isNotEmpty()) itemView.context.getString(
                     R.string.author_list,
-                    article.authorList.map { it.name }.distinct().joinToString(", ")
-                )
-            } else {
-                ""
-            }
-            val readMinutesString = if (article.readMinutes != null) {
-                itemView.context.getString(
-                    R.string.read_minutes,
-                    article.readMinutes
-                )
-            } else {
-                ""
-            }
-            val twoStyledSpannable =
-                constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
+                    authorNames
+                ) else ""
+                val readMinutesString = if (article.readMinutes != null) {
+                    itemView.context.getString(
+                        R.string.read_minutes,
+                        article.readMinutes
+                    )
+                } else {
+                    ""
+                }
+                val twoStyledSpannable =
+                    constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-            articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+                articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+            }
 
             if (showDivider) {
                 articleDivider.visibility = View.VISIBLE

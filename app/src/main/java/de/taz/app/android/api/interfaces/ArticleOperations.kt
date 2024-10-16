@@ -1,7 +1,9 @@
 package de.taz.app.android.api.interfaces
 
 import android.content.Context
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.ArticleType
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -15,6 +17,8 @@ interface ArticleOperations: WebViewDisplayable {
     override val dateDownload: Date?
     val mediaSyncId: Int?
     val title: String?
+    val teaser: String?
+    val readMinutes: Int?
 
     suspend fun getSectionStub(applicationContext: Context): SectionStub? {
         return SectionRepository.getInstance(applicationContext).getSectionStubForArticle(this.key)
@@ -35,4 +39,6 @@ interface ArticleOperations: WebViewDisplayable {
             getSectionStub(applicationContext)?.getIssueStub(applicationContext)
         }
     }
+
+    suspend fun getAuthorNames(applicationContext: Context): String
 }
