@@ -1,5 +1,6 @@
 package de.taz.app.android.tracking
 
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
@@ -26,7 +27,7 @@ class NoOpTracker : Tracker {
     override fun trackSettingsScreen() {}
     override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {}
     override fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String) {}
-    override fun trackArticleScreen(issueKey: AbstractIssuePublication, sectionOperations: SectionOperations, article: Article) {}
+    override fun trackArticleScreen(issueKey: AbstractIssuePublication, sectionOperations: SectionOperations, article: ArticleOperations) {}
     override fun trackErrorReportScreen() {}
     override fun trackWebViewScreen(htmlFile: String) {}
     override fun trackLoginScreen() {}

@@ -6,7 +6,6 @@ import de.taz.app.android.api.models.IssueStub
 interface WebViewDisplayable: DownloadableCollection {
 
     val key: String
-    val path: String
 
     suspend fun previous(applicationContext: Context): WebViewDisplayable?
 

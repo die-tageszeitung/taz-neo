@@ -8,16 +8,16 @@ import java.util.Date
 
 data class Article(
     val articleHtml: FileEntry,
-    val issueFeedName: String,
-    val issueDate: String,
-    val title: String?,
+    override val issueFeedName: String,
+    override val issueDate: String,
+    override val title: String?,
     val teaser: String?,
     val onlineLink: String?,
     val audio: Audio?,
     val pageNameList: List<String>,
     val imageList: List<Image>,
     val authorList: List<Author>,
-    val mediaSyncId: Int?,
+    override val mediaSyncId: Int?,
     val chars: Int?,
     val words: Int?,
     val readMinutes: Int?,
@@ -27,26 +27,19 @@ data class Article(
     val percentage: Int,
     override val dateDownload: Date?,
     val pdf: FileEntry?,
-) : ArticleOperations, WebViewDisplayable {
-
-    override val path: String
-        get() = articleHtml.path
+) : ArticleOperations {
 
     val bookmarked = bookmarkedTime != null
 
     override val key: String
         get() = articleHtml.name
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
             .map { FileEntry(it) })
         return list.distinct()
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }.distinct()
     }
 
     override fun getDownloadTag(): String {

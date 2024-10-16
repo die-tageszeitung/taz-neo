@@ -22,17 +22,10 @@ data class Section(
     override val key: String
         get() = sectionHtml.name
 
-    override val path: String
-        get() = sectionHtml.path
-
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         val list = mutableListOf(sectionHtml)
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }.map { FileEntry(it) })
         return list.distinct()
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }
     }
 
     override fun getDownloadTag(): String {

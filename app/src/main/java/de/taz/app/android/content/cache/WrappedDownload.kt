@@ -3,6 +3,7 @@ package de.taz.app.android.content.cache
 import android.content.Context
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
@@ -252,7 +253,7 @@ class WrappedDownload(
             }
             // AppInfo has no collection
             is AppInfo -> Unit
-            is Article,
+            is ArticleOperations,
             is Page,
             is Section,
             is Moment,

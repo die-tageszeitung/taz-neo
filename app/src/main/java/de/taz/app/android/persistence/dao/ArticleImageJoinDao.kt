@@ -21,6 +21,19 @@ interface ArticleImageJoinDao : BaseDao<ArticleImageJoin> {
     )
     suspend fun getImagesForArticle(articleFileName: String): List<Image>
 
+    @Query(
+        """
+        SELECT name
+        FROM FileEntry INNER JOIN ArticleImageJoin
+        ON FileEntry.name = ArticleImageJoin.imageFileName
+        INNER JOIN Image ON Image.fileEntryName == ArticleImageJoin.imageFileName
+        WHERE ArticleImageJoin.articleFileName == :articleFileName AND Image.resolution == 'normal'
+        ORDER BY ArticleImageJoin.`index` ASC
+    """
+    )
+    suspend fun getNormalImageFileNamesForArticle(articleFileName: String): List<String>
+
+
     @Query("DELETE FROM ArticleImageJoin WHERE articleFileName = :articleFileName")
     suspend fun deleteRelationToArticle(articleFileName: String)
 

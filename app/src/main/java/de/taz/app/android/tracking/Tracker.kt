@@ -1,6 +1,7 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
@@ -76,7 +77,7 @@ interface Tracker {
     fun trackArticleScreen(
         issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: Article
+        article: ArticleOperations
     )
     fun trackErrorReportScreen()
     fun trackWebViewScreen(htmlFile: String)

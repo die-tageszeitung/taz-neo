@@ -2,6 +2,7 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.withTransaction
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
@@ -113,7 +114,7 @@ class BookmarkRepository(
         return coroutineScope.async { addBookmark(articleFileName, mediaSyncId) }
     }
 
-    suspend fun addBookmark(article: Article) = addBookmark(article.key, article.mediaSyncId)
+    suspend fun addBookmark(article: ArticleOperations) = addBookmark(article.key, article.mediaSyncId)
 
     private suspend fun addBookmark(articleFileName: String, mediaSyncId: Int?) {
         changeMutex.withLock {

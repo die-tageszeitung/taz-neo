@@ -47,7 +47,7 @@ class ContentDeletion(
 
             // Only delete files with a matching storage type.
             // For example when deleting an Issue only FileEntries StorageType.issue should be deleted.
-            val collectionFilesWithValidStorageType = collection.getAllFiles().filter {
+            val collectionFilesWithValidStorageType = collection.getAllFiles(applicationContext).filter {
                 it.storageType in storageTypes
             }
 

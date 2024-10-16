@@ -17,7 +17,7 @@ import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ArticleWebViewFragment :
-    WebViewFragment<Article, WebViewViewModel<Article>, FragmentWebviewArticleBinding>(),
+    WebViewFragment<ArticleOperations, WebViewViewModel<ArticleOperations>, FragmentWebviewArticleBinding>(),
     MultiColumnLayoutReadyCallback {
 
     /**
@@ -107,9 +107,7 @@ class ArticleWebViewFragment :
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
         lifecycleScope.launch {
-            // FIXME (johannes): this is loading the full Article with all its FileEntries, Authors etc
-            //  within for EACH article pager fragment. This DOES have a performance impact
-            articleRepository.get(articleFileName)?.let {
+            articleRepository.getStub(articleFileName)?.let {
                 viewModel.displayableLiveData.postValue(
                     it
                 )
@@ -175,7 +173,7 @@ class ArticleWebViewFragment :
         }
     }
 
-    override fun setHeader(displayable: Article) {
+    override fun setHeader(displayable: ArticleOperations) {
         // The article header is handled by the ArticlePagerFragment
         // to enable custom header behavior when swiping articles of different sections.
     }

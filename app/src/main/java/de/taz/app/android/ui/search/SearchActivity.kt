@@ -592,7 +592,7 @@ class SearchActivity :
             if (!contentService.isPresent(issuePublication)) {
                 contentService.downloadMetadata(issuePublication, maxRetries = 5)
             }
-            val article = requireNotNull(articleRepository.get(articleFileName))
+            val article = requireNotNull(articleRepository.getStub(articleFileName))
             contentService.downloadToCache(article)
             bookmarkRepository.addBookmark(article)
         } catch (e: Exception) {

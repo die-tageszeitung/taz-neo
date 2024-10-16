@@ -25,6 +25,7 @@ import java.io.IOException
 @Config(application = RobolectricTestApplication::class)
 class SectionTest {
 
+    private lateinit var applicationContext: Context
     private lateinit var db: AppDatabase
     private lateinit var sectionRepository: SectionRepository
 
@@ -37,20 +38,20 @@ class SectionTest {
     fun setUp() {
         SingletonTestUtil.resetAll()
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
+        applicationContext = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, AppDatabase::class.java
+            applicationContext, AppDatabase::class.java
         ).build()
-        val fileEntryRepository = FileEntryRepository.getInstance(context)
+        val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         fileEntryRepository.appDatabase = db
 
-        val articleRepository = ArticleRepository.getInstance(context)
+        val articleRepository = ArticleRepository.getInstance(applicationContext)
         articleRepository.appDatabase = db
 
-        val imageRepository = ImageRepository.getInstance(context)
+        val imageRepository = ImageRepository.getInstance(applicationContext)
         imageRepository.appDatabase = db
 
-        sectionRepository = SectionRepository.getInstance(context)
+        sectionRepository = SectionRepository.getInstance(applicationContext)
         sectionRepository.appDatabase = db
     }
 
@@ -63,7 +64,7 @@ class SectionTest {
     @Test
     fun getAllFiles() = runBlocking {
         sectionRepository.saveInternal(section)
-        val fileList = section.getAllFiles()
+        val fileList = section.getAllFiles(applicationContext)
 
         assertTrue(fileList.filter { it == section.sectionHtml }.size == 1)
         assertTrue(fileList.none { it.name.startsWith("art") && it.name.endsWith(".html") })
