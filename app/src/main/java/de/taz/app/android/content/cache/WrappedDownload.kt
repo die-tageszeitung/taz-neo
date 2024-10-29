@@ -249,7 +249,6 @@ class WrappedDownload(
                         add(it)
                     }
                 }
-                log.error("pages: ${download.pageList.withIndex().joinToString { (i, p) -> "$i:${p.pagePdf.name}" }}")
             }
             // AppInfo has no collection
             is AppInfo -> Unit
