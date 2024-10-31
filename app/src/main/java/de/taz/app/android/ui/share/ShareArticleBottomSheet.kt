@@ -36,10 +36,13 @@ class ShareArticleBottomSheet :
 
     companion object {
         // Shared arguments
-        private const val ARGUMENT_ARTICLE_KEY = "articleKey"
         private const val ARGUMENT_ARTICLE_MEDIA_SYNC_ID = "articleMediaSyncId"
         private const val ARGUMENT_ARTICLE_TITLE = "articleTitle"
         private const val ARGUMENT_ARTICLE_ONLINE_URL = "articleOnlineUrl"
+
+        // ArticleStub arguments
+        private const val ARGUMENT_ARTICLE_KEY = "articleKey"
+        private const val ARGUMENT_ARTICLE_WORDS = "articleWords"
 
         // SearchHit arguments
         private const val ARGUMENT_ARTICLE_HTML = "articleHtml"
@@ -60,6 +63,7 @@ class ShareArticleBottomSheet :
                         ARGUMENT_ARTICLE_TITLE to articleStub.title,
                         ARGUMENT_ARTICLE_ONLINE_URL to articleStub.onlineLink,
                         ARGUMENT_ARTICLE_MEDIA_SYNC_ID to articleStub.mediaSyncId,
+                        ARGUMENT_ARTICLE_WORDS to articleStub.words
                     )
                 }
             } else {
@@ -70,7 +74,6 @@ class ShareArticleBottomSheet :
             if (isShareable(searchHit)) {
                 ShareArticleBottomSheet().apply {
                     arguments = bundleOf(
-                        ARGUMENT_ARTICLE_KEY to searchHit.articleFileName,
                         ARGUMENT_ARTICLE_TITLE to searchHit.title,
                         ARGUMENT_ARTICLE_ONLINE_URL to searchHit.onlineLink,
                         ARGUMENT_ARTICLE_MEDIA_SYNC_ID to searchHit.mediaSyncId,
@@ -122,6 +125,7 @@ class ShareArticleBottomSheet :
         val articlePdfName = arguments?.getString(ARGUMENT_ARTICLE_PDF_NAME)
         val articlePdfBaseUrl = arguments?.getString(ARGUMENT_ARTICLE_PDF_BASE_URL)
         val articleHtml = arguments?.getString(ARGUMENT_ARTICLE_HTML)
+        val articleWords = arguments?.getInt(ARGUMENT_ARTICLE_WORDS)
 
         var sharingAvailable = false
 
@@ -172,7 +176,7 @@ class ShareArticleBottomSheet :
             }
             sharingAvailable = true
 
-        } else if (articleKey != null) {
+        } else if (articleKey != null && articleWords != null && articleWords > 0) {
             viewBinding.apply {
                 shareTextGroup.isVisible = true
                 shareText.setOnClickListener {
