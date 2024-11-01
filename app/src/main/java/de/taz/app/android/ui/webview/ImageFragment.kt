@@ -2,6 +2,7 @@ package de.taz.app.android.ui.webview
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
@@ -81,7 +82,9 @@ class ImageFragment : Fragment(R.layout.fragment_image) {
                 javaScriptEnabled = true
             }
             setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.backgroundColor))
-            WebView.setWebContentsDebuggingEnabled(true)
+            if (0 != (requireActivity().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+                WebView.setWebContentsDebuggingEnabled(true)
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
