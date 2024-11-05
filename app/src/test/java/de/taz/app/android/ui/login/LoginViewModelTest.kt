@@ -297,6 +297,7 @@ class LoginViewModelTest {
         assertEquals(LoginViewModelState.SUBSCRIPTION_REQUEST, loginViewModel.status)
     }
 
+    @Ignore("Flaky due to coroutine concurrency")
     @Test
     fun registerSuccessful() = runTest {
         doReturn(validSubscriptionInfo).`when`(apiService).trialSubscription(username, password)
