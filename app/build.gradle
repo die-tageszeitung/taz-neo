@@ -393,7 +393,7 @@ dependencies {
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
     // mupdf
-    implementation 'com.artifex.mupdf:fitz:1.24.6'
+    implementation 'com.artifex.mupdf:fitz:1.24.10'
 
     // error reports
     nonfreeImplementation "io.sentry:sentry-android:$sentry_version"
