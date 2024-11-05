@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.LAYER_TYPE_HARDWARE
 import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
@@ -175,6 +176,11 @@ abstract class WebViewFragment<
                 this@WebViewFragment
             )
             webChromeClient = AppWebChromeClient(::onPageRendered)
+
+            // Sometimes the webview wasn't rendered fully.
+            // Enabling hardware acceleration seems to fix it:
+            setLayerType(LAYER_TYPE_HARDWARE, null)
+
             settings.apply {
                 allowFileAccess = true
                 useWideViewPort = true
