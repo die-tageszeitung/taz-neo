@@ -9,7 +9,7 @@ interface ImageDao {
 
     @Query(
         """
-        SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+        SELECT name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName == :name
         """
     )
@@ -17,7 +17,7 @@ interface ImageDao {
 
     @Query(
         """
-        SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
+        SELECT name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation FROM Image INNER JOIN FileEntry ON FileEntry.name == Image.fileEntryName
          WHERE fileEntryName IN (:names)
         """
     )

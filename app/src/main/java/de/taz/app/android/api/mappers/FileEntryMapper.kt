@@ -13,7 +13,6 @@ object FileEntryMapper {
     fun from(issueKey: IssueKey?, fileEntryDto: FileEntryDto): FileEntry {
         val storageType = StorageTypeMapper.from(fileEntryDto.storageType)
         val path = StorageService.determineFilePath(storageType, fileEntryDto.name, issueKey)
-        val folder = requireNotNull(File(path).parent)
 
         return FileEntry(
             name = fileEntryDto.name,
@@ -22,7 +21,6 @@ object FileEntryMapper {
             sha256 = fileEntryDto.sha256,
             size = fileEntryDto.size,
             path = path,
-            folder = folder,
             dateDownload = null,
             storageLocation = StorageLocation.NOT_STORED
         )

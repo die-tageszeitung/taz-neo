@@ -5,6 +5,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.platform.app.InstrumentationRegistry
 import de.taz.app.android.persistence.AppDatabase
+import de.taz.app.android.persistence.DATABASE_VERSION
 import de.taz.app.android.persistence.allMigrations
 import de.taz.test.RobolectricTestApplication
 import java.io.IOException
@@ -33,16 +34,6 @@ class AllMigrationsTest {
         helper.createDatabase(testDb, 1).apply {
             close()
         }
-
-        // Open latest version of the database. Room will validate the schema
-        // once all migrations execute.
-        Room.databaseBuilder(
-                InstrumentationRegistry.getInstrumentation().targetContext,
-                AppDatabase::class.java,
-                testDb
-        ).addMigrations(*allMigrations()).build().apply {
-            openHelper.writableDatabase
-            close()
-        }
+        helper.runMigrationsAndValidate(testDb, DATABASE_VERSION, true, *allMigrations())
     }
 }

@@ -11,7 +11,6 @@ object ImageMapper {
     fun from(issueKey: IssueKey, imageDto: ImageDto): Image {
         val storageType = StorageTypeMapper.from(imageDto.storageType)
         val path = StorageService.determineFilePath(storageType, imageDto.name, issueKey)
-        val folder = requireNotNull(File(path).parent)
 
         return Image(
             name = imageDto.name,
@@ -20,7 +19,6 @@ object ImageMapper {
             sha256 = imageDto.sha256,
             size = imageDto.size,
             path = path,
-            folder = folder,
             type = ImageTypeMapper.from(imageDto.type),
             alpha = imageDto.alpha,
             resolution = ImageResolutionMapper.from(imageDto.resolution),

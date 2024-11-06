@@ -56,7 +56,6 @@ class ResourceInitUtil(private val applicationContext: Context) {
                     moTime = Date().time,
                     sha256 = "",
                     size = 0,
-                    folder = RESOURCE_FOLDER,
                     dateDownload = null,
                     path = "$RESOURCE_FOLDER/$TAZ_API_JS_FILENAME",
                     storageLocation = currentStorageLocation
@@ -114,7 +113,6 @@ class ResourceInitUtil(private val applicationContext: Context) {
                     moTime = Date().time,
                     sha256 = "",
                     size = 0,
-                    folder = RESOURCE_FOLDER,
                     dateDownload = null,
                     path = "$RESOURCE_FOLDER/$TAZ_API_CSS_FILENAME",
                     storageLocation = currentStorageLocation
@@ -190,7 +188,6 @@ class ResourceInitUtil(private val applicationContext: Context) {
             moTime = 0L, // ensure the file will be overwritten by the latest resources from the server
             sha256 = "",
             size = 0,
-            folder = RESOURCE_FOLDER,
             dateDownload = null,
             path = "$RESOURCE_FOLDER/$fileName",
             storageLocation = storageLocation
