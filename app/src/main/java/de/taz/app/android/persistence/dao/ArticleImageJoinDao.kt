@@ -11,7 +11,7 @@ interface ArticleImageJoinDao : BaseDao<ArticleImageJoin> {
 
     @Query(
         """
-        SELECT name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation
+        SELECT name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation
         FROM FileEntry INNER JOIN ArticleImageJoin
         ON FileEntry.name = ArticleImageJoin.imageFileName
         INNER JOIN Image ON Image.fileEntryName == ArticleImageJoin.imageFileName

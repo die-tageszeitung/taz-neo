@@ -61,7 +61,6 @@ class ImageRepositoryTest {
             "",
             0L,
             "",
-            "",
             ImageType.picture,
             0f,
             ImageResolution.normal,
@@ -97,7 +96,6 @@ class ImageRepositoryTest {
             0L,
             "",
             0L,
-            "",
             null,
             "",
             StorageLocation.NOT_STORED

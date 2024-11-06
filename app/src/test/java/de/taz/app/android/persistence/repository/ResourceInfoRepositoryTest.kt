@@ -74,8 +74,8 @@ class ResourceInfoRepositoryTest {
         assertEquals(fromDB, resourceInfo2)
     }
 
-    private val resourceFiles = TestDataUtil.getIssue().sectionList.first().imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
-    private val resourceFiles2 = TestDataUtil.getIssue().sectionList[1].imageList.map { it.copy(folder = RESOURCE_FOLDER) }.map { FileEntry(it) }
+    private val resourceFiles = TestDataUtil.getIssue().sectionList.first().imageList.map { FileEntry(it) }
+    private val resourceFiles2 = TestDataUtil.getIssue().sectionList[1].imageList.map { FileEntry(it) }
     private val resourceInfo = ResourceInfo(1, "http://example.com", "1.zip",  resourceFiles, null)
     private val resourceInfo2 = ResourceInfo(2, "http://example.com", "2.zip",  resourceFiles2, null)
 }

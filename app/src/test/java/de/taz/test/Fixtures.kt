@@ -34,7 +34,6 @@ object Fixtures {
         moTime = 0L,
         "sha256",
         size = 0L,
-        "folder",
         dateDownload = null,
         "path",
         StorageLocation.NOT_STORED

@@ -340,7 +340,6 @@ class ScrubberFileEntryTest {
             now.timeInMillis,
             "",
             dataBytes.size.toLong(),
-            "",
             now.time,
             "testData",
             StorageLocation.INTERNAL
