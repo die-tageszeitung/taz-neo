@@ -177,9 +177,11 @@ abstract class WebViewFragment<
             )
             webChromeClient = AppWebChromeClient(::onPageRendered)
 
-            // Sometimes the webview wasn't rendered fully.
+            // Sometimes the webview wasn't rendered fully (only api above 30).
             // Enabling hardware acceleration seems to fix it:
-            setLayerType(LAYER_TYPE_HARDWARE, null)
+            if (Build.VERSION.SDK_INT >= 30) {
+                setLayerType(LAYER_TYPE_HARDWARE, null)
+            }
 
             settings.apply {
                 allowFileAccess = true
