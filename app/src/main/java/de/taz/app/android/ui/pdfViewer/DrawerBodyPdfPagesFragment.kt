@@ -178,6 +178,9 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
             viewBinding.apply {
                 fragmentDrawerPlayIssueIcon.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
                 fragmentDrawerPlayIssueText.setOnClickListener { drawerAudioPlayerViewModel.handleOnPlayAllClicked() }
+
+                fragmentDrawerPlaylistIcon.setOnClickListener { drawerAudioPlayerViewModel.showPlaylist() }
+                fragmentDrawerPlaylistText.setOnClickListener { drawerAudioPlayerViewModel.showPlaylist() }
             }
 
             adapter =

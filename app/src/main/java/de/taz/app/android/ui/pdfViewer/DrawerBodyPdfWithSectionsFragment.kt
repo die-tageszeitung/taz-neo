@@ -19,6 +19,7 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -149,9 +150,15 @@ class DrawerBodyPdfWithSectionsFragment :
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             } else {
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             }
         }
     }

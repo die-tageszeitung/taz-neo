@@ -218,7 +218,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         articleTitle: String?,
         articleTeaser: String?,
     ) {
-        log.error("handling $articleTitle !!!")
         var articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId)
         if (articleStub == null) {
             downloadIssueMetadata(articleDate)

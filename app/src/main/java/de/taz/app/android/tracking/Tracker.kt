@@ -3,6 +3,7 @@ package de.taz.app.android.tracking
 import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
@@ -133,11 +134,12 @@ interface Tracker {
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(article: ArticleOperations)
+    fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
         issueKey: AbstractIssuePublication,
         title: String
     )
+    fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit)
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)
     fun trackAudioPlayerMaximizeEvent()
     fun trackAudioPlayerMinimizeEvent()

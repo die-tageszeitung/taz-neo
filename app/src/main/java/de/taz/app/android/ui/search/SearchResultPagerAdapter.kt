@@ -2,6 +2,7 @@ package de.taz.app.android.ui.search
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import de.taz.app.android.api.models.SearchHit
 
 
 class SearchResultPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
@@ -31,5 +32,9 @@ class SearchResultPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragme
 
     override fun createFragment(position: Int): Fragment {
         return SearchResultPagerItemFragment.newInstance(position)
+    }
+
+    fun getSearchHit(index: Int): SearchHit? {
+        return searchResults?.results?.getOrNull(index)
     }
 }
