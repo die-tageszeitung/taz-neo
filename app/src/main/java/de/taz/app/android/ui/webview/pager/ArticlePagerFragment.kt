@@ -26,7 +26,7 @@ import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SectionStub
-import de.taz.app.android.audioPlayer.IssueAudioPlayerViewModel
+import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
@@ -44,11 +44,13 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
+import de.taz.app.android.ui.bottomSheet.PlayOptionsBottomSheet
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -73,7 +75,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
-    private val audioPlayerViewModel: IssueAudioPlayerViewModel by viewModels()
+    private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
     private lateinit var articleRepository: ArticleRepository
@@ -411,7 +413,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 isBookmarkedLiveData?.observe(this@ArticlePagerFragment, isBookmarkedObserver)
             }
 
-            audioPlayerViewModel.setVisibleArticle(nextStub)
+            audioPlayerViewModel.setVisible(nextStub)
 
             articleBottomActionBarNavigationHelper.apply {
                 // show the player button only for articles with audio
@@ -502,7 +504,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             }
 
             R.id.bottom_navigation_action_audio -> {
-                audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()
+                val menuItemView =
+                    viewBinding.navigationBottomLayout
+                        .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                PlayOptionsBottomSheet
+                    .newInstance(menuItemView, audioPlayerViewModel).show(
+                    childFragmentManager,
+                    PlayOptionsBottomSheet.TAG
+                )
                 lifecycleScope.launch {
                     ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())
                 }
@@ -514,9 +523,17 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.webviewPagerViewpager.rootView,
+                    anchor = getBottomNavigationLayout(),
+                )
             } else {
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.webviewPagerViewpager.rootView,
+                    anchor = getBottomNavigationLayout(),
+                )
             }
         }
     }

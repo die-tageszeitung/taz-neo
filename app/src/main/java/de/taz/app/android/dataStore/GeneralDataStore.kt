@@ -117,7 +117,6 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
     )
 
-
     suspend fun clearRemovedEntries() {
         dataStore.edit {
             // This functionality was removed with version 1.7.0

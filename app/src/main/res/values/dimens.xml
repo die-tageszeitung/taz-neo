@@ -45,7 +45,7 @@
     <dimen name="fragment_drawer_pdf_item_padding_top">20dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
     <dimen name="fragment_drawer_header_action_margin_top">18dp</dimen>
-    <dimen name="fragment_drawer_header_action_margin_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_header_action_margin_bottom">2dp</dimen>
     <dimen name="fragment_drawer_title_margin_end">10dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_top">2dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
@@ -58,7 +58,8 @@
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
     <dimen name="drawer_play_issue_icon_size">24dp</dimen>
-    <dimen name="drawer_play_issue_text_icon_padding">5dp</dimen>
+    <dimen name="drawer_text_icon_margin">5dp</dimen>
+    <dimen name="drawer_margin_between_actions">15dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_separator_margin_top">8dp</dimen>
@@ -281,7 +282,7 @@
     <!-- region audioplayer overlay -->
     <dimen name="audioplayer_elevation">3dp</dimen>
 
-    <dimen name="audioplayer_small_overlay_margin">9dp</dimen>
+    <dimen name="audioplayer_small_overlay_margin">10dp</dimen>
     <dimen name="audioplayer_small_article_image_size">36dp</dimen>
     <dimen name="audioplayer_small_vertical_padding">1dp</dimen>
     <dimen name="audioplayer_small_horizontal_margin">8dp</dimen>
@@ -314,10 +315,37 @@
     <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
     <dimen name="audioplayer_expanded_title_author_margin_end">16dp</dimen>
-    <dimen name="audioplayer_expanded_auto_play_next_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_last_row_margin_top">35dp</dimen>
+    <dimen name="audioplayer_expanded_loading_margin_vertical">100dp</dimen>
+    <dimen name="audioplayer_expanded_play_speed_view_width">50dp</dimen>
+    <dimen name="audioplayer_expanded_play_speed_view_height">27dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>
+
+
+    <dimen name="audioplayer_playlist_small_margin">10dp</dimen>
+    <dimen name="audioplayer_playlist_big_padding">25dp</dimen>
+    <dimen name="audioplayer_playlist_horizontal_margin">20dp</dimen>
+    <dimen name="audioplayer_playlist_close_button_margin_top">16dp</dimen>
+    <dimen name="audioplayer_playlist_close_button_margin_end">25dp</dimen>
+    <dimen name="audioplayer_playlist_dotted_line_margin_start">19dp</dimen>
+    <dimen name="audioplayer_playlist_dotted_line_margin_end">15dp</dimen>
+    <dimen name="audioplayer_playlist_delete_icon_margin">18dp</dimen>
+    <dimen name="audioplayer_playlist_margin_start">17dp</dimen>
+    <dimen name="audioplayer_playlist_margin_end">18dp</dimen>
+    <dimen name="audioplayer_playlist_big_icon_size">32dp</dimen>
+    <dimen name="audioplayer_playlist_item_padding_horizontal">16dp</dimen>
+    <dimen name="audioplayer_playlist_margin_bottom">0dp</dimen>
+    <dimen name="audioplayer_playlist_max_height">1000dp</dimen>
+
+    <dimen name="audioplayer_play_options_max_width">400dp</dimen>
+    <dimen name="audioplayer_play_options_small_margin">10dp</dimen>
+    <!-- the margin bottom is the sum of nav_bottom_height and audioplayer_small_overlay_margin -->
+    <dimen name="audioplayer_play_options_margin_bottom">61dp</dimen>
+    <dimen name="audioplayer_play_options_inner_margin">15dp</dimen>
+    <dimen name="audioplayer_play_options_text_vertical_padding">20dp</dimen>
+    <dimen name="audioplayer_play_options_icon_with_padding_size">58dp</dimen>
     <!-- endregion -->
 
     <!-- region coach marks  -->

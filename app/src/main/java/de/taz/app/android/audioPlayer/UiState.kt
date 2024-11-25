@@ -1,87 +1,58 @@
 package de.taz.app.android.audioPlayer
 
-import android.net.Uri
-import de.taz.app.android.persistence.repository.AbstractIssueKey
-
 /**
  * Public player state used to render UI components.
  */
 sealed class UiState {
-    object Hidden : UiState()
-    object Initializing : UiState()
-    data class InitError(
-        val wasHandled: Boolean,
-        val cause: AudioPlayerException
-    ) : UiState()
-
-    data class Playing(
-        val playerState: PlayerState
-    ) : UiState()
-
-    data class Paused(
-        val playerState: PlayerState
-    ) : UiState()
-
-    /**
-     * @param wasHandled true if the error has already been presented to a user by any active player
-     */
-    data class Error(
-        val wasHandled: Boolean,
+    data object Hidden : UiState()
+    data class MiniPlayer(val playerState: PlayerState) : UiState()
+    data class MaxiPlayer(val playerState: PlayerState) : UiState()
+    data class Playlist(
+        val playlist: de.taz.app.android.audioPlayer.Playlist,
         val playerState: PlayerState,
-        val cause: AudioPlayerException
     ) : UiState()
+
+    sealed class PlayerState {
+        data object Initializing : PlayerState()
+
+        data class Playing(
+            val playerUiState: PlayerUiState
+        ) : PlayerState()
+
+        data class Paused(
+            val playerUiState: PlayerUiState
+        ) : PlayerState()
+    }
 
     // Helper functions
-    fun isExpanded(): Boolean = when (this) {
-        is Error -> playerState.expanded
-        Hidden -> false
-        is Initializing -> false
-        is InitError -> false
-        is Paused -> playerState.expanded
-        is Playing -> playerState.expanded
+    fun getPlayerStateOrNull(): PlayerState? = when (this) {
+        Hidden -> null
+        is MaxiPlayer -> playerState
+        is MiniPlayer -> playerState
+        is Playlist -> playerState
     }
 
     fun isPlayerVisible(): Boolean = when (this) {
-        Hidden, is InitError -> false
-        is Error, is Initializing, is Paused, is Playing -> true
+        Hidden -> false
+        is MaxiPlayer, is MiniPlayer, is Playlist -> true
     }
 
-    fun copyWithExpanded(isExpanded: Boolean): UiState = when (this) {
-        is Error -> copy(playerState = playerState.copy(expanded = isExpanded))
-        is Paused -> copy(playerState = playerState.copy(expanded = isExpanded))
-        is Playing -> copy(playerState = playerState.copy(expanded = isExpanded))
-        Hidden, is Initializing, is InitError -> this
+    fun copyWithPlayerState(playerState: PlayerState): UiState = when (this) {
+        // FIXME: this is not a good place to define these.. they are very weird to find here
+        Hidden -> MaxiPlayer(playerState) // initial state the player is in when shown first
+        is MaxiPlayer -> MaxiPlayer(playerState)
+        is MiniPlayer -> MiniPlayer(playerState)
+        is Playlist -> Playlist(playlist, playerState)
     }
 
     // Helper classes
-    data class PlayerState(
-        val item: Item,
-        val expanded: Boolean,
+    data class PlayerUiState(
+        val uiItem: AudioPlayerItem.UiItem,
         val playbackSpeed: Float,
         val isAutoPlayNext: Boolean,
         val controls: Controls,
         val isLoading: Boolean,
     )
-
-    data class Item(
-        val title: String,
-        val author: String?,
-        val coverImageUri: Uri?,
-        val coverImageGlidePath: String?,
-        val openItemSpec: OpenItemSpec?,
-    ) {
-        val hasCoverImage = coverImageUri != null || coverImageGlidePath != null
-    }
-
-    /**
-     * This specification is used to open an item in the audio player when being clicked on.
-     * It must contain all the information required to navigate to the context of the item.
-     * It must be comparable by its values (like data classes are by default).
-     * and thus must not contain [Intent]s or references to lambda callback functions.
-     */
-    sealed interface OpenItemSpec {
-        data class OpenIssueItemSpec(val issueKey: AbstractIssueKey, val displayableKey: String) : OpenItemSpec
-    }
 
     data class Controls(
         val skipNext: ControlValue,

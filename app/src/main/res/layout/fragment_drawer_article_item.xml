@@ -88,6 +88,32 @@
             tools:visibility="visible" />
 
         <ImageView
+            android:id="@+id/fragment_drawer_audio_enqueue"
+            android:layout_width="@dimen/drawer_bookmarks_icon_size"
+            android:layout_height="@dimen/drawer_bookmarks_icon_size"
+            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:src="@drawable/ic_audio_enqueue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fragment_drawer_article_bookmark_icon"
+            app:tint="@color/textColorAccent"
+            />
+
+        <ImageView
+            android:id="@+id/fragment_drawer_audio_enqueued"
+            android:layout_width="@dimen/drawer_bookmarks_icon_size"
+            android:layout_height="@dimen/drawer_bookmarks_icon_size"
+            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:src="@drawable/ic_audio_enqueued"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fragment_drawer_article_bookmark_icon"
+            android:visibility="gone"
+            app:tint="@color/textColor" />
+
+        <ImageView
             android:id="@+id/fragment_drawer_article_bookmark_icon"
             android:layout_width="@dimen/drawer_bookmarks_icon_size"
             android:layout_height="@dimen/drawer_bookmarks_icon_size"

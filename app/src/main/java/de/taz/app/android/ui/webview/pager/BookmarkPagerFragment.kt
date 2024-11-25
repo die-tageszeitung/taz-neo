@@ -25,7 +25,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
@@ -43,6 +42,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.PlayOptionsBottomSheet
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -244,7 +244,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             articleStub?.let {
                 viewModel.articleFileNameLiveData.value = it.articleFileName
                 rebindBottomNavigation(it)
-                audioPlayerViewModel.setVisibleArticle(it)
+                audioPlayerViewModel.setVisible(it)
             }
 
 
@@ -278,7 +278,18 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                 TextSettingsBottomSheetFragment.newInstance()
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
 
-            R.id.bottom_navigation_action_audio -> audioPlayerViewModel.handleOnAudioActionOnVisibleArticle()
+            R.id.bottom_navigation_action_audio -> {
+                val articleStub = articlePagerAdapter.getArticleStub(
+                    viewBinding.webviewPagerViewpager.currentItem
+                )
+                val menuItemView =
+                    viewBinding.navigationBottomLayout
+                        .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                PlayOptionsBottomSheet.newInstance(menuItemView, audioPlayerViewModel).show(
+                    childFragmentManager,
+                    PlayOptionsBottomSheet.TAG
+                )
+            }
         }
     }
 

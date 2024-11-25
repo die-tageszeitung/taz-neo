@@ -35,6 +35,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
@@ -560,14 +561,26 @@ class SearchActivity :
                 articleStub != null -> {
                     val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
-                        toastHelper.showToast(R.string.toast_article_bookmarked)
+                        SnackBarHelper.showBookmarkSnack(
+                            context = this@SearchActivity,
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     } else {
-                        toastHelper.showToast(R.string.toast_article_debookmarked)
+                        SnackBarHelper.showDebookmarkSnack(
+                            context = this@SearchActivity,
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     }
                 }
 
                 date != null -> {
-                    toastHelper.showToast(R.string.toast_article_bookmarked)
+                    SnackBarHelper.showBookmarkSnack(
+                        context = this@SearchActivity,
+                        view = viewBinding.root,
+                        anchor = viewBinding.navigationBottom,
+                    )
                     // no articleStub so probably article not downloaded, so download it:
                     downloadArticleAndSetBookmark(articleFileName, date)
                 }

@@ -2,6 +2,7 @@ package de.taz.app.android.tracking
 
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 
@@ -74,8 +75,9 @@ class NoOpTracker : Tracker {
     override fun trackDrawerTapPlayIssueEvent() {}
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
-    override fun trackAudioPlayerPlayArticleEvent(article: ArticleOperations) {}
+    override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {}
     override fun trackAudioPlayerPlayPodcastEvent(issueKey: AbstractIssuePublication, title: String) {}
+    override fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit) {}
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}
     override fun trackAudioPlayerMaximizeEvent() {}
     override fun trackAudioPlayerMinimizeEvent() {}

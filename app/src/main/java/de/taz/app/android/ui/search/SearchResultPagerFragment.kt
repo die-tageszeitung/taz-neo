@@ -8,6 +8,7 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.distinctUntilChanged
@@ -20,7 +21,9 @@ import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.SearchHit
+import de.taz.app.android.audioPlayer.SearchHitAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -32,8 +35,10 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.PlayOptionsBottomSheet
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
@@ -59,6 +64,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             arguments = bundleOf(INITIAL_POSITION to position)
         }
     }
+
+    private val audioPlayerViewModel: SearchHitAudioPlayerViewModel by viewModels()
 
     private lateinit var articleRepository: ArticleRepository
     private lateinit var bookmarkRepository: BookmarkRepository
@@ -88,6 +95,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         apiService = ApiService.getInstance(context.applicationContext)
@@ -159,6 +167,13 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                         viewModel.connectionErrorWasHandled()
                     }
                 }
+
+                launch {
+                    audioPlayerViewModel.isActiveAudio.collect {
+                        articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
+                    }
+                }
+
             }
         }
 
@@ -181,6 +196,15 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
             adapter = searchResultPagerAdapter
+            registerOnPageChangeCallback(pageChangeListener)
+        }
+    }
+
+    private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
+        override fun onPageSelected(position: Int) {
+            requireNotNull(searchResultPagerAdapter).getSearchHit(position)?.let { selectedItem ->
+                audioPlayerViewModel.setVisible(selectedItem)
+            }
         }
     }
 
@@ -204,6 +228,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
                 // ensure the action bar is showing when the article changes
                 expand(true)
+
+                setArticleAudioVisibility(currentSearchHit.audioFileName != null)
             }
 
             // ensure the app bar of the webView is shown when article changes
@@ -250,6 +276,19 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             R.id.bottom_navigation_action_size ->
                 TextSettingsBottomSheetFragment.newInstance(hideMultiColumnModeSwitch = true)
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
+
+            R.id.bottom_navigation_action_audio -> {
+                val menuItemView =
+                    viewBinding.navigationBottomLayout
+                        .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                PlayOptionsBottomSheet.newInstance(menuItemView, audioPlayerViewModel).show(
+                    childFragmentManager,
+                    PlayOptionsBottomSheet.TAG
+                )
+                lifecycleScope.launch {
+                    ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
+            }
         }
     }
 
@@ -261,16 +300,28 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 articleStub != null -> {
                     val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
-                        toastHelper.showToast(R.string.toast_article_bookmarked)
+                        SnackBarHelper.showBookmarkSnack(
+                            context = requireContext(),
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     } else {
-                        toastHelper.showToast(R.string.toast_article_debookmarked)
+                        SnackBarHelper.showDebookmarkSnack(
+                            context = requireContext(),
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     }
                 }
 
                 articleStub == null && date != null -> {
                     // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
                     articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
-                    toastHelper.showToast(R.string.toast_article_bookmarked)
+                    SnackBarHelper.showBookmarkSnack(
+                        context = requireContext(),
+                        view = viewBinding.root,
+                        anchor = viewBinding.navigationBottom,
+                    )
                     // no articleStub so probably article not downloaded, so download it:
                     downloadArticleAndSetBookmark(articleFileName, date)
                 }
@@ -344,9 +395,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
      */
     // FIXME (johannes): Consider to add the [SearchResultPagerFragment] to a container defined by the app, or using windows for the overlay.
     private fun bringAudioPlayerOverlayToFront() {
-        (activity as? SearchActivity)?.let { searchActivity ->
-            searchActivity.bringAudioPlayerOverlayToFront()
-        }
+        (activity as? SearchActivity)?.bringAudioPlayerOverlayToFront()
     }
 
     private fun updateHeader() {

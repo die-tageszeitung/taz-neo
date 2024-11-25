@@ -7,7 +7,7 @@
     <color name="mediumLightGrey">#707070</color>
 
     <color name="bottom_sheet_background">@color/background_darkmode</color>
-    <color name="navigation_drawer_background">@color/darkGrey</color>
+    <color name="navigation_drawer_background">#272727</color>
     <color name="search_field_background_color">@color/darkGrey</color>
     <color name="activity_search_field_background_color">@color/darkGrey</color>
 
@@ -42,6 +42,9 @@
     <color name="text_input_help_text_color">@color/text_icon_grey_darkmode</color>
 
     <color name="text_input_hint_color">@color/text_icon_grey_darkmode</color>
+
+    <color name="snack_bar_background_color">@color/superSuperLightGrey</color>
+    <color name="snack_bar_button_text_color">@color/darkGrey</color>
 
     <color name="ic_close_button_foreground_color">#B3B3B5</color>
     <color name="ic_close_button_background_color">#48484A</color>

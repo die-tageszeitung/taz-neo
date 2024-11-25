@@ -42,6 +42,7 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -380,10 +381,18 @@ class SectionWebViewFragment : WebViewFragment<
         if (articleStub != null) {
             if (isBookmarked) {
                 bookmarkRepository.addBookmarkAsync(articleStub).await()
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                    anchor = bottomNavigationLayout,
+                )
             } else {
                 bookmarkRepository.removeBookmarkAsync(articleStub).await()
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                    anchor = bottomNavigationLayout,
+                )
             }
         } else {
             log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")

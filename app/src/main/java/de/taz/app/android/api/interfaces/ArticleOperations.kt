@@ -9,7 +9,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import java.util.*
 
-interface ArticleOperations: WebViewDisplayable {
+interface ArticleOperations: WebViewDisplayable, AudioPlayerPlayable {
     val issueFeedName: String
     val issueDate: String
     override val key: String
@@ -46,6 +46,9 @@ interface ArticleOperations: WebViewDisplayable {
             getSectionStub(applicationContext)?.getIssueStub(applicationContext)
         }
     }
+
+    override val audioPlayerPlayableKey: String
+        get() = key
 
     suspend fun getAuthorNames(applicationContext: Context): String
 }

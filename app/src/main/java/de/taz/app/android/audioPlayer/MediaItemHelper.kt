@@ -1,13 +1,8 @@
 package de.taz.app.android.audioPlayer
 
-import android.content.Context
 import android.net.Uri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.Audio
-import de.taz.app.android.api.models.IssueStub
-import de.taz.app.android.singletons.StoragePathService
 
 private const val DISCLAIMER_MEDIA_ID = "disclaimer"
 private const val DISCLAIMER_NOTE_FEMALE_ASSET_PATH = "/femaleNote.mp3"
@@ -20,113 +15,39 @@ private const val DISCLAIMER_NOTE_MALE_ASSET_PATH = "/maleNote.mp3"
  *   - create [MediaItem]s that correspond to our in-app [UiState] via its [UiStateHelper]
  *   - prepare the [MediaMetadata] with an URI to the mp3 so that the [ArticleAudioMediaSessionCallback] can pick it up for playing
  *   - map [MediaItem]s returned by [Player] events to [AudioPlayerItem]
+ * FIXME: docs still correct?
  */
-class MediaItemHelper(applicationContext: Context, private val uiStateHelper: UiStateHelper) {
-    private val storagePathService = StoragePathService.getInstance(applicationContext)
+class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
 
-    fun containsMediaItem(audioPlayerItem: AudioPlayerItem, mediaItem: MediaItem): Boolean {
-        return when (audioPlayerItem) {
-            is ArticleAudio -> audioPlayerItem.article.key == mediaItem.mediaId
-            is IssueAudio -> audioPlayerItem.indexOf(mediaItem) >= 0
-            is PodcastAudio -> audioPlayerItem.audio.file.name == mediaItem.mediaId
-        }
+    companion object {
+        fun List<AudioPlayerItem>.containsMediaItem(mediaItem: MediaItem): Boolean =
+            indexOfMediaItem(mediaItem) >= 0
+
+        fun List<AudioPlayerItem>.indexOfMediaItem(mediaItem: MediaItem): Int =
+            indexOfFirst { item ->
+                item.id == mediaItem.mediaId
+            }
+
+        fun MediaItem.belongsTo(audioPlayerItem: AudioPlayerItem): Boolean =
+            mediaId == audioPlayerItem.id
     }
 
-    fun copyWithCurrentMediaItem(
-        audioPlayerItem: AudioPlayerItem,
-        mediaItem: MediaItem
-    ): AudioPlayerItem {
-        return when (audioPlayerItem) {
-            is ArticleAudio -> {
-                check(containsMediaItem(audioPlayerItem, mediaItem))
-                audioPlayerItem
-            }
-
-            is IssueAudio -> {
-                val index = audioPlayerItem.indexOf(mediaItem)
-                check(index >= 0)
-                return audioPlayerItem.copy(currentIndex = index)
-            }
-
-            is PodcastAudio -> {
-                check(containsMediaItem(audioPlayerItem, mediaItem))
-                audioPlayerItem
-            }
-        }
-    }
-
-    suspend fun getMediaItems(audioPlayerItem: AudioPlayerItem): List<MediaItem> {
-        return when (audioPlayerItem) {
-            is ArticleAudio -> {
-                val audioUri = createAudioFileUri(
-                    audioPlayerItem.issueStub,
-                    requireNotNull(audioPlayerItem.article.audio)
-                )
-                val mediaItem = createArticleMediaItem(audioPlayerItem.article, audioUri)
-                listOf(mediaItem)
-            }
-
-            is IssueAudio -> {
-                audioPlayerItem.articles.mapNotNull { article ->
-                    if (article.audio == null) {
-                        // IssueAudio must only contain articles with an audioFile, but the type system
-                        // can't know it, so we have this additional unnecessary null check to prevent warnings.
-                        return@mapNotNull null
-                    }
-
-                    val audioUri = createAudioFileUri(audioPlayerItem.issueStub, article.audio)
-                    createArticleMediaItem(article, audioUri)
-                }
-            }
-
-            is PodcastAudio -> {
-                val audioUri = createAudioFileUri(audioPlayerItem.issueStub, audioPlayerItem.audio)
-                val mediaItem = createPodcastMediaItem(audioPlayerItem, audioUri)
-                listOf(mediaItem)
-            }
-        }
-    }
-
-    private suspend fun createAudioFileUri(issueStub: IssueStub, audio: Audio): Uri {
-        val baseUrl = storagePathService.determineBaseUrl(audio.file, issueStub)
-        return Uri.parse("$baseUrl/${audio.file.name}")
-    }
-
-    private fun createArticleMediaItem(article: Article, audioUri: Uri): MediaItem {
-        val title = uiStateHelper.getAudioTitle(article)
-        val authorText = uiStateHelper.getAudioAuthor(article)
-        val imageUri = uiStateHelper.getAudioImage(article)
-
+    fun getMediaItem(audioPlayerItem: AudioPlayerItem): MediaItem {
+        val audioUri = Uri.parse("${audioPlayerItem.baseUrl}/${audioPlayerItem.audio.file.name}")
         val mediaMetadata = MediaMetadata.Builder()
-            .setTitle(title)
-            .setArtist(authorText)
+            .setTitle(audioPlayerItem.uiItem.title)
+            .setArtist(audioPlayerItem.uiItem.author)
             // FIXME (johannes): passing a local file:// url for the artwork is not working 100%
             //     due to Androids App filesystem restrictions: Image file are stored in the private app
             //     storage and won't be accessible by other app. We could circumvent this by
             //     generating and passing a bitmap.
             //     Somehow we do get some errors on the logs, but the image is sometimes still shown.
             //     Thus we keep the Uri logic for now.
-            .setArtworkUri(imageUri)
+            .setArtworkUri(audioPlayerItem.uiItem.coverImageUri)
             .build()
 
         return MediaItem.Builder()
-            .setMediaId(article.key)
-            .setArticleAudioRequestMetadata(audioUri)
-            .setMediaMetadata(mediaMetadata)
-            .build()
-    }
-
-    private fun createPodcastMediaItem(podcastAudio: PodcastAudio, audioUri: Uri): MediaItem {
-        val mediaMetadata = MediaMetadata.Builder()
-            .setTitle(uiStateHelper.getTitleForPodcast(podcastAudio))
-            .setArtist(null)
-            // We don't set the artwork here, as the podcast mp3 does contain a preview image which
-            // is used as a fallback by the Android media3 framework.
-            .setArtworkUri(null)
-            .build()
-
-        return MediaItem.Builder()
-            .setMediaId(podcastAudio.audio.file.name)
+            .setMediaId(audioPlayerItem.id)
             .setArticleAudioRequestMetadata(audioUri)
             .setMediaMetadata(mediaMetadata)
             .build()
@@ -172,10 +93,3 @@ class MediaItemHelper(applicationContext: Context, private val uiStateHelper: Ui
         return mediaItem.mediaId == DISCLAIMER_MEDIA_ID
     }
 }
-
-/**
- * Get the index of the the [Article] corresponding to [MediaItem]
- * or -1 if it is not found.
- */
-fun IssueAudio.indexOf(mediaItem: MediaItem): Int =
-    articles.indexOfFirst { it.key == mediaItem.mediaId }

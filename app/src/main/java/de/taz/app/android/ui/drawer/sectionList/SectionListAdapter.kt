@@ -17,6 +17,7 @@ class SectionListAdapter(
     private val onToggleSection: () -> Unit,
     private val onArticleClick: (Article) -> Unit,
     private val onBookmarkClick: (Article) -> Unit,
+    private val onAudioEnqueueClick: (Article) -> Unit,
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -71,7 +72,7 @@ class SectionListAdapter(
     ): RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_HEADER -> SectionHeaderViewHolder(parent, onSectionClickListener, ::toggleArticlesForSection)
-            TYPE_ITEM -> ArticleItemViewHolder(parent, onArticleClick, onBookmarkClick, getBookmarkStateFlow)
+            TYPE_ITEM -> ArticleItemViewHolder(parent, onArticleClick, onBookmarkClick, onAudioEnqueueClick, getBookmarkStateFlow)
             else -> error("Unknown viewType: $viewType")
         }
     }

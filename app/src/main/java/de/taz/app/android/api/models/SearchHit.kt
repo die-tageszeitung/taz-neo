@@ -1,5 +1,8 @@
 package de.taz.app.android.api.models
 
+import android.content.Context
+import de.taz.app.android.api.interfaces.AudioPlayerPlayable
+
 data class SearchHit(
     val articleFileName: String,
     val mediaSyncId: Int?,
@@ -13,4 +16,16 @@ data class SearchHit(
     val date: String,
     val articleHtml: String?,
     val articlePdfFileName: String?,
-)
+    val audioFileName: String?,
+): AudioPlayerPlayable {
+    override val audioPlayerPlayableKey: String
+        get() = articleFileName
+
+    fun getAuthorNames(): String {
+        return if (authorList.isNotEmpty()) {
+            authorList.map { it.name }.distinct().joinToString(", ")
+        } else {
+            ""
+        }
+    }
+}

@@ -13,11 +13,13 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_problem_bookmarking_article">Der Artikel konnte nicht zu den Lesezeichen hinzugefügt werden. Bitte versuchen Sie es erneut.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
-    <string name="toast_article_bookmarked">Der Artikel wurde in Ihrer Leseliste gespeichert.</string>
-    <string name="toast_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
     <string name="toast_imprint_not_possible_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_bookmark">Der Tom am Ende kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_share">Der Tom am Ende kann nicht geteilt werden</string>
+
+    <string name="snack_article_bookmarked">Der Artikel wurde zur Leseliste hinzugefügt.</string>
+    <string name="snack_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
+    <string name="snack_article_bookmark_action">Leseliste ansehen</string>
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>
@@ -448,18 +450,32 @@
     <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
     <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
-    <string name="drawer_play_issue">ausgabe hören</string>
+    <string name="fragment_drawer_article_item_enqueue">Zu Wiedergabeliste hinzufügen</string>
+    <string name="fragment_drawer_article_item_enqueued">Bereits in Wiedergabeliste</string>
+    <string name="drawer_play_issue">Ausgabe hören</string>
+    <string name="drawer_go_to_playlist">Wiedergabeliste</string>
 
+    <string name="audioplayer_playlist">wiedergabeliste</string>
     <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
     <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
-    <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
+    <string name="audioplayer_next_in_queue">Nächster Artikel in der Wiedergabeliste:</string>
     <string name="audioplayer_disclaimer_title">Disclaimer</string>
     <string name="audioplayer_disclaimer_author">vertonung@taz.de</string>
     <string name="audioplayer_podcast_generic">Podcast</string>
+    <string name="audioplayer_enqueue">zur Wiedergabeliste hinzufügen</string>
+    <string name="audioplayer_go_to_playlist">zur Wiedergabeliste</string>
+    <string name="audioplayer_playlist_item_delete">Löschen</string>
+    <string name="audioplayer_playlist_delete">Wiedergabeliste löschen</string>
+    <string name="audioplayer_playlist_empty_title">Die Wiedergabeliste ist noch leer.</string>
+    <string name="audioplayer_playlist_empty">Sie können Ihre Wiedergabeliste auffüllen, in dem Sie in den Artikeln oder in der Inhaltsangabe auf dieses Icon klicken.</string>
+    <string name="audioplayer_playlist_sort">In Wiedergabeliste umsortieren</string>
+    <string name="audioplayer_playlist_current">spielt gerade</string>
+    <string name="audioplayer_show_in_playlist">Wiedergabeliste ansehen</string>
+    <string name="audioplayer_snackbar_added_to_playlist">Der Artikel wurde zur Wiedergabeliste hinzugefügt.</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

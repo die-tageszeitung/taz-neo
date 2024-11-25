@@ -11,5 +11,5 @@ data class SearchHitDto(
     val teaser: String?,
     val sectionTitle: String?,
     val date: String,
-    val articleHtml: String?
+    val articleHtml: String?,
 )
