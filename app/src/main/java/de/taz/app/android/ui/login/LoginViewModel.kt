@@ -219,6 +219,7 @@ class LoginViewModel @JvmOverloads constructor(
                     status = LoginViewModelState.DONE
                 }
                 AuthStatus.notValid -> {
+                    authHelper.authInfoMessage = authTokenInfo?.authInfo?.message
                     status = LoginViewModelState.CREDENTIALS_INVALID
                 }
                 AuthStatus.tazIdNotLinked ->
