@@ -352,12 +352,20 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
     private fun showCredentialsInvalid() {
         log.verbose("showCredentialsInvalid")
-        toastHelper.showToast(R.string.login_error_unknown_credentials)
-        showFragment(
-            LoginFragment.create(
-                usernameErrorId = R.string.login_error_unknown_credentials
+        toastHelper.showToast(R.string.toast_login_failed_retry)
+        if (authHelper.authInfoMessage != null) {
+            showFragment(
+                LoginFragment.create(
+                    errorMessage = authHelper.authInfoMessage
+                )
             )
-        )
+        } else {
+            showFragment(
+                LoginFragment.create(
+                    usernameErrorId = R.string.login_error_unknown_credentials
+                )
+            )
+        }
     }
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()

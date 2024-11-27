@@ -128,6 +128,8 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, booleanPreferencesKey(PREFERENCES_AUTH_LOGIN_WEEK), false
     )
 
+    var authInfoMessage: String? = null
+
     suspend fun isElapsed(): Boolean = status.get() == AuthStatus.elapsed
     val isElapsedFlow = status.asFlow().map { it == AuthStatus.elapsed }
 

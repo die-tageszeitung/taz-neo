@@ -26,7 +26,7 @@
     <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo-Möglichkeiten</string>
     <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="popup_login_elapsed_message_to_short">Ihre Nachricht ist zu kurz!</string>
-    <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+    <string name="toast_login_failed_retry">Login fehlgeschlagen</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit Ihrer E-Mail-Adresse ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
@@ -282,7 +282,7 @@
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
     <string name="login_surname_error_invalid">Enthält nur ungültige Zeichen</string>
 
-    <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
+    <string name="login_error_unknown_credentials">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
 
     <string name="login_subscription_hint">Abo-ID</string>
     <string name="login_subscription_error_invalid">Die Abo-ID ist ungültig.</string>
@@ -295,8 +295,8 @@
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
     <string name="login_subscription_id_error_not_numeric">Ihre Abo-Nummer muss aus Ziffern bestehen.</string>
 
-    <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
-    <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
+    <string name="login_username_hint">E-Mail-Adresse</string>
+    <string name="login_username_error_empty">E-Mail-Adresse darf nicht leer sein.</string>
 
     <string name="login_password_hint">Passwort</string>
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
