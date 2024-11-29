@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
@@ -18,12 +19,10 @@ import androidx.annotation.IdRes
 import androidx.annotation.UiThread
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.updatePadding
-import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
@@ -100,9 +99,6 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val webView: AppWebView
         get() = viewBinding.webView
-
-    override val nestedScrollView: NestedScrollView
-        get() = viewBinding.nestedScrollView
 
     override val loadingScreen: View
         get() = viewBinding.loadingScreen.root
@@ -422,18 +418,15 @@ class SectionWebViewFragment : WebViewFragment<
         val section = viewModel.sectionFlow.first()
         if (section.type == SectionType.podcast && section.podcast != null) {
             val onGestureListener = object : SimpleOnGestureListener() {
-                override fun onSingleTapUp(e: MotionEvent): Boolean {
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
                     audioPlayerService.playPodcast(issueStub, section, section.podcast)
                     return true
                 }
-                // We have to "consume" (return true) the onDown event too, so that the Android
-                // event system is sending the subsequent UP event to this component.
-                override fun onDown(e: MotionEvent): Boolean = true
             }
-            val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
+            val gestureDetectorCompat = GestureDetector(requireContext(), onGestureListener).apply {
                 setIsLongpressEnabled(false)
             }
-            webView.overrideOnTouchListener { _, event ->
+            webView.addOnTouchListener { _, event ->
                 gestureDetectorCompat.onTouchEvent(event)
             }
 

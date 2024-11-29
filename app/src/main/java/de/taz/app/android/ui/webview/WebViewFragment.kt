@@ -6,20 +6,18 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
 import android.view.View.LAYER_TYPE_HARDWARE
+import android.view.ViewParent
 import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -47,9 +45,11 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.floor
+import kotlin.math.max
 
 private const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
-private const val TAP_LOCK_DELAY_MS = 100L
+private const val TAP_LOCK_DELAY_MS = 500L
 
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(SCROLL_BACKWARDS, SCROLL_FORWARD)
@@ -67,8 +67,7 @@ abstract class WebViewFragment<
         VIEW_MODEL : WebViewViewModel<DISPLAYABLE>,
         VIEW_BINDING : ViewBinding,
         > : BaseViewModelFragment<VIEW_MODEL, VIEW_BINDING>(),
-    AppWebViewClientCallBack,
-    MultiColumnLayoutReadyCallback {
+    AppWebViewClientCallBack, MultiColumnLayoutReadyCallback {
 
     abstract override val viewModel: VIEW_MODEL
 
@@ -87,18 +86,19 @@ abstract class WebViewFragment<
 
     private var currentIssueKey: IssueKey? = null
 
-    private var handleTapToScroll = false
     var tapLock = false
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
     abstract fun reloadAfterCssChange()
 
-    abstract val nestedScrollView: NestedScrollView
     abstract val webView: AppWebView
     abstract val loadingScreen: View
 
-    var webViewInnerWidth: Int? = null
+    private var webViewInnerWidth: Int? = null
+    private var paddingAdded = false
+    private var tapToScroll = false
+    private var multiColumnMode = false
 
     // When scrolling programmatically, the nested scrolling events are not triggered.
     // We have to collapse/hide the bar manually, when tapToScroll is used.
@@ -128,6 +128,9 @@ abstract class WebViewFragment<
         viewModel.nightModeLiveData.observe(this@WebViewFragment) {
             reloadAfterCssChange()
         }
+        viewModel.tapToScrollLiveData.observe(this@WebViewFragment) {
+            tapToScroll = it
+        }
         viewModel.fontSizeLiveData.observe(this@WebViewFragment) {
             reloadAfterCssChange()
         }
@@ -147,7 +150,8 @@ abstract class WebViewFragment<
             }
         }
 
-        viewModel.tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) {
+        viewModel.multiColumnModeLiveData.observe(viewLifecycleOwner) {
+            multiColumnMode = it
             setupScrollPositionListener(it)
         }
 
@@ -193,9 +197,13 @@ abstract class WebViewFragment<
             }
             onBorderTapListener = { border ->
                 when (border) {
-                    ViewBorder.LEFT -> maybeScroll(SCROLL_BACKWARDS)
-                    ViewBorder.RIGHT -> maybeScroll(SCROLL_FORWARD)
-                    else -> Unit
+                    ViewBorder.LEFT -> {
+                        maybeScroll(SCROLL_BACKWARDS)
+                    }
+                    ViewBorder.RIGHT -> {
+                        maybeScroll(SCROLL_FORWARD)
+                    }
+                    else -> false
                 }
             }
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
@@ -206,63 +214,47 @@ abstract class WebViewFragment<
 
     private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
         if (isMultiColumnMode) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                webView.setOnScrollChangeListener { _: View, scrollX: Int, _: Int, _: Int, _: Int ->
+            webView.scrollListener = object: AppWebView.WebViewScrollListener {
+                                override fun onScroll(
+                    scrollX: Int,
+                    scrollY: Int,
+                    oldScrollX: Int,
+                    oldScrollY: Int
+                ) {
                     saveScrollPositionDebounced(scrollPositionHorizontal = scrollX)
                 }
             }
-            // View defines the setOnScrollChangeListener with a type of View.OnScrollChangeListener
-            // NestedScrollView adds its own setOnScrollChangeListener with a type of NestedScrollView.OnScrollChangeListener
-            // To let the compiler know which method to call when passing null we have to set this explicit type hint
-            nestedScrollView.setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
-
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                webView.setOnScrollChangeListener(null)
-            }
+            webView.scrollListener = object: AppWebView.WebViewScrollListener {
+                override fun onScroll(
+                    scrollX: Int,
+                    scrollY: Int,
+                    oldScrollX: Int,
+                    oldScrollY: Int
+                ) {
+                    saveScrollPositionDebounced(scrollPosition = scrollY)
 
-            nestedScrollView.setOnScrollChangeListener { nestedScrollView: NestedScrollView, _: Int, scrollY: Int, _: Int, _: Int ->
-                saveScrollPositionDebounced(scrollPosition = scrollY)
-
-                val lastChild = nestedScrollView[nestedScrollView.childCount - 1]
-                val isScrolledToBottom = lastChild.bottom <= (nestedScrollView.height + scrollY)
-                if (isScrolledToBottom) {
-                    onScrolledToBottom()
-                }
-            }
-
-            // Add a touch listener for the nested scroll view.
-            // To provide tap to scroll functionality outside (small) web views we listen on
-            // touches on the nestedScrollView:
-            lifecycleScope.launch {
-                handleTapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
-                if (handleTapToScroll) {
-                    val gestureDetector = GestureDetector(requireContext(), scrollViewTapToScrollGestureListener)
-                    nestedScrollView.setOnTouchListener { _, event ->
-                        gestureDetector.onTouchEvent(event)
+                    if (oldScrollY < scrollY) {
+                        val isScrolledToBottom = webView.bottom <= (webView.height + scrollY)
+                        if (isScrolledToBottom) {
+                            onScrolledToBottom()
+                        }
                     }
                 }
             }
-        }
-    }
 
-    private val scrollViewTapToScrollGestureListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapConfirmed(event: MotionEvent): Boolean {
-            if (handleTapToScroll) {
-                val tapBarWidth = resources.getDimension(R.dimen.tap_bar_width)
-                val onRightBorder = nestedScrollView.right - event.x < tapBarWidth
-                val onLeftBorder = event.x < tapBarWidth
-
-                if (onRightBorder) {
-                    maybeScroll(SCROLL_FORWARD)
-                    return true
-
-                } else if (onLeftBorder) {
-                    maybeScroll(SCROLL_BACKWARDS)
-                    return true
+            webView.overScrollListener = object : AppWebView.WebViewOverScrollListener {
+                override fun onOverScroll(
+                    scrollX: Int,
+                    scrollY: Int,
+                    clampedX: Boolean,
+                    clampedY: Boolean
+                ) {
+                    if (scrollY > 0 && clampedY) {
+                        onScrolledToBottom()
+                    }
                 }
             }
-            return false
         }
     }
 
@@ -298,53 +290,80 @@ abstract class WebViewFragment<
      * If at the top or the end - go to previous or next article
      */
     private fun scrollHorizontally(@ScrollDirection direction: Int) {
-        val viewWidth = view?.width ?: 0
-        val scrollBy =
-            (direction * (viewWidth - DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density)).toInt()
-        val currentWebView = webView
-        if (currentWebView.canScrollHorizontally(direction)) {
-            // remove the already scrolled offset
-            val amountToScroll = scrollBy - calculateSwipeOffset()
+        findParentViewPager()?.apply {
+            isUserInputEnabled = false
+            requestDisallowInterceptTouchEvent(true)
+        }
+        webView.touchDisabled = true
+
+        if (webView.canScrollHorizontally(direction)) {
+            val webViewWidth = webView.width
+            val gap = (DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density).toInt()
+            val scrollXWithBuffer = webView.scrollX + gap
+            val scrollBy = webViewWidth - gap
+
+            val targetScrollX = if(direction == SCROLL_FORWARD)
+                (scrollXWithBuffer/scrollBy + 1) * scrollBy
+            else
+                max(0, (scrollXWithBuffer/scrollBy - 1) * scrollBy)
 
             // Check if scrolling would overscroll - if so add padding
             if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
-                webViewInnerWidth?.let { articleWidth ->
+                val articleWidth = webViewInnerWidth!!
 
-                    val targetWidth = currentWebView.scrollX + scrollBy + viewWidth
-                    val isOverscroll = targetWidth > articleWidth
-
-                    if (isOverscroll) {
-                        val overScroll = targetWidth - articleWidth
-                        webView.callTazApi(
-                            "addPaddingRight",
-                            overScroll / resources.displayMetrics.density + DEFAULT_COLUMN_GAP_PX
-                        )
-                    }
+                val targetWidth = targetScrollX + webViewWidth
+                val isOverscroll = targetWidth > articleWidth
+                if (!paddingAdded && isOverscroll) {
+                    val overScroll = targetWidth - articleWidth
+                    val paddingToAdd = floor(overScroll / resources.displayMetrics.density).toInt()
+                    webView.callTazApi(
+                        "setPaddingRight",
+                        paddingToAdd
+                    )
+                    paddingAdded = true
                 }
             }
-
             val scrollAnimation = ObjectAnimator.ofInt(
-                currentWebView,
+                webView,
                 "scrollX",
-                currentWebView.scrollX,
-                currentWebView.scrollX + amountToScroll
+                webView.scrollX,
+                targetScrollX
             )
             scrollAnimation.start()
         } else {
-            when (direction) {
-                SCROLL_BACKWARDS -> issueViewerViewModel.goPreviousArticle.postValue(true)
-                SCROLL_FORWARD -> issueViewerViewModel.goNextArticle.postValue(true)
+            scrollToNextItem(direction)
+        }
+        lifecycleScope.launch {
+            delay(TAP_LOCK_DELAY_MS)
+            webView.touchDisabled = false
+            findParentViewPager()?.apply {
+                isUserInputEnabled = true
+                requestDisallowInterceptTouchEvent(false)
             }
         }
     }
 
-    /**
-     * Returns the amount of being wiped from the last column.
-     */
-    private fun calculateSwipeOffset(): Int {
-        val scrollWidth =
-            view?.width?.minus(DEFAULT_COLUMN_GAP_PX * resources.displayMetrics.density)?.toInt() ?: 0
-        return webView.scrollX.mod(scrollWidth)
+    private fun scrollToNextItem(direction: Int) {
+        findParentViewPager()?.let { viewPager ->
+            val nextItem = viewPager.currentItem + direction
+            viewPager.setCurrentItem(nextItem, true)
+        }
+    }
+
+    private var viewPagerCache: ViewPager2? = null
+
+    private fun findParentViewPager(): ViewPager2? {
+        if (viewPagerCache != null) return viewPagerCache
+
+        var current: ViewParent = webView
+        while (current.parent != null) {
+            current = current.parent
+            if (current is ViewPager2) {
+                viewPagerCache = current
+                return current
+            }
+        }
+        return null
     }
 
     /**
@@ -352,12 +371,12 @@ abstract class WebViewFragment<
      */
     private fun scrollVertically(@ScrollDirection direction: Int) {
         // if on bottom and tap on right side go to next article
-        if (!nestedScrollView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
+        if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
             issueViewerViewModel.goNextArticle.postValue(true)
         }
 
         // if on bottom and tap on right side go to previous article
-        else if (!nestedScrollView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
+        else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
             issueViewerViewModel.goPreviousArticle.postValue(true)
 
         } else {
@@ -367,7 +386,7 @@ abstract class WebViewFragment<
 
             when (direction) {
                 SCROLL_FORWARD -> {
-                    var visibleBottom = nestedScrollView.height
+                    var visibleBottom = webView.height
                     var targetTop = 0
                     // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
                     targetTop += resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
@@ -395,12 +414,18 @@ abstract class WebViewFragment<
                     }
 
                     val scrollDelta = visibleBottom - targetTop
-                    nestedScrollView.smoothScrollBy(0, scrollDelta)
+                    val scrollAnimation = ObjectAnimator.ofInt(
+                        webView,
+                        "scrollY",
+                        webView.scrollY,
+                        webView.scrollY + scrollDelta
+                    )
+                    scrollAnimation.start()
                 }
 
                 SCROLL_BACKWARDS -> {
                     var visibleTop = 0
-                    var targetBottom = nestedScrollView.height
+                    var targetBottom = webView.height
                     // Keep a small, estimated, overlap so that the last/first line is visible after scrolling
                     targetBottom -= resources.getDimensionPixelSize(R.dimen.fragment_webview_tap_to_scroll_offset)
 
@@ -424,7 +449,13 @@ abstract class WebViewFragment<
                     }
 
                     val scrollDelta = targetBottom - visibleTop
-                    nestedScrollView.smoothScrollBy(0, -scrollDelta)
+                    val scrollAnimation = ObjectAnimator.ofInt(
+                        webView,
+                        "scrollY",
+                        webView.scrollY,
+                        webView.scrollY - scrollDelta
+                    )
+                    scrollAnimation.start()
                 }
             }
         }
@@ -541,12 +572,13 @@ abstract class WebViewFragment<
             viewModel.scrollPosition = persistedScrollPosition ?: viewModel.scrollPosition
         }
         viewModel.scrollPosition?.let {
-            nestedScrollView.scrollY = it
+            webView.scrollY = it
         } ?: run {
             appBarLayout?.setExpanded(true, false)
         }
     }
 
+    // TODO fix scroll positions
     suspend fun restoreLastHorizontalScrollPosition() {
         viewModel.displayable?.let {
             val persistedScrollPosition =
@@ -567,19 +599,19 @@ abstract class WebViewFragment<
         }
     }
 
-    private fun maybeScroll(@ScrollDirection direction: Int) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            val tapToScroll = viewModel.tazApiCssDataStore.tapToScroll.get()
-            val multiColumnMode = viewModel.tazApiCssDataStore.multiColumnMode.get()
-            if ((tapToScroll || multiColumnMode) && view != null) {
-                if (!tapLock) {
-                    tapLock = true
-                    scrollToDirection(multiColumnMode, direction)
-                    // wait some delay to prevent javascript form opening links
+    private fun maybeScroll(@ScrollDirection direction: Int) : Boolean {
+        if ((tapToScroll || multiColumnMode) && view != null) {
+            if (!tapLock) {
+                tapLock = true
+                scrollToDirection(multiColumnMode, direction)
+                // wait some delay to prevent javascript form opening links
+                lifecycleScope.launch {
                     delay(TAP_LOCK_DELAY_MS)
                     tapLock = false
                 }
             }
+            return true
         }
+        return false
     }
 }

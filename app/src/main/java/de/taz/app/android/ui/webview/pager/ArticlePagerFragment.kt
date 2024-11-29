@@ -192,7 +192,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
                         // Observer multi column mode only when tablet and logged in
                         tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) { isMultiColumn ->
-                            viewBinding.webviewPagerViewpager.isUserInputEnabled = !isMultiColumn
                             viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
                         }
                         // Maybe show multi column bottom sheet

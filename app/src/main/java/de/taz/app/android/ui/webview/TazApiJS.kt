@@ -191,6 +191,7 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         }
     }
 
+
     @JavascriptInterface
     fun logMissingJsFeature(name: String) {
         val message = "Missing JavaScript feature: $name"

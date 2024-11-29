@@ -4,10 +4,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup.MarginLayoutParams
-import androidx.core.view.updateLayoutParams
-import androidx.core.view.updatePadding
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -60,9 +56,6 @@ class ArticleWebViewFragment :
 
     override val webView: AppWebView
         get() = viewBinding.webView
-
-    override val nestedScrollView: NestedScrollView
-        get() = viewBinding.nestedScrollView
 
     override val loadingScreen: View
         get() = viewBinding.loadingScreen
@@ -126,7 +119,7 @@ class ArticleWebViewFragment :
     }
 
     override fun onDestroyView() {
-        viewBinding.webViewBorderPager.showTapIconsListener = null
+        viewBinding.webView.showTapIconsListener = null
         super.onDestroyView()
     }
 
@@ -145,7 +138,7 @@ class ArticleWebViewFragment :
                         "enableArticleColumnMode",
                         calculateColumnHeight(),
                         calculateColumnWidth(),
-                        DEFAULT_COLUMN_GAP_PX
+                        DEFAULT_COLUMN_GAP_PX,
                     )
                 }
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
@@ -200,19 +193,11 @@ class ArticleWebViewFragment :
             return
         }
 
-        viewBinding.apply {
-            nestedScrollView.scrollingEnabled = false
-            webViewBorderPager.pagingEnabled = true
-        }
+        webView.pagingEnabled = true
 
-        webView.updateLayoutParams<MarginLayoutParams> {
-            topMargin =
-                resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
-        }
-
-        viewBinding.webViewBorderPager.showTapIconsListener = {
+        webView.showTapIconsListener = {
             when (it) {
-                true  -> tapIconsViewModel.showTapIcons()
+                true -> tapIconsViewModel.showTapIcons()
                 false -> tapIconsViewModel.hideTapIcons()
             }
         }
@@ -221,7 +206,7 @@ class ArticleWebViewFragment :
             "enableArticleColumnMode",
             calculateColumnHeight(),
             calculateColumnWidth(),
-            DEFAULT_COLUMN_GAP_PX
+            DEFAULT_COLUMN_GAP_PX,
         )
     }
 
@@ -240,43 +225,43 @@ class ArticleWebViewFragment :
         }
 
         log.verbose("Change text settings: switch off multi column mode")
-        viewBinding.apply {
-            nestedScrollView.scrollingEnabled = true
-            webViewBorderPager.apply {
-                pagingEnabled = false
-                showTapIconsListener = null
-            }
-        }
-        tapIconsViewModel.hideTapIcons()
 
-        webView.updateLayoutParams<MarginLayoutParams> {
-            topMargin =
-                resources.getDimensionPixelSize(R.dimen.fragment_webview_article_margin_top)
+        webView.apply {
+            pagingEnabled = false
+            showTapIconsListener = null
         }
+
+        tapIconsViewModel.hideTapIcons()
 
         webView.callTazApi("disableArticleColumnMode")
     }
 
     private fun calculateColumnHeight(): Float {
         val webViewMarginTop =
-            resources.getDimensionPixelSize(R.dimen.fragment_webview_article_margin_top)
+            resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
 
-        return viewBinding.container.height.toFloat() / resources.displayMetrics.density - webViewMarginTop
+        val navBarHeight =
+            resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
+
+        return viewBinding.webView.height.toFloat() / resources.displayMetrics.density - webViewMarginTop - navBarHeight
     }
 
     private fun calculateColumnWidth(): Float {
+        val amountOfColumns = columnAmount()
+        val webViewWidth =
+            viewBinding.webView.width.toFloat() / resources.displayMetrics.density
+        return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
+    }
+
+    private fun columnAmount(): Int {
         val isPortrait =
             resources.displayMetrics.widthPixels < resources.displayMetrics.heightPixels
-        val amountOfColumns = if (isPortrait) {
+        return if (isPortrait) {
             2
         } else {
             3
         }
-        val webViewWidth =
-            viewBinding.container.width.toFloat() / resources.displayMetrics.density
-        return (webViewWidth - (amountOfColumns + 1) * DEFAULT_COLUMN_GAP_PX) / amountOfColumns
     }
-
 
     private suspend fun ensurePublicArticlesCanBeScrolled() {
         val article = viewModel.articleFlow.first()
@@ -285,15 +270,9 @@ class ArticleWebViewFragment :
 
         if (isPublic && !article.isImprint()) {
             // Ensure the scrolling content is at least 1px higher then the scroll view
-            val delta = viewBinding.nestedScrollView.height - viewBinding.webViewBorderPager.height
-            if (delta >= 0) {
-                viewBinding.webViewBorderPager.apply {
-                    updatePadding(
-                        bottom = paddingBottom + delta + 1
-                    )
-                }
-            }
-
+            val deviceHeight =
+                resources.displayMetrics.heightPixels / resources.displayMetrics.density
+            webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
         }
     }
 
@@ -304,20 +283,17 @@ class ArticleWebViewFragment :
             val isPublic = issueStub.status == IssueStatus.public
 
             if (isPublic && !article.isImprint() && isResumed) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    if (authHelper.isElapsed()) {
-                        SubscriptionElapsedBottomSheetFragment
-                            .showSingleInstance(parentFragmentManager)
-                    } else {
-                        LoginBottomSheetFragment
-                            .showSingleInstance(
-                                parentFragmentManager,
-                                articleName = articleFileName
-                            )
-                    }
+                if (authHelper.isElapsed()) {
+                    SubscriptionElapsedBottomSheetFragment
+                        .showSingleInstance(parentFragmentManager)
+                } else {
+                    LoginBottomSheetFragment
+                        .showSingleInstance(
+                            parentFragmentManager,
+                            articleName = articleFileName
+                        )
                 }
             }
         }
     }
-
 }

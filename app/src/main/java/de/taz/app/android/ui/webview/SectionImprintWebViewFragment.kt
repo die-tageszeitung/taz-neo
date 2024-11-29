@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
@@ -42,9 +41,6 @@ class SectionImprintWebViewFragment : WebViewFragment<
 
     override val webView: AppWebView
         get() = viewBinding.webView
-
-    override val nestedScrollView: NestedScrollView
-        get() = viewBinding.nestedScrollView
 
     override val loadingScreen: View
         get() = viewBinding.loadingScreen.root

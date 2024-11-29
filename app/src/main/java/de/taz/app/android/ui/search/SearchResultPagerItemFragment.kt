@@ -5,9 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import androidx.core.os.bundleOf
-import androidx.core.view.updatePadding
-import androidx.core.view.get
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
@@ -26,6 +23,7 @@ import de.taz.app.android.ui.webview.SearchTazApiJS
 import de.taz.app.android.ui.webview.TAZ_API_JS
 import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.ui.webview.AppWebView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -123,25 +121,41 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
         if (isPublic) {
             ensurePublicArticlesCanBeScrolled()
 
-            viewBinding.nestedScrollView.setOnScrollChangeListener { nestedScrollView: NestedScrollView, _, scrollY, _, _ ->
-                val lastChild = nestedScrollView[nestedScrollView.childCount - 1]
-                val isScrolledToBottom = lastChild.bottom <= (nestedScrollView.height + scrollY)
-                if (isScrolledToBottom) {
-                    onScrolledToBottom()
+            viewBinding.webView.scrollListener = object: AppWebView.WebViewScrollListener {
+                override fun onScroll(
+                    scrollX: Int,
+                    scrollY: Int,
+                    oldScrollX: Int,
+                    oldScrollY: Int
+                ) {
+                    if (oldScrollY < scrollY) {
+                        val isScrolledToBottom = viewBinding.webView.bottom <= (viewBinding.webView.height + scrollY)
+                        if (isScrolledToBottom) {
+                            onScrolledToBottom()
+                        }
+                    }
+                }
+            }
+
+            viewBinding.webView.overScrollListener = object : AppWebView.WebViewOverScrollListener {
+                override fun onOverScroll(
+                    scrollX: Int,
+                    scrollY: Int,
+                    clampedX: Boolean,
+                    clampedY: Boolean
+                ) {
+                    if (scrollY > 0 && clampedY) {
+                        onScrolledToBottom()
+                    }
                 }
             }
         }
     }
 
     private fun ensurePublicArticlesCanBeScrolled() {
-        val delta = viewBinding.nestedScrollView.height - viewBinding.webViewBorderPager.height
-        if (delta >= 0) {
-            viewBinding.webViewBorderPager.apply {
-                updatePadding(
-                    bottom = paddingBottom + delta + 1
-                )
-            }
-        }
+        // Ensure the scrolling content is at least 1px higher then the scroll view
+        val deviceHeight = resources.displayMetrics.heightPixels/resources.displayMetrics.density
+        viewBinding.webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight+1}px\"") {}
     }
 
     private fun onScrolledToBottom() {
