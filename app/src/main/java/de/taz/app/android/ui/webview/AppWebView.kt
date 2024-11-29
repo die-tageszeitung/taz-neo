@@ -6,8 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.util.AttributeSet
 import android.util.Base64
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
-import android.webkit.WebView
+import android.webkit.ValueCallback
 import androidx.annotation.UiThread
 import de.taz.app.android.R
 import de.taz.app.android.singletons.TazApiCssHelper
@@ -18,14 +20,13 @@ import kotlinx.coroutines.withContext
 import java.net.URLDecoder
 import kotlin.math.abs
 
+
 private const val MAILTO_PREFIX = "mailto:"
-private const val TAP_DOWN_DETECT_TIME_MS = 500L
-private const val TAP_DISTANCE_TOLERANCE = 50L
 
 class AppWebView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
-) : WebView(context, attributeSet) {
+) : NestedScrollWebView(context, attributeSet) {
 
     init {
         isHorizontalScrollBarEnabled = false
@@ -34,65 +35,12 @@ class AppWebView @JvmOverloads constructor(
 
     private val log by Log
 
-    var onBorderTapListener: ((ViewBorder) -> Unit)? = null
-
-    private var initialX = 0f
-    private var initialY = 0f
-    private var initialOnLeftBorder = false
-    private var initialOnRightBorder = false
-
-    private var overrideTouchListener: OnTouchListener? = null
+    var touchDisabled = false
 
     /**
-     * Override the [AppWebView] touch handling with the given [OnTouchListener].
-     * To restore the default behavior pass null or call [clearOnTouchListener].
-     * Note: We can't override the setOnTouchListener function directly, because it will also be set
-     * from [ArticleWebViewFragment.hideKeyboardOnAllViewsExceptEditText] and will thus disable
-     * the tapToScroll functionality.
+     * returns true if the event was consumed - otherwise false
      */
-    fun overrideOnTouchListener(touchListener: OnTouchListener?) {
-        overrideTouchListener = touchListener
-    }
-
-    /**
-     * Clear any custom touch listener and restore the default [AppWebView] touch handling.
-     */
-    fun clearOnTouchListener() {
-        overrideTouchListener = null
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        // If a touchListener is currently set, it will fully override the default touch handling.
-        // For null safety reasons of the Kotlin type system we have to store an intermediate reference to the current touch listener.
-        val currentTouchListener = overrideTouchListener
-        if (currentTouchListener != null) {
-            return currentTouchListener.onTouch(this, event)
-        }
-
-        if (event.pointerCount > 1) {
-            // We do not want to handle multi touch events
-            return super.onTouchEvent(event)
-        }
-
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                initialX = event.x
-                initialY = event.y
-                initialOnLeftBorder  = !this.canScrollHorizontally(-1)
-                initialOnRightBorder  = !this.canScrollHorizontally(1)
-            }
-            MotionEvent.ACTION_UP -> {
-                val downTime = event.eventTime - event.downTime
-                val distanceX = abs(event.x - initialX)
-                val distanceY = abs(event.y - initialY)
-                if (downTime < TAP_DOWN_DETECT_TIME_MS && distanceX < TAP_DISTANCE_TOLERANCE && distanceY < TAP_DISTANCE_TOLERANCE) {
-                    handleTap(event.x)
-                }
-            }
-        }
-        return super.onTouchEvent(event)
-    }
+    var onBorderTapListener: ((ViewBorder) -> Boolean)? = null
 
     override fun loadUrl(url: String) {
         log.debug("loading url: $url")
@@ -116,35 +64,6 @@ class AppWebView @JvmOverloads constructor(
         context?.startActivity(intent)
     }
 
-
-
-    /**
-     * Check if the WebView content is scrolled to a horizontal border.
-     * In contrast to [WebView.canScrollHorizontally] it will return true,
-     * even if the border is only within the [bufferPx] distance.
-     *
-     * @param direction Negative to check scrolling left, positive to check scrolling right.
-     * @param bufferPx Allowed buffer scroll distance to interpret the WebView to be at the border
-     *
-     * @return true if the WebView is scrolled to the border in the specified direction, false otherwise.
-     */
-    fun isScrolledToHorizontalBorder(direction: Int, bufferPx: Int): Boolean {
-        // Attention: the HorizontalScroll values must not be in Px as per Android docs.
-        // but currently they are for WebViews, so we can use the buffer in px to compare them
-        val offset = computeHorizontalScrollOffset()
-        val range = computeHorizontalScrollRange() - computeHorizontalScrollExtent()
-
-        if (range == 0) {
-            return true
-        }
-
-        return if (direction < 0) {
-            offset - bufferPx < 0
-        } else {
-            offset + bufferPx >= range
-        }
-    }
-
     /**
      * This method will help to re-inject css into the WebView upon changes
      * to the corresponding shared preferences
@@ -156,7 +75,7 @@ class AppWebView @JvmOverloads constructor(
     }
 
     @UiThread
-    fun callTazApi(functionName: String, vararg arguments: Any) {
+    fun callTazApi(functionName: String, vararg arguments: Any, callback: ValueCallback<String>? = null) {
         val argumentsString = arguments
             .map { argument ->
                 when (argument) {
@@ -167,18 +86,101 @@ class AppWebView @JvmOverloads constructor(
                 }
             }
             .joinToString(",")
-        evaluateJavascript("(function(){tazApi.$functionName($argumentsString);})()", null)
+        evaluateJavascript("(function(){ return tazApi.$functionName($argumentsString);})()", callback)
     }
 
-    private fun handleTap(x: Float) {
-        val tapBarWidth =
-            resources.getDimension(R.dimen.tap_bar_width)
-        if (width > 0 && x < tapBarWidth) {
-            onBorderTapListener?.invoke(ViewBorder.LEFT)
-        } else if (width > 0 && x > width - tapBarWidth) {
-            onBorderTapListener?.invoke(ViewBorder.RIGHT)
-        } else {
-            onBorderTapListener?.invoke(ViewBorder.NONE)
+    interface WebViewScrollListener{
+        fun onScroll(scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int)
+    }
+
+    interface WebViewOverScrollListener {
+        fun onOverScroll(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean)
+    }
+
+    var scrollListener: WebViewScrollListener? = null
+    var overScrollListener: WebViewOverScrollListener? = null
+
+    override fun onScrollChanged(scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
+        super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY)
+        scrollListener?.onScroll(scrollX, scrollY, oldScrollX, oldScrollY)
+    }
+
+    override fun onOverScrolled(scrollX: Int, scrollY: Int, clampedX: Boolean, clampedY: Boolean) {
+        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY)
+        overScrollListener?.onOverScroll(scrollX, scrollY, clampedX, clampedY)
+    }
+
+    var pagingEnabled: Boolean = false
+    var showTapIconsListener: ((Boolean) -> Unit)? = null
+
+    private val minVerticalScrollDetectDistancePx =
+        resources.getDimensionPixelSize(R.dimen.webview_multicolumn_pager_min_vertical_scroll_detect_distance)
+
+    private val gestureDetector: GestureDetector
+
+    private var onTouchListener: OnTouchListener? = null
+
+    fun addOnTouchListener(touchListener: OnTouchListener?) {
+        onTouchListener = touchListener
+    }
+
+    fun clearOnTouchListener() {
+        onTouchListener = null
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        if (touchDisabled) return true
+
+        var consumed = false
+        if (onTouchListener != null)
+            consumed = onTouchListener!!.onTouch(this, ev)
+        if (ev != null && ev.pointerCount == 1) {
+            gestureDetector.onTouchEvent(ev)
         }
+        return consumed || super.onTouchEvent(ev)
+    }
+
+    private val gestureListener = object : SimpleOnGestureListener() {
+        // call onBordertapListener if clicks on the border
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            return handleTap(e.x) || super.onSingleTapUp(e)
+        }
+
+        private fun handleTap(x: Float): Boolean {
+            val tapBarWidth =
+                resources.getDimension(R.dimen.tap_bar_width)
+            val consumed = if (width > 0 && x < tapBarWidth) {
+                onBorderTapListener?.invoke(ViewBorder.LEFT)
+            } else if (width > 0 && x > width - tapBarWidth) {
+                onBorderTapListener?.invoke(ViewBorder.RIGHT)
+            } else {
+                onBorderTapListener?.invoke(ViewBorder.NONE)
+            }
+            return consumed ?: false
+        }
+
+        // call showTapIconsListener if vertical scroll
+        override fun onScroll(
+            e1: MotionEvent?,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
+            if (e1 != null) {
+                val horizontalScrollDistance = abs(e2.x - e1.x)
+                val verticalScrollDistance = abs(e2.y - e1.y)
+
+                val verticalScrollDetected =
+                    verticalScrollDistance > minVerticalScrollDetectDistancePx && verticalScrollDistance > 3 * horizontalScrollDistance
+                showTapIconsListener?.invoke(verticalScrollDetected)
+            }
+            return super.onScroll(e1, e2, distanceX, distanceY)
+        }
+    }
+
+
+    init {
+        gestureDetector = GestureDetector(context, gestureListener)
     }
 }

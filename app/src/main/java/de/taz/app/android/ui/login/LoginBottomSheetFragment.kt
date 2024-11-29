@@ -67,7 +67,7 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
          */
         fun showSingleInstance(fragmentManager: FragmentManager, articleName: String?) {
             if (fragmentManager.findFragmentByTag(TAG) == null) {
-                newInstance(articleName = articleName).show(fragmentManager, TAG)
+                newInstance(articleName = articleName).showNow(fragmentManager, TAG)
             }
         }
     }

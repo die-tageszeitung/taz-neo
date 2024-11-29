@@ -166,24 +166,24 @@ var tazApi = (function() {
         var onMultiColumnLayoutReadyCalled = false;
         function callOnMultiColumnLayoutReady(width) {
             if (!onMultiColumnLayoutReadyCalled) {
-                ANDROIDAPI.onMultiColumnLayoutReady(width);
                 onMultiColumnLayoutReadyCalled = true;
+                ANDROIDAPI.onMultiColumnLayoutReady(width);
             }
         }
 
-        // Let the css column handling figure out the required size of the container and then
-        // set its exact width, so that the outer Android WebView can handle the scrolling.
+        // Let the css column handling figure out the required size of the container and
+        // then set its exact width, so that the outer Android WebView can handle the scrolling.
         function setContentWidthForColumns() {
             // After css has calculated the columns, we can take a look at the scrollWidth to
-            // find out the actual number of columns and set the content width so that
+            // find out the actual number of columns and set the content width sothat
             // it fits the columns exactly.
             var factor = Math.floor(content.scrollWidth / (columnWidthPx + columnGapPx));
             var contentWidth = factor * columnWidthPx + (factor - 1) * columnGapPx;
             var contentWidthString = contentWidth + "px";
 
-            // Stop observing for changes and inform the App that the multi column layout ist
-            // ready, once the set content width is the same as the calculated one.
-            // As css only keeps a couple of decimals we define them as the same when their
+            // Stop observing for changes and inform the App that the multi column layout is
+            // ready, once the set content width is the same as the calculated one
+            // As css only keeps a couple of decimals we define them as the same w´hen their
             // difference is < 1 px
             var currentStyleWidth = NaN;
             if (content.style.width && content.style.width.endsWith("px")) {
@@ -192,12 +192,24 @@ var tazApi = (function() {
             var diff = Math.abs(currentStyleWidth - contentWidth);
 
             if (diff != NaN && diff < 1.0) {
-                disconnectContentResizeObserver();
-                // Wait for the next cycle before indicating ready, to give the WebView the
-                // chance to render the changes.
-                setTimeout(function() {
-                    callOnMultiColumnLayoutReady(contentWidth);
-                });
+                var lastElement = $('.lastElement')[0];
+                var times = Math.ceil((lastElement.offsetLeft + lastElement.clientWidth) / window.innerWidth);
+                var widthByLastElement = times * window.innerWidth + columnGapPx;
+
+                if (contentWidth > widthByLastElement) {
+                    // Wait for the next cycle to set the width.
+                    // If it is set in the same cycle the observer will not be called again
+                    setTimeout(function() {
+                        content.style.width = widthByLastElement + "px";
+                    });
+                } else {
+                    disconnectContentResizeObserver();
+                    // Wait for the next cycle before indicating ready, to give the WebView the
+                    // chance to render the changes.
+                    setTimeout(function() {
+                        callOnMultiColumnLayoutReady(contentWidth);
+                    });
+                }
             } else {
                 // Wait for the next cycle to set the width.
                 // If it is set in the same cycle the observer will not be called again
@@ -249,9 +261,9 @@ var tazApi = (function() {
         }
     }
 
-    function addPaddingRight(padding) {
+    function setPaddingRight(padding) {
         var content = document.getElementById("content");
-        content.style.paddingRight = padding+"px";
+        content.style.paddingRight = parseFloat(getComputedStyle(content).paddingRight) + padding + "px";
     }
 
     return {
@@ -267,6 +279,6 @@ var tazApi = (function() {
         setBookmark: setBookmark,
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
-        addPaddingRight: addPaddingRight,
+        setPaddingRight: setPaddingRight,
     };
 }());

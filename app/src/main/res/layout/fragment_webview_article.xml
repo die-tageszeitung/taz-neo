@@ -28,39 +28,14 @@
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <de.taz.app.android.util.LockableNestedScrollView
-        android:id="@+id/nested_scroll_view"
+    <de.taz.app.android.ui.webview.NestedScrollableHost
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical">
+        android:layout_height="match_parent">
 
-        <de.taz.app.android.ui.webview.AppWebViewHorizontalBorderPager
-            android:id="@+id/web_view_border_pager"
+        <de.taz.app.android.ui.webview.AppWebView
+            android:id="@+id/web_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/fragment_article_padding_bottom">
-
-            <!-- Attention:
-                When using the default <android.webkit.WebView> the linter warns us, that
-                > "Placing a <WebView> in a parent element that uses wrap_content can lead to subtle bugs;
-                > use match_parent instead"
-                This is also noted as a best practice at https://developer.android.com/develop/ui/views/layout/webapps/best-practices
-                > "We discourage setting the height to wrap_content because it results in incorrect sizing.
-                > Similarly, setting the layout width to wrap_content isn't supported and causes your
-                > WebView to use the width of its parent instead. Because of this behavior, it's also
-                > important to make sure none of your WebView object's parent layout objects have their
-                > height and width set to wrap_content."
-
-                As we are not yet aware of any bugs resulting from it, and rely on this behavior
-                due to the additional scrollable content below the WebView, we keep the wrap_content.
-            -->
-            <de.taz.app.android.ui.webview.AppWebView
-                android:id="@+id/web_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/fragment_webview_article_margin_top"
-                android:nestedScrollingEnabled="false"
-                android:overScrollMode="never" />
-        </de.taz.app.android.ui.webview.AppWebViewHorizontalBorderPager>
-    </de.taz.app.android.util.LockableNestedScrollView>
+            android:layout_height="match_parent"
+            android:overScrollMode="never" />
+    </de.taz.app.android.ui.webview.NestedScrollableHost>
 </FrameLayout>

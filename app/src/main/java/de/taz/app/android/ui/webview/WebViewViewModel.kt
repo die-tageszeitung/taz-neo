@@ -21,19 +21,21 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
         get() = displayableLiveData.value
 
     var scrollPosition: Int?
-        get() = savedStateHandle.get(KEY_SCROLL_POSITION)
+        get() = savedStateHandle[KEY_SCROLL_POSITION]
         set(value) {
-            savedStateHandle.set(KEY_SCROLL_POSITION, value)
+            savedStateHandle[KEY_SCROLL_POSITION] = value
         }
 
     // for multi column mode we save the scroll position on x axis:
     var scrollPositionHorizontal: Int?
-        get() = savedStateHandle.get(KEY_SCROLL_POSITION_HORIZONTAL)
+        get() = savedStateHandle[KEY_SCROLL_POSITION_HORIZONTAL]
         set(value) {
-            savedStateHandle.set(KEY_SCROLL_POSITION_HORIZONTAL, value)
+            savedStateHandle[KEY_SCROLL_POSITION_HORIZONTAL] = value
         }
 
-    val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
+    private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
     val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
+    val tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
+    val multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
     val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
 }
