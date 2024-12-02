@@ -4,9 +4,6 @@
     <string name="author_list">von %s</string>
     <string name="search_input_hint">LMd Archiv durchsuchen</string>
 
-    <string name="login_username_hint">Abo-ID</string>
-    <string name="login_username_error_empty">Abo-ID darf nicht leer sein.</string>
-
     <string name="fragment_bookmarks_title">Leseliste</string>
 
     <string name="settings_header">Einstellungen</string>
@@ -26,7 +23,7 @@
     <string name="search_advanced_sort_by">Sortierung</string>
     <string name="search_advanced_help">Hilfe</string>
 
-    <string name="fragment_login_help">Geben Sie bitte Ihre numerische Abo-ID und das dazu gehörige, von uns mitgeteilte, Passwort ein.</string>
+    <string name="fragment_login_help">Wenn Sie sich schon einmal mit einer <b>E-Mail</b> registriert und dabei ein <b>Passwort erstellt</b> haben, nutzen Sie bitte diese E-Mail und Ihr persönliches Passwort zur Anmeldung.\nFalls Sie diese Informationen nicht finden können, helfen wir Ihnen gerne weiter. Bitte kontaktieren Sie uns unter app@monde-diplomatique.de.</string>
 
     <string name="faq_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
     <string name="app_free_download_link" translatable="false">https://dl.monde-diplomatique.de/faq</string>
