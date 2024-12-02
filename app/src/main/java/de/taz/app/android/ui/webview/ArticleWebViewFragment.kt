@@ -45,6 +45,7 @@ class ArticleWebViewFragment :
     override val viewModel by viewModels<ArticleWebViewViewModel>()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
 
+    private var articleOperations: ArticleOperations? = null
     private lateinit var articleFileName: String
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var tazApiCssHelper: TazApiCssHelper
@@ -70,7 +71,8 @@ class ArticleWebViewFragment :
         private const val ARTICLE_FILE_NAME = "ARTICLE_FILE_NAME"
         private const val PAGER_POSITION = "PAGER_POSITION"
         private const val PAGER_TOTAL = "PAGER_TOTAL"
-        fun newInstance(
+
+        private fun newInstance(
             articleFileName: String,
             pagerPosition: Int? = null,
             pagerTotal: Int? = null
@@ -84,6 +86,16 @@ class ArticleWebViewFragment :
             return ArticleWebViewFragment().apply {
                 arguments = args
             }
+        }
+
+        fun newInstance(
+            articleOperations: ArticleOperations,
+            pagerPosition: Int? = null,
+            pagerTotal: Int? = null
+        ): ArticleWebViewFragment {
+            val fragment = newInstance(articleOperations.key, pagerPosition, pagerTotal)
+            fragment.articleOperations = articleOperations
+            return fragment
         }
     }
 
@@ -99,11 +111,15 @@ class ArticleWebViewFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         articleFileName = requireArguments().getString(ARTICLE_FILE_NAME)!!
-        lifecycleScope.launch {
-            articleRepository.getStub(articleFileName)?.let {
-                viewModel.displayableLiveData.postValue(
-                    it
-                )
+        if (articleOperations != null) {
+            viewModel.displayableLiveData.postValue(articleOperations)
+        } else {
+            lifecycleScope.launch {
+                articleRepository.getStub(articleFileName)?.let {
+                    viewModel.displayableLiveData.postValue(
+                        it
+                    )
+                }
             }
         }
     }
