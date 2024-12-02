@@ -253,7 +253,7 @@
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
     <string name="fragment_login_description">Anmeldung für \nDigital-Abonnent:innen</string>
     <string name="fragment_login_data_policy">Hier finden Sie unsere <u>Datenschutzbestimmungen</u></string>
-    <string name="fragment_login_help">Wenn Sie sich schon einmal mit einer <b>E-Mail</b> registriert und dabei ein <b>Passwort erstellt</b> haben, nutzen Sie bitte diese E-Mail und Ihr persönliches Passwort zur Anmeldung.\nSollte dies nicht der Fall sein:\nWir haben Ihnen zum Start Ihres Abos eine E-Mail gesendet. In dieser E-Mail finden Sie Ihre <b>Abo-ID (Nummer) und ein Passwort.</b>\nFalls Sie diese Informationen nicht finden können, helfen wir Ihnen gerne weiter. Bitte kontaktieren Sie uns unter app@taz.de.</string>
+    <string name="fragment_login_help">Wenn Sie sich schon einmal mit einer <b>E-Mail</b> registriert und dabei ein <b>Passwort erstellt</b> haben, nutzen Sie bitte diese E-Mail und Ihr persönliches Passwort zur Anmeldung.\nFalls Sie diese Informationen nicht finden können, helfen wir Ihnen gerne weiter. Bitte kontaktieren Sie uns unter app@taz.de.</string>
     <string name="fragment_login_help_more_info_faq">Mehr Infos in den FAQ</string>
 
     <string name="login_trial_subscription_title">Noch kein Abo?</string>
@@ -291,8 +291,8 @@
     <string name="login_email_error_recheck">Überprüfen Sie Ihre Eingaben</string>
     <string name="login_subscription_id_error_not_numeric">Ihre Abo-Nummer muss aus Ziffern bestehen.</string>
 
-    <string name="login_username_hint">E-Mail-Adresse oder Abo-ID</string>
-    <string name="login_username_error_empty">E-Mail-Adresse oder Abo-ID darf nicht leer sein.</string>
+    <string name="login_username_hint">E-Mail-Adresse</string>
+    <string name="login_username_error_empty">E-Mail-Adresse darf nicht leer sein.</string>
 
     <string name="login_password_hint">Passwort</string>
     <string name="login_password_confirmation_hint">Passwort bestätigen</string>
