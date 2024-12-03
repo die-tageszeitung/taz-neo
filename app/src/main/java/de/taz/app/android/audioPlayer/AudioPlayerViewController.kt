@@ -560,6 +560,8 @@ class AudioPlayerViewController(
     private fun AudioplayerOverlayBinding.showPlaylist(playlistData: Playlist) {
         adapter.submitPlaylist(playlistData)
 
+        val wasPlaylistVisible = playlistView.isVisible
+
         positionPlayerViews(isExpanded = true, fullScreen = true)
         showOverlay()
         smallPlayer.isVisible = false
@@ -568,7 +570,7 @@ class AudioPlayerViewController(
         playlistEmpty.isVisible = playlistData.items.isEmpty()
 
         // Ensure the current playing is always visible:
-        if (playlistData.currentItemIdx != -1) {
+        if (playlistData.currentItemIdx != -1 && !wasPlaylistVisible) {
             playlistRv.smoothScrollToPosition(playlistData.currentItemIdx)
         }
 

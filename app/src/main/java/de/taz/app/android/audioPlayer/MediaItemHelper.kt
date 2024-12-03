@@ -15,7 +15,6 @@ private const val DISCLAIMER_NOTE_MALE_ASSET_PATH = "/maleNote.mp3"
  *   - create [MediaItem]s that correspond to our in-app [UiState] via its [UiStateHelper]
  *   - prepare the [MediaMetadata] with an URI to the mp3 so that the [ArticleAudioMediaSessionCallback] can pick it up for playing
  *   - map [MediaItem]s returned by [Player] events to [AudioPlayerItem]
- * FIXME: docs still correct?
  */
 class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
 

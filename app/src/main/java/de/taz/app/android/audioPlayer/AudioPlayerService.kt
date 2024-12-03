@@ -21,6 +21,7 @@ import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.belongsTo
 import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.indexOfMediaItem
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.PlaylistRepository
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
@@ -118,9 +119,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         AudioPlayerItemInitHelper(applicationContext, uiStateHelper)
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val playlistRepository = PlaylistRepository.getInstance(applicationContext)
 
     // Play the disclaimer only once per app session:
     private var disclaimerPlayed = false
+
+    private var isPlaylistInitialized = false
 
     // Central internal state of the Service
     private val state: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.Idle)
@@ -517,11 +521,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         return uiState.value.getPlayerStateOrNull() is UiState.PlayerState.Playing
     }
 
-    fun isPaused(): Boolean {
-        val progressHappened = (progress.value?.currentMs?: 0) > 0
-        return uiState.value.getPlayerStateOrNull() is UiState.PlayerState.Paused && progressHappened
-    }
-
     fun isInPlaylistFlow(articleOperations: ArticleOperations): Flow<Boolean> {
         return playlistState.map { playlistState ->
             playlistState.items.any { it.playableKey == articleOperations.key }
@@ -549,15 +548,23 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         launch {
             _playlistState.collect { playlist ->
-                // FIXME: move to helper function
+                // if playlist is empty check to recover from repository:
+                if (playlist.isEmpty() && !isPlaylistInitialized) {
+                    val recoveredPlaylist = playlistRepository.get()
+                    _playlistState.value = recoveredPlaylist
+                }
+                // save playlist (if initialized):
+                if (isPlaylistInitialized) {
+                    playlistRepository.sync(playlist)
+                }
                 val newUiState = when (val currentUiState = _uiState.value) {
                     UiState.Hidden -> currentUiState
-                    // FIXME: maybe needs update on min/max player if we show the "next queued item"
                     is UiState.MaxiPlayer -> currentUiState
                     is UiState.MiniPlayer -> currentUiState
                     is UiState.Playlist -> UiState.Playlist(playlist, currentUiState.playerState)
                 }
                 _uiState.value = newUiState
+                isPlaylistInitialized = true
             }
         }
 

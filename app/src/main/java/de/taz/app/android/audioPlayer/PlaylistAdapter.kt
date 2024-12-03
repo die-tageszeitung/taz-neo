@@ -36,7 +36,7 @@ class PlaylistViewHolder(
                 binding.currentPlayingIndicator.isVisible = true
                 binding.currentPausedIndicator.isVisible = false
                 binding.dragIcon.isVisible = false
-            } else if (audioPlayerService.isPaused()) {
+            } else  {
                 binding.currentPausedIndicator.isVisible = true
                 binding.currentPlayingIndicator.isVisible = false
                 binding.dragIcon.isVisible = false
