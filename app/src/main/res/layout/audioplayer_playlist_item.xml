@@ -60,16 +60,16 @@
                 tools:text="Gehen, bleiben? Kommen" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/title"
-                app:layout_constraintWidth_default="wrap">
+                app:layout_constrainedWidth="true">
 
                 <TextView
                     android:id="@+id/author"
                     style="@style/Widget.App.AudioPlayer.PlayList.Item.Author"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
@@ -79,7 +79,6 @@
                     app:layout_constraintHorizontal_chainStyle="packed"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintWidth_default="wrap"
                     tools:text="Gustav Gans" />
 
                 <View
