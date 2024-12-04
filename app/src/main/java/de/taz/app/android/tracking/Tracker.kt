@@ -167,4 +167,7 @@ interface Tracker {
 
     fun trackArticleColumnModeEnableEvent()
     fun trackArticleColumnModeDisableEvent()
+
+    fun trackWidgetEnabledEvent()
+    fun trackWidgetDisabledEvent()
 }

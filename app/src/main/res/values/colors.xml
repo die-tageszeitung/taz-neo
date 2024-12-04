@@ -33,7 +33,7 @@
     <color name="text_icon_grey_darkmode">#BDBDBD</color>
     <color name="background">@color/white</color>
     <color name="background_darkmode">@color/superDarkGrey</color>
-    
+
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
     <color name="bottom_sheet_text_color">@color/black</color>

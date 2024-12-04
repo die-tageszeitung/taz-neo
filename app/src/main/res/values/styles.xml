@@ -183,6 +183,7 @@
     </style>
 
     <style name="TextAppearance.App.Drawer.Sections.Article.Meta.Author" parent="TextAppearance.App.Draw.Autorin.Bold" />
+
     <style name="TextAppearance.App.Drawer.Sections.Article.Meta.ReadMinutes" parent="TextAppearance.App.Draw.Metadata">
         <item name="android:textColor">@color/read_minutes</item>
     </style>
@@ -675,6 +676,16 @@
         <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
         <!-- Align the fixed font to the previous fonts paddings to keep the header the same -->
         <item name="android:layout_marginTop">@dimen/fragment_header_custom_date_margin_top</item>
+    </style>
+
+    <style name="Widget.Tazapp.AppWidget.Container" parent="android:Widget">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Widget.Tazapp.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
     <!-- endregion -->
 
