@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.migrations.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 36
+const val DATABASE_VERSION = 37
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -51,6 +51,7 @@ fun allMigrations() = arrayOf(
     Migration33to34(),
     Migration34to35(),
     Migration35to36(),
+    Migration36to37(),
 )
 
 @Database(
@@ -61,6 +62,7 @@ fun allMigrations() = arrayOf(
         ArticleImageJoin::class,
         AudioStub::class,
         AudioPlayerItemStub::class,
+        BookmarkSynchronization::class,
         Feed::class,
         FileEntry::class,
         ImageStub::class,
@@ -121,6 +123,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun audioPlayerItemsDao(): AudioPlayerItemsDao
     abstract fun articleAuthorImageJoinDao(): ArticleAuthorImageJoinDao
     abstract fun articleImageJoinDao(): ArticleImageJoinDao
+    abstract fun bookmarkSynchronizationDao(): BookmarkSynchronizationDao
     abstract fun feedDao(): FeedDao
     abstract fun fileEntryDao(): FileEntryDao
     abstract fun imageDao(): ImageDao

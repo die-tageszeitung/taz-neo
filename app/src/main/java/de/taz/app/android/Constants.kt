@@ -73,3 +73,8 @@ const val SCRUBBER_INTERVAL_DAYS = 30L
 // Resource file names
 const val TAZ_API_JS_FILENAME = "tazApi.js"
 const val TAZ_API_CSS_FILENAME = "tazApi.css"
+
+// category bookmarks for apiService.getCustomerData
+const val CUSTOMER_DATA_CATEGORY_BOOKMARKS = "bookmarks"
+const val CUSTOMER_DATA_CATEGORY_BOOKMARKS_ALL = "*"
+const val CUSTOMER_DATA_VAL_DATE = "date"

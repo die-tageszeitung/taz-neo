@@ -112,6 +112,13 @@
     <string name="fragment_bottom_sheet_single_column_mode_description">Dadurch, dass Sie die Spaltigkeit ausgeschaltet haben, folgt die Navigation in den Artikeln wieder der Scrollrichtung vertikal (oben nach unten).</string>
     <string name="fragment_bottom_sheet_single_column_mode_negative_button">Nicht wieder anzeigen</string>
 
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_title">Leseliste synchronisieren?</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_description">Sie können die Artikel ihrer Leseliste über alle angemeldeten Geräte teilen. Wenn Sie auf anderen Geräten die Leseliste löschen, wird diese dann auch hier gelöscht. Sie können das jederzeit in den Einstellungen wieder ändern.</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_positive_button">Synchronisieren</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_negative_button">Lokal belassen</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_loading_text">Lesezeichen werden synchronisert</string>
+
+
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
     <string name="fragment_tracking_consent_description_01">Anonyme Nutzungsdaten helfen uns, noch besser zu werden. Wir wissen natürlich: Wer Daten will, muss freundlich sein – deshalb behandeln wir diese mit größtmöglicher Sorgfalt und absolut vertraulich. Ihre Einwilligung zur Nutzung kann zudem jederzeit widerrufen werden.</string>
@@ -178,6 +185,7 @@
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht immer mitladen</string>
+    <string name="settings_bookmarks_synchronization">Lesezeichen über alle angemeldeten Geräte synchronisieren</string>
     <string name="settings_notifications">mitteilungen erlauben</string>
     <string name="settings_notifications_caution_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> deaktiviert. Diese müssen aktiviert sein, um Mitteilungen zu erhalten.</string>
     <string name="settings_notifications_info_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> ebenfalls zu aktivieren.</string>

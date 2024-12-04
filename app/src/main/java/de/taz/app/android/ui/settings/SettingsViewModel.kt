@@ -33,6 +33,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
     val downloadAdditionallyPdf: LiveData<Boolean>
+    val bookmarksSynchronization: LiveData<Boolean>
     private val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
     val notificationsEnabledLivedata: LiveData<Boolean>
 
@@ -65,6 +66,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
         downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
         downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asLiveData()
+        bookmarksSynchronization = generalDataStore.bookmarksSynchronizationEnabled.asLiveData()
         downloadAdditionallyDialogDoNotShowAgain =
             downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
         notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
@@ -95,6 +97,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setOnlyWifi(onlyWifi: Boolean) {
         viewModelScope.launch {
             downloadDataStore.onlyWifi.set(onlyWifi)
+        }
+    }
+
+    fun setBookmarksSynchronization(enabled: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.bookmarksSynchronizationEnabled.set(enabled)
         }
     }
 

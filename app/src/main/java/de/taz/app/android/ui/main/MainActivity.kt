@@ -27,6 +27,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityMainBinding
 import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
@@ -81,6 +82,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     }
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var downloadDataStore: DownloadDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var coachMarkDataStore: CoachMarkDataStore
@@ -93,6 +95,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         authHelper = AuthHelper.getInstance(applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
         coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)
         downloadDataStore = DownloadDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
@@ -113,6 +116,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                     val newAppSessionCount = handleAppSession()
                     if (newAppSessionCount != null) {
                         maybeStartReviewFlow(newAppSessionCount)
+                        bookmarkRepository.checkForSynchronizedBookmarksIfEnabled()
                     }
                 }
             }

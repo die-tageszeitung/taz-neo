@@ -37,11 +37,13 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
 
     private val log by Log
 
+    private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var sectionRepository: SectionRepository
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
     }
@@ -68,6 +70,10 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                     KeepScreenOnHelper.toggleScreenOn(it, activity)
                 }
             }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            bookmarkRepository.checkForSynchronizedBookmarksIfEnabled()
         }
     }
 

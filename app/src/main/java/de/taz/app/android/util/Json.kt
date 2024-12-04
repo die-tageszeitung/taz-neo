@@ -1,6 +1,26 @@
 package de.taz.app.android.util
 
-import de.taz.app.android.api.variables.*
+import de.taz.app.android.api.variables.AppVariables
+import de.taz.app.android.api.variables.AuthenticationVariables
+import de.taz.app.android.api.variables.CancellationVariables
+import de.taz.app.android.api.variables.CheckSubscriptionIdVariables
+import de.taz.app.android.api.variables.DownloadStartVariables
+import de.taz.app.android.api.variables.DownloadStopVariables
+import de.taz.app.android.api.variables.ErrorReportVariables
+import de.taz.app.android.api.variables.FeedVariables
+import de.taz.app.android.api.variables.GetCustomerDataVariables
+import de.taz.app.android.api.variables.IssueVariables
+import de.taz.app.android.api.variables.NotificationVariables
+import de.taz.app.android.api.variables.PasswordResetVariables
+import de.taz.app.android.api.variables.SaveCustomerDataVariables
+import de.taz.app.android.api.variables.SearchVariables
+import de.taz.app.android.api.variables.SubscriptionFormDataVariables
+import de.taz.app.android.api.variables.SubscriptionId2TazIdVariables
+import de.taz.app.android.api.variables.SubscriptionPollVariables
+import de.taz.app.android.api.variables.SubscriptionResetVariables
+import de.taz.app.android.api.variables.SubscriptionVariables
+import de.taz.app.android.api.variables.TrialSubscriptionVariables
+import de.taz.app.android.api.variables.Variables
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -18,9 +38,11 @@ private val module = SerializersModule {
         subclass(DownloadStopVariables::class)
         subclass(ErrorReportVariables::class)
         subclass(FeedVariables::class)
+        subclass(GetCustomerDataVariables::class)
         subclass(IssueVariables::class)
         subclass(NotificationVariables::class)
         subclass(PasswordResetVariables::class)
+        subclass(SaveCustomerDataVariables::class)
         subclass(SearchVariables::class)
         subclass(SubscriptionFormDataVariables::class)
         subclass(SubscriptionId2TazIdVariables::class)

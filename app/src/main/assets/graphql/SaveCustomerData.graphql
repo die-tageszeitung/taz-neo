@@ -1,0 +1,10 @@
+mutation SaveCustomerData(
+    $category: String!,
+    $name: String!,
+    $val: String,
+) {
+    saveCustomerData(category: $category, name: $name, val: $val) {
+        error
+        ok
+    }
+}
