@@ -100,4 +100,6 @@ class NoOpTracker : Tracker {
     override fun trackTestTrackingGoal() {}
     override fun trackArticleColumnModeEnableEvent() {}
     override fun trackArticleColumnModeDisableEvent() {}
+    override fun trackWidgetEnabledEvent() {}
+    override fun trackWidgetDisabledEvent() {}
 }

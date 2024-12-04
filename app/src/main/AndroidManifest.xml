@@ -9,8 +9,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"
@@ -24,6 +23,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver
+            android:name=".widget.MomentWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/moment_widget_info" />
+        </receiver>
+
         <activity
             android:name=".ui.WelcomeActivity"
             android:noHistory="true" />
@@ -31,8 +42,9 @@
             android:name=".ui.WebViewActivity"
             android:noHistory="true" />
         <activity android:name=".ui.StorageOrganizationActivity" />
-        <activity android:name=".ui.pdfViewer.PdfPagerActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity
+            android:name=".ui.pdfViewer.PdfPagerActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
         <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
@@ -46,34 +58,42 @@
             WARNING: This will apply to all text input fields within the MainActivity.
                      Currently there is no other, but be careful when adding another.
         -->
-        <activity android:name=".ui.main.MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustNothing"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.issueViewer.IssueViewerActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.search.SearchActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.bookmarks.BookmarkListActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.bookmarks.BookmarkViewerActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.settings.SettingsActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
-        <activity android:name=".ui.settings.ErrorReportActivity"
-            android:theme="@style/noAnimationOnActivityChange"/>
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:theme="@style/noAnimationOnActivityChange"
+            android:windowSoftInputMode="stateHidden|adjustNothing" />
+        <activity
+            android:name=".ui.issueViewer.IssueViewerActivity"
+            android:theme="@style/noAnimationOnActivityChange"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:theme="@style/noAnimationOnActivityChange"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity
+            android:name=".ui.bookmarks.BookmarkListActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
+        <activity
+            android:name=".ui.bookmarks.BookmarkViewerActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
+        <activity
+            android:name=".ui.settings.ErrorReportActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
         <activity
             android:name=".ui.splash.SplashActivity"
+            android:exported="true"
             android:noHistory="true"
-            android:theme="@style/SplashTheme"
-            android:exported="true">
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="io.sentry.auto-init"
             android:value="false" />
@@ -98,10 +118,9 @@
             android:foregroundServiceType="mediaPlayback">
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
-                <action android:name="android.media.browse.MediaBrowserService"/>
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>

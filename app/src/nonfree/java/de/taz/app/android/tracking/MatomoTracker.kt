@@ -724,6 +724,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .event(CATEGORY_ARTICLE, "Disable Column Mode")
             .with(matomoTracker)
     }
+
+    override fun trackWidgetEnabledEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPLICATION, "Widget enabled")
+            .with(matomoTracker)
+    }
+
+    override fun trackWidgetDisabledEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPLICATION, "Widget disabled")
+            .with(matomoTracker)
+    }
 }
 
 /**

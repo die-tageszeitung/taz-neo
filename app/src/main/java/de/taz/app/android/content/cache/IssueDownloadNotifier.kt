@@ -4,9 +4,10 @@ import android.content.Context
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.persistence.repository.AbstractIssueKey
-import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.util.Log
 import java.util.Date
 
 /**
@@ -15,7 +16,7 @@ import java.util.Date
  * @param isAutomaticDownload Indicating if the download was triggered by a user or automatically (By scheduler)
  */
 class IssueDownloadNotifier(
-    applicationContext: Context,
+    private val applicationContext: Context,
     private val issueKey: AbstractIssueKey,
     private val isAutomaticDownload: Boolean
 ) {
@@ -48,6 +49,7 @@ class IssueDownloadNotifier(
     suspend fun stop() {
         try {
             notifyIssueDownloadStop()
+            MainActivity().updateWidget()
         } catch (e: Exception) {
             log.warn("Error while notifying download stop for $issueKey",e)
             SentryWrapper.captureException(e)

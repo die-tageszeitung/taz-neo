@@ -536,4 +536,6 @@
 
     <string name="article_tom_at_the_end_title">Das Ende ist nah!</string>
 
+    <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
+
 </resources>
