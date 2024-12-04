@@ -92,7 +92,7 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().get(articleFileName)
     }
 
-    suspend fun getStubByMediaSyncId(articleMediaSyncId: String): ArticleStub? {
+    suspend fun getStubByMediaSyncId(articleMediaSyncId: Int): ArticleStub? {
         return appDatabase.articleDao().getByMediaSyncId(articleMediaSyncId)
     }
 

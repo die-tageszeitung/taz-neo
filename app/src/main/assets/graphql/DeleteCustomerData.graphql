@@ -1,0 +1,9 @@
+mutation DeleteCustomerData(
+    $category: String!,
+    $name: String!,
+) {
+    deleteCustomerData(category: $category, name: $name) {
+        error
+        ok
+    }
+}

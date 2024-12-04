@@ -264,6 +264,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setDownloadOnlyInWifi(isChecked)
             }
 
+            fragmentSettingsBookmarksSynchronization.setOnCheckedChangeListener { _, isChecked ->
+                setBookmarksSynchronization(isChecked)
+            }
+
             fragmentSettingsAutoDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadEnabled(isChecked)
             }
@@ -338,6 +342,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
+            }
+            bookmarksSynchronization.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showBookmarksSynchronization(enabled)
             }
             trackingAccepted.distinctUntilChanged().observe(viewLifecycleOwner) { isTrackingAccepted ->
                 viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
@@ -668,6 +675,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showBookmarksSynchronization(enabled: Boolean) {
+        viewBinding.fragmentSettingsBookmarksSynchronization.isChecked =
+            enabled
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -680,6 +692,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         fragmentSettingsManageAccountOnlineWrapper.visibility = View.GONE
         fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
         fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
+        // Unset the bookmarkSynchronization:
+        fragmentSettingsBookmarksSynchronization.visibility = View.GONE
+        fragmentSettingsBookmarksSynchronizationSeparatorLine.root.visibility = View.GONE
+        setBookmarksSynchronization(false)
     }
 
     private fun showActionsWhenLoggedIn(
@@ -709,6 +725,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (resources.getBoolean(R.bool.isTablet)) {
             fragmentSettingsMultiColumnModeWrapper.isVisible = true
         }
+        fragmentSettingsBookmarksSynchronization.isVisible = true
+        fragmentSettingsBookmarksSynchronizationSeparatorLine.root.isVisible = true
     }
 
     private fun disableNightMode() {
@@ -781,6 +799,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
         viewModel.setOnlyWifi(onlyWifi)
+    }
+
+    private fun setBookmarksSynchronization(enabled: Boolean) {
+        viewModel.setBookmarksSynchronization(enabled)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {

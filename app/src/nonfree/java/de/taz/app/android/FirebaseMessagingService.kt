@@ -7,7 +7,6 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.Issue
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.DownloadDataStore
@@ -218,11 +217,11 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         articleTitle: String?,
         articleTeaser: String?,
     ) {
-        var articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId)
+        var articleStub = articleRepository.getStubByMediaSyncId(mediaSyncId.toInt())
         if (articleStub == null) {
-            downloadIssueMetadata(articleDate)
+            contentService.downloadIssueMetadata(articleDate)
         }
-        articleStub = articleStub ?: articleRepository.getStubByMediaSyncId(mediaSyncId)
+        articleStub = articleStub ?: articleRepository.getStubByMediaSyncId(mediaSyncId.toInt())
 
         if (articleStub == null) {
             val message = "Could not download issue and fetch article for articleMediaSyncId $mediaSyncId"
@@ -248,17 +247,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             articleTeaser ?: articleStub.teaser,
         )
 
-    }
-
-    private suspend fun downloadIssueMetadata(articleDate: String): Issue? {
-        return try {
-            val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, articleDate)
-            contentService.downloadMetadata(issuePublication, maxRetries = 5, allowCache = true) as Issue?
-        } catch (e: Exception) {
-            log.warn("Error while trying to download metadata of issue publication of $articleDate",e)
-            SentryWrapper.captureException(e)
-            null
-        }
     }
 
     /**

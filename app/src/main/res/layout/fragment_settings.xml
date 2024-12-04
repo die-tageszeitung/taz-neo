@@ -322,6 +322,19 @@
                     android:id="@+id/fragment_settings_auto_download_switch_separator_line"
                     layout="@layout/settings_separator_view" />
 
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_bookmarks_synchronization"
+                    style="@style/Widget.App.Settings.Entry.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:text="@string/settings_bookmarks_synchronization" />
+
+                <include
+                    android:id="@+id/fragment_settings_bookmarks_synchronization_separator_line"
+                    layout="@layout/settings_separator_view"
+                    android:visibility="gone"/>
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/fragment_settings_storage_location"
                     android:layout_width="match_parent"

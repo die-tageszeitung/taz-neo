@@ -31,8 +31,6 @@ import de.taz.app.android.databinding.ActivitySearchBinding
 import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
-import de.taz.app.android.persistence.repository.IssuePublication
-import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.SnackBarHelper
@@ -598,23 +596,14 @@ class SearchActivity :
      */
     private suspend fun downloadArticleAndSetBookmark(
         articleFileName: String,
-        datePublished: Date
+        datePublished: Date,
     ) {
-        try {
-            val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, simpleDateFormat.format(datePublished))
-            if (!contentService.isPresent(issuePublication)) {
-                contentService.downloadMetadata(issuePublication, maxRetries = 5)
-            }
-            val article = requireNotNull(articleRepository.getStub(articleFileName))
-            contentService.downloadToCache(article)
-            bookmarkRepository.addBookmark(article)
-        } catch (e: Exception) {
-            log.warn(
-                "Error while trying to download a full article because of a bookmark request",
-                e
-            )
-            SentryWrapper.captureException(e)
+        val article = contentService.downloadArticle(articleFileName, simpleDateFormat.format(datePublished))
+        if (article == null) {
+            log.warn("Article to bookmark was not properly downloaded")
             toastHelper.showToast(R.string.toast_problem_bookmarking_article, long = true)
+        } else {
+            bookmarkRepository.addBookmark(article)
         }
     }
     // endregion

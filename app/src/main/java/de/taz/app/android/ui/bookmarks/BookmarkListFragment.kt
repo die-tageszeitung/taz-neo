@@ -17,14 +17,17 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBookmarksBinding
-import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FeedRepository
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.BookmarksSynchronizationBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
@@ -37,7 +40,9 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     private val bookmarkPagerViewModel: BookmarkPagerViewModel by activityViewModels()
 
-    private lateinit var articleRepository: ArticleRepository
+    private lateinit var authHelper: AuthHelper
+    private lateinit var bookmarkRepository: BookmarkRepository
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var momentRepository: MomentRepository
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
@@ -47,7 +52,9 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        articleRepository = ArticleRepository.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         momentRepository = MomentRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
@@ -99,6 +106,15 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     override fun onResume() {
         super.onResume()
         tracker.trackBookmarkListScreen()
+        lifecycleScope.launch {
+            val bookmarksSynchronizationEnabled =
+                generalDataStore.bookmarksSynchronizationEnabled.get()
+            if (bookmarksSynchronizationEnabled) {
+                bookmarkRepository.checkForSynchronizedBookmarks()
+            } else {
+                maybeShowBookmarksSynchronizationBottomSheet()
+            }
+        }
     }
 
     private fun shareArticle(article: Article) {
@@ -193,6 +209,21 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
                     visibility = View.GONE
                 }
                 .duration = LOADING_SCREEN_FADE_OUT_TIME
+        }
+    }
+
+    private fun maybeShowBookmarksSynchronizationBottomSheet() {
+        lifecycleScope.launch {
+            val doNotShowAgain =
+                generalDataStore.bookmarksSynchronizationBottomSheetDoNotShowAgain.get()
+            val bottomSheetNotShown =
+                childFragmentManager.findFragmentByTag(BookmarksSynchronizationBottomSheetFragment.TAG) == null
+            val isLoggedIn = authHelper.isLoggedIn()
+            if (!doNotShowAgain && bottomSheetNotShown && isLoggedIn) {
+                BookmarksSynchronizationBottomSheetFragment().show(
+                    childFragmentManager, BookmarksSynchronizationBottomSheetFragment.TAG
+                )
+            }
         }
     }
 }

@@ -1,0 +1,20 @@
+query GetCustomerData(
+    $category: String!,
+    $name: String!
+){
+    getCustomerData(category: $category, name: $name) {
+        error
+        customerDataList {
+            time
+            category
+            name
+            val
+        }
+        authInfo {
+            status
+            message
+            loginWeek
+            mail
+        }
+    }
+}
