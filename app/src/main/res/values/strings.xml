@@ -115,7 +115,7 @@
     <string name="fragment_bottom_sheet_bookmarks_synchronization_title">Leseliste synchronisieren?</string>
     <string name="fragment_bottom_sheet_bookmarks_synchronization_description">Sie können die Artikel ihrer Leseliste über alle angemeldeten Geräte teilen. Wenn Sie auf anderen Geräten die Leseliste löschen, wird diese dann auch hier gelöscht. Sie können das jederzeit in den Einstellungen wieder ändern.</string>
     <string name="fragment_bottom_sheet_bookmarks_synchronization_positive_button">Synchronisieren</string>
-    <string name="fragment_bottom_sheet_bookmarks_synchronization_negative_button">Lokal belassen</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_negative_button">Nicht synchronisieren</string>
     <string name="fragment_bottom_sheet_bookmarks_synchronization_loading_text">Lesezeichen werden synchronisert</string>
 
 
