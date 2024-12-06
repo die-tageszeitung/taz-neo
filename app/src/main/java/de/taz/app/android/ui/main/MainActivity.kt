@@ -1,9 +1,6 @@
 package de.taz.app.android.ui.main
 
 import android.annotation.SuppressLint
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -36,6 +33,7 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
+import de.taz.app.android.singletons.WidgetHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
@@ -46,7 +44,6 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
-import de.taz.app.android.widget.MomentWidget
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -126,9 +123,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             }
         }
 
-        // Ensure the widget is updated on app start – so it will always show the latest issue:
-        updateWidget()
-
         // create WebView then throw it away so later instantiations are faster
         // otherwise we have lags in the [CoverFlowFragment]
         WebView(this)
@@ -140,6 +134,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             viewBinding.navigationBottom,
             BottomNavigationItem.Home
         )
+        // Ensure the widget is updated on app start – so it will always show the latest issue:
+        WidgetHelper.updateWidget(applicationContext)
     }
 
     override fun onStop() {
@@ -366,20 +362,5 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
                 }
             }
         }
-    }
-    /**
-     * Update widgets if there are any active.
-     * Found on [SO](https://stackoverflow.com/a/7738687)
-     */
-    fun updateWidget() {
-        val intent = Intent(applicationContext, MomentWidget::class.java)
-        intent.setAction(ACTION_APPWIDGET_UPDATE)
-        // Use an array and EXTRA_APPWIDGET_IDS instead of AppWidgetManager.EXTRA_APPWIDGET_ID,
-        // since it seems the onUpdate() is only fired on that:
-        val ids = AppWidgetManager.getInstance(applicationContext).getAppWidgetIds(
-            ComponentName(applicationContext, MomentWidget::class.java)
-        )
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
-        applicationContext.sendBroadcast(intent)
     }
 }
