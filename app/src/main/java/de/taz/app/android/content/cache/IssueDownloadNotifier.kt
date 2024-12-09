@@ -5,8 +5,8 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.singletons.WidgetHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import java.util.Date
 
@@ -49,7 +49,7 @@ class IssueDownloadNotifier(
     suspend fun stop() {
         try {
             notifyIssueDownloadStop()
-            MainActivity().updateWidget()
+            WidgetHelper.updateWidget(applicationContext)
         } catch (e: Exception) {
             log.warn("Error while notifying download stop for $issueKey",e)
             SentryWrapper.captureException(e)
