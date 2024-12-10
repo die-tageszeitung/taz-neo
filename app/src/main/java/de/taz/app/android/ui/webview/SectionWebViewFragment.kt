@@ -32,7 +32,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -60,7 +60,7 @@ import kotlin.math.ceil
 
 
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<Section>(application, savedStateHandle) {
+    WebViewViewModel<SectionOperations>(application, savedStateHandle) {
 
     val sectionFlow = displayableLiveData.asFlow().filterNotNull()
     val issueStubFlow = sectionFlow
@@ -74,7 +74,7 @@ class SectionWebViewViewModel(application: Application, savedStateHandle: SavedS
 const val PADDING_RIGHT_OF_LOGO = 20
 
 class SectionWebViewFragment : WebViewFragment<
-        Section,
+        SectionOperations,
         SectionWebViewViewModel,
         FragmentWebviewSectionBinding
 >() {
@@ -91,6 +91,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
+    private var sectionOperation: SectionOperations? = null
     private lateinit var sectionFileName: String
     private val isFirst: Boolean
         get() = requireArguments().getBoolean(SECTION_IS_FIRST)
@@ -112,12 +113,13 @@ class SectionWebViewFragment : WebViewFragment<
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
         private const val SECTION_IS_FIRST = "SECTION_IS_FIRST"
 
-        fun newInstance(sectionFileName: String, isFirst: Boolean): SectionWebViewFragment {
+        fun newInstance(section: SectionOperations, isFirst: Boolean): SectionWebViewFragment {
             return SectionWebViewFragment().apply {
                 arguments = bundleOf(
-                    SECTION_FILE_NAME to sectionFileName,
+                    SECTION_FILE_NAME to section.key,
                     SECTION_IS_FIRST to isFirst
                 )
+                sectionOperation = section
             }
         }
     }
@@ -140,12 +142,14 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-        lifecycleScope.launch {
-            // FIXME (johannes): this is loading the full section WITH all its articles and everything
-            //  within for EACH section pager fragment. This DOES have a performance impact
-            viewModel.displayableLiveData.postValue(
-                sectionRepository.get(sectionFileName)
-            )
+        if (sectionOperation != null) {
+            viewModel.displayableLiveData.postValue(sectionOperation)
+        } else {
+            lifecycleScope.launch {
+                viewModel.displayableLiveData.postValue(
+                    sectionRepository.getStub(sectionFileName)
+                )
+            }
         }
     }
 
@@ -156,7 +160,7 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-    override fun setHeader(displayable: Section) {
+    override fun setHeader(displayable: SectionOperations) {
         viewLifecycleOwner.lifecycleScope.launch {
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the
@@ -416,10 +420,11 @@ class SectionWebViewFragment : WebViewFragment<
     private suspend fun maybeHandlePodcast() {
         val issueStub = viewModel.issueStubFlow.first()
         val section = viewModel.sectionFlow.first()
-        if (section.type == SectionType.podcast && section.podcast != null) {
+        val podcast = section.getPodcast(requireContext().applicationContext)
+        if (section.type == SectionType.podcast && podcast != null) {
             val onGestureListener = object : SimpleOnGestureListener() {
                 override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                    audioPlayerService.playPodcast(issueStub, section, section.podcast)
+                    audioPlayerService.playPodcast(issueStub, section, podcast)
                     return true
                 }
             }

@@ -218,7 +218,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "article/$articleFileName?id=$mediaSyncSuffix"
     }
 
-    override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {
+    override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations) {
         val path = "/${issuePath(issueKey)}/${sectionPath(section)}"
         TrackHelper.track()
             .screen(path)

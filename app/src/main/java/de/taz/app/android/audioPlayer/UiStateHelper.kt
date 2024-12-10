@@ -3,10 +3,10 @@ package de.taz.app.android.audioPlayer
 import android.content.Context
 import android.net.Uri
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.SearchHit
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.singletons.StorageService
 
@@ -29,7 +29,7 @@ class UiStateHelper(private val applicationContext: Context) {
         )
     }
 
-    fun podcastAsUiItem(section: Section): AudioPlayerItem.UiItem {
+    suspend fun podcastAsUiItem(section: SectionOperations): AudioPlayerItem.UiItem {
         val coverImageUri = getAudioImageForSection(section)
         val title = section.extendedTitle ?: section.title
         return AudioPlayerItem.UiItem(
@@ -74,8 +74,8 @@ class UiStateHelper(private val applicationContext: Context) {
         return articleImageUriString?.let { Uri.parse(it) }
     }
 
-    private fun getAudioImageForSection(section: Section): Uri? {
-        val sectionImage = section.imageList.firstOrNull()
+    private suspend fun getAudioImageForSection(section: SectionOperations): Uri? {
+        val sectionImage = section.getPodcastImage(applicationContext)
         val sectionImageUriString = sectionImage?.let { storageService.getFileUri(it) }
         return sectionImageUriString?.let { Uri.parse(it) }
     }

@@ -71,7 +71,7 @@ interface Tracker {
     fun trackBookmarkListScreen()
     fun trackSearchScreen()
     fun trackSettingsScreen()
-    fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section)
+    fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations)
     fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String)
     fun trackArticleScreen(
         issueKey: AbstractIssuePublication,

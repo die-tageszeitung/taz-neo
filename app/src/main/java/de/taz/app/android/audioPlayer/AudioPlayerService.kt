@@ -11,6 +11,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.IssueStub
@@ -185,7 +186,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    fun playPodcast(issueStub: IssueStub, section: Section, audio: Audio, playNext: Boolean = false, playImmediately: Boolean = true) {
+    fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio, playNext: Boolean = false, playImmediately: Boolean = true) {
         initItem(playNext = playNext, playImmediately = playImmediately) {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
         }
