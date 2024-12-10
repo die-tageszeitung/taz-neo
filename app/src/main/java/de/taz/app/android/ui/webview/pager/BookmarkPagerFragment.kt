@@ -366,7 +366,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
             val article = articleStubs[position]
             val pagerPosition = position + 1
             val pagerTotal = articleStubs.size
-            return ArticleWebViewFragment.newInstance(article.articleFileName, pagerPosition, pagerTotal)
+            return ArticleWebViewFragment.newInstance(article, pagerPosition, pagerTotal)
         }
 
         override fun getItemId(position: Int): Long {

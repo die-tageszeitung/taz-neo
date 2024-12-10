@@ -51,9 +51,9 @@ class ArticlePagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return if (articlePagerItems[position] is ArticlePagerItem.ArticleRepresentation) {
-            val articleFileName =
-                (articlePagerItems[position] as ArticlePagerItem.ArticleRepresentation).art.articleStub.articleFileName
-            ArticleWebViewFragment.newInstance(articleFileName)
+            val articleStub =
+                (articlePagerItems[position] as ArticlePagerItem.ArticleRepresentation).art.articleStub
+            ArticleWebViewFragment.newInstance(articleStub)
         } else {
             val tom = articlePagerItems[position] as ArticlePagerItem.Tom
             TomAtTheEndFragment.newInstance(tom.tomResId)
