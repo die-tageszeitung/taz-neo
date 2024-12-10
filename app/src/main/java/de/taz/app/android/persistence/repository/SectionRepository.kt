@@ -3,6 +3,7 @@ package de.taz.app.android.persistence.repository
 import android.content.Context
 import android.database.sqlite.SQLiteConstraintException
 import de.taz.app.android.R
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.api.models.SectionStub
@@ -119,7 +120,11 @@ class SectionRepository private constructor(applicationContext: Context) :
         return appDatabase.sectionImageJoinDao().getImagesForSection(sectionFileName)
     }
 
-    suspend fun sectionStubToSection(sectionStub: SectionStub): Section? {
+    suspend fun firstImageForSectionStub(sectionFileName: String): Image? {
+        return appDatabase.sectionImageJoinDao().firstImageForSection(sectionFileName)
+    }
+
+    private suspend fun sectionStubToSection(sectionStub: SectionStub): Section? {
         val sectionFileName = sectionStub.sectionFileName
         val sectionFile = fileEntryRepository.get(sectionFileName) ?: return null
 
@@ -194,12 +199,13 @@ class SectionRepository private constructor(applicationContext: Context) :
         }
     }
 
-    suspend fun setDownloadDate(sectionStub: SectionStub, date: Date?) {
+    suspend fun setDownloadDate(section: SectionOperations, date: Date?) {
+        val sectionStub = SectionStub(section)
         update(sectionStub.copy(dateDownload = date))
     }
 
-    suspend fun getDownloadDate(sectionStub: SectionStub): Date? {
-        return appDatabase.sectionDao().getDownloadDate(sectionStub.sectionFileName)
+    suspend fun getDownloadDate(sectionStub: SectionOperations): Date? {
+        return appDatabase.sectionDao().getDownloadDate(sectionStub.key)
     }
 
 }

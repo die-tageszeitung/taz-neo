@@ -2,6 +2,7 @@ package de.taz.app.android.audioPlayer
 
 import android.content.Context
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Audio
 import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
@@ -112,7 +113,7 @@ class AudioPlayerItemInitHelper(
         return listOf(podcastAudioItem)
     }
 
-    suspend fun initSectionPodcast(issueStub: IssueStub, section: Section, audio: Audio): List<AudioPlayerItem> {
+    suspend fun initSectionPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio): List<AudioPlayerItem> {
         val podcastAudioItem = AudioPlayerItem(
             generateId(audio),
             audio,

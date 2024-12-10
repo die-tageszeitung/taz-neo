@@ -8,6 +8,17 @@ import de.taz.app.android.persistence.join.SectionImageJoin
 
 @Dao
 interface SectionImageJoinDao : BaseDao<SectionImageJoin> {
+    @Query(
+        """SELECT name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation FROM FileEntry INNER JOIN SectionImageJoin
+        ON FileEntry.name = SectionImageJoin.imageFileName
+        INNER Join Image ON Image.fileEntryName == SectionImageJoin.imageFileName
+        WHERE SectionImageJoin.sectionFileName == :sectionFileName
+        ORDER BY SectionImageJoin.`index` ASC
+        LIMIT 1
+    """
+    )
+    suspend fun firstImageForSection(sectionFileName: String): Image
+
 
     @Query(
         """SELECT name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation FROM FileEntry INNER JOIN SectionImageJoin

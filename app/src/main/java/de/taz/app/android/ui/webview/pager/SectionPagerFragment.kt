@@ -157,7 +157,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             } else {
                 val sectionStub = sectionStubs[position]
                 val isFirstSection = position == 0
-                SectionWebViewFragment.newInstance(sectionStub.sectionFileName, isFirstSection)
+                SectionWebViewFragment.newInstance(sectionStub, isFirstSection)
             }
             return fragment
         }

@@ -8,6 +8,7 @@ import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
@@ -252,12 +253,8 @@ class WrappedDownload(
             }
             // AppInfo has no collection
             is AppInfo -> Unit
-            is ArticleOperations,
-            is Page,
-            is Section,
-            is Moment,
-            is ResourceInfo -> {
-                downloadDependencies.add(download as DownloadableCollection)
+            is DownloadableCollection -> {
+                downloadDependencies.add(download)
             }
             else -> throw IllegalArgumentException("Don't know how to download $download")
         }
@@ -275,8 +272,8 @@ class WrappedDownload(
     private suspend fun getRequiredResourceInfo(collection: ObservableDownload): ResourceInfo? {
         val minResourceVersion = when (collection) {
             is IssueOperations -> return getNewestResourceInfo() // Always get the newest ResourceInfo
-            is Article -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
-            is Section -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
+            is ArticleOperations -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
+            is SectionOperations -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
             else -> null
         }
 
