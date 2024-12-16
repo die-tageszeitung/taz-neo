@@ -143,10 +143,6 @@ class AudioPlayerViewController(
         }
 
         launch {
-            audioPlayerService.playlistState.filterNotNull().collect { handlePlaylistState(it) }
-        }
-
-        launch {
             audioPlayerService.playlistEvents.filterNotNull().collect{
                 handlePlaylistEvent(it)
             }
@@ -939,10 +935,6 @@ class AudioPlayerViewController(
             is AudioPlayerInfoErrorEvent -> toastHelper.showToast(errorEvent.message, long = true)
         }
         audioPlayerService.onErrorEventHandled(errorEvent)
-    }
-
-    private fun handlePlaylistState(playlist: Playlist) {
-        adapter.submitPlaylist(playlist)
     }
 
     private fun handlePlaylistEvent(event: AudioPlayerPlaylistEvent) {

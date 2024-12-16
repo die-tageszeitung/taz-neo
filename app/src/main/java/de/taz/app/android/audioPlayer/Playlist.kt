@@ -20,7 +20,7 @@ data class Playlist(
         newItems: List<AudioPlayerItem>,
         setCurrentItemIdx: Boolean = false
     ): Playlist {
-        return if (currentItemIdx < 0) {
+        return if (currentItemIdx < 0 || items.isEmpty()) {
             Playlist(0, newItems)
         } else {
             val newPlaylist = Playlist(currentItemIdx, items + newItems)
@@ -36,7 +36,7 @@ data class Playlist(
         newItems: List<AudioPlayerItem>,
         skipCurrent: Boolean = false
     ): Playlist {
-        return if (currentItemIdx < 0) {
+        return if (currentItemIdx < 0 || items.isEmpty()) {
             Playlist(0, newItems)
         } else {
             if (skipCurrent) {

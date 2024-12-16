@@ -101,8 +101,13 @@ class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
         submitList(playlist.items) {
             val oldPosition = currentItem
             currentItem = playlist.currentItemIdx
-            oldPosition?.let { notifyItemChanged(it) }
             currentItem?.let { notifyItemChanged(it) }
+            if (currentItem != oldPosition) {
+                oldPosition?.let { notifyItemChanged(it) }
+            } else {
+                // Update all the data set
+                notifyDataSetChanged()
+            }
         }
     }
 
