@@ -17,7 +17,6 @@ import de.taz.app.android.api.models.AudioSpeaker
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.SearchHit
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.belongsTo
 import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.indexOfMediaItem
 import de.taz.app.android.dataStore.AudioPlayerDataStore
@@ -429,7 +428,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             return
         }
         items.removeAt(itemIndex)
-        _playlistState.value = currentPlaylist.copy(items = items)
+        val newCurrentIdx = if (itemIndex < currentPlaylist.currentItemIdx) {
+            currentPlaylist.currentItemIdx-1
+        } else {
+            currentPlaylist.currentItemIdx
+        }
+        _playlistState.value = Playlist(newCurrentIdx, items)
 
         getControllerFromState()?.apply {
             val itemInPlaylist = getMediaItemAt(itemIndex)
@@ -453,7 +457,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             return
         }
 
-        _playlistState.value = currentPlaylist.copy(items = emptyList())
+        _playlistState.value = Playlist(currentItemIdx = -1, items = emptyList())
 
         getControllerFromState()?.apply {
             clearMediaItems()
