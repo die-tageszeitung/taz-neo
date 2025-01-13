@@ -47,6 +47,9 @@ class SubscriptionTrialOnlyFragment : SubscriptionBaseFragment<FragmentSubscript
                 fragmentSubscriptionTrialOnlyProceed.apply {
                     setText(R.string.next_button)
                     setOnClickListener {
+                        // Clear viewmodels username and password form (maybe) login attempts
+                        viewModel.username = null
+                        viewModel.password = null
                         ifDoneNext()
                     }
                 }

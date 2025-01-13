@@ -72,6 +72,14 @@ class SubscriptionAccountFragment :
             setText(viewModel.username)
         }
 
+        viewBinding.fragmentSubscriptionAccountPassword.apply {
+            setText(viewModel.password)
+        }
+
+        viewBinding.fragmentSubscriptionAccountPasswordConfirm.apply {
+            setText(viewModel.passwordConfirm)
+        }
+
         drawLayout()
 
         viewBinding.fragmentSubscriptionAccountProceed.setOnClickListener {
@@ -232,6 +240,11 @@ class SubscriptionAccountFragment :
             // Scroll to the top:
             viewBinding.scrollView.scrollY = 0
         }
+
+        // Persist the username and confirm-password  to the view model:
+        viewBinding.fragmentSubscriptionAccountEmail.text?.let { viewModel.username = it.toString() }
+        viewBinding.fragmentSubscriptionAccountPasswordConfirm.text?.let { viewModel.passwordConfirm = it.toString() }
+
         return done
     }
 
