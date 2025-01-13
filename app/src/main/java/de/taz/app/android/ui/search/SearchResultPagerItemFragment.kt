@@ -12,18 +12,18 @@ import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.webview.AppWebChromeClient
+import de.taz.app.android.ui.webview.AppWebView
 import de.taz.app.android.ui.webview.AppWebViewClient
 import de.taz.app.android.ui.webview.AppWebViewClientCallBack
 import de.taz.app.android.ui.webview.SearchTazApiJS
 import de.taz.app.android.ui.webview.TAZ_API_JS
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
-import de.taz.app.android.ui.webview.AppWebView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -108,11 +108,16 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
     }
 
     private fun onWebViewRendered() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewBinding.loadingScreen.visibility = View.GONE
+        // It might happen that the WebView returns that it is rendered,
+        // but we lost the view already (ie by paging very quickly).
+        // That is why we check for not null:
+        if (view != null) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewBinding.loadingScreen.visibility = View.GONE
 
-            delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
-            setupBottomScrollLogin()
+                delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
+                setupBottomScrollLogin()
+            }
         }
     }
 
