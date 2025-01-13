@@ -457,7 +457,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             log.warn("Current playlist is already empty")
             return
         }
-
+        tracker.trackPlaylistClearedEvent()
         _playlistState.value = Playlist(currentItemIdx = -1, items = emptyList())
 
         getControllerFromState()?.apply {
@@ -625,6 +625,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             val beforeCurrent = !controller.isPlaying && playImmediately
                             currentPlaylist.appendAfterCurrent(newItems, beforeCurrent)
                         } else {
+                            tracker.trackPlaylistEnqueueEvent()
                             currentPlaylist.append(newItems, playImmediately)
                         }
                         _playlistState.value = newPlaylist
@@ -650,6 +651,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         val newPlaylist = if (playNext) {
                             currentPlaylist.appendAfterCurrent(newItems, playImmediately)
                         } else {
+                            tracker.trackPlaylistEnqueueEvent()
                             currentPlaylist.append(newItems, playImmediately)
                         }
                         _playlistState.value = newPlaylist
@@ -671,6 +673,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             val beforeCurrent = !isPlaying() && playImmediately
                             currentPlaylist.appendAfterCurrent(newItems, beforeCurrent)
                         } else {
+                            tracker.trackPlaylistEnqueueEvent()
                             currentPlaylist.append(newItems, playImmediately)
                         }
                         _playlistState.value = newPlaylist

@@ -4,7 +4,6 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.SearchHit
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
 
@@ -153,8 +152,8 @@ interface Tracker {
     fun trackAudioPlayerSeekPositionEvent()
     fun trackAudioPlayerResumeEvent()
     fun trackAudioPlayerPauseEvent()
-    fun trackAudioPlayerAutoplayEnableEvent()
-    fun trackAudioPlayerAutoplayDisableEvent()
+    fun trackPlaylistEnqueueEvent()
+    fun trackPlaylistClearedEvent()
 
     fun trackCoachMarkShow(layoutResName: String)
     fun trackCoachMarkClose(layoutResName: String)

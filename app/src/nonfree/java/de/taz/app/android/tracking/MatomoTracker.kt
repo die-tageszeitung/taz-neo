@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.api.models.SearchHit
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
@@ -36,6 +35,7 @@ private const val CATEGORY_BOOKMARKS = "Bookmarks"
 private const val CATEGORY_SHARE = "Share"
 private const val CATEGORY_DRAWER = "Drawer"
 private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
+private const val CATEGORY_PLAYLIST = "Playlist"
 private const val CATEGORY_COACH_MARK = "Coachmark"
 private const val CATEGORY_TAP_TO_SCROLL = "Tap am Rand"
 private const val CATEGORY_ISSUE = "Issue"
@@ -668,15 +668,15 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerAutoplayEnableEvent() {
+    override fun trackPlaylistEnqueueEvent() {
         TrackHelper.track()
-            .event(CATEGORY_AUDIO_PLAYER, "Enable Auto Play Next")
+            .event(CATEGORY_PLAYLIST, "Add to playlist")
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerAutoplayDisableEvent() {
+    override fun trackPlaylistClearedEvent() {
         TrackHelper.track()
-            .event(CATEGORY_AUDIO_PLAYER, "Disable Auto Play Next")
+            .event(CATEGORY_PLAYLIST, "Playlist cleared")
             .with(matomoTracker)
     }
 
