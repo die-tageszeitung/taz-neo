@@ -55,6 +55,7 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
             requestPassword: Boolean = false,
             articleName: String? = null,
         ) = LoginBottomSheetFragment().apply {
+            isCancelable = false
             arguments = bundleOf(
                 ARG_REQUEST_PASSWORD to requestPassword,
                 ARG_ARTICLE_NAME to articleName,
