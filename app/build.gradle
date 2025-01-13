@@ -438,11 +438,11 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.0.3'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.1.0'
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }
 
 allOpen {
