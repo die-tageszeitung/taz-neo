@@ -68,7 +68,6 @@ import kotlinx.coroutines.withContext
 
 private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
 private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
-private const val TAZ_PORTAL_LOGIN_URI = "https://portal.taz.de/user/login"
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -88,6 +87,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
     private lateinit var tracker: Tracker
+    private lateinit var portalLink: String
 
     private val emailValidator = EmailValidator()
 
@@ -104,6 +104,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         authHelper = AuthHelper.getInstance(context.applicationContext)
         feedService = FeedService.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        portalLink = context.applicationContext.getString(R.string.ACCOUNT_PORTAL_LINK)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -213,29 +214,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
             }
 
-            if (!BuildConfig.IS_LMD) {
-                fragmentSettingsAccountResetPassword.setOnClickListener {
-                    LoginBottomSheetFragment
-                        .newInstance(requestPassword = true)
-                        .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
-                }
+            fragmentSettingsAccountResetPassword.setOnClickListener {
+                LoginBottomSheetFragment
+                    .newInstance(requestPassword = true)
+                    .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
+            }
 
-                fragmentSettingsManageAccountOnline.setOnClickListener {
-                    openProfileAccountOnline()
-                }
+            fragmentSettingsManageAccountOnline.setOnClickListener {
+                openProfileAccountOnline()
+            }
 
-                fragmentSettingsAccountDelete.setOnClickListener {
-                    lifecycleScope.launch {
-                        try {
-                            val result = apiService.cancellation()
-                            if (result != null) {
-                                showCancellationDialog(result)
-                            }
-                        } catch (e: ConnectivityException) {
-                            toastHelper.showToast(
-                                resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
-                            )
+            fragmentSettingsAccountDelete.setOnClickListener {
+                lifecycleScope.launch {
+                    try {
+                        val result = apiService.cancellation()
+                        if (result != null) {
+                            showCancellationDialog(result)
                         }
+                    } catch (e: ConnectivityException) {
+                        toastHelper.showToast(
+                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                        )
                     }
                 }
             }
@@ -472,8 +471,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
 
-        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: BuildConfig.DISPLAYED_FEED
-
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
         deletionProgress.max = downloadedIssueStubList.size
@@ -704,23 +701,21 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         isTazAccount: Boolean = false
     ) = viewBinding.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-        if (!BuildConfig.IS_LMD) {
-            fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
-            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            fragmentSettingsAccountDeleteWrapper.visibility =
-                if ((isValidEmail || isAboId) && !isTazAccount) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-            // show reset password option only for when we have a valid mail:
-            fragmentSettingsAccountResetPasswordWrapper.visibility =
-                if (isValidEmail && !isTazAccount) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-        }
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
+        // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+        fragmentSettingsAccountDeleteWrapper.visibility =
+            if ((isValidEmail || isAboId) && !isTazAccount) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        // show reset password option only for when we have a valid mail:
+        fragmentSettingsAccountResetPasswordWrapper.visibility =
+            if (isValidEmail && !isTazAccount) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
         if (resources.getBoolean(R.bool.isTablet)) {
             fragmentSettingsMultiColumnModeWrapper.isVisible = true
@@ -984,9 +979,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             val mail = authHelper.email.get()
             val isValidMail = emailValidator(mail)
             val uri = if (isValidMail) {
-                "$TAZ_PORTAL_LOGIN_URI?email=$mail"
+                "$portalLink?email=$mail"
             } else {
-                TAZ_PORTAL_LOGIN_URI
+                portalLink
             }
             try {
                 CustomTabsIntent.Builder()
