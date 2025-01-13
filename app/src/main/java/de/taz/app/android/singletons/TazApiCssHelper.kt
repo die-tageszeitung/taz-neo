@@ -103,7 +103,6 @@ class TazApiCssHelper private constructor(applicationContext: Context) {
                     $importString
                     html, body {
                         background-color : ${DEFAULT_NIGHT_COLOR};
-                        display          : contents;
                     }
                     div.demoDiv:before {
                         background-image : --webkit_linear-gradient(0deg,${DEFAULT_NIGHT_COLOR} 5%,hsla(0,0%,100%,0));
