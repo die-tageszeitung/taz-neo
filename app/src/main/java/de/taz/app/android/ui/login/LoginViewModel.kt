@@ -81,6 +81,7 @@ class LoginViewModel @JvmOverloads constructor(
         get() = articleName != null
 
     var password: String? = null
+    var passwordConfirm: String? = null
     var subscriptionId: Int? = null
     var subscriptionPassword: String? = null
     var backToHome: Boolean = false

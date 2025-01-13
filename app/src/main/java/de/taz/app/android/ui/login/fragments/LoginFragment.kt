@@ -109,7 +109,6 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
                 }
             }
 
-
         }
 
         viewBinding.fragmentLoginSubscriptions.apply {
@@ -140,6 +139,12 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
             startActivity(intent)
         }
+    }
+
+    override fun onDestroyView() {
+        viewBinding.fragmentLoginUsername.text?.let { viewModel.username = it.toString() }
+        viewBinding.fragmentLoginPassword.text?.let { viewModel.password = it.toString() }
+        super.onDestroyView()
     }
 
 }
