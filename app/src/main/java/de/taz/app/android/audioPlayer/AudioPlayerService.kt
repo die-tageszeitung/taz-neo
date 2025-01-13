@@ -10,6 +10,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import de.taz.app.android.DEFAULT_AUDIO_PLAYBACK_SPEED
+import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.Audio
@@ -1151,8 +1152,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
             is PlayerState.AudioError -> {
                 val item: AudioPlayerItem? = playlist.getCurrentItem()
-                // FIXME: get string from resources, or don't pass message at all but let the consumer decide?
-                _errorEvents.value = AudioPlayerInfoErrorEvent("Info Error", mapAudioErrorToException(state))
+
+                val audioPlayerException = mapAudioErrorToException(state)
+                val errorMessage = if (audioPlayerException is AudioPlayerException.Network) {
+                    applicationContext.getString(R.string.toast_no_connection_to_server)
+                } else {
+                    applicationContext.getString(R.string.toast_unknown_error)
+                }
+                _errorEvents.value = AudioPlayerInfoErrorEvent(errorMessage, audioPlayerException)
 
                 val playerState = if (item == null) {
                     // this should never happen
