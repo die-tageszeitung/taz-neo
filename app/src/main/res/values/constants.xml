@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="DEFAULT_NAV_DRAWER_FILE_NAME">navButton.taz.normal.png</string>
+    <string name="ACCOUNT_PORTAL_LINK">https://portal.taz.de/user/login</string>
 </resources>

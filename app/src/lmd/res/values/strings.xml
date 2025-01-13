@@ -15,6 +15,7 @@
     <string name="settings_category_extended">Erweitert</string>
     <string name="settings_dialog_notifications_must_be_enabled_title">Um die Zustellung von Informationen zur App als Push-Nachricht zu erlauben, müssen Sie außerdem Benachrichtigungen in den Android-Systemeinstellungen für die LMd-App aktivieren. Auch wenn Sie keine regelmäßige Informationen zur App wünschen, empfehlen wir Benachrichtigungen in den Systemeinstellungen trotzdem zu aktivieren.</string>
     <string name="settings_notifications">Mitteilungen erlauben</string>
+    <string name="settings_notifications_allowed_by_system">Bleiben Sie immer informiert mit einem Push-Hinweis auf die aktuelle Ausgabe.</string>
 
     <string name="dialog_sharing_not_possible_message">Schliessen Sie einfach unter monde-diplomatique.de/zeitungsabo ein kostenpflichtiges Abo ab und teilen Sie mit Ihren Freunden unsere Artikel kostenfrei. Verschenken macht Freude!</string>
 
