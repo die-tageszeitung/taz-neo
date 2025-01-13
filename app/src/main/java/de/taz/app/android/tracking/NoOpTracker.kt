@@ -90,8 +90,8 @@ class NoOpTracker : Tracker {
     override fun trackAudioPlayerSeekPositionEvent() {}
     override fun trackAudioPlayerResumeEvent() {}
     override fun trackAudioPlayerPauseEvent() {}
-    override fun trackAudioPlayerAutoplayEnableEvent() {}
-    override fun trackAudioPlayerAutoplayDisableEvent() {}
+    override fun trackPlaylistEnqueueEvent() {}
+    override fun trackPlaylistClearedEvent() {}
     override fun trackCoachMarkShow(layoutResName: String) {}
     override fun trackCoachMarkClose(layoutResName: String) {}
     override fun trackTapToScrollSettingStatusEvent(enable: Boolean) {}
