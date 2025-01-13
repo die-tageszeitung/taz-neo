@@ -16,19 +16,21 @@ import de.taz.app.android.databinding.FragmentBottomSheetPlayOptionsBinding
 import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import kotlinx.coroutines.launch
 
-class PlayOptionsBottomSheet<PLAYABLE: AudioPlayerPlayable>(private val menuItemView: View) :
+class PlayOptionsBottomSheet<PLAYABLE: AudioPlayerPlayable> :
     ViewBindingBottomSheetFragment<FragmentBottomSheetPlayOptionsBinding>() {
 
     private lateinit var audioPlayerViewModel: AudioPlayerViewModel<PLAYABLE>
-
+    private lateinit var menuItemView: View
+    
     companion object {
         const val TAG = "playOptionsBottomSheet"
         fun <PLAYABLE : AudioPlayerPlayable> newInstance(
             menuItemView: View,
             audioPlayerViewModel: AudioPlayerViewModel<PLAYABLE>,
         ): DialogFragment =
-            PlayOptionsBottomSheet<PLAYABLE>(menuItemView).apply {
+            PlayOptionsBottomSheet<PLAYABLE>().apply {
                 this.audioPlayerViewModel = audioPlayerViewModel
+                this.menuItemView = menuItemView
             }
     }
 
@@ -45,7 +47,9 @@ class PlayOptionsBottomSheet<PLAYABLE: AudioPlayerPlayable>(private val menuItem
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        positionTheBottomSheetAbovePlayButton()
+        if (::menuItemView.isInitialized) {
+            positionTheBottomSheetAbovePlayButton()
+        }
 
         viewBinding.touchOutside.setOnClickListener {
             dismiss()
