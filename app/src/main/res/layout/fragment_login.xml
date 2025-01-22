@@ -33,13 +33,10 @@
             <!-- this is an interim text field which should be removed ssonish. ONLY FOR LMd release !-->
             <TextView
                 android:id="@+id/fragment_login_username_extra_hint"
-                style="@style/Widget.App.Login.Action.Text"
+                style="@style/Widget.App.Login.Action.Extra.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
                 android:text="Falls Ihr Abo-Zugang noch nicht auf Ihre E-Mail-Adresse umgestellt wurde, geben Sie hier bitte Ihre Abo-ID ein"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

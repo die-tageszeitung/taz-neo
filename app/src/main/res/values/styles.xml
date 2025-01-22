@@ -383,6 +383,12 @@
         <item name="android:textColor">@color/login_action_text_color</item>
     </style>
 
+    <!-- this is an interim style for a text field which should be removed ssonish. ONLY FOR LMd release !-->
+    <style name="Widget.App.Login.Action.Extra.Text" parent="Widget.App.TextView.M.Link">
+        <item name="lineHeight">24sp</item>
+        <item name="android:textColor">@color/login_action_text_color</item>
+    </style>
+
     <style name="Widget.App.Login.Subscription.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
 
