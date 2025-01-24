@@ -41,6 +41,7 @@ class BookmarksSynchronizationBottomSheetFragment :
                 val doNotAskAgain = viewBinding.doNotAskAgain.isChecked
                 generalDataStore.bookmarksSynchronizationBottomSheetDoNotShowAgain.set(doNotAskAgain)
                 generalDataStore.bookmarksSynchronizationEnabled.set(true)
+                generalDataStore.bookmarksSynchronizationChangedToEnabled.set(true)
                 showLoadingScreen()
                 bookmarkRepository.checkForSynchronizedBookmarks()
                 dismiss()

@@ -102,6 +102,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setBookmarksSynchronization(enabled: Boolean) {
         viewModelScope.launch {
+            if (generalDataStore.bookmarksSynchronizationEnabled.get() != enabled) {
+                // Set changed to [enabled] only once. It will indicate
+                // special bookmark synchronization on first time.
+                generalDataStore.bookmarksSynchronizationChangedToEnabled.set(enabled)
+            }
             generalDataStore.bookmarksSynchronizationEnabled.set(enabled)
         }
     }
