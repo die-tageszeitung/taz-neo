@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.audioPlayer.AudioPlayerService
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 private const val TYPE_ARTICLE_BETWEEN = 0
@@ -29,6 +31,7 @@ class ArticleAdapter(
     var articles: List<ArticleOperations>,
     private val onArticleClick: (article: ArticleOperations) -> Unit,
     private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
+    private val onAudioEnqueueClick: (ArticleOperations) -> Unit,
     private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
@@ -39,7 +42,9 @@ class ArticleAdapter(
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
         override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+        private val applicationContext = itemView.context.applicationContext
 
+        private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(applicationContext)
 
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
@@ -47,6 +52,8 @@ class ArticleAdapter(
             itemView.findViewById(R.id.article_author_and_read_minutes)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
+        private val articleIsEnqueued: ImageView =
+            itemView.findViewById(R.id.article_is_enqueued)
         private val articleDivider: View = itemView.findViewById(R.id.article_divider)
 
         /**
@@ -67,7 +74,7 @@ class ArticleAdapter(
             }
 
             launch {
-                val authorNames: String = article.getAuthorNames(itemView.context.applicationContext)
+                val authorNames: String = article.getAuthorNames(applicationContext)
                 val authorsString = if (authorNames.isNotEmpty()) itemView.context.getString(
                     R.string.author_list,
                     authorNames
@@ -96,10 +103,15 @@ class ArticleAdapter(
 
             if (article.isImprint()){
                 articleIsBookmarked.visibility = View.GONE
+                articleIsEnqueued.visibility = View.GONE
             } else {
                 articleIsBookmarked.visibility = View.VISIBLE
                 articleIsBookmarked.setOnClickListener {
                     onArticleBookmarkClick(article)
+                }
+                articleIsEnqueued.visibility = View.VISIBLE
+                articleIsEnqueued.setOnClickListener {
+                    onAudioEnqueueClick(article)
                 }
             }
 
@@ -110,6 +122,34 @@ class ArticleAdapter(
                         articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
                     } else {
                         articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
+                    }
+                }
+            }
+            val articleIsEnqueuedFlow = audioPlayerService.isInPlaylistFlow(article)
+            launch {
+                articleIsEnqueuedFlow.collect { enqueued ->
+                    if (article.hasAudio(applicationContext))
+                        if (enqueued) {
+                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueued)
+                            // tint the image view to textColor
+                            articleIsEnqueued.setColorFilter(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    R.color.textColor
+                                ), android.graphics.PorterDuff.Mode.SRC_IN
+                            )
+                        } else {
+                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueue)
+                            // tint the image view to textColorAccent
+                            articleIsEnqueued.setColorFilter(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    R.color.textColorAccent
+                                ), android.graphics.PorterDuff.Mode.SRC_IN
+                            )
+                        }
+                    else {
+                        articleIsEnqueued.visibility = View.GONE
                     }
                 }
             }

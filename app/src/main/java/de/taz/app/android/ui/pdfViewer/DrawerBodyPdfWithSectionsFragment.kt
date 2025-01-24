@@ -62,7 +62,8 @@ class DrawerBodyPdfWithSectionsFragment :
                 emptyList(),
                 { pageName -> handlePageClick(pageName) },
                 { pagePosition, article -> handleArticleClick(pagePosition, article) },
-                { article -> handleArticleBookmarkClick(article) },
+                ::handleArticleBookmarkClick,
+                ::handleAudioEnqueueClick,
                 ::createArticleBookmarkStateFlow
             )
 
@@ -101,6 +102,9 @@ class DrawerBodyPdfWithSectionsFragment :
         }
         viewBinding.playIssueLayout.setOnClickListener {
             drawerAudioPlayerViewModel.handleOnPlayAllClicked()
+        }
+        viewBinding.playlistLayout.setOnClickListener {
+            drawerAudioPlayerViewModel.showPlaylist()
         }
     }
 
@@ -142,6 +146,11 @@ class DrawerBodyPdfWithSectionsFragment :
         toggleBookmark(article)
     }
 
+    private fun handleAudioEnqueueClick(article: ArticleOperations) {
+        tracker.trackPlaylistEnqueueEvent()
+        drawerAudioPlayerViewModel.enqueue(article.key)
+    }
+
     private fun createArticleBookmarkStateFlow(article: ArticleOperations): Flow<Boolean> {
         return bookmarkRepository.createBookmarkStateFlow(article.key)
     }
@@ -175,7 +184,8 @@ class DrawerBodyPdfWithSectionsFragment :
             items,
             { pageName -> handlePageClick(pageName) },
             { pagePosition, article -> handleArticleClick(pagePosition, article) },
-            { article -> handleArticleBookmarkClick(article) },
+            ::handleArticleBookmarkClick,
+            ::handleAudioEnqueueClick,
             ::createArticleBookmarkStateFlow
         )
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter

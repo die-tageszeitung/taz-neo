@@ -35,6 +35,10 @@ interface ArticleOperations: WebViewDisplayable, AudioPlayerPlayable {
         return ArticleRepository.getInstance(applicationContext).getIndexInSection(this.key)
     }
 
+    suspend fun hasAudio(applicationContext: Context): Boolean {
+        return ArticleRepository.getInstance(applicationContext).get(this.key)?.audio != null
+    }
+
     fun isImprint(): Boolean {
         return articleType == ArticleType.IMPRINT
     }

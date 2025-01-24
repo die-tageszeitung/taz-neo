@@ -207,14 +207,14 @@
     <dimen name="fragment_bookmarks_padding_bottom">10dp</dimen>
     <dimen name="fragment_bookmarks_padding_horizontal">18dp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
+    <dimen name="drawer_default_icon_size">43dp</dimen>
+    <dimen name="drawer_default_icon_padding">9dp</dimen>
+    <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
+    <dimen name="drawer_icon_negative_margin">-10dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
-    <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_size">48dp</dimen>
     <dimen name="fragment_bookmarks_description_margin_horizontal">45dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_margin_bottom">20dp</dimen>
-    <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
-    <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
     <dimen name="fragment_bookmarks_author_margin_top">3dp</dimen>
     <dimen name="fragment_bookmarks_separator_line_solid_margin_top">5dp</dimen>
 
@@ -376,7 +376,10 @@
 
     <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
     <dimen name="fragment_drawer_body_pdf_with_sections_pagina_margin_top">7dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_margin_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_negative_margin">-3dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_small_margin">5dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_medium_margin">10dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_large_margin">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_padding">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_height">0.5dp</dimen>
