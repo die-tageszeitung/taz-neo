@@ -330,6 +330,14 @@ class BookmarkRepository(
      */
     suspend fun checkForSynchronizedBookmarks() {
         log.verbose("Check for bookmarks to synchronize")
+
+        val changedToEnabled = generalDataStore.bookmarksSynchronizationChangedToEnabled.get()
+
+        // When synchronization is freshly enabled put local bookmarks to synchronisation table:
+        if (changedToEnabled) {
+            addBookmarksToSynchronizationTable()
+        }
+
         try {
             val remoteBookmarks = apiService.getSynchronizedBookmarks()
             if (remoteBookmarks != null) {
@@ -438,6 +446,7 @@ class BookmarkRepository(
                 val article = articleRepository.getStubByMediaSyncId(it.mediaSyncId)
                 if (article != null) {
                     removeBookmarkAsync(article, fromRemote = true)
+                    bookmarkSynchronizationRepository.delete(it.mediaSyncId)
                     log.verbose("article ${it.mediaSyncId} deleted locally as not on remote anymore.")
                 }
             }
@@ -495,5 +504,25 @@ class BookmarkRepository(
         }
     }
 
+    /**
+     * Creates [BookmarkRepresentation] of all bookmarked articles and adds them to the
+     * [BookmarkSynchronizationRepository].
+     * So the synchronization process later on can handle them properly.
+     */
+    private suspend fun addBookmarksToSynchronizationTable() {
+        getBookmarkedArticleStubs().forEach {
+            val bookmarkRepresentation = it.mediaSyncId?.let { mediaSyncId ->
+                BookmarkRepresentation(
+                    mediaSyncId, it.issueDate
+                )
+            }
+            bookmarkRepresentation?.let {
+                bookmarkSynchronizationRepository.save(
+                    it, SynchronizeFromType.LOCAL, Date(), null
+                )
+            }
+        }
+        generalDataStore.bookmarksSynchronizationChangedToEnabled.set(false)
+    }
     // endregion
 }
