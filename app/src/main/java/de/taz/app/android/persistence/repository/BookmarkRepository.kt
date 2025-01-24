@@ -325,10 +325,11 @@ class BookmarkRepository(
     // region bookmark synchronization functions
     // TODO(eike): Move all those functions of this region to a BookmarkSyncService Singleton!
 
+    private val checkMutex = Mutex()
     /**
      * Get all remote bookmark and compare them with the local ones. Handle then accordingly.
      */
-    suspend fun checkForSynchronizedBookmarks() {
+    suspend fun checkForSynchronizedBookmarks() = checkMutex.withLock {
         log.verbose("Check for bookmarks to synchronize")
 
         val changedToEnabled = generalDataStore.bookmarksSynchronizationChangedToEnabled.get()
@@ -436,9 +437,9 @@ class BookmarkRepository(
         localButNotRemoteBookmarks.forEach {
             val bookmarkSynchronization = bookmarkSynchronizationRepository.get(it.mediaSyncId)
             val originallyFromLocal = bookmarkSynchronization?.from == SynchronizeFromType.LOCAL
-            val notYestSynchronized =  bookmarkSynchronization?.synchronizedTime == null
+            val notYetSynchronized =  bookmarkSynchronization?.synchronizedTime == null
             // Check if it is not synchronized, then push it to remote:
-            if (originallyFromLocal && notYestSynchronized) {
+            if (originallyFromLocal && notYetSynchronized) {
                 pushLocalBookmarkToRemote(it)
                 log.verbose("article ${it.mediaSyncId} pushed to remote.")
             } else {
