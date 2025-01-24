@@ -89,11 +89,11 @@
 
         <ImageView
             android:id="@+id/fragment_drawer_audio_enqueue"
-            android:layout_width="@dimen/drawer_bookmarks_icon_size"
-            android:layout_height="@dimen/drawer_bookmarks_icon_size"
-            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
             android:contentDescription="@string/fragment_drawer_article_item_enqueue"
-            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:padding="@dimen/drawer_default_icon_padding"
             android:src="@drawable/ic_audio_enqueue"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/fragment_drawer_article_bookmark_icon"
@@ -102,11 +102,11 @@
 
         <ImageView
             android:id="@+id/fragment_drawer_audio_enqueued"
-            android:layout_width="@dimen/drawer_bookmarks_icon_size"
-            android:layout_height="@dimen/drawer_bookmarks_icon_size"
-            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
             android:contentDescription="@string/fragment_drawer_article_item_enqueued"
-            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:padding="@dimen/drawer_default_icon_padding"
             android:src="@drawable/ic_audio_enqueued"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/fragment_drawer_article_bookmark_icon"
@@ -115,11 +115,11 @@
 
         <ImageView
             android:id="@+id/fragment_drawer_article_bookmark_icon"
-            android:layout_width="@dimen/drawer_bookmarks_icon_size"
-            android:layout_height="@dimen/drawer_bookmarks_icon_size"
-            android:layout_marginEnd="@dimen/fragment_bookmarks_icon_margin_end"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
             android:contentDescription="@string/fragment_bookmark"
-            android:padding="@dimen/fragment_bookmarks_icon_padding"
+            android:padding="@dimen/drawer_default_icon_padding"
             android:src="@drawable/ic_bookmark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

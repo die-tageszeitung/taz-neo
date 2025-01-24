@@ -246,9 +246,8 @@
     <style name="Widget.App.Drawer.Lmd.Header.Page" parent="Widget.App.Drawer.Lmd.Page" />
 
     <style name="Widget.App.Drawer.Lmd.Header.Content" parent="Widget.App.TextView">
-        <item name="android:fontFamily">@font/appFontAlternative</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/pdf_section_font</item>
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Widget.App.Drawer.Lmd.Header.Date" parent="Widget.App.TextView">
