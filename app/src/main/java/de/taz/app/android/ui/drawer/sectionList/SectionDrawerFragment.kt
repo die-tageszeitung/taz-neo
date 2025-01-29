@@ -335,8 +335,12 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         }
     }
 
-    private fun handleEnqueueAudio(article: Article) {
-        drawerAudioPlayerViewModel.enqueue(article.key)
+    private fun handleEnqueueAudio(article: Article, alreadyInPlaylist: Boolean) {
+        if (alreadyInPlaylist) {
+            drawerAudioPlayerViewModel.removeFromPlaylist(article.key)
+        } else {
+            drawerAudioPlayerViewModel.enqueue(article.key)
+        }
     }
 
     private fun getSectionDrawerItemList(sectionList: List<Section>): MutableList<SectionDrawerItem> {

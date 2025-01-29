@@ -484,6 +484,8 @@
     <string name="audioplayer_playlist_current">spielt gerade</string>
     <string name="audioplayer_show_in_playlist">Wiedergabeliste ansehen</string>
     <string name="audioplayer_snackbar_added_to_playlist">Der Artikel wurde zur Wiedergabeliste hinzugefügt.</string>
+    <string name="audioplayer_snackbar_removed_from_playlist">Artikel wurde aus Wiedergabeliste entfernt</string>
+    <string name="audioplayer_snackbar_already_in_playlist">Dieser Artikel befindet sich bereits in der Wiedergabeliste</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

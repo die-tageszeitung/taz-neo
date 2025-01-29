@@ -83,6 +83,30 @@ object SnackBarHelper {
         null,
     ) { showPlaylist(context) }
 
+    fun showRemoveFromPlaylistSnack(
+        context: Context,
+        view: View,
+        anchor: View?,
+    ) = showSnack(
+        context, view,
+        anchor,
+        context.getString( R.string.audioplayer_snackbar_removed_from_playlist),
+        context.getString(R.string.audioplayer_show_in_playlist),
+        null,
+    ) { showPlaylist(context) }
+
+    fun showAlreadyInPlaylistSnack(
+        context: Context,
+        view: View,
+        anchor: View?,
+    ) = showSnack(
+        context, view,
+        anchor,
+        context.getString( R.string.audioplayer_snackbar_already_in_playlist),
+        context.getString(R.string.audioplayer_show_in_playlist),
+        null,
+    ) { showPlaylist(context) }
+
     fun showDebookmarkUndoSnack(
         context: Context,
         view: View,

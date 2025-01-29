@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
+import kotlin.collections.map
 import kotlin.coroutines.CoroutineContext
 
 private const val SEEK_FORWARD_MS = 15000L
@@ -435,6 +436,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             currentPlaylist.currentItemIdx
         }
         _playlistState.value = Playlist(newCurrentIdx, items)
+        _playlistEvents.value = AudioPlayerPlaylistRemovedEvent
 
         getControllerFromState()?.apply {
             val itemInPlaylist = getMediaItemAt(itemIndex)
@@ -615,6 +617,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 // FIXME: maybe comp and set instead to make it more concurrency proof?
                 val currentPlaylist = _playlistState.value
 
+                val alreadyInPlayList =
+                    newItems.any { it.playableKey in currentPlaylist.items.map { it.playableKey } }
+                if (alreadyInPlayList) {
+                    _playlistEvents.value = AudioPlayerPlaylistAlreadyEnqueuedEvent
+                    return@launch
+                }
+
                 when (val currentState = state.value) {
                     is PlayerState.AudioReady,
                         // Handle AudioError just as paused.
@@ -684,15 +693,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     }
                 }
 
-                // FIXME: Check if more detailed notifications necessary
                 if (!playImmediately) {
                     _playlistEvents.value = AudioPlayerPlaylistAddedEvent
                 }
 
             } catch (e: Exception) {
-
-                // FIXME: Check if more detailed notifications necessary
-                _playlistEvents.value = AudioPlayerPlaylistAddedEvent
+                _playlistEvents.value = AudioPlayerPlaylistErrorEvent
             }
         }
     }
