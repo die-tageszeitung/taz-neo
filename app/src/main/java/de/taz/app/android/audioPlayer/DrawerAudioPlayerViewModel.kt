@@ -91,6 +91,14 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
             _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)}
     }
 
+    fun removeFromPlaylist(articleKey: String) {
+        val audioToRemove =
+            audioPlayerService.playlistState.value.items.find { it.playableKey == articleKey }
+        audioToRemove?.let {
+            audioPlayerService.removeItem(it)
+        }
+    }
+
     fun clearErrorMessage() {
         _errorMessageFlow.value = null
     }

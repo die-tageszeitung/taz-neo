@@ -29,7 +29,7 @@ class ArticleItemViewHolder(
     parent: ViewGroup,
     private val onArticleClick: (Article) -> Unit,
     private val onBookmarkClick: (Article) -> Unit,
-    private val onAudioEnqueueClick: (Article) -> Unit,
+    private val onAudioEnqueueClick: (Article, Boolean) -> Unit,
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>
 ) :
     RecyclerView.ViewHolder(
@@ -110,19 +110,19 @@ class ArticleItemViewHolder(
         }
 
         launch {
-            audioPlayerService.isInPlaylistFlow(article).collect {
+            audioPlayerService.isInPlaylistFlow(article).collect { isEnqueued ->
                 if (article.audio != null)
-                    if (it) {
+                    if (isEnqueued) {
                         audioEnqueuedImageView.visibility = View.VISIBLE
                         audioEnqueueImageView.visibility = View.GONE
                         audioEnqueuedImageView.setOnClickListener {
-                            onAudioEnqueueClick(article)
+                            onAudioEnqueueClick(article, isEnqueued)
                         }
                     } else {
                         audioEnqueuedImageView.visibility = View.GONE
                         audioEnqueueImageView.visibility = View.VISIBLE
                         audioEnqueueImageView.setOnClickListener {
-                            onAudioEnqueueClick(article)
+                            onAudioEnqueueClick(article, isEnqueued)
                         }
                     }
                 else {

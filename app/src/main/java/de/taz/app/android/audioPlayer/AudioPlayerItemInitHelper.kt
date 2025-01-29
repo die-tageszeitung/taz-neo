@@ -8,7 +8,6 @@ import de.taz.app.android.api.models.Issue
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.api.models.SearchHit
-import de.taz.app.android.api.models.Section
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssuePublication

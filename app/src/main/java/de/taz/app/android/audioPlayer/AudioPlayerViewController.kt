@@ -19,6 +19,7 @@ import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
@@ -938,13 +939,35 @@ class AudioPlayerViewController(
     }
 
     private fun handlePlaylistEvent(event: AudioPlayerPlaylistEvent) {
+        val rootView = activity.window.decorView.rootView
+        val anchorView =
+            if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
+                rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
+            } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.isShown == true) {
+                rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+            } else {
+                null
+            }
         when (event) {
             AudioPlayerPlaylistAddedEvent -> {
                 SnackBarHelper.showPlayListSnack(
-                    context = activity,
-                    view = activity.getRootView(),
-                    anchor = activity.getRootView()
-                        .findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+                    context = rootView.context,
+                    view = rootView,
+                    anchor = anchorView
+                )
+            }
+            AudioPlayerPlaylistRemovedEvent -> {
+                SnackBarHelper.showRemoveFromPlaylistSnack(
+                    context = rootView.context,
+                    view = rootView,
+                    anchor = anchorView
+                )
+            }
+            AudioPlayerPlaylistAlreadyEnqueuedEvent -> {
+                SnackBarHelper.showAlreadyInPlaylistSnack(
+                    context = rootView.context,
+                    view = rootView,
+                    anchor = anchorView
                 )
             }
             AudioPlayerPlaylistErrorEvent -> toastHelper.showToast("Playlist Error", long = true)
