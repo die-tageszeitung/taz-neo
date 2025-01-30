@@ -502,6 +502,15 @@ abstract class WebViewFragment<
      */
     open suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> = emptyList()
     open suspend fun onSetBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) = Unit
+    /**
+     * Setup the handling for the playlist in the current webview.
+     * It must return a list of all Article names enqueued in the initial state.
+     *
+     * Return a List of enqueued Article names (without the .html suffix) for the current webview.
+     * The context is usually a Section - otherwise the behavior is not defined.
+     */
+    open suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> = emptyList()
+    open suspend fun onEnqueued(articleName: String, isEnqueued: Boolean) = Unit
 
 
     open fun onPageRendered() {

@@ -97,6 +97,7 @@ class SectionWebViewFragment : WebViewFragment<
         get() = requireArguments().getBoolean(SECTION_IS_FIRST)
 
     private var bookmarkJob: Job? = null
+    private var enqueuedJob: Job? = null
 
     override val webView: AppWebView
         get() = viewBinding.webView
@@ -276,6 +277,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun onDestroyView() {
         bookmarkJob?.cancel()
+        enqueuedJob?.cancel()
         super.onDestroyView()
     }
 
@@ -338,6 +340,23 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
+    @UiThread
+    private fun runIfWebViewReady(function: () -> Unit) {
+        if (!isRendered) {
+            return
+        }
+
+        try {
+            function()
+        } catch (npe: NullPointerException) {
+            // It is possible that given function() is called from a coroutine when the
+            // fragments view is already destroyed or not ready yet. In this case the `webView`
+            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
+            // thus we catch and ignore this exception.
+        }
+    }
+
+    // region bookmark handling
     private fun setupBookmarkStateFlows(articleFileNames: List<String>) {
         // Create a new coroutine scope to listen to bookmark changes
         // When the bookmarkJob is canceled all coroutines launched from associated scope will be canceled, too
@@ -401,20 +420,89 @@ class SectionWebViewFragment : WebViewFragment<
 
     @UiThread
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
-        if (!isRendered) {
-            return
-        }
-
         val articleName = ArticleName.fromArticleFileName(articleFileName)
-        try {
+        runIfWebViewReady {
             webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
-        } catch (npe: NullPointerException) {
-            // It is possible that setWebViewBookmarkState() is called from a coroutine when the
-            // fragments view is already destroyed or not ready yet. In this case the `webView`
-            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
-            // thus we catch and ignore this exception.
         }
     }
+    // endregion
+
+    // region playlist handling
+    private fun setupEnqueuedStateFlows(articleFileNames: List<String>) {
+        // Create a new coroutine scope to listen to playlist enqueue changes
+        // When the enqueuedJob is canceled all coroutines launched from associated scope will be canceled, too
+        val newEnqueuedJob = Job()
+        enqueuedJob?.cancel()
+        enqueuedJob = newEnqueuedJob
+        val enqueuedScope = CoroutineScope(Dispatchers.Default + newEnqueuedJob)
+
+        enqueuedJob?.isActive
+
+        // Create a coroutine for each article listening for its playlist enqueue changes
+        articleFileNames.forEach { articleFileName ->
+            enqueuedScope.launch {
+                audioPlayerService.isInPlaylistFlow(articleFileName).collect {
+                    withContext(Dispatchers.Main) {
+                        setWebViewEnqueuedState(articleFileName, it)
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> {
+        val articleFileNames = articleNamesInWebView.mapNotNull {
+            issueViewerViewModel.findArticleStubByArticleName(it)?.articleFileName
+        }
+
+        setupEnqueuedStateFlows(articleFileNames)
+
+        val enqueuedArticlesInThisWebView = audioPlayerService.playlistState.value.items.filter {
+            it.playableKey in articleFileNames
+        }.mapNotNull {
+            it.playableKey
+        }
+
+        return enqueuedArticlesInThisWebView
+    }
+
+    override suspend fun onEnqueued(
+        articleName: String,
+        setEnqueued: Boolean,
+    ) {
+        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
+        if (articleStub != null && articleStub.hasAudio) {
+            if (setEnqueued) {
+                try {
+                    audioPlayerService.playArticle(
+                        articleStub.key, replacePlaylist = false, playImmediately = false
+                    )
+                } catch (e: Exception) {
+                    log.error("Could not play article audio (${articleStub.key})", e)
+                }
+            } else {
+                val articleAsAudioItem =
+                    audioPlayerService.playlistState.value.items.find { it.playableKey == articleStub.key }
+                articleAsAudioItem?.let {
+                    audioPlayerService.removeItem(it)
+                    SnackBarHelper.showRemoveFromPlaylistSnack(
+                        context = requireContext(), view = viewBinding.webView, anchor = null
+                    )
+                }
+            }
+        } else {
+            log.warn("Could not set enqueued for $articleName as articleStub is null (or article has no audio).")
+        }
+    }
+
+    @UiThread
+    private fun setWebViewEnqueuedState(articleFileName: String, isEnqueued: Boolean) {
+        val articleName = ArticleName.fromArticleFileName(articleFileName)
+        runIfWebViewReady {
+            webView.callTazApi("onEnqueuedChange", articleName, isEnqueued)
+        }
+    }
+    // endregion
 
     @SuppressLint("ClickableViewAccessibility")
     private suspend fun maybeHandlePodcast() {
