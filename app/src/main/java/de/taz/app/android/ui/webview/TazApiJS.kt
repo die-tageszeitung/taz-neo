@@ -19,7 +19,7 @@ import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
+import kotlin.text.replace
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -170,6 +170,33 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     fun setBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) {
         runBlocking {
             webViewFragment.onSetBookmark(articleName, isBookmarked, showNotification)
+        }
+    }
+
+    /**
+     * @return Array of article names encoded as JSON
+     */
+    @JavascriptInterface
+    fun getEnqueuedArticleNames(articleNamesJson: String): String {
+        val articleNamesWithPrefix: List<String> = try {
+            Json.decodeFromString(articleNamesJson)
+        } catch (e: IllegalArgumentException) {
+            log.warn("Could not decode articleNames passed from JS: $articleNamesJson", e)
+            emptyList()
+        }
+
+        val articleNames = articleNamesWithPrefix.map { it.replace("PlaylistAdd.","") }
+        val enqueuedArticleNames = runBlocking {
+            webViewFragment.setupEnqueuedHandling(articleNames)
+        }
+        return Json.encodeToString(enqueuedArticleNames)
+    }
+
+    @JavascriptInterface
+    fun setEnqueued(articleName: String, isEnqueued: Boolean) {
+        val correctArticleName = articleName.replace("PlaylistAdd.","")
+        runBlocking {
+            webViewFragment.onEnqueued(correctArticleName, isEnqueued)
         }
     }
 

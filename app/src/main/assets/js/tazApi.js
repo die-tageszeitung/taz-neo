@@ -137,6 +137,30 @@ var tazApi = (function() {
         ANDROIDAPI.setBookmark(articleName, isBookmarked, showNotification)
     }
 
+    /**
+    * Load the enqueued Articles for the current Section.
+    * setupEnqueuedCallback(articleNames) is called with an array of the names of all
+    * enqueued articles (without the .html suffix).
+    */
+    function getEnqueuedArticles(setupEnqueuedCallback) {
+        // Find all articles names listed on the current section
+        // this is necessary for title sections where the graphql does *not* return all articles
+        var articleNames = [];
+        var enqueuedElements = document.getElementsByClassName("playlistAdd");
+        for (var i = 0; i < enqueuedElements.length; i++) {
+            articleNames.push(enqueuedElements[i].id);
+        }
+
+        var enqueuedArticleNamesJson = ANDROIDAPI.getEnqueuedArticleNames(JSON.stringify(articleNames));
+
+        var enqueuedArticleNames = JSON.parse(enqueuedArticleNamesJson);
+        setupEnqueuedCallback(enqueuedArticleNames);
+    }
+
+    function setEnqueued(articleName, isEnqueued) {
+        ANDROIDAPI.setEnqueued(articleName, isEnqueued)
+    }
+
     function enableArticleColumnMode(heightPx, columnWidthPx, columnGapPx) {
         // If there is already a observer running, we disconnect/stop it
         disconnectContentResizeObserver();
@@ -277,6 +301,8 @@ var tazApi = (function() {
         openImage : openImage,
         getBookmarks: getBookmarks,
         setBookmark: setBookmark,
+        getEnqueuedArticles: getEnqueuedArticles,
+        setEnqueued: setEnqueued,
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
         setPaddingRight: setPaddingRight,

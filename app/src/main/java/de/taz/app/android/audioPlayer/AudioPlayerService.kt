@@ -534,6 +534,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             playlistState.items.any { it.playableKey == articleOperations.key }
         }
     }
+    fun isInPlaylistFlow(articleFileName: String): Flow<Boolean> {
+        return playlistState.map { playlistState ->
+            playlistState.items.any { it.playableKey == articleFileName }
+        }
+    }
     // endregion public attributes and methods
 
     init {
