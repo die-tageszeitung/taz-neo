@@ -57,6 +57,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
         WHERE Article.articleType = 'IMPRINT'
           AND Article.issueFeedName = :issueFeedName
           AND Article.issueDate = :issueDate
+        ORDER BY dateDownload DESC LIMIT 1
     """
     )
     suspend fun getImprintArticleStubForIssue(
