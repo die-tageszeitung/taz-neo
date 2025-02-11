@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
-class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
+class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
@@ -121,7 +121,6 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
             // we let Android restore the scroll position. This might work as long as the feed did not change.
-            // FIXME(johannes): test if it actually works as a new adapter is assigned
             val restoreFromPersistedState = initialAdapter && savedInstanceState != null
 
             if (!restoreFromPersistedState) {
@@ -220,7 +219,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         this.date.text = when {
             BuildConfig.IS_LMD ->
                 DateHelper.dateToLocalizedMonthAndYearString(date)
-            item != null && item.validity != null ->
+            item?.validity != null ->
                 DateHelper.dateToWeekNotation(
                     item.date,
                     item.validity
