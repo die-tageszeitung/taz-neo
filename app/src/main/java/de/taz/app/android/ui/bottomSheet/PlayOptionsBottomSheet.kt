@@ -47,9 +47,13 @@ class PlayOptionsBottomSheet<PLAYABLE: AudioPlayerPlayable> :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (::menuItemView.isInitialized) {
-            positionTheBottomSheetAbovePlayButton()
+        // dismiss the bottom sheet when it was not initialized (eg on device rotation):
+        if (!::menuItemView.isInitialized || !::audioPlayerViewModel.isInitialized) {
+            dismiss()
+            return
         }
+
+        positionTheBottomSheetAbovePlayButton()
 
         viewBinding.touchOutside.setOnClickListener {
             dismiss()
