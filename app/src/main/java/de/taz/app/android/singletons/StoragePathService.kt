@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
-import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,7 +19,6 @@ class CannotDetermineBaseUrlException(message: String, cause: Throwable? = null)
 class StoragePathService private constructor(private val applicationContext: Context) {
     companion object : SingletonHolder<StoragePathService, Context>(::StoragePathService)
 
-    private val log by Log
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val contentService = ContentService.getInstance(applicationContext)
 
