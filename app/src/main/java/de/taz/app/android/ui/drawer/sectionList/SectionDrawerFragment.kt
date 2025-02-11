@@ -23,6 +23,8 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
+import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.persistence.repository.AbstractCoverPublication
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -101,6 +103,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.wrapper.setDefaultVerticalInsets()
 
         viewBinding.fragmentDrawerSectionsList.apply {
             adapter = sectionListAdapter

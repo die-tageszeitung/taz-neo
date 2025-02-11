@@ -27,6 +27,8 @@ import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
@@ -583,6 +585,10 @@ class AudioPlayerViewController(
         if (playerOverlayBinding == null) {
             val playerOverlayBinding = createPlayerOverlay()
             val rootView = activity.getRootView()
+
+            playerOverlayBinding.players.setDefaultBottomInset()
+            playerOverlayBinding.playlistView.setDefaultInsets(bottom=false)
+
             playerOverlayBinding.hideOverlay()
             addPlayerOverlay(rootView, playerOverlayBinding)
 
