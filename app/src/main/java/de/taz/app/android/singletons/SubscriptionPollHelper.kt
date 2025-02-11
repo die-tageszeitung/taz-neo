@@ -61,12 +61,6 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                         authHelper.status.set(AuthStatus.valid)
 
                         toastHelper.showToast(R.string.toast_login_successful)
-
-                        // FIXME (johannes): remove this comment if no errors are reported
-                        // Previously we did call apiService.getLastIssues() once the AuthStatus become valid
-                        // We heavily tested its removal as we should not need this explicit call in case of
-                        // E-Mail verification. The flow is the same as just logging in and should already
-                        // be handled successfully.
                     }
                     SubscriptionStatus.tazIdNotValid,
                     SubscriptionStatus.subscriptionIdNotValid,
