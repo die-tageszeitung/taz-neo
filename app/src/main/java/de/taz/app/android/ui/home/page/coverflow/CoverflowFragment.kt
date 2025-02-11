@@ -16,6 +16,7 @@ import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
-class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
+class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
@@ -75,6 +76,9 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.root.setDefaultInsets()
+
         grid.edgeEffectFactory = BouncyEdgeEffect.Factory
 
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {

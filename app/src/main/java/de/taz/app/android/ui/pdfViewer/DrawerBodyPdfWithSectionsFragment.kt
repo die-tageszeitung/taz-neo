@@ -17,6 +17,8 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.SnackBarHelper
@@ -56,6 +58,9 @@ class DrawerBodyPdfWithSectionsFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.constraintLayout.setDefaultTopInset()
+        viewBinding.navigationPageArticleRecyclerView.setDefaultBottomInset()
 
         adapter =
             PageWithArticlesAdapter(

@@ -19,6 +19,8 @@ import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
+import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
@@ -55,6 +57,8 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.wrapper.setDefaultVerticalInsets()
 
         // Disable animations on the RV in hope of preventing some internal crashes:
         // See: https://redmine.hal.taz.de/issues/15694

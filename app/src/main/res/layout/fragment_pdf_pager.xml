@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fragment_archive_background"
-    android:fitsSystemWindows="true"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
     <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
@@ -24,7 +23,7 @@
         android:id="@+id/navigation_bottom_pdf"
         style="@style/Widget.App.BottomNavigation.TabBar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/nav_bottom_height"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

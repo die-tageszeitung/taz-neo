@@ -9,6 +9,7 @@ import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityWebviewBinding
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
@@ -62,6 +63,8 @@ class WebViewActivity : ViewBindingActivity<ActivityWebviewBinding>() {
         }
 
         viewBinding.apply {
+            root.setDefaultInsets()
+
             buttonClose.setOnClickListener {
                 finish()
             }

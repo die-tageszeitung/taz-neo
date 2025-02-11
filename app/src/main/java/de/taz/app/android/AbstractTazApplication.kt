@@ -54,19 +54,12 @@ abstract class AbstractTazApplication : Application() {
 
         if (BuildConfig.DEBUG) {
             val vmPolicyBuilder = StrictMode.VmPolicy.Builder()
-                .detectLeakedClosableObjects()
+                .detectAll()
                 .penaltyLog()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                vmPolicyBuilder.detectNonSdkApiUsage()
-            }
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                vmPolicyBuilder.detectUnsafeIntentLaunch()
-            }
-
             StrictMode.setVmPolicy(vmPolicyBuilder.build())
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
+                    .detectAll()
                     .penaltyLog()
                     .build()
             )
