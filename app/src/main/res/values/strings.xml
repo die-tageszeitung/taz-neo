@@ -50,6 +50,7 @@
 
     <string name="tab_bar_home">Home</string>
     <string name="tab_bar_bookmarks">Leseliste</string>
+    <string name="tab_bar_playlist">Wiedergabeliste</string>
     <string name="tab_bar_search">Suche</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
@@ -466,9 +467,10 @@
     <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
-    <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
+    <string name="audioplayer_loading_message">einen Moment bitte…\ndas Audiofile wird geladen </string>
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
+    <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
     <string name="audioplayer_next_in_queue">Nächster Artikel in der Wiedergabeliste:</string>
     <string name="audioplayer_disclaimer_title">Disclaimer</string>
     <string name="audioplayer_disclaimer_author">vertonung@taz.de</string>

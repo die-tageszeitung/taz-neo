@@ -554,6 +554,14 @@
         <item name="lineHeight">18sp</item>
     </style>
 
+    <style name="Widget.App.AudioPlayer.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
+        <item name="android:lineSpacingExtra">5sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
     <!-- endregion -->
 
     <!-- region coachmarks -->
@@ -574,16 +582,6 @@
     <!-- endregion -->
 
     <!-- region BottomSheets -->
-
-    <style name="PlayOptionsBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
-        <item name="android:backgroundDimAmount">0</item>
-        <item name="bottomSheetStyle">@style/PlayOptionsBottomSheetStyle</item>
-    </style>
-
-    <style name="PlayOptionsBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
     <style name="BottomSheetContainer">
         <item name="android:background">@drawable/text_settings_rounded_bg</item>
     </style>

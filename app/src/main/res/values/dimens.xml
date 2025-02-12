@@ -319,6 +319,7 @@
     <dimen name="audioplayer_expanded_loading_margin_vertical">100dp</dimen>
     <dimen name="audioplayer_expanded_play_speed_view_width">50dp</dimen>
     <dimen name="audioplayer_expanded_play_speed_view_height">27dp</dimen>
+    <dimen name="audioplayer_expanded_auto_play_next_margin_top">18dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>

@@ -40,7 +40,6 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
 
     val isPlayerVisible = audioPlayerService.uiState.map { it.isPlayerVisible() }
-    val playlistFlow = audioPlayerService.playlistState
 
     /**
      * True if the currently visible article is active within the audio player.

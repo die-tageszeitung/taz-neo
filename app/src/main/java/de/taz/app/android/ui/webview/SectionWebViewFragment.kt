@@ -457,7 +457,7 @@ class SectionWebViewFragment : WebViewFragment<
 
         setupEnqueuedStateFlows(articleFileNames)
 
-        val enqueuedArticlesInThisWebView = audioPlayerService.playlistState.value.items.filter {
+        val enqueuedArticlesInThisWebView = audioPlayerService.persistedPlaylistState.value.items.filter {
             it.playableKey in articleFileNames
         }.mapNotNull {
             it.playableKey
@@ -482,7 +482,7 @@ class SectionWebViewFragment : WebViewFragment<
                 }
             } else {
                 val articleAsAudioItem =
-                    audioPlayerService.playlistState.value.items.find { it.playableKey == articleStub.key }
+                    audioPlayerService.persistedPlaylistState.value.items.find { it.playableKey == articleStub.key }
                 articleAsAudioItem?.let {
                     audioPlayerService.removeItem(it)
                     SnackBarHelper.showRemoveFromPlaylistSnack(

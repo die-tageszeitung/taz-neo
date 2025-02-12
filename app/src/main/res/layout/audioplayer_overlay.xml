@@ -164,7 +164,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="gone">
+            tools:visibility="visible">
 
             <ImageView
                 android:id="@+id/expanded_close_button"
@@ -362,51 +362,75 @@
                 app:layout_constraintTop_toTopOf="@id/expanded_audio_action"
                 app:tint="@color/audio_player_controls_color" />
 
-            <TextView
-                android:id="@+id/expanded_next_in_queue_title"
-                style="@style/Widget.App.AudioPlayer.Expanded.NextDescription"
-                android:layout_width="0dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/playlist_controls"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/audioplayer_expanded_last_row_margin_top"
-                android:text="@string/audioplayer_next_in_queue"
-                app:layout_constraintEnd_toStartOf="@id/expanded_go_to_playlist"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action" />
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action">
 
-            <TextView
-                android:id="@+id/expanded_next_in_queue"
-                style="@style/Widget.App.AudioPlayer.Expanded.NextTitle"
-                android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/expanded_next_in_queue_title"
+                    style="@style/Widget.App.AudioPlayer.Expanded.NextDescription"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/audioplayer_expanded_last_row_margin_top"
+                    android:text="@string/audioplayer_next_in_queue"
+                    app:layout_constraintEnd_toStartOf="@id/expanded_go_to_playlist"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/expanded_next_in_queue"
+                    style="@style/Widget.App.AudioPlayer.Expanded.NextTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/appFontBold"
+                    android:maxLines="1"
+                    app:layout_constraintEnd_toStartOf="@id/expanded_go_to_playlist"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/expanded_next_in_queue_title"
+                    tools:text="Lorem ist noch lange nicht tot" />
+
+                <TextView
+                    android:id="@+id/expanded_go_to_playlist"
+                    style="@style/Widget.App.AudioPlayer.Expanded.GoToPlaylist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:text="@string/audioplayer_go_to_playlist"
+                    app:layout_constraintBottom_toBottomOf="@id/expanded_playlist_action"
+                    app:layout_constraintEnd_toStartOf="@id/expanded_playlist_action"
+                    app:layout_constraintTop_toTopOf="@id/expanded_playlist_action" />
+
+                <ImageView
+                    android:id="@+id/expanded_playlist_action"
+                    android:layout_width="@dimen/audioplayer_playlist_big_icon_size"
+                    android:layout_height="@dimen/audioplayer_playlist_big_icon_size"
+                    android:layout_marginTop="@dimen/audioplayer_expanded_last_row_margin_top"
+                    android:contentDescription="@string/audioplayer_go_to_playlist"
+                    android:src="@drawable/ic_playlist_outlined"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/lightGrey" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/auto_play_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/appFontBold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                app:layout_constraintEnd_toStartOf="@id/expanded_go_to_playlist"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/expanded_next_in_queue_title"
-                tools:text="Lorem ist noch lange nicht tot" />
+                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action">
 
-            <TextView
-                android:id="@+id/expanded_go_to_playlist"
-                style="@style/Widget.App.AudioPlayer.Expanded.GoToPlaylist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:text="@string/audioplayer_go_to_playlist"
-                app:layout_constraintBottom_toBottomOf="@id/expanded_playlist_action"
-                app:layout_constraintEnd_toStartOf="@id/expanded_playlist_action"
-                app:layout_constraintTop_toTopOf="@id/expanded_playlist_action" />
-
-            <ImageView
-                android:id="@+id/expanded_playlist_action"
-                android:layout_width="@dimen/audioplayer_playlist_big_icon_size"
-                android:layout_height="@dimen/audioplayer_playlist_big_icon_size"
-                android:layout_marginTop="@dimen/audioplayer_expanded_last_row_margin_top"
-                android:contentDescription="@string/audioplayer_go_to_playlist"
-                android:src="@drawable/ic_playlist_outlined"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action"
-                app:tint="@color/lightGrey" />
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/expanded_auto_play_next_switch"
+                    style="@style/Widget.App.AudioPlayer.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/audioplayer_expanded_auto_play_next_margin_top"
+                    android:text="@string/audioplayer_auto_play_next"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- region loading state -->
             <TextView
@@ -435,7 +459,7 @@
             app:layout_constraintHeight_max="@dimen/audioplayer_playlist_max_height"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0"
-            tools:visibility="visible">
+            tools:visibility="gone">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/playlist_rv"

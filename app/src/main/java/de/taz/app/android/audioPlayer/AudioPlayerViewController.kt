@@ -477,6 +477,13 @@ class AudioPlayerViewController(
         smallPlayer.isVisible = false
         expandedPlayer.isVisible = true
         playlistView.isVisible = false
+        if (audioPlayerService.isPlaylistPlayer) {
+            playlistControls.isVisible = true
+            autoPlayLayout.isVisible = false
+        } else {
+            playlistControls.isVisible = false
+            autoPlayLayout.isVisible = true
+        }
         setExpandedPlayerViewVisibility(isLoading = false)
 
         val imageResourceId = if (isPlaying) {
@@ -550,7 +557,8 @@ class AudioPlayerViewController(
         expandedNextInQueue.isVisible = isShowingPlayer
         expandedGoToPlaylist.isVisible = isShowingPlayer
         expandedPlaylistAction.isVisible = isShowingPlayer
-
+        autoPlayLayout.isVisible = isShowingPlayer && !audioPlayerService.isPlaylistPlayer
+        playlistControls.isVisible = isShowingPlayer && audioPlayerService.isPlaylistPlayer
         expandedLoadingMessage.isVisible = isLoading
     }
 
