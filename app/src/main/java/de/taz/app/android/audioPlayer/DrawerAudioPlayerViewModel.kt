@@ -93,7 +93,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
 
     fun removeFromPlaylist(articleKey: String) {
         val audioToRemove =
-            audioPlayerService.playlistState.value.items.find { it.playableKey == articleKey }
+            audioPlayerService.persistedPlaylistState.value.items.find { it.playableKey == articleKey }
         audioToRemove?.let {
             audioPlayerService.removeItem(it)
         }

@@ -42,7 +42,6 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.bottomSheet.PlayOptionsBottomSheet
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueViewerActivity
@@ -279,15 +278,8 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
 
             R.id.bottom_navigation_action_audio -> {
-                val articleStub = articlePagerAdapter.getArticleStub(
-                    viewBinding.webviewPagerViewpager.currentItem
-                )
-                val menuItemView =
-                    viewBinding.navigationBottomLayout
-                        .findViewById<View?>(R.id.bottom_navigation_action_audio)
-                PlayOptionsBottomSheet.newInstance(menuItemView, audioPlayerViewModel).show(
-                    childFragmentManager,
-                    PlayOptionsBottomSheet.TAG
+                audioPlayerViewModel.handleOnAudioActionOnVisible(
+                    playImmediately = true
                 )
             }
         }

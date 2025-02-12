@@ -50,7 +50,6 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.bottomSheet.MultiColumnModeBottomSheetFragment
-import de.taz.app.android.ui.bottomSheet.PlayOptionsBottomSheet
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -503,13 +502,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             }
 
             R.id.bottom_navigation_action_audio -> {
-                val menuItemView =
-                    viewBinding.navigationBottomLayout
-                        .findViewById<View?>(R.id.bottom_navigation_action_audio)
-                PlayOptionsBottomSheet
-                    .newInstance(menuItemView, audioPlayerViewModel).show(
-                    childFragmentManager,
-                    PlayOptionsBottomSheet.TAG
+                audioPlayerViewModel.handleOnAudioActionOnVisible(
+                    playImmediately = true
                 )
                 lifecycleScope.launch {
                     ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())

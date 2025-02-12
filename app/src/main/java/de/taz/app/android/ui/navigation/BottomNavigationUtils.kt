@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.annotation.IdRes
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.search.SearchActivity
@@ -67,6 +68,12 @@ fun Activity.setupBottomNavigation(
                 true
             }
 
+            R.id.bottom_navigation_action_playlist -> {
+                navigateToPlaylist()
+                // return false so the icon gets not marked as "active"
+                false
+            }
+
             R.id.bottom_navigation_action_search -> {
                 if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Search) {
                     if (searchBackActivityClass == backActivityClass) {
@@ -124,6 +131,7 @@ fun Activity.bottomNavigationBack() {
 
 private fun Activity.navigateToMain() = startActivity(this, homeBackActivityClass ?: MainActivity::class)
 private fun Activity.navigateToBookmarks() = startActivity(this, bookmarkBackActivityClass ?: BookmarkListActivity::class)
+private fun Activity.navigateToPlaylist() = AudioPlayerService.getInstance(this).showPlaylist()
 private fun Activity.navigateToSearch() = startActivity(this, searchBackActivityClass ?: SearchActivity::class)
 private fun Activity.navigateToSettings() = startActivity(this, settingsBackActivityClass ?: SettingsActivity::class)
 
