@@ -36,9 +36,8 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -809,20 +808,20 @@ class AudioPlayerViewController(
                 launch {
                     val isPdfMode = generalDataStore.pdfMode.get()
                     val intent = if (isPdfMode) {
-                        PdfPagerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublicationWithPages(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     } else {
-                        IssueViewerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublication(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     }
 
-                    if (activity is IssueViewerActivity || activity is PdfPagerActivity) {
+                    if (activity is MainActivity) {
                         activity.finish()
                     }
                     activity.startActivity(intent)

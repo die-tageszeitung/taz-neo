@@ -23,7 +23,6 @@ import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
-import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.persistence.repository.AbstractCoverPublication
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -45,6 +44,7 @@ import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -131,8 +131,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
                 // Either the issueContentViewModel can change the content of this drawer ...
                 launch {
-                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                        .distinctUntilChanged().filterNotNull()
+                    issueContentViewModel.issueKeyAndDisplayableKeyFlow
+                        .filterNotNull()
                         .collect { issueKeyWithDisplayableKey ->
                             log.debug("Set issue issueKey from IssueContent")
                             if (!::currentIssueStub.isInitialized || issueKeyWithDisplayableKey.issueKey != currentIssueStub.issueKey) {
@@ -272,7 +272,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {
                             tracker.trackDrawerTapMomentEvent()
-                            requireActivity().finish()
+                            (requireActivity() as? MainActivity)?.showHome()
                         }
                     },
                     observeDownload = false

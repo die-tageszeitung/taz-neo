@@ -280,7 +280,7 @@ abstract class WebViewFragment<
         }
     }
 
-    private fun scrollToDirection(horizontal: Boolean, @ScrollDirection direction: Int) {
+    private suspend fun scrollToDirection(horizontal: Boolean, @ScrollDirection direction: Int) {
         if (horizontal) scrollHorizontally(direction)
         else scrollVertically(direction)
     }
@@ -369,15 +369,15 @@ abstract class WebViewFragment<
     /**
      * scroll article into [direction]. If at the top or the end - go to previous or next article
      */
-    private fun scrollVertically(@ScrollDirection direction: Int) {
+    private suspend fun scrollVertically(@ScrollDirection direction: Int) {
         // if on bottom and tap on right side go to next article
         if (!webView.canScrollVertically(SCROLL_FORWARD) && direction == SCROLL_FORWARD) {
-            issueViewerViewModel.goNextArticle.postValue(true)
+            issueViewerViewModel.goNextArticle.emit(true)
         }
 
         // if on bottom and tap on right side go to previous article
         else if (!webView.canScrollVertically(SCROLL_BACKWARDS) && direction == SCROLL_BACKWARDS) {
-            issueViewerViewModel.goPreviousArticle.postValue(true)
+            issueViewerViewModel.goPreviousArticle.emit(true)
 
         } else {
             val appBarLayout = this.appBarLayout
@@ -612,9 +612,9 @@ abstract class WebViewFragment<
         if ((tapToScroll || multiColumnMode) && view != null) {
             if (!tapLock) {
                 tapLock = true
-                scrollToDirection(multiColumnMode, direction)
-                // wait some delay to prevent javascript form opening links
                 lifecycleScope.launch {
+                    scrollToDirection(multiColumnMode, direction)
+                    // wait some delay to prevent javascript form opening links
                     delay(TAP_LOCK_DELAY_MS)
                     tapLock = false
                 }

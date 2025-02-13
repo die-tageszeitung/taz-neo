@@ -8,8 +8,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.util.BottomNavigationBehavior
