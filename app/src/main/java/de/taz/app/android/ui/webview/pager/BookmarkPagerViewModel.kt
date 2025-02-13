@@ -55,9 +55,9 @@ class BookmarkPagerViewModel(
         SharingStarted.WhileSubscribed(replayExpiration = Duration.ZERO),
         1
     )
-    val bookmarkedArticleStubsLiveData = bookmarkedArticlesFlow
+    val bookmarkedArticleStubsFlow = bookmarkedArticlesFlow
         .map { articleList -> articleList.map { ArticleStub(it) } }
-        .asLiveData()
+
     val bookmarkedArticlesLiveData = bookmarkedArticlesFlow.asLiveData()
 
     val currentIssue: IssueStub?

@@ -1,10 +1,8 @@
 package de.taz.app.android.ui.issueViewer
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -13,20 +11,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.audioPlayer.AudioPlayerViewController
+import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.TazViewerFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /**
- * Activity to show an issue with sections and articles in a Pager.
+ * Fragment to show an issue with sections and articles in a Pager.
  *
  * This class takes care of getting the metadata from the backend and handing the information to the
  * [IssueViewerViewModel]
@@ -48,96 +43,12 @@ import kotlin.reflect.KClass
  * If a user logs in via an [de.taz.app.android.ui.login.fragments.ArticleLoginBottomSheetFragment] this
  * activity gets an activityResult and will restart with the new issue.
  *
- */
-class IssueViewerActivity : AppCompatActivity(), SuccessfulLoginAction {
-    companion object {
-        private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
-        private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
-
-        fun newIntent(
-            packageContext: Context,
-            issuePublication: IssuePublication,
-            displayableKey: String? = null
-        ) = Intent(packageContext, IssueViewerActivity::class.java).apply {
-            putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
-            displayableKey?.let {
-                putExtra(KEY_DISPLAYABLE, it)
-            }
-        }
-    }
-
-    @Suppress("unused")
-    private val audioPlayerViewController = AudioPlayerViewController(this)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction().add(
-                android.R.id.content,
-                IssueViewerWrapperFragment.newInstance(
-                    requireNotNull(intent.getParcelableExtra(KEY_ISSUE_PUBLICATION)) { "IssueViewerActivity must be instantiated with KEY_ISSUE_PUBLICATION" },
-                    intent.getStringExtra(KEY_DISPLAYABLE),
-                )
-            ).commit()
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (audioPlayerViewController.onBackPressed()) {
-            return
-        }
-
-        val fragment =
-            supportFragmentManager.fragments.firstOrNull { it is IssueViewerWrapperFragment } as BackFragment
-        if (fragment.onBackPressed()) {
-            return
-        }
-
-        setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
-        super.onBackPressed()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        setBottomNavigationBackActivity(this, BottomNavigationItem.Home)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        setBottomNavigationBackActivity(null, BottomNavigationItem.Home)
-    }
-
-    override fun onLogInSuccessful(articleName: String?) {
-        // Launch the Activity restarting logic from the application scope to prevent it from being
-        // accidentally canceled due the the activity being finished
-        getApplicationScope().launch {
-            // Restart the activity if this is *not* a Week/Wochentaz abo
-            val authHelper = AuthHelper.getInstance(applicationContext)
-            if (!authHelper.isLoginWeek.get()) {
-                val articleNameRegular = articleName
-                    ?.takeIf { authHelper.isValid() }
-                    ?.replace("public.", "")
-                finish()
-                startActivity(intent.putExtra(KEY_DISPLAYABLE, articleNameRegular))
-            } else {
-                finish()
-                val toastHelper = ToastHelper.getInstance(applicationContext)
-                toastHelper.showToast(R.string.toast_login_week, long = true)
-            }
-        }
-    }
-}
-
-/**
  * This fragment downloads the given [IssuePublication] and uses an [IssueViewerFragment] to then
  * show the displayable
  *
- * This fragment encapsulates what was in the activity before refactoring
  * TODO Hopefully we can merge this with the [IssueViewerFragment]
  */
-class IssueViewerWrapperFragment : TazViewerFragment() {
+class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
 
     val issuePublication: IssuePublication
         get() = requireNotNull(arguments?.getParcelable(KEY_ISSUE_PUBLICATION)) {
@@ -148,6 +59,7 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
 
     private lateinit var contentService: ContentService
     private lateinit var authHelper: AuthHelper
+    private lateinit var toastHelper: ToastHelper
 
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -261,4 +173,25 @@ class IssueViewerWrapperFragment : TazViewerFragment() {
         }
     }
 
+    override fun onLogInSuccessful(articleName: String?) {
+        // Launch the Activity restarting logic from the application scope to prevent it from being
+        // accidentally canceled due the the activity being finished
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Restart the activity if this is *not* a Week/Wochentaz abo
+            if (!authHelper.isLoginWeek.get()) {
+                articleName
+                    ?.takeIf { authHelper.isValid() }
+                    ?.replace("public.", "")
+                    ?.let { articleNameRegular ->
+                        MainActivity.start(
+                            requireContext(),
+                            issuePublication,
+                            articleNameRegular,
+                        )
+                    }
+            } else {
+                toastHelper.showToast(R.string.toast_login_week, long = true)
+            }
+        }
+    }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -26,6 +27,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -39,7 +41,7 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
 
     private lateinit var adapter: PdfDrawerRecyclerViewAdapter
 
-    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({requireParentFragment()})
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
@@ -91,7 +93,10 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                         pdfPagerViewModel.updateCurrentItem(realPosition)
                         adapter.activePosition = drawerPosition
                     }
-                    (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+                    parentFragmentManager.popBackStack(
+                        ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                        POP_BACK_STACK_INCLUSIVE
+                    )
                     drawerAndLogoViewModel.closeDrawer()
                 }
             )
@@ -157,7 +162,10 @@ class DrawerBodyPdfPagesFragment : ViewBindingFragment<FragmentDrawerBodyPdfPage
                     pdfPagerViewModel.updateCurrentItem(newPosition)
                     adapter.activePosition = newPosition
                 }
-                (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+                parentFragmentManager.popBackStack(
+                    ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                    POP_BACK_STACK_INCLUSIVE
+                )
                 viewBinding.activityPdfDrawerFrontPageTitle.setTextColor(
                     ContextCompat.getColor(
                         requireContext(),

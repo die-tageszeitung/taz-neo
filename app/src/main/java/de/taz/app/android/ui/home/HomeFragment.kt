@@ -23,6 +23,8 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.ui.navigation.BottomNavigationItem
+import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -178,6 +180,14 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             ArchiveCoachMark(this@HomeFragment)
                 .maybeShow()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().setupBottomNavigation(
+            viewBinding.navigationBottom,
+            BottomNavigationItem.Home
+        )
     }
 
     override fun onPause() {

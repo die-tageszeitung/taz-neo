@@ -43,9 +43,6 @@
             android:noHistory="true" />
         <activity android:name=".ui.StorageOrganizationActivity" />
         <activity
-            android:name=".ui.pdfViewer.PdfPagerActivity"
-            android:theme="@style/noAnimationOnActivityChange" />
-        <activity
             android:name=".ui.ImagePagerActivity"
             android:configChanges="orientation|screenSize"
             android:noHistory="true" />
@@ -62,10 +59,6 @@
             android:name=".ui.main.MainActivity"
             android:theme="@style/noAnimationOnActivityChange"
             android:windowSoftInputMode="stateHidden|adjustNothing" />
-        <activity
-            android:name=".ui.issueViewer.IssueViewerActivity"
-            android:theme="@style/noAnimationOnActivityChange"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name=".ui.search.SearchActivity"
             android:theme="@style/noAnimationOnActivityChange"

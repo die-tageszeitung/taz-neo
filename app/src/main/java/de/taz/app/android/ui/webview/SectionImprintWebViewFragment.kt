@@ -8,9 +8,11 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
@@ -55,12 +57,16 @@ class SectionImprintWebViewFragment : WebViewFragment<
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        issueContentViewModel.imprintArticleLiveData.observe(this) {
-            if (it != null) {
-                viewModel.displayableLiveData.postValue(it)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                issueContentViewModel.imprintArticleFlow.collect {
+                    if (it != null) {
+                        viewModel.displayableLiveData.postValue(it)
+                    }
+                }
             }
         }
     }

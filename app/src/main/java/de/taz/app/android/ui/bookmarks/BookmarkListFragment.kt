@@ -127,7 +127,7 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
         lifecycleScope.launch {
             val feed = feedFlow.filterNotNull().first()
             val issuePublication = IssuePublication(feed.name, dateString)
-            MainActivity.start(requireContext(), Intent.FLAG_ACTIVITY_REORDER_TO_FRONT, issuePublication)
+            MainActivity.start(requireContext(), issuePublication=issuePublication)
         }
     }
 

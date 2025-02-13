@@ -4,9 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import de.taz.app.android.R
 import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
@@ -16,8 +18,8 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.ToastHelper
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -112,13 +114,16 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         val isOnline = ConnectionStatusHelper.isOnline(requireContext())
         lifecycleScope.launch {
             requireActivity().apply {
-                val intent = if (isPdf) {
-                    PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
+                val fragment = if (isPdf) {
+                    PdfPagerWrapperFragment.newInstance(IssuePublicationWithPages(issuePublication))
                 } else {
-                    IssueViewerActivity.newIntent(this, IssuePublication(issuePublication))
+                    IssueViewerWrapperFragment.newInstance(IssuePublication(issuePublication))
                 }
                 if (getIsDownloaded(issuePublication) || isOnline) {
-                    startActivity(intent)
+                    supportFragmentManager.commit {
+                        add(R.id.main_content_fragment_placeholder, fragment)
+                        addToBackStack(null)
+                    }
                 } else {
                     showNoInternetDialog()
                 }
