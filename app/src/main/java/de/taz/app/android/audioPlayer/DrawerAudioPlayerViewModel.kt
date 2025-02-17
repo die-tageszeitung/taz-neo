@@ -81,11 +81,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
 
     fun enqueue(articleKey: String) {
         try {
-            audioPlayerService.playArticle(
-                articleKey,
-                replacePlaylist = false,
-                playImmediately = false
-            )
+            audioPlayerService.enqueueArticle(articleKey)
         } catch (e: Exception) {
             log.error("Could not play article audio (${articleKey})", e)
             _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)}

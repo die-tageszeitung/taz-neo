@@ -164,33 +164,39 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     val playlistEvents: StateFlow<AudioPlayerPlaylistEvent?> = _playlistEvents.asStateFlow()
     var isPlaylistPlayer = false
 
-    fun playIssue(issueStub: IssueStub, playNext: Boolean = true, playImmediately: Boolean = true) {
+    fun playIssue(issueStub: IssueStub) {
         showLoadingIfHidden()
-        initItem(playImmediately) {
+        initItem {
             audioPlayerItemInitHelper.initIssueAudio(issueStub)
         }
     }
 
-    fun playArticle(articleKey: String, replacePlaylist: Boolean = false, playImmediately: Boolean = true) {
-        initItem(playImmediately) {
+    fun enqueueArticle(articleKey: String) {
+        initItem(enqueueInsteadOfPlay = true) {
             audioPlayerItemInitHelper.initArticleAudio(articleKey)
         }
     }
 
-    fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio, playNext: Boolean = false, playImmediately: Boolean = true) {
-        initItem(playImmediately = playImmediately) {
+    fun playArticle(articleKey: String) {
+        initItem(articleKey = articleKey) {
+            audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
+        }
+    }
+
+    fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
+        initItem {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
         }
     }
 
-    fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio, playNext: Boolean = false, playImmediately: Boolean = true) {
-        initItem(playImmediately = playImmediately) {
+    fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio) {
+        initItem {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
         }
     }
 
-    fun playSearchHit(searchHit: SearchHit, playNext: Boolean = false, playImmediately: Boolean = true) {
-        initItem(playImmediately = playImmediately) {
+    fun playSearchHit(searchHit: SearchHit) {
+        initItem {
             audioPlayerItemInitHelper.initSearchHitAudio(searchHit)
         }
     }
@@ -514,6 +520,23 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         _persistedPlaylistState.value = Playlist(currentItemIdx, items)
     }
 
+    fun setAutoPlayNext(autoPlayNext: Boolean) {
+        log.error("setAutopayNext to $autoPlayNext !!!")
+        launch {
+            if (autoPlayNext != autoPlayNextPreference.value) {
+                if (autoPlayNext) {
+                    // TODO readd tracking:
+                    // tracker.trackAudioPlayerAutoplayEnableEvent()
+                } else {
+                    // TODO readd tracking:
+                    // tracker.trackAudioPlayerAutoplayDisableEvent()
+                }
+
+                dataStore.autoPlayNext.set(autoPlayNext)
+            }
+        }
+    }
+
     suspend fun setPlaybackSpeed(playbackSpeed: Float) {
         tracker.trackAudioPlayerChangePlaySpeedEvent(playbackSpeed)
         // Only set the playback speed on the dataStore - setting the playback speed on the controller
@@ -624,30 +647,35 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     private fun initItem(
-        playImmediately: Boolean,
+        enqueueInsteadOfPlay: Boolean = false,
+        articleKey: String? = null,
         init: suspend () -> List<AudioPlayerItem>,
     ) {
         initItemScope.launch {
             try {
                 // Initialize the new items
                 val newItems = init()
-                // FIXME: maybe comp and set instead to make it more concurrency proof?
-                val realPlaylist = _persistedPlaylistState.value
+                val playlist = _persistedPlaylistState.value
 
-                if (!playImmediately) {
+                if (enqueueInsteadOfPlay) {
                     // enqueue the items
                     val alreadyInPlayList =
-                        newItems.any { it.playableKey in realPlaylist.items.map { it.playableKey } }
+                        newItems.any { it.playableKey in playlist.items.map { it.playableKey } }
                     if (alreadyInPlayList) {
                         _playlistEvents.value = AudioPlayerPlaylistAlreadyEnqueuedEvent
                         return@launch
                     } else {
                         // add to playlist:
                         tracker.trackPlaylistEnqueueEvent()
-                        _persistedPlaylistState.value = realPlaylist.append(newItems)
+                        _persistedPlaylistState.value = playlist.append(newItems)
                         _playlistEvents.value = AudioPlayerPlaylistAddedEvent
                     }
                 } else {
+                    // if an articleKey is given, we use the index of it for the
+                    // initialization of the audioQueue Playlist(index, items):
+                    val indexOfArticle = articleKey?.let {
+                        newItems.indexOfFirst { items -> items.playableKey == it }.coerceAtLeast(0)
+                    } ?: 0
 
                     when (val currentState = state.value) {
                         is PlayerState.AudioReady,
@@ -656,13 +684,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             -> {
                             val controller = requireNotNull(getControllerFromState())
 
-                            _audioQueueState.value = Playlist(0, newItems)
+                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
 
                             controller.apply {
                                 addMediaItems(
                                     0,
                                     newItems.map { mediaItemHelper.getMediaItem(it) })
-                                seekTo(0, 0L)
+                                seekTo(indexOfArticle, 0L)
 
                                 playWhenReady = true
                                 prepare()
@@ -671,11 +699,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
                         // Override the playlist (which is currently playing the disclaimer) and
                         is PlayerState.DisclaimerReady -> {
-                            _audioQueueState.value = Playlist(0, newItems)
+                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
 
                             currentState.controller.apply {
                                 setMediaItems(newItems.map { mediaItemHelper.getMediaItem(it) })
-                                seekTo(0, 0L)
+                                seekTo(indexOfArticle, 0L)
                                 playWhenReady = true
                                 prepare()
                             }
@@ -684,7 +712,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         // No controller yet: if immediate playing is requested, connect the controller
                         // FIXME: add some means to show the player or show it implicitly when playing?
                         PlayerState.Idle, is PlayerState.Connecting -> {
-                            _audioQueueState.value = Playlist(0, newItems)
+                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
 
                             connectController(true)
                         }
@@ -808,6 +836,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 seekTo(currentItemIdx, 0L)
             }
             setPlayWhenReady(playWhenReady)
+            setAutoPlayNext(autoPlayNextPreference.value)
             prepare()
         }
     }
