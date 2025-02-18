@@ -221,6 +221,29 @@
                 tools:text="von Micha Bartsch"
                 tools:visibility="visible" />
 
+            <ImageView
+                android:id="@+id/expanded_add_to_playlist_icon"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:clickable="true"
+                android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+                android:focusable="true"
+                android:src="@drawable/ic_audio_enqueue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_title" />
+
+            <ImageView
+                android:id="@+id/expanded_remove_from_playlist_icon"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:clickable="true"
+                android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+                android:focusable="true"
+                android:src="@drawable/ic_audio_enqueued"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_title"
+                app:tint="@color/green" />
 
             <View
                 android:id="@+id/expanded_playback_speed_touch_area"
