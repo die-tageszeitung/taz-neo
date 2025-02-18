@@ -15,6 +15,7 @@ private const val PREFERENCES_AUDIO_PLAYER = "preferences_audio_player"
 private const val PLAYBACK_SPEED = "playback_speed"
 private const val AUTO_PLAY_NEXT = "auto_play_next"
 private const val PLAYLIST_CURRENT = "playlist_current"
+private const val IS_FIRST_AUDIO_PLAY_EVER = "is_first_audio_play_ever"
 
 private val Context.audioPlayerDataStore: DataStore<Preferences> by preferencesDataStore(
     PREFERENCES_AUDIO_PLAYER
@@ -35,5 +36,9 @@ class AudioPlayerDataStore private constructor(applicationContext: Context) {
 
     val playlistCurrent: DataStoreEntry<Int> = SimpleDataStoreEntry(
         dataStore, intPreferencesKey(PLAYLIST_CURRENT), -1
+    )
+
+    val isFirstAudioPlayEver: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(IS_FIRST_AUDIO_PLAY_EVER), true
     )
 }

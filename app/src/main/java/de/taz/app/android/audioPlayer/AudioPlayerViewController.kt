@@ -25,6 +25,7 @@ import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
+import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -90,6 +91,7 @@ class AudioPlayerViewController(
     override val coroutineContext: CoroutineContext = coroutineJob + Dispatchers.Main
 
     private lateinit var audioPlayerService: AudioPlayerService
+    private lateinit var dataStore: AudioPlayerDataStore
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
@@ -107,6 +109,7 @@ class AudioPlayerViewController(
 
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
+        dataStore = AudioPlayerDataStore.getInstance(activity.applicationContext)
         storageService = StorageService.getInstance(activity.applicationContext)
         toastHelper = ToastHelper.getInstance(activity.applicationContext)
         tracker = Tracker.getInstance(activity.applicationContext)
@@ -195,6 +198,9 @@ class AudioPlayerViewController(
         playerState: UiState.PlayerState,
         binding: AudioplayerOverlayBinding
     ) {
+        launch {
+            dataStore.isFirstAudioPlayEver.set(false)
+        }
         when (playerState) {
             UiState.PlayerState.Initializing -> {
                 binding.showLoadingState()
@@ -480,11 +486,9 @@ class AudioPlayerViewController(
         if (audioPlayerService.isPlaylistPlayer) {
             playlistControls.isVisible = true
             autoPlayLayout.isVisible = false
-            toggleEnqueueLayout.isVisible = false
         } else {
             playlistControls.isVisible = false
             autoPlayLayout.isVisible = true
-            toggleEnqueueLayout.isVisible = true
         }
         setExpandedPlayerViewVisibility(isLoading = false)
 
@@ -775,12 +779,12 @@ class AudioPlayerViewController(
         }
 
         playlistCloseButton.setOnClickListener {
-            if (audioPlayerService.isPlaying())
-                audioPlayerService.maximizePlayer()
-            else
+            if (audioPlayerService.isPlaying()) {
+                audioPlayerService.minimizePlayer()
+            } else {
                 audioPlayerService.dismissPlayer()
+            }
         }
-
 
         expandedAddToPlaylistIcon.setOnClickListener {
             val playableKey = audioPlayerService.getCurrent()?.playableKey

@@ -128,6 +128,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private var isPlaylistInitialized = false
 
+    // Indication if the audio player is started for the very first time.
+    // (Then it should start the Maxi-Player
+    private val isFirstAudioPlayFlow = dataStore.isFirstAudioPlayEver.asFlow().distinctUntilChanged()
+    private var isFirstAudioPlay = true
+
     // Central internal state of the Service
     private val state: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.Idle)
 
@@ -166,37 +171,37 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     fun playIssue(issueStub: IssueStub) {
         showLoadingIfHidden()
-        initItem {
+        initItems {
             audioPlayerItemInitHelper.initIssueAudio(issueStub)
         }
     }
 
     fun enqueueArticle(articleKey: String) {
-        initItem(enqueueInsteadOfPlay = true) {
+        initItems(enqueueInsteadOfPlay = true) {
             audioPlayerItemInitHelper.initArticleAudio(articleKey)
         }
     }
 
     fun playArticle(articleKey: String) {
-        initItem(articleKey = articleKey) {
+        initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
         }
     }
 
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
-        initItem {
+        initItems {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
         }
     }
 
     fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio) {
-        initItem {
+        initItems {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
         }
     }
 
     fun playSearchHit(searchHit: SearchHit) {
-        initItem {
+        initItems {
             audioPlayerItemInitHelper.initSearchHitAudio(searchHit)
         }
     }
@@ -427,7 +432,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         setCurrentAndPlay()
     }
 
-
     /**
      * Tries to remove a [playableKey] from the playlist.
      * Does nothing if the item does not exist.
@@ -539,14 +543,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun setAutoPlayNext(autoPlayNext: Boolean) {
-        log.error("setAutopayNext to $autoPlayNext !!!")
         launch {
             if (autoPlayNext != autoPlayNextPreference.value) {
                 if (autoPlayNext) {
-                    // TODO readd tracking:
+                    // TODO(eike) readd tracking:
                     // tracker.trackAudioPlayerAutoplayEnableEvent()
                 } else {
-                    // TODO readd tracking:
+                    // TODO(eike) readd tracking:
                     // tracker.trackAudioPlayerAutoplayDisableEvent()
                 }
 
@@ -662,9 +665,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 getControllerFromState()?.setAutoPlayNext(it)
             }
         }
+
+        launch {
+            isFirstAudioPlayFlow.collect {
+                isFirstAudioPlay = it
+            }
+        }
     }
 
-    private fun initItem(
+    private fun initItems(
         enqueueInsteadOfPlay: Boolean = false,
         articleKey: String? = null,
         init: suspend () -> List<AudioPlayerItem>,
