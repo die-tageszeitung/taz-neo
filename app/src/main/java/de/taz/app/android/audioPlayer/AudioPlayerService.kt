@@ -128,6 +128,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private var isPlaylistInitialized = false
 
+    // Indication if the audio player is started for the very first time.
+    // (Then it should start the Maxi-Player
+    private val isFirstAudioPlayFlow = dataStore.isFirstAudioPlayEver.asFlow().distinctUntilChanged()
+    private var isFirstAudioPlay = true
+
     // Central internal state of the Service
     private val state: MutableStateFlow<PlayerState> = MutableStateFlow(PlayerState.Idle)
 
@@ -619,6 +624,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         launch {
             autoPlayNextPreference.collect {
                 getControllerFromState()?.setAutoPlayNext(it)
+            }
+        }
+
+        launch {
+            isFirstAudioPlayFlow.collect {
+                isFirstAudioPlay = it
             }
         }
     }
@@ -1139,9 +1150,10 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 if (isPlaylistPlayer) {
                     uiStatePlaylist
                 } else {
-                    uiState.copyWithPlayerState(
-                        UiState.PlayerState.Initializing
-                    )
+                        uiState.copyWithPlayerState(
+                            UiState.PlayerState.Initializing,
+                            isFirstAudioPlay
+                        )
                 }
             }
 
