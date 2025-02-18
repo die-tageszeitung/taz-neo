@@ -31,7 +31,7 @@ class AudioPlayerDataStore private constructor(applicationContext: Context) {
     )
 
     val autoPlayNext: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(AUTO_PLAY_NEXT), false
+        dataStore, booleanPreferencesKey(AUTO_PLAY_NEXT), true
     )
 
     val playlistCurrent: DataStoreEntry<Int> = SimpleDataStoreEntry(
