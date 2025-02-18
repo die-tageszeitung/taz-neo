@@ -102,8 +102,4 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
     fun clearErrorMessage() {
         _errorMessageFlow.value = null
     }
-
-    fun showPlaylist() {
-        audioPlayerService.showPlaylist()
-    }
 }
