@@ -278,9 +278,7 @@ class BookmarkPagerFragment : BaseViewModelFragment<BookmarkPagerViewModel, Frag
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
 
             R.id.bottom_navigation_action_audio -> {
-                audioPlayerViewModel.handleOnAudioActionOnVisible(
-                    playImmediately = true
-                )
+                audioPlayerViewModel.handleOnAudioActionOnVisible()
             }
         }
     }

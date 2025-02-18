@@ -474,9 +474,7 @@ class SectionWebViewFragment : WebViewFragment<
         if (articleStub != null && articleStub.hasAudio) {
             if (setEnqueued) {
                 try {
-                    audioPlayerService.playArticle(
-                        articleStub.key, replacePlaylist = false, playImmediately = false
-                    )
+                    audioPlayerService.enqueueArticle(articleStub.key)
                 } catch (e: Exception) {
                     log.error("Could not play article audio (${articleStub.key})", e)
                 }
