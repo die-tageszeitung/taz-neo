@@ -253,12 +253,13 @@
                 android:id="@+id/expanded_playback_speed_touch_area"
                 android:layout_width="@dimen/audioplayer_expanded_play_speed_view_width"
                 android:layout_height="@dimen/audioplayer_expanded_play_speed_view_height"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/play_speed_rounded_bg"
                 android:backgroundTint="@color/text_icon_grey"
                 android:clickable="true"
                 android:contentDescription="@string/audioplayer_playback_speed_content_description"
                 android:focusable="true"
-                app:layout_constraintBottom_toBottomOf="@id/expanded_audio_author"
+                app:layout_constraintBottom_toTopOf="@id/expanded_progress"
                 app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
