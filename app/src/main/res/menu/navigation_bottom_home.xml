@@ -12,7 +12,7 @@
         android:title="@string/tab_bar_bookmarks" />
     <item
         android:id="@+id/bottom_navigation_action_playlist"
-        android:icon="@drawable/ic_audio_enqueued"
+        android:icon="@drawable/ic_playlist_outlined"
         android:title="@string/tab_bar_playlist" />
     <item
         android:id="@+id/bottom_navigation_action_search"
