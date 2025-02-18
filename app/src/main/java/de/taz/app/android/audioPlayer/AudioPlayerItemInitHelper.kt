@@ -29,19 +29,8 @@ class AudioPlayerItemInitHelper(
         val issueKey = issueStub.issueKey // small optimization to only create one IssueKey instance
         val articles = articleRepository.getArticleListForIssue(issueKey)
         val articlesWithAudio = articles.filter { it.audio != null }
-        val indexOfArticle =
-            articlesWithAudio.indexOfFirst { it.key == articleKey }.coerceAtLeast(0)
 
-        // Start playing the selected Article.
-        // Articles before the selected Article within the Issue will be played at the end of the Issue.
-        val articlesWithAudioPlaylist = if (indexOfArticle > 0) {
-            articlesWithAudio.subList(indexOfArticle, articlesWithAudio.size) +
-                    articlesWithAudio.subList(0, indexOfArticle)
-        } else {
-            articlesWithAudio
-        }
-
-        return articlesWithAudioPlaylist.map {
+        return articlesWithAudio.map {
             val audio = requireNotNull(it.audio)
             AudioPlayerItem(
                 generateId(audio),

@@ -519,6 +519,12 @@ class AudioPlayerViewController(
             // setImageResource(imageResourceId)
         }
 
+        expandedAutoPlayNextSwitch.apply {
+            isChecked = isAutoPlayNext
+            // the wrapping layout is hidden when it is the playlist player, so no need here
+            // to make it conditional.
+        }
+
         val next = audioPlayerService.getNextFromPlaylist()
 
         if (next != null) {
@@ -744,6 +750,10 @@ class AudioPlayerViewController(
 
         expandedSkipNextAction.setOnClickListener {
             audioPlayerService.skipToNext()
+        }
+
+        expandedAutoPlayNextSwitch.setOnCheckedChangeListener { _, isChecked ->
+            audioPlayerService.setAutoPlayNext(isChecked)
         }
 
         if (!isTabletMode) {
