@@ -221,29 +221,33 @@
                 tools:text="von Micha Bartsch"
                 tools:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/expanded_add_to_playlist_icon"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:clickable="true"
-                android:contentDescription="@string/fragment_drawer_article_item_enqueue"
-                android:focusable="true"
-                android:src="@drawable/ic_audio_enqueue"
+            <FrameLayout
+                android:id="@+id/toggle_enqueue_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/expanded_audio_title" />
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_title">
 
-            <ImageView
-                android:id="@+id/expanded_remove_from_playlist_icon"
-                android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/icon_size"
-                android:clickable="true"
-                android:contentDescription="@string/fragment_drawer_article_item_enqueued"
-                android:focusable="true"
-                android:src="@drawable/ic_audio_enqueued"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/expanded_audio_title"
-                app:tint="@color/green" />
+                <ImageView
+                    android:id="@+id/expanded_add_to_playlist_icon"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:clickable="true"
+                    android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+                    android:focusable="true"
+                    android:src="@drawable/ic_audio_enqueue" />
+
+                <ImageView
+                    android:id="@+id/expanded_remove_from_playlist_icon"
+                    android:layout_width="@dimen/icon_size"
+                    android:layout_height="@dimen/icon_size"
+                    android:clickable="true"
+                    android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+                    android:focusable="true"
+                    android:src="@drawable/ic_audio_enqueued"
+                    android:visibility="gone"
+                    app:tint="@color/green" />
+            </FrameLayout>
 
             <View
                 android:id="@+id/expanded_playback_speed_touch_area"

@@ -303,6 +303,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun getNextFromPlaylist(): AudioPlayerItem? = _audioQueueState.value.getNextItem()
 
     /**
+     * Return the current item from the queue or null
+     */
+    fun getCurrent(): AudioPlayerItem? = _audioQueueState.value.getCurrentItem()
+
+    /**
      * Dismiss the player and/or the playlist
      */
     fun dismissPlayer() {
@@ -422,11 +427,24 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         setCurrentAndPlay()
     }
 
+
     /**
-     * Tries to remove an item from the playlist.
+     * Tries to remove a [playableKey] from the playlist.
      * Does nothing if the item does not exist.
      */
-    fun removeItem(item: AudioPlayerItem) {
+    fun removeItemFromPlaylist(playableKey: String) {
+        val articleAsAudioItem =
+            persistedPlaylistState.value.items.find { it.playableKey == playableKey }
+        articleAsAudioItem?.let {
+            removeItemFromPlaylist(it)
+        }
+    }
+
+    /**
+     * Tries to remove an [item] from the playlist.
+     * Does nothing if the item does not exist.
+     */
+    fun removeItemFromPlaylist(item: AudioPlayerItem) {
         val itemIndex = _persistedPlaylistState.value.items.indexOf(item)
         val currentPlaylist = _persistedPlaylistState.value
         val items = currentPlaylist.items.toMutableList()

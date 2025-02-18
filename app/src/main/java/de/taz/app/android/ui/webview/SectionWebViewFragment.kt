@@ -479,13 +479,10 @@ class SectionWebViewFragment : WebViewFragment<
                     log.error("Could not play article audio (${articleStub.key})", e)
                 }
             } else {
-                val articleAsAudioItem =
-                    audioPlayerService.persistedPlaylistState.value.items.find { it.playableKey == articleStub.key }
-                articleAsAudioItem?.let {
-                    audioPlayerService.removeItem(it)
-                    SnackBarHelper.showRemoveFromPlaylistSnack(
-                        context = requireContext(), view = viewBinding.webView, anchor = null
-                    )
+                try {
+                    audioPlayerService.removeItemFromPlaylist(articleStub.key)
+                } catch (e: Exception) {
+                    log.error("Could not play article audio (${articleStub.key})", e)
                 }
             }
         } else {
