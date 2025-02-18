@@ -69,38 +69,6 @@
                 app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
                 app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment" />
 
-            <ImageView
-                android:id="@+id/fragment_drawer_go_to_playlist_icon"
-                android:layout_width="@dimen/drawer_play_issue_icon_size"
-                android:layout_height="@dimen/drawer_play_issue_icon_size"
-                android:layout_marginStart="@dimen/drawer_margin_between_actions"
-                android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
-                android:layout_marginBottom="@dimen/fragment_drawer_header_action_margin_bottom"
-                android:clickable="true"
-                android:contentDescription="@string/audioplayer_go_to_playlist"
-                android:focusable="true"
-                android:src="@drawable/ic_playlist_outlined"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_text"
-                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment"
-                app:tint="@color/drawer_sections_header_action" />
-
-            <TextView
-                android:id="@+id/fragment_drawer_go_to_playlist_text"
-                style="@style/Widget.App.Drawer.Sections.Play"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/drawer_text_icon_margin"
-                android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
-                android:layout_marginBottom="@dimen/fragment_drawer_header_action_margin_bottom"
-                android:text="@string/drawer_go_to_playlist"
-                android:maxLines="1"
-                android:ellipsize="end"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/fragment_drawer_go_to_playlist_icon"
-                app:layout_constraintEnd_toStartOf="@id/fragment_drawer_toggle_all_sections"
-                app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment" />
-
             <View
                 android:id="@+id/fragment_drawer_toggle_all_sections_touch_area"
                 android:layout_width="0dp"
@@ -135,7 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:constraint_referenced_ids="fragment_drawer_play_issue_icon,fragment_drawer_play_issue_text,fragment_drawer_go_to_playlist_icon,fragment_drawer_go_to_playlist_text,fragment_drawer_toggle_all_sections"
+                app:constraint_referenced_ids="fragment_drawer_play_issue_icon,fragment_drawer_play_issue_text,fragment_drawer_toggle_all_sections"
                 tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

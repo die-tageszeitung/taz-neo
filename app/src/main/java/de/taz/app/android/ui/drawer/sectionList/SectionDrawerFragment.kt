@@ -227,12 +227,6 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 fragmentDrawerPlayIssueText.setOnClickListener {
                     drawerAudioPlayerViewModel.handleOnPlayAllClicked()
                 }
-                fragmentDrawerGoToPlaylistIcon.setOnClickListener {
-                    drawerAudioPlayerViewModel.showPlaylist()
-                }
-                fragmentDrawerGoToPlaylistText.setOnClickListener {
-                    drawerAudioPlayerViewModel.showPlaylist()
-                }
             }
 
             if (currentIssueStub.dateDownload == null) {
