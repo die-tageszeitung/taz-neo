@@ -37,9 +37,19 @@ sealed class UiState {
         is MaxiPlayer, is MiniPlayer, is Playlist -> true
     }
 
-    fun copyWithPlayerState(playerState: PlayerState): UiState = when (this) {
-        // FIXME: this is not a good place to define these.. they are very weird to find here
-        Hidden -> MaxiPlayer(playerState) // initial state the player is in when shown first
+    fun copyWithPlayerState(
+        playerState: PlayerState,
+        isFirstAudioPlayEver: Boolean = false,
+    ): UiState = when (this) {
+        Hidden -> {
+            // Determine the initial state the player is in when shown first.
+            // The very first time the MaxiPlayer should be shown.
+            if (isFirstAudioPlayEver) {
+                MaxiPlayer(playerState)
+            } else {
+                MiniPlayer(playerState)
+            }
+        }
         is MaxiPlayer -> MaxiPlayer(playerState)
         is MiniPlayer -> MiniPlayer(playerState)
         is Playlist -> Playlist(playlist, playerState)
