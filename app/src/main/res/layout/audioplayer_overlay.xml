@@ -225,8 +225,12 @@
                 android:id="@+id/toggle_enqueue_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/audioplayer_expanded_add_to_playlist_margin_bottom"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/expanded_audio_title">
+                app:layout_constraintTop_toTopOf="@id/expanded_audio_title"
+                app:layout_constraintBottom_toTopOf="@id/expanded_playback_speed_touch_area"
+                app:layout_constraintVertical_chainStyle="spread_inside"
+                >
 
                 <ImageView
                     android:id="@+id/expanded_add_to_playlist_icon"
@@ -259,6 +263,7 @@
                 android:clickable="true"
                 android:contentDescription="@string/audioplayer_playback_speed_content_description"
                 android:focusable="true"
+                app:layout_constraintTop_toBottomOf="@id/toggle_enqueue_layout"
                 app:layout_constraintBottom_toTopOf="@id/expanded_progress"
                 app:layout_constraintEnd_toEndOf="parent" />
 
