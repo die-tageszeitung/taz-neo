@@ -10,6 +10,9 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlin.math.floor
@@ -31,6 +34,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.appBarLayout.setDefaultTopInset()
+
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
             // redraw all visible views
             viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()

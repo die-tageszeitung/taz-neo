@@ -38,8 +38,8 @@ import kotlin.reflect.full.createInstance
 
 /**
  * Abstract base class for
- * [de.taz.app.android.ui.issueViewer.IssueViewerActivity] and
- * [de.taz.app.android.ui.bookmarks.BookmarkViewerActivity]
+ * [de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment] and
+ * [de.taz.app.android.ui.bookmarks.BookmarkViewerFragment]
  *
  * This activity creates an instance of [fragmentClass] which is then shown
  *

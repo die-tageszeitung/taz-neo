@@ -42,7 +42,6 @@ import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFra
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
@@ -247,16 +246,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
             getCurrentPagerPosition()
         )
         super.onStop()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setBottomNavigationBackActivity(this.activity, BottomNavigationItem.Search)
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onDestroy() {
-        setBottomNavigationBackActivity(null, BottomNavigationItem.Search)
-        super.onDestroy()
     }
 
     private fun onBottomNavigationItemClicked(menuItem: MenuItem) {

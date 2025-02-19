@@ -39,32 +39,18 @@ fun Activity.setupBottomNavigation(
     navigationBottom.setOnItemSelectedListener { menuItem ->
         when (menuItem.itemId) {
             R.id.bottom_navigation_action_home -> {
-                if (currentItem is BottomNavigationItem.Home) {
+                if (currentItem is BottomNavigationItem.Home || (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Home)) {
                     // FIXME: This is bad style. this helper should not have to know about the MainActivities behavior.
                     //        But for the first iteration it seems okay to me
                     (this as? MainActivity)?.showHome()
                 } else {
-                    if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Home) {
-                        if (homeBackActivityClass == backActivityClass) {
-                            backActivityClass = null
-                        }
-                        homeBackActivityClass = null
-                    }
                     navigateToMain()
                 }
                 true
             }
 
             R.id.bottom_navigation_action_bookmark -> {
-                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Bookmark) {
-                    if (bookmarkBackActivityClass == backActivityClass) {
-                        backActivityClass = null
-                    }
-                    bookmarkBackActivityClass = null
-                }
-                if (currentItem !is BottomNavigationItem.Bookmark) {
-                    navigateToBookmarks()
-                }
+                navigateToBookmarks()
                 true
             }
 
@@ -75,51 +61,16 @@ fun Activity.setupBottomNavigation(
             }
 
             R.id.bottom_navigation_action_search -> {
-                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Search) {
-                    if (searchBackActivityClass == backActivityClass) {
-                        backActivityClass = null
-                    }
-                    searchBackActivityClass = null
-                }
-                if (currentItem !is BottomNavigationItem.Search) {
-                    navigateToSearch()
-                }
+                navigateToSearch()
                 true
             }
 
             R.id.bottom_navigation_action_settings -> {
-                if (currentItem is BottomNavigationItem.ChildOf && bottomGroup == BottomNavigationItem.Settings) {
-                    if (settingsBackActivityClass == backActivityClass) {
-                        backActivityClass = null
-                    }
-                    settingsBackActivityClass = null
-                }
-                if (currentItem !is BottomNavigationItem.Settings) {
-                    navigateToSettings()
-                }
+                navigateToSettings()
                 true
             }
             else -> false
         }
-    }
-}
-
-// DANGER: this is global state. this is dangerous! we should not do that!
-// but in this case it is okay as even if the variable is reset to null due to the app being backgrounded
-// and killed by android having the behavior is still acceptable.
-private var backActivityClass: KClass<out Activity>? = null
-private var homeBackActivityClass: KClass<out Activity>? = null
-private var bookmarkBackActivityClass: KClass<out Activity>? = null
-private var searchBackActivityClass: KClass<out Activity>? = null
-private var settingsBackActivityClass: KClass<out Activity>? = null
-fun setBottomNavigationBackActivity(activity: Activity?, bottomGroup: BottomNavigationItem? = null) {
-    backActivityClass = activity?.let { it::class }
-    when (bottomGroup) {
-        BottomNavigationItem.Home -> homeBackActivityClass = backActivityClass
-        BottomNavigationItem.Bookmark -> bookmarkBackActivityClass = backActivityClass
-        BottomNavigationItem.Search -> searchBackActivityClass = backActivityClass
-        BottomNavigationItem.Settings -> settingsBackActivityClass = backActivityClass
-        else -> {}
     }
 }
 
@@ -129,11 +80,11 @@ fun Activity.bottomNavigationBack() {
     navigateToMain()
 }
 
-private fun Activity.navigateToMain() = startActivity(this, homeBackActivityClass ?: MainActivity::class)
-private fun Activity.navigateToBookmarks() = startActivity(this, bookmarkBackActivityClass ?: BookmarkListActivity::class)
+private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
+private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
 private fun Activity.navigateToPlaylist() = AudioPlayerService.getInstance(this).showPlaylist()
-private fun Activity.navigateToSearch() = startActivity(this, searchBackActivityClass ?: SearchActivity::class)
-private fun Activity.navigateToSettings() = startActivity(this, settingsBackActivityClass ?: SettingsActivity::class)
+private fun Activity.navigateToSearch() = startActivity(this, SearchActivity::class)
+private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
 
 
 private fun startActivity(parentActivity: Activity, activityClass: KClass<out Activity>) {

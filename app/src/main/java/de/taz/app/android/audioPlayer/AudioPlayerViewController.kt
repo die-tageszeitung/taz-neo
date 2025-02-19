@@ -28,6 +28,8 @@ import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
@@ -35,9 +37,8 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -603,6 +604,10 @@ class AudioPlayerViewController(
         if (playerOverlayBinding == null) {
             val playerOverlayBinding = createPlayerOverlay()
             val rootView = activity.getRootView()
+
+            playerOverlayBinding.players.setDefaultBottomInset()
+            playerOverlayBinding.playlistView.setDefaultInsets(bottom=false)
+
             playerOverlayBinding.hideOverlay()
             addPlayerOverlay(rootView, playerOverlayBinding)
 
@@ -828,20 +833,20 @@ class AudioPlayerViewController(
                 launch {
                     val isPdfMode = generalDataStore.pdfMode.get()
                     val intent = if (isPdfMode) {
-                        PdfPagerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublicationWithPages(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     } else {
-                        IssueViewerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublication(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     }
 
-                    if (activity is IssueViewerActivity || activity is PdfPagerActivity) {
+                    if (activity is MainActivity) {
                         activity.finish()
                     }
                     activity.startActivity(intent)

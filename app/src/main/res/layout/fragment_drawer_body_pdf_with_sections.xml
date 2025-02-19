@@ -17,8 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/drawer_margin_horizontal"
-        android:paddingTop="@dimen/drawer_margin_vertical">
+        android:paddingHorizontal="@dimen/drawer_margin_horizontal">
 
 
         <androidx.cardview.widget.CardView

@@ -9,8 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.ui.TazViewerFragment
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setBottomNavigationBackActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerFragment
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import kotlin.reflect.KClass
@@ -41,16 +39,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
         ).commit()
     }
 
-    override fun onResume() {
-        super.onResume()
-        setBottomNavigationBackActivity(this, BottomNavigationItem.Bookmark)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
-    }
-
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (audioPlayerViewController.onBackPressed()) {
@@ -58,7 +46,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
         }
 
         super.onBackPressed()
-        setBottomNavigationBackActivity(null, BottomNavigationItem.Bookmark)
     }
 }
 

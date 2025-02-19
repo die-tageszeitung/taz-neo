@@ -7,13 +7,13 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
@@ -25,6 +25,7 @@ import de.taz.app.android.TAP_ICON_FADE_OUT_TIME
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
@@ -56,23 +57,28 @@ import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 import de.taz.app.android.ui.pdfViewer.PdfPagerViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment, CollapsibleLayoutProvider {
+class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding>(), BackFragment,
+    CollapsibleLayoutProvider {
 
     private val log by Log
 
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
-    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val audioPlayerViewModel: ArticleAudioPlayerViewModel by viewModels()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
@@ -138,100 +144,85 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         sectionChangeHandler =
             SectionChangeHandler(viewBinding.webviewPagerViewpager, viewBinding.appBarLayout)
 
-        issueContentViewModel.articleListLiveData.observe(viewLifecycleOwner) { articleStubsWithSectionKey ->
-            if (
-                articleStubsWithSectionKey.map { it.articleStub.key } !=
-                (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
-            ) {
-                viewBinding.webviewPagerViewpager.adapter = ArticlePagerAdapter(articleStubsWithSectionKey, this)
-                issueContentViewModel.displayableKeyLiveData.value?.let { tryScrollToArticle(it) }
-            }
-        }
-
-        issueContentViewModel.displayableKeyLiveData.observe(viewLifecycleOwner) {
-            if (it != null) {
-                tryScrollToArticle(it)
-                setHeader(it)
-            }
-        }
-
-
-        issueContentViewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
-            // reset swiped flag on navigating away from article pager
-            if (it != IssueContentDisplayMode.Article) {
-                hasBeenSwiped = false
-            } else {
-                // We show here the couch mark for audio of the article. It is at this place because
-                // the [ArticlePagerFragment] is always created in the [IssueViewerActivity], even if
-                // a section is shown. But the [activeDisplayMode] gives us the indication that we
-                // are on an article.
-                lifecycleScope.launch {
-                    ArticleAudioCoachMark(
-                        this@ArticlePagerFragment,
-                        viewBinding.navigationBottomLayout
-                            .findViewById<View?>(R.id.bottom_navigation_action_audio)
-                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-                    ).maybeShow()
-                    ArticleSizeCoachMark(
-                        this@ArticlePagerFragment,
-                        viewBinding.navigationBottomLayout
-                            .findViewById<View?>(R.id.bottom_navigation_action_size)
-                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-                    ).maybeShow()
-                    ArticleShareCoachMark(
-                        this@ArticlePagerFragment,
-                        viewBinding.navigationBottomLayout
-                            .findViewById<View?>(R.id.bottom_navigation_action_share)
-                            .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-                    ).maybeShow()
-                    HorizontalArticleSwipeCoachMark(
-                        this@ArticlePagerFragment
-                    ).maybeShow()
-
-                    if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
-                        // Observer multi column mode only when tablet and logged in
-                        tazApiCssDataStore.multiColumnMode.asLiveData().observe(viewLifecycleOwner) { isMultiColumn ->
-                            viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
-                        }
-                        // Maybe show multi column bottom sheet
-                        lifecycleScope.launch {
-                            val alreadyShown = generalDataStore.multiColumnModeBottomSheetAlreadyShown.get()
-                            if (!alreadyShown && !tazApiCssDataStore.multiColumnMode.get())
-                                if (childFragmentManager.findFragmentByTag(
-                                        MultiColumnModeBottomSheetFragment.TAG) == null) {
-                                    MultiColumnModeBottomSheetFragment().show(
-                                        childFragmentManager,
-                                        MultiColumnModeBottomSheetFragment.TAG
-                                    )
-                                }
-                        }
-                    }
-                }
-            }
-        }
-
-        issueContentViewModel.goNextArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
-            if (it) {
-                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() + 1
-                issueContentViewModel.goNextArticle.value = false
-            }
-        }
-
-        issueContentViewModel.goPreviousArticle.distinctUntilChanged().observe(viewLifecycleOwner) {
-            if (it) {
-                viewBinding.webviewPagerViewpager.currentItem = getCurrentPagerPosition() - 1
-                issueContentViewModel.goPreviousArticle.value = false
-            }
-        }
-
-        issueContentViewModel.issueKeyAndDisplayableKeyLiveData.observe(viewLifecycleOwner) {
-            if (it != null) {
-                audioPlayerViewModel.visibleIssueKey = it.issueKey
-            }
+        val isArticleActiveModeFlow = issueContentViewModel.activeDisplayModeFlow.map {
+            it == IssueContentDisplayMode.Article
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    issueContentViewModel.articleListFlow.collect { articleStubsWithSectionKey ->
+                        if (
+                            articleStubsWithSectionKey.map { it.articleStub.key } !=
+                            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.map { it.key }
+                        ) {
+                            viewBinding.webviewPagerViewpager.adapter =
+                                ArticlePagerAdapter(
+                                    articleStubsWithSectionKey,
+                                    this@ArticlePagerFragment
+                                )
+                        }
+                    }
+                }
+                launch {
+                    combine(
+                        issueContentViewModel.displayableKeyFlow,
+                        issueContentViewModel.articleListFlow
+                    ) { displayableKey, articleList ->
+                        tryScrollToArticle(displayableKey, articleList)
+                        setHeader(displayableKey)
+                    }.collect {}
+                }
+
+                launch {
+                    isArticleActiveModeFlow.collect {
+                        if (!it)
+                            hasBeenSwiped = false
+                    }
+                }
+
+                launch {
+                    isArticleActiveModeFlow.filter { it }.collect {
+                        maybeShowCoachMarks()
+                        if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
+                            // Observer multi column mode only when tablet and logged in
+                            tazApiCssDataStore.multiColumnMode.asLiveData()
+                                .observe(viewLifecycleOwner) { isMultiColumn ->
+                                    viewBinding.collapsingToolbarLayout.pinToolbar(isMultiColumn)
+                                }
+                            maybeShowMultiColumnBottomSheet()
+                        }
+                    }
+                }
+
+                launch {
+                    issueContentViewModel.goNextArticle.collect {
+                        if (it) {
+                            viewBinding.webviewPagerViewpager.currentItem =
+                                getCurrentPagerPosition() + 1
+                            issueContentViewModel.goNextArticle.value = false
+                        }
+                    }
+                }
+
+                launch {
+                    issueContentViewModel.goPreviousArticle.collect {
+                        if (it) {
+                            viewBinding.webviewPagerViewpager.currentItem =
+                                getCurrentPagerPosition() - 1
+                            issueContentViewModel.goPreviousArticle.value = false
+                        }
+                    }
+                }
+
+                launch {
+                    issueContentViewModel.issueKeyAndDisplayableKeyFlow.collect {
+                        if (it != null) {
+                            audioPlayerViewModel.visibleIssueKey = it.issueKey
+                        }
+                    }
+                }
+
                 launch {
                     audioPlayerViewModel.isActiveAudio.collect {
                         articleBottomActionBarNavigationHelper.setArticleAudioMenuIcon(it)
@@ -269,6 +260,45 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
         setupHeader()
         setupViewPager()
+    }
+
+    private suspend fun maybeShowCoachMarks() {
+        ArticleAudioCoachMark(
+            this@ArticlePagerFragment,
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        ).maybeShow()
+        ArticleSizeCoachMark(
+            this@ArticlePagerFragment,
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_size)
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        ).maybeShow()
+        ArticleShareCoachMark(
+            this@ArticlePagerFragment,
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_share)
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        ).maybeShow()
+        HorizontalArticleSwipeCoachMark(
+            this@ArticlePagerFragment
+        ).maybeShow()
+    }
+
+    private suspend fun maybeShowMultiColumnBottomSheet() {
+        val alreadyShown =
+            generalDataStore.multiColumnModeBottomSheetAlreadyShown.get()
+        if (!alreadyShown && !tazApiCssDataStore.multiColumnMode.get())
+            if (childFragmentManager.findFragmentByTag(
+                    MultiColumnModeBottomSheetFragment.TAG
+                ) == null
+            ) {
+                MultiColumnModeBottomSheetFragment().show(
+                    childFragmentManager,
+                    MultiColumnModeBottomSheetFragment.TAG
+                )
+            }
     }
 
     override fun onResume() {
@@ -336,9 +366,11 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         // Restore the default behavior for the pager
                         // Must be called after the [onArticleSelected] block, so that the displayable is correct
                         issueContentViewModel.currentDisplayable?.let { setHeader(it) }
-                        viewBinding.webviewPagerViewpager.isUserInputEnabled = wasUserInputEnabledOnArticles
+                        viewBinding.webviewPagerViewpager.isUserInputEnabled =
+                            wasUserInputEnabledOnArticles
                     }
-                    wasUserInputEnabledOnArticles = viewBinding.webviewPagerViewpager.isUserInputEnabled
+                    wasUserInputEnabledOnArticles =
+                        viewBinding.webviewPagerViewpager.isUserInputEnabled
                 }
 
                 is ArticlePagerItem.Tom -> {
@@ -364,17 +396,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     hasBeenSwiped = true
                 }
                 runIfNotNull(
-                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
+                    issueContentViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
                     nextStub
                 ) { issueKey, displayable ->
                     log.debug("After swiping select displayable to ${displayable.key} (${displayable.title})")
-                    if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Article) {
+                    if (issueContentViewModel.activeDisplayModeFlow.value == IssueContentDisplayMode.Article) {
                         issueContentViewModel.setDisplayable(
                             IssueKeyWithDisplayableKey(
                                 issueKey,
                                 displayable.key
-                            ),
-                            immediate = true
+                            )
                         )
                     }
                 }
@@ -459,7 +490,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun onBackPressed(): Boolean {
-        val isImprint = (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint() ?: false
+        val isImprint =
+            (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint()
+                ?: false
         val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
         return if (isImprint || isTom) {
             requireActivity().finish()
@@ -471,7 +504,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private fun onBottomNavigationItemClicked(menuItem: MenuItem) {
         when (menuItem.itemId) {
-            R.id.bottom_navigation_action_home_article -> MainActivity.start(requireActivity())
+            R.id.bottom_navigation_action_home_article -> (requireActivity() as? MainActivity)?.showHome()
 
             R.id.bottom_navigation_action_bookmark -> {
                 when (val currentItem = getCurrentArticlePagerItem()) {
@@ -543,12 +576,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         }
     }
 
-    private fun tryScrollToArticle(articleKey: String) {
-        val articleStubs =
-            (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs
+    private suspend fun tryScrollToArticle(
+        articleKey: String,
+        articleStubs: List<ArticleStubWithSectionKey>
+    ) {
         if (
-            articleKey.startsWith("art") &&
-            articleStubs?.map { it.key }?.contains(articleKey) == true
+            articleKey.startsWith("art") && articleStubs.map { it.articleStub.key }
+                .contains(articleKey)
         ) {
             if (articleKey != getCurrentArticleStub()?.key) {
                 log.debug("I will now display $articleKey")
@@ -558,7 +592,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
                 }
             }
-            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Article)
         }
     }
 
@@ -566,10 +599,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         return viewBinding.webviewPagerViewpager.currentItem
     }
 
-    private fun getSupposedPagerPosition(): Int? {
+    private suspend fun getSupposedPagerPosition(): Int? {
         val position =
             (viewBinding.webviewPagerViewpager.adapter as? ArticlePagerAdapter)?.articleStubs?.indexOfFirst {
-                it.key == issueContentViewModel.displayableKeyLiveData.value
+                it.key == issueContentViewModel.displayableKeyFlow.first()
             }
         return if (position != null && position >= 0) {
             position
@@ -707,7 +740,10 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 text = getString(R.string.fragment_header_article_pagina, firstPageNum)
                 setOnClickListener {
                     pdfPagerViewModel.goToPdfPage(pageFileName)
-                    (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+                    parentFragmentManager.popBackStack(
+                        ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                        POP_BACK_STACK_INCLUSIVE
+                    )
                 }
             }
         }

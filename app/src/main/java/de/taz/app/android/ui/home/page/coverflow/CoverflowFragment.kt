@@ -16,6 +16,7 @@ import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
@@ -35,7 +36,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
-class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
+class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
@@ -75,6 +76,9 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.root.setDefaultInsets()
+
         grid.edgeEffectFactory = BouncyEdgeEffect.Factory
 
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
@@ -121,7 +125,6 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
             // we let Android restore the scroll position. This might work as long as the feed did not change.
-            // FIXME(johannes): test if it actually works as a new adapter is assigned
             val restoreFromPersistedState = initialAdapter && savedInstanceState != null
 
             if (!restoreFromPersistedState) {
@@ -220,7 +223,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         this.date.text = when {
             BuildConfig.IS_LMD ->
                 DateHelper.dateToLocalizedMonthAndYearString(date)
-            item != null && item.validity != null ->
+            item?.validity != null ->
                 DateHelper.dateToWeekNotation(
                     item.date,
                     item.validity

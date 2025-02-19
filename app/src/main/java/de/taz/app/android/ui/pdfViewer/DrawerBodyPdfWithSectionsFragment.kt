@@ -4,6 +4,7 @@ import PageWithArticlesAdapter
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,8 @@ import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.SnackBarHelper
@@ -24,6 +27,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -36,7 +40,7 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private lateinit var storageService: StorageService
 
-    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
@@ -56,6 +60,9 @@ class DrawerBodyPdfWithSectionsFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.constraintLayout.setDefaultTopInset()
+        viewBinding.navigationPageArticleRecyclerView.setDefaultBottomInset()
 
         adapter =
             PageWithArticlesAdapter(
@@ -109,7 +116,10 @@ class DrawerBodyPdfWithSectionsFragment :
         pdfPagerViewModel.currentItem.value?.let { position ->
             drawerAndLogoViewModel.closeDrawer()
             pdfPagerViewModel.updateCurrentItem(position)
-            (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+            parentFragmentManager.popBackStack(
+                ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                POP_BACK_STACK_INCLUSIVE
+            )
         }
     }
 
@@ -122,7 +132,10 @@ class DrawerBodyPdfWithSectionsFragment :
         tracker.trackDrawerTapPageEvent()
         drawerAndLogoViewModel.closeDrawer()
         pdfPagerViewModel.goToPdfPage(pageName)
-        (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+        parentFragmentManager.popBackStack(
+            ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+            POP_BACK_STACK_INCLUSIVE
+        )
     }
 
     /**
@@ -135,7 +148,7 @@ class DrawerBodyPdfWithSectionsFragment :
         tracker.trackDrawerTapArticleEvent()
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         drawerAndLogoViewModel.closeDrawer()
-        (activity as? PdfPagerActivity)?.showArticle(article)
+        (requireParentFragment() as? PdfPagerWrapperFragment)?.showArticle(article)
     }
 
     private fun handleArticleBookmarkClick(article: ArticleOperations) {

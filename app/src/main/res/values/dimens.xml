@@ -1,6 +1,12 @@
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <dimen name="nav_bottom_height">52dp</dimen>
+    <!--
+    since we now use Material3 the height is now 80dp
+    https://m3.material.io/components/navigation-bar/specs#6c2ac1b8-aad4-471b-92cc-e12f235515ac
+    -->
+    <dimen name="nav_bottom_height">63dp</dimen>
+    <dimen name="m3_comp_navigation_bar_container_height" tools:override="true">@dimen/nav_bottom_height</dimen>
     <dimen name="default_max_width">660dp</dimen>
 
     <!-- overriding android dimens: -->
@@ -135,7 +141,8 @@
     <dimen name="fragment_header_article_padding_bottom">11dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
     <dimen name="fragment_header_article_text_size">16sp</dimen>
-    <dimen name="fragment_header_article_title_text_size">@dimen/fragment_header_article_text_size</dimen>
+    <dimen name="fragment_header_article_title_text_size">@dimen/fragment_header_article_text_size
+    </dimen>
     <dimen name="fragment_header_section_text_size">25sp</dimen>
     <dimen name="fragment_header_title_section_text_size">32sp</dimen>
     <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
@@ -343,7 +350,7 @@
     <dimen name="audioplayer_play_options_max_width">400dp</dimen>
     <dimen name="audioplayer_play_options_small_margin">10dp</dimen>
     <!-- the margin bottom is the sum of nav_bottom_height and audioplayer_small_overlay_margin -->
-    <dimen name="audioplayer_play_options_margin_bottom">61dp</dimen>
+    <dimen name="audioplayer_play_options_margin_bottom">73dp</dimen>
     <dimen name="audioplayer_play_options_inner_margin">15dp</dimen>
     <dimen name="audioplayer_play_options_text_vertical_padding">20dp</dimen>
     <dimen name="audioplayer_play_options_icon_with_padding_size">58dp</dimen>
@@ -393,7 +400,8 @@
     <!-- region dimens used for the multicolumn border swipe handling -->
     <dimen name="webview_multicolumn_pager_min_scroll_distance">300dp</dimen>
     <dimen name="webview_multicolumn_pager_min_vertical_scroll_detect_distance">250dp</dimen>
-    <item name="webview_multicolumn_pager_min_fling_velocity" format="float" type="dimen">3000</item>
+    <item name="webview_multicolumn_pager_min_fling_velocity" format="float" type="dimen">3000
+    </item>
 
     <!-- Refer to App Widget Documentation for margin information
          http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout -->

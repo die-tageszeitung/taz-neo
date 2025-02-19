@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -35,32 +36,60 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.singletons.WidgetHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.BackFragment
+import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
-import de.taz.app.android.ui.navigation.BottomNavigationItem
-import de.taz.app.android.ui.navigation.setupBottomNavigation
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val DOUBLE_BACK_TO_EXIT_INTERVAL = 2000L
 
 
-class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
+class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLoginAction {
 
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
 
-        fun start(context: Context, flags: Int = 0, issuePublication: IssuePublication? = null) {
+        fun start(
+            context: Context,
+            flags: Int = 0,
+            issuePublication: IssuePublication? = null,
+        ) {
             val intent = Intent(context, MainActivity::class.java)
-            intent.flags = flags or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.flags = flags or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             issuePublication?.let { intent.putExtra(KEY_ISSUE_PUBLICATION, issuePublication) }
             ContextCompat.startActivity(context, intent, null)
+        }
+
+        fun start(
+            context: Context,
+            issuePublication: IssuePublicationWithPages,
+            displayableKey: String,
+        ) {
+            ContextCompat.startActivity(
+                context,
+                newIntent(context, issuePublication, displayableKey),
+                null
+            )
+        }
+
+        fun start(
+            context: Context,
+            issuePublication: IssuePublication,
+            displayableKey: String,
+        ) {
+            ContextCompat.startActivity(
+                context,
+                newIntent(context, issuePublication, displayableKey),
+                null
+            )
         }
 
         fun newIntent(
@@ -130,10 +159,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     override fun onResume() {
         super.onResume()
-        setupBottomNavigation(
-            viewBinding.navigationBottom,
-            BottomNavigationItem.Home
-        )
         // Ensure the widget is updated on app start – so it will always show the latest issue:
         WidgetHelper.updateWidget(applicationContext)
     }
@@ -228,18 +253,22 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     fun showHome() {
         runOnUiThread {
-            supportFragmentManager.popBackStackImmediate(
-                null,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
-            )
             val homeFragment =
                 supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
             val coverFlowFragment =
                 homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
-            this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
-                currentItem -= 1
+
+            if(supportFragmentManager.fragments.last { it.isVisible } is HomeFragment) {
+                coverFlowFragment?.skipToHome()
+                this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
+                    currentItem -= 1
+                }
+            } else {
+                supportFragmentManager.popBackStackImmediate(
+                    null,
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE
+                )
             }
-            coverFlowFragment?.skipToHome()
         }
     }
 
@@ -274,6 +303,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
 
     private var doubleBackToExitPressedOnce = false
 
+
     @SuppressLint("MissingSuperCall")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -281,24 +311,38 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             return
         }
 
-        val homeFragment =
-            supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
+        val currentFragment =
+            supportFragmentManager.fragments.last()
 
-        if (homeFragment?.onHome == true) {
-            if (doubleBackToExitPressedOnce) {
-                moveTaskToBack(true)
-                finish()
-            }
+        when (currentFragment) {
+            is HomeFragment ->
+                if (currentFragment.onHome) {
+                    if (doubleBackToExitPressedOnce) {
+                        moveTaskToBack(true)
+                        finish()
+                    }
 
-            this.doubleBackToExitPressedOnce = true
-            toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
+                    this.doubleBackToExitPressedOnce = true
+                    toastHelper.showToast(getString(R.string.toast_click_again_to_exit))
 
-            lifecycleScope.launch {
-                delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
-                doubleBackToExitPressedOnce = false
-            }
-        } else {
-            showHome()
+                    lifecycleScope.launch {
+                        delay(DOUBLE_BACK_TO_EXIT_INTERVAL)
+                        doubleBackToExitPressedOnce = false
+                    }
+                } else {
+                    showHome()
+                }
+
+            is BackFragment ->
+                if (currentFragment.onBackPressed())
+                    return
+                else
+                    if (!supportFragmentManager.popBackStackImmediate())
+                        super.onBackPressed()
+
+            else ->
+                if (!supportFragmentManager.popBackStackImmediate())
+                    super.onBackPressed()
         }
     }
 
@@ -345,22 +389,32 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>() {
             when (issuePublication) {
                 is IssuePublication -> {
                     // show issue viewer activity with intent:
-                    val intent = Intent(this, IssueViewerActivity::class.java).apply {
-                        putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
-                        putExtra(KEY_DISPLAYABLE, displayableKey)
+                    supportFragmentManager.commit {
+                        replace(
+                            R.id.main_content_fragment_placeholder,
+                            IssueViewerWrapperFragment.newInstance(issuePublication, displayableKey)
+                        )
+                        addToBackStack(null)
                     }
-                    this.startActivity(intent)
                 }
 
                 is IssuePublicationWithPages -> {
                     // show pdf pager activity with intent:
-                    val intent = Intent(this, PdfPagerActivity::class.java).apply {
-                        putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
-                        putExtra(KEY_DISPLAYABLE, displayableKey)
+                    supportFragmentManager.commit {
+                        replace(
+                            R.id.main_content_fragment_placeholder,
+                            PdfPagerWrapperFragment.newInstance(issuePublication, displayableKey)
+                        )
+                        addToBackStack(null)
                     }
-                    this.startActivity(intent)
                 }
             }
+        }
+    }
+
+    override fun onLogInSuccessful(articleName: String?) {
+        supportFragmentManager.fragments.filter { it is SuccessfulLoginAction }.forEach {
+            (it as SuccessfulLoginAction).onLogInSuccessful(articleName)
         }
     }
 }

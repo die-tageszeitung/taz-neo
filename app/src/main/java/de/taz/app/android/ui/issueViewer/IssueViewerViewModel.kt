@@ -3,16 +3,9 @@ package de.taz.app.android.ui.issueViewer
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
 import de.taz.app.android.api.models.IssueStatus
@@ -33,14 +26,17 @@ import de.taz.app.android.util.ArticleName
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE_KEY"
-private const val KEY_DISPLAY_MODE = "KEY_DISPLAY_MODE"
 private const val KEY_LAST_SECTION = "KEY_LAST_SECTION"
 
 enum class IssueContentDisplayMode {
@@ -66,22 +62,12 @@ class IssueViewerViewModel(
 
     val issueLoadingFailedErrorFlow = MutableStateFlow(false)
     val currentDisplayable: String?
-        get() = issueKeyAndDisplayableKeyLiveData.value?.displayableKey
+        get() = issueKeyAndDisplayableKeyFlow.value?.displayableKey
 
 
-
-    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?, immediate: Boolean = false) {
-        log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey}")
-        if (issueDisplayable == null) {
-            activeDisplayMode.value = IssueContentDisplayMode.Loading
-        }
-        if (immediate) {
-            issueKeyAndDisplayableKeyLiveData.value = issueDisplayable
-        } else {
-            issueKeyAndDisplayableKeyLiveData.postValue(
-                issueDisplayable
-            )
-        }
+    fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?) {
+        log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey})")
+        savedStateHandle[KEY_DISPLAYABLE] = issueDisplayable
         issueDisplayable?.let {
             // persist the last displayable in db
             viewModelScope.launch {
@@ -93,7 +79,6 @@ class IssueViewerViewModel(
     suspend fun setDisplayable(
         issueKey: IssueKey,
         displayableKey: String? = null,
-        immediate: Boolean = false,
         loadIssue: Boolean = false
     ) {
         if (loadIssue || displayableKey == null) {
@@ -118,8 +103,7 @@ class IssueViewerViewModel(
             }
         } else {
             setDisplayable(
-                IssueKeyWithDisplayableKey(issueKey, displayableKey),
-                immediate
+                IssueKeyWithDisplayableKey(issueKey, displayableKey)
             )
         }
     }
@@ -141,88 +125,65 @@ class IssueViewerViewModel(
         }
     }
 
-    var goNextArticle = MutableLiveData(false)
-    var goPreviousArticle = MutableLiveData(false)
+    var goNextArticle = MutableStateFlow(false)
+    var goPreviousArticle = MutableStateFlow(false)
     var lastSectionKey: String?
         set(value) = savedStateHandle.set(KEY_LAST_SECTION, value)
         get() = savedStateHandle[KEY_LAST_SECTION]
 
-    val issueKeyAndDisplayableKeyLiveData: MutableLiveData<IssueKeyWithDisplayableKey?> =
-        savedStateHandle.getLiveData(KEY_DISPLAYABLE)
-    val activeDisplayMode: MutableLiveData<IssueContentDisplayMode> =
-        savedStateHandle.getLiveData(KEY_DISPLAY_MODE, IssueContentDisplayMode.Loading)
+    val issueKeyAndDisplayableKeyFlow: StateFlow<IssueKeyWithDisplayableKey?> =
+        savedStateHandle.getStateFlow(KEY_DISPLAYABLE, null)
 
-    private val issueKeyFlow: Flow<IssueKey> = issueKeyAndDisplayableKeyLiveData.asFlow()
+    val activeDisplayModeFlow: StateFlow<IssueContentDisplayMode> =
+        issueKeyAndDisplayableKeyFlow.map {
+            val displayableKey = it?.displayableKey
+            if (displayableKey == null)
+                IssueContentDisplayMode.Loading
+            else if (displayableKey.startsWith("sec"))
+                IssueContentDisplayMode.Section
+            else
+                IssueContentDisplayMode.Article
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, IssueContentDisplayMode.Loading)
+
+    private val issueKeyFlow: Flow<IssueKey> = issueKeyAndDisplayableKeyFlow
         .filterNotNull()
         .map { it.issueKey }
 
-    private val issueKeyLiveData: LiveData<IssueKey?> =
-        issueKeyAndDisplayableKeyLiveData.map { it?.issueKey }.distinctUntilChanged()
+    val displayableKeyFlow: Flow<String> =
+        issueKeyAndDisplayableKeyFlow.filterNotNull().map { it.displayableKey }
 
-    val displayableKeyLiveData: LiveData<String?> =
-        issueKeyAndDisplayableKeyLiveData.map { it?.displayableKey }.distinctUntilChanged()
+    val articleListFlow: Flow<List<ArticleStubWithSectionKey>> = this.issueKeyFlow.map {
+        articleRepository.getArticleStubListForIssue(it)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val articleListLiveData: LiveData<List<ArticleStubWithSectionKey>> =
-        MediatorLiveData<List<ArticleStubWithSectionKey>>().apply {
-            var lastIssueKey: IssueKey? = null
-            addSource(issueKeyLiveData) {
-                it?.let {
-                    if (it != lastIssueKey) {
-                        lastIssueKey = it
-                        viewModelScope.launch {
-                            postValue(
-                                articleRepository.getArticleStubListForIssue(it)
-                            )
-                        }
-                    }
-                } ?: run {
-                    postValue(emptyList())
-                }
-            }
-        }
+    val sectionListFlow: Flow<List<SectionStub>> = this.issueKeyFlow.map {
+        sectionRepository.getSectionStubsForIssue(it)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val sectionListLiveData: LiveData<List<SectionStub>> =
-        MediatorLiveData<List<SectionStub>>().apply {
-            addSource(issueKeyLiveData) {
-                it?.let {
-                    viewModelScope.launch {
-                        postValue(sectionRepository.getSectionStubsForIssue(it))
-                    }
-                } ?: run {
-                    postValue(emptyList())
-                }
-            }
-        }
-
-    val imprintArticleLiveData: LiveData<ArticleOperations?> = MediatorLiveData<ArticleOperations?>().apply {
-        addSource(issueKeyLiveData) {
-            it?.let {
-                viewModelScope.launch {
-                    postValue(issueRepository.getImprintStub(it))
-                }
-            }
-        }
-    }
+    val imprintArticleFlow: Flow<ArticleOperations?> = this.issueKeyFlow.map {
+        issueRepository.getImprintStub(it)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /**
      * Flow that indicates if the subscription elapsed dialog should be shown.
      * Will not emit anything until a issue is loaded.
      */
     val showSubscriptionElapsedFlow: Flow<Boolean> = combine(
-        issueKeyFlow,
+        this.issueKeyFlow,
         authHelper.getShouldShowSubscriptionElapsedDialogFlow()
     ) { issueKey, shouldShowSubscriptionElapsedDialog ->
         val isPublic = issueKey.status == IssueStatus.public
         isPublic && shouldShowSubscriptionElapsedDialog
     }
 
-    fun findArticleStubByArticleName(articleName: String): ArticleStub? {
-        val articleStub = articleListLiveData.value?.find {
+    suspend fun findArticleStubByArticleName(articleName: String): ArticleStub? {
+        val articleStub = articleListFlow.first().find {
             ArticleName.fromArticleFileName(it.articleStub.articleFileName) == articleName
         }?.articleStub
 
         if (articleStub == null) {
-            val knownArticleFileNames = articleListLiveData.value?.joinToString { it.articleStub.articleFileName }
+            val knownArticleFileNames =
+                articleListFlow.first().joinToString { it.articleStub.articleFileName }
             log.warn("Could not find articleFileName for articleName=$articleName in $knownArticleFileNames")
         }
         return articleStub
