@@ -225,17 +225,50 @@
                     tools:text="von Micha Bartsch"
                     tools:visibility="visible" />
 
+                <FrameLayout
+                    android:id="@+id/toggle_enqueue_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/audioplayer_expanded_add_to_playlist_margin_bottom"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/expanded_audio_title"
+                    app:layout_constraintBottom_toTopOf="@id/expanded_playback_speed_touch_area"
+                    app:layout_constraintVertical_chainStyle="spread_inside"
+                    >
+
+                    <ImageView
+                        android:id="@+id/expanded_add_to_playlist_icon"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:clickable="true"
+                        android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+                        android:focusable="true"
+                        android:src="@drawable/ic_audio_enqueue" />
+
+                    <ImageView
+                        android:id="@+id/expanded_remove_from_playlist_icon"
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:clickable="true"
+                        android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+                        android:focusable="true"
+                        android:src="@drawable/ic_audio_enqueued"
+                        android:visibility="gone"
+                        app:tint="@color/green" />
+                </FrameLayout>
 
                 <View
                     android:id="@+id/expanded_playback_speed_touch_area"
                     android:layout_width="@dimen/audioplayer_expanded_play_speed_view_width"
                     android:layout_height="@dimen/audioplayer_expanded_play_speed_view_height"
+                    android:layout_marginBottom="5dp"
                     android:background="@drawable/play_speed_rounded_bg"
                     android:backgroundTint="@color/text_icon_grey"
                     android:clickable="true"
                     android:contentDescription="@string/audioplayer_playback_speed_content_description"
                     android:focusable="true"
-                    app:layout_constraintBottom_toBottomOf="@id/expanded_audio_author"
+                    app:layout_constraintTop_toBottomOf="@id/toggle_enqueue_layout"
+                    app:layout_constraintBottom_toTopOf="@id/expanded_progress"
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <TextView
@@ -367,11 +400,11 @@
                     app:tint="@color/audio_player_controls_color" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/playlist_controls"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/expanded_audio_action">
+                    android:id="@+id/playlist_controls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/expanded_audio_action">
 
                 <TextView
                     android:id="@+id/expanded_next_in_queue_title"

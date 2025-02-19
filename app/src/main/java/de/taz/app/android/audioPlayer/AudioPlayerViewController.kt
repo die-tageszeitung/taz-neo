@@ -526,6 +526,17 @@ class AudioPlayerViewController(
             // to make it conditional.
         }
 
+        val currentPlayableKey = audioPlayerService.getCurrent()?.playableKey
+
+        currentPlayableKey?.let { key ->
+            launch {
+                audioPlayerService.isInPlaylistFlow(key).collect { isInPlaylist ->
+                    expandedRemoveFromPlaylistIcon.isVisible = isInPlaylist
+                    expandedAddToPlaylistIcon.isVisible = !isInPlaylist
+                }
+            }
+        }
+
         val next = audioPlayerService.getNextFromPlaylist()
 
         if (next != null) {
@@ -779,6 +790,21 @@ class AudioPlayerViewController(
                 audioPlayerService.dismissPlayer()
             }
         }
+
+        expandedAddToPlaylistIcon.setOnClickListener {
+            val playableKey = audioPlayerService.getCurrent()?.playableKey
+            playableKey?.let {
+                audioPlayerService.enqueueArticle(it)
+            }
+        }
+
+        expandedRemoveFromPlaylistIcon.setOnClickListener {
+            val playableKey = audioPlayerService.getCurrent()?.playableKey
+            playableKey?.let {
+                audioPlayerService.removeItemFromPlaylist(it)
+            }
+        }
+
     }
 
     private fun AudioplayerOverlayBinding.setupOpenItemInteractionHandlers(openItemSpec: OpenItemSpec?) {
