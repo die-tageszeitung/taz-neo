@@ -6,9 +6,9 @@ import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
-import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.bookmarks.BookmarkListItem
+import de.taz.app.android.ui.playlist.PlaylistActivity
 
 /**
  * Singleton to simplify the creation of snackBars
@@ -127,12 +127,19 @@ object SnackBarHelper {
     }
 
     private fun goToBookmarks(context: Context) {
+        android.util.Log.e("!!!","context: $context")
         Intent(context, BookmarkListActivity::class.java).apply {
             context.startActivity(this)
         }
     }
 
     private fun showPlaylist(context: Context) {
-        AudioPlayerService.getInstance(context.applicationContext).showPlaylist()
+        android.util.Log.e("!!!","context: $context")
+        Intent(
+            context, PlaylistActivity::class.java
+        ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            .apply { context.startActivity(this) }
+
+        //AudioPlayerService.getInstance(context.applicationContext).showPlaylist()
     }
 }

@@ -1,5 +1,6 @@
 package de.taz.app.android.audioPlayer
 
+import android.content.Intent
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -29,7 +30,6 @@ import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
 import de.taz.app.android.monkey.setDefaultBottomInset
-import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
@@ -37,8 +37,8 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.util.Log
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.playlist.PlaylistActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -86,7 +86,6 @@ class AudioPlayerViewController(
             override fun onStop(owner: LifecycleOwner) = onStop()
         })
     }
-    private val log by Log
 
     private val coroutineJob = SupervisorJob()
     override val coroutineContext: CoroutineContext = coroutineJob + Dispatchers.Main
@@ -190,7 +189,7 @@ class AudioPlayerViewController(
             is UiState.Playlist -> {
                 binding.enableCollapseOnTouchOutsideForMobile()
                 enableBackHandling()
-                showPlaylist(uiState.playlist, uiState.playerState, binding)
+                showPlaylist()
             }
         }
     }
@@ -255,27 +254,13 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun showPlaylist(
-        playlist: Playlist,
-        playerState: UiState.PlayerState,
-        binding: AudioplayerOverlayBinding
-    ) {
-        when (playerState) {
-            is UiState.PlayerState.Paused -> binding.apply {
-                bindItem(playerState.playerUiState.uiItem)
-                setupLoadingState(playerState.playerUiState)
-                showPlaylist(playlist)
-            }
-
-            is UiState.PlayerState.Playing -> binding.apply {
-                bindItem(playerState.playerUiState.uiItem)
-                setupLoadingState(playerState.playerUiState)
-                showPlaylist(playlist)
-            }
-
-            // FIXME: Add views/code to show the player init on the playlist
-            UiState.PlayerState.Initializing -> binding.showPlaylist(playlist)
-        }
+    private fun showPlaylist() {
+        android.util.Log.e("!!!","show from controller")
+        activity.startActivity(
+            Intent(
+                activity, PlaylistActivity::class.java
+            ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        )
     }
 
     private fun AudioplayerOverlayBinding.bindItem(uiItem: AudioPlayerItem.UiItem) {
@@ -424,7 +409,6 @@ class AudioPlayerViewController(
         showOverlay()
         smallPlayer.isVisible = false
         expandedPlayer.isVisible = true
-        playlistView.isVisible = false
         setExpandedPlayerViewVisibility(isLoading = true)
     }
 
@@ -433,7 +417,6 @@ class AudioPlayerViewController(
         showOverlay()
         smallPlayer.isVisible = true
         expandedPlayer.isVisible = false
-        playlistView.isVisible = false
         setSmallPlayerViewVisibility(isLoading = false)
 
         val imageResourceId: Int
@@ -483,7 +466,6 @@ class AudioPlayerViewController(
         showOverlay()
         smallPlayer.isVisible = false
         expandedPlayer.isVisible = true
-        playlistView.isVisible = false
         if (audioPlayerService.isPlaylistPlayer) {
             playlistControls.isVisible = true
             autoPlayLayout.isVisible = false
@@ -548,7 +530,8 @@ class AudioPlayerViewController(
             expandedGoToPlaylist.apply {
                 isVisible = true
                 setOnClickListener {
-                    audioPlayerService.showPlaylist()
+                    //TODO maybe minimize player?
+                    showPlaylist()
                 }
             }
         }
@@ -586,38 +569,12 @@ class AudioPlayerViewController(
         expandedLoadingMessage.isVisible = isLoading
     }
 
-    private fun AudioplayerOverlayBinding.showPlaylist(playlistData: Playlist) {
-        adapter.submitPlaylist(playlistData)
-
-        val wasPlaylistVisible = playlistView.isVisible
-
-        positionPlayerViews(isExpanded = true, fullScreen = true)
-        showOverlay()
-        smallPlayer.isVisible = false
-        expandedPlayer.isVisible = false
-        playlistView.isVisible = true
-        playlistEmpty.isVisible = playlistData.items.isEmpty()
-
-        // Ensure the current playing is always visible:
-        if (playlistData.currentItemIdx != -1 && !wasPlaylistVisible) {
-            playlistRv.smoothScrollToPosition(playlistData.currentItemIdx)
-        }
-
-        title.setOnClickListener {
-            // Do nothing. Otherwise clicks behind the header are caught
-        }
-        deleteLayout.setOnClickListener {
-            audioPlayerService.clearPlaylist()
-        }
-    }
-
     private fun ensurePlayerOverlayIsAddedInFront() {
         if (playerOverlayBinding == null) {
             val playerOverlayBinding = createPlayerOverlay()
             val rootView = activity.getRootView()
 
             playerOverlayBinding.players.setDefaultBottomInset()
-            playerOverlayBinding.playlistView.setDefaultInsets(bottom=false)
 
             playerOverlayBinding.hideOverlay()
             addPlayerOverlay(rootView, playerOverlayBinding)
@@ -630,12 +587,6 @@ class AudioPlayerViewController(
             }
 
             this.playerOverlayBinding = playerOverlayBinding
-
-            val currentAdapter = playerOverlayBinding.playlistRv.adapter
-            if (currentAdapter !is PlaylistAdapter) {
-                adapter = PlaylistAdapter(audioPlayerService)
-                playerOverlayBinding.playlistRv.adapter = adapter
-            }
         }
         playerOverlayBinding?.bringToFront()
     }
@@ -658,10 +609,8 @@ class AudioPlayerViewController(
     private fun AudioplayerOverlayBinding.setupPlayerBackground() {
         if (isTabletMode) {
             expandedPlayer.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded)
-            playlistView.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded)
         } else {
             expandedPlayer.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded_top)
-            playlistView.setBackgroundResource(R.drawable.audioplayer_background_expanded_rounded_top)
         }
     }
 
@@ -780,15 +729,8 @@ class AudioPlayerViewController(
         }
 
         expandedPlaylistAction.setOnClickListener {
-            audioPlayerService.showPlaylist()
-        }
-
-        playlistCloseButton.setOnClickListener {
-            if (audioPlayerService.isPlaying()) {
-                audioPlayerService.minimizePlayer()
-            } else {
-                audioPlayerService.dismissPlayer()
-            }
+            // TODO maybe minimize?
+            showPlaylist()
         }
 
         expandedAddToPlaylistIcon.setOnClickListener {
@@ -1007,21 +949,21 @@ class AudioPlayerViewController(
         when (event) {
             AudioPlayerPlaylistAddedEvent -> {
                 SnackBarHelper.showPlayListSnack(
-                    context = rootView.context,
+                    context = this.activity,
                     view = rootView,
                     anchor = anchorView
                 )
             }
             AudioPlayerPlaylistRemovedEvent -> {
                 SnackBarHelper.showRemoveFromPlaylistSnack(
-                    context = rootView.context,
+                    context = this.activity,
                     view = rootView,
                     anchor = anchorView
                 )
             }
             AudioPlayerPlaylistAlreadyEnqueuedEvent -> {
                 SnackBarHelper.showAlreadyInPlaylistSnack(
-                    context = rootView.context,
+                    context = this.activity,
                     view = rootView,
                     anchor = anchorView
                 )

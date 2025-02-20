@@ -413,6 +413,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
      * FIXME: maybe id or something else instead of the AudioPlayerItem
      */
     fun skipToItem(item: AudioPlayerItem) {
+        log.error("!!! skipToItem $item")
         val currentPlaylist = _persistedPlaylistState.value
         val itemIndex = currentPlaylist.items.indexOf(item)
         if (itemIndex < 0) {
