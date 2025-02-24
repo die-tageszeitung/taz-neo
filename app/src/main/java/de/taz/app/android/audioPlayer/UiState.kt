@@ -7,10 +7,6 @@ sealed class UiState {
     data object Hidden : UiState()
     data class MiniPlayer(val playerState: PlayerState) : UiState()
     data class MaxiPlayer(val playerState: PlayerState) : UiState()
-    data class Playlist(
-        val playlist: de.taz.app.android.audioPlayer.Playlist,
-        val playerState: PlayerState,
-    ) : UiState()
 
     sealed class PlayerState {
         data object Initializing : PlayerState()
@@ -29,12 +25,11 @@ sealed class UiState {
         Hidden -> null
         is MaxiPlayer -> playerState
         is MiniPlayer -> playerState
-        is Playlist -> playerState
     }
 
     fun isPlayerVisible(): Boolean = when (this) {
         Hidden -> false
-        is MaxiPlayer, is MiniPlayer, is Playlist -> true
+        is MaxiPlayer, is MiniPlayer -> true
     }
 
     fun copyWithPlayerState(
@@ -52,7 +47,6 @@ sealed class UiState {
         }
         is MaxiPlayer -> MaxiPlayer(playerState)
         is MiniPlayer -> MiniPlayer(playerState)
-        is Playlist -> Playlist(playlist, playerState)
     }
 
     // Helper classes

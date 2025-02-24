@@ -97,7 +97,6 @@ class AudioPlayerViewController(
     private lateinit var tracker: Tracker
     private lateinit var glideRequestManager: RequestManager
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var adapter: PlaylistAdapter
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
@@ -185,12 +184,6 @@ class AudioPlayerViewController(
                 binding.disableCollapseOnTouchOutsideForMobile()
                 showMiniPlayer(uiState.playerState, binding)
             }
-
-            is UiState.Playlist -> {
-                binding.enableCollapseOnTouchOutsideForMobile()
-                enableBackHandling()
-                showPlaylist()
-            }
         }
     }
 
@@ -255,7 +248,6 @@ class AudioPlayerViewController(
     }
 
     private fun showPlaylist() {
-        android.util.Log.e("!!!","show from controller")
         activity.startActivity(
             Intent(
                 activity, PlaylistActivity::class.java
@@ -530,7 +522,6 @@ class AudioPlayerViewController(
             expandedGoToPlaylist.apply {
                 isVisible = true
                 setOnClickListener {
-                    //TODO maybe minimize player?
                     showPlaylist()
                 }
             }
@@ -729,7 +720,6 @@ class AudioPlayerViewController(
         }
 
         expandedPlaylistAction.setOnClickListener {
-            // TODO maybe minimize?
             showPlaylist()
         }
 

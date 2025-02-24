@@ -188,6 +188,14 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
+    fun playPlaylist(index: Int) {
+        val newPlaylist = Playlist(index, _persistedPlaylistState.value.items)
+        _persistedPlaylistState.compareAndSet(_persistedPlaylistState.value, newPlaylist)
+        initItems {
+            persistedPlaylistState.value.items
+        }
+    }
+
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
         initItems {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
@@ -230,7 +238,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val newUiState = when (currentUiState) {
                 is UiState.MaxiPlayer -> currentUiState
                 is UiState.MiniPlayer -> UiState.MaxiPlayer(currentUiState.playerState)
-                is UiState.Playlist -> UiState.MaxiPlayer(currentUiState.playerState)
                 // Ignore maximize requests when the player is not ready
                 UiState.Hidden -> currentUiState
             }
@@ -248,7 +255,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             val newUiState = when (currentUiState) {
                 is UiState.MaxiPlayer -> UiState.MiniPlayer(currentUiState.playerState)
                 is UiState.MiniPlayer -> currentUiState
-                is UiState.Playlist -> UiState.MiniPlayer(currentUiState.playerState)
                 // Ignore minimize requests when the player is not ready
                 UiState.Hidden -> currentUiState
             }
@@ -256,43 +262,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         }
     }
 
-    /**
-     * Shows the playlist.
-     * Replaces the MiniPlayer and the MaxiPlayer
-     */
-    fun showPlaylist() {
-        var updated = false
-        while (!updated) {
-            val currentUiState = _uiState.value
-
-            // Workaround to make the playlist items playable at this moment
-            // TODO start a 2nd player or sth later on:
-            _audioQueueState.value = _persistedPlaylistState.value
-
-            val newUiState = when (currentUiState) {
-                is UiState.MaxiPlayer -> UiState.Playlist(
-                    _persistedPlaylistState.value, currentUiState.playerState
-                )
-
-                is UiState.MiniPlayer -> UiState.Playlist(
-                    _persistedPlaylistState.value, currentUiState.playerState
-                )
-
-                is UiState.Playlist -> currentUiState
-
-                is UiState.Hidden -> {
-                    connectController(playWhenReady = false)
-                    val playerState =
-                        currentUiState.getPlayerStateOrNull() ?: UiState.PlayerState.Initializing
-                    UiState.Playlist(
-                        _persistedPlaylistState.value, playerState
-                    )
-                }
-
-            }
-            updated = _uiState.compareAndSet(currentUiState, newUiState)
-        }
-    }
 
     private fun showLoadingIfHidden() {
         val currentUiState = _uiState.value
@@ -405,32 +374,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     fun skipToPrevious() {
         tracker.trackAudioPlayerSkipPreviousEvent()
         getControllerFromState()?.seekToPreviousMediaItem()
-    }
-
-    /**
-     * Tries to skip to an item within the playlist.
-     * Does nothing if the item does not exist.
-     * FIXME: maybe id or something else instead of the AudioPlayerItem
-     */
-    fun skipToItem(item: AudioPlayerItem) {
-        log.error("!!! skipToItem $item")
-        val currentPlaylist = _persistedPlaylistState.value
-        val itemIndex = currentPlaylist.items.indexOf(item)
-        if (itemIndex < 0) {
-            log.warn("skipToItem($item) failed: not found in playlist")
-            return
-        }
-
-        _persistedPlaylistState.value = currentPlaylist.copy(currentItemIdx = itemIndex)
-        getControllerFromState()?.apply {
-            val itemInPlaylist = getMediaItemAt(itemIndex)
-            if (!itemInPlaylist.belongsTo(item)) {
-                log.warn("// FIXME: we have a mismatch between the controller playlist and our playlist")
-            }
-            seekTo(itemIndex, 0L)
-        }
-        // Start play (even when already playing – then it will start again)
-        setCurrentAndPlay()
     }
 
     /**
@@ -619,7 +562,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     UiState.Hidden -> currentUiState
                     is UiState.MaxiPlayer -> currentUiState
                     is UiState.MiniPlayer -> currentUiState
-                    is UiState.Playlist -> UiState.Playlist(newPlaylist, currentUiState.playerState)
                 }
                 _uiState.value = newUiState
                 isPlaylistInitialized = true
@@ -632,7 +574,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     UiState.Hidden -> currentUiState
                     is UiState.MaxiPlayer -> currentUiState
                     is UiState.MiniPlayer -> currentUiState
-                    is UiState.Playlist -> UiState.Playlist(playlist, currentUiState.playerState)
                 }
                 _uiState.value = newUiState
                 isPlaylistPlayer =
@@ -699,11 +640,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         _playlistEvents.value = AudioPlayerPlaylistAddedEvent
                     }
                 } else {
-                    // if an articleKey is given, we use the index of it for the
-                    // initialization of the audioQueue Playlist(index, items):
+                    // if an [articleKey] is given, we use the index of it for the
+                    // initialization of the audioQueue Playlist(index, items).
+                    // If [articleKey] is null we use the current index of the playlist:
                     val indexOfArticle = articleKey?.let {
                         newItems.indexOfFirst { items -> items.playableKey == it }.coerceAtLeast(0)
-                    } ?: 0
+                    } ?: playlist.currentItemIdx
 
                     when (val currentState = state.value) {
                         is PlayerState.AudioReady,
@@ -1183,23 +1125,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         playbackSpeed: Float,
         isAutoPlayNext: Boolean
     ): UiState {
-        val uiStatePlaylist = UiState.Playlist(
-            playlist,
-            uiState.getPlayerStateOrNull() ?: UiState.PlayerState.Initializing
-        )
         return when (state) {
             PlayerState.Idle ->{
                     UiState.Hidden
             }
 
             is PlayerState.Connecting -> {
-                if (isPlaylistPlayer) {
-                    uiStatePlaylist
-                } else {
-                    uiState.copyWithPlayerState(
+                uiState.copyWithPlayerState(
                         UiState.PlayerState.Initializing
                     )
-                }
             }
 
             is PlayerState.AudioReady -> {

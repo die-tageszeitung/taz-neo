@@ -28,7 +28,6 @@ class PlaylistActivity:
     private lateinit var playlistRepository: PlaylistRepository
     private lateinit var tracker: Tracker
 
- //   private val _persistedPlaylistState: MutableStateFlow<Playlist> = MutableStateFlow(Playlist.EMPTY)
     private var isPlaylistInitialized = false
 
     private val log by Log
@@ -46,11 +45,9 @@ class PlaylistActivity:
 
     override fun onResume() {
         super.onResume()
-        log.error("!!! resumed")
         // init playlist state:
         lifecycleScope.launch {
             audioPlayerService.persistedPlaylistState.collect { playlist ->
-                log.error("!!! collected playlist: $playlist")
                 // save newPlaylist (if initialized):
                 if (isPlaylistInitialized) {
                     playlistRepository.sync(playlist)
@@ -62,6 +59,9 @@ class PlaylistActivity:
         }
 
         viewBinding.playlistRv.adapter = playlistAdapter
+
+        // If player is running ensure it is the small one at start:
+        audioPlayerService.minimizePlayer()
 
         setupBottomNavigation(
             viewBinding.navigationBottom,

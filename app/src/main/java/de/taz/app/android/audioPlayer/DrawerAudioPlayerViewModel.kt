@@ -45,7 +45,6 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
                 UiState.Hidden -> false
                 is UiState.MaxiPlayer -> isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
                 is UiState.MiniPlayer ->  isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
-                is UiState.Playlist -> isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
             }
         }
 
