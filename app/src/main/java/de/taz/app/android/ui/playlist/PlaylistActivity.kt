@@ -8,6 +8,7 @@ import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.audioPlayer.Playlist
 import de.taz.app.android.audioPlayer.PlaylistAdapter
+import de.taz.app.android.audioPlayer.UiState.PlayerState
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityPlaylistBinding
 import de.taz.app.android.monkey.disableActivityAnimations
@@ -55,6 +56,15 @@ class PlaylistActivity:
                 playlistAdapter.submitPlaylist(playlist)
                 setupUserInteractionsHandlers(playlist)
                 isPlaylistInitialized = true
+            }
+        }
+
+        lifecycleScope.launch {
+            audioPlayerService.uiState.collect {
+                val playerState = it.getPlayerStateOrNull()
+                if (playerState is PlayerState.Playing || playerState is PlayerState.Paused) {
+                    viewBinding.playlistRv.adapter?.notifyItemChanged(audioPlayerService.persistedPlaylistState.value.currentItemIdx)
+                }
             }
         }
 
