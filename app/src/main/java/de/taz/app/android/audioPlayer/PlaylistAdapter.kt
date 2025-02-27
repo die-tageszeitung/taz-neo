@@ -33,7 +33,7 @@ class PlaylistViewHolder(
         boundPosition = position
 
         if (isCurrent) {
-            if (audioPlayerService.isPlaying()) {
+            if (audioPlayerService.isPlaying() && audioPlayerService.currentItem == item) {
                 binding.currentPlayingIndicator.isVisible = true
                 binding.currentPausedIndicator.isVisible = false
                 binding.dragIcon.isVisible = false

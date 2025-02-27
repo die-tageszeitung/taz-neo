@@ -127,14 +127,12 @@ object SnackBarHelper {
     }
 
     private fun goToBookmarks(context: Context) {
-        android.util.Log.e("!!!","context: $context")
         Intent(context, BookmarkListActivity::class.java).apply {
             context.startActivity(this)
         }
     }
 
     private fun showPlaylist(context: Context) {
-        android.util.Log.e("!!!","context: $context")
         Intent(
             context, PlaylistActivity::class.java
         ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
