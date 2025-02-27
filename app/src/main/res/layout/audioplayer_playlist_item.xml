@@ -34,7 +34,7 @@
         android:id="@+id/audioplayer_playlist_item_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/audio_player_overlay_background"
+        android:background="@color/audio_player_playlist_background_color"
         android:paddingHorizontal="@dimen/audioplayer_playlist_item_padding_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

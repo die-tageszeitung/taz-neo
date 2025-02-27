@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/audio_player_overlay_background">
+    android:background="@color/audio_player_playlist_background_color">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist_rv"
