@@ -185,7 +185,6 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playArticle(articleKey: String) {
-        showLoadingIfHidden()
         isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
@@ -946,7 +945,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun onPlaylistChanged(currentMediaItem: MediaItem) {
         val currentState = state.value
         val controller = currentState.getControllerOrNull()
-        val currentPlaylist = _persistedPlaylistState.value
+        val currentPlaylist = _audioQueueState.value
 
         if (controller == null) {
             return
@@ -959,6 +958,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         // Check if the Player MediaItem list seems to be the same as our PlaylistState
         val currentMediaItemIndex = currentPlaylist.items.indexOfMediaItem(currentMediaItem)
+
         if (currentMediaItemIndex < 0 || currentMediaItemIndex != controller.currentMediaItemIndex || currentPlaylist.items.size != controller.mediaItemCount) {
             log.error("Android AudioPlayers MediaItems are different from AudioPlayerService Playlist")
             dismissPlayer() // FIXME: add warning/toast

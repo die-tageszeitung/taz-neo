@@ -405,7 +405,6 @@ class AudioPlayerViewController(
         smallPlayer.isVisible = true
         expandedPlayer.isVisible = false
         setSmallPlayerViewVisibility(isLoading = true)
-        log.error("in showLoadingState !!!")
     }
 
     private fun AudioplayerOverlayBinding.showSmallPlayer(isPlaying: Boolean) {
