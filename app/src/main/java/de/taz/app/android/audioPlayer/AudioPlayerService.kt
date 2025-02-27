@@ -168,9 +168,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     val errorEvents: StateFlow<AudioPlayerErrorEvent?> = _errorEvents.asStateFlow()
     val playlistEvents: StateFlow<AudioPlayerPlaylistEvent?> = _playlistEvents.asStateFlow()
     var isPlaylistPlayer = false
+    var isIssuePlayer = false
 
     fun playIssue(issueStub: IssueStub) {
         showLoadingIfHidden()
+        isIssuePlayer = true
         initItems {
             audioPlayerItemInitHelper.initIssueAudio(issueStub)
         }
@@ -183,12 +185,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playArticle(articleKey: String) {
+        showLoadingIfHidden()
+        isIssuePlayer = false
         initItems(articleKey = articleKey) {
             audioPlayerItemInitHelper.initIssueOfArticleAudio(articleKey)
         }
     }
 
     fun playPlaylist(index: Int) {
+        isIssuePlayer = false
         val newPlaylist = Playlist(index, _persistedPlaylistState.value.items)
         _persistedPlaylistState.compareAndSet(_persistedPlaylistState.value, newPlaylist)
         initItems {
@@ -197,18 +202,21 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     fun playPodcast(issueStub: IssueStub, page: Page, audio: Audio) {
+        isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initPagePodcast(issueStub, page, audio)
         }
     }
 
     fun playPodcast(issueStub: IssueStub, section: SectionOperations, audio: Audio) {
+        isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSectionPodcast(issueStub, section, audio)
         }
     }
 
     fun playSearchHit(searchHit: SearchHit) {
+        isIssuePlayer = false
         initItems {
             audioPlayerItemInitHelper.initSearchHitAudio(searchHit)
         }
@@ -401,6 +409,12 @@ class AudioPlayerService private constructor(private val applicationContext: Con
             log.warn("removeItem at position $itemIndex failed: not found in playlist")
             return
         }
+
+        // Check if current is playing, dismiss the player if so
+        if (isPlaying() && getCurrent() == item){
+            dismissPlayer()
+        }
+
         items.removeAt(itemIndex)
         val newCurrentIdx = if (itemIndex < currentPlaylist.currentItemIdx) {
             currentPlaylist.currentItemIdx-1
@@ -932,7 +946,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun onPlaylistChanged(currentMediaItem: MediaItem) {
         val currentState = state.value
         val controller = currentState.getControllerOrNull()
-        val currentPlaylist = _audioQueueState.value
+        val currentPlaylist = _persistedPlaylistState.value
 
         if (controller == null) {
             return
