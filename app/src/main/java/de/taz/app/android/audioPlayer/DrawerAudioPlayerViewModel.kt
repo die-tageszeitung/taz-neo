@@ -56,6 +56,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
                 && playerState.playerUiState.controls.autoPlayNext == UiState.ControlValue.ENABLED
                 && currentAudioPlayerItemIssueKey != null
                 && IssueKey(currentAudioPlayerItemIssueKey) == issueKey
+                && audioPlayerService.isIssuePlayer
     }
 
     fun setIssueStub(issueStub: IssueStub) {
