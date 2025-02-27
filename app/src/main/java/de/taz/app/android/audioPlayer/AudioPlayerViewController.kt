@@ -39,6 +39,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.playlist.PlaylistActivity
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -105,6 +106,8 @@ class AudioPlayerViewController(
     private var isLoading: Boolean = false
 
     private var delayedSetLoadingJob: Job? = null
+
+    private val log by Log
 
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
@@ -397,11 +400,12 @@ class AudioPlayerViewController(
     }
 
     private fun AudioplayerOverlayBinding.showLoadingState() {
-        positionPlayerViews(isExpanded = true)
+        positionPlayerViews(isExpanded = false)
         showOverlay()
-        smallPlayer.isVisible = false
-        expandedPlayer.isVisible = true
-        setExpandedPlayerViewVisibility(isLoading = true)
+        smallPlayer.isVisible = true
+        expandedPlayer.isVisible = false
+        setSmallPlayerViewVisibility(isLoading = true)
+        log.error("in showLoadingState !!!")
     }
 
     private fun AudioplayerOverlayBinding.showSmallPlayer(isPlaying: Boolean) {

@@ -55,10 +55,6 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
         visiblePlayable.value = articleStub
     }
 
-    fun clearVisible() {
-        visiblePlayable.value = null
-    }
-
     /**
      * Handle actions on the bottom navigation bar.
      * Will start to play the currently visible article,
