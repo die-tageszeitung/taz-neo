@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/audio_player_playlist_background_color">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/playlist_rv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/audioplayer_playlist_margin_bottom"
+        android:background="@android:color/transparent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/delete_layout"
+        tools:listitem="@layout/audioplayer_playlist_item" />
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/Widget.App.AudioPlayer.PlayList.Title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/audioplayer_playlist_horizontal_margin"
+        android:paddingTop="63dp"
+        android:paddingBottom="3dp"
+        android:text="@string/audioplayer_playlist"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.taz.app.android.ui.DottedLineView
+        android:id="@+id/dotted_line"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/fragment_header_dotted_line_height"
+        android:layout_marginStart="@dimen/audioplayer_playlist_dotted_line_margin_end"
+        android:layout_marginEnd="@dimen/audioplayer_playlist_dotted_line_margin_end"
+        app:color="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/delete_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dotted_line">
+
+        <ImageView
+            android:id="@+id/delete_icon"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_margin="@dimen/audioplayer_playlist_delete_icon_margin"
+            android:contentDescription="@string/audioplayer_playlist_delete"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            style="@style/Widget.App.AudioPlayer.PlayList.DeleteText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/fragment_bookmarks_delete_text_margin_top"
+            android:text="@string/audioplayer_playlist_delete"
+            app:layout_constraintBottom_toBottomOf="@id/delete_icon"
+            app:layout_constraintEnd_toStartOf="@id/delete_icon"
+            app:layout_constraintTop_toTopOf="@id/delete_icon" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.7dp"
+            android:layout_marginStart="@dimen/audioplayer_playlist_margin_start"
+            android:layout_marginTop="@dimen/audioplayer_playlist_small_margin"
+            android:layout_marginEnd="@dimen/audioplayer_playlist_margin_end"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/delete_icon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/playlist_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dotted_line">
+
+        <TextView
+            android:id="@+id/first_line"
+            style="@style/Widget.App.AudioPlayer.PlayList.Empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/audioplayer_playlist_big_padding"
+            android:text="@string/audioplayer_playlist_empty_title"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/second_line"
+            style="@style/Widget.App.AudioPlayer.PlayList.Empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/audioplayer_playlist_empty"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/first_line" />
+
+        <ImageView
+            android:layout_width="@dimen/audioplayer_playlist_big_icon_size"
+            android:layout_height="@dimen/audioplayer_playlist_big_icon_size"
+            android:layout_marginTop="@dimen/audioplayer_playlist_small_margin"
+            android:contentDescription="@string/audioplayer_enqueue"
+            android:src="@drawable/ic_audio_enqueue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/second_line" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bottom"
+        style="@style/Widget.App.BottomNavigation.TabBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

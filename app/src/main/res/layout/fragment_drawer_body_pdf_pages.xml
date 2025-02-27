@@ -77,7 +77,7 @@
                         android:contentDescription="@string/drawer_play_issue"
                         android:focusable="true"
                         android:src="@drawable/ic_audio"
-                        app:layout_constraintBottom_toTopOf="@id/fragment_drawer_playlist_icon"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:tint="@color/pdf_drawer_header_action" />
 
@@ -94,32 +94,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
                         app:layout_constraintTop_toTopOf="@id/fragment_drawer_play_issue_icon" />
-
-                    <ImageView
-                        android:id="@+id/fragment_drawer_playlist_icon"
-                        android:layout_width="@dimen/drawer_play_issue_icon_size"
-                        android:layout_height="@dimen/drawer_play_issue_icon_size"
-                        android:clickable="true"
-                        android:contentDescription="@string/drawer_go_to_playlist"
-                        android:focusable="true"
-                        android:src="@drawable/ic_playlist_outlined"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:tint="@color/pdf_drawer_header_action" />
-
-                    <TextView
-                        android:id="@+id/fragment_drawer_playlist_text"
-                        style="@style/Widget.App.Drawer.Pdf.Header.Play"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/drawer_text_icon_margin"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="@string/drawer_go_to_playlist"
-                        app:layout_constraintBottom_toBottomOf="@id/fragment_drawer_playlist_icon"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/fragment_drawer_playlist_icon"
-                        app:layout_constraintTop_toTopOf="@id/fragment_drawer_playlist_icon" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -5,6 +5,7 @@
     <color name="blue">#007AFF</color>
     <color name="green">#34C759</color>
     <color name="mediumLightGrey">#707070</color>
+    <color name="mediumGrey">#322F35</color>
     <color name="darkGrey">#1C1C1E</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="superDarkGrey">#121212</color>
@@ -133,6 +134,7 @@
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
     <color name="audio_player_playlist_playing_icon">#07E151</color>
     <color name="audio_player_playlist_delete_icon">#1F1F1F</color>
+    <color name="audio_player_playlist_background_color">@color/black</color>
     <color name="audio_player_options_sheet_separator_color">#38383A</color>
 
     <color name="password_hint_strength_medium">@color/darkGreen</color>
@@ -146,7 +148,7 @@
 
     <color name="text_input_hint_color">@color/text_icon_grey</color>
 
-    <color name="snack_bar_background_color">@color/darkGrey</color>
+    <color name="snack_bar_background_color">@color/mediumGrey</color>
     <color name="snack_bar_button_text_color">@color/lightGrey</color>
 
     <!-- Colors used in drawables - defined as colors to be able to adapt them in dark mode -->

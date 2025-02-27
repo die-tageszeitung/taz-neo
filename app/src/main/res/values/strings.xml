@@ -50,6 +50,7 @@
 
     <string name="tab_bar_home">Home</string>
     <string name="tab_bar_bookmarks">Leseliste</string>
+    <string name="tab_bar_playlist">Audioliste</string>
     <string name="tab_bar_search">Suche</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
@@ -457,34 +458,35 @@
     <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
     <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
-    <string name="fragment_drawer_article_item_enqueue">Zu Wiedergabeliste hinzufügen</string>
-    <string name="fragment_drawer_article_item_enqueued">Bereits in Wiedergabeliste</string>
+    <string name="fragment_drawer_article_item_enqueue">Zur Audioliste hinzufügen</string>
+    <string name="fragment_drawer_article_item_enqueued">Bereits in Audioliste</string>
     <string name="drawer_play_issue">Ausgabe hören</string>
-    <string name="drawer_go_to_playlist">Wiedergabeliste</string>
+    <string name="drawer_go_to_playlist">Audioliste</string>
 
-    <string name="audioplayer_playlist">wiedergabeliste</string>
+    <string name="audioplayer_playlist">audioliste</string>
     <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
-    <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
+    <string name="audioplayer_loading_message">einen Moment bitte…\ndas Audiofile wird geladen </string>
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
-    <string name="audioplayer_next_in_queue">Nächster Artikel in der Wiedergabeliste:</string>
+    <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
+    <string name="audioplayer_next_in_queue">Nächster Artikel in der Audioliste:</string>
     <string name="audioplayer_disclaimer_title">Disclaimer</string>
     <string name="audioplayer_disclaimer_author">vertonung@taz.de</string>
     <string name="audioplayer_podcast_generic">Podcast</string>
-    <string name="audioplayer_enqueue">zur Wiedergabeliste hinzufügen</string>
-    <string name="audioplayer_go_to_playlist">zur Wiedergabeliste</string>
+    <string name="audioplayer_enqueue">zur Audioliste hinzufügen</string>
+    <string name="audioplayer_go_to_playlist">zur Audioliste</string>
     <string name="audioplayer_playlist_item_delete">Löschen</string>
-    <string name="audioplayer_playlist_delete">Wiedergabeliste löschen</string>
-    <string name="audioplayer_playlist_empty_title">Die Wiedergabeliste ist noch leer.</string>
-    <string name="audioplayer_playlist_empty">Sie können Ihre Wiedergabeliste auffüllen, in dem Sie in den Artikeln oder in der Inhaltsangabe auf dieses Icon klicken.</string>
-    <string name="audioplayer_playlist_sort">In Wiedergabeliste umsortieren</string>
+    <string name="audioplayer_playlist_delete">Audioliste löschen</string>
+    <string name="audioplayer_playlist_empty_title">Die Audioliste ist noch leer.</string>
+    <string name="audioplayer_playlist_empty">Sie können Ihre Audioliste auffüllen, in dem Sie in den Ressorts oder in der Inhaltsangabe auf dieses Icon klicken.</string>
+    <string name="audioplayer_playlist_sort">In Audioliste umsortieren</string>
     <string name="audioplayer_playlist_current">spielt gerade</string>
-    <string name="audioplayer_show_in_playlist">Wiedergabeliste ansehen</string>
-    <string name="audioplayer_snackbar_added_to_playlist">Der Artikel wurde zur Wiedergabeliste hinzugefügt.</string>
-    <string name="audioplayer_snackbar_removed_from_playlist">Artikel wurde aus Wiedergabeliste entfernt</string>
-    <string name="audioplayer_snackbar_already_in_playlist">Dieser Artikel befindet sich bereits in der Wiedergabeliste</string>
+    <string name="audioplayer_show_in_playlist">Audioliste ansehen</string>
+    <string name="audioplayer_snackbar_added_to_playlist">Der Artikel wurde zur Audioliste hinzugefügt.</string>
+    <string name="audioplayer_snackbar_removed_from_playlist">Artikel wurde aus Audioliste entfernt.</string>
+    <string name="audioplayer_snackbar_already_in_playlist">Dieser Artikel befindet sich bereits in der Audioliste.</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>

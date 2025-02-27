@@ -83,7 +83,7 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         if (viewHolder is PlaylistViewHolder) {
-            viewHolder.boundItem?.let { audioPlayerService.removeItem(it) }
+            viewHolder.boundItem?.let { audioPlayerService.removeItemFromPlaylist(it) }
         } else {
             log.error("AudioPlayer ItemCallBack called with no PlaylistViewHolder")
         }

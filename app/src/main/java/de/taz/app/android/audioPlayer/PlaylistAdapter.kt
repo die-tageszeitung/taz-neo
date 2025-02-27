@@ -12,24 +12,25 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import de.taz.app.android.databinding.AudioplayerPlaylistItemBinding
 import java.util.LinkedList
 
-// FIXME: maybe dont pass the whole service but only functions required from here
 class PlaylistViewHolder(
     private val audioPlayerService: AudioPlayerService,
     private val binding: AudioplayerPlaylistItemBinding
 ) : ViewHolder(binding.root) {
 
     var boundItem: AudioPlayerItem? = null
+    var boundPosition: Int = -1
 
     init {
         binding.root.setOnClickListener {
             boundItem?.let {
-                audioPlayerService.skipToItem(it)
+                audioPlayerService.playPlaylist(boundPosition)
             }
         }
     }
 
-    fun bind(item: AudioPlayerItem, isCurrent: Boolean) {
+    fun bind(item: AudioPlayerItem, position: Int, isCurrent: Boolean) {
         boundItem = item
+        boundPosition = position
 
         if (isCurrent) {
             if (audioPlayerService.isPlaying()) {
@@ -82,7 +83,7 @@ class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val item = getItem(position)
         val isCurrentlyPlaying = position == currentItem
-        holder.bind(item, isCurrentlyPlaying)
+        holder.bind(item, position, isCurrentlyPlaying)
     }
 
     /**

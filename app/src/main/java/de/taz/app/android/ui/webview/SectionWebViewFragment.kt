@@ -457,7 +457,7 @@ class SectionWebViewFragment : WebViewFragment<
 
         setupEnqueuedStateFlows(articleFileNames)
 
-        val enqueuedArticlesInThisWebView = audioPlayerService.playlistState.value.items.filter {
+        val enqueuedArticlesInThisWebView = audioPlayerService.persistedPlaylistState.value.items.filter {
             it.playableKey in articleFileNames
         }.mapNotNull {
             it.playableKey
@@ -474,20 +474,15 @@ class SectionWebViewFragment : WebViewFragment<
         if (articleStub != null && articleStub.hasAudio) {
             if (setEnqueued) {
                 try {
-                    audioPlayerService.playArticle(
-                        articleStub.key, replacePlaylist = false, playImmediately = false
-                    )
+                    audioPlayerService.enqueueArticle(articleStub.key)
                 } catch (e: Exception) {
                     log.error("Could not play article audio (${articleStub.key})", e)
                 }
             } else {
-                val articleAsAudioItem =
-                    audioPlayerService.playlistState.value.items.find { it.playableKey == articleStub.key }
-                articleAsAudioItem?.let {
-                    audioPlayerService.removeItem(it)
-                    SnackBarHelper.showRemoveFromPlaylistSnack(
-                        context = requireContext(), view = viewBinding.webView, anchor = null
-                    )
+                try {
+                    audioPlayerService.removeItemFromPlaylist(articleStub.key)
+                } catch (e: Exception) {
+                    log.error("Could not play article audio (${articleStub.key})", e)
                 }
             }
         } else {
