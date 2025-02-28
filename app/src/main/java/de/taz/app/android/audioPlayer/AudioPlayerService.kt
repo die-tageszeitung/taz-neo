@@ -654,11 +654,16 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                     }
                 } else {
                     // if an [articleKey] is given, we use the index of it for the
-                    // initialization of the audioQueue Playlist(index, items).
-                    // If [articleKey] is null we use the current index of the playlist:
+                    // initialization of the audioQueue Playlist(index, items)
                     val indexOfArticle = articleKey?.let {
                         newItems.indexOfFirst { items -> items.playableKey == it }.coerceAtLeast(0)
-                    } ?: playlist.currentItemIdx
+                    } ?: 0
+
+                    val index = if (isPlaylistPlayer) {
+                        playlist.currentItemIdx
+                    } else {
+                        indexOfArticle
+                    }
 
                     when (val currentState = state.value) {
                         is PlayerState.AudioReady,
@@ -667,13 +672,13 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             -> {
                             val controller = requireNotNull(getControllerFromState())
 
-                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
+                            _audioQueueState.value = Playlist(index, newItems)
 
                             controller.apply {
                                 addMediaItems(
                                     0,
                                     newItems.map { mediaItemHelper.getMediaItem(it) })
-                                seekTo(indexOfArticle, 0L)
+                                seekTo(index, 0L)
 
                                 playWhenReady = true
                                 prepare()
@@ -682,20 +687,18 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
                         // Override the playlist (which is currently playing the disclaimer) and
                         is PlayerState.DisclaimerReady -> {
-                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
+                            _audioQueueState.value = Playlist(index, newItems)
 
                             currentState.controller.apply {
                                 setMediaItems(newItems.map { mediaItemHelper.getMediaItem(it) })
-                                seekTo(indexOfArticle, 0L)
+                                seekTo(index, 0L)
                                 playWhenReady = true
                                 prepare()
                             }
                         }
 
-                        // No controller yet: if immediate playing is requested, connect the controller
-                        // FIXME: add some means to show the player or show it implicitly when playing?
                         PlayerState.Idle, is PlayerState.Connecting -> {
-                            _audioQueueState.value = Playlist(indexOfArticle, newItems)
+                            _audioQueueState.value = Playlist(index, newItems)
 
                             connectController(true)
                         }
@@ -802,7 +805,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     private fun prepareCurrentPlaylist(controller: MediaController, playWhenReady: Boolean) {
-        log.verbose("prepareCurrentPlaylist(...)")
+        log.verbose("prepareCurrentPlaylist(...) playlist: ${_audioQueueState.value}")
         val (currentItemIdx, currentItems) = _audioQueueState.value
 
         forceState(
