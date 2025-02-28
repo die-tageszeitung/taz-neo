@@ -170,7 +170,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     var isPlaylistPlayer = false
     var isIssuePlayer = false
 
-    fun playIssue(issueStub: IssueStub) {
+    fun togglePlayIssue(issueStub: IssueStub) {
+        if (isIssuePlayer && isPlaying()) {
+            dismissPlayer()
+        } else {
+            playIssue(issueStub)
+        }
+    }
+
+    private fun playIssue(issueStub: IssueStub) {
         showLoadingIfHidden()
         isIssuePlayer = true
         initItems {
