@@ -263,12 +263,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private suspend fun maybeShowCoachMarks() {
-        ArticleAudioCoachMark(
-            this@ArticlePagerFragment,
-            viewBinding.navigationBottomLayout
-                .findViewById<View?>(R.id.bottom_navigation_action_audio)
-                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-        ).maybeShow()
         ArticleSizeCoachMark(
             this@ArticlePagerFragment,
             viewBinding.navigationBottomLayout
@@ -283,6 +277,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         ).maybeShow()
         HorizontalArticleSwipeCoachMark(
             this@ArticlePagerFragment
+        ).maybeShow()
+        ArticleAudioCoachMark(
+            this@ArticlePagerFragment,
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
         ).maybeShow()
     }
 

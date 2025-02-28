@@ -68,7 +68,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
         val currentIssueStub = issueStub.value
         if (currentIssueStub != null) {
             try {
-                audioPlayerService.playIssue(currentIssueStub)
+                audioPlayerService.togglePlayIssue(currentIssueStub)
             } catch (e: Exception) {
                 log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)

@@ -8,13 +8,16 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist_rv"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="@dimen/audioplayer_playlist_margin_bottom"
         android:background="@android:color/transparent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/delete_layout"
+        app:layout_constraintWidth_max="@dimen/default_max_width"
         tools:listitem="@layout/audioplayer_playlist_item" />
 
     <TextView
@@ -81,13 +84,14 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/playlist_empty"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dotted_line">
+        app:layout_constraintTop_toBottomOf="@id/dotted_line"
+        app:layout_constraintWidth_max="@dimen/default_max_width">
 
         <TextView
             android:id="@+id/first_line"

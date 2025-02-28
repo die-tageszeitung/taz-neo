@@ -524,6 +524,8 @@
 
     <style name="Widget.App.AudioPlayer.PlayList.Title" parent="Widget.App.TextView.Section.SectionHead">
         <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textSize">@dimen/fragment_header_default_text_size</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_default_text_size</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Section.SectionHead">
