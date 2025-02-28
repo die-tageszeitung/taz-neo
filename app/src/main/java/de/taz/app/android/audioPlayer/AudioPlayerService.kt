@@ -511,11 +511,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         launch {
             if (autoPlayNext != autoPlayNextPreference.value) {
                 if (autoPlayNext) {
-                    // TODO(eike) readd tracking:
-                    // tracker.trackAudioPlayerAutoplayEnableEvent()
+                    tracker.trackAudioPlayerAutoplayEnableEvent()
                 } else {
-                    // TODO(eike) readd tracking:
-                    // tracker.trackAudioPlayerAutoplayDisableEvent()
+                    tracker.trackAudioPlayerAutoplayDisableEvent()
                 }
 
                 dataStore.autoPlayNext.set(autoPlayNext)

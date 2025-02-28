@@ -680,6 +680,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackAudioPlayerAutoplayEnableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Enable Auto Play Next")
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerAutoplayDisableEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Disable Auto Play Next")
+            .with(matomoTracker)
+    }
+
     override fun trackCoachMarkShow(layoutResName: String) {
         TrackHelper.track()
             .event(CATEGORY_COACH_MARK, "Show")
