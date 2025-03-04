@@ -165,8 +165,10 @@
                 android:elevation="@dimen/audioplayer_elevation"
                 android:paddingHorizontal="@dimen/audioplayer_expanded_container_padding"
                 android:paddingBottom="@dimen/audioplayer_expanded_container_padding"
+                android:layout_marginTop="@dimen/audioplayer_expanded_container_margin_top"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible">
 
@@ -195,6 +197,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/expanded_close_button"
+                    app:layout_constraintBottom_toTopOf="@id/audio_info_layout"
                     tools:src="@tools:sample/backgrounds/scenic"
                     tools:visibility="visible" />
 

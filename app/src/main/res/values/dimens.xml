@@ -207,7 +207,7 @@
 
     <dimen name="tap_bar_width">75dp</dimen>
 
-    <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
+    <dimen name="fragment_bookmarks_list_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
     <dimen name="fragment_bookmarks_icons_vertical_margin">15dp</dimen>
     <dimen name="fragment_bookmarks_padding_top">15dp</dimen>
@@ -302,10 +302,11 @@
 
     <dimen name="audioplayer_action_icon_size">50dp</dimen>
     <dimen name="audioplayer_expanded_container_padding">18dp</dimen>
+    <dimen name="audioplayer_expanded_container_margin_top">20dp</dimen>
     <dimen name="audioplayer_expanded_close_margin_top">10dp</dimen>
     <dimen name="audioplayer_expanded_close_margin_end">6dp</dimen>
     <dimen name="audioplayer_expanded_image_margin_top">10dp</dimen>
-    <dimen name="audioplayer_expanded_image_max_height">350dp</dimen>
+    <dimen name="audioplayer_expanded_image_max_height">300dp</dimen>
     <dimen name="audioplayer_expanded_title_margin_top">20dp</dimen>
     <dimen name="audioplayer_expanded_progress_scrubber_size">12dp</dimen>
     <!-- audioplayer_expanded_progress_scrubber_size / 2 -->
