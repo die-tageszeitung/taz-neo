@@ -207,7 +207,7 @@
 
     <dimen name="tap_bar_width">75dp</dimen>
 
-    <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
+    <dimen name="fragment_bookmarks_list_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
     <dimen name="fragment_bookmarks_icons_vertical_margin">15dp</dimen>
     <dimen name="fragment_bookmarks_padding_top">15dp</dimen>
