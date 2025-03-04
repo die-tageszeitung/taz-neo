@@ -548,7 +548,7 @@
 
     <style name="Widget.App.AudioPlayer.PlayList.DeleteText" parent="Widget.App.TextView.Info.BodyText">
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">9.4sp</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.BottomSheet.Title" parent="Widget.App.TextView.Info.BodyText">
