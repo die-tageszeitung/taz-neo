@@ -459,7 +459,7 @@
                     android:src="@drawable/ic_playlist_outlined"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/lightGrey" />
+                    app:tint="@color/audio_player_controls_color" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

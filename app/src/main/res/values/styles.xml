@@ -502,17 +502,17 @@
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.GoToPlaylist" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/audio_player_controls_color</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextDescription" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textColor">@color/audio_player_play_next_switch_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextTitle" parent="Widget.App.TextView.Info.BodyText.Bold">
-        <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textColor">@color/audio_player_speed_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
