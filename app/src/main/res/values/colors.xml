@@ -132,9 +132,15 @@
     <color name="audio_player_expanded_progress_unplayed_color">#363636</color>
     <color name="audio_player_expanded_progress_played_color">@color/white</color>
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
-    <color name="audio_player_playlist_playing_icon">#07E151</color>
+    <color name="audio_player_playlist_playing_icon">#00AA2B</color>
     <color name="audio_player_playlist_delete_icon">#1F1F1F</color>
     <color name="audio_player_options_sheet_separator_color">#38383A</color>
+    <color name="audio_player_speed_touch_area_color">@color/text_icon_grey</color>
+    <color name="audio_player_speed_text_color">@color/superLightGrey</color>
+    <color name="audio_player_enqueue_button_color">@color/green</color>
+    <color name="audio_player_text_color">@color/white</color>
+    <color name="audio_player_play_next_switch_text_color">@color/lightGrey</color>
+    <color name="audio_player_progress_time_text_color">@color/lightGrey</color>
 
     <color name="password_hint_strength_medium">@color/darkGreen</color>
     <color name="password_hint_strength_low">@color/darkOrange</color>
