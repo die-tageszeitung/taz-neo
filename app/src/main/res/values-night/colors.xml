@@ -50,7 +50,6 @@
     <color name="ic_close_button_background_color">#48484A</color>
 
     <color name="audio_player_overlay_background">@color/superSuperLightGrey</color>
-    <color name="audio_player_controls_color">@color/darkGrey</color>
     <color name="audio_player_small_progress_unplayed_color">@color/superLightGrey</color>
     <color name="audio_player_small_progress_played_color">@color/darkGrey</color>
     <color name="audio_player_expanded_progress_unplayed_color">@color/superLightGrey</color>
@@ -63,6 +62,5 @@
     <color name="audio_player_speed_text_color">@color/superDarkGrey</color>
     <color name="audio_player_enqueue_button_color">#00AA2B</color>
     <color name="audio_player_text_color">@color/black</color>
-    <color name="audio_player_play_next_switch_text_color">@color/darkGrey</color>
     <color name="audio_player_progress_time_text_color">@color/darkGrey</color>
 </resources>

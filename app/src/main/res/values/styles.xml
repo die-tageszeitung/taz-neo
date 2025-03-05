@@ -119,6 +119,7 @@
 
     <style name="Widget.App.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="trackTint">@color/material_switch_color_list</item>
+        <item name="thumbTint">@color/material_switch_thumb_color_list</item>
     </style>
 
     <style name="Widget.App.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox" />
@@ -507,12 +508,12 @@
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextDescription" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/audio_player_play_next_switch_text_color</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextTitle" parent="Widget.App.TextView.Info.BodyText.Bold">
-        <item name="android:textColor">@color/audio_player_speed_text_color</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
@@ -549,7 +550,7 @@
         <item name="android:includeFontPadding">false</item>
         <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
         <item name="android:lineSpacingExtra">5sp</item>
-        <item name="android:textColor">@color/audio_player_play_next_switch_text_color</item>
+        <item name="android:textColor">@color/lightGrey</item>
     </style>
     <!-- endregion -->
 

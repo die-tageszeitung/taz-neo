@@ -117,6 +117,8 @@
 
     <color name="material_switch_color">@color/green</color>
     <color name="material_switch_color_unchecked">@color/superLightGrey</color>
+    <color name="material_switch_color_thumb">@color/white</color>
+    <color name="material_switch_color_thumb_unchecked">@color/lightGrey</color>
     <color name="read_minutes">@color/lightGrey</color>
 
     <color name="article_section_divider_color">@color/black</color>
@@ -139,7 +141,6 @@
     <color name="audio_player_speed_text_color">@color/superLightGrey</color>
     <color name="audio_player_enqueue_button_color">@color/green</color>
     <color name="audio_player_text_color">@color/white</color>
-    <color name="audio_player_play_next_switch_text_color">@color/lightGrey</color>
     <color name="audio_player_progress_time_text_color">@color/lightGrey</color>
 
     <color name="password_hint_strength_medium">@color/darkGreen</color>
