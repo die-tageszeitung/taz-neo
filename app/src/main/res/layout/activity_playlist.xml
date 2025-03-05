@@ -4,49 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/audio_player_playlist_background_color">
+    android:background="@color/backgroundColor">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <include
         android:id="@+id/playlist_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/fragment_header_default_padding_top"
-        app:contentInsetEnd="@dimen/fragment_header_default_margin_horizontal"
-        app:contentInsetStart="@dimen/fragment_header_default_margin_horizontal"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/fragment_header_default_title"
-                style="@style/Widget.App.Header.Default.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="bottom|start"
-                android:text="@string/audioplayer_playlist"
-                android:textColor="@color/superLightGrey"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <de.taz.app.android.ui.DottedLineView
-                android:id="@+id/dotted_line"
-                android:layout_width="match_parent"
-                android:layout_height="5dp"
-                app:color="@color/superLightGrey"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_header_default_title" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.appbar.MaterialToolbar>
+        layout="@layout/fragment_header_default"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/playlist_rv"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="@dimen/audioplayer_playlist_margin_bottom"
-        android:background="@android:color/transparent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
         app:layout_constraintEnd_toEndOf="parent"
@@ -72,7 +41,8 @@
             android:contentDescription="@string/audioplayer_playlist_delete"
             android:src="@drawable/ic_delete"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/textColor" />
 
         <TextView
             style="@style/Widget.App.AudioPlayer.PlayList.DeleteText"
@@ -90,7 +60,7 @@
             android:layout_marginStart="@dimen/audioplayer_playlist_margin_start"
             android:layout_marginTop="@dimen/audioplayer_playlist_small_margin"
             android:layout_marginEnd="@dimen/audioplayer_playlist_margin_end"
-            android:background="@color/white"
+            android:background="@color/textColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/delete_icon" />
@@ -104,7 +74,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playlist_header"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_max="@dimen/default_max_width">
 
         <TextView
@@ -124,6 +94,7 @@
             style="@style/Widget.App.AudioPlayer.PlayList.Empty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/fragment_bookmarks_description_margin_horizontal"
             android:text="@string/audioplayer_playlist_empty"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"

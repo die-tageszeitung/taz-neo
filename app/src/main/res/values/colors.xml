@@ -134,7 +134,6 @@
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
     <color name="audio_player_playlist_playing_icon">#07E151</color>
     <color name="audio_player_playlist_delete_icon">#1F1F1F</color>
-    <color name="audio_player_playlist_background_color">@color/background_darkmode</color>
     <color name="audio_player_options_sheet_separator_color">#38383A</color>
 
     <color name="password_hint_strength_medium">@color/darkGreen</color>

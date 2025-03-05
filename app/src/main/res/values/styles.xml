@@ -522,26 +522,15 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Section.SectionHead">
-        <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">20sp</item>
-        <item name="lineHeight">25.6dp</item>
-    </style>
-
-
-    <style name="Widget.App.AudioPlayer.PlayList.Item.Title" parent="Widget.App.TextView.Listing.Head">
-        <item name="android:textColor">@color/superLightGrey</item>
-    </style>
-
-    <style name="Widget.App.AudioPlayer.PlayList.Item.Author" parent="Widget.App.TextView.Listing.Author">
-        <item name="android:textColor">@color/superLightGrey</item>
+    <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Settings">
+        <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
+        <item name="lineHeight">19.2sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.PlayList.Item.Duration" parent="Widget.App.AudioPlayer.Expanded.ProgressTime">
     </style>
 
     <style name="Widget.App.AudioPlayer.PlayList.DeleteText" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/lightGrey</item>
         <item name="android:textSize">14sp</item>
     </style>
 
