@@ -125,7 +125,7 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:contentDescription="@string/audioplayer_playlist_current"
-                android:src="@drawable/ic_sound_indicator"
+                android:src="@drawable/current_playing_animated"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
