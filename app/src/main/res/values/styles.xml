@@ -119,6 +119,7 @@
 
     <style name="Widget.App.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
         <item name="trackTint">@color/material_switch_color_list</item>
+        <item name="thumbTint">@color/material_switch_thumb_color_list</item>
     </style>
 
     <style name="Widget.App.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox" />
@@ -478,70 +479,62 @@
 
     <!-- region audioplayer -->
     <style name="Widget.App.AudioPlayer.Mini.Title" parent="Widget.App.TextView.Audio.Head.Mini">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Mini.Author" parent="Widget.App.TextView.Audio.Author.Mini">
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.Title" parent="Widget.App.TextView.Marketing.Head.Aktiv">
         <item name="android:textSize">18sp</item>
         <item name="lineHeight">25sp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.Author" parent="Widget.App.TextView.Info.BodyText">
         <item name="android:textSize">18sp</item>
         <item name="lineHeight">25sp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.PlaybackSpeed" parent="Widget.App.TextView.Settings">
-        <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textColor">@color/audio_player_speed_text_color</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.GoToPlaylist" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/audio_player_controls_color</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextDescription" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.Expanded.NextTitle" parent="Widget.App.TextView.Info.BodyText.Bold">
-        <item name="android:textColor">@color/superLightGrey</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="Widget.App.AudioPlayer.Expanded.ProgressTime" parent="Widget.App.TextView.Listing.Metadata" />
+    <style name="Widget.App.AudioPlayer.Expanded.ProgressTime" parent="Widget.App.TextView.Listing.Metadata">
+        <item name="android:textColor">@color/audio_player_progress_time_text_color</item>
+    </style>
 
     <style name="Widget.App.AudioPlayer.Loading" parent="Widget.App.TextView.Audio.Head.Mini">
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Section.SectionHead">
-        <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">20sp</item>
-        <item name="lineHeight">25.6dp</item>
+    <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Settings">
+        <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
+        <item name="lineHeight">19.2sp</item>
     </style>
 
-
-    <style name="Widget.App.AudioPlayer.PlayList.Item.Title" parent="Widget.App.TextView.Listing.Head">
-        <item name="android:textColor">@color/superLightGrey</item>
-    </style>
-
-    <style name="Widget.App.AudioPlayer.PlayList.Item.Author" parent="Widget.App.TextView.Listing.Author">
-        <item name="android:textColor">@color/superLightGrey</item>
-    </style>
-
-    <style name="Widget.App.AudioPlayer.PlayList.Item.Duration" parent="Widget.App.AudioPlayer.Expanded.ProgressTime">
+    <style name="Widget.App.AudioPlayer.PlayList.Item.Duration" parent="Widget.App.TextView.Listing.Metadata">
+        <item name="android:textColor">@color/read_minutes</item>
     </style>
 
     <style name="Widget.App.AudioPlayer.PlayList.DeleteText" parent="Widget.App.TextView.Info.BodyText">
-        <item name="android:textColor">@color/lightGrey</item>
         <item name="android:textSize">14sp</item>
     </style>
 

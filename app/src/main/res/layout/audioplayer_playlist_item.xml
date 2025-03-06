@@ -34,7 +34,7 @@
         android:id="@+id/audioplayer_playlist_item_foreground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/audio_player_playlist_background_color"
+        android:background="@color/backgroundColor"
         android:paddingHorizontal="@dimen/audioplayer_playlist_item_padding_horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +52,7 @@
 
             <TextView
                 android:id="@+id/title"
-                style="@style/Widget.App.AudioPlayer.PlayList.Item.Title"
+                style="@style/Widget.App.TextView.Listing.Head"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
@@ -62,13 +62,13 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title"
-                app:layout_constrainedWidth="true">
+                app:layout_constraintTop_toBottomOf="@id/title">
 
                 <TextView
                     android:id="@+id/author"
-                    style="@style/Widget.App.AudioPlayer.PlayList.Item.Author"
+                    style="@style/Widget.App.TextView.Listing.Author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -117,18 +117,20 @@
                 android:contentDescription="@string/audioplayer_playlist_sort"
                 android:src="@drawable/ic_grip_lines"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/textColor" />
 
             <ImageView
                 android:id="@+id/current_playing_indicator"
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:contentDescription="@string/audioplayer_playlist_current"
-                android:src="@drawable/ic_sound_indicator"
+                android:src="@drawable/current_playing_animated"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/audio_player_playlist_playing_icon" />
+
             <ImageView
                 android:id="@+id/current_paused_indicator"
                 android:layout_width="@dimen/icon_size"
@@ -136,9 +138,9 @@
                 android:contentDescription="@string/audioplayer_playlist_current"
                 android:src="@drawable/ic_sound_indicator"
                 android:visibility="gone"
+                app:tint="@color/textColor"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/lightGrey" />
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <View
@@ -146,7 +148,6 @@
             android:layout_height="3dp"
             android:layout_marginTop="@dimen/audioplayer_playlist_small_margin"
             android:background="@drawable/dotted_line_bookmarks"
-            android:backgroundTint="@color/superLightGrey"
             app:layout_constraintTop_toBottomOf="@id/text_wrapper" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

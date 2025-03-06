@@ -36,7 +36,7 @@
                 android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:visibility="gone">
+                tools:visibility="visible">
 
                 <ImageView
                     android:id="@+id/audio_image"
@@ -271,7 +271,7 @@
                         android:layout_height="@dimen/audioplayer_expanded_play_speed_view_height"
                         android:layout_marginBottom="5dp"
                         android:background="@drawable/play_speed_rounded_bg"
-                        android:backgroundTint="@color/text_icon_grey"
+                        android:backgroundTint="@color/audio_player_speed_touch_area_color"
                         android:clickable="true"
                         android:contentDescription="@string/audioplayer_playback_speed_content_description"
                         android:focusable="true"
@@ -459,7 +459,7 @@
                     android:src="@drawable/ic_playlist_outlined"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/lightGrey" />
+                    app:tint="@color/audio_player_controls_color" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

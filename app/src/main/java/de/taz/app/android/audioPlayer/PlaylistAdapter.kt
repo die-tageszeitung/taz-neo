@@ -1,5 +1,6 @@
 package de.taz.app.android.audioPlayer
 
+import android.graphics.drawable.AnimationDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isGone
@@ -23,7 +24,15 @@ class PlaylistViewHolder(
     init {
         binding.root.setOnClickListener {
             boundItem?.let {
-                audioPlayerService.playPlaylist(boundPosition)
+                val isBoundElementTheCurrentPlayingInPlaylist = audioPlayerService.isPlaying()
+                        && audioPlayerService.getCurrent() == boundItem
+                        && audioPlayerService.isPlaylistPlayer
+
+                if (isBoundElementTheCurrentPlayingInPlaylist) {
+                    audioPlayerService.toggleAudioPlaying()
+                } else {
+                    audioPlayerService.playPlaylist(boundPosition)
+                }
             }
         }
     }
@@ -37,6 +46,8 @@ class PlaylistViewHolder(
                 binding.currentPlayingIndicator.isVisible = true
                 binding.currentPausedIndicator.isVisible = false
                 binding.dragIcon.isVisible = false
+                // start the animation:
+                (binding.currentPlayingIndicator.drawable as AnimationDrawable).start()
             } else  {
                 binding.currentPausedIndicator.isVisible = true
                 binding.currentPlayingIndicator.isVisible = false

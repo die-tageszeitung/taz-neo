@@ -456,9 +456,11 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         _persistedPlaylistState.value = Playlist(currentItemIdx = -1, items = emptyList())
 
         getControllerFromState()?.apply {
-            clearMediaItems()
+            if (isPlaylistPlayer) {
+                clearMediaItems()
+                dismissPlayer()
+            }
         }
-
     }
 
 

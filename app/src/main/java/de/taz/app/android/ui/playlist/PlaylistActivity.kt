@@ -2,8 +2,10 @@ package de.taz.app.android.ui.playlist
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.audioPlayer.Playlist
@@ -78,6 +80,9 @@ class PlaylistActivity:
             viewBinding.navigationBottom,
             BottomNavigationItem.Playlist
         )
+
+        viewBinding.root.findViewById<TextView>(R.id.fragment_header_default_title)
+            ?.setText(R.string.audioplayer_playlist)
     }
 
     @SuppressLint("MissingSuperCall")
