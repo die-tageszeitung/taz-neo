@@ -32,24 +32,6 @@ data class Playlist(
         }
     }
 
-    fun appendAfterCurrent(
-        newItems: List<AudioPlayerItem>,
-        skipCurrent: Boolean = false
-    ): Playlist {
-        return if (currentItemIdx < 0 || items.isEmpty()) {
-            Playlist(0, newItems)
-        } else {
-            if (skipCurrent) {
-                val newList = items.subList(0, currentItemIdx) + newItems + items.subList(currentItemIdx, items.size)
-                Playlist(currentItemIdx, newList)
-            } else {
-                val newList = items.subList(0, currentItemIdx + 1) + newItems + items.subList(currentItemIdx + 1, items.size)
-                Playlist(currentItemIdx + 1, newList)
-            }
-        }
-    }
-
-
     override fun toString(): String {
         return "${this::class.simpleName}($currentItemIdx / #${items.size})"
     }

@@ -101,4 +101,6 @@ class NoOpTracker : Tracker {
     override fun trackArticleColumnModeDisableEvent() {}
     override fun trackWidgetEnabledEvent() {}
     override fun trackWidgetDisabledEvent() {}
+    override fun trackAudioPlayerAutoplayDisableEvent() {}
+    override fun trackAudioPlayerAutoplayEnableEvent() {}
 }

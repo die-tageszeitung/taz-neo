@@ -45,7 +45,6 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
                 UiState.Hidden -> false
                 is UiState.MaxiPlayer -> isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
                 is UiState.MiniPlayer ->  isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
-                is UiState.Playlist -> isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
             }
         }
 
@@ -57,6 +56,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
                 && playerState.playerUiState.controls.autoPlayNext == UiState.ControlValue.ENABLED
                 && currentAudioPlayerItemIssueKey != null
                 && IssueKey(currentAudioPlayerItemIssueKey) == issueKey
+                && audioPlayerService.isIssuePlayer
     }
 
     fun setIssueStub(issueStub: IssueStub) {
@@ -68,7 +68,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
         val currentIssueStub = issueStub.value
         if (currentIssueStub != null) {
             try {
-                audioPlayerService.playIssue(currentIssueStub)
+                audioPlayerService.togglePlayIssue(currentIssueStub)
             } catch (e: Exception) {
                 log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
@@ -81,29 +81,17 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
 
     fun enqueue(articleKey: String) {
         try {
-            audioPlayerService.playArticle(
-                articleKey,
-                replacePlaylist = false,
-                playImmediately = false
-            )
+            audioPlayerService.enqueueArticle(articleKey)
         } catch (e: Exception) {
             log.error("Could not play article audio (${articleKey})", e)
             _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)}
     }
 
     fun removeFromPlaylist(articleKey: String) {
-        val audioToRemove =
-            audioPlayerService.playlistState.value.items.find { it.playableKey == articleKey }
-        audioToRemove?.let {
-            audioPlayerService.removeItem(it)
-        }
+        audioPlayerService.removeItemFromPlaylist(articleKey)
     }
 
     fun clearErrorMessage() {
         _errorMessageFlow.value = null
-    }
-
-    fun showPlaylist() {
-        audioPlayerService.showPlaylist()
     }
 }

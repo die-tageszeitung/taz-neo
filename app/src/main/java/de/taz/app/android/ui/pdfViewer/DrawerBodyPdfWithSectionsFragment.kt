@@ -110,9 +110,6 @@ class DrawerBodyPdfWithSectionsFragment :
         viewBinding.playIssueLayout.setOnClickListener {
             drawerAudioPlayerViewModel.handleOnPlayAllClicked()
         }
-        viewBinding.playlistLayout.setOnClickListener {
-            drawerAudioPlayerViewModel.showPlaylist()
-        }
     }
 
     private fun goToCurrentPage() {

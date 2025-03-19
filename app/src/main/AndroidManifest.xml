@@ -76,6 +76,9 @@
             android:name=".ui.settings.ErrorReportActivity"
             android:theme="@style/noAnimationOnActivityChange" />
         <activity
+            android:name=".ui.playlist.PlaylistActivity"
+            android:theme="@style/noAnimationOnActivityChange" />
+        <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"
             android:noHistory="true"

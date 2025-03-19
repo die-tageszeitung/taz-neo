@@ -7,10 +7,6 @@ sealed class UiState {
     data object Hidden : UiState()
     data class MiniPlayer(val playerState: PlayerState) : UiState()
     data class MaxiPlayer(val playerState: PlayerState) : UiState()
-    data class Playlist(
-        val playlist: de.taz.app.android.audioPlayer.Playlist,
-        val playerState: PlayerState,
-    ) : UiState()
 
     sealed class PlayerState {
         data object Initializing : PlayerState()
@@ -29,20 +25,28 @@ sealed class UiState {
         Hidden -> null
         is MaxiPlayer -> playerState
         is MiniPlayer -> playerState
-        is Playlist -> playerState
     }
 
     fun isPlayerVisible(): Boolean = when (this) {
         Hidden -> false
-        is MaxiPlayer, is MiniPlayer, is Playlist -> true
+        is MaxiPlayer, is MiniPlayer -> true
     }
 
-    fun copyWithPlayerState(playerState: PlayerState): UiState = when (this) {
-        // FIXME: this is not a good place to define these.. they are very weird to find here
-        Hidden -> MaxiPlayer(playerState) // initial state the player is in when shown first
+    fun copyWithPlayerState(
+        playerState: PlayerState,
+        isFirstAudioPlayEver: Boolean = false,
+    ): UiState = when (this) {
+        Hidden -> {
+            // Determine the initial state the player is in when shown first.
+            // The very first time the MaxiPlayer should be shown.
+            if (isFirstAudioPlayEver) {
+                MaxiPlayer(playerState)
+            } else {
+                MiniPlayer(playerState)
+            }
+        }
         is MaxiPlayer -> MaxiPlayer(playerState)
         is MiniPlayer -> MiniPlayer(playerState)
-        is Playlist -> Playlist(playlist, playerState)
     }
 
     // Helper classes

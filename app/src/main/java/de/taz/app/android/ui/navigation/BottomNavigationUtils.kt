@@ -7,6 +7,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.ui.bookmarks.BookmarkListActivity
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.playlist.PlaylistActivity
 import de.taz.app.android.ui.search.SearchActivity
 import de.taz.app.android.ui.settings.SettingsActivity
 import kotlin.reflect.KClass
@@ -14,6 +15,7 @@ import kotlin.reflect.KClass
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
     object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
     object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
+    object Playlist : BottomNavigationItem(R.id.bottom_navigation_action_playlist)
     object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
     object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
     class ChildOf(val parent: BottomNavigationItem) : BottomNavigationItem(0)
@@ -53,6 +55,12 @@ fun Activity.setupBottomNavigation(
                 true
             }
 
+            R.id.bottom_navigation_action_playlist -> {
+                navigateToPlaylist()
+                // return false so the icon gets not marked as "active"
+                false
+            }
+
             R.id.bottom_navigation_action_search -> {
                 navigateToSearch()
                 true
@@ -75,6 +83,7 @@ fun Activity.bottomNavigationBack() {
 
 private fun Activity.navigateToMain() = startActivity(this, MainActivity::class)
 private fun Activity.navigateToBookmarks() = startActivity(this, BookmarkListActivity::class)
+private fun Activity.navigateToPlaylist() = startActivity(this, PlaylistActivity::class)
 private fun Activity.navigateToSearch() = startActivity(this, SearchActivity::class)
 private fun Activity.navigateToSettings() = startActivity(this, SettingsActivity::class)
 
