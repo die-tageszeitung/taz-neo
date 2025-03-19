@@ -1,5 +1,6 @@
 package de.taz.app.android.audioPlayer
 
+import android.graphics.drawable.AnimationDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isGone
@@ -12,30 +13,41 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import de.taz.app.android.databinding.AudioplayerPlaylistItemBinding
 import java.util.LinkedList
 
-// FIXME: maybe dont pass the whole service but only functions required from here
 class PlaylistViewHolder(
     private val audioPlayerService: AudioPlayerService,
     private val binding: AudioplayerPlaylistItemBinding
 ) : ViewHolder(binding.root) {
 
     var boundItem: AudioPlayerItem? = null
+    var boundPosition: Int = -1
 
     init {
         binding.root.setOnClickListener {
             boundItem?.let {
-                audioPlayerService.skipToItem(it)
+                val isBoundElementTheCurrentPlayingInPlaylist = audioPlayerService.isPlaying()
+                        && audioPlayerService.getCurrent() == boundItem
+                        && audioPlayerService.isPlaylistPlayer
+
+                if (isBoundElementTheCurrentPlayingInPlaylist) {
+                    audioPlayerService.toggleAudioPlaying()
+                } else {
+                    audioPlayerService.playPlaylist(boundPosition)
+                }
             }
         }
     }
 
-    fun bind(item: AudioPlayerItem, isCurrent: Boolean) {
+    fun bind(item: AudioPlayerItem, position: Int, isCurrent: Boolean) {
         boundItem = item
+        boundPosition = position
 
         if (isCurrent) {
-            if (audioPlayerService.isPlaying()) {
+            if (audioPlayerService.isPlaying() && audioPlayerService.isPlaylistPlayer) {
                 binding.currentPlayingIndicator.isVisible = true
                 binding.currentPausedIndicator.isVisible = false
                 binding.dragIcon.isVisible = false
+                // start the animation:
+                (binding.currentPlayingIndicator.drawable as AnimationDrawable).start()
             } else  {
                 binding.currentPausedIndicator.isVisible = true
                 binding.currentPlayingIndicator.isVisible = false
@@ -82,7 +94,7 @@ class PlaylistAdapter(private val audioPlayerService: AudioPlayerService) :
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         val item = getItem(position)
         val isCurrentlyPlaying = position == currentItem
-        holder.bind(item, isCurrentlyPlaying)
+        holder.bind(item, position, isCurrentlyPlaying)
     }
 
     /**

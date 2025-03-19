@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 
 class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
     ItemTouchHelper.SimpleCallback(
@@ -45,18 +46,19 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
                 val currentDraggedItem = draggedViewHolder?.boundItem
                 if (currentDraggedItem != null && initialFromPos >= 0 && finalToPos >= 0) {
                     // Once the drag settled, we can update the audioPlayerService
-                    audioPlayerService.moveItem(initialFromPos, finalToPos)
+                    audioPlayerService.moveItemInPlaylist(initialFromPos, finalToPos)
                 }
                 draggedViewHolder = null
 
                 // hide background indication deletion if not swiping
-                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(0f)?.setDuration(600L)
-                swipedViewHolder = null
+                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(0f)?.duration =
+                    600L
             }
 
             ItemTouchHelper.ACTION_STATE_SWIPE -> {
                 swipedViewHolder = viewHolder as? PlaylistViewHolder
-                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(1f)?.setDuration(0L)
+                swipedViewHolder?.itemView?.findViewById<View>(R.id.audioplayer_playlist_item_background)?.animate()?.alpha(1f)?.duration =
+                    0L
             }
         }
     }
@@ -83,7 +85,7 @@ class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         if (viewHolder is PlaylistViewHolder) {
-            viewHolder.boundItem?.let { audioPlayerService.removeItem(it) }
+            viewHolder.boundItem?.let { audioPlayerService.removeItemFromPlaylist(it) }
         } else {
             log.error("AudioPlayer ItemCallBack called with no PlaylistViewHolder")
         }

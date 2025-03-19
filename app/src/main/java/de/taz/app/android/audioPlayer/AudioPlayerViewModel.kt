@@ -40,7 +40,6 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
 
     val isPlayerVisible = audioPlayerService.uiState.map { it.isPlayerVisible() }
-    val playlistFlow = audioPlayerService.playlistState
 
     /**
      * True if the currently visible article is active within the audio player.
@@ -56,25 +55,21 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
         visiblePlayable.value = articleStub
     }
 
-    fun clearVisible() {
-        visiblePlayable.value = null
-    }
-
     /**
      * Handle actions on the bottom navigation bar.
      * Will start to play the currently visible article,
      * or dismiss the player if it is was already showing that article.
      */
-    fun handleOnAudioActionOnVisible(playNext: Boolean = false, playImmediately: Boolean = false) {
+    fun handleOnAudioActionOnVisible() {
         viewModelScope.launch {
             val playable = visiblePlayable.value
             if (playable != null) {
                 val isVisiblePlayableActive = isActiveAudio.first()
-                if (isVisiblePlayableActive && playImmediately) {
+                if (isVisiblePlayableActive) {
                     audioPlayerService.dismissPlayer()
                 } else {
                     try {
-                        play(playable, playNext, playImmediately)
+                        play(playable)
                     } catch (e: Exception) {
                         log.error("Could not play article audio (${playable.audioPlayerPlayableKey})", e)
                         _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
@@ -91,21 +86,21 @@ abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplic
         _errorMessageFlow.value = null
     }
 
-    abstract fun play(playable: PLAYABLE, replacePlaylist: Boolean = false, playImmediately: Boolean = true)
+    abstract fun play(playable: PLAYABLE)
 }
 
 class SearchHitAudioPlayerViewModel(androidApplication: Application) :
     AudioPlayerViewModel<SearchHit>(androidApplication) {
 
-    override fun play(playable: SearchHit, replacePlaylist: Boolean, playImmediately: Boolean) {
-        audioPlayerService.playSearchHit(playable, replacePlaylist, playImmediately)
+    override fun play(playable: SearchHit) {
+        audioPlayerService.playSearchHit(playable)
     }
 }
 
 class ArticleAudioPlayerViewModel(androidApplication: Application) :
     AudioPlayerViewModel<ArticleOperations>(androidApplication) {
 
-    override fun play(playable: ArticleOperations, replacePlaylist: Boolean, playImmediately: Boolean) {
-        audioPlayerService.playArticle(playable.key, replacePlaylist, playImmediately)
+    override fun play(playable: ArticleOperations) {
+        audioPlayerService.playArticle(playable.key)
     }
 }
