@@ -38,6 +38,7 @@ import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.getBottomNavigationBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -235,9 +236,14 @@ abstract class WebViewFragment<
                     saveScrollPositionDebounced(scrollPosition = scrollY)
 
                     if (oldScrollY < scrollY) {
-                        val isScrolledToBottom = webView.bottom <= (webView.height + scrollY)
-                        if (isScrolledToBottom) {
-                            onScrolledToBottom()
+                        try {
+                            val isScrolledToBottom = webView.bottom <= (webView.height + scrollY)
+                            if (isScrolledToBottom) {
+                                onScrolledToBottom()
+                            }
+                        } catch (npe: NullPointerException) {
+                            log.warn("We lost the viewBindings web view. Abort scrolling…")
+                            SentryWrapper.captureException(npe)
                         }
                     }
                 }
@@ -589,22 +595,27 @@ abstract class WebViewFragment<
 
     // TODO fix scroll positions
     suspend fun restoreLastHorizontalScrollPosition() {
-        viewModel.displayable?.let {
-            val persistedScrollPosition =
-                viewerStateRepository.get(it.key)?.scrollPositionHorizontal
-            viewModel.scrollPositionHorizontal =
-                persistedScrollPosition ?: viewModel.scrollPositionHorizontal
-        }
-        viewModel.scrollPositionHorizontal?.let {
-            if (it > 0) {
-                val scrollAnimation = ObjectAnimator.ofInt(
-                    webView,
-                    "scrollX",
-                    0,
-                    it
-                )
-                scrollAnimation.start()
+        try {
+            viewModel.displayable?.let {
+                val persistedScrollPosition =
+                    viewerStateRepository.get(it.key)?.scrollPositionHorizontal
+                viewModel.scrollPositionHorizontal =
+                    persistedScrollPosition ?: viewModel.scrollPositionHorizontal
             }
+            viewModel.scrollPositionHorizontal?.let {
+                if (it > 0) {
+                    val scrollAnimation = ObjectAnimator.ofInt(
+                        webView,
+                        "scrollX",
+                        0,
+                        it
+                    )
+                    scrollAnimation.start()
+                }
+            }
+        } catch (npe: NullPointerException) {
+            log.warn("We lost the viewBindings web view. Abort horizontal scrolling…")
+            SentryWrapper.captureException(npe)
         }
     }
 

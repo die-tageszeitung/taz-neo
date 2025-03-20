@@ -44,6 +44,7 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
@@ -63,6 +64,7 @@ import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -490,15 +492,21 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     override fun onBackPressed(): Boolean {
-        val isImprint =
-            (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint()
-                ?: false
-        val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
-        return if (isImprint || isTom) {
-            requireActivity().finish()
-            true
-        } else {
-            false
+        try {
+            val isImprint =
+                (getCurrentArticlePagerItem() as? ArticlePagerItem.ArticleRepresentation)?.art?.articleStub?.isImprint() == true
+            val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
+
+            return if (isImprint || isTom) {
+                requireActivity().finish()
+                true
+            } else {
+                false
+            }
+        } catch (npe: NullPointerException) {
+            log.warn("We got a NPE when trying to call getCurrentArticlePagerItem(). Probably viewBinding is gone.")
+            SentryWrapper.captureException(npe)
+            return false
         }
     }
 
@@ -588,7 +596,12 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 log.debug("I will now display $articleKey")
                 getSupposedPagerPosition()?.let {
                     if (it >= 0) {
-                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                        try {
+                            viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                        } catch (npe: NullPointerException) {
+                            log.warn("We lost the viewBindings web view. Abort horizontal scrolling…")
+                            SentryWrapper.captureException(npe)
+                        }
                     }
                 }
             }
