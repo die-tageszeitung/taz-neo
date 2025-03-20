@@ -26,6 +26,9 @@
     <dimen name="view_moment_download_wrapper_padding_vertical">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
 
+    <!-- For accessibility the clickable views should have a minimum height or width of 48dp -->
+    <dimen name="default_touch_area_size">48dp</dimen>
+
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
     <dimen name="drawer_margin_top">12dp</dimen>
@@ -175,7 +178,7 @@
     <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
-    <dimen name="fragment_cover_flow_download_wrapper_size">30dp</dimen>
+    <dimen name="fragment_cover_flow_download_wrapper_size">48dp</dimen>
     <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>

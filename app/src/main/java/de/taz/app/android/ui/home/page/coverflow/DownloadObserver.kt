@@ -22,12 +22,13 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -263,7 +264,10 @@ class DownloadObserver constructor(
 
     @MainThread
     private fun showDownloadIcon() {
-        downloadIconView.setOnClickListener {
+        val biggerTouchAreaView =
+            downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
+        val downloadClickBindView = biggerTouchAreaView ?: downloadIconView
+        downloadClickBindView.setOnClickListener {
             stopObserving()
             fragment.lifecycleScope.launch(Dispatchers.Main) {
                 try {
