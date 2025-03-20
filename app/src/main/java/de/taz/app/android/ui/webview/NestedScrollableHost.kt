@@ -19,8 +19,8 @@ class NestedScrollableHost @JvmOverloads constructor(
     private var initialY = 0.0f
 
     private fun parentViewPager(): ViewPager2 {
-        var parentView = this.parent as View
-        while (parentView !is ViewPager2) parentView = parentView.parent as View
+        var parentView = this.parent as View?
+        while (parentView !is ViewPager2) parentView = parentView?.parent as? View
         return parentView
     }
 
