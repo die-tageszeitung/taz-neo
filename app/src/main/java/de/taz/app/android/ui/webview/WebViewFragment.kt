@@ -25,7 +25,6 @@ import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
-import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -34,11 +33,9 @@ import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
-import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.getBottomNavigationBehavior
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -78,8 +75,6 @@ abstract class WebViewFragment<
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var viewerStateRepository: ViewerStateRepository
-    private lateinit var tazApiCssDataStore: TazApiCssDataStore
-    private lateinit var tazApiCssHelper: TazApiCssHelper
 
     protected var isRendered = false
 
@@ -114,8 +109,6 @@ abstract class WebViewFragment<
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(context.applicationContext)
-        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
-        tazApiCssHelper = TazApiCssHelper.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

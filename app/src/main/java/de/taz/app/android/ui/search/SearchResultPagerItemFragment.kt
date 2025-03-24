@@ -1,16 +1,20 @@
 package de.taz.app.android.ui.search
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebSettings
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
@@ -32,9 +36,9 @@ private const val ARGUMENT_PAGER_POSITION = "pager_position"
 
 /**
  * Fragment used to show search result articles in the pager.
- * It is required as we need a childFragmentManager to use the [LoginFragment].
+ * It is required as we need a childFragmentManager to use the [de.taz.app.android.ui.login.fragments.LoginFragment].
  */
-class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArticleBinding>() {
+class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticleBinding>() {
     companion object {
         fun newInstance(position: Int) = SearchResultPagerItemFragment().apply {
             arguments = bundleOf(ARGUMENT_PAGER_POSITION to position)
@@ -44,14 +48,18 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     val viewModel by activityViewModels<SearchResultViewModel>()
     private var position: Int = NO_POSITION
+    private val webView: AppWebView
+        get() = viewBinding.webView
     private lateinit var searchResult: SearchHit
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,9 +79,18 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
         }
         this.searchResult = searchResult
 
+        tazApiCssDataStore.fontSize
+            .asLiveData()
+            .distinctUntilChanged()
+            .observe(viewLifecycleOwner) {
+                reloadAfterCssChange()
+            }
+
+
         setupWebView()
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         viewBinding.webView.apply {
             val callBack = object : AppWebViewClientCallBack {
@@ -189,4 +206,14 @@ class SearchResultPagerItemFragment() : ViewBindingFragment<FragmentWebviewArtic
             ), "src=\"$baseUrl/$1\""
         )
     }
+
+    private fun reloadAfterCssChange() {
+        lifecycleScope.launch {
+            webView.injectCss()
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+                webView.reload()
+            }
+        }
+    }
+
 }

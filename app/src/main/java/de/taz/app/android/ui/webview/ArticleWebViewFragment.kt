@@ -20,7 +20,6 @@ import de.taz.app.android.databinding.FragmentWebviewArticleBinding
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
-import de.taz.app.android.singletons.TazApiCssHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
@@ -48,7 +47,6 @@ class ArticleWebViewFragment :
     private var articleOperations: ArticleOperations? = null
     private lateinit var articleFileName: String
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
-    private lateinit var tazApiCssHelper: TazApiCssHelper
     private lateinit var articleRepository: ArticleRepository
     private lateinit var tracker: Tracker
     private lateinit var authHelper: AuthHelper
@@ -103,7 +101,6 @@ class ArticleWebViewFragment :
         super.onAttach(context)
         articleRepository = ArticleRepository.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
-        tazApiCssHelper = TazApiCssHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
     }
