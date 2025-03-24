@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +40,6 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.textSettings.TextSettingsBottomSheetFragment
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.ArticleBottomActionBarNavigationHelper
 import de.taz.app.android.util.Log
@@ -123,13 +121,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
         log.verbose("initialPosition is $initialPosition")
 
         setupViewPager()
-
-        tazApiCssDataStore.fontSize
-            .asLiveData()
-            .distinctUntilChanged()
-            .observe(viewLifecycleOwner) {
-                reloadAfterCssChange()
-            }
 
         viewModel.isBookmarkedLiveData.observe(
             viewLifecycleOwner,
@@ -352,11 +343,6 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
     private fun getCurrentSearchHit(): SearchHit? {
         return viewModel.getSearchHit(getCurrentPagerPosition())
-    }
-
-    private fun reloadAfterCssChange() {
-        // draw every view again
-        searchResultPagerAdapter?.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {
