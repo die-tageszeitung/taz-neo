@@ -135,8 +135,7 @@ interface Tracker {
 
     fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
-        issueKey: AbstractIssuePublication,
-        title: String
+        fileName: String
     )
     fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit)
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)

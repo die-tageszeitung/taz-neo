@@ -1119,9 +1119,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 }
             }
             AudioPlayerItem.Type.PODCAST ->
-                item.issueKey?.let { issueKey ->
-                    tracker.trackAudioPlayerPlayPodcastEvent(issueKey, item.uiItem.title)
-                }
+                tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name)
             AudioPlayerItem.Type.SEARCH_HIT ->
                 item.searchHit?.let { tracker.trackAudioPlayerPlaySearchHitEvent(it) }
 
