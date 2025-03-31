@@ -568,13 +568,11 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     }
 
     override fun trackAudioPlayerPlayPodcastEvent(
-        issueKey: AbstractIssuePublication,
-        title: String
+        fileName: String
     ) {
-        val path = "/${issuePath(issueKey)}"
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Podcast")
-            .name("$path?title=$title")
+            .name(fileName)
             .with(matomoTracker)
     }
 
