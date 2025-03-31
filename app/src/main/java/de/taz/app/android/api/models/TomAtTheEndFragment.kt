@@ -3,12 +3,15 @@ package de.taz.app.android.api.models
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.ViewCompat.animate
 import androidx.lifecycle.lifecycleScope
+import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -41,7 +44,6 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         gestureDetector = GestureDetector(requireContext(), onGestureListener)
 
         val tomResId = arguments?.getInt(ARG_TOM_RES_ID) ?: 0
@@ -65,6 +67,11 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        hideLoadingScreen()
     }
 
     private val onGestureListener = object : GestureDetector.SimpleOnGestureListener() {
@@ -98,5 +105,16 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
 
     private fun pageLeft() {
         (parentFragment as? ArticlePagerFragment)?.pageLeft()
+    }
+
+    fun hideLoadingScreen() {
+        viewBinding.loadingScreen.apply {
+            animate()
+                .alpha(0f)
+                .withEndAction {
+                    visibility = View.GONE
+                }
+                .duration = LOADING_SCREEN_FADE_OUT_TIME
+        }
     }
 }
