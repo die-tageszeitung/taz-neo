@@ -538,6 +538,7 @@
     <string name="article_share_text_error_dialog">Fehler beim Versuch den Text des Artikels zu teilen</string>
 
     <string name="article_tom_at_the_end_title">Das Ende ist nah!</string>
+    <string name="description_tom_at_the_end">Karikatur von Tom</string>
 
     <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
 
