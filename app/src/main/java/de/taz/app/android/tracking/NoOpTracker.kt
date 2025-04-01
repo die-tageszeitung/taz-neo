@@ -96,6 +96,7 @@ class NoOpTracker : Tracker {
     override fun trackCoachMarkClose(layoutResName: String) {}
     override fun trackTapToScrollSettingStatusEvent(enable: Boolean) {}
     override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication) {}
+    override fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication) {}
     override fun trackTestTrackingGoal() {}
     override fun trackArticleColumnModeEnableEvent() {}
     override fun trackArticleColumnModeDisableEvent() {}

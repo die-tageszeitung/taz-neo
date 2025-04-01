@@ -23,9 +23,9 @@ import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.indexOfMediaItem
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PlaylistRepository
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -122,6 +122,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val playlistRepository = PlaylistRepository.getInstance(applicationContext)
+    private val storageService = StorageService.getInstance(applicationContext)
 
     // Play the disclaimer only once per app session:
     private var disclaimerPlayed = false
@@ -673,7 +674,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             controller.apply {
                                 addMediaItems(
                                     0,
-                                    newItems.map { mediaItemHelper.getMediaItem(it) })
+                                    newItems.map {
+                                        mediaItemHelper.getMediaItem(it)
+                                    })
                                 seekTo(index, 0L)
 
                                 playWhenReady = true
@@ -686,7 +689,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                             _audioQueueState.value = Playlist(index, newItems)
 
                             currentState.controller.apply {
-                                setMediaItems(newItems.map { mediaItemHelper.getMediaItem(it) })
+                                setMediaItems(newItems.map {
+                                    mediaItemHelper.getMediaItem(it)
+                                })
                                 seekTo(index, 0L)
                                 playWhenReady = true
                                 prepare()
@@ -714,7 +719,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 val (currentIdx, items) = _audioQueueState.value
 
                 controller.apply {
-                    setMediaItems(items.map { mediaItemHelper.getMediaItem(it) })
+                    setMediaItems(items.map {
+                        mediaItemHelper.getMediaItem(it)
+                    })
                     seekTo(currentIdx, 0L)
                     playWhenReady = true
                     prepare()
@@ -814,7 +821,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
 
         controller.apply {
             if (currentItems.isNotEmpty()) {
-                setMediaItems(currentItems.map { mediaItemHelper.getMediaItem(it) })
+                setMediaItems(currentItems.map {
+                    mediaItemHelper.getMediaItem(it)
+                })
                 seekTo(currentItemIdx, 0L)
             }
             setPlayWhenReady(playWhenReady)

@@ -15,7 +15,7 @@ import de.taz.app.android.singletons.StorageService
  *
  * Also used by [MediaItemHelper] to prepare [MediaItem]s with the same information.
  */
-class UiStateHelper(private val applicationContext: Context) {
+class UiStateHelper(val applicationContext: Context) {
     private val storageService = StorageService.getInstance(applicationContext)
 
     suspend fun articleAsAUiItem(article: Article, issueKey: AbstractIssueKey): AudioPlayerItem.UiItem {

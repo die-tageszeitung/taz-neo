@@ -94,6 +94,8 @@
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
+    <string name="fragment_bottom_sheet_issue_download_with_audios">Ausgabe mit Audio herunterladen</string>
+    <string name="fragment_bottom_sheet_issue_download_additionally_audios">Audioinhalte herunterladen</string>
 
     <string name="fragment_bottom_sheet_notifications_title_01">Nichts verpassen …</string>
     <string name="fragment_bottom_sheet_notifications_description_01">… im wahren Leben nicht immer leicht, doch in der taz App kein Problem: mit unseren praktischen Mitteilungen.\nAuf Wunsch benachrichtigen wir Sie stets per Push-Nachricht, sobald die neue Ausgabe da ist – so wissen Sie bereits am Vorabend, was morgen in der Zeitung steht.</string>

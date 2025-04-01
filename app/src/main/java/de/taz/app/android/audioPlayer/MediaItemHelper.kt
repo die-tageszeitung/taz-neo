@@ -1,8 +1,10 @@
 package de.taz.app.android.audioPlayer
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import de.taz.app.android.singletons.StorageService
 
 private const val DISCLAIMER_MEDIA_ID = "disclaimer"
 private const val DISCLAIMER_NOTE_FEMALE_ASSET_PATH = "/femaleNote.mp3"
@@ -30,9 +32,11 @@ class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
         fun MediaItem.belongsTo(audioPlayerItem: AudioPlayerItem): Boolean =
             mediaId == audioPlayerItem.id
     }
+    private val storageService = StorageService.getInstance(uiStateHelper.applicationContext)
 
     fun getMediaItem(audioPlayerItem: AudioPlayerItem): MediaItem {
-        val audioUri = Uri.parse("${audioPlayerItem.baseUrl}/${audioPlayerItem.audio.file.name}")
+        val localUriString = storageService.getFileUri(audioPlayerItem.audio.file)
+        val audioUri = "${audioPlayerItem.baseUrl}/${audioPlayerItem.audio.file.name}".toUri()
         val mediaMetadata = MediaMetadata.Builder()
             .setTitle(audioPlayerItem.uiItem.title)
             .setArtist(audioPlayerItem.uiItem.author)
@@ -47,7 +51,7 @@ class MediaItemHelper(private val uiStateHelper: UiStateHelper) {
 
         return MediaItem.Builder()
             .setMediaId(audioPlayerItem.id)
-            .setArticleAudioRequestMetadata(audioUri)
+            .setArticleAudioRequestMetadata(localUriString?.toUri() ?: audioUri)
             .setMediaMetadata(mediaMetadata)
             .build()
     }

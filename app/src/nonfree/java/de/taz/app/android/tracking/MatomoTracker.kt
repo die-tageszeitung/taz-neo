@@ -723,6 +723,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication) {
+        TrackHelper.track()
+            .event(CATEGORY_ISSUE, "Download audios")
+            .name(issueKey.date)
+            .with(matomoTracker)
+    }
+
     override fun trackArticleColumnModeEnableEvent() {
         TrackHelper.track()
             .event(CATEGORY_ARTICLE, "Enable Column Mode")
