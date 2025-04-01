@@ -112,6 +112,21 @@ class ContentService(
         downloadToCache(download, priority, isAutomaticDownload, allowCache)
     }
 
+    suspend fun downloadAllAudiosFromIssuePublication(
+        issuePublication: AbstractIssuePublication,
+        baseUrl: String,
+    ) {
+        val issueAudios = issueRepository.saveAllAudios(issuePublication)
+        issueAudios.map {
+            CoroutineScope(Dispatchers.IO).launch {
+                downloadSingleFileIfNotDownloaded(
+                    it.file,
+                    baseUrl
+                )
+            }
+        }.joinAll()
+    }
+
     /**
      * This function will download a [download] (both Metadata and Contents) if
      * it is not yet marked as downloaded. If it is it will just return
