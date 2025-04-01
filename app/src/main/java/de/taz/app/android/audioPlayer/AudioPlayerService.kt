@@ -1137,14 +1137,15 @@ class AudioPlayerService private constructor(private val applicationContext: Con
         isAutoPlayNext: Boolean
     ): UiState {
         return when (state) {
-            PlayerState.Idle ->{
-                    UiState.Hidden
+            PlayerState.Idle -> {
+                UiState.Hidden
             }
 
             is PlayerState.Connecting -> {
                 uiState.copyWithPlayerState(
-                        UiState.PlayerState.Initializing
-                    )
+                    UiState.PlayerState.Initializing,
+                    isFirstAudioPlay
+                )
             }
 
             is PlayerState.AudioReady -> {
@@ -1167,7 +1168,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                         UiState.PlayerState.Paused(playerUiState)
                     }
                 }
-                uiState.copyWithPlayerState(playerState)
+                uiState.copyWithPlayerState(playerState, isFirstAudioPlay)
             }
 
             is PlayerState.AudioError -> {
