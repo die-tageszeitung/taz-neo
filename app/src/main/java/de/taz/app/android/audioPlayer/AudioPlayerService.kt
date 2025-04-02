@@ -1131,7 +1131,9 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 tracker.trackAudioPlayerPlayPodcastEvent(item.audio.file.name)
             AudioPlayerItem.Type.SEARCH_HIT ->
                 item.searchHit?.let { tracker.trackAudioPlayerPlaySearchHitEvent(it) }
-
+            AudioPlayerItem.Type.DISCLAIMER -> {
+                // Do not track when disclaimer is played
+            }
         }
     }
     // endregion helper functions

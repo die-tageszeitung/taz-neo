@@ -40,7 +40,7 @@ class PlaylistRepository private constructor(applicationContext: Context) :
         val list = stubs.mapNotNull {
             when (it.audioPlayerItemType) {
                 AudioPlayerItem.Type.PODCAST -> mapPodcastAudioPlayerItem(it)
-                AudioPlayerItem.Type.ARTICLE -> mapArticleAudioPlayerItem(it)
+                AudioPlayerItem.Type.ARTICLE, AudioPlayerItem.Type.DISCLAIMER -> mapArticleAudioPlayerItem(it)
                 AudioPlayerItem.Type.SEARCH_HIT -> mapSearchHitAudioPlayerItem(it)
             }
         }
@@ -77,6 +77,7 @@ class PlaylistRepository private constructor(applicationContext: Context) :
             coverImageUri = null,
             coverImageGlidePath = stub.uiCoverImageGlidePath,
             openItemSpec = null,
+            type = AudioPlayerItem.Type.PODCAST,
         )
 
         return AudioPlayerItem(
@@ -101,6 +102,7 @@ class PlaylistRepository private constructor(applicationContext: Context) :
             coverImageUri = null,
             coverImageGlidePath = stub.uiCoverImageGlidePath,
             openItemSpec = null,
+            type = AudioPlayerItem.Type.SEARCH_HIT,
         )
 
         return AudioPlayerItem(

@@ -19,6 +19,7 @@ class AudioPlayerItem(
         PODCAST,
         ARTICLE,
         SEARCH_HIT,
+        DISCLAIMER,
     }
 
     override fun toString(): String {
@@ -48,6 +49,7 @@ class AudioPlayerItem(
         val coverImageUri: Uri?,
         val coverImageGlidePath: String?,
         val openItemSpec: OpenItemSpec?,
+        val type: Type,
     ) {
         val hasCoverImage = coverImageUri != null || coverImageGlidePath != null
     }
