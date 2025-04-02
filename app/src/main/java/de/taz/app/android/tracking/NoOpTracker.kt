@@ -75,7 +75,7 @@ class NoOpTracker : Tracker {
     override fun trackDrawerToggleAllSectionsEvent() {}
     override fun trackDrawerToggleSectionEvent() {}
     override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {}
-    override fun trackAudioPlayerPlayPodcastEvent(issueKey: AbstractIssuePublication, title: String) {}
+    override fun trackAudioPlayerPlayPodcastEvent(fileName: String) {}
     override fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit) {}
     override fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float) {}
     override fun trackAudioPlayerMaximizeEvent() {}
@@ -96,6 +96,7 @@ class NoOpTracker : Tracker {
     override fun trackCoachMarkClose(layoutResName: String) {}
     override fun trackTapToScrollSettingStatusEvent(enable: Boolean) {}
     override fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication) {}
+    override fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication) {}
     override fun trackTestTrackingGoal() {}
     override fun trackArticleColumnModeEnableEvent() {}
     override fun trackArticleColumnModeDisableEvent() {}

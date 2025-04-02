@@ -15,7 +15,7 @@ import de.taz.app.android.singletons.StorageService
  *
  * Also used by [MediaItemHelper] to prepare [MediaItem]s with the same information.
  */
-class UiStateHelper(private val applicationContext: Context) {
+class UiStateHelper(val applicationContext: Context) {
     private val storageService = StorageService.getInstance(applicationContext)
 
     suspend fun articleAsAUiItem(article: Article, issueKey: AbstractIssueKey): AudioPlayerItem.UiItem {
@@ -25,7 +25,8 @@ class UiStateHelper(private val applicationContext: Context) {
             article.getAuthorNames(applicationContext),
             getAudioImage(article),
             null,
-            OpenItemSpec.OpenIssueItemSpec(issueKey, article.key)
+            OpenItemSpec.OpenIssueItemSpec(issueKey, article.key),
+            AudioPlayerItem.Type.ARTICLE,
         )
     }
 
@@ -38,6 +39,7 @@ class UiStateHelper(private val applicationContext: Context) {
             coverImageUri,
             null,
             null, // Podcasts shall not open the issue when being clicked in the player
+            AudioPlayerItem.Type.PODCAST,
         )
     }
 
@@ -47,7 +49,8 @@ class UiStateHelper(private val applicationContext: Context) {
             author = searchHit.getAuthorNames(),
             coverImageUri = null,
             coverImageGlidePath = null,
-            issueKey?.let { OpenItemSpec.OpenIssueItemSpec(it, searchHit.audioPlayerPlayableKey) }
+            issueKey?.let { OpenItemSpec.OpenIssueItemSpec(it, searchHit.audioPlayerPlayableKey) },
+            AudioPlayerItem.Type.SEARCH_HIT
         )
     }
 
@@ -60,6 +63,7 @@ class UiStateHelper(private val applicationContext: Context) {
             null,
             coverImageGlidePath,
             null, // Podcasts shall not open the issue when being clicked in the player
+            AudioPlayerItem.Type.PODCAST,
         )
     }
 
@@ -112,7 +116,8 @@ class UiStateHelper(private val applicationContext: Context) {
         applicationContext.getString(R.string.audioplayer_disclaimer_author),
         null,
         null,
-        null
+        null,
+        AudioPlayerItem.Type.DISCLAIMER,
     )
 
     fun getDisclaimerUiStateControls(): UiState.Controls = UiState.Controls(

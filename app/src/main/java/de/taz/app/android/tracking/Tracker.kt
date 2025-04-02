@@ -135,8 +135,7 @@ interface Tracker {
 
     fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
-        issueKey: AbstractIssuePublication,
-        title: String
+        fileName: String
     )
     fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit)
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)
@@ -163,6 +162,7 @@ interface Tracker {
     fun trackTapToScrollSettingStatusEvent(enable: Boolean)
 
     fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication)
+    fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication)
 
     fun trackTestTrackingGoal()
 
