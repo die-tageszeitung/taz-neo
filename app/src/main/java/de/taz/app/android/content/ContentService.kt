@@ -1,6 +1,7 @@
 package de.taz.app.android.content
 
 import android.content.Context
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
@@ -11,6 +12,7 @@ import de.taz.app.android.content.cache.*
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.download.*
 import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.*
@@ -29,6 +31,7 @@ class ContentService(
 ) {
     companion object : SingletonHolder<ContentService, Context>(::ContentService)
 
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val appInfoRepository = AppInfoRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
@@ -107,6 +110,21 @@ class ContentService(
             }
 
         downloadToCache(download, priority, isAutomaticDownload, allowCache)
+    }
+
+    suspend fun downloadAllAudiosFromIssuePublication(
+        issuePublication: AbstractIssuePublication,
+        baseUrl: String,
+    ) {
+        val issueAudios = issueRepository.saveAllAudios(issuePublication)
+        issueAudios.map {
+            CoroutineScope(Dispatchers.IO).launch {
+                downloadSingleFileIfNotDownloaded(
+                    it.file,
+                    baseUrl
+                )
+            }
+        }.joinAll()
     }
 
     /**
@@ -204,5 +222,44 @@ class ContentService(
     suspend fun getIssueKey(issuePublication: AbstractIssuePublication): AbstractIssueKey? {
         val issueKey = issueRepository.getMostValuableIssueKeyForPublication(issuePublication)
         return issueKey?.takeIf { it.status >= authHelper.getMinStatus() }
+    }
+
+    /**
+     * Download issue meta data and return [Issue]
+     */
+    suspend fun downloadIssueMetadata(articleDate: String): Issue? {
+        return try {
+            val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, articleDate)
+            downloadMetadata(issuePublication, maxRetries = 5, allowCache = true) as Issue?
+        } catch (e: Exception) {
+            log.warn("Error while trying to download metadata of issue publication of $articleDate",e)
+            SentryWrapper.captureException(e)
+            null
+        }
+    }
+
+    /**
+     * Download an article without issue
+     */
+    suspend fun downloadArticle(
+        articleFileName: String,
+        articleDate: String,
+    ): Article? {
+        return try {
+            val issuePublication =
+                IssuePublication(BuildConfig.DISPLAYED_FEED, articleDate)
+            if (!isPresent(issuePublication)) {
+                downloadMetadata(issuePublication, maxRetries = 5)
+            }
+            val article = requireNotNull(articleRepository.get(articleFileName))
+            downloadToCache(article)
+            article
+        } catch (e: Exception) {
+            log.warn(
+                "Error while trying to download a full article", e
+            )
+            SentryWrapper.captureException(e)
+            null
+        }
     }
 }

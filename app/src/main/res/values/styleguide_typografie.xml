@@ -1,0 +1,269 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+    Typografie Styleguide as defined at:
+    https://www.figma.com/design/qdGGfoynJf5FF56u7sEKYU/02_Bibliothek-Typografie-App?node-id=3461-9808&t=OxD2gd3P2ret3LPu-1
+    -->
+    <style name="Widget.App.TextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.App.TextView.ModalTopline" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">19sp</item>
+    </style>
+
+    <!-- Note: overwritten by nonfree taz with knile font as defined in figma -->
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.App.TextView.Marketing.Head.Aktiv" />
+
+    <style name="Widget.App.TextView.Marketing.Head.Aktiv" parent="Widget.App.TextView" tools:ignore="ResourceCycle">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">25sp</item>
+        <item name="lineHeight">32sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.Subhead" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">21sp</item>
+        <item name="lineHeight">25sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.Subhead.Small" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">25sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.BodyText" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">25sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.BodyText.Bold">
+        <item name="android:fontFamily">@font/appFontBold</item>
+    </style>
+
+    <style name="Widget.App.TextView.Info.BodyText.Small" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15.5sp</item>
+        <item name="lineHeight">20.15sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.TextButton.Small" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Link.Large" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">30sp</item>
+        <!-- missing: underline, as it is not available in android and must be applied to the strings -->
+    </style>
+
+    <style name="Widget.App.TextView.M.Link" parent="Widget.App.TextView">
+        <!-- Figma reference to M/link which is not part of the Android styleguide -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">28sp</item>
+        <!-- Add paddingTop to simulate single line line height -->
+        <item name="android:paddingTop">7sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Settings" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.IconText" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">9.4sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Head.Mini" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">15.6sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Author.Mini" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="lineHeight">15.6sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Audio.Time" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14.4sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Head" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Subline" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18.75sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Date" parent="Widget.App.TextView">
+        <!-- Referenced style: GUI/Listing-date not found in styleguide.
+             We still use it for easier variant handling -->
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">21.6sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Author" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Metadata" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14.4sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.Info" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">21sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Listing.BodyText" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Date.Small" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">20sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Date.Big" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">23sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Date.SectionHead" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Opening" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">20sp</item>
+        <!-- Defined in Figma as line-height: normal, which should be around 120%
+             Instead using old value of line spacing extra 5.6sp -->
+        <item name="lineHeight">25.6sp</item>
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Author" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="lineHeight">14sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Result.Head" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">17.5sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Search.Result.Author" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">17sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Form.Input.Topline" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">19sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Section.ArticleHead" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Counter.ArticleHead" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">21sp</item>
+    </style>
+
+    <style name="Widget.App.TextView.Section.SectionHead" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">25sp</item>
+        <item name="lineHeight">32sp</item>
+    </style>
+
+    <!-- Widget.App.TextView.Category is exactly the same as Section.SectionHead - which we use instead for simpler style definitions -->
+    <style name="Widget.App.TextView.Category" parent="Widget.App.TextView.Section.SectionHead" />
+
+    <style name="Widget.App.Draw.DrawerSection" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="lineHeight">22sp</item>
+    </style>
+
+    <style name="Widget.App.Draw.Head" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">17.5sp</item>
+    </style>
+
+    <style name="Widget.App.Draw.Subline" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">17.5sp</item>
+    </style>
+
+    <style name="TextAppearance.App.Draw.Autorin.Bold" parent="TextAppearance.AppCompat">
+        <!-- Only used as TextAppearanceSpan -->
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">13.5sp</item>
+        <!-- lineHeight and fontPadding must be set by the TextView containing the Spans
+        <item name="lineHeight">16.2sp</item>
+        <item name="android:includeFontPadding">false</item>
+        -->
+    </style>
+
+    <style name="TextAppearance.App.Draw.Metadata" parent="TextAppearance.AppCompat">
+        <!-- Only used as TextAppearanceSpan -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <!-- lineHeight and fontPadding must be set by the TextView containing the Spans
+        <item name="lineHeight">50sp</item>
+        <item name="android:includeFontPadding">false</item>
+        -->
+    </style>
+
+    <style name="Widget.App.Draw.Section.Pdf" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15.5sp</item>
+        <item name="lineHeight">18.6sp</item>
+    </style>
+    
+</resources>

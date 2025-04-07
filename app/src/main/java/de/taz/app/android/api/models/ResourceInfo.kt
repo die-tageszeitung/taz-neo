@@ -36,12 +36,8 @@ data class ResourceInfo(
         ResourceInfoRepository.getInstance(applicationContext).setDownloadStatus(this, date)
     }
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         return resourceList
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return resourceList.map { it.name }
     }
 
     override fun getDownloadTag(): String {

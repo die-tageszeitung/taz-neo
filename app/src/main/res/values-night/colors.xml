@@ -7,7 +7,7 @@
     <color name="mediumLightGrey">#707070</color>
 
     <color name="bottom_sheet_background">@color/background_darkmode</color>
-    <color name="navigation_drawer_background">@color/darkGrey</color>
+    <color name="navigation_drawer_background">#272727</color>
     <color name="search_field_background_color">@color/darkGrey</color>
     <color name="activity_search_field_background_color">@color/darkGrey</color>
 
@@ -43,6 +43,24 @@
 
     <color name="text_input_hint_color">@color/text_icon_grey_darkmode</color>
 
+    <color name="snack_bar_background_color">@color/superSuperLightGrey</color>
+    <color name="snack_bar_button_text_color">@color/darkGrey</color>
+
     <color name="ic_close_button_foreground_color">#B3B3B5</color>
     <color name="ic_close_button_background_color">#48484A</color>
+
+    <color name="audio_player_overlay_background">@color/superSuperLightGrey</color>
+    <color name="audio_player_small_progress_unplayed_color">@color/superLightGrey</color>
+    <color name="audio_player_small_progress_played_color">@color/darkGrey</color>
+    <color name="audio_player_expanded_progress_unplayed_color">@color/superLightGrey</color>
+    <color name="audio_player_expanded_progress_played_color">@color/darkGrey</color>
+    <color name="audio_player_expanded_progress_scrubber_color">@color/black</color>
+    <color name="audio_player_playlist_playing_icon">@color/lightGreen</color>
+    <color name="audio_player_playlist_delete_icon">@color/superLightGrey</color>
+    <color name="audio_player_options_sheet_separator_color">@color/lightGrey</color>
+    <color name="audio_player_speed_touch_area_color">@color/superLightGrey</color>
+    <color name="audio_player_speed_text_color">@color/superDarkGrey</color>
+    <color name="audio_player_enqueue_button_color">@color/mediumGreen</color>
+    <color name="audio_player_text_color">@color/black</color>
+    <color name="audio_player_progress_time_text_color">@color/darkGrey</color>
 </resources>

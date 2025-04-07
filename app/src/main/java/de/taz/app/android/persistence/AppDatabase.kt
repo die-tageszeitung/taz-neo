@@ -6,13 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import de.taz.app.android.api.models.*
-import de.taz.app.android.persistence.migrations.*
 import de.taz.app.android.persistence.dao.*
 import de.taz.app.android.persistence.join.*
+import de.taz.app.android.persistence.migrations.*
 import de.taz.app.android.persistence.typeconverters.*
 import de.taz.app.android.util.SingletonHolder
 
-const val DATABASE_VERSION = 34
+const val DATABASE_VERSION = 37
 const val DATABASE_NAME = "db"
 
 fun allMigrations() = arrayOf(
@@ -49,6 +49,9 @@ fun allMigrations() = arrayOf(
     Migration31to32(),
     Migration32to33(),
     Migration33to34(),
+    Migration34to35(),
+    Migration35to36(),
+    Migration36to37(),
 )
 
 @Database(
@@ -58,6 +61,8 @@ fun allMigrations() = arrayOf(
         ArticleStub::class,
         ArticleImageJoin::class,
         AudioStub::class,
+        AudioPlayerItemStub::class,
+        BookmarkSynchronization::class,
         Feed::class,
         FileEntry::class,
         ImageStub::class,
@@ -115,8 +120,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun appInfoDao(): AppInfoDao
     abstract fun articleDao(): ArticleDao
     abstract fun audioDao(): AudioDao
+    abstract fun audioPlayerItemsDao(): AudioPlayerItemsDao
     abstract fun articleAuthorImageJoinDao(): ArticleAuthorImageJoinDao
     abstract fun articleImageJoinDao(): ArticleImageJoinDao
+    abstract fun bookmarkSynchronizationDao(): BookmarkSynchronizationDao
     abstract fun feedDao(): FeedDao
     abstract fun fileEntryDao(): FileEntryDao
     abstract fun imageDao(): ImageDao

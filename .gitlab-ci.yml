@@ -1,4 +1,4 @@
-image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.4
+image: registry.gitlab.alt.coop/ctrlaltcoop/android-docker:v0.0.6
 
 variables:
   SENTRY_ENVIRONMENT: official
@@ -7,7 +7,8 @@ variables:
   GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
   MAVEN_LOCAL_REPOSITORY: "$CI_PROJECT_DIR/maven-local"
   GRADLE_OPTS: "-Dmaven.repo.local=$MAVEN_LOCAL_REPOSITORY -Dorg.gradle.caching=false"
-  BUNDLE_VERSION: "005"
+  BUNDLE_VERSION: "006"
+  JAVA_HOME: "/usr/lib/jvm/java-17-openjdk-amd64"
 
 stages:
   - prepare
@@ -48,6 +49,7 @@ stages:
     - echo "keyPassword=${ANDROID_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> tazkeystore.properties
     - echo "keystorePassword=${ANDROID_LMD_KEYSTORE_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
     - echo "keyPassword=${ANDROID_LMD_KEYSTORE_KEY_PASSWORD/\\/\\\\}" >> lmdkeystore.properties
+    - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 buildMupdf:
   stage: prepare

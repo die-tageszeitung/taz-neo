@@ -93,14 +93,10 @@
 
         <TextView
             android:id="@+id/ask_later_action"
-            style="@style/TextAppearance.Link.Large"
+            style="@style/Widget.App.TextView.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_footnote_margin_top"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
             android:text="@string/fragment_bottom_sheet_notifications_not_now"
             app:layout_constraintTop_toBottomOf="@id/retain_notifications_button" />
 

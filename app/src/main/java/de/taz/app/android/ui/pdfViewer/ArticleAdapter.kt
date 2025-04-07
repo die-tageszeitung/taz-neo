@@ -1,22 +1,21 @@
 package de.taz.app.android.ui.pdfViewer
 
-import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.LineHeightSpan
 import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.audioPlayer.AudioPlayerService
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 private const val TYPE_ARTICLE_BETWEEN = 0
@@ -29,20 +28,23 @@ private const val TYPE_ARTICLE_LAST = 1
  * @property onArticleClick Callback that should be triggered, when user clicks on an article
  */
 class ArticleAdapter(
-    var articles: List<Article>,
-    private val onArticleClick: (article: Article) -> Unit,
-    private val onArticleBookmarkClick: (article: Article) -> Unit,
-    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
+    var articles: List<ArticleOperations>,
+    private val onArticleClick: (article: ArticleOperations) -> Unit,
+    private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
+    private val onAudioEnqueueClick: (ArticleOperations) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
     inner class ArticleHolder(
         view: View,
-        private val onArticleClick: (article: Article) -> Unit,
+        private val onArticleClick: (article: ArticleOperations) -> Unit,
         private val showDivider: Boolean
     ) : RecyclerView.ViewHolder(view), CoroutineScope {
 
         override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+        private val applicationContext = itemView.context.applicationContext
 
+        private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(applicationContext)
 
         private val articleTitle: TextView = itemView.findViewById(R.id.article_title)
         private val articleTeaser: TextView = itemView.findViewById(R.id.article_teaser)
@@ -50,6 +52,8 @@ class ArticleAdapter(
             itemView.findViewById(R.id.article_author_and_read_minutes)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
+        private val articleIsEnqueued: ImageView =
+            itemView.findViewById(R.id.article_is_enqueued)
         private val articleDivider: View = itemView.findViewById(R.id.article_divider)
 
         /**
@@ -57,7 +61,7 @@ class ArticleAdapter(
          *
          * @param article Article to be displayed.
          */
-        fun bind(article: Article) {
+        fun bind(article: ArticleOperations) {
 
             articleTitle.text = article.title
             if (!article.teaser.isNullOrBlank()) {
@@ -69,26 +73,25 @@ class ArticleAdapter(
                 articleTeaser.visibility = View.GONE
             }
 
-            val authorsString = if (article.authorList.isNotEmpty()) {
-                itemView.context.getString(
+            launch {
+                val authorNames: String = article.getAuthorNames(applicationContext)
+                val authorsString = if (authorNames.isNotEmpty()) itemView.context.getString(
                     R.string.author_list,
-                    article.authorList.map { it.name }.distinct().joinToString(", ")
-                )
-            } else {
-                ""
-            }
-            val readMinutesString = if (article.readMinutes != null) {
-                itemView.context.getString(
-                    R.string.read_minutes,
-                    article.readMinutes
-                )
-            } else {
-                ""
-            }
-            val twoStyledSpannable =
-                constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
+                    authorNames
+                ) else ""
+                val readMinutesString = if (article.readMinutes != null) {
+                    itemView.context.getString(
+                        R.string.read_minutes,
+                        article.readMinutes
+                    )
+                } else {
+                    ""
+                }
+                val twoStyledSpannable =
+                    constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-            articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+                articleAuthorAndReadMinutes.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+            }
 
             if (showDivider) {
                 articleDivider.visibility = View.VISIBLE
@@ -100,10 +103,15 @@ class ArticleAdapter(
 
             if (article.isImprint()){
                 articleIsBookmarked.visibility = View.GONE
+                articleIsEnqueued.visibility = View.GONE
             } else {
                 articleIsBookmarked.visibility = View.VISIBLE
                 articleIsBookmarked.setOnClickListener {
                     onArticleBookmarkClick(article)
+                }
+                articleIsEnqueued.visibility = View.VISIBLE
+                articleIsEnqueued.setOnClickListener {
+                    onAudioEnqueueClick(article)
                 }
             }
 
@@ -114,6 +122,34 @@ class ArticleAdapter(
                         articleIsBookmarked.setImageResource(R.drawable.ic_bookmark_filled)
                     } else {
                         articleIsBookmarked.setImageResource(R.drawable.ic_bookmark)
+                    }
+                }
+            }
+            val articleIsEnqueuedFlow = audioPlayerService.isInPlaylistFlow(article)
+            launch {
+                articleIsEnqueuedFlow.collect { enqueued ->
+                    if (article.hasAudio(applicationContext))
+                        if (enqueued) {
+                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueued)
+                            // tint the image view to textColor
+                            articleIsEnqueued.setColorFilter(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    R.color.textColor
+                                ), android.graphics.PorterDuff.Mode.SRC_IN
+                            )
+                        } else {
+                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueue)
+                            // tint the image view to textColorAccent
+                            articleIsEnqueued.setColorFilter(
+                                ContextCompat.getColor(
+                                    applicationContext,
+                                    R.color.textColorAccent
+                                ), android.graphics.PorterDuff.Mode.SRC_IN
+                            )
+                        }
+                    else {
+                        articleIsEnqueued.visibility = View.GONE
                     }
                 }
             }
@@ -169,7 +205,7 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_Drawer_PDF_Entry_Author
+                        R.style.TextAppearance_App_Drawer_Lmd_Meta_Author
                     ),
                     0,
                     authors.length,
@@ -181,24 +217,12 @@ class ArticleAdapter(
                 text.setSpan(
                     TextAppearanceSpan(
                         itemView.context,
-                        R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                        R.style.TextAppearance_App_Drawer_Lmd_Meta_ReadMinutes
                     ),
                     readMinutesSpanStart,
                     readMinutesSpanEnd,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val newLineHeight =
-                        itemView.context.applicationContext.resources.getDimensionPixelSize(
-                            R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
-                        )
-                    text.setSpan(
-                        LineHeightSpan.Standard(newLineHeight),
-                        readMinutesSpanStart,
-                        readMinutesSpanEnd,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
             }
 
             return text

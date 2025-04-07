@@ -25,12 +25,8 @@ data class Page(
         PageRepository.getInstance(applicationContext).setDownloadDate(this, date)
     }
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         return listOf(pagePdf)
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }.distinct()
     }
 
     override fun getDownloadTag(): String {

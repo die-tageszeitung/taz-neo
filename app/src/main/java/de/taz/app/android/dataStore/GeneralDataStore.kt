@@ -32,6 +32,9 @@ private const val HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED = "has_internal_taz_us
 private const val TEST_GOAL_TRACKING_ENABLED = "test_goal_tracking_enabled"
 private const val MULTI_COLUMN_MODE_BOTTOM_SHEET_SHOWN = "multi_column_mode_bottom_sheet_shown"
 private const val SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "single_column_mode_bottom_sheet_do_not_show_again"
+private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "bookmarks_synchronization_bottom_sheet_do_not_show_again"
+private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION = "settings_bookmark_synchronization"
+private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED = "settings_bookmark_synchronization_changed"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -115,6 +118,18 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val singleColumnModeBottomSheetDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
+    )
+
+    val bookmarksSynchronizationBottomSheetDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
+    )
+
+    val bookmarksSynchronizationEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_BOOKMARKS_SYNCHRONIZATION), false
+    )
+
+    val bookmarksSynchronizationChangedToEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED), false
     )
 
 

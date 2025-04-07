@@ -9,11 +9,10 @@
 
     <TextView
         android:id="@+id/article_title"
+        style="@style/Widget.App.Drawer.Lmd.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/appFontOldBold"
-        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
-        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
+        android:layout_marginEnd="@dimen/drawer_default_icon_size"
         app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,44 +20,54 @@
 
     <TextView
         android:id="@+id/article_teaser"
+        style="@style/Widget.App.Drawer.Lmd.Teaser"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/appFontAlternative"
-        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
-        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
-        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_margin_top"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@id/article_is_enqueued"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_title"
-        android:visibility="gone"
-        tools:visibility="visible"
-        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." />
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/article_author_and_read_minutes"
-        style="@style/TextAppearance.Drawer.PDF.Entry.Author"
+        style="@style/Widget.App.Drawer.Lmd.Meta"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/list_item_pdf_page_toc_text_size"
-        android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
-        android:lineSpacingExtra="@dimen/list_item_pdf_page_toc_teaser_line_spacing_extra"
+        android:layout_marginTop="@dimen/list_item_pdf_page_toc_meta_margin_top"
         app:layout_constraintEnd_toStartOf="@id/article_is_bookmarked"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_teaser"
         app:layout_constraintVertical_bias="1"
+        tools:fontFamily="@font/appFontAlternativeItalic"
         tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen 13 min" />
 
     <ImageView
+        android:id="@+id/article_is_enqueued"
+        android:layout_width="@dimen/drawer_default_icon_size"
+        android:layout_height="@dimen/drawer_default_icon_size"
+        android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+        android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+        android:padding="@dimen/drawer_default_icon_padding"
+        android:src="@drawable/ic_audio_enqueue"
+        app:layout_constraintTop_toBottomOf="@id/article_is_bookmarked"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/textColorAccent" />
+
+    <ImageView
         android:id="@+id/article_is_bookmarked"
-        android:layout_width="@dimen/list_item_pdf_page_toc_bookmark_icon_size"
-        android:layout_height="@dimen/list_item_pdf_page_toc_bookmark_icon_size"
+        android:layout_width="@dimen/drawer_default_icon_size"
+        android:layout_height="@dimen/drawer_default_icon_size"
+        android:layout_marginTop="@dimen/drawer_icon_negative_margin"
+        android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+        android:padding="@dimen/drawer_default_icon_padding"
         android:src="@drawable/ic_bookmark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/article_title"
-        app:layout_constraintStart_toEndOf="@+id/article_title"
-        android:layout_marginStart="@dimen/list_item_pdf_page_toc_bookmark_icon_left_margin"
-        tools:ignore="contentDescription"
-        app:tint="@color/drawer_bookmark_icon_tint" />
+        app:tint="@color/drawer_bookmark_icon_tint"
+        tools:ignore="contentDescription" />
 
 
     <View
@@ -66,11 +75,11 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/fragment_drawer_body_pdf_with_sections_divider_height"
         android:layout_marginVertical="@dimen/list_item_pdf_page_toc_divider_margin_vertical"
-        android:visibility="gone"
         android:background="@color/pdf_section_font"
-        tools:visibility="visible"
-        app:layout_constraintStart_toStartOf="parent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/article_author_and_read_minutes" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/article_author_and_read_minutes"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

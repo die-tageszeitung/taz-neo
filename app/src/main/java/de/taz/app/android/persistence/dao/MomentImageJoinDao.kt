@@ -12,7 +12,7 @@ import de.taz.app.android.persistence.join.MomentImageJoin
 interface MomentImageJoinDao : BaseDao<MomentImageJoin> {
 
     @Query(
-        """SELECT  name, storageType, moTime, sha256, size, folder, type, alpha, resolution, dateDownload, path, storageLocation FROM FileEntry INNER JOIN MomentImageJoin
+        """SELECT  name, storageType, moTime, sha256, size, type, alpha, resolution, dateDownload, path, storageLocation FROM FileEntry INNER JOIN MomentImageJoin
         ON FileEntry.name == MomentImageJoin.momentFileName
         INNER JOIN Image ON Image.fileEntryName == MomentImageJoin.momentFileName
         WHERE  MomentImageJoin.issueDate == :date AND MomentImageJoin.issueFeedName == :feedName

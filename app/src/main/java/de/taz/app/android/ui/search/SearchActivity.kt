@@ -28,11 +28,12 @@ import de.taz.app.android.coachMarks.SearchFilterCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
+import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
-import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.SuccessfulLoginAction
@@ -42,7 +43,6 @@ import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.hideSoftInputKeyboard
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -72,6 +72,9 @@ class SearchActivity :
     // region Activity functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        disableActivityAnimations()
+
         apiService = ApiService.getInstance(this)
         articleRepository = ArticleRepository.getInstance(applicationContext)
         bookmarkRepository = BookmarkRepository.getInstance(applicationContext)
@@ -556,14 +559,26 @@ class SearchActivity :
                 articleStub != null -> {
                     val isBookmarked = bookmarkRepository.toggleBookmarkAsync(articleStub).await()
                     if (isBookmarked) {
-                        toastHelper.showToast(R.string.toast_article_bookmarked)
+                        SnackBarHelper.showBookmarkSnack(
+                            context = this@SearchActivity,
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     } else {
-                        toastHelper.showToast(R.string.toast_article_debookmarked)
+                        SnackBarHelper.showDebookmarkSnack(
+                            context = this@SearchActivity,
+                            view = viewBinding.root,
+                            anchor = viewBinding.navigationBottom,
+                        )
                     }
                 }
 
                 date != null -> {
-                    toastHelper.showToast(R.string.toast_article_bookmarked)
+                    SnackBarHelper.showBookmarkSnack(
+                        context = this@SearchActivity,
+                        view = viewBinding.root,
+                        anchor = viewBinding.navigationBottom,
+                    )
                     // no articleStub so probably article not downloaded, so download it:
                     downloadArticleAndSetBookmark(articleFileName, date)
                 }
@@ -581,23 +596,14 @@ class SearchActivity :
      */
     private suspend fun downloadArticleAndSetBookmark(
         articleFileName: String,
-        datePublished: Date
+        datePublished: Date,
     ) {
-        try {
-            val issuePublication = IssuePublication(BuildConfig.DISPLAYED_FEED, simpleDateFormat.format(datePublished))
-            if (!contentService.isPresent(issuePublication)) {
-                contentService.downloadMetadata(issuePublication, maxRetries = 5)
-            }
-            val article = requireNotNull(articleRepository.get(articleFileName))
-            contentService.downloadToCache(article)
-            bookmarkRepository.addBookmark(article)
-        } catch (e: Exception) {
-            log.warn(
-                "Error while trying to download a full article because of a bookmark request",
-                e
-            )
-            SentryWrapper.captureException(e)
+        val article = contentService.downloadArticle(articleFileName, simpleDateFormat.format(datePublished))
+        if (article == null) {
+            log.warn("Article to bookmark was not properly downloaded")
             toastHelper.showToast(R.string.toast_problem_bookmarking_article, long = true)
+        } else {
+            bookmarkRepository.addBookmark(article)
         }
     }
     // endregion

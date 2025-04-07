@@ -3,10 +3,12 @@ package de.taz.app.android.content.cache
 import android.content.Context
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.*
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
@@ -248,16 +250,11 @@ class WrappedDownload(
                         add(it)
                     }
                 }
-                log.error("pages: ${download.pageList.withIndex().joinToString { (i, p) -> "$i:${p.pagePdf.name}" }}")
             }
             // AppInfo has no collection
             is AppInfo -> Unit
-            is Article,
-            is Page,
-            is Section,
-            is Moment,
-            is ResourceInfo -> {
-                downloadDependencies.add(download as DownloadableCollection)
+            is DownloadableCollection -> {
+                downloadDependencies.add(download)
             }
             else -> throw IllegalArgumentException("Don't know how to download $download")
         }
@@ -275,8 +272,8 @@ class WrappedDownload(
     private suspend fun getRequiredResourceInfo(collection: ObservableDownload): ResourceInfo? {
         val minResourceVersion = when (collection) {
             is IssueOperations -> return getNewestResourceInfo() // Always get the newest ResourceInfo
-            is Article -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
-            is Section -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
+            is ArticleOperations -> issueRepository.getIssueStubForArticle(collection.key)?.minResourceVersion
+            is SectionOperations -> issueRepository.getIssueStubForSection(collection.key)?.minResourceVersion
             else -> null
         }
 

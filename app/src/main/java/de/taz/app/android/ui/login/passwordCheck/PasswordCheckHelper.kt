@@ -5,6 +5,7 @@ import android.content.Context
 import android.webkit.WebView
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
@@ -15,11 +16,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import java.io.IOException
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 private const val CHECK_PASSWORD_JS_FILE = "tazPasswordSpec.js"
 
@@ -87,8 +86,11 @@ class PasswordCheckHelper(private val applicationContext: Context) : CoroutineSc
         webView: WebView,
         password: String,
         mail: String
-    ): PasswordHintResponse {
-        val passwordEscaped = password.replace("'", "\\'")
+    ): PasswordHintResponse? {
+        val passwordEscaped = password
+            .replace("'", "\\'")
+            .replace("\\", "\\\\")  // That will add the escape symbol "\" in front of the "\".
+                                    // So it makes from "a\b" -> "a\\b" which then JS can read as "a\b".
         val mailEscaped = mail.replace("'", "\\'")
         return suspendCancellableCoroutine { cont ->
             webView.evaluateJavascript("tazPasswordSpec.checkLocal('$passwordEscaped', '$mailEscaped');") { resultString ->
@@ -97,7 +99,8 @@ class PasswordCheckHelper(private val applicationContext: Context) : CoroutineSc
                     cont.resume(result)
                 } catch (e: Exception) {
                     log.error("Could not decode PasswordHintResponse from: $resultString")
-                    cont.resumeWithException(e)
+                    SentryWrapper.captureException(e)
+                    cont.resume(null)
                 }
             }
         }

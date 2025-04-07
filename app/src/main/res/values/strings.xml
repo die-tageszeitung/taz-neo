@@ -13,11 +13,13 @@
     <string name="toast_problem_showing_pdf">Es gab ein Problem beim Anzeigen der PDF.</string>
     <string name="toast_problem_bookmarking_article">Der Artikel konnte nicht zu den Lesezeichen hinzugefügt werden. Bitte versuchen Sie es erneut.</string>
     <string name="toast_click_again_to_exit">Nochmal drücken um App zu schließen</string>
-    <string name="toast_article_bookmarked">Der Artikel wurde in Ihrer Leseliste gespeichert.</string>
-    <string name="toast_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
     <string name="toast_imprint_not_possible_to_bookmark">Das Impressum kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_bookmark">Der Tom am Ende kann nicht zur Leseliste hinzugefügt werden</string>
     <string name="toast_tom_not_possible_to_share">Der Tom am Ende kann nicht geteilt werden</string>
+
+    <string name="snack_article_bookmarked">Der Artikel wurde zur Leseliste hinzugefügt.</string>
+    <string name="snack_article_debookmarked">Der Artikel wurde aus Ihrer Leseliste entfernt.</string>
+    <string name="snack_article_bookmark_action">Leseliste ansehen</string>
 
     <string name="popup_login_elapsed_header">Ihr %s ist am %s abgelaufen.</string>
     <string name="popup_login_elapsed_header_no_date">Ihr %s ist abgelaufen.</string>
@@ -26,7 +28,7 @@
     <string name="popup_login_elapsed_checkbox_message">Bitte informieren Sie mich zu aktuellen Abo-Möglichkeiten</string>
     <string name="popup_login_elapsed_positive_button">Absenden</string>
     <string name="popup_login_elapsed_message_to_short">Ihre Nachricht ist zu kurz!</string>
-    <string name="toast_login_failed_retry">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
+    <string name="toast_login_failed_retry">Login fehlgeschlagen</string>
     <string name="toast_login_successful">Erfolgreich angemeldet.</string>
     <string name="toast_login_with_email">Bitte loggen Sie sich mit Ihrer E-Mail-Adresse ein.</string>
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
@@ -38,7 +40,6 @@
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
-    <string name="toast_no_tts">Text-To-Speech ist auf diesem Gerät nicht verfügbar.\nBitte installieren Sie einen Text-To-Speech Service mit Unterstützung für deutsche Sprachausgabe.</string>
     <string name="toast_login_week">Du hast dich mit einem wochentaz-Abo angemeldet. Werktägliche taz-Ausgaben werden mit diesem Abo nicht in der App angezeigt.</string>
 
     <string name="navigation_drawer_open">Seitenleiste öffnen</string>
@@ -49,6 +50,7 @@
 
     <string name="tab_bar_home">Home</string>
     <string name="tab_bar_bookmarks">Leseliste</string>
+    <string name="tab_bar_playlist">Audioliste</string>
     <string name="tab_bar_search">Suche</string>
 
     <string name="bottom_navigation_action_bookmark">Zu den Lesezeichen hinzufügen</string>
@@ -92,6 +94,8 @@
     <string name="fragment_bottom_sheet_issue_share">Titelbild teilen</string>
     <string name="fragment_bottom_sheet_issue_delete">Ausgabe löschen</string>
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
+    <string name="fragment_bottom_sheet_issue_download_with_audios">Ausgabe mit Audio herunterladen</string>
+    <string name="fragment_bottom_sheet_issue_download_additionally_audios">Audioinhalte herunterladen</string>
 
     <string name="fragment_bottom_sheet_notifications_title_01">Nichts verpassen …</string>
     <string name="fragment_bottom_sheet_notifications_description_01">… im wahren Leben nicht immer leicht, doch in der taz App kein Problem: mit unseren praktischen Mitteilungen.\nAuf Wunsch benachrichtigen wir Sie stets per Push-Nachricht, sobald die neue Ausgabe da ist – so wissen Sie bereits am Vorabend, was morgen in der Zeitung steht.</string>
@@ -109,6 +113,13 @@
     <string name="fragment_bottom_sheet_single_column_mode_title">Vertikale Navigation wieder aktiv</string>
     <string name="fragment_bottom_sheet_single_column_mode_description">Dadurch, dass Sie die Spaltigkeit ausgeschaltet haben, folgt die Navigation in den Artikeln wieder der Scrollrichtung vertikal (oben nach unten).</string>
     <string name="fragment_bottom_sheet_single_column_mode_negative_button">Nicht wieder anzeigen</string>
+
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_title">Leseliste synchronisieren?</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_description">Sie können die Artikel ihrer Leseliste über alle angemeldeten Geräte teilen. Wenn Sie auf anderen Geräten die Leseliste löschen, wird diese dann auch hier gelöscht. Sie können das jederzeit in den Einstellungen wieder ändern.</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_positive_button">Synchronisieren</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_negative_button">Nicht synchronisieren</string>
+    <string name="fragment_bottom_sheet_bookmarks_synchronization_loading_text">Lesezeichen werden synchronisert</string>
+
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
@@ -176,6 +187,7 @@
     <string name="settings_support_report_bug">Fehler melden</string>
     <string name="settings_auto_downloads_switch">Neue Ausgaben automatisch laden</string>
     <string name="settings_auto_pdf_downloads_switch">Zeitungsansicht immer mitladen</string>
+    <string name="settings_bookmarks_synchronization">Lesezeichen über alle angemeldeten Geräte synchronisieren</string>
     <string name="settings_notifications">mitteilungen erlauben</string>
     <string name="settings_notifications_caution_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> deaktiviert. Diese müssen aktiviert sein, um Mitteilungen zu erhalten.</string>
     <string name="settings_notifications_info_text">Die Mitteilungen sind in den <u>Systemeinstellungen</u> ebenfalls zu aktivieren.</string>
@@ -224,7 +236,7 @@
     <string name="settings_debug_enable_tracking_test_goal">Tracking Test Goal aktivieren</string>
 
     <string name="splash_error_no_connection">Ups, es gibt ein Problem mit der Verbindung zur taz. Geht Ihr Internet?\nVielleicht liegt der Fehler auch bei uns, dann versuchen Sie es später noch ein Mal.</string>
-    <string name="error_issue_download_failed">Beim herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie Ihre Internetverbindung</string>
+    <string name="error_issue_download_failed">Beim Herunterladen der Ausgabe vom %s gab es Verbindungsprobleme mit dem Server. Probieren Sie es später erneut und überprüfen Sie Ihre Internetverbindung</string>
     <string name="fragment_error_report_title">Melden Sie einen Fehler</string>
     <string name="fragment_error_report_description">Benutzen Sie dieses Formular um das fehlerhafte Verhalten zu beschreiben.</string>
     <string name="fragment_error_report_email_title">Ihre E-Mail-Adresse</string>
@@ -248,6 +260,10 @@
     <string name="notification_channel_fcm_new_issue_arrived_title">Neue Ausgabe</string>
     <string name="notification_channel_fcm_new_issue_arrived_description">Benachrichtigen, falls eine neue Ausgabe verfügbar ist</string>
     <string name="notification_channel_fcm_new_issue_arrived_id">FCM_CHANNEL_NEW_ISSUE_ARRIVED</string>
+
+    <string name="notification_channel_fcm_special_article_title">Besonderer Artikel</string>
+    <string name="notification_channel_fcm_special_article_description">Benachrichtigen, wenn auf besondere Artikel hingewiesen wird</string>
+    <string name="notification_channel_fcm_special_article_id">FCM_CHANNEL_SPECIAL_ARTICLE</string>
 
     <string name="fragment_login_title">Anmeldung</string>
     <string name="fragment_read_on_description">Bitte melden Sie sich an, um weiterzulesen.</string>
@@ -278,7 +294,7 @@
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>
     <string name="login_surname_error_invalid">Enthält nur ungültige Zeichen</string>
 
-    <string name="login_error_unknown_credentials">Login fehlgeschlagen</string>
+    <string name="login_error_unknown_credentials">Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.</string>
 
     <string name="login_subscription_hint">Abo-ID</string>
     <string name="login_subscription_error_invalid">Die Abo-ID ist ungültig.</string>
@@ -444,18 +460,35 @@
     <string name="fragment_drawer_sections_collapse_icon_description">Artikel des Ressort anzeigen</string>
     <string name="fragment_drawer_sections_expand_all">alle ressorts öffnen</string>
     <string name="fragment_drawer_sections_collapse_all">alle ressorts schließen</string>
-    <string name="drawer_play_issue">ausgabe hören</string>
+    <string name="fragment_drawer_article_item_enqueue">Zur Audioliste hinzufügen</string>
+    <string name="fragment_drawer_article_item_enqueued">Bereits in Audioliste</string>
+    <string name="drawer_play_issue">Ausgabe hören</string>
+    <string name="drawer_go_to_playlist">Audioliste</string>
 
+    <string name="audioplayer_playlist">audioliste</string>
     <string name="audioplayer_error_generic">Es gibt einen Fehler. Die Wiedergabe ist gestoppt. Ist die Internetverbindung stabil?</string>
     <string name="audioplayer_article_image_description">Artikel Vorschau Bild</string>
     <string name="audioplayer_author_template">von %s</string>
-    <string name="audioplayer_loading_message">einen Moment bitte...\ndas Audiofile wird geladen </string>
+    <string name="audioplayer_loading_message">einen Moment bitte…\ndas Audiofile wird geladen </string>
     <string name="audioplayer_playback_speed">%sx</string>
     <string name="audioplayer_playback_speed_content_description">Abspielgeschwindigkeit anpassen</string>
     <string name="audioplayer_auto_play_next">Nächsten Artikel abspielen</string>
+    <string name="audioplayer_next_in_queue">Nächster Artikel in der Audioliste:</string>
     <string name="audioplayer_disclaimer_title">Disclaimer</string>
     <string name="audioplayer_disclaimer_author">vertonung@taz.de</string>
     <string name="audioplayer_podcast_generic">Podcast</string>
+    <string name="audioplayer_enqueue">zur Audioliste hinzufügen</string>
+    <string name="audioplayer_go_to_playlist">zur Audioliste</string>
+    <string name="audioplayer_playlist_item_delete">Löschen</string>
+    <string name="audioplayer_playlist_delete">Audioliste löschen</string>
+    <string name="audioplayer_playlist_empty_title">Die Audioliste ist noch leer.</string>
+    <string name="audioplayer_playlist_empty">Sie können Ihre Audioliste auffüllen, in dem Sie in den Ressorts oder in der Inhaltsangabe auf dieses Icon klicken.</string>
+    <string name="audioplayer_playlist_sort">In Audioliste umsortieren</string>
+    <string name="audioplayer_playlist_current">spielt gerade</string>
+    <string name="audioplayer_show_in_playlist">Audioliste ansehen</string>
+    <string name="audioplayer_snackbar_added_to_playlist">Der Artikel wurde zur Audioliste hinzugefügt.</string>
+    <string name="audioplayer_snackbar_removed_from_playlist">Artikel wurde aus Audioliste entfernt.</string>
+    <string name="audioplayer_snackbar_already_in_playlist">Dieser Artikel befindet sich bereits in der Audioliste.</string>
 
     <string name="required_min_version_title">Update erforderlich</string>
     <string name="required_min_version_description">Es liegt eine neue Version dieser App vor.\n\nSie haben momentan die Version %1$s installiert. Um aktuelle Ausgaben zu laden, ist mindestens die Version %2$s erforderlich.</string>
@@ -504,7 +537,11 @@
     <string name="article_share_options_url">Link zum Artikel teilen</string>
     <string name="article_share_options_pdf">Artikel als PDF teilen</string>
     <string name="article_share_options_text">Artikel Text teilen</string>
+    <string name="article_share_text_error_dialog">Fehler beim Versuch den Text des Artikels zu teilen</string>
 
     <string name="article_tom_at_the_end_title">Das Ende ist nah!</string>
+    <string name="description_tom_at_the_end">Karikatur von Tom</string>
+
+    <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
 
 </resources>

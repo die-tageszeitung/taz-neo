@@ -7,8 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.util.BottomNavigationBehavior
@@ -86,7 +85,7 @@ class ArticleBottomActionBarNavigationHelper(
         )
     }
 
-    fun setShareIconVisibility(articleStub: ArticleStub) {
+    fun setShareIconVisibility(articleStub: ArticleOperations) {
         setVisibility(
             R.id.bottom_navigation_action_share,
             shouldShareIconBeVisible(articleStub)
@@ -177,16 +176,7 @@ class ArticleBottomActionBarNavigationHelper(
          * Determine the share icon visibility.
          * The sharing icon will always be shown for public articles to urge users to subscribe.
          */
-        fun shouldShareIconBeVisible(articleStub: ArticleStub): Boolean {
-            val isPublicArticle = articleStub.articleFileName.endsWith("public.html")
-            return isPublicArticle || ShareArticleBottomSheet.isShareable(articleStub)
-        }
-
-        /**
-         * Determine the share icon visibility.
-         * The sharing icon will always be shown for public articles to urge users to subscribe.
-         */
-        fun shouldShareIconBeVisible(article: Article): Boolean {
+        fun shouldShareIconBeVisible(article: ArticleOperations): Boolean {
             val isPublicArticle = article.key.endsWith("public.html")
             return isPublicArticle || ShareArticleBottomSheet.isShareable(article)
         }

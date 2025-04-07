@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- The corner radius, reduce it to make it more square -->
+    <corners
+        android:radius="14dp"
+        />
+</shape>

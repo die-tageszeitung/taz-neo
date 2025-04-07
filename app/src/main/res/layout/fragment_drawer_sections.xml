@@ -7,15 +7,14 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical"
         android:paddingStart="@dimen/fragment_drawer_padding_start"
-        android:paddingTop="@dimen/drawer_margin_vertical"
-        android:paddingEnd="@dimen/fragment_drawer_padding_end"
-        android:paddingBottom="@dimen/drawer_margin_vertical">
+        android:paddingEnd="@dimen/fragment_drawer_padding_end">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -26,7 +25,6 @@
                 android:id="@+id/fragment_drawer_sections_moment"
                 android:layout_width="@dimen/fragment_drawer_moment_width"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/fragment_drawer_sections_moment_margin_bottom"
                 android:clipChildren="false"
                 app:do_not_show_download_icon="true"
                 app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +32,7 @@
 
             <TextView
                 android:id="@+id/fragment_drawer_sections_date"
-                style="@style/TextAppearance.Drawer.Sections.Date"
+                style="@style/Widget.App.Drawer.Sections.Date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/fragment_drawer_date_margin_start"
@@ -47,26 +45,28 @@
                 android:layout_width="@dimen/drawer_play_issue_icon_size"
                 android:layout_height="@dimen/drawer_play_issue_icon_size"
                 android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:layout_marginBottom="@dimen/fragment_drawer_header_action_margin_bottom"
                 android:clickable="true"
                 android:contentDescription="@string/drawer_play_issue"
                 android:focusable="true"
                 android:src="@drawable/ic_audio"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment"
                 app:tint="@color/drawer_sections_header_action" />
 
             <TextView
                 android:id="@+id/fragment_drawer_play_issue_text"
-                style="@style/TextAppearance.TextButton.Small"
+                style="@style/Widget.App.Drawer.Sections.Play"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/drawer_play_issue_text_icon_padding"
+                android:layout_marginStart="@dimen/drawer_text_icon_margin"
                 android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:layout_marginBottom="@dimen/fragment_drawer_header_action_margin_bottom"
                 android:text="@string/drawer_play_issue"
-                android:textColor="@color/drawer_sections_header_action"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/fragment_drawer_play_issue_icon"
                 app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment" />
-
 
             <View
                 android:id="@+id/fragment_drawer_toggle_all_sections_touch_area"
@@ -89,8 +89,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/fragment_drawer_header_action_margin_top"
+                android:layout_marginBottom="@dimen/fragment_drawer_header_action_margin_bottom"
                 android:contentDescription="@string/fragment_drawer_sections_expand_all"
                 android:src="@drawable/ic_chevron_double_down"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_drawer_sections_moment"
                 app:tint="@color/drawer_sections_header_action" />
@@ -127,18 +129,18 @@
             android:layout_height="wrap_content"
             android:clipChildren="false"
             android:minHeight="@dimen/fragment_drawer_sections_item_height"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/fragment_drawer_sections_imprint_text_view"
-                style="@style/TextAppearance.Drawer.Sections"
+                style="@style/Widget.App.Drawer.Sections.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/imprint"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
                 android:id="@+id/fragment_drawer_section_collapse_icon"

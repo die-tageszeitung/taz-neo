@@ -3,9 +3,12 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
@@ -14,8 +17,11 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
+import de.taz.app.android.monkey.setDefaultInsets
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.simpleDateFormat
@@ -28,16 +34,18 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
-class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
+class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
     private lateinit var authHelper: AuthHelper
+    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tracker: Tracker
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
@@ -45,13 +53,15 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val emailValidator = EmailValidator()
 
     private var downloadObserver: DownloadObserver? = null
-    private var initialIssueDisplay: IssuePublication? = null
+    private var initialIssueDisplay: AbstractIssuePublication? = null
     private var currentlyFocusedDate: Date? = null
     private var firstTimeFragmentIsShown: Boolean = true
+    private var isLandscape = false
 
     private val grid by lazy { viewBinding.fragmentCoverFlowGrid }
     private val toArchive by lazy { viewBinding.fragmentCoverFlowToArchive }
     private val date by lazy { viewBinding.fragmentCoverFlowDate }
+    private val momentDownloadPosition by lazy { viewBinding.fragmentCoverflowMomentDownloadPosition }
     private val momentDownload by lazy { viewBinding.fragmentCoverflowMomentDownload }
     private val momentDownloadFinished by lazy { viewBinding.fragmentCoverflowMomentDownloadFinished }
     private val momentDownloading by lazy { viewBinding.fragmentCoverflowMomentDownloading }
@@ -60,6 +70,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
@@ -74,6 +85,9 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.root.setDefaultInsets()
+
         grid.edgeEffectFactory = BouncyEdgeEffect.Factory
 
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
@@ -117,10 +131,10 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
             )
             this.adapter = adapter
             grid.adapter = adapter
+            setProperMargin(adapter)
 
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
             // we let Android restore the scroll position. This might work as long as the feed did not change.
-            // FIXME(johannes): test if it actually works as a new adapter is assigned
             val restoreFromPersistedState = initialAdapter && savedInstanceState != null
 
             if (!restoreFromPersistedState) {
@@ -147,6 +161,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // Force updating the UI when the feed changes by resetting the currently focused date
             currentlyFocusedDate = null
+            isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             updateUIForCurrentDate()
         }
         viewModel.currentDate.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
@@ -214,18 +229,27 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         ).apply {
             startObserving()
         }
+        val isTabletMode = requireContext().resources.getBoolean(R.bool.isTablet)
 
+        val isLandscapeOnSmartphone = isLandscape && !isTabletMode
         // set date text
         this.date.text = when {
             BuildConfig.IS_LMD ->
                 DateHelper.dateToLocalizedMonthAndYearString(date)
-            item != null && item.validity != null ->
+            item?.validity != null && !isLandscapeOnSmartphone ->
                 DateHelper.dateToWeekNotation(
                     item.date,
                     item.validity
                 )
-            item != null ->
+            item?.validity != null && isLandscapeOnSmartphone ->
+                DateHelper.dateToShortRangeString(
+                    item.date,
+                    item.validity
+                )
+            item != null && !isLandscapeOnSmartphone ->
                 DateHelper.dateToLongLocalizedLowercaseString(item.date)
+            item != null && isLandscapeOnSmartphone ->
+                DateHelper.dateToMediumLocalizedString(item.date)
             else -> {
                 // The date itself is not found anymore. This is weird. Log an error but show the requested date
                 log.warn("The date $date was not found in the feeds publication dates")
@@ -274,7 +298,7 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
-    private fun skipToPublication(issueKey: IssuePublication) {
+    private fun skipToPublication(issueKey: AbstractIssuePublication) {
         simpleDateFormat.parse(issueKey.date)?.let {
             skipToDate(it)
         }
@@ -314,4 +338,22 @@ class CoverflowFragment() : IssueFeedFragment<FragmentCoverflowBinding>() {
         DatePickerFragment().show(childFragmentManager, DatePickerFragment.TAG)
     }
 
+    private fun setProperMargin(adapter: CoverflowAdapter) {
+
+        val coverItemPadding = resources.getDimensionPixelSize(R.dimen.cover_item_padding)
+        val momentWidth = adapter.calculateViewHolderWidth() - 2 * coverItemPadding
+        var newMarginEnd = (resources.displayMetrics.widthPixels - momentWidth) / 2
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
+            if (extraPadding > 0 && isLandscape) {
+                val halfExtraPaddingInPx =
+                    (extraPadding * resources.displayMetrics.density / 2).toInt()
+                newMarginEnd = newMarginEnd - halfExtraPaddingInPx
+            }
+            momentDownloadPosition.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                marginEnd = newMarginEnd.toInt()
+            }
+        }
+    }
 }

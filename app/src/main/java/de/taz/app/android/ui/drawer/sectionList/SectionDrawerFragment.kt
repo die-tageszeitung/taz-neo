@@ -14,28 +14,42 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.monkey.setDefaultVerticalInsets
+import de.taz.app.android.persistence.repository.AbstractCoverPublication
+import de.taz.app.android.persistence.repository.BookmarkRepository
+import de.taz.app.android.persistence.repository.IssueKey
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentPublication
+import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
-import de.taz.app.android.ui.webview.pager.*
+import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import de.taz.app.android.sentry.SentryWrapper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Fragment used to display the list of sections in the navigation Drawer
@@ -81,6 +95,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 ::handleSectionToggle,
                 ::handleArticleClick,
                 ::handleArticleBookmarkClick,
+                ::handleEnqueueAudio,
                 bookmarkRepository::createBookmarkStateFlow,
             )
     }
@@ -88,6 +103,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.wrapper.setDefaultVerticalInsets()
 
         viewBinding.fragmentDrawerSectionsList.apply {
             adapter = sectionListAdapter
@@ -114,8 +131,8 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
                 // Either the issueContentViewModel can change the content of this drawer ...
                 launch {
-                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.asFlow()
-                        .distinctUntilChanged().filterNotNull()
+                    issueContentViewModel.issueKeyAndDisplayableKeyFlow
+                        .filterNotNull()
                         .collect { issueKeyWithDisplayableKey ->
                             log.debug("Set issue issueKey from IssueContent")
                             if (!::currentIssueStub.isInitialized || issueKeyWithDisplayableKey.issueKey != currentIssueStub.issueKey) {
@@ -189,7 +206,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             view?.scrollY = 0
             view?.animate()?.alpha(1f)?.duration = 500
             viewBinding.fragmentDrawerSectionsImprint.apply {
-                val imprint = issueRepository.getImprint(issueKey)
+                val imprint = issueRepository.getImprintStub(issueKey)
                 if (imprint != null) {
                     visibility = View.VISIBLE
                     viewBinding.separatorLineImprintTop.visibility = View.VISIBLE
@@ -249,7 +266,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {
                             tracker.trackDrawerTapMomentEvent()
-                            requireActivity().finish()
+                            (requireActivity() as? MainActivity)?.showHome()
                         }
                     },
                     observeDownload = false
@@ -303,10 +320,24 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             } else {
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             }
+        }
+    }
+
+    private fun handleEnqueueAudio(article: Article, alreadyInPlaylist: Boolean) {
+        if (alreadyInPlaylist) {
+            drawerAudioPlayerViewModel.removeFromPlaylist(article.key)
+        } else {
+            drawerAudioPlayerViewModel.enqueue(article.key)
         }
     }
 

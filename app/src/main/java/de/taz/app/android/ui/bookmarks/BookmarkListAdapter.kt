@@ -4,15 +4,14 @@ import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
-import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.singletons.SnackBarHelper
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,23 +77,12 @@ class BookmarkListAdapter(
 
         removeBookmark(article)
         // showing snack bar with undo option
-        Snackbar.make(
+        SnackBarHelper.showDebookmarkUndoSnack(
+            view.context,
             view,
-            R.string.fragment_bookmarks_deleted,
-            Snackbar.LENGTH_LONG
-        ).apply {
-            setAction(R.string.fragment_bookmarks_undo) {
-                restoreBookmark(article)
-            }
-            setActionTextColor(
-                ResourcesCompat.getColor(
-                    view.context.resources,
-                    R.color.fragment_bookmarks_delete_background,
-                    null
-                )
-            )
-            show()
-        }
+            article,
+            this::restoreBookmark,
+        )
     }
 
     override fun onCreateViewHolder(

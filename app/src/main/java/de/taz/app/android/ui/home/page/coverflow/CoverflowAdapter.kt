@@ -39,7 +39,7 @@ class CoverflowAdapter(
         super.onViewRecycled(setViewHolderSize(holder))
     }
 
-    private fun calculateViewHolderWidth(): Int {
+    fun calculateViewHolderWidth(): Int {
         val isLandscape =
             fragment.resources.displayMetrics.heightPixels < fragment.resources.displayMetrics.widthPixels
         val factor = fragment.resources.getFraction(R.fraction.cover_width_screen_factor, 1, 1)

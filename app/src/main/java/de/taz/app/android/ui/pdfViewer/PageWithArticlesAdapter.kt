@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.pdfViewer.ArticleAdapter
 import de.taz.app.android.ui.pdfViewer.PageWithArticles
@@ -32,18 +32,20 @@ private const val TYPE_IMPRINT = 1
 class PageWithArticlesAdapter(
     val pages: List<PageWithArticlesListItem>,
     private val onPageCLick: (pageName: String) -> Unit,
-    private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
-    private val onArticleBookmarkClick: (article: Article) -> Unit,
-    private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
+    private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
+    private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
+    private val onAudioEnqueueClick: (article: ArticleOperations) -> Unit,
+    private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) :
     RecyclerView.Adapter<ViewHolder>() {
 
     private class PageWithArticlesHolder(
         view: View,
         private val onPageCLick: (pageName: String) -> Unit,
-        private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
-        private val onArticleBookmarkClick: (article: Article) -> Unit,
-        private val articleBookmarkStateFlowCreator: (article: Article) -> Flow<Boolean>,
+        private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
+        private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
+        private val onAudioEnqueueClick: (article: ArticleOperations) -> Unit,
+        private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
         private val showDivider: Boolean
     ) :
         ViewHolder(view) {
@@ -85,6 +87,7 @@ class PageWithArticlesAdapter(
                     it,
                     { article -> onArticleClick(absoluteAdapterPosition, article) },
                     { article -> onArticleBookmarkClick(article) },
+                    { article -> onAudioEnqueueClick(article) },
                     articleBookmarkStateFlowCreator
                 )
             }
@@ -97,12 +100,12 @@ class PageWithArticlesAdapter(
 
     private class ImprintHolder(
         view: View,
-        private val onArticleClick: (pagePosition: Int, article: Article) -> Unit,
+        private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
     ) : ViewHolder(view) {
 
         private val imprintTitle: TextView = itemView.findViewById(R.id.imprint_title)
 
-        fun bind(imprint: Article) {
+        fun bind(imprint: ArticleOperations) {
             imprintTitle.text = imprint.title
             itemView.setOnClickListener {
                 onArticleClick(absoluteAdapterPosition, imprint)
@@ -124,6 +127,7 @@ class PageWithArticlesAdapter(
                     onPageCLick,
                     onArticleClick,
                     onArticleBookmarkClick,
+                    onAudioEnqueueClick,
                     articleBookmarkStateFlowCreator,
                     showDivider = true
                 )

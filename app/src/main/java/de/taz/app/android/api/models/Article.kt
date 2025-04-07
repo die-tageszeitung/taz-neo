@@ -2,51 +2,43 @@ package de.taz.app.android.api.models
 
 import android.content.Context
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.interfaces.WebViewDisplayable
 import de.taz.app.android.persistence.repository.ArticleRepository
 import java.util.Date
 
 data class Article(
     val articleHtml: FileEntry,
-    val issueFeedName: String,
-    val issueDate: String,
-    val title: String?,
-    val teaser: String?,
-    val onlineLink: String?,
+    override val issueFeedName: String,
+    override val issueDate: String,
+    override val title: String?,
+    override val teaser: String?,
+    override val onlineLink: String?,
     val audio: Audio?,
-    val pageNameList: List<String>,
+    override val pageNameList: List<String>,
     val imageList: List<Image>,
     val authorList: List<Author>,
-    val mediaSyncId: Int?,
-    val chars: Int?,
-    val words: Int?,
-    val readMinutes: Int?,
+    override val mediaSyncId: Int?,
+    override val chars: Int?,
+    override val words: Int?,
+    override val readMinutes: Int?,
     override val articleType: ArticleType,
-    val bookmarkedTime: Date?,
-    val position: Int,
-    val percentage: Int,
+    override val bookmarkedTime: Date?,
+    override val position: Int,
+    override val percentage: Int,
     override val dateDownload: Date?,
     val pdf: FileEntry?,
-) : ArticleOperations, WebViewDisplayable {
-
-    override val path: String
-        get() = articleHtml.path
+) : ArticleOperations {
 
     val bookmarked = bookmarkedTime != null
 
     override val key: String
         get() = articleHtml.name
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         val list = mutableListOf(articleHtml)
         list.addAll(authorList.mapNotNull { it.imageAuthor })
         list.addAll(imageList.filter { it.resolution == ImageResolution.normal }
             .map { FileEntry(it) })
         return list.distinct()
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }.distinct()
     }
 
     override fun getDownloadTag(): String {
@@ -72,11 +64,13 @@ data class Article(
     }
 
     override suspend fun getDownloadDate(applicationContext: Context): Date? {
-        return ArticleRepository.getInstance(applicationContext).getDownloadDate(ArticleStub(this@Article))
+        return ArticleRepository.getInstance(applicationContext)
+            .getDownloadDate(ArticleStub(this@Article))
     }
 
     override suspend fun setDownloadDate(date: Date?, applicationContext: Context) {
-        return ArticleRepository.getInstance(applicationContext).setDownloadDate(ArticleStub(this@Article), date)
+        return ArticleRepository.getInstance(applicationContext)
+            .setDownloadDate(ArticleStub(this@Article), date)
     }
 
     /**
@@ -86,9 +80,16 @@ data class Article(
     fun guessIssueStatusByArticleFileName(): IssueStatus {
         return if (key.endsWith("public.html")) {
             IssueStatus.public
-        }
-        else {
+        } else {
             IssueStatus.regular
+        }
+    }
+
+    override suspend fun getAuthorNames(applicationContext: Context): String {
+        return if (authorList.isNotEmpty()) {
+            authorList.map { it.name }.distinct().joinToString(", ")
+        } else {
+            ""
         }
     }
 }

@@ -23,6 +23,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val audioRepository = AudioRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
     private val momentRepository = MomentRepository.getInstance(applicationContext)
@@ -145,7 +146,7 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getLatest()
     }
 
-    suspend fun getIssueStubsByFeedAndDate(feedName: String, date: String): List<IssueStub> {
+    private suspend fun getIssueStubsByFeedAndDate(feedName: String, date: String): List<IssueStub> {
         return appDatabase.issueDao().getByFeedAndDate(feedName, date)
     }
 
@@ -202,19 +203,19 @@ class IssueRepository private constructor(applicationContext: Context) :
         return appDatabase.issueDao().getIssueToDelete()
     }
 
-    suspend fun getImprint(issueKey: IssueKey): Article? {
-        return getImprint(issueKey.feedName, issueKey.date, issueKey.status)
+    suspend fun getImprintStub(issueKey: IssueKey): ArticleStub? {
+        return getImprintStub(issueKey.feedName, issueKey.date, issueKey.status)
     }
 
-    suspend fun getImprint(
-        issueFeedName: String,
-        issueDate: String,
-        issueStatus: IssueStatus
-    ): Article? {
+    private suspend fun getImprintStub (
+            issueFeedName: String,
+            issueDate: String,
+            issueStatus: IssueStatus
+    ): ArticleStub? {
         val imprintName = appDatabase.issueImprintJoinDao().getArticleImprintNameForIssue(
             issueFeedName, issueDate, issueStatus
         )
-        return imprintName?.let { articleRepository.get(it) }
+        return imprintName?.let { articleRepository.getStub(it) }
     }
 
     suspend fun getDownloadDate(issue: IssueOperations): Date? {
@@ -309,7 +310,7 @@ class IssueRepository private constructor(applicationContext: Context) :
             sectionNames
                 .map { sectionRepository.get(it) }
                 .filterIndexed { index, section ->
-                    // TODO: We observed consistency errors in sentry but werent able to pin down the issue. Capture and ignore any expected section
+                    // TODO: We observed consistency errors in sentry but weren't able to pin down the issue. Capture and ignore any expected section
                     val isNull = section == null
                     if (isNull) {
                         SentryWrapper.captureMessage("Expected section ${sectionNames[index]} not found in Database")
@@ -498,6 +499,39 @@ class IssueRepository private constructor(applicationContext: Context) :
             IssueStub(issue)
         )
     }
+
+    /**
+     * Save all [Audio] metadata to the database.
+     *
+     * @return a list of those [Audio]
+     */
+    suspend fun saveAllAudios(issuePublication: AbstractIssuePublication): List<Audio> {
+        val issueStub =
+            getMostValuableIssueStubForPublication(issuePublication) ?: return emptyList()
+        val audioList = mutableListOf<Audio>()
+        articleRepository.getArticleStubListForIssue(issueStub.issueKey).forEach { item ->
+            item.articleStub.audioFileName?.let { audioName ->
+                val audio = audioRepository.get(audioName)
+                if (audio != null) {
+                    audioList.add(audio)
+                }
+            }
+        }
+        return audioList
+    }
+
+    /**
+     * @return true when we have all audio files downloaded.
+     */
+    suspend fun areAllAudiosDownloaded(issuePublication: AbstractIssuePublication): Boolean {
+        val issueStub =
+            getMostValuableIssueStubForPublication(issuePublication) ?: return false
+
+        val articleList = articleRepository.getArticleListForIssue(issueStub.issueKey)
+        return articleList.none {
+            it.audio != null && it.audio.file.dateDownload == null
+        }
+    }
 }
 
 interface AbstractCoverPublication : ObservableDownload, Parcelable {
@@ -524,7 +558,7 @@ interface AbstractIssueKey : AbstractIssuePublication {
 
 
 /**
- * An [IssuePublication] is the description of an Issue released at a certain [date] in a [feed],
+ * An [IssuePublication] is the description of an Issue released at a certain [date] in a [Feed],
  * omitting the specification of an [IssueStatus]
  */
 @Parcelize

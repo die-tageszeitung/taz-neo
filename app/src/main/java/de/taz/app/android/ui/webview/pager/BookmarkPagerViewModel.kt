@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -27,8 +27,8 @@ class BookmarkPagerViewModel(
     savedStateHandle: SavedStateHandle
 ) : AndroidViewModel(application) {
 
-    private val issueRepository = IssueRepository.getInstance(application.applicationContext)
     private val bookmarkRepository = BookmarkRepository.getInstance(application.applicationContext)
+    private val issueRepository = IssueRepository.getInstance(application.applicationContext)
 
     val articleFileNameLiveData: MutableLiveData<String?> = savedStateHandle.getLiveData(KEY_ARTICLE_FILE_NAME)
 
@@ -55,23 +55,24 @@ class BookmarkPagerViewModel(
         SharingStarted.WhileSubscribed(replayExpiration = Duration.ZERO),
         1
     )
-    val bookmarkedArticleStubsLiveData = bookmarkedArticlesFlow
+    val bookmarkedArticleStubsFlow = bookmarkedArticlesFlow
         .map { articleList -> articleList.map { ArticleStub(it) } }
-        .asLiveData()
+
     val bookmarkedArticlesLiveData = bookmarkedArticlesFlow.asLiveData()
 
     val currentIssue: IssueStub?
         get() = currentIssueAndArticleLiveData.value?.first
 
-    fun toggleBookmark(articleStub: ArticleStub) {
-        bookmarkRepository.toggleBookmarkAsync(articleStub)
+    fun toggleBookmark(article: ArticleOperations) {
+        bookmarkRepository.toggleBookmarkAsync(article)
     }
 
-    fun bookmarkArticle(article: Article) {
+    fun bookmarkArticle(article: ArticleOperations) {
         bookmarkRepository.addBookmarkAsync(article)
     }
 
-    fun debookmarkArticle(article: Article) {
+    fun debookmarkArticle(article: ArticleOperations) {
         bookmarkRepository.removeBookmarkAsync(article)
     }
+
 }

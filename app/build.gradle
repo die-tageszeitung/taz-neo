@@ -9,13 +9,13 @@ plugins {
 
     // Must be in sync with the "def room_version" below
     id 'androidx.room' version '2.6.1'
-    id 'com.github.triplet.play' version '3.9.1'
+    id 'com.github.triplet.play' version '3.10.1'
 
     // Only define the google-services globally, and apply them only for nonfree variants
     id 'com.google.gms.google-services' version "4.4.2" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
-    id 'io.sentry.android.gradle' version '4.10.0' apply false
+    id 'io.sentry.android.gradle' version '4.11.0' apply false
 }
 
 
@@ -71,7 +71,7 @@ logger.quiet("Lmd versionName: $lmdVersionName versionCode: $lmdVersionCode")
 
 android {
     namespace 'de.taz.app.android'
-    compileSdk 34
+    compileSdk 35
 
     buildFeatures {
         viewBinding true
@@ -81,7 +81,7 @@ android {
     defaultConfig {
         applicationId "de.taz.app.android"
         minSdkVersion 21
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         testOptions {
             unitTests {
@@ -321,15 +321,15 @@ android {
 }
 
 dependencies {
-    def coroutines_version = '1.8.1'
-    def serialization_version = '1.7.1'
+    def coroutines_version = '1.10.1'
+    def serialization_version = '1.8.0'
     def glide_version = '4.16.0'
-    def ktor_version = '2.3.12'
-    def lifecycle_version = '2.8.3'
+    def ktor_version = '3.0.3'
+    def lifecycle_version = '2.8.7'
     def room_version = '2.6.1'
-    def work_version = '2.9.0'
-    def media3_version = '1.3.1'
-    def sentry_version = '7.12.0'
+    def work_version = '2.10.0'
+    def media3_version = '1.5.1'
+    def sentry_version = '8.3.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -343,19 +343,19 @@ dependencies {
 
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.15.0'
 
-    implementation 'androidx.collection:collection-ktx:1.4.1'
-    implementation 'androidx.datastore:datastore-preferences:1.1.1'
+    implementation 'androidx.collection:collection-ktx:1.5.0'
+    implementation 'androidx.datastore:datastore-preferences:1.1.3'
 
-    implementation 'androidx.fragment:fragment-ktx:1.8.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.6'
 
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
     implementation "com.github.bumptech.glide:glide:$glide_version"
     ksp "com.github.bumptech.glide:ksp:$glide_version"
 
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
@@ -385,17 +385,18 @@ dependencies {
     implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
     testImplementation "io.ktor:ktor-client-mock:$ktor_version"
 
-    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+    implementation 'org.conscrypt:conscrypt-android:2.5.3'
 
-    implementation('com.google.android.material:material:1.11.0') {
-        because "1.12.0 forces shape clipping on the NavigationView which prevents from showing the taz logo outside of it"
-    }
+    implementation 'com.google.android.material:material:1.12.0'
 
     // coverflow
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
     // mupdf
-    implementation 'com.artifex.mupdf:fitz:1.24.6'
+    implementation 'com.artifex.mupdf:fitz:1.24.10'
+
+    // nestedscrollwebview
+    implementation 'com.telefonica:nestedscrollwebview:0.1.6'
 
     // error reports
     nonfreeImplementation "io.sentry:sentry-android:$sentry_version"
@@ -416,14 +417,14 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.robolectric:robolectric:4.13'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
     testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.12.0'
+    testImplementation 'org.mockito:mockito-core:5.15.2'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
 
     // Core library
@@ -437,11 +438,12 @@ dependencies {
     leakCanaryImplementation 'com.squareup.leakcanary:leakcanary-android:2.14'
 
     // google Flavor
-    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.0.0'
+    nonfreeImplementation 'com.google.firebase:firebase-messaging:24.1.1'
+    // atm ktx: won't let the gitlab CI pipeline build successfully
     nonfreeImplementation 'com.google.android.play:review-ktx:2.0.1'
 
     // add Java 8+ API desugaring support
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 
 allOpen {

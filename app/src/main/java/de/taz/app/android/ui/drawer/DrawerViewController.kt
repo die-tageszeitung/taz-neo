@@ -12,7 +12,7 @@ private const val UNKNOWN_DRAWER_LOGO_WIDTH = -1
 
 /**
  * This controller handles the UI updates of the DrawerState collected from the [drawerAndLogoViewModel]
- * in [TazViewerFragment] and in [PdfPagerActivity].
+ * in [TazViewerFragment] and in [PdfPagerFragment].
  * Additionally it handles the offset in onDrawerSlide of their drawer.
  *
  */
@@ -20,7 +20,7 @@ class DrawerViewController(
     context: Context,
     private val drawerLayout: DrawerLayout,
     private val drawerLogoWrapper: View,
-    private val navView: NavigationView,
+    private val navView: View,
     private val setLogoHiddenState: (Boolean) -> Unit
 ) {
 

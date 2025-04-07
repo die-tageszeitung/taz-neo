@@ -4,8 +4,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
@@ -27,6 +28,8 @@ import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
@@ -44,31 +47,39 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         }
         setupViewPager()
 
-        issueContentViewModel.sectionListLiveData.observe(this.viewLifecycleOwner) { sectionStubs ->
-            if (
-                sectionStubs.map { it.key } !=
-                (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
-            ) {
-                log.debug("New set of sections: ${sectionStubs.map { it.key }}")
-                viewBinding.webviewPagerViewpager.adapter = SectionPagerAdapter(sectionStubs)
-                tryScrollToSection()
-                viewBinding.loadingScreen.root.visibility = View.GONE
-            }
-        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    issueContentViewModel.sectionListFlow.collect { sectionStubs ->
+                        if (
+                            sectionStubs.map { it.key } !=
+                            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
+                        ) {
+                            log.debug("New set of sections: ${sectionStubs.map { it.key }}")
+                            viewBinding.webviewPagerViewpager.adapter =
+                                SectionPagerAdapter(sectionStubs)
+                            viewBinding.loadingScreen.root.visibility = View.GONE
+                        }
+                    }
+                }
 
-        issueContentViewModel.displayableKeyLiveData.observe(this.viewLifecycleOwner) {
-            tryScrollToSection()
-        }
+                launch {
+                    issueContentViewModel.displayableKeyFlow.collect {
+                        tryScrollToSection(it)
+                    }
+                }
 
-        issueContentViewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
-            // We show here the couch mark for horizontal swipe. It is at this place because
-            // the [SectionPagerFragment] is always created in the [IssueViewerActivity], even if
-            // an article is shown. But the [activeDisplayMode] gives us the indication that we
-            // are on an section.
-            if (it == IssueContentDisplayMode.Section) {
-                lifecycleScope.launch {
-                    HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
-                        .maybeShow()
+                launch {
+                    issueContentViewModel.activeDisplayModeFlow.collect {
+                        // We show here the couch mark for horizontal swipe. It is at this place because
+                        // the [SectionPagerFragment] is always created in the [IssueViewerActivity], even if
+                        // an article is shown. But the [activeDisplayMode] gives us the indication that we
+                        // are on an section.
+                        if (it == IssueContentDisplayMode.Section) {
+                            HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
+                                .maybeShow()
+                        }
+                    }
                 }
             }
         }
@@ -84,15 +95,16 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
         private var lastPage: Int? = null
         override fun onPageSelected(position: Int) {
-            val sectionStubs = (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs
+            val sectionStubs =
+                (viewBinding.webviewPagerViewpager.adapter as SectionPagerAdapter).sectionStubs
             // if we are beyond last position we are the imprint
             val isImprint = position == sectionStubs.size
             if (lastPage != null && lastPage != position && !isImprint) {
                 runIfNotNull(
-                    issueContentViewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
+                    issueContentViewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
                     sectionStubs[position]
                 ) { issueKey, displayable ->
-                    if (issueContentViewModel.activeDisplayMode.value == IssueContentDisplayMode.Section) {
+                    if (issueContentViewModel.activeDisplayModeFlow.value == IssueContentDisplayMode.Section) {
                         issueContentViewModel.setDisplayable(
                             IssueKeyWithDisplayableKey(
                                 issueKey,
@@ -157,7 +169,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             } else {
                 val sectionStub = sectionStubs[position]
                 val isFirstSection = position == 0
-                SectionWebViewFragment.newInstance(sectionStub.sectionFileName, isFirstSection)
+                SectionWebViewFragment.newInstance(sectionStub, isFirstSection)
             }
             return fragment
         }
@@ -166,9 +178,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         override fun getItemCount(): Int = sectionStubs.size + 1
     }
 
-    private fun tryScrollToSection() {
-        val displayableKey = issueContentViewModel.displayableKeyLiveData.value
-        if (displayableKey?.startsWith("sec") == true) {
+    private suspend fun tryScrollToSection(displayableKey: String) {
+        if (displayableKey.startsWith("sec")) {
             log.debug("Section selected: $displayableKey")
             issueContentViewModel.lastSectionKey = displayableKey
 
@@ -177,7 +188,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                     viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
                 }
             }
-            issueContentViewModel.activeDisplayMode.postValue(IssueContentDisplayMode.Section)
         }
     }
 
@@ -185,10 +195,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         return viewBinding.webviewPagerViewpager.currentItem
     }
 
-    private fun getSupposedPagerPosition(): Int? {
+    private suspend fun getSupposedPagerPosition(): Int? {
         val position =
             (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
-                it.key == issueContentViewModel.displayableKeyLiveData.value
+                it.key == issueContentViewModel.displayableKeyFlow.first()
             }
         return if (position != null && position >= 0) {
             position
@@ -201,7 +211,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
      * On advertisements we hide the drawer logo.
      */
     private fun hideLogoIfNecessary(position: Int) {
-        val sectionStub = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(position)
+        val sectionStub =
+            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(
+                position
+            )
         val isAdvertisement = sectionStub?.type == SectionType.advertisement
         val isPodcast = sectionStub?.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {

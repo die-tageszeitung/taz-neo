@@ -5,18 +5,18 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentWebviewSectionBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
@@ -24,8 +24,8 @@ import kotlinx.coroutines.launch
 
 
 class SectionImprintWebViewFragment : WebViewFragment<
-        Article,
-        WebViewViewModel<Article>,
+        ArticleOperations,
+        WebViewViewModel<ArticleOperations>,
         FragmentWebviewSectionBinding
         >() {
 
@@ -44,9 +44,6 @@ class SectionImprintWebViewFragment : WebViewFragment<
     override val webView: AppWebView
         get() = viewBinding.webView
 
-    override val nestedScrollView: NestedScrollView
-        get() = viewBinding.nestedScrollView
-
     override val loadingScreen: View
         get() = viewBinding.loadingScreen.root
 
@@ -60,12 +57,16 @@ class SectionImprintWebViewFragment : WebViewFragment<
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        issueContentViewModel.imprintArticleLiveData.observe(this) {
-            if (it != null) {
-                viewModel.displayableLiveData.postValue(it)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                issueContentViewModel.imprintArticleFlow.collect {
+                    if (it != null) {
+                        viewModel.displayableLiveData.postValue(it)
+                    }
+                }
             }
         }
     }
@@ -75,7 +76,7 @@ class SectionImprintWebViewFragment : WebViewFragment<
         hideLoadingScreen()
     }
 
-    override fun setHeader(displayable: Article) {
+    override fun setHeader(displayable: ArticleOperations) {
         viewLifecycleOwner.lifecycleScope.launch {
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the

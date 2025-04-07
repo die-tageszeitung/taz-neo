@@ -53,7 +53,7 @@ class ContentDownload(
             val storageService = StorageService.getInstance(applicationContext)
             val storageLocation = storageDataStore.storageLocation.get()
             val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
-            val prioritizedDownloads = collection.getAllFiles()
+            val prioritizedDownloads = collection.getAllFiles(applicationContext)
                 .map {
                     // Set the storage type to the currently selected storage
                     val fileEntry = fileEntryRepository.saveOrReplace(

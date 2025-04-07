@@ -14,8 +14,6 @@ interface FileEntryOperations: Storable {
     val moTime: Long
     val sha256: String
     val size: Long
-    @Deprecated("folder field deprecated, file path now stored in path")
-    val folder: String
     val dateDownload: Date?
     val path: String
     val storageLocation: StorageLocation

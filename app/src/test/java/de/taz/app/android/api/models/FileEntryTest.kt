@@ -89,7 +89,6 @@ class FileEntryTest {
             1L,
             "sha256",
             0,
-            "",
             null,
             path,
             StorageLocation.INTERNAL

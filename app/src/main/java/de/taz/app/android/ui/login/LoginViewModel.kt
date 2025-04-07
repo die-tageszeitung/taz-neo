@@ -81,6 +81,7 @@ class LoginViewModel @JvmOverloads constructor(
         get() = articleName != null
 
     var password: String? = null
+    var passwordConfirm: String? = null
     var subscriptionId: Int? = null
     var subscriptionPassword: String? = null
     var backToHome: Boolean = false
@@ -219,6 +220,7 @@ class LoginViewModel @JvmOverloads constructor(
                     status = LoginViewModelState.DONE
                 }
                 AuthStatus.notValid -> {
+                    authHelper.authInfoMessage = authTokenInfo?.authInfo?.message
                     status = LoginViewModelState.CREDENTIALS_INVALID
                 }
                 AuthStatus.tazIdNotLinked ->

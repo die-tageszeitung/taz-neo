@@ -55,6 +55,7 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
             requestPassword: Boolean = false,
             articleName: String? = null,
         ) = LoginBottomSheetFragment().apply {
+            isCancelable = false
             arguments = bundleOf(
                 ARG_REQUEST_PASSWORD to requestPassword,
                 ARG_ARTICLE_NAME to articleName,
@@ -67,7 +68,7 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
          */
         fun showSingleInstance(fragmentManager: FragmentManager, articleName: String?) {
             if (fragmentManager.findFragmentByTag(TAG) == null) {
-                newInstance(articleName = articleName).show(fragmentManager, TAG)
+                newInstance(articleName = articleName).showNow(fragmentManager, TAG)
             }
         }
     }
@@ -352,12 +353,20 @@ class LoginBottomSheetFragment : FullscreenViewBindingBottomSheetFragment<Fragme
 
     private fun showCredentialsInvalid() {
         log.verbose("showCredentialsInvalid")
-        toastHelper.showToast(R.string.login_error_unknown_credentials)
-        showFragment(
-            LoginFragment.create(
-                usernameErrorId = R.string.login_error_unknown_credentials
+        toastHelper.showToast(R.string.toast_login_failed_retry)
+        if (authHelper.authInfoMessage != null) {
+            showFragment(
+                LoginFragment.create(
+                    errorMessage = authHelper.authInfoMessage
+                )
             )
-        )
+        } else {
+            showFragment(
+                LoginFragment.create(
+                    usernameErrorId = R.string.login_error_unknown_credentials
+                )
+            )
+        }
     }
 
     private fun showSubscriptionInvalid() = showCredentialsInvalid()

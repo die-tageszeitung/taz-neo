@@ -32,6 +32,7 @@ abstract class AbstractTazApplication : Application() {
     private lateinit var authHelper: AuthHelper
     private lateinit var generalDataStore: GeneralDataStore
     private var _tracker: Tracker? = null
+    var isInitComplete = false
 
     // use this scope if you want to run code which should not terminate if the lifecycle of
     // a fragment or activity is finished
@@ -53,19 +54,12 @@ abstract class AbstractTazApplication : Application() {
 
         if (BuildConfig.DEBUG) {
             val vmPolicyBuilder = StrictMode.VmPolicy.Builder()
-                .detectLeakedClosableObjects()
+                .detectAll()
                 .penaltyLog()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                vmPolicyBuilder.detectNonSdkApiUsage()
-            }
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                vmPolicyBuilder.detectUnsafeIntentLaunch()
-            }
-
             StrictMode.setVmPolicy(vmPolicyBuilder.build())
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
+                    .detectAll()
                     .penaltyLog()
                     .build()
             )

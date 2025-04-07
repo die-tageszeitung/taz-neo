@@ -22,6 +22,7 @@ import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.*
 
 /**
+ * This Fragment is used by [IssueViewerWrapperFragment]
  * Show an Issue with sections and articles in their respective pager fragments
  *
  * Additional fragments are loaded to ensure the transitions are smooth.
@@ -30,18 +31,22 @@ import kotlinx.coroutines.*
  * [articlePagerFragment] is used to show the articles of the issue
  * [loaderFragment] shows the initial loading screen
  *
+ * TODO Hopefully we can merge this with the [IssueViewerWrapperFragment]
  */
-class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
+class IssueViewerFragment :
+    BaseViewModelFragment<IssueViewerViewModel, FragmentIssueContentBinding>(), BackFragment {
 
     override val viewModel: IssueViewerViewModel by activityViewModels()
 
     private val log by Log
 
+    private lateinit var bookmarkRepository: BookmarkRepository
     private lateinit var sectionRepository: SectionRepository
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        bookmarkRepository = BookmarkRepository.getInstance(requireContext().applicationContext)
         sectionRepository = SectionRepository.getInstance(requireContext().applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(requireContext().applicationContext)
     }
@@ -49,6 +54,9 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) {
+            // reset viewModel when creating anew
+            viewModel.setDisplayable(null)
+
             addFragment(SectionPagerFragment())
             addFragment(ArticlePagerFragment())
             addFragment(IssueLoaderFragment())
@@ -58,16 +66,22 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.activeDisplayMode.distinctUntilChanged().observe(viewLifecycleOwner) {
-            setDisplayMode(it)
-        }
-
         viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                tazApiCssDataStore.keepScreenOn.asFlow().collect {
-                    KeepScreenOnHelper.toggleScreenOn(it, activity)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.activeDisplayModeFlow.collect {
+                        setDisplayMode(it)
+                    }
+                }
+
+                launch {
+                    tazApiCssDataStore.keepScreenOn.asFlow().collect {
+                        KeepScreenOnHelper.toggleScreenOn(it, activity)
+                    }
                 }
             }
+
+            bookmarkRepository.checkForSynchronizedBookmarksIfEnabled()
         }
     }
 
@@ -118,7 +132,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                             }
                         }
                     runIfNotNull(
-                        viewModel.issueKeyAndDisplayableKeyLiveData.value?.issueKey,
+                        viewModel.issueKeyAndDisplayableKeyFlow.value?.issueKey,
                         lastSectionKey
                     ) { currentIssueKey, displayableKey ->
                         lifecycleScope.launch {
@@ -132,6 +146,7 @@ class IssueViewerFragment : BaseViewModelFragment<IssueViewerViewModel, Fragment
                         true
                     } ?: false
                 }
+
                 null -> false
             }
         } ?: false

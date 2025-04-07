@@ -3,6 +3,9 @@ package de.taz.app.android.api
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.vdurmont.semver4j.Semver
+import de.taz.app.android.CUSTOMER_DATA_CATEGORY_BOOKMARKS
+import de.taz.app.android.CUSTOMER_DATA_CATEGORY_BOOKMARKS_ALL
+import de.taz.app.android.CUSTOMER_DATA_VAL_DATE
 import de.taz.app.android.R
 import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.dto.*
@@ -15,10 +18,12 @@ import de.taz.app.android.firebase.FirebaseDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.NotFoundException
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.sentry.SentryWrapper
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 
 /**
@@ -739,4 +744,105 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         }
         return appResponse?.let { MinAppVersionMapper.from(it) }
     }
+
+    // region bookmark synchronization functions
+
+    /**
+     * Call getCustomerData with category="bookmarks" will hand us a list of synchronized bookmarks
+     */
+    suspend fun getSynchronizedBookmarks(): List<BookmarkRepresentation>? {
+
+        val variables = GetCustomerDataVariables(
+            CUSTOMER_DATA_CATEGORY_BOOKMARKS, CUSTOMER_DATA_CATEGORY_BOOKMARKS_ALL
+        )
+        // Get customer data
+        val getCustomerDataResponse = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.GetCustomerData,
+                variables,
+            ).data?.getCustomerData
+        }
+
+        // Parse it to list of articleMediaSyncIds with dates:
+        val listOfArticles = getCustomerDataResponse?.let { response ->
+            response.customerDataList?.filter { customerDataList ->
+                customerDataList.category == CUSTOMER_DATA_CATEGORY_BOOKMARKS
+            }?.mapNotNull { filteredList ->
+                val mediaSyncId = filteredList.name.toInt()
+                val date = parseDate(filteredList.`val`)
+                if (date != null) {
+                    BookmarkRepresentation(mediaSyncId, date)
+                } else {
+                    null
+                }
+            } ?: emptyList()
+        }
+        return listOfArticles
+    }
+
+    /**
+     * Delete from customerData the passed [articleMediaSyncId]
+     */
+    suspend fun deleteRemoteBookmark(articleMediaSyncId: Int): Boolean {
+        val variables = GetCustomerDataVariables(
+            CUSTOMER_DATA_CATEGORY_BOOKMARKS, articleMediaSyncId.toString()
+        )
+
+        val response = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.DeleteCustomerData,
+                variables,
+            ).data?.deleteCustomerData
+        }
+        if (response?.ok == false) {
+            log.warn("Could not delete remote bookmark: ${response.error}")
+        }
+        if (response?.ok == true) {
+            log.verbose("Remote bookmark $articleMediaSyncId successfully deleted.")
+            return true
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * Add from customerData the passed [articleMediaSyncId] and [articleDate].
+     * The date needs to be jsonified to be handled by the server correctly, in a format like
+     * "{"date":"2024-10-07"}"
+     */
+    suspend fun saveSynchronizedBookmark(articleMediaSyncId: Int, articleDate: String): Boolean {
+        val jsonDate = JSONObject().put(CUSTOMER_DATA_VAL_DATE, articleDate)
+        val variables = SaveCustomerDataVariables(
+            CUSTOMER_DATA_CATEGORY_BOOKMARKS, articleMediaSyncId.toString(), jsonDate.toString()
+        )
+        val response = transformToConnectivityException {
+            graphQlClient.query(
+                QueryType.SaveCustomerData,
+                variables,
+            ).data?.saveCustomerData
+        } ?: return false
+        if (response.ok == true) {
+            log.verbose("bookmark of $articleMediaSyncId successfully synchronized.")
+            return true
+        } else {
+            log.warn("Could not save bookmark to remote: ${response.error}")
+            return false
+        }
+    }
+
+    /**
+     * Parse a json string to just return the string of the date.
+     * E.g. parseDate( "{"date":"2024-10-07"}") would return "2024-10-07"
+     */
+    private fun parseDate(jsonString: String?): String? {
+        val date = try {
+            val jsonValue = jsonString?.let { JSONObject(it) }
+            jsonValue?.optString(CUSTOMER_DATA_VAL_DATE)
+        } catch (e: JSONException) {
+            log.warn("could not parse  $jsonString")
+            null
+        }
+        return date
+    }
+    // endregion
 }

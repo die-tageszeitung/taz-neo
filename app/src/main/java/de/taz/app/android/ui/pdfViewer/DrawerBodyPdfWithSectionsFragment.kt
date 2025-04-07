@@ -4,6 +4,7 @@ import PageWithArticlesAdapter
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -13,16 +14,20 @@ import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfWithSectionsBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment.Companion.ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
@@ -35,7 +40,7 @@ class DrawerBodyPdfWithSectionsFragment :
 
     private lateinit var storageService: StorageService
 
-    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({ requireParentFragment() })
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
     private val drawerAudioPlayerViewModel: DrawerAudioPlayerViewModel by viewModels()
 
@@ -56,12 +61,16 @@ class DrawerBodyPdfWithSectionsFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewBinding.constraintLayout.setDefaultTopInset()
+        viewBinding.navigationPageArticleRecyclerView.setDefaultBottomInset()
+
         adapter =
             PageWithArticlesAdapter(
                 emptyList(),
                 { pageName -> handlePageClick(pageName) },
                 { pagePosition, article -> handleArticleClick(pagePosition, article) },
-                { article -> handleArticleBookmarkClick(article) },
+                ::handleArticleBookmarkClick,
+                ::handleAudioEnqueueClick,
                 ::createArticleBookmarkStateFlow
             )
 
@@ -107,7 +116,10 @@ class DrawerBodyPdfWithSectionsFragment :
         pdfPagerViewModel.currentItem.value?.let { position ->
             drawerAndLogoViewModel.closeDrawer()
             pdfPagerViewModel.updateCurrentItem(position)
-            (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+            parentFragmentManager.popBackStack(
+                ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+                POP_BACK_STACK_INCLUSIVE
+            )
         }
     }
 
@@ -120,7 +132,10 @@ class DrawerBodyPdfWithSectionsFragment :
         tracker.trackDrawerTapPageEvent()
         drawerAndLogoViewModel.closeDrawer()
         pdfPagerViewModel.goToPdfPage(pageName)
-        (activity as? PdfPagerActivity)?.popArticlePagerFragmentIfOpen()
+        parentFragmentManager.popBackStack(
+            ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
+            POP_BACK_STACK_INCLUSIVE
+        )
     }
 
     /**
@@ -129,29 +144,40 @@ class DrawerBodyPdfWithSectionsFragment :
      * @param pagePosition Absolute adapter position of article page.
      * @param article Article that was clicked.
      */
-    private fun handleArticleClick(pagePosition: Int, article: Article) {
+    private fun handleArticleClick(pagePosition: Int, article: ArticleOperations) {
         tracker.trackDrawerTapArticleEvent()
         pdfPagerViewModel.updateCurrentItem(pagePosition)
         drawerAndLogoViewModel.closeDrawer()
-        (activity as? PdfPagerActivity)?.showArticle(article)
+        (requireParentFragment() as? PdfPagerWrapperFragment)?.showArticle(article)
     }
 
-    private fun handleArticleBookmarkClick(article: Article) {
+    private fun handleArticleBookmarkClick(article: ArticleOperations) {
         tracker.trackDrawerTapBookmarkEvent()
         toggleBookmark(article)
     }
 
-    private fun createArticleBookmarkStateFlow(article: Article): Flow<Boolean> {
+    private fun handleAudioEnqueueClick(article: ArticleOperations) {
+        tracker.trackPlaylistEnqueueEvent()
+        drawerAudioPlayerViewModel.enqueue(article.key)
+    }
+
+    private fun createArticleBookmarkStateFlow(article: ArticleOperations): Flow<Boolean> {
         return bookmarkRepository.createBookmarkStateFlow(article.key)
     }
 
-    private fun toggleBookmark(article: Article) {
+    private fun toggleBookmark(article: ArticleOperations) {
         lifecycleScope.launch {
             val isBookmarked = bookmarkRepository.toggleBookmarkAsync(article).await()
             if (isBookmarked) {
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             } else {
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                )
             }
         }
     }
@@ -168,7 +194,8 @@ class DrawerBodyPdfWithSectionsFragment :
             items,
             { pageName -> handlePageClick(pageName) },
             { pagePosition, article -> handleArticleClick(pagePosition, article) },
-            { article -> handleArticleBookmarkClick(article) },
+            ::handleArticleBookmarkClick,
+            ::handleAudioEnqueueClick,
             ::createArticleBookmarkStateFlow
         )
         viewBinding.navigationPageArticleRecyclerView.adapter = adapter

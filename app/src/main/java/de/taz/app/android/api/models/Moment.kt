@@ -26,14 +26,10 @@ data class Moment(
         return imageList.filter { it.resolution == ImageResolution.high }.distinct()
     }
 
-    override suspend fun getAllFiles(): List<FileEntry> {
+    override suspend fun getAllFiles(applicationContext: Context): List<FileEntry> {
         val animatedList  = getFilesForAnimatedDownload().toMutableList()
         val bitmapList = getImagesToDownload().map { img -> FileEntry(img)}
         return animatedList + bitmapList
-    }
-
-    override suspend fun getAllFileNames(): List<String> {
-        return getAllFiles().map { it.name }
     }
 
     private fun getFilesForAnimatedDownload(): List<FileEntry> {

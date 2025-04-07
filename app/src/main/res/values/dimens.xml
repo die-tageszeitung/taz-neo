@@ -1,6 +1,12 @@
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <dimen name="nav_bottom_height">52dp</dimen>
+    <!--
+    since we now use Material3 the height is now 80dp
+    https://m3.material.io/components/navigation-bar/specs#6c2ac1b8-aad4-471b-92cc-e12f235515ac
+    -->
+    <dimen name="nav_bottom_height">63dp</dimen>
+    <dimen name="m3_comp_navigation_bar_container_height" tools:override="true">@dimen/nav_bottom_height</dimen>
     <dimen name="default_max_width">660dp</dimen>
 
     <!-- overriding android dimens: -->
@@ -17,8 +23,11 @@
     <dimen name="additional_touch_area_margin">-10dp</dimen>
 
     <dimen name="view_moment_download_icon_size">25dp</dimen>
-    <dimen name="view_moment_date_download_wrapper_padding">5dp</dimen>
+    <dimen name="view_moment_download_wrapper_padding_vertical">5dp</dimen>
     <dimen name="view_moment_download_icon_padding">5dp</dimen>
+
+    <!-- For accessibility the clickable views should have a minimum height or width of 48dp -->
+    <dimen name="default_touch_area_size">48dp</dimen>
 
     <dimen name="drawer_margin_vertical">40dp</dimen>
     <dimen name="drawer_margin_horizontal">20dp</dimen>
@@ -41,24 +50,25 @@
     <dimen name="fragment_drawer_padding_end">14dp</dimen>
     <dimen name="fragment_drawer_moment_width">128dp</dimen>
     <dimen name="fragment_drawer_thumbnail_margin">5dp</dimen>
-    <dimen name="fragment_drawer_thumbnail_text_size">15sp</dimen>
-    <dimen name="fragment_drawer_thumbnail_image_width">112dp</dimen>
-    <dimen name="fragment_drawer_date_margin_bottom">1dp</dimen>
+    <dimen name="fragment_drawer_pdf_section_title_margin_top">5dp</dimen>
+    <dimen name="fragment_drawer_pdf_item_padding_top">20dp</dimen>
     <dimen name="fragment_drawer_date_margin_start">16dp</dimen>
     <dimen name="fragment_drawer_header_action_margin_top">18dp</dimen>
+    <dimen name="fragment_drawer_header_action_margin_bottom">2dp</dimen>
     <dimen name="fragment_drawer_title_margin_end">10dp</dimen>
+    <dimen name="fragment_drawer_teaser_margin_top">2dp</dimen>
     <dimen name="fragment_drawer_teaser_margin_end">16dp</dimen>
-    <dimen name="fragment_drawer_author_read_min_margin_vertical">3dp</dimen>
+    <dimen name="fragment_drawer_author_read_min_margin_top">3dp</dimen>
     <dimen name="fragment_section_drawer_padding_top">15dp</dimen>
-    <dimen name="fragment_section_drawer_padding_bottom">4dp</dimen>
-    <dimen name="fragment_section_drawer_article_image_top_margin">3dp</dimen>
+    <dimen name="fragment_section_drawer_padding_bottom">12dp</dimen>
+    <dimen name="fragment_section_drawer_article_image_top_margin">5dp</dimen>
     <dimen name="fragment_section_drawer_bookmark_padding_horizontal">3dp</dimen>
-    <dimen name="fragment_drawer_section_title_padding_top">0dp</dimen>
     <!-- negative margin needs to be applied so the drawer moves much more to the right border -->
     <dimen name="fragment_drawer_margin_end">-45dp</dimen>
 
     <dimen name="drawer_play_issue_icon_size">24dp</dimen>
-    <dimen name="drawer_play_issue_text_icon_padding">5dp</dimen>
+    <dimen name="drawer_text_icon_margin">5dp</dimen>
+    <dimen name="drawer_margin_between_actions">15dp</dimen>
 
     <dimen name="fragment_drawer_body_table_of_content_header_margin_top">15dp</dimen>
     <dimen name="fragment_drawer_separator_margin_top">8dp</dimen>
@@ -89,8 +99,6 @@
     <dimen name="fragment_cover_flow_login_button_margin_top">15dp</dimen>
     <dimen name="fragment_cover_flow_login_button_margin_end">10dp</dimen>
     <dimen name="fragment_cover_flow_arrow_margin_start">3dp</dimen>
-    <dimen name="fragment_cover_flow_arrow_translation_y">-3dp</dimen>
-
     <dimen name="login_box_padding_bottom">40dp</dimen>
     <!-- applied as a margin, because of the font cutting issues -->
     <dimen name="login_box_padding_top">20dp</dimen>
@@ -110,52 +118,44 @@
     <dimen name="fragment_article_read_on_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_settings_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_settings_padding_top">3dp</dimen>
-    <dimen name="fragment_settings_category_padding_top">25dp</dimen>
-    <dimen name="fragment_settings_category_margin_bottom">3dp</dimen>
+    <dimen name="fragment_settings_category_margin_top">20dp</dimen>
+    <dimen name="fragment_settings_category_padding_vertical">10dp</dimen>
     <dimen name="fragment_settings_category_font_size">23sp</dimen>
-    <dimen name="fragment_settings_text_font_size_margin_bottom">3sp</dimen>
-    <dimen name="fragment_settings_text_font_size">16sp</dimen>
-    <dimen name="fragment_settings_text_detail_font_size">14sp</dimen>
-    <dimen name="fragment_settings_value_font_size">13sp</dimen>
-    <dimen name="fragment_settings_min_height">40dp</dimen>
-    <dimen name="fragment_settings_version_margin">20dp</dimen>
+    <dimen name="fragment_settings_entry_padding_vertical">15dp</dimen>
+    <dimen name="fragment_settings_entry_switch_margin_vertical">5dp</dimen>
+    <dimen name="fragment_settings_entry_switch_min_height">40dp</dimen>
     <dimen name="fragment_settings_icon_size">25dp</dimen>
     <dimen name="fragment_settings_plus_minus_width">100dp</dimen>
     <dimen name="fragment_settings_caution_icon_margin_end">12dp</dimen>
-    <dimen name="fragment_settings_category_switch_padding_bottom">10dp</dimen>
+    <dimen name="fragment_settings_description_padding_top">5dp</dimen>
 
     <dimen name="settings_separator_view_line_height">1dp</dimen>
-    <dimen name="settings_separator_view_vertical_margin">5dp</dimen>
 
-    <dimen name="fragment_error_report_description_margin_top">10dp</dimen>
+    <dimen name="fragment_error_title_margin_top">20dp</dimen>
+    <dimen name="fragment_error_report_description_margin_top">20dp</dimen>
     <dimen name="fragment_error_report_email_title_margin_top">30dp</dimen>
     <dimen name="fragment_subscription_inquiry_description_margin_top">10dp</dimen>
 
     <dimen name="fragment_header_default_height">76dp</dimen>
-    <dimen name="fragment_header_default_margin_top">36dp</dimen>
     <dimen name="fragment_header_default_margin_horizontal">18dp</dimen>
-    <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
-    <dimen name="fragment_header_dotted_line_margin_top">70dp</dimen>
+    <dimen name="fragment_header_default_text_size">25sp</dimen>
+    <dimen name="fragment_header_default_padding_top">65dp</dimen>
     <dimen name="fragment_header_dotted_line_height">5dp</dimen>
     <dimen name="fragment_header_article_padding_bottom">11dp</dimen>
     <dimen name="fragment_header_article_num_margin_horizontal">10dp</dimen>
-    <dimen name="fragment_header_article_title_y_translation">2dp</dimen>
     <dimen name="fragment_header_article_text_size">16sp</dimen>
+    <dimen name="fragment_header_article_title_text_size">@dimen/fragment_header_article_text_size
+    </dimen>
     <dimen name="fragment_header_section_text_size">25sp</dimen>
     <dimen name="fragment_header_title_section_text_size">32sp</dimen>
     <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
-    <dimen name="fragment_header_issue_date_text_size">14dp</dimen>
-    <dimen name="fragment_webview_header_padding_top">65dp</dimen>
-    <dimen name="fragment_webview_header_page_text_size">15sp</dimen>
+    <dimen name="fragment_header_section_date_text_size">14dp</dimen>
+    <dimen name="fragment_header_section_date_margin_top">2dp</dimen>
     <dimen name="fragment_header_title_weekend_padding_top">52dp</dimen>
-    <dimen name="fragment_header_title_weekend_padding_bottom">12dp</dimen>
-    <dimen name="fragment_header_webview_date_margin_top">3dp</dimen>
-    <dimen name="fragment_header_title_padding_top">0dp</dimen>
-    <dimen name="fragment_weekend_header_title_padding_top">52dp</dimen>
     <dimen name="fragment_header_title_padding_bottom">4dp</dimen>
-    <dimen name="fragment_weekend_header_title_padding_bottom">12dp</dimen>
-    <dimen name="fragment_header_search_result_published_date_margin_top">6dp</dimen>
+    <dimen name="fragment_header_section_title_padding_bottom">10dp</dimen>
+    <dimen name="fragment_header_custom_date_margin_top">2dp</dimen>
+
     <dimen name="fragment_webview_section_margin_top">12dp</dimen>
     <dimen name="fragment_webview_article_margin_top">25dp</dimen>
     <dimen name="fragment_webview_article_little_margin_top">8dp</dimen>
@@ -172,12 +172,13 @@
     <dimen name="fragment_webview_tap_to_scroll_offset">48dp</dimen>
 
     <dimen name="fragment_archive_padding_top">22dp</dimen>
-    <dimen name="fragment_archive_moment_date_padding_top">0dp</dimen>
-    <dimen name="fragment_archive_moment_date_padding_bottom">0dp</dimen>
+    <!-- Manually align the baseline to the bottom of the download icons.
+         Value depends on the font but 2dp seems to work for all our variants -->
+    <dimen name="fragment_coverflow_date_translation_y">2dp</dimen>
     <dimen name="fragment_archive_item_width">200dp</dimen>
     <dimen name="fragment_archive_item_margin_bottom">20dp</dimen>
 
-    <dimen name="fragment_cover_flow_download_wrapper_size">30dp</dimen>
+    <dimen name="fragment_cover_flow_download_wrapper_size">48dp</dimen>
     <dimen name="fragment_cover_flow_grid_padding">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>
@@ -209,44 +210,36 @@
 
     <dimen name="tap_bar_width">75dp</dimen>
 
-    <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
+    <dimen name="fragment_bookmarks_list_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_thumbnail_size">60dp</dimen>
-    <dimen name="fragment_bookmarks_icons_vertical_margin">13.5dp</dimen>
-    <dimen name="fragment_bookmarks_icons_horizontal_margin">25dp</dimen>
-    <dimen name="fragment_bookmarks_top_margin">18dp</dimen>
-    <dimen name="fragment_bookmarks_padding_bottom">8dp</dimen>
+    <dimen name="fragment_bookmarks_icons_vertical_margin">15dp</dimen>
+    <dimen name="fragment_bookmarks_padding_top">15dp</dimen>
+    <dimen name="fragment_bookmarks_padding_bottom">10dp</dimen>
     <dimen name="fragment_bookmarks_padding_horizontal">18dp</dimen>
-    <dimen name="fragment_bookmarks_delete_text_size">15sp</dimen>
     <dimen name="fragment_bookmarks_delete_text_margin_top">6dp</dimen>
-    <dimen name="drawer_bookmarks_icon_size">43dp</dimen>
+    <dimen name="drawer_default_icon_size">43dp</dimen>
+    <dimen name="drawer_default_icon_padding">9dp</dimen>
+    <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
+    <dimen name="drawer_icon_negative_margin">-10dp</dimen>
     <dimen name="fragment_bookmarks_icon_size">22dp</dimen>
-    <dimen name="fragment_bookmarks_icon_padding">9dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_size">48dp</dimen>
-    <dimen name="fragment_bookmarks_description_text_size">16sp</dimen>
-    <dimen name="fragment_bookmarks_description_text_line_spacing_extra">3.2sp</dimen>
     <dimen name="fragment_bookmarks_description_margin_horizontal">45dp</dimen>
     <dimen name="fragment_bookmarks_description_icon_margin_bottom">20dp</dimen>
-    <!-- Move the bookmark icon with a negative margin to adjust for the padding that is added to get a bigger touch area -->
-    <dimen name="fragment_bookmarks_icon_margin_end">-10dp</dimen>
-    <dimen name="grotesk_font_adjustment">0dp</dimen>
+    <dimen name="fragment_bookmarks_author_margin_top">3dp</dimen>
+    <dimen name="fragment_bookmarks_separator_line_solid_margin_top">5dp</dimen>
 
     <dimen name="fragment_bookmarks_issue_header_moment_height">36dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_moment_margin_top">8dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_moment_margin_top">10dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_elevation">4dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_moment_elevation_corners">0dp</dimen>
     <dimen name="fragment_bookmarks_issue_header_date_margin_start">10dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_date_text_size">18sp</dimen>
     <dimen name="fragment_bookmarks_issue_header_dotted_line_height">3dp</dimen>
-    <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">11dp</dimen>
+    <dimen name="fragment_bookmarks_issue_header_dotted_line_margin_top">10dp</dimen>
 
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_start">5dp</dimen>
     <dimen name="fragment_bookmarks_article_item_read_minutes_margin_end">3dp</dimen>
-    <dimen name="fragment_bookmarks_article_item_read_minutes_line_height">18sp</dimen>
 
-    <dimen name="fragment_drawer_sections_moment_margin_bottom">0dp</dimen>
     <dimen name="fragment_drawer_sections_item_height">45dp</dimen>
-    <dimen name="fragment_drawer_sections_item_text_size">20sp</dimen>
-    <dimen name="fragment_drawer_article_item_text_size">15sp</dimen>
     <dimen name="fragment_drawer_separator_line_height">0.5dp</dimen>
     <dimen name="fragment_drawer_dotted_separator_width">28dp</dimen>
 
@@ -266,7 +259,9 @@
     <dimen name="text_appearance_archive_date_text_size">15sp</dimen>
     <dimen name="cover_item_padding">21dp</dimen>
 
-    <dimen name="fragment_alert_dialog_message_marginTop">10dp</dimen>
+    <dimen name="dialog_body_margin_top">10dp</dimen>
+    <dimen name="dialog_checkbox_margin_top">10dp</dimen>
+    <dimen name="dialog_progress_margin_top">20dp</dimen>
 
     <dimen name="search_separator_line_height">0.5dp</dimen>
     <dimen name="search_separator_line_margin">20dp</dimen>
@@ -276,27 +271,17 @@
     <dimen name="search_input_field_corner_radius">30dp</dimen>
     <dimen name="search_icon_size">38dp</dimen>
     <dimen name="search_icon_padding_vertical">7dp</dimen>
-    <dimen name="search_description_text_size">20sp</dimen>
-    <dimen name="search_description_text_line_spacing_extra">5.6sp</dimen>
     <dimen name="search_description_icon_size">48dp</dimen>
-    <dimen name="search_result_title_text_size">17.5sp</dimen>
-    <dimen name="search_result_title_line_spacing_extra">3.5sp</dimen>
-    <dimen name="search_result_author_margin_top">0dp</dimen>
-    <dimen name="search_result_author_text_size">17sp</dimen>
-    <dimen name="search_result_author_line_spacing_extra">4sp</dimen>
     <dimen name="search_result_item_margin_top">17dp</dimen>
     <dimen name="search_result_bookmark_icon_size">43dp</dimen>
     <dimen name="search_result_bookmark_icon_margin_end">-10dp</dimen>
     <dimen name="search_result_bookmark_icon_padding">9dp</dimen>
-    <dimen name="search_result_snippet_text_size">15sp</dimen>
-    <dimen name="search_result_snippet_line_spacing_extra">21sp</dimen>
     <dimen name="search_result_snippet_margin_top">5dp</dimen>
-    <dimen name="search_result_small_text_size">14sp</dimen>
     <dimen name="search_results_small_margin">4dp</dimen>
-    <dimen name="search_advanced_category_padding_top">13dp</dimen>
-    <dimen name="search_advanced_category_margin_bottom">-10dp</dimen>
-    <dimen name="search_advanced_title_margin_bottom">-2dp</dimen>
-    <dimen name="search_advanced_text_size">18sp</dimen>
+
+    <dimen name="search_advanced_margin_top">10dp</dimen>
+    <dimen name="search_advanced_category_margin_top">25dp</dimen>
+    <dimen name="search_advanced_entry_min_height">40dp</dimen>
 
     <dimen name="fab_margin_start">24dp</dimen>
     <dimen name="fab_margin_bottom">16dp</dimen>
@@ -307,14 +292,11 @@
     <!-- region audioplayer overlay -->
     <dimen name="audioplayer_elevation">3dp</dimen>
 
-    <dimen name="audioplayer_small_overlay_margin">9dp</dimen>
+    <dimen name="audioplayer_small_overlay_margin">10dp</dimen>
     <dimen name="audioplayer_small_article_image_size">36dp</dimen>
     <dimen name="audioplayer_small_vertical_padding">1dp</dimen>
     <dimen name="audioplayer_small_horizontal_margin">8dp</dimen>
-    <dimen name="audioplayer_small_title_margin_top">5dp</dimen>
-    <dimen name="audioplayer_small_custom_padding_top_for_grotesk_font">0dp</dimen>
-    <dimen name="audioplayer_small_text_bottom_margin">2dp</dimen>
-    <dimen name="audioplayer_small_author_top_margin">2dp</dimen>
+    <dimen name="audioplayer_small_text_margin_vertical">7dp</dimen>
     <dimen name="audioplayer_small_progress_indicator_size">36dp</dimen>
     <dimen name="audioplayer_small_progress_indicator_thickness">1.5dp</dimen>
     <dimen name="audioplayer_small_action_icon_size">19dp</dimen>
@@ -323,20 +305,20 @@
 
     <dimen name="audioplayer_action_icon_size">50dp</dimen>
     <dimen name="audioplayer_expanded_container_padding">18dp</dimen>
+    <dimen name="audioplayer_expanded_container_margin_top">20dp</dimen>
     <dimen name="audioplayer_expanded_close_margin_top">10dp</dimen>
     <dimen name="audioplayer_expanded_close_margin_end">6dp</dimen>
     <dimen name="audioplayer_expanded_image_margin_top">10dp</dimen>
-    <dimen name="audioplayer_expanded_image_max_height">350dp</dimen>
+    <dimen name="audioplayer_expanded_image_max_height">300dp</dimen>
     <dimen name="audioplayer_expanded_title_margin_top">20dp</dimen>
-    <dimen name="audioplayer_expanded_author_margin_top">4dp</dimen>
     <dimen name="audioplayer_expanded_progress_scrubber_size">12dp</dimen>
     <!-- audioplayer_expanded_progress_scrubber_size / 2 -->
     <dimen name="audioplayer_expanded_progress_scrubber_radius">6dp</dimen>
     <dimen name="audioplayer_expanded_progress_bar_height">3dp</dimen>
     <dimen name="audioplayer_expanded_progress_touch_target_height">24dp</dimen>
-    <!-- The margin between the top of the scrubber and the bottom of the author text should be 18dp:
-        margin  = 18 - (touch_target_height - scrubber_size) / 2 - grotesk fake padding (2dp) -->
-    <dimen name="audioplayer_expanded_progress_margin_top">10dp</dimen>
+    <!-- The margin between the middle of the line and the bottom of the author text should be 25dp:
+        margin  = 25 - (touch_target_height / 2) -->
+    <dimen name="audioplayer_expanded_progress_margin_top">13dp</dimen>
     <!-- audioplayer_expanded_progress_touch_target_height / 2 - floor(audioplayer_expanded_progress_bar_height / 2) -->
     <dimen name="audioplayer_expanded_progress_overlay_padding_top">11dp</dimen>
     <dimen name="audioplayer_expanded_seek_action_size">32dp</dimen>
@@ -344,10 +326,39 @@
     <dimen name="audioplayer_expanded_action_icons_margin_top">12dp</dimen>
     <dimen name="audioplayer_expanded_action_icons_margin_bottom">12dp</dimen>
     <dimen name="audioplayer_expanded_title_author_margin_end">16dp</dimen>
+    <dimen name="audioplayer_expanded_last_row_margin_top">35dp</dimen>
+    <dimen name="audioplayer_expanded_loading_margin_vertical">100dp</dimen>
+    <dimen name="audioplayer_expanded_play_speed_view_width">50dp</dimen>
+    <dimen name="audioplayer_expanded_play_speed_view_height">27dp</dimen>
     <dimen name="audioplayer_expanded_auto_play_next_margin_top">18dp</dimen>
+    <dimen name="audioplayer_expanded_add_to_playlist_margin_bottom">10dp</dimen>
 
     <dimen name="audioplayer_tablet_width">375dp</dimen>
     <dimen name="audioplayer_tablet_overlay_margin">30dp</dimen>
+
+
+    <dimen name="audioplayer_playlist_small_margin">10dp</dimen>
+    <dimen name="audioplayer_playlist_big_padding">25dp</dimen>
+    <dimen name="audioplayer_playlist_horizontal_margin">20dp</dimen>
+    <dimen name="audioplayer_playlist_close_button_margin_top">16dp</dimen>
+    <dimen name="audioplayer_playlist_close_button_margin_end">25dp</dimen>
+    <dimen name="audioplayer_playlist_dotted_line_margin_start">19dp</dimen>
+    <dimen name="audioplayer_playlist_dotted_line_margin_end">15dp</dimen>
+    <dimen name="audioplayer_playlist_delete_icon_margin">18dp</dimen>
+    <dimen name="audioplayer_playlist_margin_start">17dp</dimen>
+    <dimen name="audioplayer_playlist_margin_end">18dp</dimen>
+    <dimen name="audioplayer_playlist_big_icon_size">32dp</dimen>
+    <dimen name="audioplayer_playlist_item_padding_horizontal">16dp</dimen>
+    <dimen name="audioplayer_playlist_margin_bottom">0dp</dimen>
+    <dimen name="audioplayer_playlist_max_height">1000dp</dimen>
+
+    <dimen name="audioplayer_play_options_max_width">400dp</dimen>
+    <dimen name="audioplayer_play_options_small_margin">10dp</dimen>
+    <!-- the margin bottom is the sum of nav_bottom_height and audioplayer_small_overlay_margin -->
+    <dimen name="audioplayer_play_options_margin_bottom">73dp</dimen>
+    <dimen name="audioplayer_play_options_inner_margin">15dp</dimen>
+    <dimen name="audioplayer_play_options_text_vertical_padding">20dp</dimen>
+    <dimen name="audioplayer_play_options_icon_with_padding_size">58dp</dimen>
     <!-- endregion -->
 
     <!-- region coach marks  -->
@@ -378,22 +389,27 @@
 
     <!--  region dimens just used in LMd, but still needs to be defined inside of taz build variants   -->
     <dimen name="fragment_drawer_body_pdf_with_sections_pagina_margin_top">7dp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_pagina">14sp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_toc_header">18sp</dimen>
-    <dimen name="fragment_drawer_body_pdf_with_sections_margin_bottom">10dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_negative_margin">-3dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_small_margin">5dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_medium_margin">10dp</dimen>
+    <dimen name="fragment_drawer_body_pdf_with_sections_large_margin">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_preview_corners">0dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_padding">20dp</dimen>
     <dimen name="fragment_drawer_body_pdf_with_sections_divider_height">0.5dp</dimen>
-    <dimen name="list_item_pdf_page_toc_text_size">16sp</dimen>
-    <dimen name="list_item_pdf_page_toc_teaser_line_spacing_extra">2sp</dimen>
+    <dimen name="list_item_pdf_page_toc_teaser_margin_top">5dp</dimen>
+    <dimen name="list_item_pdf_page_toc_meta_margin_top">4dp</dimen>
     <dimen name="list_item_pdf_page_toc_bookmark_icon_left_margin">14dp</dimen>
     <!-- endregion -->
 
 
     <!-- region dimens used for the multicolumn border swipe handling -->
-    <dimen name="webview_multicolumn_pager_border_buffer">50dp</dimen>
     <dimen name="webview_multicolumn_pager_min_scroll_distance">300dp</dimen>
     <dimen name="webview_multicolumn_pager_min_vertical_scroll_detect_distance">250dp</dimen>
-    <item name="webview_multicolumn_pager_min_fling_velocity" format="float" type="dimen">3000</item>
+    <item name="webview_multicolumn_pager_min_fling_velocity" format="float" type="dimen">3000
+    </item>
+
+    <!-- Refer to App Widget Documentation for margin information
+         http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout -->
+    <dimen name="widget_margin">0dp</dimen>
     <!-- endregion -->
 </resources>

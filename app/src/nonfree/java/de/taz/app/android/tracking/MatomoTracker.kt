@@ -1,11 +1,10 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.AuthStatus
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.singletons.AuthHelper
@@ -36,6 +35,7 @@ private const val CATEGORY_BOOKMARKS = "Bookmarks"
 private const val CATEGORY_SHARE = "Share"
 private const val CATEGORY_DRAWER = "Drawer"
 private const val CATEGORY_AUDIO_PLAYER = "Audio Player"
+private const val CATEGORY_PLAYLIST = "Playlist"
 private const val CATEGORY_COACH_MARK = "Coachmark"
 private const val CATEGORY_TAP_TO_SCROLL = "Tap am Rand"
 private const val CATEGORY_ISSUE = "Issue"
@@ -210,7 +210,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "section/${section.key}"
     }
 
-    private fun articlePath(article: Article): String =
+    private fun articlePath(article: ArticleOperations): String =
         articlePath(article.key, article.mediaSyncId)
 
     private fun articlePath(articleFileName: String, mediaSyncId: Int?): String {
@@ -218,7 +218,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
         return "article/$articleFileName?id=$mediaSyncSuffix"
     }
 
-    override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section) {
+    override fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations) {
         val path = "/${issuePath(issueKey)}/${sectionPath(section)}"
         TrackHelper.track()
             .screen(path)
@@ -237,7 +237,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     override fun trackArticleScreen(
         issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: Article
+        article: ArticleOperations
     ) {
         val path =
             "/${issuePath(issueKey)}/${sectionPath(sectionOperations)}/${articlePath(article)}"
@@ -450,11 +450,7 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackShareArticleEvent(articleStub: ArticleStub) {
-        trackShareArticleEvent(articleStub.articleFileName, articleStub.mediaSyncId)
-    }
-
-    override fun trackShareArticleEvent(article: Article) {
+    override fun trackShareArticleEvent(article: ArticleOperations) {
         trackShareArticleEvent(article.key, article.mediaSyncId)
     }
 
@@ -475,6 +471,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     override fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?) {
         TrackHelper.track()
             .event(CATEGORY_SHARE, "Share Article Link")
+            .name(articlePath(articleFileName, mediaSyncId))
+            .with(matomoTracker)
+    }
+
+    override fun trackShareArticleTextEvent(articleFileName: String, mediaSyncId: Int?) {
+        TrackHelper.track()
+            .event(CATEGORY_SHARE, "Share Article Text")
             .name(articlePath(articleFileName, mediaSyncId))
             .with(matomoTracker)
     }
@@ -557,21 +560,26 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
-    override fun trackAudioPlayerPlayArticleEvent(article: Article) {
+    override fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations) {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Article")
-            .name(articlePath(article.key, article.mediaSyncId))
+            .name(articlePath(articleOperations.key, articleOperations.mediaSyncId))
             .with(matomoTracker)
     }
 
     override fun trackAudioPlayerPlayPodcastEvent(
-        issueKey: AbstractIssuePublication,
-        title: String
+        fileName: String
     ) {
-        val path = "/${issuePath(issueKey)}"
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Play Podcast")
-            .name("$path?title=$title")
+            .name(fileName)
+            .with(matomoTracker)
+    }
+
+    override fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit) {
+        TrackHelper.track()
+            .event(CATEGORY_AUDIO_PLAYER, "Play SearchHit")
+            .name(articlePath(searchHit.audioPlayerPlayableKey, searchHit.mediaSyncId))
             .with(matomoTracker)
     }
 
@@ -658,6 +666,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackPlaylistEnqueueEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_PLAYLIST, "Add to playlist")
+            .with(matomoTracker)
+    }
+
+    override fun trackPlaylistClearedEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_PLAYLIST, "Playlist cleared")
+            .with(matomoTracker)
+    }
+
     override fun trackAudioPlayerAutoplayEnableEvent() {
         TrackHelper.track()
             .event(CATEGORY_AUDIO_PLAYER, "Enable Auto Play Next")
@@ -703,6 +723,13 @@ class MatomoTracker(applicationContext: Context) : Tracker {
             .with(matomoTracker)
     }
 
+    override fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication) {
+        TrackHelper.track()
+            .event(CATEGORY_ISSUE, "Download audios")
+            .name(issueKey.date)
+            .with(matomoTracker)
+    }
+
     override fun trackArticleColumnModeEnableEvent() {
         TrackHelper.track()
             .event(CATEGORY_ARTICLE, "Enable Column Mode")
@@ -712,6 +739,18 @@ class MatomoTracker(applicationContext: Context) : Tracker {
     override fun trackArticleColumnModeDisableEvent() {
         TrackHelper.track()
             .event(CATEGORY_ARTICLE, "Disable Column Mode")
+            .with(matomoTracker)
+    }
+
+    override fun trackWidgetEnabledEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPLICATION, "Widget enabled")
+            .with(matomoTracker)
+    }
+
+    override fun trackWidgetDisabledEvent() {
+        TrackHelper.track()
+            .event(CATEGORY_APPLICATION, "Widget disabled")
             .with(matomoTracker)
     }
 }

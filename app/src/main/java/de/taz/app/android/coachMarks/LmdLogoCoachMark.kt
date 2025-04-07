@@ -4,17 +4,17 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
 
 
-class LmdLogoCoachMark(pdfPagerActivity: PdfPagerActivity, private val drawerLogo: ImageView, private val logo: Drawable) :
-    BaseCoachMark(pdfPagerActivity) {
+class LmdLogoCoachMark(pdfPagerFragment: Fragment, private val drawerLogo: ImageView, private val logo: Drawable) :
+    BaseCoachMark(pdfPagerFragment) {
 
-    private val context = pdfPagerActivity.applicationContext
+    private val context = pdfPagerFragment.requireContext().applicationContext
 
     companion object {
         suspend fun setFunctionAlreadyDiscovered(context: Context) {

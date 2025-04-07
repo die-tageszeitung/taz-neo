@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_SP
+import android.view.GestureDetector
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
@@ -18,12 +19,10 @@ import androidx.annotation.IdRes
 import androidx.annotation.UiThread
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.updatePadding
-import androidx.core.widget.NestedScrollView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.SavedStateHandle
@@ -33,7 +32,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
 import com.google.android.material.appbar.AppBarLayout
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.interfaces.SectionOperations
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -42,6 +41,7 @@ import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -60,7 +60,7 @@ import kotlin.math.ceil
 
 
 class SectionWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<Section>(application, savedStateHandle) {
+    WebViewViewModel<SectionOperations>(application, savedStateHandle) {
 
     val sectionFlow = displayableLiveData.asFlow().filterNotNull()
     val issueStubFlow = sectionFlow
@@ -74,7 +74,7 @@ class SectionWebViewViewModel(application: Application, savedStateHandle: SavedS
 const val PADDING_RIGHT_OF_LOGO = 20
 
 class SectionWebViewFragment : WebViewFragment<
-        Section,
+        SectionOperations,
         SectionWebViewViewModel,
         FragmentWebviewSectionBinding
 >() {
@@ -91,17 +91,16 @@ class SectionWebViewFragment : WebViewFragment<
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
 
+    private var sectionOperation: SectionOperations? = null
     private lateinit var sectionFileName: String
     private val isFirst: Boolean
         get() = requireArguments().getBoolean(SECTION_IS_FIRST)
 
     private var bookmarkJob: Job? = null
+    private var enqueuedJob: Job? = null
 
     override val webView: AppWebView
         get() = viewBinding.webView
-
-    override val nestedScrollView: NestedScrollView
-        get() = viewBinding.nestedScrollView
 
     override val loadingScreen: View
         get() = viewBinding.loadingScreen.root
@@ -115,12 +114,13 @@ class SectionWebViewFragment : WebViewFragment<
         private const val SECTION_FILE_NAME = "SECTION_FILE_NAME"
         private const val SECTION_IS_FIRST = "SECTION_IS_FIRST"
 
-        fun newInstance(sectionFileName: String, isFirst: Boolean): SectionWebViewFragment {
+        fun newInstance(section: SectionOperations, isFirst: Boolean): SectionWebViewFragment {
             return SectionWebViewFragment().apply {
                 arguments = bundleOf(
-                    SECTION_FILE_NAME to sectionFileName,
+                    SECTION_FILE_NAME to section.key,
                     SECTION_IS_FIRST to isFirst
                 )
+                sectionOperation = section
             }
         }
     }
@@ -143,12 +143,14 @@ class SectionWebViewFragment : WebViewFragment<
         sectionFileName = requireArguments().getString(SECTION_FILE_NAME)!!
         log.debug("Creating a SectionWebViewFragment for $sectionFileName")
 
-        lifecycleScope.launch {
-            // FIXME (johannes): this is loading the full section WITH all its articles and everything
-            //  within for EACH section pager fragment. This DOES have a performance impact
-            viewModel.displayableLiveData.postValue(
-                sectionRepository.get(sectionFileName)
-            )
+        if (sectionOperation != null) {
+            viewModel.displayableLiveData.postValue(sectionOperation)
+        } else {
+            lifecycleScope.launch {
+                viewModel.displayableLiveData.postValue(
+                    sectionRepository.getStub(sectionFileName)
+                )
+            }
         }
     }
 
@@ -159,7 +161,7 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-    override fun setHeader(displayable: Section) {
+    override fun setHeader(displayable: SectionOperations) {
         viewLifecycleOwner.lifecycleScope.launch {
             // Keep a copy of the current context while running this coroutine.
             // This is necessary to prevent from a crash while calling requireContext() if the
@@ -275,6 +277,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun onDestroyView() {
         bookmarkJob?.cancel()
+        enqueuedJob?.cancel()
         super.onDestroyView()
     }
 
@@ -337,6 +340,23 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
+    @UiThread
+    private fun runIfWebViewReady(function: () -> Unit) {
+        if (!isRendered) {
+            return
+        }
+
+        try {
+            function()
+        } catch (npe: NullPointerException) {
+            // It is possible that given function() is called from a coroutine when the
+            // fragments view is already destroyed or not ready yet. In this case the `webView`
+            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
+            // thus we catch and ignore this exception.
+        }
+    }
+
+    // region bookmark handling
     private fun setupBookmarkStateFlows(articleFileNames: List<String>) {
         // Create a new coroutine scope to listen to bookmark changes
         // When the bookmarkJob is canceled all coroutines launched from associated scope will be canceled, too
@@ -380,10 +400,18 @@ class SectionWebViewFragment : WebViewFragment<
         if (articleStub != null) {
             if (isBookmarked) {
                 bookmarkRepository.addBookmarkAsync(articleStub).await()
-                toastHelper.showToast(R.string.toast_article_bookmarked)
+                SnackBarHelper.showBookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                    anchor = bottomNavigationLayout,
+                )
             } else {
                 bookmarkRepository.removeBookmarkAsync(articleStub).await()
-                toastHelper.showToast(R.string.toast_article_debookmarked)
+                SnackBarHelper.showDebookmarkSnack(
+                    context = requireContext(),
+                    view = viewBinding.root,
+                    anchor = bottomNavigationLayout,
+                )
             }
         } else {
             log.warn("Could not set bookmark for articleName=$articleName as no articleFileName was found.")
@@ -392,39 +420,101 @@ class SectionWebViewFragment : WebViewFragment<
 
     @UiThread
     private fun setWebViewBookmarkState(articleFileName: String, isBookmarked: Boolean) {
-        if (!isRendered) {
-            return
-        }
-
         val articleName = ArticleName.fromArticleFileName(articleFileName)
-        try {
+        runIfWebViewReady {
             webView.callTazApi("onBookmarkChange", articleName, isBookmarked)
-        } catch (npe: NullPointerException) {
-            // It is possible that setWebViewBookmarkState() is called from a coroutine when the
-            // fragments view is already destroyed or not ready yet. In this case the `webView`
-            // property will be `null`. Unfortunately it is defined as non-null in kotlin,
-            // thus we catch and ignore this exception.
         }
     }
+    // endregion
+
+    // region playlist handling
+    private fun setupEnqueuedStateFlows(articleFileNames: List<String>) {
+        // Create a new coroutine scope to listen to playlist enqueue changes
+        // When the enqueuedJob is canceled all coroutines launched from associated scope will be canceled, too
+        val newEnqueuedJob = Job()
+        enqueuedJob?.cancel()
+        enqueuedJob = newEnqueuedJob
+        val enqueuedScope = CoroutineScope(Dispatchers.Default + newEnqueuedJob)
+
+        enqueuedJob?.isActive
+
+        // Create a coroutine for each article listening for its playlist enqueue changes
+        articleFileNames.forEach { articleFileName ->
+            enqueuedScope.launch {
+                audioPlayerService.isInPlaylistFlow(articleFileName).collect {
+                    withContext(Dispatchers.Main) {
+                        setWebViewEnqueuedState(articleFileName, it)
+                    }
+                }
+            }
+        }
+    }
+
+    override suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> {
+        val articleFileNames = articleNamesInWebView.mapNotNull {
+            issueViewerViewModel.findArticleStubByArticleName(it)?.articleFileName
+        }
+
+        setupEnqueuedStateFlows(articleFileNames)
+
+        val enqueuedArticlesInThisWebView = audioPlayerService.persistedPlaylistState.value.items.filter {
+            it.playableKey in articleFileNames
+        }.mapNotNull {
+            it.playableKey
+        }
+
+        return enqueuedArticlesInThisWebView
+    }
+
+    override suspend fun onEnqueued(
+        articleName: String,
+        setEnqueued: Boolean,
+    ) {
+        val articleStub = issueViewerViewModel.findArticleStubByArticleName(articleName)
+        if (articleStub != null && articleStub.hasAudio) {
+            if (setEnqueued) {
+                try {
+                    audioPlayerService.enqueueArticle(articleStub.key)
+                } catch (e: Exception) {
+                    log.error("Could not play article audio (${articleStub.key})", e)
+                }
+            } else {
+                try {
+                    audioPlayerService.removeItemFromPlaylist(articleStub.key)
+                } catch (e: Exception) {
+                    log.error("Could not remove item from playlist (${articleStub.key})", e)
+                }
+            }
+        } else {
+            log.warn("Could not set enqueued for $articleName as articleStub is null (or article has no audio).")
+        }
+    }
+
+    @UiThread
+    private fun setWebViewEnqueuedState(articleFileName: String, isEnqueued: Boolean) {
+        val articleName = ArticleName.fromArticleFileName(articleFileName)
+        runIfWebViewReady {
+            webView.callTazApi("onEnqueuedChange", articleName, isEnqueued)
+        }
+    }
+    // endregion
 
     @SuppressLint("ClickableViewAccessibility")
     private suspend fun maybeHandlePodcast() {
         val issueStub = viewModel.issueStubFlow.first()
         val section = viewModel.sectionFlow.first()
-        if (section.type == SectionType.podcast && section.podcast != null) {
+        val podcast = section.getPodcast(requireContext().applicationContext)
+        if (section.type == SectionType.podcast && podcast != null) {
             val onGestureListener = object : SimpleOnGestureListener() {
-                override fun onSingleTapUp(e: MotionEvent): Boolean {
-                    audioPlayerService.playPodcast(issueStub, section, section.podcast)
+                override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                    audioPlayerService.playPodcast(issueStub, section, podcast)
                     return true
                 }
-                // We have to "consume" (return true) the onDown event too, so that the Android
-                // event system is sending the subsequent UP event to this component.
-                override fun onDown(e: MotionEvent): Boolean = true
             }
-            val gestureDetectorCompat = GestureDetectorCompat(requireContext(), onGestureListener).apply {
+            val gestureDetectorCompat = GestureDetector(requireContext(), onGestureListener).apply {
                 setIsLongpressEnabled(false)
             }
-            webView.overrideOnTouchListener { _, event ->
+            webView.addOnTouchListener { _, event ->
                 gestureDetectorCompat.onTouchEvent(event)
             }
 

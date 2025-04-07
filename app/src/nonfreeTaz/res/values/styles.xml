@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/coverflow_text_color</item>
-        <item name="android:lineSpacingExtra">32pt</item>
-        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
-
     <!-- Override title Elements using the Knile font -->
-    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.AppCompat.TextView">
+    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.App.TextView">
         <item name="android:fontFamily">@font/appFontKnileLight</item>
         <item name="android:textSize">30sp</item>
         <item name="lineHeight">36sp</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
-
 </resources>

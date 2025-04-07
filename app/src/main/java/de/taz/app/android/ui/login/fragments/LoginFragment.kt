@@ -22,6 +22,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
     @StringRes
     private var usernameErrorId: Int? = null
+    private var usernameErrorMessage: String? = null
 
     @StringRes
     private var passwordErrorId: Int? = null
@@ -34,6 +35,13 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             return LoginFragment().also {
                 it.usernameErrorId = usernameErrorId
                 it.passwordErrorId = passwordErrorId
+            }
+        }
+        fun create(
+            errorMessage: String? = null,
+        ): LoginFragment {
+            return LoginFragment().also {
+                it.usernameErrorMessage = errorMessage
             }
         }
     }
@@ -54,6 +62,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
             fragmentLoginUsername.apply {
                 setText(viewModel.username ?: viewModel.subscriptionId?.toString())
+            }
+
+            usernameErrorMessage?.let {
+                fragmentLoginUsernameLayout.error = it
             }
 
             usernameErrorId?.let {
@@ -97,7 +109,6 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
                 }
             }
 
-
         }
 
         viewBinding.fragmentLoginSubscriptions.apply {
@@ -128,6 +139,12 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             val intent = WebViewActivity.newIntent(this, WEBVIEW_HTML_FILE_DATA_POLICY)
             startActivity(intent)
         }
+    }
+
+    override fun onDestroyView() {
+        viewBinding.fragmentLoginUsername.text?.let { viewModel.username = it.toString() }
+        viewBinding.fragmentLoginPassword.text?.let { viewModel.password = it.toString() }
+        super.onDestroyView()
     }
 
 }

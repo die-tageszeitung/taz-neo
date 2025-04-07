@@ -20,6 +20,9 @@ interface ArticleDao : BaseDao<ArticleStub> {
     @Query("SELECT * FROM Article WHERE Article.articleFileName in (:articleFileNames)")
     suspend fun get(articleFileNames: List<String>): List<ArticleStub>
 
+    @Query("SELECT * FROM Article WHERE Article.mediaSyncId == :articleMediaSyncId ORDER BY Article.dateDownload DESC LIMIT 1")
+    suspend fun getByMediaSyncId(articleMediaSyncId: Int): ArticleStub?
+
     @Query(
         """SELECT Article.* FROM Article INNER JOIN SectionArticleJoin INNER JOIN SectionArticleJoin as SAJ
             ON Article.articleFileName == SAJ.articleFileName
@@ -54,6 +57,7 @@ interface ArticleDao : BaseDao<ArticleStub> {
         WHERE Article.articleType = 'IMPRINT'
           AND Article.issueFeedName = :issueFeedName
           AND Article.issueDate = :issueDate
+        ORDER BY dateDownload DESC LIMIT 1
     """
     )
     suspend fun getImprintArticleStubForIssue(

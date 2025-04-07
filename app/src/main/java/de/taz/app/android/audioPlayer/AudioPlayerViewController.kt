@@ -1,14 +1,15 @@
 package de.taz.app.android.audioPlayer
 
+import android.content.Intent
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -19,32 +20,39 @@ import androidx.media3.ui.TimeBar
 import androidx.media3.ui.TimeBar.OnScrubListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.taz.app.android.R
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
+import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
+import de.taz.app.android.monkey.setDefaultBottomInset
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.playlist.PlaylistActivity
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 private const val CIRCULAR_PROGRESS_TICKS = 1000L
-private val PLAYBACK_SPEEDS = floatArrayOf(0.5F, 0.7F, 0.8F, 0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.5F, 2.0F)
+private val PLAYBACK_SPEEDS =
+    floatArrayOf(0.5F, 0.7F, 0.8F, 0.9F, 1.0F, 1.1F, 1.2F, 1.3F, 1.5F, 2.0F)
 private const val DELAYED_LOADING_STATE_MS = 500L
 
 private enum class DisplayMode {
@@ -84,6 +92,7 @@ class AudioPlayerViewController(
     override val coroutineContext: CoroutineContext = coroutineJob + Dispatchers.Main
 
     private lateinit var audioPlayerService: AudioPlayerService
+    private lateinit var dataStore: AudioPlayerDataStore
     private lateinit var storageService: StorageService
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
@@ -92,15 +101,17 @@ class AudioPlayerViewController(
 
     // null, unless the player is already attached to the activities views
     private var playerOverlayBinding: AudioplayerOverlayBinding? = null
-    private var boundItem: UiState.Item? = null
+    private var boundUiItem: AudioPlayerItem.UiItem? = null
     private var isTabletMode: Boolean = false
-    private var isPlaying: Boolean = false
     private var isLoading: Boolean = false
 
     private var delayedSetLoadingJob: Job? = null
 
+    private val log by Log
+
     private fun onCreate() {
         audioPlayerService = AudioPlayerService.getInstance(activity.applicationContext)
+        dataStore = AudioPlayerDataStore.getInstance(activity.applicationContext)
         storageService = StorageService.getInstance(activity.applicationContext)
         toastHelper = ToastHelper.getInstance(activity.applicationContext)
         tracker = Tracker.getInstance(activity.applicationContext)
@@ -130,6 +141,18 @@ class AudioPlayerViewController(
                 }
             }
         }
+
+        launch {
+            audioPlayerService.errorEvents.filterNotNull().collect {
+                handleErrorEvent(it)
+            }
+        }
+
+        launch {
+            audioPlayerService.playlistEvents.filterNotNull().collect{
+                handlePlaylistEvent(it)
+            }
+        }
     }
 
     private fun onStop() {
@@ -138,7 +161,7 @@ class AudioPlayerViewController(
     }
 
     private fun clearBoundData() {
-        boundItem = null
+        boundUiItem = null
     }
 
     private fun onPlayerUiChange(
@@ -146,99 +169,135 @@ class AudioPlayerViewController(
         binding: AudioplayerOverlayBinding
     ) {
         disableBackHandling()
-        if (uiState.isExpanded()) {
-            enableBackHandling()
-        }
-
-        isPlaying = uiState is UiState.Playing
 
         when (uiState) {
-            is UiState.Initializing -> binding.showLoadingState()
             UiState.Hidden -> binding.apply {
                 showLoadingState()
                 hideOverlay()
                 clearBoundData()
             }
 
-            is UiState.Paused -> binding.setupPreparedPlayer(
-                false,
-                uiState.playerState
-            )
-
-            is UiState.Playing -> binding.setupPreparedPlayer(
-                true,
-                uiState.playerState
-            )
-
-            is UiState.InitError -> {
-                if (!uiState.wasHandled) {
-                    toastHelper.showToast(R.string.audioplayer_error_generic, long = true)
-                    audioPlayerService.onErrorHandled(uiState)
-                }
+            is UiState.MaxiPlayer -> {
+                binding.enableCollapseOnTouchOutsideForMobile()
+                enableBackHandling()
+                showMaxiPlayer(uiState.playerState, binding)
             }
 
-            is UiState.Error -> {
-                binding.setupPreparedPlayer(false, uiState.playerState)
-                if (!uiState.wasHandled) {
-                    // FIXME (johannes): use custom popup
-                    toastHelper.showToast(R.string.audioplayer_error_generic, long = true)
-                    audioPlayerService.onErrorHandled(uiState)
-                }
+            is UiState.MiniPlayer -> {
+                binding.disableCollapseOnTouchOutsideForMobile()
+                showMiniPlayer(uiState.playerState, binding)
             }
-
         }
     }
 
-    private fun AudioplayerOverlayBinding.setupPreparedPlayer(isPlaying: Boolean, playerState: UiState.PlayerState) {
-        bindItem(playerState.item)
-        setupLoadingState(playerState)
+    private fun showMaxiPlayer(
+        playerState: UiState.PlayerState,
+        binding: AudioplayerOverlayBinding
+    ) {
+        launch {
+            dataStore.isFirstAudioPlayEver.set(false)
+        }
+        when (playerState) {
+            UiState.PlayerState.Initializing -> {
+                binding.showLoadingState()
+            }
 
-        if (playerState.expanded) {
-            enableCollapseOnTouchOutsideForMobile()
-            showExpandedPlayer(isPlaying, playerState.playbackSpeed, playerState.isAutoPlayNext, playerState.controls)
+            is UiState.PlayerState.Paused ->
+                binding.apply {
+                    bindItem(playerState.playerUiState.uiItem)
+                    setupLoadingState(playerState.playerUiState)
+                    showExpandedPlayer(
+                        isPlaying = false,
+                        playerState.playerUiState.playbackSpeed,
+                        playerState.playerUiState.isAutoPlayNext,
+                        playerState.playerUiState.controls
+                    )
+                }
 
-        } else {
-            disableCollapseOnTouchOutsideForMobile()
-            showSmallPlayer(isPlaying)
+            is UiState.PlayerState.Playing -> binding.apply {
+                bindItem(playerState.playerUiState.uiItem)
+                setupLoadingState(playerState.playerUiState)
+                showExpandedPlayer(
+                    isPlaying = true,
+                    playerState.playerUiState.playbackSpeed,
+                    playerState.playerUiState.isAutoPlayNext,
+                    playerState.playerUiState.controls
+                )
+            }
+        }
+
+    }
+
+    private fun showMiniPlayer(
+        playerState: UiState.PlayerState,
+        binding: AudioplayerOverlayBinding
+    ) {
+        when (playerState) {
+            // currently the loading state is only really possible with the expanded player.
+            UiState.PlayerState.Initializing -> Unit
+
+            is UiState.PlayerState.Paused -> binding.apply {
+                bindItem(playerState.playerUiState.uiItem)
+                setupLoadingState(playerState.playerUiState)
+                showSmallPlayer(isPlaying = false)
+            }
+
+            is UiState.PlayerState.Playing -> binding.apply {
+                bindItem(playerState.playerUiState.uiItem)
+                setupLoadingState(playerState.playerUiState)
+                showSmallPlayer(isPlaying = true)
+            }
         }
     }
 
-    private fun AudioplayerOverlayBinding.bindItem(item: UiState.Item) {
-        if (boundItem != item) {
+    private fun showPlaylist() {
+        activity.startActivity(
+            Intent(
+                activity, PlaylistActivity::class.java
+            ).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        )
+    }
 
-            audioTitle.text = item.title
-            audioAuthor.text = item.author ?: ""
+    private fun AudioplayerOverlayBinding.bindItem(uiItem: AudioPlayerItem.UiItem) {
+        if (boundUiItem != uiItem) {
 
-            expandedAudioTitle.text = item.title
+            audioTitle.text = uiItem.title
+            audioAuthor.text = uiItem.author ?: ""
+
+            expandedAudioTitle.text = uiItem.title
             expandedAudioAuthor.apply {
-                isVisible = item.author != null
-                text = item.author ?: ""
+                isVisible = uiItem.author != null
+                text = if (uiItem.author.isNullOrBlank()) {
+                    ""
+                } else {
+                    "von ${uiItem.author}"
+                }
             }
 
-            bindAudioImages(item)
-            setupOpenItemInteractionHandlers(item.openItemSpec)
+            bindAudioImages(uiItem)
+            setupOpenItemInteractionHandlers(uiItem.openItemSpec)
         }
-        boundItem = item
+        boundUiItem = uiItem
     }
 
-    private fun AudioplayerOverlayBinding.bindAudioImages(item: UiState.Item) {
-        if (item.coverImageUri != null) {
+    private fun AudioplayerOverlayBinding.bindAudioImages(uiItem: AudioPlayerItem.UiItem) {
+        if (uiItem.coverImageUri != null) {
             audioImage.apply {
                 isVisible = true
                 glideRequestManager.clear(this)
-                setImageURI(item.coverImageUri)
+                setImageURI(uiItem.coverImageUri)
             }
             expandedAudioImage.apply {
                 isVisible = true
                 glideRequestManager.clear(this)
-                setImageURI(item.coverImageUri)
+                setImageURI(uiItem.coverImageUri)
             }
-        } else if (item.coverImageGlidePath != null) {
+        } else if (uiItem.coverImageGlidePath != null) {
             // FIXME (johannes): on other places we use a custom signature. thus we have to re-create the image here even if it was caches before
             audioImage.apply {
                 isVisible = true
                 glideRequestManager
-                    .load(item.coverImageGlidePath)
+                    .load(uiItem.coverImageGlidePath)
                     .centerCrop()
                     .into(this)
             }
@@ -246,7 +305,7 @@ class AudioPlayerViewController(
             expandedAudioImage.apply {
                 isVisible = true
                 glideRequestManager
-                    .load(item.coverImageGlidePath)
+                    .load(uiItem.coverImageGlidePath)
                     .fitCenter()
                     .into(this)
             }
@@ -262,11 +321,11 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun setupLoadingState(playerState: UiState.PlayerState) {
-        if (isLoading != playerState.isLoading) {
-            isLoading = playerState.isLoading
+    private fun setupLoadingState(playerUiState: UiState.PlayerUiState) {
+        if (isLoading != playerUiState.isLoading) {
+            isLoading = playerUiState.isLoading
 
-            if (playerState.isLoading) {
+            if (playerUiState.isLoading) {
                 // Delay showing the loading state, to prevent some flickering when skipping to the next audio
                 launchDelayedSetLoadingJob()
 
@@ -278,6 +337,7 @@ class AudioPlayerViewController(
                     audioProgress.isIndeterminate = false
                     expandedProgress.isVisible = true
                     expandedProgressLoadingOverlay.isVisible = false
+                    // FIXME: maybe add handling of preview player of playlist here
                 }
             }
         }
@@ -375,7 +435,7 @@ class AudioPlayerViewController(
 
     private fun AudioplayerOverlayBinding.setSmallPlayerViewVisibility(isLoading: Boolean) {
         val isShowingPlayer = !isLoading
-        audioImage.isVisible = isShowingPlayer && boundItem?.hasCoverImage == true
+        audioImage.isVisible = isShowingPlayer && boundUiItem?.hasCoverImage == true
         audioTitle.isVisible = isShowingPlayer
         audioAuthor.isVisible = isShowingPlayer
         audioActionButton.isVisible = isShowingPlayer
@@ -384,18 +444,25 @@ class AudioPlayerViewController(
 
         if (isShowingPlayer) {
             smallPlayer.setOnClickListener {
-                audioPlayerService.setPlayerExpanded(expanded = true)
+                audioPlayerService.maximizePlayer()
             }
         } else {
             smallPlayer.setOnClickListener(null)
         }
     }
 
-    private fun AudioplayerOverlayBinding.showExpandedPlayer(isPlaying: Boolean, playbackSpeed: Float, isAutoPlayNext: Boolean, controls: UiState.Controls) {
+    private fun AudioplayerOverlayBinding.showExpandedPlayer(
+        isPlaying: Boolean,
+        playbackSpeed: Float,
+        isAutoPlayNext: Boolean,
+        controls: UiState.Controls
+    ) {
         positionPlayerViews(isExpanded = true)
         showOverlay()
         smallPlayer.isVisible = false
         expandedPlayer.isVisible = true
+
+        setExpandedPlayerViewVisibility(isLoading = false)
 
         val imageResourceId = if (isPlaying) {
             R.drawable.ic_pause_outline
@@ -409,22 +476,52 @@ class AudioPlayerViewController(
         }
 
         expandedSkipNextAction.apply {
-            isInvisible = (controls.skipNext == UiState.ControlValue.HIDDEN || controls.skipNext == UiState.ControlValue.DISABLED)
+            isInvisible =
+                (controls.skipNext == UiState.ControlValue.HIDDEN || controls.skipNext == UiState.ControlValue.DISABLED)
             // FIXME (johannes): get image resources for disabled
             // val imageResourceId = if (controls.skipNext == UiState.ControlValue.DISABLED) {} else {}
             // setImageResource(imageResourceId)
         }
 
         expandedSkipPreviousAction.apply {
-            isInvisible = (controls.skipPrevious == UiState.ControlValue.HIDDEN || controls.skipPrevious == UiState.ControlValue.DISABLED)
+            isInvisible =
+                (controls.skipPrevious == UiState.ControlValue.HIDDEN || controls.skipPrevious == UiState.ControlValue.DISABLED)
             // FIXME (johannes): get image resources for disabled
             // val imageResourceId = if (controls.skipPrevious == UiState.ControlValue.DISABLED) {} else {}
             // setImageResource(imageResourceId)
         }
 
         expandedAutoPlayNextSwitch.apply {
-            isGone = (controls.autoPlayNext == UiState.ControlValue.HIDDEN)
             isChecked = isAutoPlayNext
+            // the wrapping layout is hidden when it is the playlist player, so no need here
+            // to make it conditional.
+        }
+
+        val currentPlayableKey = audioPlayerService.getCurrent()?.playableKey
+
+        currentPlayableKey?.let { key ->
+            launch {
+                audioPlayerService.isInPlaylistFlow(key).collect { isInPlaylist ->
+                    expandedRemoveFromPlaylistIcon.isVisible = isInPlaylist
+                    expandedAddToPlaylistIcon.isVisible = !isInPlaylist
+                }
+            }
+        }
+
+        val next = audioPlayerService.getNextFromPlaylist()
+
+        if (next != null) {
+            expandedNextInQueue.text = next.uiItem.title
+            expandedGoToPlaylist.isVisible = false
+        } else {
+            expandedNextInQueueTitle.isVisible = false
+            expandedNextInQueue.isVisible = false
+            expandedGoToPlaylist.apply {
+                isVisible = true
+                setOnClickListener {
+                    showPlaylist()
+                }
+            }
         }
 
         if (controls.seekBreaks) {
@@ -434,13 +531,42 @@ class AudioPlayerViewController(
             expandedForwardAction.setImageResource(R.drawable.ic_forward_15)
             expandedRewindAction.setImageResource(R.drawable.ic_backward_15)
         }
+    }
 
+    private fun AudioplayerOverlayBinding.setExpandedPlayerViewVisibility(isLoading: Boolean) {
+        val isShowingPlayer = !isLoading
+        expandedAudioImage.isVisible = isShowingPlayer && boundUiItem?.hasCoverImage == true
+        expandedAudioTitle.isVisible = isShowingPlayer
+        expandedAudioAuthor.isVisible = isShowingPlayer
+        expandedPlaybackSpeed.isVisible = isShowingPlayer
+        expandedPlaybackSpeedTouchArea.isVisible = isShowingPlayer
+        expandedProgress.isVisible = isShowingPlayer
+        expandedProgressCurrentTime.isVisible = isShowingPlayer
+        expandedProgressRemainingTime.isVisible = isShowingPlayer
+        expandedSkipPreviousAction.isVisible = isShowingPlayer
+        expandedRewindAction.isVisible = isShowingPlayer
+        expandedAudioAction.isVisible = isShowingPlayer
+        expandedForwardAction.isVisible = isShowingPlayer
+        expandedSkipNextAction.isVisible = isShowingPlayer
+        expandedNextInQueueTitle.isVisible = isShowingPlayer
+        expandedNextInQueue.isVisible = isShowingPlayer
+        expandedGoToPlaylist.isVisible = isShowingPlayer
+        expandedPlaylistAction.isVisible = isShowingPlayer
+        autoPlayLayout.isVisible =
+            isShowingPlayer && !audioPlayerService.isPlaylistPlayer && boundUiItem?.type == AudioPlayerItem.Type.ARTICLE
+        toggleEnqueueLayout.isVisible =
+            isShowingPlayer && boundUiItem?.type != AudioPlayerItem.Type.PODCAST && boundUiItem?.type != AudioPlayerItem.Type.DISCLAIMER
+        playlistControls.isVisible = isShowingPlayer && audioPlayerService.isPlaylistPlayer
+        expandedLoadingMessage.isVisible = isLoading
     }
 
     private fun ensurePlayerOverlayIsAddedInFront() {
         if (playerOverlayBinding == null) {
             val playerOverlayBinding = createPlayerOverlay()
             val rootView = activity.getRootView()
+
+            playerOverlayBinding.players.setDefaultBottomInset()
+
             playerOverlayBinding.hideOverlay()
             addPlayerOverlay(rootView, playerOverlayBinding)
 
@@ -479,8 +605,9 @@ class AudioPlayerViewController(
         }
     }
 
-    private fun AudioplayerOverlayBinding.positionPlayerViews(isExpanded: Boolean) {
+    private fun AudioplayerOverlayBinding.positionPlayerViews(isExpanded: Boolean, fullScreen: Boolean = false) {
         val resources = activity.resources
+        val newHeight =  if (fullScreen) { MATCH_PARENT } else { WRAP_CONTENT }
         when (getDisplayMode(isExpanded)) {
             DISPLAY_MODE_MOBILE -> {
                 val bottomNavHeightPx = resources.getDimension(R.dimen.nav_bottom_height).toInt()
@@ -490,7 +617,7 @@ class AudioPlayerViewController(
 
                 audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = MATCH_PARENT
-                    height = WRAP_CONTENT
+                    height = newHeight
                     gravity = Gravity.BOTTOM
                     bottomMargin = bottomNavHeightPx + marginPx
                     marginStart = marginPx
@@ -501,7 +628,7 @@ class AudioPlayerViewController(
             DISPLAY_MODE_MOBILE_EXPANDED -> {
                 audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = MATCH_PARENT
-                    height = WRAP_CONTENT
+                    height = newHeight
                     gravity = Gravity.BOTTOM
                     bottomMargin = 0
                     marginStart = 0
@@ -517,7 +644,7 @@ class AudioPlayerViewController(
 
                 audioPlayerOverlay.updateLayoutParams<FrameLayout.LayoutParams> {
                     width = playerWidth
-                    height = WRAP_CONTENT
+                    height = newHeight
                     gravity = Gravity.BOTTOM or Gravity.END
                     bottomMargin = bottomNavHeightPx + marginPx
                     marginStart = marginPx
@@ -555,7 +682,7 @@ class AudioPlayerViewController(
 
         audioActionButton.setOnClickListener { toggleAudioPlaying() }
 
-        expandedCloseButton.setOnClickListener { audioPlayerService.setPlayerExpanded(expanded = false) }
+        expandedCloseButton.setOnClickListener { audioPlayerService.minimizePlayer() }
 
         expandedAudioAction.setOnClickListener { toggleAudioPlaying() }
         expandedForwardAction.setOnClickListener { audioPlayerService.seekForward() }
@@ -588,12 +715,31 @@ class AudioPlayerViewController(
         if (!isTabletMode) {
             touchOutside.setOnClickListener {
                 touchOutside.isVisible = false
-                audioPlayerService.setPlayerExpanded(expanded = false)
+                audioPlayerService.minimizePlayer()
             }
         }
+
+        expandedPlaylistAction.setOnClickListener {
+            showPlaylist()
+        }
+
+        expandedAddToPlaylistIcon.setOnClickListener {
+            val playableKey = audioPlayerService.getCurrent()?.playableKey
+            playableKey?.let {
+                audioPlayerService.enqueueArticle(it)
+            }
+        }
+
+        expandedRemoveFromPlaylistIcon.setOnClickListener {
+            val playableKey = audioPlayerService.getCurrent()?.playableKey
+            playableKey?.let {
+                audioPlayerService.removeItemFromPlaylist(it)
+            }
+        }
+
     }
 
-    private fun AudioplayerOverlayBinding.setupOpenItemInteractionHandlers(openItemSpec: UiState.OpenItemSpec?) {
+    private fun AudioplayerOverlayBinding.setupOpenItemInteractionHandlers(openItemSpec: OpenItemSpec?) {
         if (openItemSpec != null) {
             expandedAudioTitle.setOnClickListener { openItem(openItemSpec) }
             expandedAudioAuthor.setOnClickListener { openItem(openItemSpec) }
@@ -626,7 +772,7 @@ class AudioPlayerViewController(
     }
 
     private fun toggleAudioPlaying() {
-        if (isPlaying) {
+        if (audioPlayerService.isPlaying()) {
             tracker.trackAudioPlayerPauseEvent()
         } else {
             tracker.trackAudioPlayerResumeEvent()
@@ -635,29 +781,30 @@ class AudioPlayerViewController(
         audioPlayerService.toggleAudioPlaying()
     }
 
-    private fun openItem(openItemSpec: UiState.OpenItemSpec) {
+    private fun openItem(openItemSpec: OpenItemSpec) {
         // Collapse the player only if we are in the mobile mode. Keep it open in tablet mode.
-        val expanded = isTabletMode
-        audioPlayerService.setPlayerExpanded(expanded)
+        if (!isTabletMode) {
+            audioPlayerService.minimizePlayer()
+        }
         when (openItemSpec) {
-            is UiState.OpenItemSpec.OpenIssueItemSpec -> {
+            is OpenItemSpec.OpenIssueItemSpec -> {
                 launch {
                     val isPdfMode = generalDataStore.pdfMode.get()
                     val intent = if (isPdfMode) {
-                        PdfPagerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublicationWithPages(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     } else {
-                        IssueViewerActivity.newIntent(
+                        MainActivity.newIntent(
                             activity,
                             IssuePublication(openItemSpec.issueKey),
                             openItemSpec.displayableKey
                         )
                     }
 
-                    if (activity is IssueViewerActivity || activity is PdfPagerActivity) {
+                    if (activity is MainActivity) {
                         activity.finish()
                     }
                     activity.startActivity(intent)
@@ -695,7 +842,7 @@ class AudioPlayerViewController(
     // region back handling
     private val onBackPressedCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            audioPlayerService.setPlayerExpanded(false)
+            audioPlayerService.minimizePlayer()
         }
     }
 
@@ -769,4 +916,50 @@ class AudioPlayerViewController(
         if (!isTabletMode) touchOutside.isVisible = false
     }
     // endregion helpers
+
+    private fun handleErrorEvent(errorEvent: AudioPlayerErrorEvent) {
+        // FIXME: add better handling. maybe add strings here
+        when (errorEvent) {
+            is AudioPlayerFatalErrorEvent -> toastHelper.showToast(errorEvent.message, long = true)
+            is AudioPlayerInfoErrorEvent -> toastHelper.showToast(errorEvent.message, long = true)
+        }
+        audioPlayerService.onErrorEventHandled(errorEvent)
+    }
+
+    private fun handlePlaylistEvent(event: AudioPlayerPlaylistEvent) {
+        val rootView = activity.window.decorView.rootView
+        val anchorView =
+            if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
+                rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
+            } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.isShown == true) {
+                rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
+            } else {
+                null
+            }
+        when (event) {
+            AudioPlayerPlaylistAddedEvent -> {
+                SnackBarHelper.showPlayListSnack(
+                    context = this.activity,
+                    view = rootView,
+                    anchor = anchorView
+                )
+            }
+            AudioPlayerPlaylistRemovedEvent -> {
+                SnackBarHelper.showRemoveFromPlaylistSnack(
+                    context = this.activity,
+                    view = rootView,
+                    anchor = anchorView
+                )
+            }
+            AudioPlayerPlaylistAlreadyEnqueuedEvent -> {
+                SnackBarHelper.showAlreadyInPlaylistSnack(
+                    context = this.activity,
+                    view = rootView,
+                    anchor = anchorView
+                )
+            }
+            AudioPlayerPlaylistErrorEvent -> toastHelper.showToast("Playlist Error", long = true)
+        }
+        audioPlayerService.onPlaylistEventHandled(event)
+    }
 }

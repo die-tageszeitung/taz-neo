@@ -12,8 +12,6 @@ data class Image(
     override val moTime: Long,
     override val sha256: String,
     override val size: Long,
-    @Deprecated("folder field deprecated, file path now stored in path")
-    override val folder: String,
     override val path: String,
     val type: ImageType,
     val alpha: Float,
@@ -28,7 +26,6 @@ data class Image(
         moTime = fileEntry.moTime,
         sha256 = fileEntry.sha256,
         size = fileEntry.size,
-        folder = fileEntry.folder,
         path = fileEntry.path,
         type = imageStub.type,
         alpha = imageStub.alpha,

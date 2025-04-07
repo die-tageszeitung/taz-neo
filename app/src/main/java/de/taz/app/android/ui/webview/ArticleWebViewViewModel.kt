@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.SectionStub
 import kotlinx.coroutines.flow.Flow
@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.shareIn
 
 class ArticleWebViewViewModel(application: Application, savedStateHandle: SavedStateHandle) :
-    WebViewViewModel<Article>(application, savedStateHandle) {
+    WebViewViewModel<ArticleOperations>(application, savedStateHandle) {
 
-    val articleFlow: Flow<Article> = displayableLiveData.asFlow().filterNotNull()
+    val articleFlow: Flow<ArticleOperations> = displayableLiveData.asFlow().filterNotNull()
     val sectionStubFlow: Flow<SectionStub> = articleFlow
         .mapNotNull {
             it.getSectionStub(application.applicationContext)

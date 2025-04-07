@@ -1,10 +1,9 @@
 package de.taz.app.android.tracking
 
 import android.content.Context
+import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.Article
-import de.taz.app.android.api.models.ArticleStub
-import de.taz.app.android.api.models.Section
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.util.SingletonHolder
 
@@ -71,12 +70,12 @@ interface Tracker {
     fun trackBookmarkListScreen()
     fun trackSearchScreen()
     fun trackSettingsScreen()
-    fun trackSectionScreen(issueKey: AbstractIssuePublication, section: Section)
+    fun trackSectionScreen(issueKey: AbstractIssuePublication, section: SectionOperations)
     fun trackPdfPageScreen(issueKey: AbstractIssuePublication, pagina: String)
     fun trackArticleScreen(
         issueKey: AbstractIssuePublication,
         sectionOperations: SectionOperations,
-        article: Article
+        article: ArticleOperations
     )
     fun trackErrorReportScreen()
     fun trackWebViewScreen(htmlFile: String)
@@ -115,11 +114,11 @@ interface Tracker {
     fun trackAddBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackRemoveBookmarkEvent(articleFileName: String, mediaSyncId: Int?)
 
-    fun trackShareArticleEvent(article: Article)
-    fun trackShareArticleEvent(articleStub: ArticleStub)
+    fun trackShareArticleEvent(article: ArticleOperations)
     fun trackShareArticleEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticlePdfEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareArticleLinkEvent(articleFileName: String, mediaSyncId: Int?)
+    fun trackShareArticleTextEvent(articleFileName: String, mediaSyncId: Int?)
     fun trackShareMomentEvent(issueKey: AbstractIssuePublication)
 
     fun trackDrawerOpenEvent(dragged: Boolean)
@@ -134,11 +133,11 @@ interface Tracker {
     fun trackDrawerToggleAllSectionsEvent()
     fun trackDrawerToggleSectionEvent()
 
-    fun trackAudioPlayerPlayArticleEvent(article: Article)
+    fun trackAudioPlayerPlayArticleEvent(articleOperations: ArticleOperations)
     fun trackAudioPlayerPlayPodcastEvent(
-        issueKey: AbstractIssuePublication,
-        title: String
+        fileName: String
     )
+    fun trackAudioPlayerPlaySearchHitEvent(searchHit: SearchHit)
     fun trackAudioPlayerChangePlaySpeedEvent(playbackSpeed: Float)
     fun trackAudioPlayerMaximizeEvent()
     fun trackAudioPlayerMinimizeEvent()
@@ -152,6 +151,8 @@ interface Tracker {
     fun trackAudioPlayerSeekPositionEvent()
     fun trackAudioPlayerResumeEvent()
     fun trackAudioPlayerPauseEvent()
+    fun trackPlaylistEnqueueEvent()
+    fun trackPlaylistClearedEvent()
     fun trackAudioPlayerAutoplayEnableEvent()
     fun trackAudioPlayerAutoplayDisableEvent()
 
@@ -161,9 +162,13 @@ interface Tracker {
     fun trackTapToScrollSettingStatusEvent(enable: Boolean)
 
     fun trackIssueDownloadEvent(issueKey: AbstractIssuePublication)
+    fun trackIssueDownloadAudiosEvent(issueKey: AbstractIssuePublication)
 
     fun trackTestTrackingGoal()
 
     fun trackArticleColumnModeEnableEvent()
     fun trackArticleColumnModeDisableEvent()
+
+    fun trackWidgetEnabledEvent()
+    fun trackWidgetDisabledEvent()
 }

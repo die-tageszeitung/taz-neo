@@ -1,21 +1,20 @@
 package de.taz.app.android.ui.drawer.sectionList
 
-import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.LineHeightSpan
 import android.text.style.TextAppearanceSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Article
+import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +29,7 @@ class ArticleItemViewHolder(
     parent: ViewGroup,
     private val onArticleClick: (Article) -> Unit,
     private val onBookmarkClick: (Article) -> Unit,
+    private val onAudioEnqueueClick: (Article, Boolean) -> Unit,
     private val getBookmarkStateFlow: (String) -> Flow<Boolean>
 ) :
     RecyclerView.ViewHolder(
@@ -41,12 +41,15 @@ class ArticleItemViewHolder(
     ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+    private val audioPlayerService: AudioPlayerService = AudioPlayerService.getInstance(itemView.context.applicationContext)
 
     private var titleTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_title)
     private var teaserTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_teaser)
     private var authorAndReadMinutesTextView: TextView = itemView.findViewById(R.id.fragment_drawer_article_author_and_read_minutes)
     private var articleImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_image)
     private var bookmarkIconImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_article_bookmark_icon)
+    private var audioEnqueueImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_audio_enqueue)
+    private var audioEnqueuedImageView: ImageView = itemView.findViewById(R.id.fragment_drawer_audio_enqueued)
 
     private val fileHelper = StorageService.getInstance(parent.context.applicationContext)
 
@@ -78,7 +81,10 @@ class ArticleItemViewHolder(
         }
         val twoStyledSpannable = constructAuthorsAndReadMinutesSpannable(authorsString, readMinutesString)
 
-        authorAndReadMinutesTextView.setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+        authorAndReadMinutesTextView.apply {
+            isVisible = twoStyledSpannable.isNotEmpty()
+            setText(twoStyledSpannable, TextView.BufferType.SPANNABLE)
+        }
 
         if (article.imageList.isNotEmpty()) {
             fileHelper.getAbsolutePath(article.imageList.first())?.let {
@@ -97,12 +103,37 @@ class ArticleItemViewHolder(
         bookmarkIconImageView.setOnClickListener {
             onBookmarkClick(article)
         }
+
+
         itemView.setOnClickListener {
             onArticleClick(article)
         }
 
         launch {
-            getBookmarkStateFlow(article.key).collect {isBookmarked ->
+            audioPlayerService.isInPlaylistFlow(article).collect { isEnqueued ->
+                if (article.audio != null)
+                    if (isEnqueued) {
+                        audioEnqueuedImageView.visibility = View.VISIBLE
+                        audioEnqueueImageView.visibility = View.GONE
+                        audioEnqueuedImageView.setOnClickListener {
+                            onAudioEnqueueClick(article, isEnqueued)
+                        }
+                    } else {
+                        audioEnqueuedImageView.visibility = View.GONE
+                        audioEnqueueImageView.visibility = View.VISIBLE
+                        audioEnqueueImageView.setOnClickListener {
+                            onAudioEnqueueClick(article, isEnqueued)
+                        }
+                    }
+                else {
+                    audioEnqueueImageView.visibility = View.GONE
+                    audioEnqueuedImageView.visibility = View.GONE
+                }
+            }
+        }
+
+        launch {
+            getBookmarkStateFlow(article.key).collect { isBookmarked ->
                 if (isBookmarked) {
                     bookmarkIconImageView.setImageResource(R.drawable.ic_bookmark_filled)
                 } else {
@@ -154,7 +185,7 @@ class ArticleItemViewHolder(
 
         if (authorSpanStart < authorSpanEnd) {
             text.setSpan(
-                TextAppearanceSpan(itemView.context, R.style.TextAppearance_Bookmarks_Entry_Author),
+                TextAppearanceSpan(itemView.context, R.style.TextAppearance_App_Drawer_Sections_Article_Meta_Author),
                 0,
                 authors.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -165,24 +196,12 @@ class ArticleItemViewHolder(
             text.setSpan(
                 TextAppearanceSpan(
                     itemView.context,
-                    R.style.TextAppearance_Bookmarks_Entry_ReadMinutes
+                    R.style.TextAppearance_App_Drawer_Sections_Article_Meta_ReadMinutes
                 ),
                 readMinutesSpanStart,
                 readMinutesSpanEnd,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val newLineHeight =
-                    itemView.context.applicationContext.resources.getDimensionPixelSize(
-                        R.dimen.fragment_bookmarks_article_item_read_minutes_line_height
-                    )
-                text.setSpan(
-                    LineHeightSpan.Standard(newLineHeight),
-                    readMinutesSpanStart,
-                    readMinutesSpanEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
         }
 
         return text

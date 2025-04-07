@@ -1,0 +1,9 @@
+package de.taz.app.android.audioPlayer
+
+sealed interface AudioPlayerPlaylistEvent
+
+data object AudioPlayerPlaylistAddedEvent: AudioPlayerPlaylistEvent
+data object AudioPlayerPlaylistErrorEvent: AudioPlayerPlaylistEvent
+data object AudioPlayerPlaylistRemovedEvent: AudioPlayerPlaylistEvent
+data object AudioPlayerPlaylistAlreadyEnqueuedEvent: AudioPlayerPlaylistEvent
+

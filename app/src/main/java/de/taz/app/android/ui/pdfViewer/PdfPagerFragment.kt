@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -27,8 +28,7 @@ import kotlinx.coroutines.launch
  * The PdfPagerFragment uses a [ReaderView] to render the [PdfPagerViewModel.pdfPageList]
  */
 class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
-
-    private val pdfPagerViewModel: PdfPagerViewModel by activityViewModels()
+    private val pdfPagerViewModel: PdfPagerViewModel by viewModels({requireParentFragment()})
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
@@ -104,7 +104,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     private val onCoordinatesClickedListener =
         OnCoordinatesClickedListener { page, xPage, yPage, xAbs, yAbs ->
-            viewLifecycleOwner.lifecycleScope.launch {
+            lifecycleScope.launch {
                 if (tazApiCssDataStore.tapToScroll.get()) {
                     handleClickWithTapToScroll(page, xPage, yPage, xAbs, yAbs)
                 } else {

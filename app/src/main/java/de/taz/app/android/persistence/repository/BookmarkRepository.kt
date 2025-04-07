@@ -2,9 +2,18 @@ package de.taz.app.android.persistence.repository
 
 import android.content.Context
 import androidx.room.withTransaction
+import de.taz.app.android.api.ApiService
+import de.taz.app.android.api.ConnectivityException
+import de.taz.app.android.api.dto.BookmarkRepresentation
+import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.models.Article
 import de.taz.app.android.api.models.ArticleBookmarkTime
 import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.models.SynchronizeFromType
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +50,14 @@ class BookmarkRepository(
 
     companion object : SingletonHolder<BookmarkRepository, Context>(::BookmarkRepository)
 
+    private val apiService = ApiService.getInstance(applicationContext)
+    private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val bookmarkSynchronizationRepository =
+        BookmarkSynchronizationRepository.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
+    private val generalDataStore = GeneralDataStore.getInstance(applicationContext)
+    private val issueRepository = IssueRepository.getInstance(applicationContext)
+    private val momentRepository = MomentRepository.getInstance(applicationContext)
 
     // When iterating a set we have to prevent structural changes.
     // This is why we lock changes to the set
@@ -69,20 +86,25 @@ class BookmarkRepository(
         stateChangeFlow.emit(Unit)
     }
 
-    fun toggleBookmarkAsync(article: Article): Deferred<Boolean> =
-        toggleBookmarkAsync(article.key, article.mediaSyncId)
+    fun toggleBookmarkAsync(article: ArticleOperations): Deferred<Boolean> =
+        toggleBookmarkAsync(article.key, article.mediaSyncId, article.issueDate)
 
-    fun toggleBookmarkAsync(articleStub: ArticleStub): Deferred<Boolean> =
-        toggleBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
-
-    private fun toggleBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Boolean> {
-        return coroutineScope.async { toggleBookmark(articleFileName, mediaSyncId) }
+    private fun toggleBookmarkAsync(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        articleDate: String
+    ): Deferred<Boolean> {
+        return coroutineScope.async { toggleBookmark(articleFileName, mediaSyncId, articleDate) }
     }
 
     /**
      * Return [Boolean] new bookmark status of the article
      */
-    private suspend fun toggleBookmark(articleFileName: String, mediaSyncId: Int?): Boolean {
+    private suspend fun toggleBookmark(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        articleDate: String
+    ): Boolean {
         val wasBookmarked: Boolean
         changeMutex.withLock {
             wasBookmarked = state.remove(articleFileName)
@@ -94,51 +116,95 @@ class BookmarkRepository(
         // Sync the new state with the database
         if (wasBookmarked) {
             setArticleBookmark(articleFileName, null)
+            handleRemoveBookmarkWhenSynchronizationIsEnabled(mediaSyncId)
             tracker.trackRemoveBookmarkEvent(articleFileName, mediaSyncId)
         } else {
             setArticleBookmark(articleFileName, Date())
+            handleSaveBookmarkWhenSynchronizationIsEnabled(mediaSyncId, articleDate)
             tracker.trackAddBookmarkEvent(articleFileName, mediaSyncId)
         }
         triggerStateFlowUpdate()
         return !wasBookmarked
     }
 
-    fun addBookmarkAsync(article: Article): Deferred<Unit> =
-        addBookmarkAsync(article.key, article.mediaSyncId)
+    /**
+     * To not end in a sync loop we need the [fromRemote] flag. This indicates that the bookmark is
+     * added because of synchronisation and will not trigger synchronization though.
+     */
+    fun addBookmarkAsync(article: ArticleOperations, fromRemote: Boolean = false): Deferred<Unit> =
+        addBookmarkAsync(article.key, article.mediaSyncId, article.issueDate, fromRemote)
 
     fun addBookmarkAsync(articleStub: ArticleStub): Deferred<Unit> =
-        addBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
+        addBookmarkAsync(
+            articleStub.articleFileName,
+            articleStub.mediaSyncId,
+            articleStub.issueDate,
+            fromRemote = false
+        )
 
-    private fun addBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Unit> {
-        return coroutineScope.async { addBookmark(articleFileName, mediaSyncId) }
+    private fun addBookmarkAsync(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        articleDate: String,
+        fromRemote: Boolean
+    ): Deferred<Unit> {
+        return coroutineScope.async {
+            addBookmark(
+                articleFileName,
+                mediaSyncId,
+                articleDate,
+                fromRemote
+            )
+        }
     }
 
-    suspend fun addBookmark(article: Article) = addBookmark(article.key, article.mediaSyncId)
+    suspend fun addBookmark(article: ArticleOperations) =
+        addBookmark(article.key, article.mediaSyncId, article.issueDate, fromRemote = false)
 
-    private suspend fun addBookmark(articleFileName: String, mediaSyncId: Int?) {
+    private suspend fun addBookmark(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        articleDate: String,
+        fromRemote: Boolean
+    ) {
         changeMutex.withLock {
             state.add(articleFileName)
         }
         setArticleBookmark(articleFileName, Date())
+        if (!fromRemote) {
+            handleSaveBookmarkWhenSynchronizationIsEnabled(mediaSyncId, articleDate)
+        }
         tracker.trackAddBookmarkEvent(articleFileName, mediaSyncId)
         triggerStateFlowUpdate()
     }
 
-    fun removeBookmarkAsync(article: Article): Deferred<Unit> =
-        removeBookmarkAsync(article.key, article.mediaSyncId)
+    /**
+     * To not end in a sync loop we need the [fromRemote] flag. This indicates that the bookmark is
+     * removed because of synchronisation and will not trigger synchronization again.
+     */
+    fun removeBookmarkAsync(article: ArticleOperations, fromRemote: Boolean = false): Deferred<Unit> =
+        removeBookmarkAsync(article.key, article.mediaSyncId, fromRemote)
 
-    fun removeBookmarkAsync(articleStub: ArticleStub): Deferred<Unit> =
-        removeBookmarkAsync(articleStub.articleFileName, articleStub.mediaSyncId)
-
-    private fun removeBookmarkAsync(articleFileName: String, mediaSyncId: Int?): Deferred<Unit> {
-        return coroutineScope.async { removeBookmark(articleFileName, mediaSyncId) }
+    private fun removeBookmarkAsync(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        fromRemote: Boolean = false
+    ): Deferred<Unit> {
+        return coroutineScope.async { removeBookmark(articleFileName, mediaSyncId, fromRemote) }
     }
 
-    private suspend fun removeBookmark(articleFileName: String, mediaSyncId: Int?) {
+    private suspend fun removeBookmark(
+        articleFileName: String,
+        mediaSyncId: Int?,
+        fromRemote: Boolean
+    ) {
         changeMutex.withLock {
             state.remove(articleFileName)
         }
         setArticleBookmark(articleFileName, null)
+        if (!fromRemote) {
+            handleRemoveBookmarkWhenSynchronizationIsEnabled(mediaSyncId)
+        }
         tracker.trackRemoveBookmarkEvent(articleFileName, mediaSyncId)
         triggerStateFlowUpdate()
     }
@@ -255,4 +321,209 @@ class BookmarkRepository(
         //   including an outdated bookmarkTime.
         appDatabase.articleDao().updateBookmarkedTime(ArticleBookmarkTime(articleFileName, date))
     }
+
+    // region bookmark synchronization functions
+    // TODO(eike): Move all those functions of this region to a BookmarkSyncService Singleton!
+
+    private val checkMutex = Mutex()
+    /**
+     * Get all remote bookmark and compare them with the local ones. Handle then accordingly.
+     */
+    suspend fun checkForSynchronizedBookmarks() = checkMutex.withLock {
+        log.verbose("Check for bookmarks to synchronize")
+
+        val changedToEnabled = generalDataStore.bookmarksSynchronizationChangedToEnabled.get()
+
+        // When synchronization is freshly enabled put local bookmarks to synchronisation table:
+        if (changedToEnabled) {
+            addBookmarksToSynchronizationTable()
+        }
+
+        try {
+            val remoteBookmarks = apiService.getSynchronizedBookmarks()
+            if (remoteBookmarks != null) {
+                val currentBookmarks = getBookmarkedArticleStubs().mapNotNull {
+                    it.mediaSyncId?.let { mediaSyncId ->
+                        BookmarkRepresentation(
+                            mediaSyncId, it.issueDate
+                        )
+                    }
+                }
+                val newRemoteBookmarks = remoteBookmarks.filterNot { remote ->
+                    remote.mediaSyncId in currentBookmarks.map { it.mediaSyncId }
+                }
+                log.verbose("New remote bookmarks to synchronize: ${newRemoteBookmarks.map { it.mediaSyncId }}")
+
+                val localButNotOnRemote = currentBookmarks.filterNot { current ->
+                    current.mediaSyncId in remoteBookmarks.map { it.mediaSyncId }
+                }
+                log.verbose("local bookmarks not on remote: ${localButNotOnRemote.map { it.mediaSyncId }}")
+
+                handleLocalButNotOnRemoteBookmarks(localButNotOnRemote)
+                handleRemoteButNotLocalBookmarks(newRemoteBookmarks)
+            }
+        } catch (ce: ConnectivityException) {
+            log.warn("${ce.message}")
+        } catch (e: Exception) {
+            log.warn("$e")
+            val msg = "Something went wrong fetching synchronized bookmarks"
+            log.warn(msg)
+            SentryWrapper.captureException(e)
+        }
+    }
+
+    suspend fun checkForSynchronizedBookmarksIfEnabled() {
+        val bookmarksSynchronizationEnabled =
+            generalDataStore.bookmarksSynchronizationEnabled.get()
+        if (bookmarksSynchronizationEnabled) {
+            checkForSynchronizedBookmarks()
+        }
+    }
+
+    /**
+     * Find out if [remoteButNotLocalBookmarks] need to be synchronized or added locally.
+     * Therefore we look at the timestamp of when we locally changed it:
+     */
+    suspend fun handleRemoteButNotLocalBookmarks(remoteButNotLocalBookmarks: List<BookmarkRepresentation>) {
+        // check if need to be deleted on remote or added locally:
+        remoteButNotLocalBookmarks.forEach {
+            val bookmarkSynchronization = bookmarkSynchronizationRepository.get(it.mediaSyncId)
+            if (bookmarkSynchronization?.locallyChangedTime != null) {
+                deleteRemoteBookmark(it.mediaSyncId)
+            } else {
+                addLocalBookmark(it)
+            }
+        }
+    }
+
+    private suspend fun addLocalBookmark(newRemoteBookmarks: BookmarkRepresentation) {
+        var articleStub = articleRepository.getStubByMediaSyncId(newRemoteBookmarks.mediaSyncId)
+        // If not already in db download metadata
+        var issue: IssueOperations? = null
+        if (articleStub == null) {
+            issue = contentService.downloadIssueMetadata(newRemoteBookmarks.date)
+        }
+
+        articleStub =
+            articleStub ?: articleRepository.getStubByMediaSyncId(newRemoteBookmarks.mediaSyncId)
+        if (articleStub != null) {
+            // Download article
+            val article = contentService.downloadArticle(
+                articleStub.articleFileName, articleStub.issueDate
+            )
+            // Download Issue meta data to display issues moment in bookmark list
+            issue ?: issueRepository.getIssueStubForArticle(articleStub.key)?.let { issue ->
+                val moment = momentRepository.get(issue.issueKey)
+                if (moment != null) {
+                    contentService.downloadToCache(moment)
+                }
+            }
+
+            if (article != null) {
+                // Set bookmark
+                addBookmarkAsync(article, fromRemote = true)
+                bookmarkSynchronizationRepository.save(
+                    newRemoteBookmarks, SynchronizeFromType.REMOTE, null, Date()
+                )
+            }
+        }
+    }
+
+    /**
+     * Find out if [localButNotRemoteBookmarks] needs to be synchronized or deleted locally.
+     * Therefore we look at the timestamp of when we bookmarked it:
+     */
+    private suspend fun handleLocalButNotOnRemoteBookmarks(localButNotRemoteBookmarks: List<BookmarkRepresentation>) {
+        localButNotRemoteBookmarks.forEach {
+            val bookmarkSynchronization = bookmarkSynchronizationRepository.get(it.mediaSyncId)
+            val originallyFromLocal = bookmarkSynchronization?.from == SynchronizeFromType.LOCAL
+            val notYetSynchronized =  bookmarkSynchronization?.synchronizedTime == null
+            // Check if it is not synchronized, then push it to remote:
+            if (originallyFromLocal && notYetSynchronized) {
+                pushLocalBookmarkToRemote(it)
+                log.verbose("article ${it.mediaSyncId} pushed to remote.")
+            } else {
+                // Otherwise delete it locally:
+                val article = articleRepository.getStubByMediaSyncId(it.mediaSyncId)
+                if (article != null) {
+                    removeBookmarkAsync(article, fromRemote = true)
+                    bookmarkSynchronizationRepository.delete(it.mediaSyncId)
+                    log.verbose("article ${it.mediaSyncId} deleted locally as not on remote anymore.")
+                }
+            }
+        }
+    }
+
+    private suspend fun deleteRemoteBookmark(articleMediaSyncId: Int) {
+        try {
+            val success = apiService.deleteRemoteBookmark(articleMediaSyncId)
+            if (success) {
+                bookmarkSynchronizationRepository.delete(articleMediaSyncId)
+            }
+        } catch (e: Exception) {
+            bookmarkSynchronizationRepository.markAsLocallyChanged(articleMediaSyncId)
+            log.warn("Could not synchronize deleted bookmark. ${e.message}")
+        }
+    }
+
+    private suspend fun pushLocalBookmarkToRemote(bookmarkRepresentation: BookmarkRepresentation) {
+        bookmarkSynchronizationRepository.save(bookmarkRepresentation, SynchronizeFromType.LOCAL)
+        try {
+            val success = apiService.saveSynchronizedBookmark(
+                bookmarkRepresentation.mediaSyncId, bookmarkRepresentation.date
+            )
+            if (success) {
+                bookmarkSynchronizationRepository.markAsSynchronized(bookmarkRepresentation)
+            }
+        } catch (e: Exception) {
+            bookmarkSynchronizationRepository.markAsLocallyChanged(bookmarkRepresentation.mediaSyncId)
+            log.warn("Could not synchronize bookmark. ${e.message}")
+        }
+    }
+
+    private suspend fun handleRemoveBookmarkWhenSynchronizationIsEnabled(articleMediaSyncId: Int?) {
+        if (articleMediaSyncId == null) {
+            return
+        }
+        val bookmarksSynchronizationEnabled = generalDataStore.bookmarksSynchronizationEnabled.get()
+        if (bookmarksSynchronizationEnabled) {
+            deleteRemoteBookmark(articleMediaSyncId)
+        }
+    }
+
+    private suspend fun handleSaveBookmarkWhenSynchronizationIsEnabled(
+        articleMediaSyncId: Int?,
+        articleDate: String,
+    ) {
+        if (articleMediaSyncId == null) {
+            return
+        }
+        val bookmarksSynchronizationEnabled = generalDataStore.bookmarksSynchronizationEnabled.get()
+        if (bookmarksSynchronizationEnabled) {
+            val bookmarkRepresentation = BookmarkRepresentation(articleMediaSyncId, articleDate)
+            pushLocalBookmarkToRemote(bookmarkRepresentation)
+        }
+    }
+
+    /**
+     * Creates [BookmarkRepresentation] of all bookmarked articles and adds them to the
+     * [BookmarkSynchronizationRepository].
+     * So the synchronization process later on can handle them properly.
+     */
+    private suspend fun addBookmarksToSynchronizationTable() {
+        getBookmarkedArticleStubs().forEach {
+            val bookmarkRepresentation = it.mediaSyncId?.let { mediaSyncId ->
+                BookmarkRepresentation(
+                    mediaSyncId, it.issueDate
+                )
+            }
+            bookmarkRepresentation?.let {
+                bookmarkSynchronizationRepository.save(
+                    it, SynchronizeFromType.LOCAL, Date(), null
+                )
+            }
+        }
+        generalDataStore.bookmarksSynchronizationChangedToEnabled.set(false)
+    }
+    // endregion
 }

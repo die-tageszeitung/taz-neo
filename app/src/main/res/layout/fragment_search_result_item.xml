@@ -11,57 +11,49 @@
 
     <TextView
         android:id="@+id/search_result_title"
+        style="@style/Widget.App.Search.Entry.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/appFontOldBold"
-        android:lineSpacingExtra="@dimen/search_result_title_line_spacing_extra"
-        android:textSize="@dimen/search_result_title_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem" />
 
     <TextView
         android:id="@+id/search_result_author"
-        style="@style/TextAppearance.Search.Entry.Author"
+        style="@style/Widget.App.Search.Entry.Author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/search_result_author_margin_top"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_title"
         tools:text="@tools:sample/first_names" />
 
     <TextView
         android:id="@+id/search_result_snippet"
+        style="@style/Widget.App.Search.Entry.Snippet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_result_snippet_margin_top"
-        android:fontFamily="@font/appFontAlternative"
-        android:lineSpacingExtra="@dimen/search_result_snippet_line_spacing_extra"
-        android:lineSpacingMultiplier="0"
-        android:textSize="@dimen/search_result_snippet_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_author"
         tools:text="Langer teaser Text, der beschreibt was in dem Artikel behandelt wird oder so ähnlich. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden.. Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden. . Ähnlich ist ein Wort, welches eiones neuen Satzes benötigt um zu testen, ob es mehr als drei Zeilen werden." />
 
     <TextView
         android:id="@+id/search_result_date"
-        style="@style/TextAppearance.Search.Entry.Date"
+        style="@style/Widget.App.Search.Entry.Meta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
         tools:text="13.12.2022" />
 
     <TextView
         android:id="@+id/search_result_section"
-        style="@style/TextAppearance.Search.Entry.Section"
+        style="@style/Widget.App.Search.Entry.Meta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/search_results_small_margin"
         android:layout_marginTop="@dimen/search_results_small_margin"
-        android:textSize="@dimen/search_result_small_text_size"
         app:layout_constraintStart_toEndOf="@id/search_result_date"
         app:layout_constraintTop_toBottomOf="@id/search_result_snippet"
         tools:text="politik" />
@@ -81,7 +73,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/fragment_drawer_separator_line_height"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="25dp"
         android:background="@color/textColor"
         app:layout_constraintTop_toBottomOf="@id/search_result_section" />
 </androidx.constraintlayout.widget.ConstraintLayout>

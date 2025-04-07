@@ -2,7 +2,9 @@ package de.taz.app.android.audioPlayer
 
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -11,13 +13,23 @@ import com.google.common.util.concurrent.ListenableFuture
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 
+
 /**
  * Android Service that is started (in foreground) to allow the App to continue playing when it is
  * minimized and to be controlled via the Android Notifications.
  * see https://developer.android.com/guide/topics/media/media3/getting-started/playing-in-background
  */
 class ArticleAudioMediaSessionService : MediaSessionService() {
-    private var mediaSession: MediaSession? = null
+
+    companion object {
+        // Workaround to be able to call functions directly on the ExoPlayer instead of the more
+        // generic Player interface implemented by MediaController.
+        // We need this to be able to set ExoPlayer#setPauseAtEndOfMediaItems()
+        internal var mediaSession: MediaSession? = null
+            private set
+        internal val exoPlayer: ExoPlayer?
+            get() = mediaSession?.player as? ExoPlayer
+    }
 
     private val mediaSessionCallback = ArticleAudioMediaSessionCallback(this)
 
@@ -82,7 +94,6 @@ private class ArticleAudioMediaSessionCallback(private val mediaSessionService: 
         return Futures.immediateFuture(mediaItemsWithLocalUriInfo)
     }
 
-
     override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
         super.onDisconnected(session, controller)
 
@@ -95,5 +106,20 @@ private class ArticleAudioMediaSessionCallback(private val mediaSessionService: 
             // controls from the notification area.
             mediaSessionService.stopSelf()
         }
+    }
+
+
+    /**
+     * Override the onPlaybackResumption function with an implementation returning an empty result.
+     * As per media3 docs this should not be called for our AudioPlayer, but it seems some Samsung
+     * implementations still try to call it.
+     */
+    @androidx.annotation.OptIn(UnstableApi::class)
+    override fun onPlaybackResumption(
+        mediaSession: MediaSession,
+        controller: MediaSession.ControllerInfo
+    ): ListenableFuture<MediaSession.MediaItemsWithStartPosition> {
+        val emptyMediaItems = MediaSession.MediaItemsWithStartPosition(emptyList(), C.INDEX_UNSET, C.TIME_UNSET)
+        return Futures.immediateFuture(emptyMediaItems)
     }
 }

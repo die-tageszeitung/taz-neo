@@ -137,6 +137,30 @@ var tazApi = (function() {
         ANDROIDAPI.setBookmark(articleName, isBookmarked, showNotification)
     }
 
+    /**
+    * Load the enqueued Articles for the current Section.
+    * setupEnqueuedCallback(articleNames) is called with an array of the names of all
+    * enqueued articles (without the .html suffix).
+    */
+    function getEnqueuedArticles(setupEnqueuedCallback) {
+        // Find all articles names listed on the current section
+        // this is necessary for title sections where the graphql does *not* return all articles
+        var articleNames = [];
+        var enqueuedElements = document.getElementsByClassName("playlistAdd");
+        for (var i = 0; i < enqueuedElements.length; i++) {
+            articleNames.push(enqueuedElements[i].id);
+        }
+
+        var enqueuedArticleNamesJson = ANDROIDAPI.getEnqueuedArticleNames(JSON.stringify(articleNames));
+
+        var enqueuedArticleNames = JSON.parse(enqueuedArticleNamesJson);
+        setupEnqueuedCallback(enqueuedArticleNames);
+    }
+
+    function setEnqueued(articleName, isEnqueued) {
+        ANDROIDAPI.setEnqueued(articleName, isEnqueued)
+    }
+
     function enableArticleColumnMode(heightPx, columnWidthPx, columnGapPx) {
         // If there is already a observer running, we disconnect/stop it
         disconnectContentResizeObserver();
@@ -164,26 +188,26 @@ var tazApi = (function() {
 
         // Helper that ensures the callback is called at most once
         var onMultiColumnLayoutReadyCalled = false;
-        function callOnMultiColumnLayoutReady() {
+        function callOnMultiColumnLayoutReady(width) {
             if (!onMultiColumnLayoutReadyCalled) {
-                ANDROIDAPI.onMultiColumnLayoutReady();
                 onMultiColumnLayoutReadyCalled = true;
+                ANDROIDAPI.onMultiColumnLayoutReady(width);
             }
         }
 
-        // Let the css column handling figure out the required size of the container and then
-        // set its exact width, so that the outer Android WebView can handle the scrolling.
+        // Let the css column handling figure out the required size of the container and
+        // then set its exact width, so that the outer Android WebView can handle the scrolling.
         function setContentWidthForColumns() {
             // After css has calculated the columns, we can take a look at the scrollWidth to
-            // find out the actual number of columns and set the content width so that
+            // find out the actual number of columns and set the content width sothat
             // it fits the columns exactly.
             var factor = Math.floor(content.scrollWidth / (columnWidthPx + columnGapPx));
             var contentWidth = factor * columnWidthPx + (factor - 1) * columnGapPx;
             var contentWidthString = contentWidth + "px";
 
-            // Stop observing for changes and inform the App that the multi column layout ist
-            // ready, once the set content width is the same as the calculated one.
-            // As css only keeps a couple of decimals we define them as the same when their
+            // Stop observing for changes and inform the App that the multi column layout is
+            // ready, once the set content width is the same as the calculated one
+            // As css only keeps a couple of decimals we define them as the same w´hen their
             // difference is < 1 px
             var currentStyleWidth = NaN;
             if (content.style.width && content.style.width.endsWith("px")) {
@@ -192,12 +216,24 @@ var tazApi = (function() {
             var diff = Math.abs(currentStyleWidth - contentWidth);
 
             if (diff != NaN && diff < 1.0) {
-                disconnectContentResizeObserver();
-                // Wait for the next cycle before indicating ready, to give the WebView the
-                // chance to render the changes.
-                setTimeout(function() {
-                    callOnMultiColumnLayoutReady();
-                });
+                var lastElement = $('.lastElement')[0];
+                var times = Math.ceil((lastElement.offsetLeft + lastElement.clientWidth) / window.innerWidth);
+                var widthByLastElement = times * window.innerWidth + columnGapPx;
+
+                if (contentWidth > widthByLastElement) {
+                    // Wait for the next cycle to set the width.
+                    // If it is set in the same cycle the observer will not be called again
+                    setTimeout(function() {
+                        content.style.width = widthByLastElement + "px";
+                    });
+                } else {
+                    disconnectContentResizeObserver();
+                    // Wait for the next cycle before indicating ready, to give the WebView the
+                    // chance to render the changes.
+                    setTimeout(function() {
+                        callOnMultiColumnLayoutReady(contentWidth);
+                    });
+                }
             } else {
                 // Wait for the next cycle to set the width.
                 // If it is set in the same cycle the observer will not be called again
@@ -214,7 +250,7 @@ var tazApi = (function() {
             // Ensure that the callback is called eventually after 1s, even if the ResizeObserver didn't settle
             setTimeout(function() {
                 disconnectContentResizeObserver();
-                callOnMultiColumnLayoutReady();
+                callOnMultiColumnLayoutReady(content.style.width);
             }, 1000);
 
         } else {
@@ -225,7 +261,9 @@ var tazApi = (function() {
             ANDROIDAPI.logMissingJsFeature("ResizeObserver");
             setTimeout(setContentWidthForColumns);
             setTimeout(setContentWidthForColumns, 250);
-            setTimeout(callOnMultiColumnLayoutReady, 500);
+            setTimeout(function() {
+                callOnMultiColumnLayoutReady(content.style.width);
+            }, 500);
         }
     }
 
@@ -234,6 +272,7 @@ var tazApi = (function() {
         var content = document.getElementById("content");
         content.style.height = null;
         content.style.width = null;
+        content.style.paddingRight = null;
         content.style.columnWidth = null;
         content.classList.remove("article--multi-column");
         document.body.classList.remove("no-horizontal-padding");
@@ -244,6 +283,11 @@ var tazApi = (function() {
             contentResizeObserver.disconnect();
             contentResizeObserver = null;
         }
+    }
+
+    function setPaddingRight(padding) {
+        var content = document.getElementById("content");
+        content.style.paddingRight = parseFloat(getComputedStyle(content).paddingRight) + padding + "px";
     }
 
     return {
@@ -257,7 +301,10 @@ var tazApi = (function() {
         openImage : openImage,
         getBookmarks: getBookmarks,
         setBookmark: setBookmark,
+        getEnqueuedArticles: getEnqueuedArticles,
+        setEnqueued: setEnqueued,
         enableArticleColumnMode: enableArticleColumnMode,
         disableArticleColumnMode: disableArticleColumnMode,
+        setPaddingRight: setPaddingRight,
     };
 }());

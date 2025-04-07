@@ -119,7 +119,7 @@ class IssueRepositoryTest {
             if (index == issue.sectionList.size - 1) {
                 assertNull(section.next(context))
             } else {
-                assertEquals(issue.sectionList[index + 1].sectionHtml.sha256, section.next(context)?.sectionHtml?.sha256)
+                assertEquals(issue.sectionList[index + 1].key, section.next(context)?.key)
             }
 
         }
@@ -133,7 +133,7 @@ class IssueRepositoryTest {
             if (index == 0) {
                 assertNull(section.previous(context))
             } else {
-                assertEquals(issue.sectionList[index - 1].sectionHtml.sha256, section.previous(context)?.sectionHtml?.sha256)
+                assertEquals(issue.sectionList[index - 1].key, section.previous(context)?.key)
             }
         }
     }

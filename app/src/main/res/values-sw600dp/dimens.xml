@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="fragment_webview_header_padding_top">61dp</dimen>
+    <dimen name="fragment_header_default_padding_top">61dp</dimen>
     <dimen name="fragment_header_default_height">86dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">120dp</dimen>
 
+    <dimen name="fragment_header_default_text_size">32sp</dimen>
     <dimen name="fragment_header_section_text_size">32sp</dimen>
     <dimen name="fragment_header_article_text_size">22sp</dimen>
     <dimen name="fragment_header_title_section_text_size">38sp</dimen>
-    <dimen name="fragment_header_section_title_y_translation">2dp</dimen>
-    <dimen name="fragment_header_default_title_y_translation">0dp</dimen>
     <dimen name="fragment_webview_section_margin_top">30dp</dimen>
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
     <dimen name="fragment_webview_loading_screen_padding_bottom">102dp</dimen>
     <dimen name="drawer_width">390dp</dimen>
     <dimen name="fragment_settings_plus_minus_width">150dp</dimen>
-    <dimen name="fragment_bookmarks_list_margin_top">28dp</dimen>
 
     <dimen name="bottom_sheet_text_setting_outer_padding">15dp</dimen>
 
     <!-- region coach marks  -->
     <dimen name="coach_mark_text_layout_padding_bottom">300dp</dimen>
     <dimen name="coach_mark_drawer_logo_text_layout_padding_top">105dp</dimen>
-    <!-- end region  -->
+    <!-- endregion  -->
 
     <dimen name="tap_bar_width">110dp</dimen>
 
+    <dimen name="audioplayer_playlist_margin_bottom">10dp</dimen>
+    <dimen name="audioplayer_expanded_image_max_height">350dp</dimen>
 
     <dimen name="bottom_sheet_padding_horizontal">35dp</dimen>
     <dimen name="login_box_content_margin_top">20dp</dimen>

@@ -5,7 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.AbstractTazApplication
 import de.taz.app.android.R
-import de.taz.app.android.api.models.ArticleStub
+import de.taz.app.android.api.interfaces.ArticleOperations
+import de.taz.app.android.api.interfaces.AudioPlayerPlayable
+import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +20,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
- * Convenience wrapper around the [AudioPlayerService] that may be used from Fragments showing an Article.
+ * Convenience wrapper around the [AudioPlayerService] that may be used from Fragments showing an [AudioPlayerPlayable].
  *
  * Note: this ViewModel *must not* be bound to an Activity but shall only be used on Fragments with `by viewModel<AudioPlayerViewModel>()`
+ *
  */
-abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidViewModel(androidApplication) {
+abstract class AudioPlayerViewModel<PLAYABLE: AudioPlayerPlayable>(androidApplication: Application) : AndroidViewModel(androidApplication) {
     protected val log by Log
 
     protected val application = androidApplication as AbstractTazApplication
@@ -30,8 +33,8 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
 
     var visibleIssueKey: AbstractIssueKey? = null
 
-    private val visibleArticleStub: MutableStateFlow<ArticleStub?> = MutableStateFlow(null)
-    private val visibleArticleFileName = visibleArticleStub.map { it?.articleFileName }
+    private val visiblePlayable: MutableStateFlow<PLAYABLE?> = MutableStateFlow(null)
+    private val visiblePlayableKey = visiblePlayable.map { it?.audioPlayerPlayableKey }
 
     private val _errorMessageFlow = MutableStateFlow<String?>(null)
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
@@ -43,23 +46,13 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
      * Note, that does not mean it is playing.
      */
     val isActiveAudio: Flow<Boolean> = combine(
-        visibleArticleFileName, isPlayerVisible, audioPlayerService.currentItem
-    ) { articleFileName: String?, isPlayerVisible: Boolean, audioPlayerItem: AudioPlayerItem? ->
-        val currentlyPlayingArticle = when(audioPlayerItem) {
-            is ArticleAudio -> audioPlayerItem.article
-            is IssueAudio -> audioPlayerItem.currentArticle
-            is PodcastAudio, null -> null
-        }
-
-        isPlayerVisible && currentlyPlayingArticle != null && currentlyPlayingArticle.key == articleFileName
+        visiblePlayableKey, isPlayerVisible, audioPlayerService.currentItem
+    ) { playableKey: String?, isPlayerVisible: Boolean, audioPlayerItem: AudioPlayerItem? ->
+        isPlayerVisible && audioPlayerItem != null && audioPlayerItem.playableKey == playableKey
     }
 
-    fun setVisibleArticle(articleStub: ArticleStub) {
-        visibleArticleStub.value = articleStub
-    }
-
-    fun clearVisibleArticle() {
-        visibleArticleStub.value = null
+    fun setVisible(articleStub: PLAYABLE) {
+        visiblePlayable.value = articleStub
     }
 
     /**
@@ -67,23 +60,23 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
      * Will start to play the currently visible article,
      * or dismiss the player if it is was already showing that article.
      */
-    fun handleOnAudioActionOnVisibleArticle() {
+    fun handleOnAudioActionOnVisible() {
         viewModelScope.launch {
-            val articleStub = visibleArticleStub.value
-            if (articleStub != null) {
-                val isVisibleArticleActive = isActiveAudio.first()
-                if (isVisibleArticleActive) {
+            val playable = visiblePlayable.value
+            if (playable != null) {
+                val isVisiblePlayableActive = isActiveAudio.first()
+                if (isVisiblePlayableActive) {
                     audioPlayerService.dismissPlayer()
                 } else {
                     try {
-                        play(articleStub)
+                        play(playable)
                     } catch (e: Exception) {
-                        log.error("Could not play article audio (${articleStub.articleFileName})", e)
+                        log.error("Could not play article audio (${playable.audioPlayerPlayableKey})", e)
                         _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
                     }
                 }
             } else {
-                log.error("handleOnAudioActionOnVisibleArticle() was called before setVisibleArticle()")
+                log.error("handleOnAudioActionOnVisible() was called before setVisible()")
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
             }
         }
@@ -93,23 +86,21 @@ abstract class AudioPlayerViewModel(androidApplication: Application) : AndroidVi
         _errorMessageFlow.value = null
     }
 
-    abstract fun play(articleStub: ArticleStub)
+    abstract fun play(playable: PLAYABLE)
 }
 
+class SearchHitAudioPlayerViewModel(androidApplication: Application) :
+    AudioPlayerViewModel<SearchHit>(androidApplication) {
 
-class ArticleAudioPlayerViewModel(androidApplication: Application) :
-    AudioPlayerViewModel(androidApplication) {
-
-    override fun play(articleStub: ArticleStub) {
-        audioPlayerService.playArticle(articleStub)
+    override fun play(playable: SearchHit) {
+        audioPlayerService.playSearchHit(playable)
     }
 }
 
-class IssueAudioPlayerViewModel(androidApplication: Application) :
-    AudioPlayerViewModel(androidApplication) {
+class ArticleAudioPlayerViewModel(androidApplication: Application) :
+    AudioPlayerViewModel<ArticleOperations>(androidApplication) {
 
-    override fun play(articleStub: ArticleStub) {
-        val issueKey = requireNotNull(visibleIssueKey)
-        audioPlayerService.playIssue(issueKey, articleStub)
+    override fun play(playable: ArticleOperations) {
+        audioPlayerService.playArticle(playable.key)
     }
 }

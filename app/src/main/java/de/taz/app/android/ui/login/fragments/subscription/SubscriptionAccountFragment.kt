@@ -22,11 +22,15 @@ import de.taz.app.android.listener.OnEditorActionDoneListener
 import de.taz.app.android.monkey.onClick
 import de.taz.app.android.monkey.setError
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.passwordCheck.PasswordCheckHelper
 import de.taz.app.android.ui.login.passwordCheck.setPasswordHintResponse
+import de.taz.app.android.util.Log
+import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.launch
@@ -40,10 +44,13 @@ class SubscriptionAccountFragment :
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
     private lateinit var passwordCheckHelper: PasswordCheckHelper
+    private lateinit var toastHelper: ToastHelper
 
     private var mailInvalid = false
     private var subscriptionInvalid = false
     private var isPasswordValid = false
+
+    private val log by Log
 
     companion object {
         fun newInstance(
@@ -63,6 +70,7 @@ class SubscriptionAccountFragment :
         fileEntryRepository =  FileEntryRepository.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         passwordCheckHelper = PasswordCheckHelper(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,6 +78,14 @@ class SubscriptionAccountFragment :
 
         viewBinding.fragmentSubscriptionAccountEmail.apply {
             setText(viewModel.username)
+        }
+
+        viewBinding.fragmentSubscriptionAccountPassword.apply {
+            setText(viewModel.password)
+        }
+
+        viewBinding.fragmentSubscriptionAccountPasswordConfirm.apply {
+            setText(viewModel.passwordConfirm)
         }
 
         drawLayout()
@@ -232,6 +248,11 @@ class SubscriptionAccountFragment :
             // Scroll to the top:
             viewBinding.scrollView.scrollY = 0
         }
+
+        // Persist the username and confirm-password  to the view model:
+        viewBinding.fragmentSubscriptionAccountEmail.text?.let { viewModel.username = it.toString() }
+        viewBinding.fragmentSubscriptionAccountPasswordConfirm.text?.let { viewModel.passwordConfirm = it.toString() }
+
         return done
     }
 
@@ -265,12 +286,21 @@ class SubscriptionAccountFragment :
     }
 
     private fun checkPassword() {
-        val mail = viewBinding.fragmentSubscriptionAccountEmail.text?.toString() ?: ""
-        val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString() ?: ""
-        viewLifecycleOwner.lifecycleScope.launch {
-            val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
-            isPasswordValid = passwordHintResponse.valid
-            viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(passwordHintResponse)
+        try {
+            val mail = viewBinding.fragmentSubscriptionAccountEmail.text?.toString() ?: ""
+            val password = viewBinding.fragmentSubscriptionAccountPassword.text?.toString() ?: ""
+            viewLifecycleOwner.lifecycleScope.launch {
+                val passwordHintResponse = passwordCheckHelper.checkPassword(password, mail)
+                isPasswordValid = passwordHintResponse.valid
+                viewBinding.fragmentSubscriptionAccountPasswordLayout.setPasswordHintResponse(
+                    passwordHintResponse
+                )
+            }
+        } catch (npe: NullPointerException) {
+            log.warn("Somehow we lost the viewBinding. Exit the fragment and show Toast.")
+            toastHelper.showSomethingWentWrongToast()
+            viewModel.setDone()
+            SentryWrapper.captureException(npe)
         }
     }
 }

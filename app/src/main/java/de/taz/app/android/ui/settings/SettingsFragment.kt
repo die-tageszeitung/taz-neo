@@ -68,7 +68,6 @@ import kotlinx.coroutines.withContext
 
 private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
 private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
-private const val TAZ_PORTAL_LOGIN_URI = "https://portal.taz.de/user/login"
 
 @Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
@@ -88,6 +87,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private lateinit var authHelper: AuthHelper
     private lateinit var feedService: FeedService
     private lateinit var tracker: Tracker
+    private lateinit var portalLink: String
 
     private val emailValidator = EmailValidator()
 
@@ -104,6 +104,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         authHelper = AuthHelper.getInstance(context.applicationContext)
         feedService = FeedService.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        portalLink = context.applicationContext.getString(R.string.ACCOUNT_PORTAL_LINK)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -166,7 +167,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     increaseAmountOfIssues()
                 }
             }
-            fragmentSettingsStorageLocation.root.setOnClickListener {
+            fragmentSettingsStorageLocation.setOnClickListener {
                 StorageSelectionDialog(requireContext()).show()
             }
             fragmentSettingsTextJustified.setOnCheckedChangeListener { _, isChecked ->
@@ -213,29 +214,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 )
             }
 
-            if (!BuildConfig.IS_LMD) {
-                fragmentSettingsAccountResetPassword.setOnClickListener {
-                    LoginBottomSheetFragment
-                        .newInstance(requestPassword = true)
-                        .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
-                }
+            fragmentSettingsAccountResetPassword.setOnClickListener {
+                LoginBottomSheetFragment
+                    .newInstance(requestPassword = true)
+                    .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
+            }
 
-                fragmentSettingsManageAccountOnline.setOnClickListener {
-                    openProfileAccountOnline()
-                }
+            fragmentSettingsManageAccountOnline.setOnClickListener {
+                openProfileAccountOnline()
+            }
 
-                fragmentSettingsAccountDelete.setOnClickListener {
-                    lifecycleScope.launch {
-                        try {
-                            val result = apiService.cancellation()
-                            if (result != null) {
-                                showCancellationDialog(result)
-                            }
-                        } catch (e: ConnectivityException) {
-                            toastHelper.showToast(
-                                resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
-                            )
+            fragmentSettingsAccountDelete.setOnClickListener {
+                lifecycleScope.launch {
+                    try {
+                        val result = apiService.cancellation()
+                        if (result != null) {
+                            showCancellationDialog(result)
                         }
+                    } catch (e: ConnectivityException) {
+                        toastHelper.showToast(
+                            resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
+                        )
                     }
                 }
             }
@@ -262,6 +261,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
             fragmentSettingsAutoDownloadWifiSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDownloadOnlyInWifi(isChecked)
+            }
+
+            fragmentSettingsBookmarksSynchronization.setOnCheckedChangeListener { _, isChecked ->
+                setBookmarksSynchronization(isChecked)
             }
 
             fragmentSettingsAutoDownloadSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -338,6 +341,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
                 showDownloadAdditionallyPdf(additionallyEnabled)
+            }
+            bookmarksSynchronization.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showBookmarksSynchronization(enabled)
             }
             trackingAccepted.distinctUntilChanged().observe(viewLifecycleOwner) { isTrackingAccepted ->
                 viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
@@ -464,8 +470,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             dialogView.findViewById<TextView>(R.id.fragment_settings_delete_progress_text)
         val downloadedIssueStubList =
             issueRepository.getAllDownloadedIssueStubs()
-
-        val feedName = downloadedIssueStubList.firstOrNull()?.feedName ?: BuildConfig.DISPLAYED_FEED
 
         deletionProgress.visibility = View.VISIBLE
         deletionProgress.progress = 0
@@ -668,6 +672,11 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
+    private fun showBookmarksSynchronization(enabled: Boolean) {
+        viewBinding.fragmentSettingsBookmarksSynchronization.isChecked =
+            enabled
+    }
+
     private fun showFontSize(textSize: Int) {
         view?.findViewById<TextView>(
             R.id.settings_text_size
@@ -680,6 +689,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         fragmentSettingsManageAccountOnlineWrapper.visibility = View.GONE
         fragmentSettingsAccountDeleteWrapper.visibility = View.GONE
         fragmentSettingsAccountManageAccountWrapper.visibility = View.VISIBLE
+        // Unset the bookmarkSynchronization:
+        fragmentSettingsBookmarksSynchronization.visibility = View.GONE
+        fragmentSettingsBookmarksSynchronizationSeparatorLine.root.visibility = View.GONE
+        setBookmarksSynchronization(false)
     }
 
     private fun showActionsWhenLoggedIn(
@@ -688,27 +701,27 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         isTazAccount: Boolean = false
     ) = viewBinding.apply {
         fragmentSettingsAccountManageAccountWrapper.visibility = View.GONE
-        if (!BuildConfig.IS_LMD) {
-            fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
-            // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
-            fragmentSettingsAccountDeleteWrapper.visibility =
-                if ((isValidEmail || isAboId) && !isTazAccount) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-            // show reset password option only for when we have a valid mail:
-            fragmentSettingsAccountResetPasswordWrapper.visibility =
-                if (isValidEmail && !isTazAccount) {
-                    View.VISIBLE
-                } else {
-                    View.GONE
-                }
-        }
+        fragmentSettingsManageAccountOnlineWrapper.visibility = View.VISIBLE
+        // show account deletion button only when is proper email or ID (abo id which consists of just up to 6 numbers)
+        fragmentSettingsAccountDeleteWrapper.visibility =
+            if ((isValidEmail || isAboId) && !isTazAccount) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        // show reset password option only for when we have a valid mail:
+        fragmentSettingsAccountResetPasswordWrapper.visibility =
+            if (isValidEmail && !isTazAccount) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         fragmentSettingsAccountLogoutWrapper.visibility = View.VISIBLE
         if (resources.getBoolean(R.bool.isTablet)) {
             fragmentSettingsMultiColumnModeWrapper.isVisible = true
         }
+        fragmentSettingsBookmarksSynchronization.isVisible = true
+        fragmentSettingsBookmarksSynchronizationSeparatorLine.root.isVisible = true
     }
 
     private fun disableNightMode() {
@@ -781,6 +794,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setDownloadOnlyInWifi(onlyWifi: Boolean) {
         viewModel.setOnlyWifi(onlyWifi)
+    }
+
+    private fun setBookmarksSynchronization(enabled: Boolean) {
+        viewModel.setBookmarksSynchronization(enabled)
     }
 
     private fun setDownloadEnabled(downloadEnabled: Boolean) {
@@ -930,6 +947,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun logout() = requireActivity().lifecycleScope.launch {
         authHelper.status.set(AuthStatus.notValid)
+        authHelper.email.set("")
+        authHelper.token.set("")
         getApplicationScope().launch {
             // Refresh the feed in the background to show all public issues again when the user was logged in as a wochentaz user
             try {
@@ -962,9 +981,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             val mail = authHelper.email.get()
             val isValidMail = emailValidator(mail)
             val uri = if (isValidMail) {
-                "$TAZ_PORTAL_LOGIN_URI?email=$mail"
+                "$portalLink?email=$mail"
             } else {
-                TAZ_PORTAL_LOGIN_URI
+                portalLink
             }
             try {
                 CustomTabsIntent.Builder()

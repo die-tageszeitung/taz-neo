@@ -8,6 +8,8 @@
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.App.MaterialAlertDialog</item>
+        <item name="materialSwitchStyle">@style/Widget.App.Switch</item>
+        <item name="checkboxStyle">@style/Widget.App.CheckBox</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">#0F000000</item>
@@ -15,12 +17,6 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:colorEdgeEffect">@color/colorEdgeEffect</item>
         <item name="textInputStyle">@style/Widget.App.Form.TextInputLayout</item>
-        <!-- FIXME (johannes): this sets the attribute textColor on every view we define in XML.
-               The android:textColor should not be part of the themes but only of widget styles etc.
-               Android is normally falling back to textColorPrimary if no explicit textColor is set.
-               Because of this textColor definiton we cant use textColor when trying to apply textAppearances
-               but must use style=... -->
-        <item name="android:textColor">@color/textColor</item>
         <item name="android:textColorPrimary">@color/textColor</item>
         <item name="android:textColorSecondary">@color/textColorAccent</item>
         <item name="android:ambientShadowAlpha">0.1</item>
@@ -31,12 +27,35 @@
         <item name="navigationViewStyle">@style/AppTheme.Widget.NavigationView</item>
         <item name="android:navigationBarColor">@color/navigation_bottom_background</item>
         <item name="android:autofilledHighlight" tools:ignore="NewApi">@color/colorAutofillBackground</item>
+        <item name="snackbarStyle">@style/AppTheme.SnackBar</item>
+        <item name="snackbarTextViewStyle">@style/Widget.App.SnackbarTextView</item>
+        <item name="snackbarButtonStyle">@style/Widget.App.SnackbarButton</item>
+    </style>
+
+    <style name="AppTheme.SnackBar" parent="Widget.Material3.Snackbar">
+        <item name="android:background">@drawable/audioplayer_background_rounded</item>
+        <item name="backgroundTint">@color/snack_bar_background_color</item>
+    </style>
+
+    <style name="Widget.App.SnackbarTextView" parent="Widget.Material3.Snackbar.TextView">
+        <item name="android:textAppearance">@style/Widget.App.SnackbarTextView.TextAppearance</item>
+    </style>
+
+    <style name="Widget.App.SnackbarTextView.TextAppearance" parent="TextAppearance.AppCompat">
+        <item name="fontFamily">@font/appFontRegular</item>
+    </style>
+
+    <style name="Widget.App.SnackbarButton" parent="Widget.Material3.Button.TextButton.Snackbar">
+        <item name="fontFamily">@font/appFontRegular</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:textColor">@color/snack_bar_button_text_color</item>
     </style>
 
     <style name="noAnimationOnActivityChange" parent="AppTheme">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
+    <!-- region Material components -->
     <style name="ThemeOverlay.App.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="android:background">@color/backgroundColor</item>
         <item name="alertDialogStyle">@style/MaterialAlertDialog.AppTheme</item>
@@ -89,6 +108,27 @@
         <item name="rippleColor">@color/outline_button_ripple_color</item>
     </style>
 
+    <style name="Widget.App.TextView.Button" parent="Widget.App.TextView.Link.Large">
+        <!-- Faking a TextButton with a regular TextView -->
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:minHeight">30dp</item>
+    </style>
+
+    <style name="Widget.App.Switch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackTint">@color/material_switch_color_list</item>
+        <item name="thumbTint">@color/material_switch_thumb_color_list</item>
+    </style>
+
+    <style name="Widget.App.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox" />
+
+    <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
+        <item name="drawerLayoutCornerSize">0dp</item>
+    </style>
+    <!-- endregion -->
+
     <style name="Widget.App.Form.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
         <item name="android:textColorHint">@color/text_input_hint_color</item>
         <item name="boxStrokeColor">@color/text_input_layout_box_stroke</item>
@@ -102,182 +142,267 @@
         <item name="android:textColor">@color/text_input_help_text_color</item>
     </style>
 
-    <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
-        <item name="drawerLayoutCornerSize">0dp</item>
-    </style>
-
     <style name="SplashTheme" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splashBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_simple</item>
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections.Date" parent="TextAppearance.AppCompat">
+    <!-- region drawer -->
+    <style name="Widget.App.Drawer.Sections.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/drawer_sections_date</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">@dimen/fragment_drawer_sections_item_text_size</item>
+    <style name="Widget.App.Drawer.Sections.Play" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:textColor">@color/drawer_sections_header_action</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Sections.Title" parent="Widget.App.Draw.DrawerSection">
         <item name="android:textColor">@color/textColorSection</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="android:lineSpacingExtra">-3dp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.PDF.Sections" parent="TextAppearance.Drawer.Sections">
-        <item name="android:textColor">@color/drawer_pdf_sections_text</item>
+    <style name="Widget.App.Drawer.Sections.Article.Title" parent="Widget.App.Draw.Head">
+        <!-- Figma overrides to keep behavior in line with previous app layouts -->
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18sp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.PDF.Entry.Author" parent="TextAppearance.Bookmarks.Entry.Author">
-        <item name="android:textSize">@dimen/list_item_pdf_page_toc_text_size</item>
-        <item name="android:textStyle">italic</item>
-        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+    <style name="Widget.App.Drawer.Sections.Article.Teaser" parent="Widget.App.Draw.Subline">
+        <item name="android:maxLines">3</item>
+        <item name="android:ellipsize">end</item>
+
+        <!-- Figma overrides to keep behavior in line with previous app layouts -->
+        <item name="android:textSize">15sp</item>
+        <item name="lineHeight">18.75sp</item>
     </style>
 
-    <style name="TextAppearance.Header.Section" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:lineSpacingExtra">0dp</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
-        <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
-        <item name="autoSizeMinTextSize">2dp</item>
-        <item name="autoSizeStepGranularity">0.1dp</item>
+    <style name="Widget.App.Drawer.Sections.Article.Meta" parent="Widget.App.TextView">
+        <!-- The actual text will be overriden by Spannable TextAppearances -->
+        <item name="lineHeight">16sp</item>
     </style>
 
-    <style name="TextAppearance.Header.Article.Num" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
+    <style name="TextAppearance.App.Drawer.Sections.Article.Meta.Author" parent="TextAppearance.App.Draw.Autorin.Bold" />
+
+    <style name="TextAppearance.App.Drawer.Sections.Article.Meta.ReadMinutes" parent="TextAppearance.App.Draw.Metadata">
+        <item name="android:textColor">@color/read_minutes</item>
     </style>
 
-    <style name="TextAppearance.Header.Article.Section" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:letterSpacing">0</item>
-        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
-        <item name="android:textStyle">bold</item>
+    <style name="Widget.App.Drawer.Pdf.Header.Date" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/fragment_drawer_date_text_color</item>
     </style>
 
-    <style name="TextAppearance.Header.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_header_issue_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.Drawer.Pdf.Header.Play" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:textColor">@color/pdf_drawer_header_action</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Pdf.Section.Title" parent="Widget.App.Draw.Section.Pdf">
         <item name="android:maxLines">1</item>
-        <item name="android:includeFontPadding">true</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="BottomNavigationTabBar" parent="Widget.Design.BottomNavigationView">
-        <item name="android:layout_gravity">bottom</item>
+    <style name="Widget.App.Drawer.Pdf.Header.Title" parent="Widget.App.Drawer.Pdf.Section.Title">
+        <item name="android:textColor">@color/pdf_drawer_header_action</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region LMd Drawer -->
+    <!-- These are not part of the figma styleguide -->
+    <style name="Widget.App.Drawer.Lmd.Page" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/pdf_section_font</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Title" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontBold</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
+        <item name="lineHeight">19sp</item><!-- defined as 21.5sp in figma -->
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Teaser" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontAlternative</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
+        <item name="lineHeight">19.5sp</item><!-- defined as 21.5sp in figma -->
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Meta" parent="Widget.App.TextView">
+        <!-- The actual text will be overriden by Spannable TextAppearances -->
+        <item name="lineHeight">19sp</item>
+    </style>
+
+    <style name="TextAppearance.App.Drawer.Lmd.Meta.Author" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:textSize">15sp</item><!-- defined as 16sp in figma -->
+    </style>
+
+    <style name="TextAppearance.App.Drawer.Lmd.Meta.ReadMinutes" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/read_minutes</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Header.Page" parent="Widget.App.Drawer.Lmd.Page" />
+
+    <style name="Widget.App.Drawer.Lmd.Header.Content" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Widget.App.Drawer.Lmd.Header.Date" parent="Widget.App.TextView">
+        <item name="android:fontFamily">@font/appFontAlternativeItalic</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/pdf_section_font</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region BottomNavigation -->
+    <style name="Widget.App.BottomNavigation.TabBar" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">@color/navigation_bottom_background</item>
         <item name="itemIconTint">@color/bottom_nav_icon_color</item>
         <item name="itemTextColor">@color/bottom_nav_icon_color</item>
         <item name="labelVisibilityMode">labeled</item>
         <item name="menu">@menu/navigation_bottom_home</item>
-        <item name="itemTextAppearanceActive">@style/TextAppearance.BottomNavigationView.Active
+        <item name="itemTextAppearanceActive">
+            @style/TextAppearance.App.BottomNavigation.Item.Active
         </item>
         <item name="itemTextAppearanceInactive">
-            @style/TextAppearance.BottomNavigationView.Inactive
+            @style/TextAppearance.App.BottomNavigation.Item.Inactive
         </item>
+        <item name="itemActiveIndicatorStyle">@style/ShapeAppearance.Material3.Corner.None</item>
     </style>
 
-    <style name="BottomNavigationToolBar" parent="Widget.Design.BottomNavigationView">
+    <style name="Widget.App.BottomNavigation.ToolBar" parent="Widget.Material3.BottomNavigationView">
         <item name="android:layout_gravity">bottom</item>
         <item name="itemIconSize">@dimen/bottom_navigation_icon_size</item>
         <item name="backgroundTint">@color/navigation_bottom_background</item>
         <item name="itemIconTint">@color/lightGrey</item>
         <item name="labelVisibilityMode">unlabeled</item>
+        <item name="itemActiveIndicatorStyle">@style/ShapeAppearance.Material3.Corner.None</item>
     </style>
 
-    <!-- blank styles for better code readability-->
-    <style name="TextAppearance" parent="TextAppearance.AppCompat" />
-
-    <style name="TextAppearance.BottomNavigationView" />
-
-    <!-- inactive tab icon style -->
-    <style name="TextAppearance.BottomNavigationView.Inactive">
-        <item name="fontFamily">@font/appFontOldRegular</item>
+    <style name="TextAppearance.App.BottomNavigation.Item.Inactive" parent="TextAppearance.AppCompat">
+        <item name="fontFamily">@font/appFontRegular</item>
         <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
     </style>
 
-    <!-- active tab icon style -->
-    <style name="TextAppearance.BottomNavigationView.Active">
-        <item name="fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">@dimen/bottom_navigation_label_text_size</item>
-    </style>
+    <!-- Do not style the active item differently -->
+    <style name="TextAppearance.App.BottomNavigation.Item.Active" parent="TextAppearance.App.BottomNavigation.Item.Inactive" />
+    <!-- endregion -->
 
-    <style name="Widget.App.BottomSheet.Menu.Item" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">17sp</item>
-        <item name="android:textColor">@color/bottom_sheet_text_color</item>
-        <item name="android:includeFontPadding">false</item>
-        <item name="android:textAlignment">center</item>
-        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
-        <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
-        <item name="android:background">?attr/selectableItemBackground</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-    </style>
-
-    <style name="TextAppearance.Archive.Date" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/coverflow_text_color</item>
-        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
-        <item name="android:paddingBottom">5dp</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
-
-    <style name="TextAppearance.CoverFlow.Date" parent="TextAppearance.AppCompat">
+    <!-- region coverflow / archive -->
+    <style name="Widget.App.CoverFlow.Date" parent="Widget.App.TextView.Date.Small">
         <item name="android:textColor">@color/coverflow_text_color</item>
         <item name="android:textSize">@dimen/text_appearance_coverflow_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
     </style>
 
-    <style name="TextAppearance.Settings.Detail" parent="TextAppearance.AppCompat">
+    <style name="Widget.App.CoverFlow.Login" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/coverflow_text_color</item>
+    </style>
+
+    <style name="Widget.App.Archive.Date" parent="Widget.App.TextView.Date.Small">
+        <item name="android:textColor">@color/coverflow_text_color</item>
+        <item name="android:textSize">@dimen/text_appearance_archive_date_text_size</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region settings -->
+    <style name="Widget.App.Settings.Detail" parent="Widget.App.TextView.Listing.Info">
         <item name="android:textColor">@color/textColorAccent</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_detail_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
         <item name="android:gravity">top</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_entry_padding_vertical</item>
     </style>
 
-    <style name="TextAppearance.Settings.Entry" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/fragment_settings_text_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.Settings.Entry" parent="Widget.App.TextView.Settings">
         <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_entry_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_entry_padding_vertical</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Action">
+        <!-- This style may only be applied to TextViews with a onClickListener, otherwise it breaks.
+             If the wrapper has the onClickListener the attributes must be set on it instead -->
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Critical">
+        <item name="android:textColor">@color/critical_action</item>
+    </style>
+
+    <style name="Widget.App.Settings.Entry.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
         <item name="android:lineSpacingExtra">5sp</item>
-        <item name="android:minHeight">@dimen/fragment_settings_min_height</item>
-        <item name="android:paddingTop">@dimen/fragment_settings_padding_top</item>
-        <item name="trackTint">@color/material_switch_color_list</item>
+
+        <item name="android:layout_marginTop">@dimen/fragment_settings_entry_switch_margin_vertical</item>
+        <item name="android:layout_marginBottom">@dimen/fragment_settings_entry_switch_margin_vertical</item>
+
+        <!-- MaterialSwitch brings a default minHeight of ?attr/minTouchTargetSize=48dp which we override.
+             It has probably no effect as the switch with the padding is already at least 40dp -->
+        <item name="android:minHeight">@dimen/fragment_settings_entry_switch_min_height</item>
     </style>
 
-    <style name="TextAppearance.Settings.Value" parent="TextAppearance.Settings.Entry">
-        <item name="android:textColor">@color/fragment_settings_value_text</item>
-        <item name="android:textSize">@dimen/fragment_settings_value_font_size</item>
+    <style name="Widget.App.Settings.Value" parent="Widget.App.TextView.Listing.Info">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:gravity">end</item>
     </style>
 
-    <style name="TextAppearance.Settings.Category" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/textColor</item>
+    <style name="Widget.App.Settings.Category" parent="Widget.App.TextView.Info.Subhead">
+        <!-- Override the textSize defined in Figma to keep the previous app behavior and allow for LMd overrides -->
         <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_top</item>
-        <item name="android:layout_marginBottom">@dimen/fragment_settings_category_margin_bottom</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:layout_marginTop">@dimen/fragment_settings_category_margin_top</item>
     </style>
 
-    <style name="TextAppearance.Search.Category" parent="TextAppearance.AppCompat">
+    <style name="Widget.App.Settings.Category.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Info.Subhead</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
+        <item name="android:lineSpacingExtra">4sp</item>
+        <!-- Override the textSize defined in Figma to keep the previous app behavior and allow for LMd overrides -->
+        <item name="android:textSize">@dimen/fragment_settings_category_font_size</item>
+        <item name="android:paddingTop">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/fragment_settings_category_padding_vertical</item>
+        <item name="android:layout_marginTop">@dimen/fragment_settings_category_margin_top</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region error report -->
+    <style name="Widget.App.ErrorReport.Title" parent="Widget.App.TextView.Info.Subhead" />
+    <style name="Widget.App.ErrorReport.Description" parent="Widget.App.TextView.Info.BodyText.Small" />
+    <style name="Widget.App.ErrorReport.Input.Label" parent="Widget.App.TextView.Form.Input.Topline" />
+    <!-- endregion -->
+
+    <!-- region search -->
+    <style name="Widget.App.Search.Description" parent="Widget.App.TextView.Search.Opening" />
+
+    <style name="Widget.App.Search.Advanced.Category" parent="Widget.App.TextView.Info.Subhead.Small">
+        <!-- Use previous textSize even if it is defined smaller in figma -->
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="Widget.App.Search.Advanced.Help" parent="Widget.App.TextView.TextButton.Small">
+        <item name="android:minHeight">@dimen/search_advanced_entry_min_height</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@color/linkColor</item>
+    </style>
+
+    <style name="Widget.App.Search.Advanced.Entry" parent="Widget.App.TextView.Settings">
+        <item name="android:minHeight">@dimen/search_advanced_entry_min_height</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="Widget.App.Search.Result.Amount" parent="Widget.App.TextView.Listing.Info">
+        <!-- Element not found in Figma: Guessed from the visual layout -->
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:textSize">@dimen/search_advanced_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:paddingTop">@dimen/search_advanced_category_padding_top</item>
-        <item name="android:layout_marginBottom">@dimen/search_advanced_category_margin_bottom</item>
     </style>
 
     <style name="TextAppearance.Search.Input" parent="Widget.Material3.TextInputLayout.OutlinedBox">
@@ -297,84 +422,49 @@
         <item name="startIconDrawable">@drawable/ic_search_small</item>
     </style>
 
-    <style name="TextAppearance.Search.Entry.Author" parent="TextAppearance.AppCompat">
-        <item name="android:textSize">@dimen/search_result_author_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Title" parent="Widget.App.TextView.Search.Result.Head" />
 
-    <style name="TextAppearance.Search.Entry.Date" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Author" parent="Widget.App.TextView.Search.Result.Author" />
 
-    <style name="TextAppearance.Search.Entry.Section" parent="TextAppearance.AppCompat">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-    </style>
+    <style name="Widget.App.Search.Entry.Snippet" parent="Widget.App.TextView.Listing.BodyText" />
 
-    <style name="TextAppearance.Bookmarks.Entry.Title" parent="TextAppearance.AppCompat.Medium">
+    <style name="Widget.App.Search.Entry.Meta" parent="Widget.App.TextView.Listing.Info">
         <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">3sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-        <item name="android:paddingBottom">2dp</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region bookmarks -->
+    <style name="Widget.App.Bookmarks.Description" parent="Widget.App.TextView.Settings">
+        <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
+        <item name="lineHeight">19.2sp</item>
     </style>
 
-    <style name="TextAppearance.Bookmarks.Entry.Teaser" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">3</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <style name="Widget.App.Bookmarks.Issue.Header" parent="Widget.App.TextView.Listing.Date" />
+
+    <style name="Widget.App.Bookmarks.Entry.Title" parent="Widget.App.TextView.Listing.Head" />
+
+    <style name="Widget.App.Bookmarks.Entry.Teaser" parent="Widget.App.TextView.Listing.Subline">
+        <!-- Override the textSize defined in Figma so stay in line with the previous app layout -->
         <item name="android:textSize">14.5sp</item>
-        <item name="android:lineSpacingExtra">3.63sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections.Article.Title" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
-        <item name="android:lineSpacingExtra">3sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-        <item name="android:paddingBottom">2dp</item>
+    <style name="Widget.App.Bookmarks.Entry.Author" parent="Widget.App.TextView.Listing.Author">
+        <item name="lineHeight">13.5sp</item>
     </style>
 
-    <style name="TextAppearance.Drawer.Sections.Article.Teaser" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:maxLines">3</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">@dimen/fragment_drawer_article_item_text_size</item>
-        <item name="android:lineSpacingExtra">3.75sp</item>
-        <item name="android:includeFontPadding">false</item>
-        <!-- paddingTop is necessary here because includeFontPadding false cuts a bit of high letters :/ -->
-        <item name="android:paddingTop">@dimen/grotesk_font_adjustment</item>
-    </style>
-
-    <style name="TextAppearance.Bookmarks.Issue.Header" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textSize">@dimen/fragment_bookmarks_issue_header_date_text_size</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textColor">@color/textColor</item>
-    </style>
-
-    <style name="TextAppearance.Bookmarks.Entry.Author" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">13.5sp</item>
-    </style>
-
-    <style name="TextAppearance.Bookmarks.Entry.ReadMinutes" parent="TextAppearance.AppCompat.Medium">
+    <style name="Widget.App.Bookmarks.Entry.ReadMinutes" parent="Widget.App.TextView.Listing.Metadata">
         <item name="android:textColor">@color/read_minutes</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">12sp</item>
     </style>
 
+    <style name="Widget.App.Bookmarks.Entry.Delete" parent="Widget.App.TextView">
+        <!-- No style found in Figma -->
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region login -->
     <style name="Widget.App.Login.Title" parent="Widget.App.TextView.Info.Subhead" />
     <style name="Widget.App.Login.Content" parent="Widget.App.TextView.Info.BodyText" />
 
@@ -391,143 +481,103 @@
 
     <style name="Widget.App.Login.Subscription.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.Login.Subscription.Content" parent="Widget.App.TextView.Info.BodyText" />
+    <!-- endregion -->
 
-    <style name="TextAppearance.AudioPlayer" parent="TextAppearance.AppCompat">
-        <!-- Defined in Figma as GUI/Audio-author-mini -->
-        <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
+    <!-- region audioplayer -->
+    <style name="Widget.App.AudioPlayer.Mini.Title" parent="Widget.App.TextView.Audio.Head.Mini">
+        <item name="android:textColor">@color/audio_player_text_color</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Mini.Author" parent="Widget.App.TextView.Audio.Author.Mini">
+        <item name="android:textColor">@color/audio_player_text_color</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.Title" parent="Widget.App.TextView.Marketing.Head.Aktiv">
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">25sp</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.Author" parent="Widget.App.TextView.Info.BodyText">
+        <item name="android:textSize">18sp</item>
+        <item name="lineHeight">25sp</item>
+        <item name="android:textColor">@color/audio_player_text_color</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.PlaybackSpeed" parent="Widget.App.TextView.Settings">
+        <item name="android:textColor">@color/audio_player_speed_text_color</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.GoToPlaylist" parent="Widget.App.TextView.Info.BodyText">
+        <item name="android:textColor">@color/audio_player_controls_color</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Expanded.NextDescription" parent="Widget.App.TextView.Info.BodyText">
+        <item name="android:textColor">@color/audio_player_text_color</item>
         <item name="android:textSize">13sp</item>
-        <item name="android:lineSpacingExtra">2.6sp</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
 
-    <style name="TextAppearance.AudioPlayer.Bold">
-        <!-- Defined in Figma as GUI/Audio-head-mini -->
-        <item name="android:fontFamily">@font/appFontOldBold</item>
-        <item name="android:textSize">13.5sp</item>
-        <item name="android:lineSpacingExtra">2.7sp</item>
+    <style name="Widget.App.AudioPlayer.Expanded.NextTitle" parent="Widget.App.TextView.Info.BodyText.Bold">
+        <item name="android:textColor">@color/audio_player_text_color</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="TextAppearance.AudioPlayer.Expanded">
-        <!-- Defined in Figma as: GUI/Info-bodytext -->
-        <item name="android:textSize">18sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
+    <style name="Widget.App.AudioPlayer.Expanded.ProgressTime" parent="Widget.App.TextView.Listing.Metadata">
+        <item name="android:textColor">@color/audio_player_progress_time_text_color</item>
     </style>
 
-    <style name="TextAppearance.AudioPlayer.Expanded.Bold">
-        <!-- Defined in Figma as: GUI/Info-bodytext-bold -->
-        <item name="android:fontFamily">@font/appFontOldBold</item>
+    <style name="Widget.App.AudioPlayer.Loading" parent="Widget.App.TextView.Audio.Head.Mini">
+        <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TextAppearance.AudioPlayer.Expanded.Light">
-        <!-- Defined in Figma as: GUI/Settings -->
+    <style name="Widget.App.AudioPlayer.PlayList.Empty" parent="Widget.App.TextView.Settings">
+        <!-- No style found in Figma: guessed the Settings parent, but kept the old lineHeight -->
+        <item name="lineHeight">19.2sp</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.PlayList.Item.Duration" parent="Widget.App.TextView.Listing.Metadata">
+        <item name="android:textColor">@color/read_minutes</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.PlayList.DeleteText" parent="Widget.App.TextView.Info.BodyText">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.BottomSheet.Title" parent="Widget.App.TextView.Info.BodyText">
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="lineHeight">18sp</item>
+    </style>
+
+    <style name="Widget.App.AudioPlayer.Switch" parent="Widget.App.Switch">
+        <item name="android:textAppearance">@style/Widget.App.TextView.Settings</item>
+        <!-- Override text styles not able to use from textAppearance -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- Switches don't work with the material lineHeight attribute, thus we have to re-set it via the compatible lineSpacingExtra -->
         <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.ProgressTime">
-        <!-- Defined in Figma as: GUI/Listing-Metadata -->
         <item name="android:textColor">@color/lightGrey</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <style name="TextAppearance.AudioPlayer.Switch" parent="TextAppearance.Settings.Entry">
-        <!-- Defined in Figma as: GUI/Settings with some additional colors -->
-        <item name="android:textColor">@color/lightGrey</item>
-    </style>
-
-    <!-- region:  Default styles from the styleguide: -->
-    <style name="Widget.App.TextView.ModalTopline" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="lineHeight">19sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <!-- Note: overwritten by nonfree taz with knile font as defined in figma -->
-    <style name="Widget.App.TextView.Marketing.Head" parent="Widget.App.TextView.Marketing.Head.Aktiv" />
-
-    <style name="Widget.App.TextView.Marketing.Head.Aktiv" arent="Widget.AppCompat.TextView" tools:ignore="ResourceCycle">
-        <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize">25sp</item>
-        <item name="lineHeight">32sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="Widget.App.TextView.Info.Subhead" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontBold</item>
-        <item name="android:textSize">21sp</item>
-        <item name="lineHeight">25sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="Widget.App.TextView.Info.BodyText" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">18sp</item>
-        <item name="lineHeight">25sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="TextAppearance.TextButton.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:lineSpacingExtra">7sp</item>
-    </style>
-
-    <style name="TextAppearance.Link.Large" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">15sp</item>
-        <!-- missing: underline, as it is not available in android and must be applied to the strings -->
-    </style>
-
-    <style name="Widget.App.TextView.M.Link" parent="Widget.AppCompat.TextView">
-        <!-- Figma reference to M/link which is not part of the Android styleguide -->
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="lineHeight">28sp</item>
-        <!-- Add paddingTop to simulate single line line height -->
-        <item name="android:paddingTop">7sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="Widget.App.TextView.Settings" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">16sp</item>
-        <item name="lineHeight">21sp</item>
-        <item name="android:includeFontPadding">false</item>
-    </style>
-
-    <style name="Widget.App.TextView.IconText" parent="Widget.AppCompat.TextView">
-        <item name="android:fontFamily">@font/appFontRegular</item>
-        <item name="android:textSize">9.4sp</item>
-        <item name="android:includeFontPadding">false</item>
     </style>
     <!-- endregion -->
 
-    <style name="TextAppearance.Date.Small" parent="TextAppearance">
-        <item name="android:fontFamily">@font/appFontOldRegular</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/textColor</item>
-        <item name="android:lineSpacingExtra">5sp</item>
-    </style>
-
-    <style name="TextAppearance.CoachMark.Header" parent="TextAppearance">
+    <!-- region coachmarks -->
+    <style name="TextAppearance.CoachMark.Header" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
         <item name="android:textSize">32sp</item>
         <item name="android:lineHeight" tools:targetApi="p">@dimen/coach_mark_header_line_height</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
-    <style name="TextAppearance.CoachMark.Text" parent="TextAppearance">
+    <style name="TextAppearance.CoachMark.Text" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkText</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:lineSpacingExtra">3sp</item>
     </style>
+    <!-- endregion -->
 
+    <!-- region BottomSheets -->
     <style name="BottomSheetContainer">
         <item name="android:background">@drawable/text_settings_rounded_bg</item>
     </style>
@@ -549,5 +599,87 @@
     <style name="Widget.App.BottomSheetWithTwoColumns.Title" parent="Widget.App.TextView.Marketing.Head" />
     <style name="Widget.App.BottomSheetWithTwoColumns.Description" parent="Widget.App.TextView.Info.BodyText" />
 
+    <style name="Widget.App.BottomSheet.Menu.Item" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/appFontRegular</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/bottom_sheet_text_color</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:paddingBottom">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:paddingTop">@dimen/bottom_sheet_setting_padding_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region Dialogs -->
+    <style name="Widget.App.Dialog.Title" parent="Widget.App.TextView.Info.BodyText.Bold" />
+    <style name="Widget.App.Dialog.Body" parent="Widget.App.TextView.Info.BodyText.Small" />
+    <style name="Widget.App.Dialog.CheckBox" parent="Widget.App.CheckBox" />
+    <!-- endregion -->
+
+    <!-- region Header -->
+    <style name="Widget.App.Header.Section.Title" parent="Widget.App.TextView.Section.SectionHead">
+        <item name="android:maxLines">1</item>
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_section_text_size</item>
+        <!-- Override the line(height) and letter spacing to be 0 -->
+        <item name="android:lineSpacingExtra">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <!-- Set some autosizing limits options -->
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_section_text_size</item>
+        <item name="autoSizeMinTextSize">2dp</item>
+        <item name="autoSizeStepGranularity">0.1dp</item>
+    </style>
+
+    <style name="Widget.App.Header.Default.Title" parent="Widget.App.Header.Section.Title">
+        <item name="android:textSize">@dimen/fragment_header_default_text_size</item>
+        <item name="autoSizeMaxTextSize">@dimen/fragment_header_default_text_size</item>
+    </style>
+
+    <style name="Widget.App.Header.Section.Date" parent="Widget.App.TextView.Date.SectionHead">
+        <item name="android:maxLines">1</item>
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_section_date_text_size</item>
+        <!-- Align the fixed font to the previous fonts paddings to keep the header the same -->
+        <item name="android:layout_marginTop">@dimen/fragment_header_section_date_margin_top</item>
+    </style>
+
+    <style name="Widget.App.Header.Section.Date.Weekend" parent="Widget.App.Header.Section.Date">
+        <item name="android:layout_marginTop">0dp</item>
+    </style>
+
+    <style name="Widget.App.Header.Article.SectionTitle" parent="Widget.App.TextView.Section.ArticleHead">
+        <!-- Override the textSize, so it can be set depending on the display size and for LMd -->
+        <item name="android:textSize">@dimen/fragment_header_article_title_text_size</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="Widget.App.Header.Article.Num" parent="Widget.App.TextView.Counter.ArticleHead">
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
+    </style>
+
+    <style name="Widget.App.Header.Custom.SectionTitle" parent="Widget.App.Header.Article.SectionTitle" />
+    <style name="Widget.App.Header.Custom.Num" parent="Widget.App.Header.Article.Num" />
+    <style name="Widget.App.Header.Custom.Date" parent="Widget.App.TextView.Date.SectionHead">
+        <!-- Override the textSize, so it can be set depending on the display size -->
+        <item name="android:textSize">@dimen/fragment_header_article_text_size</item>
+        <!-- Align the fixed font to the previous fonts paddings to keep the header the same -->
+        <item name="android:layout_marginTop">@dimen/fragment_header_custom_date_margin_top</item>
+    </style>
+
+    <style name="Widget.Tazapp.AppWidget.Container" parent="android:Widget">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="Widget.Tazapp.AppWidget.InnerView" parent="android:Widget">
+        <item name="android:background">?android:attr/colorBackground</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+    <!-- endregion -->
 
 </resources>

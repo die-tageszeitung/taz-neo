@@ -5,6 +5,7 @@
     <color name="blue">#007AFF</color>
     <color name="green">#34C759</color>
     <color name="mediumLightGrey">#707070</color>
+    <color name="mediumGrey">#322F35</color>
     <color name="darkGrey">#1C1C1E</color>
     <color name="lightGrey">#9C9C9C</color>
     <color name="superDarkGrey">#121212</color>
@@ -20,6 +21,8 @@
     <color name="red">#d50e2f</color>
     <color name="white">#fff</color>
     <color name="yellow">#ff8</color>
+    <color name="lightGreen">#07E151</color>
+    <color name="mediumGreen">#00AA2B</color>
     <color name="darkGreen">#228400</color>
     <color name="darkOrange">#BA5900</color>
     <color name="darkGreyEightyPercentOpacity">#CC242424</color>
@@ -33,7 +36,7 @@
     <color name="text_icon_grey_darkmode">#BDBDBD</color>
     <color name="background">@color/white</color>
     <color name="background_darkmode">@color/superDarkGrey</color>
-    
+
     <!--    Colors with purpose name: Should be used outside of colors.xml -->
 
     <color name="bottom_sheet_text_color">@color/black</color>
@@ -116,13 +119,14 @@
 
     <color name="material_switch_color">@color/green</color>
     <color name="material_switch_color_unchecked">@color/superLightGrey</color>
+    <color name="material_switch_color_thumb">@color/white</color>
+    <color name="material_switch_color_thumb_unchecked">@color/lightGrey</color>
     <color name="read_minutes">@color/lightGrey</color>
 
     <color name="article_section_divider_color">@color/black</color>
 
     <color name="drawer_bookmark_icon_tint">@color/lightGrey</color>
 
-    <color name="fragment_settings_value_text">@color/colorAccent</color>
     <color name="colorAutofillBackground">@color/tazRed10Percent</color>
 
     <color name="audio_player_overlay_background">@color/darkGrey</color>
@@ -132,6 +136,14 @@
     <color name="audio_player_expanded_progress_unplayed_color">#363636</color>
     <color name="audio_player_expanded_progress_played_color">@color/white</color>
     <color name="audio_player_expanded_progress_scrubber_color">@color/white</color>
+    <color name="audio_player_playlist_playing_icon">@color/mediumGreen</color>
+    <color name="audio_player_playlist_delete_icon">#1F1F1F</color>
+    <color name="audio_player_options_sheet_separator_color">#38383A</color>
+    <color name="audio_player_speed_touch_area_color">@color/text_icon_grey</color>
+    <color name="audio_player_speed_text_color">@color/superLightGrey</color>
+    <color name="audio_player_enqueue_button_color">@color/lightGreen</color>
+    <color name="audio_player_text_color">@color/white</color>
+    <color name="audio_player_progress_time_text_color">@color/lightGrey</color>
 
     <color name="password_hint_strength_medium">@color/darkGreen</color>
     <color name="password_hint_strength_low">@color/darkOrange</color>
@@ -144,7 +156,11 @@
 
     <color name="text_input_hint_color">@color/text_icon_grey</color>
 
+    <color name="snack_bar_background_color">@color/mediumGrey</color>
+    <color name="snack_bar_button_text_color">@color/lightGrey</color>
+
     <!-- Colors used in drawables - defined as colors to be able to adapt them in dark mode -->
     <color name="ic_close_button_foreground_color">#85858B</color>
     <color name="ic_close_button_background_color">#E0E0E0</color>
+
 </resources>

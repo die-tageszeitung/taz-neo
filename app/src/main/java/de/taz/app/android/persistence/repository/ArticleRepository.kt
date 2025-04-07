@@ -11,8 +11,8 @@ import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.persistence.join.ArticleAuthorImageJoin
 import de.taz.app.android.persistence.join.ArticleImageJoin
-import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.util.SingletonHolder
 import java.util.Date
 
 
@@ -92,6 +92,10 @@ class ArticleRepository private constructor(applicationContext: Context) :
         return appDatabase.articleDao().get(articleFileName)
     }
 
+    suspend fun getStubByMediaSyncId(articleMediaSyncId: Int): ArticleStub? {
+        return appDatabase.articleDao().getByMediaSyncId(articleMediaSyncId)
+    }
+
     /* currently not used. see [TazApiJS] for further information
     suspend fun saveScrollingPosition(articleFileName: String, percentage: Int, position: Int) {
         val articleStub = getStub(articleFileName)
@@ -140,6 +144,30 @@ class ArticleRepository private constructor(applicationContext: Context) :
             null
         }
     }
+
+    suspend fun getFileNamesForArticle(articleName: String): List<String> {
+        val list = mutableListOf(articleName)
+        list.addAll(appDatabase.articleImageJoinDao().getNormalImageFileNamesForArticle(articleName))
+
+        // get authors
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+
+        val authorImageNames = authorImageJoins
+                .filter { !it.authorFileName.isNullOrEmpty() }
+                .mapNotNull { it.authorFileName }
+
+        list.addAll(authorImageNames)
+        return list.distinct()
+    }
+
+    suspend fun getAuthorNamesForArticle(articleName: String): List<String> {
+        val authorImageJoins =
+            appDatabase.articleAuthorImageJoinDao().getAuthorImageJoinForArticle(articleName)
+
+        return authorImageJoins.mapNotNull { it.authorName }.distinct()
+    }
+
 
     /**
      * Tries convert the ArticleStub to an Article

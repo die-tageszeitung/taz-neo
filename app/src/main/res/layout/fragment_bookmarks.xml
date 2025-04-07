@@ -29,19 +29,19 @@
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
+            style="@style/Widget.App.Bookmarks.Description"
             android:id="@+id/bookmarks_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/fragment_bookmarks_description_margin_horizontal"
-            android:lineSpacingExtra="@dimen/fragment_bookmarks_description_text_line_spacing_extra"
             android:text="@string/fragment_bookmarks_description"
             android:textAlignment="center"
-            android:textSize="@dimen/fragment_bookmarks_description_text_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bookmarks_description_icon" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <include
         android:id="@+id/loading_screen"
         layout="@layout/include_loading_screen"

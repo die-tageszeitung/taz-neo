@@ -36,26 +36,28 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
     val errorMessageFlow: StateFlow<String?> = _errorMessageFlow.asStateFlow()
 
     private val currentAudioPlayerItemIssueKey = audioPlayerService.currentItem.map {
-        when (it) {
-            is ArticleAudio -> it.issueStub.issueKey
-            is IssueAudio -> it.issueStub.issueKey
-            is PodcastAudio -> it.issueStub.issueKey
-            null -> null
-        }
+        it?.issueKey
     }
 
     val isIssueActiveAudio: Flow<Boolean> =
         combine(issueKey, audioPlayerService.uiState, currentAudioPlayerItemIssueKey) { issueKey: IssueKey?, state: UiState, currentAudioPlayerItemIssueKey: AbstractIssueKey? ->
             when (state) {
-                UiState.Hidden, is UiState.InitError, is UiState.Initializing, is UiState.Paused, is UiState.Error -> false
-                // Only show the drawers audio indicator as playing if isAutoPlayNext is enabled and if a whole issue is playing
-                // FIXME (johannes): checking state.playerState.controls.autoPlayNext is a hack that allows me to skip passing additional information about the "type" of playing thing to the UI state for now
-                is UiState.Playing -> state.playerState.isAutoPlayNext
-                        && state.playerState.controls.autoPlayNext == UiState.ControlValue.ENABLED
-                        && currentAudioPlayerItemIssueKey != null
-                        && IssueKey(currentAudioPlayerItemIssueKey) == issueKey
+                UiState.Hidden -> false
+                is UiState.MaxiPlayer -> isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
+                is UiState.MiniPlayer ->  isActiveIssueAudio(state.playerState, issueKey, currentAudioPlayerItemIssueKey)
             }
         }
+
+    private fun isActiveIssueAudio(playerState: UiState.PlayerState, issueKey: IssueKey?, currentAudioPlayerItemIssueKey: AbstractIssueKey?): Boolean = when(playerState) {
+        UiState.PlayerState.Initializing, is UiState.PlayerState.Paused -> false
+        // Only show the drawers audio indicator as playing if isAutoPlayNext is enabled and if a whole issue is playing
+        // FIXME (johannes): checking state.playerState.controls.autoPlayNext is a hack that allows me to skip passing additional information about the "type" of playing thing to the UI state for now
+        is UiState.PlayerState.Playing -> playerState.playerUiState.isAutoPlayNext
+                && playerState.playerUiState.controls.autoPlayNext == UiState.ControlValue.ENABLED
+                && currentAudioPlayerItemIssueKey != null
+                && IssueKey(currentAudioPlayerItemIssueKey) == issueKey
+                && audioPlayerService.isIssuePlayer
+    }
 
     fun setIssueStub(issueStub: IssueStub) {
         this.issueStub.value = issueStub
@@ -66,8 +68,7 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
         val currentIssueStub = issueStub.value
         if (currentIssueStub != null) {
             try {
-                audioPlayerService.setAutoPlayNext(true)
-                audioPlayerService.playIssue(currentIssueStub)
+                audioPlayerService.togglePlayIssue(currentIssueStub)
             } catch (e: Exception) {
                 log.error("Could not play issue audio (${currentIssueStub.issueKey})", e)
                 _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
@@ -76,6 +77,18 @@ class DrawerAudioPlayerViewModel(androidApplication: Application) :
             log.error("handleOnPlayAllClicked() was called before setIssue()")
             _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)
         }
+    }
+
+    fun enqueue(articleKey: String) {
+        try {
+            audioPlayerService.enqueueArticle(articleKey)
+        } catch (e: Exception) {
+            log.error("Could not play article audio (${articleKey})", e)
+            _errorMessageFlow.value = application.getString(R.string.toast_unknown_error)}
+    }
+
+    fun removeFromPlaylist(articleKey: String) {
+        audioPlayerService.removeItemFromPlaylist(articleKey)
     }
 
     fun clearErrorMessage() {

@@ -12,14 +12,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.DISPLAYABLE_NAME
 import de.taz.app.android.R
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.ImagePagerActivity
 import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
+import kotlin.text.replace
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -173,12 +173,51 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
         }
     }
 
+    /**
+     * @return Array of article names encoded as JSON
+     */
     @JavascriptInterface
-    fun onMultiColumnLayoutReady() {
-        if (webViewFragment is MultiColumnLayoutReadyCallback) {
-            webViewFragment.onMultiColumnLayoutReady()
+    fun getEnqueuedArticleNames(articleNamesJson: String): String {
+        val articleNamesWithPrefix: List<String> = try {
+            Json.decodeFromString(articleNamesJson)
+        } catch (e: IllegalArgumentException) {
+            log.warn("Could not decode articleNames passed from JS: $articleNamesJson", e)
+            emptyList()
+        }
+
+        val articleNames = articleNamesWithPrefix.map { it.replace("PlaylistAdd.","") }
+        val enqueuedArticleNames = runBlocking {
+            webViewFragment.setupEnqueuedHandling(articleNames)
+        }
+        return Json.encodeToString(enqueuedArticleNames)
+    }
+
+    @JavascriptInterface
+    fun setEnqueued(articleName: String, isEnqueued: Boolean) {
+        val correctArticleName = articleName.replace("PlaylistAdd.","")
+        runBlocking {
+            webViewFragment.onEnqueued(correctArticleName, isEnqueued)
         }
     }
+
+    /**
+     * Parse the given [contentWidth] String to an Integer.
+     * Mostly it will be something like "1627.33px" and should pass then 1627
+     * to the [MultiColumnLayoutReadyCallback.onMultiColumnLayoutReady].
+     */
+    @JavascriptInterface
+    fun onMultiColumnLayoutReady(contentWidth: String?) {
+        val parsedContentWidth = try {
+            contentWidth?.replace("px", "")?.toFloat()
+        } catch (e: NumberFormatException) {
+            log.warn("Could not parse $contentWidth to int. Passing null")
+            null
+        }
+        if (webViewFragment is MultiColumnLayoutReadyCallback) {
+            webViewFragment.onMultiColumnLayoutReady(parsedContentWidth?.toInt())
+        }
+    }
+
 
     @JavascriptInterface
     fun logMissingJsFeature(name: String) {

@@ -55,20 +55,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:paddingTop="@dimen/view_moment_download_wrapper_padding_vertical"
+        android:paddingBottom="@dimen/view_moment_download_wrapper_padding_vertical"
         tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <TextView
             android:id="@+id/fragment_moment_date"
-            style="@style/TextAppearance.Archive.Date"
+            style="@style/Widget.App.Archive.Date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/fragment_archive_moment_date_padding_top"
-            android:paddingBottom="@dimen/fragment_archive_moment_date_padding_bottom"
             android:maxLines="1"
             android:ellipsize="end"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/view_moment_download_icon_wrapper"
             tools:text="November 2023"/>
 

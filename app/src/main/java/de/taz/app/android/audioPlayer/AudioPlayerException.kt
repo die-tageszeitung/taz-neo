@@ -11,6 +11,9 @@ sealed class AudioPlayerException(
     message: String? = null, cause: Throwable? = null
 ) : Exception(message, cause) {
 
+    class Initialization(message: String? = null, cause: Throwable? = null):
+        AudioPlayerException(message, cause)
+
     class Generic(message: String? = null, cause: Throwable? = null) :
         AudioPlayerException(message, cause)
 

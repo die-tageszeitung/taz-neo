@@ -1,12 +1,12 @@
 package de.taz.app.android.ui.bottomSheet.issue
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
@@ -23,6 +23,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
@@ -31,11 +32,10 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.ui.issueViewer.IssueViewerActivity
-import de.taz.app.android.ui.pdfViewer.PdfPagerActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,9 +106,14 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             if (getIsDownloaded()) {
                 viewBinding.fragmentBottomSheetIssueDelete.visibility = View.VISIBLE
                 viewBinding.fragmentBottomSheetIssueDownload.visibility = View.GONE
+                viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_additionally_audios)
             } else {
                 viewBinding.fragmentBottomSheetIssueDelete.visibility = View.GONE
                 viewBinding.fragmentBottomSheetIssueDownload.visibility = View.VISIBLE
+                viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_with_audios)
+            }
+            if (issueRepository.areAllAudiosDownloaded(issuePublication)) {
+                viewBinding.fragmentBottomSheetIssueDownloadAudios.visibility = View.GONE
             }
             loadingScreen?.visibility = View.GONE
         }
@@ -145,27 +150,29 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         viewBinding.fragmentBottomSheetIssueDownload.setOnClickListener {
             applicationScope.launch {
-                try {
-                    val isPdfMode = generalDataStore.pdfMode.get()
-                    val abstractIssuePublication = if (isPdfMode) {
-                        IssuePublicationWithPages(issuePublication)
-                    } else {
-                        issuePublication
-                    }
-                    contentService.downloadIssuePublicationToCache(abstractIssuePublication)
-                } catch (e: CacheOperationFailedException) {
-                    // Errors are handled in CoverViewBinding
-                } catch (e: CannotDetermineBaseUrlException) {
-                    // FIXME (johannes): Workaround to #14367
-                    // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
-                    log.warn(
-                        "Could not determine baseurl for issue with publication $issuePublication",
-                        e
-                    )
-                    SentryWrapper.captureException(e)
-                }
+                downloadIssue()
             }
             dismiss()
+        }
+
+        viewBinding.fragmentBottomSheetIssueDownloadAudios.setOnClickListener {
+            loadingScreen?.visibility = View.VISIBLE
+            applicationScope.launch {
+                if (!getIsDownloaded()) {
+                    downloadIssue()
+                }
+                val issueStub = checkNotNull(
+                    issueRepository.getMostValuableIssueStubForPublication(issuePublication)
+                )
+                contentService.downloadAllAudiosFromIssuePublication(
+                    issuePublication,
+                    issueStub.baseUrl
+                )
+                tracker.trackIssueDownloadAudiosEvent(issueStub.issueKey)
+                withContext(Dispatchers.Main) {
+                    dismiss()
+                }
+            }
         }
     }
 
@@ -200,14 +207,17 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
     private suspend fun handleIssueRead() {
         val isOnline = ConnectionStatusHelper.isOnline(requireContext())
         requireActivity().apply {
-            val intent =
+            val fragment =
                 if (homeViewModel.getPdfMode()) {
-                    PdfPagerActivity.newIntent(this, IssuePublicationWithPages(issuePublication))
+                    PdfPagerWrapperFragment.newInstance(IssuePublicationWithPages(issuePublication))
                 } else {
-                    IssueViewerActivity.newIntent(this, issuePublication)
+                    IssueViewerWrapperFragment.newInstance(issuePublication)
                 }
             if (getIsDownloaded() || isOnline) {
-                startActivity(intent)
+                supportFragmentManager.commit {
+                    add(R.id.main_content_fragment_placeholder, fragment)
+                    addToBackStack(null)
+                }
             } else {
                 parentFragment?.showNoInternetDialog()
             }
@@ -239,14 +249,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                     File(imageAsFile)
                 )
 
-                log.debug("imageUriNew: $imageUriNew")
-                log.debug("imageAsFile: $imageAsFile")
-                val sendIntent: Intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_STREAM, imageUriNew)
-                    type = "image/jpg"
-                }
-
                 tracker.trackShareMomentEvent(issueStub.issueKey)
 
                 ShareCompat.IntentBuilder(requireContext())
@@ -264,4 +266,25 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         }
     }
 
+    private suspend fun downloadIssue() {
+        try {
+            val isPdfMode = generalDataStore.pdfMode.get()
+            val abstractIssuePublication = if (isPdfMode) {
+                IssuePublicationWithPages(issuePublication)
+            } else {
+                issuePublication
+            }
+            contentService.downloadIssuePublicationToCache(abstractIssuePublication)
+        } catch (e: CacheOperationFailedException) {
+            // Errors are handled in CoverViewBinding
+        } catch (e: CannotDetermineBaseUrlException) {
+            // FIXME (johannes): Workaround to #14367
+            // concurrent download/deletion jobs might result in a articles missing their parent issue and thus not being able to find the base url
+            log.warn(
+                "Could not determine baseurl for issue with publication $issuePublication",
+                e
+            )
+            SentryWrapper.captureException(e)
+        }
+    }
 }
