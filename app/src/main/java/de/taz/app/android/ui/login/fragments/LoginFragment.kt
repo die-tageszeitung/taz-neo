@@ -103,7 +103,7 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
 
             fragmentLoginActionDataPolicy.apply {
                 // Show data policy link only on free variants
-                isGone = BuildConfig.IS_NON_FREE
+                isGone = BuildConfig.IS_NON_FREE && !BuildConfig.IS_LMD
                 setOnClickListener {
                     showDataPolicy()
                 }
