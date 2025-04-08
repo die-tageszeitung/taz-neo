@@ -30,25 +30,13 @@
                 android:text="@string/fragment_login_description"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- this is an interim text field which should be removed ssonish. ONLY FOR LMd release !-->
-            <TextView
-                android:id="@+id/fragment_login_username_extra_hint"
-                style="@style/Widget.App.Login.Action.Extra.Text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
-                android:text="Falls Ihr Abo-Zugang noch nicht auf Ihre E-Mail-Adresse umgestellt wurde, geben Sie hier bitte Ihre Abo-ID ein"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_description" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_login_username_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/login_text_input_margin_top"
                 android:hint="@string/login_username_hint"
-                app:layout_constraintTop_toBottomOf="@id/fragment_login_username_extra_hint">
+                app:layout_constraintTop_toBottomOf="@id/fragment_login_description">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/fragment_login_username"
