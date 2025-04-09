@@ -8,12 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.audioPlayer.AudioPlayerService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
@@ -31,7 +33,7 @@ class ArticleAdapter(
     var articles: List<ArticleOperations>,
     private val onArticleClick: (article: ArticleOperations) -> Unit,
     private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
-    private val onAudioEnqueueClick: (ArticleOperations) -> Unit,
+    private val onAudioEnqueueClick: (ArticleOperations, Boolean) -> Unit,
     private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) : RecyclerView.Adapter<ArticleAdapter.ArticleHolder>() {
 
@@ -52,7 +54,9 @@ class ArticleAdapter(
             itemView.findViewById(R.id.article_author_and_read_minutes)
         private val articleIsBookmarked: ImageView =
             itemView.findViewById(R.id.article_is_bookmarked)
-        private val articleIsEnqueued: ImageView =
+        private val articleEnqueueIcon: ImageView =
+            itemView.findViewById(R.id.article_enqueue)
+        private val articleIsEnQueuedIcon: ImageView =
             itemView.findViewById(R.id.article_is_enqueued)
         private val articleDivider: View = itemView.findViewById(R.id.article_divider)
 
@@ -103,15 +107,11 @@ class ArticleAdapter(
 
             if (article.isImprint()){
                 articleIsBookmarked.visibility = View.GONE
-                articleIsEnqueued.visibility = View.GONE
+                articleEnqueueIcon.visibility = View.GONE
             } else {
                 articleIsBookmarked.visibility = View.VISIBLE
                 articleIsBookmarked.setOnClickListener {
                     onArticleBookmarkClick(article)
-                }
-                articleIsEnqueued.visibility = View.VISIBLE
-                articleIsEnqueued.setOnClickListener {
-                    onAudioEnqueueClick(article)
                 }
             }
 
@@ -127,29 +127,24 @@ class ArticleAdapter(
             }
             val articleIsEnqueuedFlow = audioPlayerService.isInPlaylistFlow(article)
             launch {
-                articleIsEnqueuedFlow.collect { enqueued ->
+                articleIsEnqueuedFlow.collect { isEnqueued ->
                     if (article.hasAudio(applicationContext))
-                        if (enqueued) {
-                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueued)
-                            // tint the image view to textColor
-                            articleIsEnqueued.setColorFilter(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    R.color.textColor
-                                ), android.graphics.PorterDuff.Mode.SRC_IN
-                            )
+                        if (isEnqueued) {
+                            articleIsEnQueuedIcon.visibility = View.VISIBLE
+                            articleEnqueueIcon.visibility = View.GONE
+                            articleIsEnQueuedIcon.setOnClickListener {
+                                onAudioEnqueueClick(article, isEnqueued)
+                            }
                         } else {
-                            articleIsEnqueued.setImageResource(R.drawable.ic_audio_enqueue)
-                            // tint the image view to textColorAccent
-                            articleIsEnqueued.setColorFilter(
-                                ContextCompat.getColor(
-                                    applicationContext,
-                                    R.color.textColorAccent
-                                ), android.graphics.PorterDuff.Mode.SRC_IN
-                            )
+                            articleIsEnQueuedIcon.visibility = View.GONE
+                            articleEnqueueIcon.visibility = View.VISIBLE
+                            articleEnqueueIcon.setOnClickListener {
+                                onAudioEnqueueClick(article, isEnqueued)
+                            }
                         }
                     else {
-                        articleIsEnqueued.visibility = View.GONE
+                        articleEnqueueIcon.visibility = View.GONE
+                        articleIsEnQueuedIcon.visibility = View.GONE
                     }
                 }
             }

@@ -20,7 +20,6 @@ import de.taz.app.android.api.models.PageType
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.databinding.FragmentDrawerBodyPdfPagesBinding
-import de.taz.app.android.monkey.setDefaultInsets
 import de.taz.app.android.monkey.setDefaultVerticalInsets
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.StorageService

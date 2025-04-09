@@ -79,12 +79,10 @@ class LoginFragment : LoginBaseFragment<FragmentLoginBinding>() {
             }
 
             if (BuildConfig.IS_LMD) {
-                fragmentLoginPasswordHelpForgot.isVisible = false
                 fragmentLoginSubscriptions.root.isVisible = false
-            } else {
-                fragmentLoginPasswordHelpForgot.setOnClickListener {
-                    viewModel.requestPasswordReset()
-                }
+            }
+            fragmentLoginPasswordHelpForgot.setOnClickListener {
+                viewModel.requestPasswordReset()
             }
 
             fragmentLoginUsernameHelp.setOnClickListener {
