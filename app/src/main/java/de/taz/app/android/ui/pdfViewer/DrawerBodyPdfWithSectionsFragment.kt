@@ -156,9 +156,13 @@ class DrawerBodyPdfWithSectionsFragment :
         toggleBookmark(article)
     }
 
-    private fun handleAudioEnqueueClick(article: ArticleOperations) {
-        tracker.trackPlaylistEnqueueEvent()
-        drawerAudioPlayerViewModel.enqueue(article.key)
+    private fun handleAudioEnqueueClick(article: ArticleOperations, isEnqueued: Boolean? = false) {
+        if (isEnqueued == true) {
+            drawerAudioPlayerViewModel.removeFromPlaylist(article.key)
+        } else {
+            tracker.trackPlaylistEnqueueEvent()
+            drawerAudioPlayerViewModel.enqueue(article.key)
+        }
     }
 
     private fun createArticleBookmarkStateFlow(article: ArticleOperations): Flow<Boolean> {

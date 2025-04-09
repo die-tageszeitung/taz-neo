@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/list_item_pdf_page_toc_teaser_margin_top"
         android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@id/article_is_enqueued"
+        app:layout_constraintEnd_toStartOf="@id/article_enqueue_wrapper"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/article_title"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -44,17 +44,34 @@
         tools:fontFamily="@font/appFontAlternativeItalic"
         tools:text="Auto Rindesartikels, Zweit Erautor, Mitga Nzlangennamen 13 min" />
 
-    <ImageView
-        android:id="@+id/article_is_enqueued"
-        android:layout_width="@dimen/drawer_default_icon_size"
-        android:layout_height="@dimen/drawer_default_icon_size"
-        android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
-        android:contentDescription="@string/fragment_drawer_article_item_enqueue"
-        android:padding="@dimen/drawer_default_icon_padding"
-        android:src="@drawable/ic_audio_enqueue"
-        app:layout_constraintTop_toBottomOf="@id/article_is_bookmarked"
+    <FrameLayout
+        android:id="@+id/article_enqueue_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/textColorAccent" />
+        app:layout_constraintTop_toBottomOf="@id/article_is_bookmarked">
+
+        <ImageView
+            android:id="@+id/article_enqueue"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+            android:contentDescription="@string/fragment_drawer_article_item_enqueue"
+            android:padding="@dimen/drawer_default_icon_padding"
+            android:src="@drawable/ic_audio_enqueue"
+            app:tint="@color/textColorAccent" />
+
+        <ImageView
+            android:id="@+id/article_is_enqueued"
+            android:layout_width="@dimen/drawer_default_icon_size"
+            android:layout_height="@dimen/drawer_default_icon_size"
+            android:layout_marginEnd="@dimen/drawer_icon_negative_margin"
+            android:contentDescription="@string/fragment_drawer_article_item_enqueued"
+            android:padding="@dimen/drawer_default_icon_padding"
+            android:src="@drawable/ic_audio_enqueued"
+            android:visibility="gone"
+            app:tint="@color/textColor" />
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/article_is_bookmarked"
