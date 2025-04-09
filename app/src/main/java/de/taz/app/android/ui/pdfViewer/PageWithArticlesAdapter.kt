@@ -34,7 +34,7 @@ class PageWithArticlesAdapter(
     private val onPageCLick: (pageName: String) -> Unit,
     private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
     private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
-    private val onAudioEnqueueClick: (article: ArticleOperations) -> Unit,
+    private val onAudioEnqueueClick: (article: ArticleOperations, isEnqueued: Boolean?) -> Unit,
     private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
 ) :
     RecyclerView.Adapter<ViewHolder>() {
@@ -44,7 +44,7 @@ class PageWithArticlesAdapter(
         private val onPageCLick: (pageName: String) -> Unit,
         private val onArticleClick: (pagePosition: Int, article: ArticleOperations) -> Unit,
         private val onArticleBookmarkClick: (article: ArticleOperations) -> Unit,
-        private val onAudioEnqueueClick: (article: ArticleOperations) -> Unit,
+        private val onAudioEnqueueClick: (article: ArticleOperations, isEnqueued: Boolean) -> Unit,
         private val articleBookmarkStateFlowCreator: (article: ArticleOperations) -> Flow<Boolean>,
         private val showDivider: Boolean
     ) :
@@ -87,7 +87,7 @@ class PageWithArticlesAdapter(
                     it,
                     { article -> onArticleClick(absoluteAdapterPosition, article) },
                     { article -> onArticleBookmarkClick(article) },
-                    { article -> onAudioEnqueueClick(article) },
+                    { article, isEnqueued -> onAudioEnqueueClick(article, isEnqueued) },
                     articleBookmarkStateFlowCreator
                 )
             }
