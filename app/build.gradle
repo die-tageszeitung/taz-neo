@@ -8,7 +8,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.allopen'
 
     // Must be in sync with the "def room_version" below
-    id 'androidx.room' version '2.6.1'
+    id 'androidx.room' version '2.7.1'
     id 'com.github.triplet.play' version '3.10.1'
 
     // Only define the google-services globally, and apply them only for nonfree variants
@@ -326,10 +326,10 @@ dependencies {
     def glide_version = '4.16.0'
     def ktor_version = '3.0.3'
     def lifecycle_version = '2.8.7'
-    def room_version = '2.6.1'
-    def work_version = '2.10.0'
-    def media3_version = '1.5.1'
-    def sentry_version = '8.3.0'
+    def room_version = '2.7.1'
+    def work_version = '2.10.1'
+    def media3_version = '1.6.1'
+    def sentry_version = '8.7.0'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -343,7 +343,7 @@ dependencies {
 
 
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.core:core-ktx:1.16.0'
 
     implementation 'androidx.collection:collection-ktx:1.5.0'
     implementation 'androidx.datastore:datastore-preferences:1.1.3'
