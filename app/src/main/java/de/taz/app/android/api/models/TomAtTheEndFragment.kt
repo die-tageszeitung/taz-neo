@@ -3,13 +3,10 @@ package de.taz.app.android.api.models
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.ViewCompat.animate
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R

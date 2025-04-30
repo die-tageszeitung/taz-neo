@@ -18,7 +18,7 @@ interface SectionArticleJoinDao : BaseDao<SectionArticleJoin> {
             WHERE SectionArticleJoin.sectionFileName == :sectionFileName ORDER BY SectionArticleJoin.`index` ASC
         """
     )
-    suspend fun getArticlesForSection(sectionFileName: String): List<ArticleStub>?
+    suspend fun getArticlesForSection(sectionFileName: String): List<ArticleStub>
 
 
     @Query(
