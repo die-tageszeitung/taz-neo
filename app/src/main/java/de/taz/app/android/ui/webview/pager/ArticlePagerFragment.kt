@@ -64,7 +64,6 @@ import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutProvider
 import de.taz.app.android.ui.webview.TapIconsViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -813,6 +812,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         if (currentPosition > 0) {
             viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition - 1, false)
         }
+    }
+
+    /**
+     * Scroll to the very first page/item.
+     */
+    fun pageToFirst() {
+        viewBinding.webviewPagerViewpager.setCurrentItem(0, true)
     }
 
     override fun getAppBarLayout(): AppBarLayout = viewBinding.appBarLayout

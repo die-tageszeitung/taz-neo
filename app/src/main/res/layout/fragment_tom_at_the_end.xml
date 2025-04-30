@@ -9,7 +9,9 @@
         android:id="@+id/tom_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="@string/description_tom_at_the_end" />
+        android:clickable="true"
+        android:contentDescription="@string/description_tom_at_the_end"
+        android:focusable="true" />
 
     <!-- Use a custom loading screen to be able to fix the indicator position with a paddingBottom
          so that it is at the same position as the one shown from the pager -->

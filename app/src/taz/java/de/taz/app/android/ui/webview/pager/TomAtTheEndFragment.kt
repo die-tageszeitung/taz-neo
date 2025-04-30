@@ -1,22 +1,18 @@
-package de.taz.app.android.api.models
+package de.taz.app.android.ui.webview.pager
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.core.view.GestureDetectorCompat
-import androidx.core.view.ViewCompat.animate
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentTomAtTheEndBinding
-import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
@@ -25,6 +21,7 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
     private lateinit var tazApiCssStore: TazApiCssDataStore
 
     private lateinit var gestureDetector: GestureDetector
+    private val lastTom: Int = R.drawable.tom_12
     private var handleTapToScroll = false
 
     companion object {
@@ -51,7 +48,16 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
             viewBinding.tomImage.apply {
                 setImageResource(tomResId)
                 setOnTouchListener { _, event ->
-                    gestureDetector.onTouchEvent(event)
+                    if (tomResId == lastTom) {
+                        false
+                    } else {
+                        gestureDetector.onTouchEvent(event)
+                    }
+                }
+                if (tomResId == lastTom) {
+                    setOnClickListener {
+                        pageToFirst()
+                    }
                 }
             }
 
@@ -105,6 +111,10 @@ class TomAtTheEndFragment : BaseMainFragment<FragmentTomAtTheEndBinding>() {
 
     private fun pageLeft() {
         (parentFragment as? ArticlePagerFragment)?.pageLeft()
+    }
+
+    private fun pageToFirst() {
+        (parentFragment as? ArticlePagerFragment)?.pageToFirst()
     }
 
     fun hideLoadingScreen() {
