@@ -287,7 +287,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                     }
                 }
 
-                articleStub == null && date != null -> {
+                date != null -> {
                     // We can assume that we want to bookmark it as we cannot de-bookmark a not downloaded article
                     articleBottomActionBarNavigationHelper.setBookmarkIcon(isBookmarked = true)
                     SnackBarHelper.showBookmarkSnack(

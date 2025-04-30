@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.webkit.WebView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -65,7 +64,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = flags or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
             issuePublication?.let { intent.putExtra(KEY_ISSUE_PUBLICATION, issuePublication) }
-            ContextCompat.startActivity(context, intent, null)
+            context.startActivity(intent)
         }
 
         fun start(
@@ -73,10 +72,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             issuePublication: IssuePublicationWithPages,
             displayableKey: String,
         ) {
-            ContextCompat.startActivity(
-                context,
+            context.startActivity(
                 newIntent(context, issuePublication, displayableKey),
-                null
             )
         }
 
@@ -85,10 +82,8 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             issuePublication: IssuePublication,
             displayableKey: String,
         ) {
-            ContextCompat.startActivity(
-                context,
+            context.startActivity(
                 newIntent(context, issuePublication, displayableKey),
-                null
             )
         }
 
