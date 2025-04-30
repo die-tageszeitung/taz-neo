@@ -18,6 +18,7 @@ package de.taz.app.android.ui.webview;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -857,6 +858,7 @@ public class NestedScrollWebView extends WebView implements NestedScrollingChild
         super.onScrollChanged(l, t, oldl, oldt);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (!internalScrollDetector.onTouchEvent(event)) {

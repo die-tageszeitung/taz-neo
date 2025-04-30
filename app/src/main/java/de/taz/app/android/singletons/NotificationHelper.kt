@@ -1,12 +1,16 @@
 package de.taz.app.android.singletons
 
+import android.Manifest
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.annotation.StringRes
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import de.taz.app.android.R
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 
 
@@ -59,7 +63,15 @@ class NotificationHelper private constructor(private val applicationContext: Con
             builder.setAutoCancel(true)
         }
 
-        notificationManagerCompat.notify(notificationId, builder.build())
+        if (ActivityCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationManagerCompat.notify(notificationId, builder.build())
+        } else {
+            SentryWrapper.captureMessage("Could not show notification. Permission not granted.")
+        }
     }
 
 }

@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 
 class SettingsActivity : ViewBindingActivity<ActivitySettingsBinding>() {
 
-    @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     private lateinit var authHelper: AuthHelper

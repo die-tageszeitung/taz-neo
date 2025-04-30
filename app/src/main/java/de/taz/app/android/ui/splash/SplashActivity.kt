@@ -1,6 +1,6 @@
 package de.taz.app.android.ui.splash
 
-import android.annotation.TargetApi
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +11,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -66,6 +67,7 @@ private const val MAX_RETRIES_ON_STARTUP = 3
 private const val DOWNLOAD_TASKS_TIMEOUT_MS = 2_000L
 private const val MIN_VERSION_QUERY_TIMEOUT_MS = 250L
 
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : StartupActivity() {
 
     private val log by Log
@@ -405,7 +407,7 @@ class SplashActivity : StartupActivity() {
         }
     }
 
-    @TargetApi(26)
+    @RequiresApi(26)
     private fun generateNotificationChannel(
         @StringRes channelName: Int,
         @StringRes channelDescription: Int,
@@ -420,7 +422,7 @@ class SplashActivity : StartupActivity() {
         )
     }
 
-    @TargetApi(26)
+    @RequiresApi(26)
     private fun generateNotificationChannel(
         @StringRes channelName: Int,
         @StringRes channelDescription: Int,
