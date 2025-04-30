@@ -2,7 +2,6 @@ package de.taz.app.android
 
 import android.app.Activity
 import android.app.Application
-import android.os.Build
 import android.os.StrictMode
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -79,8 +78,8 @@ abstract class AbstractTazApplication : Application() {
     }
 
     override fun onTrimMemory(level: Int) {
-        when (level) {
-            TRIM_MEMORY_UI_HIDDEN, TRIM_MEMORY_COMPLETE -> _tracker?.dispatch()
+        if (level == TRIM_MEMORY_UI_HIDDEN || level == TRIM_MEMORY_COMPLETE) {
+            _tracker?.dispatch()
         }
         super.onTrimMemory(level)
     }

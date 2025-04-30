@@ -25,7 +25,6 @@ class BookmarkViewerActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {

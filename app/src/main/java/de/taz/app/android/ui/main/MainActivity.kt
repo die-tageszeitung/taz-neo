@@ -119,7 +119,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
-    @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {

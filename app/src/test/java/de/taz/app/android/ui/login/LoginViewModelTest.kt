@@ -20,6 +20,7 @@ import de.taz.app.android.tracking.NoOpTracker
 import de.taz.app.android.tracking.Tracker
 import de.taz.test.SingletonTestUtil
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.*
@@ -600,12 +601,14 @@ class LoginViewModelTest {
 
     @Test
     fun requestCredentialsPasswordNoInternet() = runTest {
-        doThrow(ConnectivityException.NoInternetException(cause = ConnectException())).`when`(
-            apiService
-        ).requestCredentialsPasswordReset(email)
-        loginViewModel.requestCredentialsPasswordReset(email)?.join()
-        assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
-        assertTrue(loginViewModel.noInternet == true)
+        runBlocking {
+            doThrow(ConnectivityException.NoInternetException(cause = ConnectException())).`when`(
+                apiService
+            ).requestCredentialsPasswordReset(email)
+            loginViewModel.requestCredentialsPasswordReset(email)?.join()
+            assertEquals(LoginViewModelState.PASSWORD_REQUEST, loginViewModel.status)
+            assertTrue(loginViewModel.noInternet)
+        }
     }
 
     @Test

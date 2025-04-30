@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.pdfViewer.mupdf;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -368,6 +369,7 @@ public class ReaderView
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if ((event.getAction() & event.getActionMasked()) == MotionEvent.ACTION_DOWN) {

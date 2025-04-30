@@ -12,7 +12,6 @@ import de.taz.app.android.ui.navigation.setupBottomNavigation
 
 class BookmarkListActivity : ViewBindingActivity<ActivityBookmarksBinding>() {
 
-    @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {

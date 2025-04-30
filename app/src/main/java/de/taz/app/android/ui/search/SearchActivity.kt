@@ -66,7 +66,6 @@ class SearchActivity :
 
     private val viewModel by viewModels<SearchResultViewModel>()
 
-    @Suppress("unused")
     private val audioPlayerViewController = AudioPlayerViewController(this)
 
     // region Activity functions
