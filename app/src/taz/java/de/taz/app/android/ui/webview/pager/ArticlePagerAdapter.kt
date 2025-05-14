@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.ArticleStubWithSectionKey
-import de.taz.app.android.api.models.TomAtTheEndFragment
 import de.taz.app.android.ui.webview.ArticleWebViewFragment
 
 class ArticlePagerAdapter(
