@@ -199,7 +199,7 @@ var tazApi = (function() {
         // then set its exact width, so that the outer Android WebView can handle the scrolling.
         function setContentWidthForColumns() {
             // After css has calculated the columns, we can take a look at the scrollWidth to
-            // find out the actual number of columns and set the content width sothat
+            // find out the actual number of columns and set the content width so that
             // it fits the columns exactly.
             var factor = Math.floor(content.scrollWidth / (columnWidthPx + columnGapPx));
             var contentWidth = factor * columnWidthPx + (factor - 1) * columnGapPx;

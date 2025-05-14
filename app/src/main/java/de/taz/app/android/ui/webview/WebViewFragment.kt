@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.View.LAYER_TYPE_HARDWARE
+import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.WindowInsets
 import android.webkit.WebSettings
 import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
@@ -200,6 +203,11 @@ abstract class WebViewFragment<
                     else -> false
                 }
             }
+
+            // For tablets the bottom navigation layout does not collapse, so we need
+            // extra margin here, so the content won' be behind the nav bar
+            addBottomMarginIfNecessary()
+
             addJavascriptInterface(TazApiJS(this@WebViewFragment), TAZ_API_JS)
             setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundColor))
         }
@@ -490,6 +498,25 @@ abstract class WebViewFragment<
         return statusBarHeight
     }
 
+    fun getNavigationBarHeight(): Int {
+        val rootWindowInsets = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            view?.rootWindowInsets
+        } else {
+            null
+        }
+
+        val navigationBarHeight =
+            if (rootWindowInsets != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                rootWindowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
+            } else {
+                resources.getDimensionPixelSize(
+                    resources.getIdentifier("navigation_bar_height", "dimen", "android"                    )
+                )
+            }
+
+        return navigationBarHeight
+    }
+
     abstract fun setHeader(displayable: DISPLAYABLE)
 
     /**
@@ -626,5 +653,15 @@ abstract class WebViewFragment<
             return true
         }
         return false
+    }
+
+    fun addBottomMarginIfNecessary() {
+        val isTablet = resources.getBoolean(R.bool.isTablet)
+        if (isTablet && !multiColumnMode && webView.marginBottom == 0) {
+            val heightOfToolBar = bottomNavigationLayout?.height ?: 0
+            webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = heightOfToolBar
+            }
+        }
     }
 }
