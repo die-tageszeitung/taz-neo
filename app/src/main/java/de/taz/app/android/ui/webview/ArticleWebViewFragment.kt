@@ -4,6 +4,9 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.marginBottom
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -146,6 +149,12 @@ class ArticleWebViewFragment :
                 webView.injectCss()
                 val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
                 if (isMultiColumn) {
+                    // Remove the bottom margin (maybe it was set before):
+                    if (webView.marginBottom > 0) {
+                        webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                            bottomMargin = 0
+                        }
+                    }
                     // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
                     webView.callTazApi(
                         "enableArticleColumnMode",
@@ -153,7 +162,12 @@ class ArticleWebViewFragment :
                         calculateColumnWidth(),
                         DEFAULT_COLUMN_GAP_PX,
                     )
+                } else {
+                    // For tablets the bottom navigation layout does not collapse, so we need
+                    // extra margin here, so the content won' be behind the nav bar
+                    addBottomMarginIfNecessary()
                 }
+
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
                     webView.reload()
                 }
@@ -250,13 +264,23 @@ class ArticleWebViewFragment :
     }
 
     private fun calculateColumnHeight(): Float {
-        val webViewMarginTop =
+        val verticalWebViewMarginPx =
             resources.getDimensionPixelSize(R.dimen.fragment_webview_article_little_margin_top)
 
-        val navBarHeight =
+        val navBarHeightPx =
             resources.getDimensionPixelSize(R.dimen.nav_bottom_height)
 
-        return viewBinding.webView.height.toFloat() / resources.displayMetrics.density - webViewMarginTop - navBarHeight
+        // Since Android 15 (sdk 35), the content draws behind the system bars,
+        // so the navigation needs to be subtracted as well:
+        val androidNavBarPx = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            getNavigationBarHeight()
+        } else {
+            0
+        }
+
+        val resultInPixel = viewBinding.webView.height - 2*verticalWebViewMarginPx - navBarHeightPx - androidNavBarPx
+        val resultInDp = resultInPixel / resources.displayMetrics.density
+        return resultInDp
     }
 
     private fun calculateColumnWidth(): Float {
