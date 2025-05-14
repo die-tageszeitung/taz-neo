@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
@@ -929,7 +930,12 @@ class AudioPlayerViewController(
     private fun handlePlaylistEvent(event: AudioPlayerPlaylistEvent) {
         val rootView = activity.window.decorView.rootView
         val anchorView =
-            if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
+            // On drawer do not anchor the snack bar:
+            if (rootView.findViewById<LinearLayout>(R.id.wrapper)?.isShown == true
+                || rootView.findViewById<CoordinatorLayout>(R.id.drawer_body_pdf_with_sections_layout)?.isShown == true
+            ) {
+                null
+            } else if (rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)?.isShown == true) {
                 rootView.findViewById<BottomNavigationView>(R.id.navigation_bottom_webview_pager)
             } else if (rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)?.isShown == true) {
                 rootView.findViewById<LinearLayout>(R.id.navigation_bottom_layout)
