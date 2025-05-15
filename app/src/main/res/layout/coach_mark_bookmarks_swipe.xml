@@ -16,8 +16,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/coach_mark_text_layout_margin_top"
             android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginTop="@dimen/coach_mark_text_layout_margin_top"
             android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
             android:rotation="-7">
 
@@ -26,7 +26,9 @@
                 style="@style/TextAppearance.CoachMark.Header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/coach_mark_article_bookmarks_swipe_title" />
+                android:accessibilityHeading="true"
+                android:text="@string/coach_mark_article_bookmarks_swipe_title"
+                tools:ignore="UnusedAttribute" />
 
             <TextView
                 style="@style/TextAppearance.CoachMark.Text"
@@ -38,11 +40,13 @@
         </RelativeLayout>
 
         <ImageView
+            android:id="@+id/scroll_left_gesture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_text_layout"
             android:layout_centerInParent="true"
             android:layout_marginTop="40dp"
+            android:contentDescription="@string/coach_mark_article_bookmarks_swipe_gesture_icon_content_description"
             android:src="@drawable/ic_scroll_left" />
     </RelativeLayout>
 
@@ -51,12 +55,16 @@
         android:layout_width="@dimen/coach_mark_button_close_size"
         android:layout_height="@dimen/coach_mark_button_close_size"
         android:layout_alignParentEnd="true"
-        android:layout_gravity="center"
         android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
         android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
-        android:contentDescription="@string/close_button"
+        android:clickable="true"
+        android:contentDescription="@string/coach_marks_close_button_content_description"
+        android:accessibilityTraversalAfter="@id/scroll_left_gesture"
+        android:focusable="true"
+        android:padding="@dimen/coach_mark_button_close_padding"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_close_audio_player"
-        app:tint="@color/lightGrey" />
+        app:tint="@color/lightGrey"
+        tools:ignore="UnusedAttribute" />
 
 </RelativeLayout>

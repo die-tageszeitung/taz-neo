@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/blackEightyPercentOpacity">
@@ -20,7 +21,9 @@
             style="@style/TextAppearance.CoachMark.Header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/coach_mark_archive_title" />
+            android:accessibilityHeading="true"
+            android:text="@string/coach_mark_archive_title"
+            tools:ignore="UnusedAttribute" />
 
         <TextView
             style="@style/TextAppearance.CoachMark.Text"
@@ -35,19 +38,25 @@
         android:layout_width="@dimen/coach_mark_button_close_size"
         android:layout_height="@dimen/coach_mark_button_close_size"
         android:layout_alignParentEnd="true"
-        android:layout_gravity="center"
+        android:padding="@dimen/coach_mark_button_close_padding"
         android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
         android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
-        android:contentDescription="@string/close_button"
+        android:contentDescription="@string/coach_marks_close_button_content_description"
+        android:accessibilityTraversalAfter="@id/scroll_down_gesture_icon"
+        android:clickable="true"
+        android:focusable="true"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_close_audio_player"
-        app:tint="@color/lightGrey" />
+        app:tint="@color/lightGrey"
+        tools:ignore="UnusedAttribute" />
 
     <ImageView
+        android:id="@+id/scroll_down_gesture_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
+        android:contentDescription="@string/coach_mark_archive_gesture_icon_content_description"
         android:paddingBottom="90dp"
         android:src="@drawable/ic_scroll_down" />
 
