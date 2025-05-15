@@ -366,7 +366,8 @@
     <dimen name="coach_mark_text_layout_margin_end">25dp</dimen>
     <dimen name="coach_mark_text_layout_margin_top">10dp</dimen>
     <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
-    <dimen name="coach_mark_button_close_size">32dp</dimen>
+    <dimen name="coach_mark_button_close_size">@dimen/default_touch_area_size</dimen>
+    <dimen name="coach_mark_button_close_padding">8dp</dimen>
     <dimen name="coach_mark_header_line_height">28sp</dimen>
     <dimen name="coach_mark_button_close_margin_top">60dp</dimen>
     <dimen name="coach_mark_button_close_margin_end">18dp</dimen>
