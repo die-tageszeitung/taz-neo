@@ -9,6 +9,7 @@ import android.view.ViewOutlineProvider
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getString
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
@@ -94,7 +95,7 @@ class CoverView @JvmOverloads constructor(
      */
     fun show(
         data: CoverViewData,
-        coverViewDate: CoverViewDate?,
+        coverViewDate: CoverViewDate,
         glideRequestManager: RequestManager
     ) {
         showLoadingScreen()
@@ -112,8 +113,12 @@ class CoverView @JvmOverloads constructor(
     /**
      * show given date or hide date altogether
      */
-    private fun setDate(coverViewDate: CoverViewDate?) {
-        if (coverViewDate !== null) {
+    private fun setDate(coverViewDate: CoverViewDate) {
+        // Set contentDescription for accessibility:
+        momentContainer.contentDescription = resources.getString(
+            R.string.fragment_cover_view_content_description, coverViewDate.dateString
+        )
+        if (!shouldNotShowDownloadIcon) {
             // All the items in the recyclerview grid should have the same width,
             // thus we can simply check here which date to use, as it will be the same on all views.
             val useShortDate =
@@ -123,6 +128,11 @@ class CoverView @JvmOverloads constructor(
                 ?.takeIf { useShortDate }
                 ?: coverViewDate.dateString
             dateDownLoadWrapper.visibility = View.VISIBLE
+
+            viewMomentDownload.contentDescription = resources.getString(
+                R.string.fragment_cover_view_download_content_description,
+                coverViewDate.dateStringShort
+            )
         } else {
             dateDownLoadWrapper.visibility = View.GONE
         }

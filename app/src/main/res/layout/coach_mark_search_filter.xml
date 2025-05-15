@@ -14,22 +14,26 @@
         android:layout_marginStart="25dp"
         android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
         android:paddingTop="228dp"
-        android:rotation="-7">
+        android:rotation="-7"
+        tools:ignore="RelativeOverlap">
 
         <TextView
             android:id="@+id/coach_mark_header"
             style="@style/TextAppearance.CoachMark.Header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/coach_mark_search_filter_swipe_title" />
+            android:accessibilityHeading="true"
+            android:text="@string/coach_mark_search_filter_title"
+            tools:ignore="UnusedAttribute" />
 
         <TextView
+            android:id="@+id/coach_mark_text"
             style="@style/TextAppearance.CoachMark.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/coach_mark_header"
             android:layout_marginEnd="30dp"
-            android:text="@string/coach_mark_search_filter_swipe_text" />
+            android:text="@string/coach_mark_search_filter_text" />
     </RelativeLayout>
 
     <ImageView
@@ -37,13 +41,17 @@
         android:layout_width="@dimen/coach_mark_button_close_size"
         android:layout_height="@dimen/coach_mark_button_close_size"
         android:layout_alignParentEnd="true"
-        android:layout_gravity="center"
         android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
         android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
-        android:contentDescription="@string/close_button"
+        android:clickable="true"
+        android:contentDescription="@string/coach_marks_close_button_content_description"
+        android:accessibilityTraversalAfter="@id/icon_settings"
+        android:focusable="true"
+        android:padding="@dimen/coach_mark_button_close_padding"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_close_audio_player"
-        app:tint="@color/lightGrey" />
+        app:tint="@color/lightGrey"
+        tools:ignore="UnusedAttribute" />
 
     <RelativeLayout
         android:id="@+id/coach_mark_icon_wrapper"
@@ -51,14 +59,17 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/icon_settings"
             android:layout_width="@dimen/search_icon_size"
             android:layout_height="@dimen/search_icon_size"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/search_filter"
+            android:contentDescription="@string/coach_mark_search_filter_icon_content_description"
+            android:accessibilityTraversalAfter="@id/coach_mark_text"
             android:paddingVertical="@dimen/search_icon_padding_vertical"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_filter"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            tools:ignore="UnusedAttribute" />
     </RelativeLayout>
 
     <View
@@ -67,6 +78,7 @@
         android:layout_height="150dp"
         android:background="@color/white"
         android:backgroundTint="@color/white"
+        android:importantForAccessibility="no"
         android:paddingEnd="70dp"
         android:rotation="65"
         tools:ignore="RtlSymmetry" />

@@ -183,8 +183,7 @@
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_margin_bottom">10dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_margin_bottom">-5dp</dimen>
     <dimen name="fragment_cover_flow_guideline_end">98dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">100dp</dimen>
     <dimen name="fragment_cover_flow_min_width_long_date">155dp</dimen>
@@ -366,7 +365,8 @@
     <dimen name="coach_mark_text_layout_margin_end">25dp</dimen>
     <dimen name="coach_mark_text_layout_margin_top">10dp</dimen>
     <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
-    <dimen name="coach_mark_button_close_size">32dp</dimen>
+    <dimen name="coach_mark_button_close_size">@dimen/default_touch_area_size</dimen>
+    <dimen name="coach_mark_button_close_padding">8dp</dimen>
     <dimen name="coach_mark_header_line_height">28sp</dimen>
     <dimen name="coach_mark_button_close_margin_top">60dp</dimen>
     <dimen name="coach_mark_button_close_margin_end">18dp</dimen>

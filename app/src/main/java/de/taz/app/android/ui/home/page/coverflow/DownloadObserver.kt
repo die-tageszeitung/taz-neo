@@ -35,12 +35,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
 
 private enum class IssueDownloadStatus {
     PRESENT, ABSENT, LOADING
 }
 
-class DownloadObserver constructor(
+class DownloadObserver(
     private val fragment: Fragment,
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
@@ -286,10 +287,15 @@ class DownloadObserver constructor(
 
     @MainThread
     private fun hideDownloadIcon() {
-        val wasDownloading = downloadProgressView.visibility == View.VISIBLE
+
+        val biggerTouchAreaView =
+            downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
+
+        val wasDownloading = downloadProgressView.isVisible
         downloadProgressView.visibility = View.GONE
         checkmarkIconView.visibility = View.GONE
         downloadIconView.visibility = View.GONE
+        biggerTouchAreaView?.visibility = View.GONE
 
         if (wasDownloading) {
             checkmarkIconView.apply {

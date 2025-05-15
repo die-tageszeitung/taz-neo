@@ -17,7 +17,7 @@ import de.taz.app.android.singletons.StorageService
 class MomentViewBinding(
     fragment: Fragment,
     momentPublication: MomentPublication,
-    coverViewDate: CoverViewDate?,
+    coverViewDate: CoverViewDate,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
     observeDownload: Boolean,

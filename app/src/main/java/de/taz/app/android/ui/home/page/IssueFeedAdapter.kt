@@ -44,7 +44,7 @@ abstract class IssueFeedAdapter(
     private val observeDownloads: Boolean
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
 
-    abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate?
+    abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate
 
     private val log by Log
 
@@ -93,7 +93,7 @@ abstract class IssueFeedAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var binder: CoverViewBinding? = null
 
-        fun bind(fragment: IssueFeedFragment<*>, date: Date, coverViewDate: CoverViewDate?) {
+        fun bind(fragment: IssueFeedFragment<*>, date: Date, coverViewDate: CoverViewDate) {
 
             binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
                 FrontpageViewBinding(

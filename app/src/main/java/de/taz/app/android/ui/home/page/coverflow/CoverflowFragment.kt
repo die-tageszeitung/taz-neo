@@ -4,14 +4,19 @@ package de.taz.app.android.ui.home.page.coverflow
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
+import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_ANNOUNCEMENT
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate
 import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
@@ -105,6 +110,20 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         grid.layoutManager =
             CoverFlowLinearLayoutManager(requireContext(), grid)
+
+        grid.setAccessibilityDelegateCompat(object : RecyclerViewAccessibilityDelegate(grid) {
+            override fun onInitializeAccessibilityNodeInfo(
+                host: View,
+                info: AccessibilityNodeInfoCompat
+            ) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    host.accessibilityPaneTitle = date.text
+                }
+                host.requestFocus()
+                info.setCollectionInfo(null)
+            }
+        })
 
         snapHelper.apply {
             attachToRecyclerView(grid)
@@ -256,6 +275,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 DateHelper.dateToLongLocalizedLowercaseString(date)
             }
         }
+        // set accessibility for date picker:
+        this.date.contentDescription = resources.getString(R.string.fragment_cover_flow_date_content_description, this.date.text)
     }
 
     /**

@@ -58,8 +58,8 @@
     <string name="bottom_navigation_action_audio">Audio abspielen</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
-    <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
-    <string name="bottom_navigation_action_app_view">mobile Ansicht</string>
+    <string name="bottom_navigation_action_pdf">Umschalten in die Zeitungsansicht</string>
+    <string name="bottom_navigation_action_app_view">Umschalten in die mobile Ansicht</string>
     <string name="fragment_home_login">Anmelden</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
@@ -142,6 +142,9 @@
     <!-- \u00A0 is a non-breakable space characker preventing linebreak here:-->
     <string name="read_minutes">%d\u00A0min</string>
 
+    <string name="fragment_cover_view_content_description">Ausgabe %s</string>
+    <string name="fragment_cover_view_download_content_description">Ausgabe %s herunterladen</string>
+    <string name="fragment_cover_flow_date_content_description">Zur Datumsauswahl. Gewähltes Datum: %s</string>
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
@@ -499,35 +502,46 @@
     <!-- region coach marks  -->
     <string name="coach_mark_fab_title">Wie sieht’s denn hier aus?</string>
     <string name="coach_mark_fab_text">Wie Sie lesen, ist ihr Bier – umschalten aufs gewohnte Zeitungslayout geht hier!</string>
+    <string name="coach_mark_fab_icon_content_description">Zeitungsansichtsymbol</string>
 
     <string name="coach_mark_archive_title">All you can read</string>
     <string name="coach_mark_archive_text">Für die Übersicht aller Ausgaben auf einen Blick: Einfach nach oben scrollen.</string>
+    <string name="coach_mark_archive_gesture_icon_content_description">Icon zeigt Geste: nach oben Scrollen</string>
 
     <string name="coach_mark_taz_logo_title">Alles auf einen Klick</string>
     <string name="coach_mark_taz_logo_text">Für den vollen Durchblick einfach das Logo antippen – hier findet sich die vollständige Inhaltsangabe der Ausgabe.</string>
+    <string name="coach_mark_taz_logo_content_description">Logo der taz</string>
 
     <string name="coach_mark_lmd_logo_title">Alles auf einen Klick</string>
     <string name="coach_mark_lmd_logo_text">Für eine vollständige Übersicht einfach das Logo antippen – hier findet sich das Inhaltsverzeichnis der Ausgabe.</string>
+    <string name="coach_mark_lmd_logo_content_description">Logo der \"Le Monde diplomatique\"</string>
 
     <string name="coach_mark_horizontal_swipe_title">Unbestimmte Artikel</string>
     <string name="coach_mark_horizontal_swipe_text">Ressorts und Artikel einfach genüsslich durchstöbern, indem man nach links und rechts wischt.</string>
+    <string name="coach_mark_horizontal_swipe_icon_content_description">Icon zeigt Geste: seitwärts scrollen</string>
 
     <string name="coach_mark_article_audio_title">Lesen und lesen lassen.</string>
     <string name="coach_mark_article_audio_text">Wer hören will, muss klicken: Hinter diesem Symbol verbirgt sich unsere tolle Vorlesefunktion – einfach mal ausprobieren!</string>
+    <string name="coach_mark_article_audio_icon_content_description">Lautsprechersymbol</string>
 
     <string name="coach_mark_article_size_title">Die taz ist unlesbar?</string>
     <string name="coach_mark_article_size_text">Da schafft die individuelle Anpassung der Schriftgröße Abhilfe.</string>
+    <string name="coach_mark_article_size_icon_content_description">Schriftgrößensymbol</string>
 
     <string name="coach_mark_article_share_title">Teile und herrsche</string>
     <string name="coach_mark_article_share_text">Der Artikel ist besonders gut? Oder nervt zu Tode? Mit der Share-Funktion kann man Freud wie Leid ganz einfach mit anderen teilen.</string>
+    <string name="coach_mark_article_share_icon_content_description">Teilensymbol</string>
 
     <string name="coach_mark_article_bookmarks_swipe_title">Richtig durchwischen!</string>
     <string name="coach_mark_article_bookmarks_swipe_text">Artikel einfach nach links wischen oder auf den Stern tippen und schon verschwinden sie aus der Leseliste.</string>
+    <string name="coach_mark_article_bookmarks_swipe_gesture_icon_content_description">Icon zeigt Geste: nach links wischen</string>
 
-    <string name="coach_mark_search_filter_swipe_title">Die ganz persönliche Filterblase</string>
-    <string name="coach_mark_search_filter_swipe_text">Mit der Filter-Funktion neben dem Suchfeld wirklich nur das finden, was man auch sucht.</string>
+    <string name="coach_mark_search_filter_title">Die ganz persönliche Filterblase</string>
+    <string name="coach_mark_search_filter_text">Mit der Filter-Funktion neben dem Suchfeld wirklich nur das finden, was man auch sucht.</string>
+    <string name="coach_mark_search_filter_icon_content_description">Symbol für erweiterte Einstellungen</string>
 
     <string name="coach_marks_debug_settings">Coachmarks immer anzeigen</string>
+    <string name="coach_marks_close_button_content_description">Information schließen</string>
     <!-- endregion -->
 
     <string name="fragment_webview_article_tap_left">Hier tippen um nach links zu kommen</string>

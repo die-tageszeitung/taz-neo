@@ -28,6 +28,7 @@
         android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
         android:clickable="true"
         android:focusable="true"
+        android:contentDescription="@string/fragment_home_login"
         android:gravity="center_vertical"
         android:padding="@dimen/fragment_cover_flow_login_button_padding"
         app:layout_constraintRight_toRightOf="parent"
@@ -37,13 +38,14 @@
             style="@style/Widget.App.CoverFlow.Login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
             android:text="@string/fragment_home_login" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
-            android:contentDescription="@string/fragment_home_login"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_arrow_right"
             app:tint="@color/coverflow_icon_tint" />
     </LinearLayout>
@@ -77,7 +79,7 @@
             android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="13.12.2023" />
+            tools:text="freitag, 13.12.2023" />
 
         <View
             android:id="@+id/fragment_coverflow_moment_download_position"
@@ -92,7 +94,7 @@
             android:id="@+id/fragment_coverflow_moment_download"
             android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
             android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:contentDescription="@string/settings_download_issue"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_file_download"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
@@ -118,7 +120,7 @@
             android:id="@+id/fragment_coverflow_moment_download_finished"
             android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
             android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:contentDescription="@string/settings_download_issue"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_done"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
@@ -140,9 +142,10 @@
 
     <ImageView
         android:id="@+id/fragment_cover_flow_to_archive"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/fragment_cover_flow_to_archive_icon_height"
+        android:layout_width="@dimen/default_touch_area_size"
+        android:layout_height="@dimen/default_touch_area_size"
         android:layout_marginBottom="@dimen/fragment_cover_flow_to_archive_margin_bottom"
+        android:padding="@dimen/fragment_cover_flow_to_archive_padding"
         android:contentDescription="@string/fragment_cover_flow_to_archive"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"

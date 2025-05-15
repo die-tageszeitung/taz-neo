@@ -22,6 +22,7 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
         super.onCreate(savedInstanceState)
         viewBinding = createBinding(layoutInflater)
         setContentView(viewBinding.root)
+        supportFragmentManager.setupForAccessibility()
     }
 
     @Suppress("UNCHECKED_CAST")
