@@ -15,7 +15,7 @@ import de.taz.app.android.singletons.StorageService
 class FrontpageViewBinding(
     fragment: Fragment,
     frontpagePublication: FrontpagePublication,
-    coverViewDate: CoverViewDate?,
+    coverViewDate: CoverViewDate,
     glideRequestManager: RequestManager,
     onMomentViewActionListener: CoverViewActionListener,
     observeDownload: Boolean,

@@ -38,6 +38,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
+import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.MomentViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
@@ -261,7 +262,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 momentBinder = MomentViewBinding(
                     this@SectionDrawerFragment,
                     momentPublication,
-                    null,
+                    CoverViewDate(momentPublication.date, momentPublication.date),
                     Glide.with(this@SectionDrawerFragment),
                     object : CoverViewActionListener {
                         override fun onImageClicked(coverPublication: AbstractCoverPublication) {

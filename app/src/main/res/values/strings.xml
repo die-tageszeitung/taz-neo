@@ -58,8 +58,8 @@
     <string name="bottom_navigation_action_audio">Audio abspielen</string>
     <string name="bottom_navigation_action_share">Teilen</string>
     <string name="bottom_navigation_action_size">Schriftgröße ändern</string>
-    <string name="bottom_navigation_action_pdf">Zeitungsansicht</string>
-    <string name="bottom_navigation_action_app_view">mobile Ansicht</string>
+    <string name="bottom_navigation_action_pdf">Umschalten in die Zeitungsansicht</string>
+    <string name="bottom_navigation_action_app_view">Umschalten in die mobile Ansicht</string>
     <string name="fragment_home_login">Anmelden</string>
 
     <string name="fragment_default_header_title">die tageszeitung</string>
@@ -142,6 +142,9 @@
     <!-- \u00A0 is a non-breakable space characker preventing linebreak here:-->
     <string name="read_minutes">%d\u00A0min</string>
 
+    <string name="fragment_cover_view_content_description">Ausgabe %s</string>
+    <string name="fragment_cover_view_download_content_description">Ausgabe %s herunterladen</string>
+    <string name="fragment_cover_flow_date_content_description">Zur Datumsauswahl. Gewähltes Datum: %s</string>
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 

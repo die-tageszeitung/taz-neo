@@ -27,7 +27,7 @@ class CoverBindingException(
 abstract class CoverViewBinding(
     private val fragment: Fragment,
     protected val coverPublication: AbstractCoverPublication,
-    private val coverViewDate: CoverViewDate?,
+    private val coverViewDate: CoverViewDate,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener,
     private val observeDownloads: Boolean = true,

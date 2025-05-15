@@ -183,8 +183,7 @@
     <dimen name="fragment_cover_flow_empty_space_height_top">100dp</dimen>
     <dimen name="fragment_cover_flow_empty_space_height_bottom">108dp</dimen>
     <dimen name="fragment_cover_flow_to_archive_padding">12dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_icon_height">20dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_margin_bottom">10dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_margin_bottom">-5dp</dimen>
     <dimen name="fragment_cover_flow_guideline_end">98dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">100dp</dimen>
     <dimen name="fragment_cover_flow_min_width_long_date">155dp</dimen>

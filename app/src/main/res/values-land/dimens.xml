@@ -1,6 +1,6 @@
 <resources>
     <dimen name="cover_item_padding">8dp</dimen>
-    <dimen name="fragment_cover_flow_to_archive_margin_bottom">2dp</dimen>
+    <dimen name="fragment_cover_flow_to_archive_margin_bottom">-10dp</dimen>
     <dimen name="fragment_archive_padding_top">0dp</dimen>
     <dimen name="fragment_cover_flow_guideline_end">68dp</dimen>
     <dimen name="fragment_cover_flow_guideline_top">48dp</dimen>
