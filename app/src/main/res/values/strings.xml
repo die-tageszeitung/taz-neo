@@ -290,8 +290,6 @@
     <string name="login_first_name_error_empty">Bitte den Vornamen angeben</string>
     <string name="login_first_name_error_invalid">Enthält nur ungültige Zeichen</string>
 
-    <string name="login_name_affix_hint">Namenszusatz</string>
-
     <string name="login_surname_helper">Mit dem Vornamen max 24 Zeichen.</string>
     <string name="login_surname_hint">Nachname</string>
     <string name="login_surname_error_empty">Bitte den Nachnamen angeben</string>

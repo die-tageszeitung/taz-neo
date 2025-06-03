@@ -53,13 +53,13 @@ class SubscriptionNameFragment :
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.apply {
-            fragmentSubscriptionNameNameAffix.imeOptions = EditorInfo.IME_ACTION_DONE
             fragmentSubscriptionNameFirstName.setText(viewModel.firstName)
-            fragmentSubscriptionNameSurname.setText(viewModel.surName)
 
-            fragmentSubscriptionNameNameAffix.setOnEditorActionListener(
+            fragmentSubscriptionNameSurname.apply {
+                setText(viewModel.surName)
+                imeOptions = EditorInfo.IME_ACTION_DONE
                 OnEditorActionDoneListener(::ifDoneNext)
-            )
+            }
 
             fragmentSubscriptionNameProceed.setOnClickListener {
                 ifDoneNext()

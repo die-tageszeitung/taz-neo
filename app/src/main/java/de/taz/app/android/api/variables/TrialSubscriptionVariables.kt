@@ -11,7 +11,6 @@ data class TrialSubscriptionVariables(
     val pushToken: String?,
     val surname: String? = null,
     val firstName: String? = null,
-    val nameAffix: String? = null,
     val deviceFormat: DeviceFormat,
     val deviceName: String? = android.os.Build.MODEL,
     val deviceVersion: String? = android.os.Build.VERSION.RELEASE,
