@@ -512,7 +512,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         idPassword: String,
         surname: String? = null,
         firstName: String? = null,
-        nameAffix: String? = null
     ): SubscriptionInfo? {
         val tag = "trialSubscription"
         log.debug("$tag tazId: $tazId")
@@ -524,7 +523,6 @@ class ApiService @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
                     idPassword = idPassword,
                     surname = surname,
                     firstName = firstName,
-                    nameAffix = nameAffix,
                     installationId = authHelper.installationId.get(),
                     pushToken = fireBaseDataStore.token.get(),
                     deviceFormat = deviceFormat

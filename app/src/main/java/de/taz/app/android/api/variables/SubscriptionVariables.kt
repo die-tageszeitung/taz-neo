@@ -11,7 +11,6 @@ data class SubscriptionVariables(
     val idPassword: String,
     val surname: String? = null,
     val firstName: String? = null,
-    val nameAffix: String? = null,
     val street: String,
     val city: String,
     val postcode: String,
