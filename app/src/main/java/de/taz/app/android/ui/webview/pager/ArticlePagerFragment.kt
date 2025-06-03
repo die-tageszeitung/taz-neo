@@ -497,7 +497,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             val isTom = getCurrentArticlePagerItem() is ArticlePagerItem.Tom
 
             return if (isImprint || isTom) {
-                requireActivity().finish()
+                // go back by popping backstack
+                requireActivity().supportFragmentManager.popBackStackImmediate()
                 true
             } else {
                 false
