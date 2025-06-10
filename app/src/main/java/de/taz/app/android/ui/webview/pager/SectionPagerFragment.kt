@@ -28,8 +28,8 @@ import de.taz.app.android.ui.webview.SectionImprintWebViewFragment
 import de.taz.app.android.ui.webview.SectionWebViewFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 
@@ -50,7 +50,10 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    issueContentViewModel.sectionListFlow.collect { sectionStubs ->
+                    combine(
+                        issueContentViewModel.sectionListFlow,
+                        issueContentViewModel.displayableKeyFlow
+                    ) { sectionStubs, displayableKey ->
                         if (
                             sectionStubs.map { it.key } !=
                             (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.map { it.key }
@@ -60,13 +63,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                                 SectionPagerAdapter(sectionStubs)
                             viewBinding.loadingScreen.root.visibility = View.GONE
                         }
-                    }
-                }
-
-                launch {
-                    issueContentViewModel.displayableKeyFlow.collect {
-                        tryScrollToSection(it)
-                    }
+                        tryScrollToSection(displayableKey)
+                    }.collect {}
                 }
 
                 launch {
@@ -196,10 +194,12 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     }
 
     private suspend fun getSupposedPagerPosition(): Int? {
-        val position =
-            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.indexOfFirst {
-                it.key == issueContentViewModel.displayableKeyFlow.first()
-            }
+        val adapter = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)
+        val sectionStubs = adapter?.sectionStubs
+        val position = sectionStubs?.indexOfFirst {
+            it.key == issueContentViewModel.displayableKeyFlow.first()
+        }
+
         return if (position != null && position >= 0) {
             position
         } else {
