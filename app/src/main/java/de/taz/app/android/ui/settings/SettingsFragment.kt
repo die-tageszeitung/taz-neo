@@ -1,9 +1,11 @@
 package de.taz.app.android.ui.settings
 
 import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -13,6 +15,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
@@ -285,6 +288,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 pushNotificationsAllowedLayout.visibility = View.VISIBLE
                 fragmentSettingsNotificationsSwitch.setOnClickListener { _ ->
                     toggleNotificationsEnabled()
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    fragmentSettingsNotificationChannelNewIssue.setOnClickListener {
+                            openNotificationChannelInSystem(
+                                getString(R.string.notification_channel_fcm_new_issue_arrived_id)
+                            )
+                        }
+                    fragmentSettingsNotificationChannelSpecial.setOnClickListener {
+                        openNotificationChannelInSystem(
+                            getString(R.string.notification_channel_fcm_special_article_id)
+                        )
+                    }
                 }
             }
 
@@ -853,6 +868,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun updateNotificationViews(notificationsEnabled: Boolean, systemNotificationsAllowed: Boolean) {
         viewBinding.fragmentSettingsNotificationsSwitch.isChecked = notificationsEnabled
+        log.error("update notification views: enabled: $notificationsEnabled")
         if (!systemNotificationsAllowed) {
             if (notificationsEnabled) {
                 showNotificationsMustBeAllowedLayout(show = true)
@@ -863,6 +879,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             showNotificationsShouldBeAllowedLayout(show = false)
             showNotificationsMustBeAllowedLayout(show = false)
             showNotificationsAllowedLayout(show = true)
+            showNotificationChannels(notificationsEnabled)
         }
     }
 
@@ -944,6 +961,45 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             activity?.startActivity(intent)
         }
     }
+
+    // region notification channel handling helper functions
+
+    private fun showNotificationChannels(show: Boolean) {
+        // Notification channels can only be handled since Android Oreo:
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            viewBinding.fragmentSettingsNotificationChannels.isVisible = show
+            if (show) {
+                val newIssueChannelId = getString(R.string.notification_channel_fcm_new_issue_arrived_id)
+                val specialArticleChannelId = getString(R.string.notification_channel_fcm_special_article_id)
+                synchronizeChannelSetting(viewBinding.fragmentSettingsNotificationChannelNewIssue, newIssueChannelId)
+                synchronizeChannelSetting(viewBinding.fragmentSettingsNotificationChannelSpecial, specialArticleChannelId)
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun isNotificationChannelAllowed(channelId: String): Boolean {
+        val manager = requireContext().getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        val channel = manager.getNotificationChannel(channelId)
+        return channel.importance != NotificationManager.IMPORTANCE_NONE
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun openNotificationChannelInSystem(channelId: String) {
+        val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+            putExtra(Settings.EXTRA_CHANNEL_ID, channelId)
+        }
+        startActivity(intent)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun synchronizeChannelSetting(switch: MaterialSwitch, channelId: String) {
+        val isAllowed = isNotificationChannelAllowed(channelId)
+        switch.isChecked = isAllowed
+    }
+
+    // endregion
 
     private fun logout() = requireActivity().lifecycleScope.launch {
         authHelper.status.set(AuthStatus.notValid)
