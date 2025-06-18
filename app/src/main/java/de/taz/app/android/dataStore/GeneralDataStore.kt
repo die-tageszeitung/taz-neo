@@ -35,6 +35,7 @@ private const val SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "single_co
 private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "bookmarks_synchronization_bottom_sheet_do_not_show_again"
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION = "settings_bookmark_synchronization"
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED = "settings_bookmark_synchronization_changed"
+private const val SETTINGS_SHOW_ANIMATED_MOMENTS = "settings_show_animated_moments"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -130,6 +131,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val bookmarksSynchronizationChangedToEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED), false
+    )
+
+    val showAnimatedMoments: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_SHOW_ANIMATED_MOMENTS), true
     )
 
 

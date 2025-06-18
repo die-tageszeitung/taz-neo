@@ -29,6 +29,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val multiColumnModeLiveData: LiveData<Boolean>
     val tapToScrollLiveData: LiveData<Boolean>
     val keepScreenOnLiveData: LiveData<Boolean>
+    val showAnimatedMomentsLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
@@ -59,6 +60,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
         tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
         keepScreenOnLiveData = tazApiCssDataStore.keepScreenOn.asLiveData()
+        showAnimatedMomentsLiveData = generalDataStore.showAnimatedMoments.asLiveData()
 
         storedIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
         storageLocationLiveData = storageDataStore.storageLocation.asLiveData()
@@ -217,6 +219,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setKeepScreenOn(value: Boolean) {
         viewModelScope.launch {
             tazApiCssDataStore.keepScreenOn.set(value)
+        }
+    }
+
+    fun setShowAnimatedMoments(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.showAnimatedMoments.set(value)
         }
     }
 

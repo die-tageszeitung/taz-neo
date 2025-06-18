@@ -161,6 +161,7 @@
     <string name="settings_text_multi_column_mode">Mehrspaltigkeit</string>
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
+    <string name="settings_show_animated_moments">Animierte Titelseiten anzeigen</string>
     <string name="settings_account_manage_account">Anmelden</string>
     <string name="settings_account_logout">Abmelden (%s)</string>
     <string name="settings_account_delete">Konto löschen</string>

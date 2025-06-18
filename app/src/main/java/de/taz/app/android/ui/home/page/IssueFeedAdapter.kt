@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
@@ -71,6 +73,15 @@ abstract class IssueFeedAdapter(
         item?.let {
             val coverViewDate = formatDate(item)
             holder.bind(fragment, item.date, coverViewDate)
+
+            fragment.context?.let {
+                val showAnimatedMomentsLiveData =
+                    GeneralDataStore.getInstance(it.applicationContext).showAnimatedMoments.asLiveData()
+                showAnimatedMomentsLiveData.observeDistinctIgnoreFirst(fragment.viewLifecycleOwner) {
+                    log.debug("animated setting has changed. reload moment of ${item.date}")
+                    holder.bind(fragment, item.date, coverViewDate)
+                }
+            }
         }
     }
 

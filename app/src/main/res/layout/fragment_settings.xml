@@ -475,6 +475,15 @@
                     android:text="@string/settings_text_keep_screen_on" />
 
                 <include layout="@layout/settings_separator_view" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/fragment_settings_show_animated_moments"
+                    style="@style/Widget.App.Settings.Entry.Switch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_show_animated_moments" />
+
+                <include layout="@layout/settings_separator_view" />
                 <!-- endregion -->
 
                 <!-- region hilfe -->
