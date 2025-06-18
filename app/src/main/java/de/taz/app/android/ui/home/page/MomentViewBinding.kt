@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Moment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.MomentPublication
@@ -51,8 +52,11 @@ class MomentViewBinding(
             val animatedMomentUri = downloadedMoment.getIndexHtmlForAnimated()?.let {
                 storageService.getFileUri(it)
             }
+            // Get the setting if user wants to show animated moments (default is true)
+            val settingsShowAnimatedMoments =
+                GeneralDataStore.getInstance(applicationContext).showAnimatedMoments.get()
 
-            val momentType = if (animatedMomentUri != null) {
+            val momentType = if (animatedMomentUri != null && settingsShowAnimatedMoments) {
                 CoverType.ANIMATED
             } else {
                 CoverType.STATIC

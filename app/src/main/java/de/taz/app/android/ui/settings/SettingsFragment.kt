@@ -72,7 +72,6 @@ import kotlinx.coroutines.withContext
 private const val DEBUG_SETTINGS_REQUIRED_CLICKS = 7
 private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
 
-@Suppress("UNUSED")
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
     private val log by Log
 
@@ -210,6 +209,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setKeepScreenOn(isChecked)
             }
 
+            fragmentSettingsShowAnimatedMoments.setOnCheckedChangeListener { _, isChecked ->
+                setShowAnimatedMoments(isChecked)
+            }
+
             fragmentSettingsAccountElapsed.setOnClickListener {
                 SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
@@ -344,6 +347,9 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             keepScreenOnLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { screenOn ->
                 showKeepScreenOn(screenOn)
+            }
+            showAnimatedMomentsLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showAnimatedMomentsSetting(enabled)
             }
             storedIssueNumberLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
@@ -666,6 +672,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             screenOn
     }
 
+    private fun showAnimatedMomentsSetting(enabled: Boolean) {
+        viewBinding.fragmentSettingsShowAnimatedMoments.isChecked = enabled
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -769,6 +779,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setKeepScreenOn(enabled)
     }
 
+    private fun setShowAnimatedMoments(enabled: Boolean) {
+        viewModel.setShowAnimatedMoments(enabled)
+    }
+
     private fun setTextJustification(justified: Boolean) {
         log.debug("setTextJustification to $justified")
         viewModel.setTextJustification(justified)
@@ -868,7 +882,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun updateNotificationViews(notificationsEnabled: Boolean, systemNotificationsAllowed: Boolean) {
         viewBinding.fragmentSettingsNotificationsSwitch.isChecked = notificationsEnabled
-        log.error("update notification views: enabled: $notificationsEnabled")
         if (!systemNotificationsAllowed) {
             if (notificationsEnabled) {
                 showNotificationsMustBeAllowedLayout(show = true)
