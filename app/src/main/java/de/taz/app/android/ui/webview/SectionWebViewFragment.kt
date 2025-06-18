@@ -24,7 +24,9 @@ import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.core.view.updatePadding
 import androidx.core.widget.TextViewCompat
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
@@ -45,6 +47,7 @@ import de.taz.app.android.singletons.SnackBarHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.util.ArticleName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +93,7 @@ class SectionWebViewFragment : WebViewFragment<
 
 
     override val viewModel by viewModels<SectionWebViewViewModel>()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var sectionOperation: SectionOperations? = null
     private lateinit var sectionFileName: String
@@ -98,6 +102,7 @@ class SectionWebViewFragment : WebViewFragment<
 
     private var bookmarkJob: Job? = null
     private var enqueuedJob: Job? = null
+    private var currentAppBarOffset = 0
 
     override val webView: AppWebView
         get() = viewBinding.webView
@@ -251,6 +256,19 @@ class SectionWebViewFragment : WebViewFragment<
                 resizeHeaderSectionTitle(it.width)
             }
             applyExtraPaddingOnCutoutDisplay()
+            // do not change logo on advertisement or podcast
+            val isAdvertisement = displayable.type == SectionType.advertisement
+            val isPodcast = displayable.type == SectionType.podcast
+            if (!isAdvertisement && !isPodcast) {
+                viewBinding.appBarLayout.apply {
+                    addOnOffsetChangedListener { _, verticalOffset ->
+                        currentAppBarOffset = verticalOffset
+                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                            updateDrawerLogoByCurrentAppBarOffset()
+                        }
+                    }
+                }
+            }
         }
 
     }
@@ -521,5 +539,11 @@ class SectionWebViewFragment : WebViewFragment<
         } else {
             webView.clearOnTouchListener()
         }
+    }
+
+    private fun updateDrawerLogoByCurrentAppBarOffset() {
+        val percentToHide =
+            -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
+        drawerAndLogoViewModel.morphLogoByPercent(percentToHide.coerceIn(0f, 1f))
     }
 }

@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,7 @@ import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import kotlinx.coroutines.delay
@@ -46,6 +48,7 @@ class ArticleWebViewFragment :
 
     override val viewModel by viewModels<ArticleWebViewViewModel>()
     private val tapIconsViewModel: TapIconsViewModel by activityViewModels()
+    private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
     private var articleOperations: ArticleOperations? = null
     private lateinit var articleFileName: String
@@ -55,6 +58,9 @@ class ArticleWebViewFragment :
     private lateinit var authHelper: AuthHelper
 
     private var isMultiColumnMode = false
+    private var oldScrollXOnMultiColumn = 0
+    private var oldScrollXOnMultiColumnSaved = false
+    private var isInitial = true
 
     override val webView: AppWebView
         get() = viewBinding.webView
@@ -175,8 +181,15 @@ class ArticleWebViewFragment :
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // This is a hack to get any user interaction and set initial to false then.
+        // Could not achieve a better way...
+        webView.setOnTouchListener { _, _ ->
+            isInitial = false
+            false
+        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 tazApiCssDataStore.multiColumnMode.asFlow().collect {
@@ -329,6 +342,51 @@ class ArticleWebViewFragment :
                             parentFragmentManager,
                             articleName = articleFileName
                         )
+                }
+            }
+        }
+    }
+
+    override fun handleDrawerLogoOnVerticalScroll(scrollX: Int, oldScrollX: Int) {
+        if (!isInitial) {
+            if (scrollX > oldScrollX) {
+                // we are scrolling to the right here
+
+                // Maybe we have the logo visible but are in the middle of the article
+                // (eg by selecting one with a saved scroll position via the drawer)
+                // we then save the scroll x position
+                if (!drawerAndLogoViewModel.isBurgerIcon() && !oldScrollXOnMultiColumnSaved) {
+                    oldScrollXOnMultiColumn = oldScrollX
+                    oldScrollXOnMultiColumnSaved = true
+                }
+                lifecycleScope.launch {
+                    val drawerLogoWidth =
+                        tazApiCssDataStore.logoWidth.get().toFloat()
+                    val percentToHide =
+                        ((scrollX - oldScrollXOnMultiColumn) / drawerLogoWidth).coerceIn(0f, 1f)
+
+                    if (percentToHide == 1f) {
+                        drawerAndLogoViewModel.setBurgerIcon()
+                        oldScrollXOnMultiColumnSaved = false
+                        oldScrollXOnMultiColumn = 0
+                    } else {
+                        drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
+                    }
+                }
+            } else if (drawerAndLogoViewModel.isBurgerIcon()) {
+                // we are scrolling to the left here
+
+                val burgerLogoWidth =
+                    resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width).toFloat()
+                val percentToHide =
+                    (scrollX / burgerLogoWidth).coerceIn(0f, 1f)
+
+                if (percentToHide == 0f) {
+                    drawerAndLogoViewModel.setFeedLogo()
+                    oldScrollXOnMultiColumnSaved = false
+                    oldScrollXOnMultiColumn = 0
+                } else {
+                    drawerAndLogoViewModel.morphLogoByPercent(percentToHide)
                 }
             }
         }

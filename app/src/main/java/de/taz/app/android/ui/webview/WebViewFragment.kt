@@ -216,14 +216,15 @@ abstract class WebViewFragment<
 
     private fun setupScrollPositionListener(isMultiColumnMode: Boolean) {
         if (isMultiColumnMode) {
-            webView.scrollListener = object: AppWebView.WebViewScrollListener {
-                                override fun onScroll(
+            webView.scrollListener = object : AppWebView.WebViewScrollListener {
+                override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
                     oldScrollX: Int,
                     oldScrollY: Int
                 ) {
                     saveScrollPositionDebounced(scrollPositionHorizontal = scrollX)
+                    handleDrawerLogoOnVerticalScroll(scrollX, oldScrollX)
                 }
             }
         } else {
@@ -265,6 +266,7 @@ abstract class WebViewFragment<
         }
     }
 
+    open fun handleDrawerLogoOnVerticalScroll(scrollX: Int, oldScrollX: Int) = Unit
     open fun onScrolledToBottom() = Unit
 
     private fun saveScrollPositionDebounced(

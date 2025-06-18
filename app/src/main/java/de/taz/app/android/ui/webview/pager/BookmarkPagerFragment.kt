@@ -51,7 +51,6 @@ import de.taz.app.android.ui.webview.ArticleWebViewFragment.CollapsibleLayoutPro
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 
 class BookmarkPagerFragment :
@@ -426,7 +425,7 @@ class BookmarkPagerFragment :
 
         if (!appBarFullyExpanded) {
             viewBinding.appBarLayout.setExpanded(true, false)
-            drawerAndLogoViewModel.showLogo()
+            drawerAndLogoViewModel.setFeedLogo()
         }
     }
 

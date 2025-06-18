@@ -197,7 +197,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
                 launch {
                     drawerAndLogoViewModel.drawerState.collect {
-                        drawerViewController.handleDrawerState(it)
+                        drawerViewController.handleDrawerLogoState(it)
                     }
                 }
             }
@@ -207,7 +207,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             // When the articlePagerFragment is popped from the backstack via the back functionality
             // the logo shall be hidden again
             if (childFragmentManager.backStackEntryCount == 0) {
-                drawerAndLogoViewModel.hideLogo()
+                drawerAndLogoViewModel.setFeedLogoAndHide()
             }
         }
     }
@@ -221,7 +221,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                 pdfDrawerLayout,
                 drawerLogoWrapper,
                 navView,
-                drawerAndLogoViewModel::setLogoHiddenState
             )
 
             drawerLogoWrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->

@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.R
@@ -21,6 +22,7 @@ private const val NIGHT_MODE = "text_night_mode"
 private const val MULTI_COLUMN_MODE = "text_multi_column_mode"
 private const val TAP_TO_SCROLL = "tap_to_scroll"
 private const val KEEP_SCREEN_ON = "keep_screen_on"
+private const val LOGO_WIDTH = "logo_width"
 // endregion
 
 private val Context.tazApiCssDataStore: DataStore<Preferences> by preferencesDataStore(
@@ -67,6 +69,10 @@ class TazApiCssDataStore private constructor(applicationContext: Context) {
 
     val keepScreenOn: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(KEEP_SCREEN_ON), false
+    )
+
+    val logoWidth: DataStoreEntry<Int> = SimpleDataStoreEntry(
+        dataStore, intPreferencesKey(LOGO_WIDTH), -1
     )
 
 }

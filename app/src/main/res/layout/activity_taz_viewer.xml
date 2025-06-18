@@ -48,8 +48,8 @@
                 android:translationX="@dimen/drawer_logo_translation_x"
                 android:translationY="@dimen/drawer_logo_translation_y"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="5dp"
+                app:cardCornerRadius="@dimen/drawer_logo_corner_radius"
+                app:cardElevation="@dimen/drawer_logo_elevation"
                 app:cardUseCompatPadding="false"
                 app:layout_constraintLeft_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -58,7 +58,9 @@
                     android:id="@+id/drawer_logo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@color/tazRed"
                     android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
                     android:clickable="true"
                     android:contentDescription="@string/navigation_drawer_open"
                     android:focusable="true" />
