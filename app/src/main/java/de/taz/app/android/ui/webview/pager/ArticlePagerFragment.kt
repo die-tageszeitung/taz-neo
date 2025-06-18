@@ -304,15 +304,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     override fun onResume() {
         super.onResume()
-        if (!isTabletLandscapeMode) {
-            updateDrawerLogoByCurrentAppBarOffset()
-        }
+        updateDrawerLogoByCurrentAppBarOffset()
     }
 
     private fun updateDrawerLogoByCurrentAppBarOffset() {
         val percentToHide =
             -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
-        drawerAndLogoViewModel.hideLogoByPercent(percentToHide.coerceIn(0f, 1f))
+        drawerAndLogoViewModel.morphLogoByPercent(percentToHide.coerceIn(0f, 1f))
     }
 
     private fun showTapIcons() {
@@ -372,6 +370,8 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                     }
                     wasUserInputEnabledOnArticles =
                         viewBinding.webviewPagerViewpager.isUserInputEnabled
+                    // always show taz logo when on new article:
+                    drawerAndLogoViewModel.setFeedLogo()
                 }
 
                 is ArticlePagerItem.Tom -> {
@@ -486,7 +486,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
         if (!appBarFullyExpanded) {
             viewBinding.appBarLayout.setExpanded(true, false)
-            drawerAndLogoViewModel.showLogo()
+            drawerAndLogoViewModel.setFeedLogo()
         }
     }
 
@@ -642,23 +642,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     // region header functions
     private fun setupHeader() {
         viewBinding.header.root.visibility = View.VISIBLE
-        val isTabletMode = resources.getBoolean(R.bool.isTablet)
-        val isLandscape =
-            resources.displayMetrics.widthPixels > resources.displayMetrics.heightPixels
-        isTabletLandscapeMode = isTabletMode && isLandscape
 
-        // Map the offset of the app bar layout to the logo as it should
-        // (but not on tablets in landscape)
-        if (isTabletLandscapeMode) {
-            drawerAndLogoViewModel.showLogo()
-        } else {
-            viewBinding.appBarLayout.apply {
-                addOnOffsetChangedListener { _, verticalOffset ->
-                    if (!lockOffsetChangedListener) {
-                        currentAppBarOffset = verticalOffset
-                        if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            updateDrawerLogoByCurrentAppBarOffset()
-                        }
+        viewBinding.appBarLayout.apply {
+            addOnOffsetChangedListener { _, verticalOffset ->
+                if (!lockOffsetChangedListener) {
+                    currentAppBarOffset = verticalOffset
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        updateDrawerLogoByCurrentAppBarOffset()
                     }
                 }
             }

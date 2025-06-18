@@ -112,7 +112,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                     }
                 }
             }
-            hideLogoIfNecessary(position)
+            // Always show the logo on section page change (except for advertisement or podcast):
+            hideOrShowLogoIfNecessary(lastPage, position)
             lastPage = position
         }
 
@@ -210,17 +211,26 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     /**
      * On advertisements we hide the drawer logo.
      */
-    private fun hideLogoIfNecessary(position: Int) {
-        val sectionStub =
-            (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs?.getOrNull(
-                position
-            )
-        val isAdvertisement = sectionStub?.type == SectionType.advertisement
-        val isPodcast = sectionStub?.type == SectionType.podcast
+    private fun hideOrShowLogoIfNecessary(lastPage: Int?, position: Int) {
+        val sectionsStubs = (viewBinding.webviewPagerViewpager.adapter as? SectionPagerAdapter)?.sectionStubs ?: return
+        if (sectionsStubs.isEmpty()) return
+        val currentSection = try {
+            sectionsStubs[position]
+        } catch (ioob: IndexOutOfBoundsException) {
+            log.error("could not get section of position $position. ${ioob.message}")
+            return
+        }
+        val isAdvertisement = currentSection.type == SectionType.advertisement
+        val isPodcast = currentSection.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
         } else {
-            drawerAndLogoViewModel.showLogo()
+            val lastSection = lastPage?.let { sectionsStubs[it] }
+            val lastWasAdvertisement = lastSection?.type == SectionType.advertisement
+            val lastWasPodcast = lastSection?.type == SectionType.podcast
+            if (lastWasAdvertisement || lastWasPodcast) {
+                drawerAndLogoViewModel.showLogo()
+            }
         }
     }
 }

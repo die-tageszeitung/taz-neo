@@ -404,7 +404,7 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
 
         if (!appBarFullyExpanded) {
             viewBinding.appBarLayout.setExpanded(true, false)
-            drawerAndLogoViewModel.showLogo()
+            drawerAndLogoViewModel.setFeedLogo()
         }
     }
 

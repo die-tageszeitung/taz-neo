@@ -48,7 +48,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         pdfPagerViewModel.pdfPageList.observe(viewLifecycleOwner) { pdfPageList ->
             if (pdfPageList.isEmpty()) {
                 return@observe
@@ -76,6 +75,14 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
             viewBinding.navigationBottomPdf,
             BottomNavigationItem.ChildOf(BottomNavigationItem.Home)
         )
+    }
+
+    override fun onDestroy() {
+        // Remove the observers, otherwise the drawerLogo handling might kick in
+        pdfPagerViewModel.pdfPageList.removeObservers(this)
+        // And show the logo, so the state is not with a hidden logo
+        drawerAndLogoViewModel.showLogo()
+        super.onDestroy()
     }
 
     private fun initReaderView(pdfPageList: List<Page>) {
@@ -209,6 +216,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 pdfLoadingScreenRoot.visibility = View.GONE
             }
         }
+        log.error("hideLogo after hideLoadingScreen")
         drawerAndLogoViewModel.hideLogo()
     }
 
