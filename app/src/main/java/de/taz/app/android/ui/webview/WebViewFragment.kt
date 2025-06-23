@@ -36,6 +36,7 @@ import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.CannotDetermineBaseUrlException
 import de.taz.app.android.singletons.DEFAULT_COLUMN_GAP_PX
 import de.taz.app.android.singletons.StorageService
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.ViewBorder
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.util.Log
@@ -77,6 +78,7 @@ abstract class WebViewFragment<
     private lateinit var storageService: StorageService
     private lateinit var contentService: ContentService
     private lateinit var fileEntryRepository: FileEntryRepository
+    private lateinit var tracker: Tracker
     private lateinit var viewerStateRepository: ViewerStateRepository
 
     protected var isRendered = false
@@ -110,6 +112,7 @@ abstract class WebViewFragment<
         contentService = ContentService.getInstance(context.applicationContext)
         storageService = StorageService.getInstance(context.applicationContext)
         fileEntryRepository = FileEntryRepository.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
         viewerStateRepository =
             ViewerStateRepository.getInstance(context.applicationContext)
     }

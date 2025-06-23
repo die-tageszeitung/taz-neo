@@ -1,5 +1,6 @@
 package de.taz.app.android.ui.webview.pager
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -18,6 +19,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.HorizontalSectionSwipeCoachMark
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
@@ -39,6 +41,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
     private val issueContentViewModel: IssueViewerViewModel by activityViewModels()
     private val drawerAndLogoViewModel: DrawerAndLogoViewModel by activityViewModels()
 
+    private lateinit var tracker: Tracker
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        tracker = Tracker.getInstance(context.applicationContext)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,6 +55,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             reduceDragSensitivity(WEBVIEW_DRAG_SENSITIVITY_FACTOR)
         }
         setupViewPager()
+        setupDrawerLogoGhost()
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -231,6 +241,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             if (lastWasAdvertisement || lastWasPodcast) {
                 drawerAndLogoViewModel.showLogo()
             }
+        }
+    }
+
+    private fun setupDrawerLogoGhost() {
+        viewBinding.sectionPagerDrawerLogoGhost.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
         }
     }
 }

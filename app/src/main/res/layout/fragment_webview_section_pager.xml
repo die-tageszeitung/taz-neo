@@ -6,6 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/section_pager_drawer_logo_ghost"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:contentDescription="@string/navigation_drawer_open"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:translationX="@dimen/drawer_logo_translation_x"
+        android:translationY="@dimen/drawer_logo_translation_y"
+        android:translationZ="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/webview_pager_viewpager"
         android:layout_width="match_parent"

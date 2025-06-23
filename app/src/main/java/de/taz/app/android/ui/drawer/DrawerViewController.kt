@@ -1,8 +1,8 @@
 package de.taz.app.android.ui.drawer
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup.LayoutParams
@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.HIDE_LOGO_DELAY_MS
 import de.taz.app.android.LOGO_ANIMATION_DURATION_MS
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.StorageService
@@ -36,12 +37,14 @@ class DrawerViewController(
     private val drawerLayout: DrawerLayout,
     private val drawerLogoWrapper: View,
     private val navView: View,
+    private val rootView: View,
 ) {
 
     private val resources = context.resources
     private val imageRepository = ImageRepository.getInstance(context)
     private val storageService = StorageService.getInstance(context)
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(context)
+    private val generalDataStore = GeneralDataStore.getInstance(context)
     private val glide = Glide.with(context)
 
     var drawerLogoWidth: Int = UNKNOWN_DRAWER_LOGO_WIDTH
@@ -178,15 +181,6 @@ class DrawerViewController(
             -drawerLogoWidth.toFloat() + resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden)
         if (transX != drawerLogoWrapper.translationX) {
             drawerLogoWrapper.animate()
-                .withEndAction {
-                    // add additional area where clicks are handled to open the drawer
-                    val widthWhereToHandleLogoClick =
-                        resources.getDimensionPixelSize(R.dimen.drawer_logo_peak__when_hidden_click_area)
-                    drawerLayout.updateDrawerLogoBoundingBox(
-                        width = widthWhereToHandleLogoClick,
-                        height = drawerLogoWrapper.height
-                    )
-                }
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(HIDE_LOGO_DELAY_MS)
                 .translationX(transX)
@@ -206,12 +200,6 @@ class DrawerViewController(
         }
         if (drawerLogoWrapper.translationX != transX) {
             drawerLogoWrapper.animate()
-                .withEndAction {
-                    drawerLayout.updateDrawerLogoBoundingBox(
-                        drawerLogoWidth,
-                        drawerLogoWrapper.height
-                    )
-                }
                 .setDuration(LOGO_ANIMATION_DURATION_MS)
                 .setStartDelay(0L)
                 .translationX(transX)
@@ -238,17 +226,6 @@ class DrawerViewController(
             percent * drawerLogoWidth - (transInHiddenState + transInOpenState)
 
         drawerLogoWrapper.translationX = -transX
-
-        val visiblePart = drawerLogoWidth - transX
-
-        val widthWhereToHandleLogoClick =
-            visiblePart + percent *
-                    resources.getDimensionPixelSize(R.dimen.drawer_logo_peak__when_hidden_click_area)
-
-        drawerLayout.updateDrawerLogoBoundingBox(
-            width = widthWhereToHandleLogoClick.toInt(),
-            height = drawerLogoWrapper.height
-        )
     }
 
     private fun setBurgerIcon() {
@@ -268,10 +245,11 @@ class DrawerViewController(
             }
             setImageDrawable(burgerDrawable)
         }
+
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height)
     }
 
     private fun setCloseIcon() {
-        Log.e("!!!", "set Close")
         isLogoClose = true
         val widthFromDimens = resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
         drawerLogoWidth = widthFromDimens
@@ -336,6 +314,14 @@ class DrawerViewController(
                 height = logicalHeight.toInt()
             }
         }
+        val extraPadding =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                generalDataStore.displayCutoutExtraPadding.get()
+            } else {
+                0
+            }
+        updateTheGhosts(logicalWidth.toInt(), logicalHeight.toInt(), extraPadding)
+
         return imageDrawable
     }
 
@@ -353,5 +339,30 @@ class DrawerViewController(
 
     private fun isDrawerOpen(): Boolean {
         return drawerLayout.isDrawerOpen(GravityCompat.START)
+    }
+
+    /**
+     * On the views where the drawer is implemented we need some ghost drawer buttons.
+     * Because they only can be accessible by the screen reader.
+     * When the logo changes we need to update the ghosts.
+     */
+    private fun updateTheGhosts(newWidth: Int, newHeight: Int, extraPadding: Int = 0) {
+        val ghostViewIds = listOf(
+            R.id.article_pager_drawer_logo_ghost,
+            R.id.section_pager_drawer_logo_ghost,
+            R.id.pdf_pager_drawer_logo_ghost,
+        )
+        ghostViewIds.forEach {
+            rootView.findViewById<ImageView>(it)?.apply {
+                updateLayoutParams<LayoutParams> {
+                    width = newWidth
+                    height = newHeight
+                }
+                translationX = drawerLogoWrapper.translationX
+                if (extraPadding > 0) {
+                    translationY = drawerLogoWrapper.translationY + extraPadding
+                }
+            }
+        }
     }
 }

@@ -102,7 +102,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
     private var hasBeenSwiped = false
     private var isBookmarkedLiveData: LiveData<Boolean>? = null
-    private var isTabletLandscapeMode = false
     private var currentAppBarOffset = 0
     private var lockOffsetChangedListener = false
 
@@ -258,7 +257,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 }
             }
         }
-
+        setupDrawerLogoGhost()
         setupHeader()
         setupViewPager()
     }
@@ -802,6 +801,13 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         val currentPosition = getCurrentPagerPosition()
         if (currentPosition > 0) {
             viewBinding.webviewPagerViewpager.setCurrentItem(currentPosition - 1, false)
+        }
+    }
+
+    private fun setupDrawerLogoGhost() {
+        viewBinding.articlePagerDrawerLogoGhost.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
         }
     }
 

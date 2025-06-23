@@ -42,7 +42,8 @@
     <string name="toast_error_mapping_update">Die Server Antwort konnte nicht verarbeitet werden.\nBitte stellen Sie sicher, dass die App auf dem neuesten Stand ist.</string>
     <string name="toast_login_week">Du hast dich mit einem wochentaz-Abo angemeldet. Werktägliche taz-Ausgaben werden mit diesem Abo nicht in der App angezeigt.</string>
 
-    <string name="navigation_drawer_open">Seitenleiste öffnen</string>
+    <string name="navigation_drawer_open">Seitenflügel öffnen</string>
+    <string name="navigation_drawer_close">Seitenflügel schließen</string>
 
     <string name="something_went_wrong_try_later">Etwas unerwartetes ist passiert. Bitte versuchen Sie es später erneut.</string>
 

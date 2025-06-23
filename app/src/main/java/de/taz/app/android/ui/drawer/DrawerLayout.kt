@@ -4,48 +4,15 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.util.AttributeSet
-import android.view.MotionEvent
 import android.view.View
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import de.taz.app.android.R
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.util.Log
 
 class DrawerLayout @JvmOverloads constructor(
     context: Context, attributeSet: AttributeSet? = null
 ) : DrawerLayout(context, attributeSet) {
 
-    private val log by Log
     private val tracker: Tracker = Tracker.getInstance(context.applicationContext)
-
-    var drawerLogoBoundingBox: Rect? = null
-
-    fun updateDrawerLogoBoundingBox(width: Int, height: Int) {
-        drawerLogoBoundingBox = Rect(
-            0,
-            resources.getDimensionPixelSize(R.dimen.drawer_logo_margin_top),
-            width,
-            resources.getDimensionPixelSize(R.dimen.drawer_logo_margin_top) + height
-        )
-    }
-
-    /**
-     * catch touch events on floating logo and open drawer
-     * TODO Verify this approach handles accessibility correctly
-     */
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        val drawerLogo = findViewById<View>(R.id.drawer_logo)
-        if (!isDrawerOpen(GravityCompat.START) && drawerLogo?.visibility == View.VISIBLE) {
-            if (drawerLogoBoundingBox?.contains(ev.x.toInt(), ev.y.toInt()) == true) {
-                log.debug("TouchEvent ${ev.x}, ${ev.y} intercepted - opening drawer")
-                openDrawer(GravityCompat.START)
-                tracker.trackDrawerOpenEvent(dragged = false)
-                return true
-            }
-        }
-        return super.onInterceptTouchEvent(ev)
-    }
 
     private val exclusionRectList = listOf(
         // exclusion rects are only allowed to be on 20% of the screen height
@@ -63,7 +30,6 @@ class DrawerLayout @JvmOverloads constructor(
             systemGestureExclusionRects = exclusionRectList
         }
     }
-
 
     // Setup drawer tracking
     init {
