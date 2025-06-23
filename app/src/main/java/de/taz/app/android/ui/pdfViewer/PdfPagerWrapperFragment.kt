@@ -221,14 +221,8 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                 pdfDrawerLayout,
                 drawerLogoWrapper,
                 navView,
+                view
             )
-
-            drawerLogoWrapper.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-                pdfDrawerLayout.updateDrawerLogoBoundingBox(
-                    v.width,
-                    v.height
-                )
-            }
 
             // Adjust extra padding when we have cutout display
             lifecycleScope.launch {
@@ -320,14 +314,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                             width = logicalWidth.toInt()
                             height = logicalHeight.toInt()
                         }
-                    }
-                    viewBinding.pdfDrawerLayout.apply {
-                        // Update the clickable bounding box:
-                        updateDrawerLogoBoundingBox(
-                            logicalWidth.toInt(),
-                            viewBinding.drawerLogoWrapper.height
-                        )
-                        requestLayout()
                     }
                 }
                 this.navButton = navButton

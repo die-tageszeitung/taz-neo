@@ -67,6 +67,7 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 viewBinding.readerView.displayedViewIndex = position
             }
         }
+        setupDrawerLogoGhost()
     }
 
     override fun onResume() {
@@ -230,6 +231,13 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
 
         } else {
             log.warn("Could not get page for position=$position")
+        }
+    }
+
+    private fun setupDrawerLogoGhost() {
+        viewBinding.pdfPagerDrawerLogoGhost.setOnClickListener {
+            tracker.trackDrawerOpenEvent(dragged = false)
+            drawerAndLogoViewModel.openDrawer()
         }
     }
 }

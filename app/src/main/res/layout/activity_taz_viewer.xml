@@ -58,12 +58,13 @@
                     android:id="@+id/drawer_logo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/tazRed"
                     android:adjustViewBounds="true"
-                    android:scaleType="centerInside"
+                    android:background="@color/tazRed"
                     android:clickable="true"
-                    android:contentDescription="@string/navigation_drawer_open"
-                    android:focusable="true" />
+                    android:contentDescription="@string/navigation_drawer_close"
+                    android:focusable="true"
+                    android:importantForAccessibility="yes"
+                    android:scaleType="centerInside" />
             </androidx.cardview.widget.CardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

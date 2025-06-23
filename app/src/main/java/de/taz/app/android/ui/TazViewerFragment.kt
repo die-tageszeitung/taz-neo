@@ -81,6 +81,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
             viewBinding.drawerLayout,
             viewBinding.drawerLogoWrapper,
             viewBinding.navView,
+            view
         )
         if (enableDrawer) {
             setupDrawer()
@@ -92,12 +93,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
     private fun setupDrawer() {
         viewBinding.apply {
-            drawerLogo.addOnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
-                drawerLayout.updateDrawerLogoBoundingBox(
-                    v.width,
-                    v.height
-                )
-            }
             // Somehow this is only applied on opened drawers :shrug:
             drawerLogo.setOnClickListener {
                 drawerAndLogoViewModel.closeDrawer()

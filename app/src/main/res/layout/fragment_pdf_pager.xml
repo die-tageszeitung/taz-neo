@@ -8,6 +8,20 @@
     android:background="@color/fragment_archive_background"
     tools:context="de.taz.app.android.ui.main.MainActivity">
 
+    <ImageView
+        android:id="@+id/pdf_pager_drawer_logo_ghost"
+        android:layout_width="90dp"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:contentDescription="@string/navigation_drawer_open"
+        android:focusable="true"
+        android:importantForAccessibility="yes"
+        android:translationX="@dimen/drawer_logo_translation_x"
+        android:translationY="@dimen/drawer_logo_translation_y"
+        android:translationZ="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
         android:id="@+id/reader_view"
         android:layout_width="match_parent"
