@@ -9,9 +9,8 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.accessibility.AccessibilityEvent
-import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_ANNOUNCEMENT
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
@@ -39,7 +38,6 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,6 +69,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val momentDownloadFinished by lazy { viewBinding.fragmentCoverflowMomentDownloadFinished }
     private val momentDownloading by lazy { viewBinding.fragmentCoverflowMomentDownloading }
     private val dateDownloadWrapper by lazy { viewBinding.fragmentCoverFlowDateDownloadWrapper }
+    private val goPrevious by lazy { viewBinding.fragmentCoverFlowIconGoPrevious }
+    private val goNext by lazy { viewBinding.fragmentCoverFlowIconGoNext }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -133,6 +133,14 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         toArchive.setOnClickListener { getHomeFragment().showArchive() }
         date.setOnClickListener { openDatePicker() }
+
+        goPrevious.setOnClickListener {
+            goToPreviousIssue()
+        }
+
+        goNext.setOnClickListener {
+            goToNextIssue()
+        }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
             // Store current adapter state before setting some new one
@@ -222,6 +230,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // This prevents a bug that results in non-snapping behavior when a user logged in.
         val nextPosition = adapter.getPosition(date)
         skipToPositionIfNecessary(nextPosition)
+
+        // Hide the left arrow when on start
+        goPrevious.isVisible = nextPosition > 0
+
+        // Hide the right arrow when on end
+        goNext.isVisible = nextPosition < adapter.itemCount-1
 
         val item = adapter.getItem(nextPosition)
         if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
@@ -373,7 +387,25 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 newMarginEnd = newMarginEnd - halfExtraPaddingInPx
             }
             momentDownloadPosition.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                marginEnd = newMarginEnd.toInt()
+                marginEnd = newMarginEnd
+            }
+        }
+    }
+
+    private fun goToPreviousIssue() {
+        currentlyFocusedDate?.let {
+            val currentPosition = adapter?.getPosition(it)
+            if (currentPosition != null) {
+                grid.smoothScrollToPosition(currentPosition-1)
+            }
+        }
+    }
+
+    private fun goToNextIssue() {
+        currentlyFocusedDate?.let {
+            val currentPosition = adapter?.getPosition(it)
+            if (currentPosition != null) {
+                grid.smoothScrollToPosition(currentPosition+1)
             }
         }
     }
