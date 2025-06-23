@@ -2,7 +2,10 @@ package de.taz.app.android.ui.home.page.coverflow
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
+import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
 import androidx.annotation.MainThread
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +30,6 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,7 +37,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import androidx.core.view.isVisible
 
 private enum class IssueDownloadStatus {
     PRESENT, ABSENT, LOADING
@@ -268,15 +269,18 @@ class DownloadObserver(
         val biggerTouchAreaView =
             downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
         val downloadClickBindView = biggerTouchAreaView ?: downloadIconView
-        downloadClickBindView.setOnClickListener {
-            stopObserving()
-            fragment.lifecycleScope.launch(Dispatchers.Main) {
-                try {
-                    maybeShowAutomaticDownloadDialog()
-                } catch (e: CacheOperationFailedException) {
-                    fragment.requireActivity().showIssueDownloadFailedDialog(issuePublication)
-                    log.warn("Download of Issue $issuePublication failed", e)
-                    SentryWrapper.captureException(e)
+        downloadClickBindView.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+            setOnClickListener {
+                stopObserving()
+                fragment.lifecycleScope.launch(Dispatchers.Main) {
+                    try {
+                        maybeShowAutomaticDownloadDialog()
+                    } catch (e: CacheOperationFailedException) {
+                        fragment.requireActivity().showIssueDownloadFailedDialog(issuePublication)
+                        log.warn("Download of Issue $issuePublication failed", e)
+                        SentryWrapper.captureException(e)
+                    }
                 }
             }
         }
@@ -295,8 +299,10 @@ class DownloadObserver(
         downloadProgressView.visibility = View.GONE
         checkmarkIconView.visibility = View.GONE
         downloadIconView.visibility = View.GONE
-        biggerTouchAreaView?.visibility = View.GONE
-
+        biggerTouchAreaView?.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnClickListener(null)
+        }
         if (wasDownloading) {
             checkmarkIconView.apply {
                 alpha = 1f
