@@ -146,6 +146,8 @@
     <string name="fragment_cover_view_download_content_description">Ausgabe %s herunterladen</string>
     <string name="fragment_cover_flow_date_content_description">Zur Datumsauswahl. Gewähltes Datum: %s</string>
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
+    <string name="fragment_cover_flow_go_to_previous">Zur vorherigen Ausgabe</string>
+    <string name="fragment_cover_flow_go_to_next">Zur nächsten Ausgabe</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
     <string name="settings_header">einstellungen</string>
