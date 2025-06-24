@@ -59,7 +59,7 @@ class DrawerViewController(
             is DrawerState.Closed -> {
                 when {
                     state.isHidden -> {
-                        if (isLogoBurger && !state.isBurger) {
+                        if ((isLogoBurger && !state.isBurger) || isLogoClose) {
                             CoroutineScope(Dispatchers.Main).launch {
                                 setFeedLogo()
                                 hideDrawerLogoAnimatedWithDelay()
@@ -125,8 +125,10 @@ class DrawerViewController(
             if (isLogoBurger) {
                 setBurgerIcon()
             } else {
-                CoroutineScope(Dispatchers.Main).launch {
-                    setFeedLogo()
+                if (isLogoClose) {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        setFeedLogo()
+                    }
                 }
             }
         }
