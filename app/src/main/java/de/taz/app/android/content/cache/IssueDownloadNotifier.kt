@@ -83,6 +83,10 @@ class IssueDownloadNotifier(
                 it, secondsTaken
             )
             tracker.trackIssueDownloadEvent(issueKey)
+            // Immediately dispatch all tracker events, as this happens frequently on a background
+            // thread (eg automatic download) and this might be missed when not opening the app
+            // soonish... (see #17866)
+            tracker.dispatch()
             log.debug("Issue download of $issueKey completed after $secondsTaken")
         } ?: log.warn("Somehow download Id was null so information of downloadStop failed!")
     }
