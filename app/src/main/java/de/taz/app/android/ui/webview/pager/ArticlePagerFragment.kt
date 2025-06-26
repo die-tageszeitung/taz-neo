@@ -307,9 +307,14 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     }
 
     private fun updateDrawerLogoByCurrentAppBarOffset() {
-        val percentToHide =
-            -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
-        drawerAndLogoViewModel.morphLogoByPercent(percentToHide.coerceIn(0f, 1f))
+        lifecycleScope.launch {
+            val isMultiColumnMode = tazApiCssDataStore.multiColumnMode.get()
+            if (!isMultiColumnMode) {
+                val percentToMorph =
+                    -currentAppBarOffset.toFloat() / viewBinding.appBarLayout.height.toFloat()
+                drawerAndLogoViewModel.morphLogoByPercent(percentToMorph.coerceIn(0f, 1f))
+            }
+        }
     }
 
     private fun showTapIcons() {
