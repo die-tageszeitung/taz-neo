@@ -27,7 +27,7 @@ abstract class BaseMainFragment<VIEW_BINDING : ViewBinding> : ViewBindingFragmen
  */
 fun FragmentManager.setupForAccessibility() {
     addOnBackStackChangedListener {
-        val lastFragmentWithView = fragments.last { it.view != null }
+        val lastFragmentWithView = fragments.lastOrNull { it.view != null }
         for (fragment in fragments) {
             if (fragment == lastFragmentWithView) {
                 fragment.view?.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
