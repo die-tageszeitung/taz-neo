@@ -437,6 +437,7 @@
     <string name="search_result_amount_found">%d von %d Treffer:</string>
     <string name="search_result_amount_none_found">Es wurden leider keine Treffer gefunden</string>
     <string name="search_advanced_help">hilfe</string>
+    <string name="search_result_list_description">Liste von Suchergebnissen</string>
     <string name="table_of_content">Inhalt –\u0020</string>
     <string name="author_list">von %s</string>
 

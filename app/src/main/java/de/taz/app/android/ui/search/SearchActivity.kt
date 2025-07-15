@@ -122,7 +122,7 @@ class SearchActivity :
             searchHelp.setOnClickListener {
                 showHelp()
             }
-            expandAdvancedSearchButton.setOnClickListener {
+            expandAdvancedSearchButtonTouchArea.setOnClickListener {
                 viewModel.toggleAdvancedSearchOpen()
                 lifecycleScope.launch {
                     SearchFilterCoachMark.setFunctionAlreadyDiscovered(this@SearchActivity)
