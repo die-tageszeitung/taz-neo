@@ -1,56 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/default_touch_area_size">
 
     <TextView
         android:id="@+id/settings_text_size_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/settings_text_font_size"
         style="@style/Widget.App.Settings.Entry"
-        app:layout_constraintEnd_toStartOf="@id/settings_text_control"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="@string/settings_text_font_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/settings_text_decrease"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/settings_text_control"
-        android:layout_width="@dimen/fragment_settings_plus_minus_width"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ImageView
+        android:id="@+id/settings_text_decrease"
+        android:layout_width="@dimen/default_touch_area_size"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:clickable="true"
+        android:contentDescription="@string/settings_decrease_font_size"
+        android:focusable="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_settings_minus_circle"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toStartOf="@id/settings_text_size"
+        app:layout_constraintStart_toEndOf="@id/settings_text_size_text"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/settings_text_decrease"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/settings_decrease_font_size"
-            android:src="@drawable/ic_settings_minus_circle"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/settings_text_size"
+        style="@style/Widget.App.Settings.Entry"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:gravity="center"
+        android:minWidth="@dimen/default_touch_area_size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/settings_text_increase"
+        app:layout_constraintStart_toEndOf="@id/settings_text_decrease"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="100%" />
 
-        <TextView
-            android:id="@+id/settings_text_size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/Widget.App.Settings.Entry"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/settings_text_increase"
-            app:layout_constraintStart_toEndOf="@id/settings_text_decrease"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/settings_text_increase"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/settings_increase_font_size"
-            android:src="@drawable/ic_settings_plus_circle"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <ImageView
+        android:id="@+id/settings_text_increase"
+        android:layout_width="@dimen/default_touch_area_size"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:clickable="true"
+        android:contentDescription="@string/settings_increase_font_size"
+        android:focusable="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_settings_plus_circle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/settings_text_size"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
