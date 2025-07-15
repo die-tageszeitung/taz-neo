@@ -209,6 +209,10 @@ class BookmarkRepository(
         triggerStateFlowUpdate()
     }
 
+    suspend fun removeAllBookmarks() {
+        getBookmarkedArticleStubs().forEach { removeBookmarkAsync(it) }
+    }
+
     /**
      * Must be called whenever an [ArticleStub] is updated with new Bookmark data from outside [BookmarkRepository].
      */
