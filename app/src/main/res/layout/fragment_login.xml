@@ -52,19 +52,19 @@
             <TextView
                 android:id="@+id/fragment_login_username_help"
                 style="@style/Widget.App.Form.Help"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_form_help_margin_top"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/default_touch_area_size"
                 android:clickable="true"
                 android:focusable="true"
                 android:text="@string/login_help"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_login_username_layout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_min="@dimen/default_touch_area_size"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/fragment_login_password_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_text_input_margin_top"
                 android:hint="@string/login_password_hint"
                 app:layout_constraintTop_toBottomOf="@id/fragment_login_username_help"
                 app:passwordToggleDrawable="@drawable/show_password_selector"
@@ -83,19 +83,19 @@
             <TextView
                 android:id="@+id/fragment_login_password_help_forgot"
                 style="@style/Widget.App.Form.Help"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/login_form_help_margin_top"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/default_touch_area_size"
                 android:clickable="true"
                 android:focusable="true"
                 android:text="@string/login_forgot_password"
-                app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_layout" />
+                app:layout_constraintTop_toBottomOf="@+id/fragment_login_password_layout"
+                app:layout_constraintStart_toStartOf="parent"/>
 
             <Button
                 android:id="@+id/fragment_login_action_login"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/bottom_sheet_actions_margin_top"
+                android:layout_marginTop="@dimen/bottom_sheet_actions_small_margin"
                 android:text="@string/login_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -106,13 +106,14 @@
                 android:id="@+id/fragment_login_action_data_policy"
                 style="@style/Widget.App.Login.Action.Text"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/bottom_sheet_actions_margin_inner"
+                android:layout_height="@dimen/default_touch_area_size"
+                android:layout_marginTop="@dimen/bottom_sheet_actions_small_margin"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:text="@string/fragment_login_data_policy"
                 android:visibility="gone"
+                android:gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/fragment_login_action_login"

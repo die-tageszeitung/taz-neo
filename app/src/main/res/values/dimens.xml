@@ -42,6 +42,7 @@
     <dimen name="bottom_sheet_corner_size">28dp</dimen>
     <dimen name="bottom_sheet_content_margin_top">10dp</dimen>
     <dimen name="bottom_sheet_actions_margin_top">30dp</dimen>
+    <dimen name="bottom_sheet_actions_small_margin">5dp</dimen>
     <dimen name="bottom_sheet_actions_margin_inner">20dp</dimen>
     <dimen name="bottom_sheet_forms_margin_top">20dp</dimen>
 
@@ -106,7 +107,6 @@
     <dimen name="login_box_content_margin_top">5dp</dimen>
     <dimen name="login_box_img_margin_top">20dp</dimen>
     <dimen name="login_text_input_margin_top">20dp</dimen>
-    <dimen name="login_form_help_margin_top">0dp</dimen>
     <dimen name="login_form_padding_bottom">40dp</dimen>
     <dimen name="login_box_button_margin_top">20dp</dimen>
     <dimen name="login_horizontal_inner_min_margin">20dp</dimen>
@@ -126,7 +126,6 @@
     <dimen name="fragment_settings_entry_switch_margin_vertical">5dp</dimen>
     <dimen name="fragment_settings_entry_switch_min_height">40dp</dimen>
     <dimen name="fragment_settings_icon_size">25dp</dimen>
-    <dimen name="fragment_settings_plus_minus_width">100dp</dimen>
     <dimen name="fragment_settings_caution_icon_margin_end">12dp</dimen>
     <dimen name="fragment_settings_description_padding_top">5dp</dimen>
 
@@ -206,7 +205,7 @@
     <dimen name="fragment_tracking_notifications_description_margin_top">10dp</dimen>
     <dimen name="fragment_tracking_notifications_buttons_margin_top">30dp</dimen>
     <dimen name="fragment_tracking_notifications_buttons_margin_between">20dp</dimen>
-    <dimen name="fragment_tracking_notifications_footnote_margin_top">20dp</dimen>
+    <dimen name="fragment_tracking_notifications_footnote_margin_top">15dp</dimen>
 
     <dimen name="tap_bar_width">75dp</dimen>
 
