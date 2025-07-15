@@ -95,7 +95,7 @@
             android:id="@+id/ask_later_action"
             style="@style/Widget.App.TextView.Button"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/default_touch_area_size"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_footnote_margin_top"
             android:text="@string/fragment_bottom_sheet_notifications_not_now"
             app:layout_constraintTop_toBottomOf="@id/retain_notifications_button" />

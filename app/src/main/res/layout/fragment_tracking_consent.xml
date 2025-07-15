@@ -82,7 +82,7 @@
             android:id="@+id/privacy_policy_text"
             style="@style/Widget.App.TextView.TextButton.Small"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/default_touch_area_size"
             android:layout_marginTop="@dimen/fragment_tracking_notifications_footnote_margin_top"
             android:gravity="center"
             android:text="@string/fragment_tracking_consent_privacy_policy"
