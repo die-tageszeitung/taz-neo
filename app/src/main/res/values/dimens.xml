@@ -279,7 +279,7 @@
     <dimen name="search_results_small_margin">4dp</dimen>
 
     <dimen name="search_advanced_margin_top">10dp</dimen>
-    <dimen name="search_advanced_category_margin_top">25dp</dimen>
+    <dimen name="search_advanced_category_margin_top">15dp</dimen>
     <dimen name="search_advanced_entry_min_height">40dp</dimen>
 
     <dimen name="fab_margin_start">24dp</dimen>
