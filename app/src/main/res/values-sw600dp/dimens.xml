@@ -12,7 +12,6 @@
     <dimen name="fragment_webview_article_margin_top">51dp</dimen>
     <dimen name="fragment_webview_loading_screen_padding_bottom">102dp</dimen>
     <dimen name="drawer_width">390dp</dimen>
-    <dimen name="fragment_settings_plus_minus_width">150dp</dimen>
     <dimen name="drawer_burger_menu_width">61dp</dimen>
 
     <dimen name="bottom_sheet_text_setting_outer_padding">15dp</dimen>

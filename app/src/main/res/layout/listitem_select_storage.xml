@@ -27,6 +27,7 @@
         android:gravity="center_vertical"
         android:src="@drawable/ic_help"
         android:visibility="gone"
+        android:contentDescription="@string/settings_storage_type_info"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/itemText"
         app:layout_constraintTop_toTopOf="parent"

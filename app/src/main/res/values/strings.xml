@@ -206,6 +206,7 @@
     <string name="settings_storage_type">Speicherort</string>
     <string name="settings_storage_type_internal">Interner Speicher</string>
     <string name="settings_storage_type_external">Externer Speicher</string>
+    <string name="settings_storage_type_info">Mehr Informationen</string>
     <string name="settings_storage_migration_hint">Der Speicherort für Ausgaben wurde geändert, beim nächsten App-Start werden bestehende Dateien migriert.</string>
     <string name="storage_upgrade_help_text">Nach einem Update werden nun bereits heruntergeladene Ausgaben gesucht und gegebenenfalls auf das Speichermedium mit dem größten freien Speicherplatz verschoben.</string>
     <string name="storage_migration_help_text">Der Speicherort für Ausgaben wurde geändert, bestehende Dateien werden nun migriert.</string>
