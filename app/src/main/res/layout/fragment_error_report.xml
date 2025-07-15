@@ -80,6 +80,8 @@
                     android:id="@+id/fragment_error_report_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="@dimen/default_touch_area_size"
+                    android:autofillHints="emailAddress"
                     android:imeOptions="actionNext"
                     android:inputType="textEmailAddress"
                     android:nextFocusForward="@id/fragment_error_report_message"
@@ -99,6 +101,8 @@
                     android:id="@+id/fragment_error_report_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:minHeight="@dimen/default_touch_area_size"
                     android:hint="@string/fragment_error_report_message_hint"
                     android:imeOptions="actionNext"
                     android:inputType="textMultiLine"
@@ -121,6 +125,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/fragment_error_report_last_action_hint"
                     android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
                     android:inputType="textMultiLine"
                     android:nextFocusForward="@id/fragment_error_report_conditions"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_last_action_title" />
@@ -141,6 +146,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/fragment_error_report_conditions_hint"
                     android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
                     android:inputType="textMultiLine"
                     app:layout_constraintTop_toBottomOf="@id/fragment_error_report_conditions_title" />
 
