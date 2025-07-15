@@ -20,7 +20,7 @@
             android:layout_width="@dimen/fragment_bookmarks_description_icon_size"
             android:layout_height="@dimen/fragment_bookmarks_description_icon_size"
             android:layout_marginBottom="@dimen/fragment_bookmarks_description_icon_margin_bottom"
-            android:contentDescription="@string/fragment_bookmarks_description"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_bookmark"
             app:layout_constraintBottom_toTopOf="@id/bookmarks_description"
             app:layout_constraintEnd_toEndOf="parent"
