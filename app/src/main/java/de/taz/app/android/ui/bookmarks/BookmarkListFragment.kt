@@ -1,13 +1,13 @@
 package de.taz.app.android.ui.bookmarks
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.LOADING_SCREEN_FADE_OUT_TIME
 import de.taz.app.android.R
@@ -31,6 +31,7 @@ import de.taz.app.android.ui.bottomSheet.BookmarksSynchronizationBottomSheetFrag
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.share.ShareArticleBottomSheet
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -46,6 +47,8 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
     private lateinit var momentRepository: MomentRepository
     private lateinit var storageService: StorageService
     private lateinit var tracker: Tracker
+
+    private val log by Log
 
     private var recycleAdapter: BookmarkListAdapter? = null
     private val feedFlow: MutableStateFlow<Feed?> = MutableStateFlow(null)
@@ -91,11 +94,19 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             }
             if (bookmarks.isEmpty()) {
                 viewBinding.bookmarksDescriptionLayout.visibility = View.VISIBLE
+                viewBinding.deleteLayout.visibility = View.GONE
             } else {
                 viewBinding.bookmarksDescriptionLayout.visibility = View.GONE
+                viewBinding.deleteLayout.visibility = View.VISIBLE
                 lifecycleScope.launch {
                     BookmarksSwipeCoachMark(this@BookmarkListFragment).maybeShow()
                 }
+            }
+        }
+
+        viewBinding.deleteLayout.setOnClickListener {
+            lifecycleScope.launch {
+                showDeleteConfirmationDialog()
             }
         }
 
@@ -225,5 +236,30 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
                 )
             }
         }
+    }
+
+    private suspend fun showDeleteConfirmationDialog() {
+        val message = if (generalDataStore.bookmarksSynchronizationEnabled.get()) {
+            resources.getString(R.string.fragment_bookmarks_delete_all_confirmation_dialog_message)
+        } else {
+            ""
+        }
+        val dialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.fragment_bookmarks_delete_all_confirmation_dialog_title)
+            .setMessage(message)
+            .setPositiveButton(R.string.fragment_bookmarks_delete) { dialog, _ ->
+                lifecycleScope.launch {
+                    val amount = recycleAdapter?.itemCount ?: 0
+                    bookmarkRepository.removeAllBookmarks()
+                    log.debug("All bookmarks deleted")
+                    recycleAdapter?.notifyItemRangeRemoved(0, amount)
+                    dialog.dismiss()
+                }
+            }
+            .setNegativeButton(R.string.cancel_button) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+        dialog.show()
     }
 }

@@ -137,10 +137,13 @@
     <string name="fragment_bookmarks_title">leseliste</string>
     <string name="fragment_bookmarks_description">Sie haben noch keine Artikel in Ihrer Leseliste.\n\n Speichern Sie Artikel zum weiterlesen, hören oder erinnern in Ihrer persönlichen Leseliste. Einfach das Sternchen bei den Artikeln aktivieren.</string>
     <string name="fragment_bookmarks_delete">Löschen</string>
+    <string name="fragment_bookmarks_delete_all">Leseliste löschen</string>
+    <string name="fragment_bookmarks_delete_all_confirmation_dialog_title">Möchten Sie alle Lesezeichen löschen?</string>
+    <string name="fragment_bookmarks_delete_all_confirmation_dialog_message">Sie haben die Eisntellung "Leseliste synchronisieren" aktiv. Das heißt, auf den anderen Geräten werden die Lesezeichen auch gelöscht.</string>
     <string name="fragment_bookmarks_share">Teilen</string>
     <string name="fragment_bookmarks_deleted">Artikel aus Leseliste entfernt</string>
     <string name="fragment_bookmarks_undo">Rückgängig</string>
-    <!-- \u00A0 is a non-breakable space characker preventing linebreak here:-->
+    <!-- \u00A0 is a non-breakable space character preventing linebreak here:-->
     <string name="read_minutes">%d\u00A0min</string>
 
     <string name="fragment_cover_view_content_description">Ausgabe %s</string>
