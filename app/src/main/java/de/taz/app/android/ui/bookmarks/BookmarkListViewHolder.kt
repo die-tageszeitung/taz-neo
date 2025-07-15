@@ -48,8 +48,8 @@ class BookmarkListViewHolder(
         bookmarkTeaser = itemView.findViewById(R.id.fragment_bookmark_teaser)
         bookmarkReadMinutes = itemView.findViewById(R.id.fragment_bookmark_read_minutes)
         bookmarkImage = itemView.findViewById(R.id.fragment_bookmark_image)
-        bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share)
-        bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete)
+        bookmarkShare = itemView.findViewById(R.id.fragment_bookmark_share_touch_area)
+        bookmarkDelete = itemView.findViewById(R.id.fragment_bookmark_delete_touch_area)
         bookmarkSeparatorLineDotted = itemView.findViewById(R.id.fragment_bookmark_separator_line_dotted)
         bookmarkSeparatorLineSolid = itemView.findViewById(R.id.fragment_bookmark_separator_line_solid)
 

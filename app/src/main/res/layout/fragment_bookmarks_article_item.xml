@@ -136,7 +136,7 @@
                 android:layout_width="@dimen/fragment_bookmarks_icon_size"
                 android:layout_height="@dimen/fragment_bookmarks_icon_size"
                 android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
-                android:contentDescription="@string/fragment_bookmarks_share"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_share"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/fragment_bookmark_image"
@@ -144,16 +144,40 @@
                 app:tint="@color/textColorAccent" />
 
             <ImageView
+                android:id="@+id/fragment_bookmark_share_touch_area"
+                android:layout_width="@dimen/default_touch_area_size"
+                android:layout_height="@dimen/default_touch_area_size"
+                android:clickable="true"
+                android:contentDescription="@string/fragment_bookmarks_share"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_share"
+                app:layout_constraintEnd_toEndOf="@id/fragment_bookmark_share"
+                app:layout_constraintStart_toStartOf="@id/fragment_bookmark_share"
+                app:layout_constraintTop_toTopOf="@id/fragment_bookmark_share" />
+
+            <ImageView
                 android:id="@+id/fragment_bookmark_delete"
                 android:layout_width="@dimen/fragment_bookmarks_icon_size"
                 android:layout_height="@dimen/fragment_bookmarks_icon_size"
                 android:layout_marginTop="@dimen/fragment_bookmarks_icons_vertical_margin"
-                android:contentDescription="@string/fragment_bookmarks_delete"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_bookmark_filled"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/fragment_bookmark_image"
                 app:layout_constraintTop_toBottomOf="@id/fragment_bookmark_image"
                 app:tint="@color/textColorAccent" />
+
+            <ImageView
+                android:id="@+id/fragment_bookmark_delete_touch_area"
+                android:layout_width="@dimen/default_touch_area_size"
+                android:layout_height="@dimen/default_touch_area_size"
+                android:clickable="true"
+                android:contentDescription="@string/fragment_bookmarks_delete"
+                android:focusable="true"
+                app:layout_constraintBottom_toBottomOf="@id/fragment_bookmark_delete"
+                app:layout_constraintEnd_toEndOf="@id/fragment_bookmark_delete"
+                app:layout_constraintStart_toStartOf="@id/fragment_bookmark_delete"
+                app:layout_constraintTop_toTopOf="@id/fragment_bookmark_delete" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
