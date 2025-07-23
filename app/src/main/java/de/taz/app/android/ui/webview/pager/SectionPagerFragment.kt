@@ -235,7 +235,13 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
         } else {
-            val lastSection = lastPage?.let { sectionsStubs[it] }
+            if (sectionsStubs.isEmpty()) return
+            val lastSection = try {
+                lastPage?.let { sectionsStubs[it] }
+            } catch (ioob: IndexOutOfBoundsException) {
+                log.error("could not get section of position $lastPage. ${ioob.message}")
+                return
+            }
             val lastWasAdvertisement = lastSection?.type == SectionType.advertisement
             val lastWasPodcast = lastSection?.type == SectionType.podcast
             if (lastWasAdvertisement || lastWasPodcast) {
