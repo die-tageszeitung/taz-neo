@@ -223,7 +223,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     val wasHomeSelected =
                         prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
 
-                    if (!wasHomeSelected && prevMomentDate != null) {
+                    if (!wasHomeSelected) {
                         skipToDate(prevMomentDate)
                     } else {
                         skipToHome()
@@ -254,7 +254,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         val feed = viewModel.feed.value
         val adapter = adapter
 
-        if (date == null || feed == null || adapter == null) {
+        if (feed == null || adapter == null) {
             return
         }
 
