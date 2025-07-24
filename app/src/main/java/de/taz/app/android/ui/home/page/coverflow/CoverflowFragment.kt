@@ -131,21 +131,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             fragmentCoverFlowGrid.apply {
                 edgeEffectFactory = BouncyEdgeEffect.Factory
                 layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
-
-                setAccessibilityDelegateCompat(object :
-                    RecyclerViewAccessibilityDelegate(this) {
-                    override fun onInitializeAccessibilityNodeInfo(
-                        host: View,
-                        info: AccessibilityNodeInfoCompat
-                    ) {
-                        super.onInitializeAccessibilityNodeInfo(host, info)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            host.accessibilityPaneTitle = fragmentCoverFlowDate.text
-                        }
-                        host.requestFocus()
-                        info.setCollectionInfo(null)
-                    }
-                })
+                setAccessibilityDelegateCompat(
+                    CoverFlowAccessibilityDelegate(
+                        this,
+                        fragmentCoverFlowDate.text
+                    )
+                )
                 addOnScrollListener(onScrollListener)
             }
 
@@ -384,10 +375,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     private fun goToPreviousIssue() {
-        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition- 1)
+        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition - 1)
     }
 
     private fun goToNextIssue() {
-        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition+ 1)
+        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition + 1)
     }
 }
