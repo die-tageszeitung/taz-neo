@@ -150,20 +150,27 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // initialize the views
         viewBinding.apply {
             // ensure padding is correct
             root.setDefaultInsets()
 
-            // make it bouncy
             fragmentCoverFlowGrid.apply {
+                // make it bouncy
                 edgeEffectFactory = BouncyEdgeEffect.Factory
+
+                // ensure the CoverFlow is drawn
                 layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
+
+                // make acessible
                 setAccessibilityDelegateCompat(
                     CoverFlowAccessibilityDelegate(
                         this,
                         fragmentCoverFlowDate.text
                     )
                 )
+
+                // add scroll logic
                 addOnScrollListener(onScrollListener)
             }
 
