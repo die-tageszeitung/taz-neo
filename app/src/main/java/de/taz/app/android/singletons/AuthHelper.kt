@@ -103,7 +103,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_EMAIL), ""
     )
 
-    val isPolling = SimpleDataStoreEntry(
+    val isPollingForConfirmationEmail = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(PREFERENCES_AUTH_POLL), false
     )
 
@@ -174,7 +174,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             startNewSession()
         }
         firebaseHelper.ensureTokenSent()
-        isPolling.set(false)
+        isPollingForConfirmationEmail.set(false)
 
         if (authStatus == AuthStatus.valid) {
             transformBookmarks()
