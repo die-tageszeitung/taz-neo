@@ -58,7 +58,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: AbstractIssuePublication? = null
-    private var currentlyFocusedDate: Date? = null
     private var firstTimeFragmentIsShown: Boolean = true
     private var isLandscape = false
 
@@ -186,8 +185,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 }
             }
 
-            // Force updating the UI when the feed changes by resetting the currently focused date
-            currentlyFocusedDate = null
             isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             updateUIForCurrentDate()
         }
@@ -209,9 +206,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
-     * @param forceStartDownloadObserver - Boolean indication it was a pdf mode switch. Then do not return too early.
      */
-    private fun updateUIForCurrentDate(forceStartDownloadObserver: Boolean = false) {
+    private fun updateUIForCurrentDate() {
         val date = viewModel.currentDate.value
         val feed = viewModel.feed.value
         val adapter = adapter
@@ -232,10 +228,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewBinding.fragmentCoverFlowIconGoNext.isVisible = nextPosition < adapter.itemCount - 1
 
         val item = adapter.getItem(nextPosition)
-        if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
-            return
-        }
-        currentlyFocusedDate = date
 
         // stop old downloadObserver
         downloadObserver?.stopObserving()
@@ -395,20 +387,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     private fun goToPreviousIssue() {
-        currentlyFocusedDate?.let {
-            val currentPosition = adapter?.getPosition(it)
-            if (currentPosition != null) {
-                viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(currentPosition - 1)
-            }
-        }
+        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition- 1)
     }
 
     private fun goToNextIssue() {
-        currentlyFocusedDate?.let {
-            val currentPosition = adapter?.getPosition(it)
-            if (currentPosition != null) {
-                viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(currentPosition + 1)
-            }
-        }
+        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition+ 1)
     }
 }
