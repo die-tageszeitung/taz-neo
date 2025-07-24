@@ -5,11 +5,15 @@ import de.taz.app.android.MAX_CONNECTION_FAILURE_BACKOFF_TIME_MS
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.util.Log
 import io.ktor.client.engine.android.Android
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -48,8 +52,12 @@ abstract class ConnectionHelper {
         block: suspend () -> T
     ): T {
         while (true) {
+            currentCoroutineContext().ensureActive()
+
             try {
                 return block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: ConnectivityException.Recoverable) {
                 onConnectionFailure()
                 ensureConnectivityCheckRunning()
@@ -66,6 +74,7 @@ abstract class ConnectionHelper {
                     }
                 }
             }
+            yield()
         }
     }
 
