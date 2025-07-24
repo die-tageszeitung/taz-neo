@@ -136,6 +136,10 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
+
+    // this is used by MatomoTracker - do not delete!
+    suspend fun isInternalTazUser(): Boolean = isLoggedIn() && email.get().endsWith("@taz.de")
+
     val isLoggedInFlow = status.asFlow().map { it.isLoggedIn() }
 
     suspend fun getMinStatus() =
