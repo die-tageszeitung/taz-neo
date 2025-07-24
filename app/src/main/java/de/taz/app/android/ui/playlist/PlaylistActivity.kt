@@ -14,14 +14,12 @@ import de.taz.app.android.audioPlayer.UiState
 import de.taz.app.android.audioPlayer.UiState.PlayerState
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityPlaylistBinding
-import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.PlaylistRepository
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.bottomNavigationBack
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import kotlinx.coroutines.launch
 
 class PlaylistActivity:
@@ -39,13 +37,10 @@ class PlaylistActivity:
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        disableActivityAnimations()
         audioPlayerService = AudioPlayerService.getInstance(applicationContext)
         playlistAdapter = PlaylistAdapter(audioPlayerService)
         playlistRepository = PlaylistRepository.getInstance(applicationContext)
         tracker = Tracker.getInstance(applicationContext)
-
-
     }
 
     override fun onResume() {
