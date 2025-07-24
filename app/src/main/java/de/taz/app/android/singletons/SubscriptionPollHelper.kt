@@ -57,7 +57,6 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                         authHelper.token.set(requireNotNull(subscriptionInfo.token) {
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
-                        val currentAuthStatus = authHelper.status.get()
                         authHelper.status.set(AuthStatus.valid)
 
                         toastHelper.showToast(R.string.toast_login_successful)
