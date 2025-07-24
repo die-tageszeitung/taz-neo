@@ -149,17 +149,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             // set onClickListener
             fragmentCoverFlowToArchive.setOnClickListener { getHomeFragment().showArchive() }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
-            fragmentCoverFlowIconGoPrevious.setOnClickListener {
-                goToPreviousIssue()
-            }
-            fragmentCoverFlowIconGoNext.setOnClickListener {
-                goToNextIssue()
-            }
-            homeLoginButton.setOnClickListener {
-                LoginBottomSheetFragment
-                    .newInstance()
-                    .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
-            }
+            fragmentCoverFlowIconGoPrevious.setOnClickListener { goToPreviousIssue() }
+            fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
+            homeLoginButton.setOnClickListener { showLoginBottomSheet() }
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
@@ -380,5 +372,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun goToNextIssue() {
         viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition + 1)
+    }
+
+    private fun showLoginBottomSheet() {
+        LoginBottomSheetFragment
+            .newInstance()
+            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }
