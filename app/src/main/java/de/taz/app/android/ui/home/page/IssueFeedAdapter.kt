@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
@@ -16,6 +17,8 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.*
 
 enum class CoverType {
