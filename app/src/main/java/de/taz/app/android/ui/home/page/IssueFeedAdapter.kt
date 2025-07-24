@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.RequestManager
+import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.api.models.*
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -41,12 +41,13 @@ abstract class IssueFeedAdapter(
     private val fragment: IssueFeedFragment<*>,
     @LayoutRes private val itemLayoutRes: Int,
     private val feed: Feed,
-    private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener,
     private val observeDownloads: Boolean
 ) : RecyclerView.Adapter<IssueFeedAdapter.ViewHolder>() {
 
     abstract fun formatDate(publicationDate: PublicationDate): CoverViewDate
+
+    private val glideRequestManager = Glide.with(fragment)
 
     private val log by Log
 

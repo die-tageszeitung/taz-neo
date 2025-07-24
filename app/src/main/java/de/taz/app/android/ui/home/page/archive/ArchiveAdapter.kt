@@ -14,12 +14,10 @@ class ArchiveAdapter(
     fragment: ArchiveFragment,
     @LayoutRes private val itemLayoutRes: Int,
     feed: Feed,
-    glideRequestManager: RequestManager
 ) : IssueFeedAdapter(
     fragment,
     itemLayoutRes,
     feed,
-    glideRequestManager,
     HomeMomentViewActionListener(
         fragment
     ),

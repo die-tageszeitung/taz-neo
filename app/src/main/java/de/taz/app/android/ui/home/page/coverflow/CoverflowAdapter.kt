@@ -17,13 +17,11 @@ class CoverflowAdapter(
     private val fragment: CoverflowFragment,
     @LayoutRes itemLayoutRes: Int,
     feed: Feed,
-    glideRequestManager: RequestManager,
     onCoverViewActionListener: CoverViewActionListener
 ) : IssueFeedAdapter(
     fragment,
     itemLayoutRes,
     feed,
-    glideRequestManager,
     onCoverViewActionListener,
     observeDownloads = false
 ) {
