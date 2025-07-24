@@ -35,6 +35,7 @@ class IssueFeedViewModel(
         generalDataStore.pdfMode.set(!getPdfMode())
     }
 
+    @Deprecated("use pdfMode instead")
     fun getPdfMode() = requireNotNull(pdfModeLiveData.value) {
         "PdfMode is always set - no null possible"
     }
