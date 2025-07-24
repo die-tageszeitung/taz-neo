@@ -38,10 +38,12 @@ import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import kotlin.math.abs
 
@@ -74,6 +76,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
         observePdfMode()
+        showLoginButton()
     }
 
     private fun observePdfMode() {
@@ -94,6 +97,25 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
+    private fun showLoginButton() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                // create new flow that indicates if waiting for mail or logged in
+                combine(
+                    authHelper.isPollingForConfirmationEmail.asFlow(),
+                    authHelper.isLoggedInFlow,
+                ) { isPolling, isLoggedIn -> isPolling || isLoggedIn }
+                    .onEach {
+                        // ensure UI thread
+                        withContext(Dispatchers.Main) {
+                            viewBinding.homeLoginButton.visibility =
+                                if (it) View.GONE else View.VISIBLE
+                        }
+                    }.launchIn(lifecycleScope)
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -104,10 +126,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             // make it bouncy
             fragmentCoverFlowGrid.apply {
                 edgeEffectFactory = BouncyEdgeEffect.Factory
-                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this@apply)
+                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
 
                 setAccessibilityDelegateCompat(object :
-                    RecyclerViewAccessibilityDelegate(this@apply) {
+                    RecyclerViewAccessibilityDelegate(this) {
                     override fun onInitializeAccessibilityNodeInfo(
                         host: View,
                         info: AccessibilityNodeInfoCompat
@@ -129,15 +151,19 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 snapLastItem = true
             }
 
+            // set onClickListener
             fragmentCoverFlowToArchive.setOnClickListener { getHomeFragment().showArchive() }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
-
             fragmentCoverFlowIconGoPrevious.setOnClickListener {
                 goToPreviousIssue()
             }
-
             fragmentCoverFlowIconGoNext.setOnClickListener {
                 goToNextIssue()
+            }
+            homeLoginButton.setOnClickListener {
+                LoginBottomSheetFragment
+                    .newInstance()
+                    .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
             }
         }
 
@@ -187,9 +213,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             updateUIForCurrentDate()
         }
         viewModel.currentDate.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
-        authHelper.email.asLiveData().distinctUntilChanged().observe(viewLifecycleOwner) {
-            determineWhetherToShowLoginButton(it)
-        }
     }
 
     override fun onDestroyView() {
@@ -331,28 +354,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
     // endregion
-
-    /**
-     * Hide the homeLoginButton if user is logged in or if we got a valid email
-     * and user is waiting for confirmation mail
-     */
-    private fun determineWhetherToShowLoginButton(email: String) {
-        viewBinding.apply {
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (authHelper.isValidEmail() || authHelper.isLoggedIn()) {
-                    homeLoginButton.visibility = View.GONE
-                } else {
-                    homeLoginButton.visibility = View.VISIBLE
-                    homeLoginButton.setOnClickListener {
-                        LoginBottomSheetFragment
-                            .newInstance()
-                            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
-                    }
-                }
-
-            }
-        }
-    }
 
     fun setTextAlpha(alpha: Float) {
         viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = alpha
