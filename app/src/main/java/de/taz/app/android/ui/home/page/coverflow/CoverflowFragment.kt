@@ -15,8 +15,8 @@ import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate
-import com.bumptech.glide.Glide
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
@@ -40,6 +40,9 @@ import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
@@ -49,7 +52,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private lateinit var authHelper: AuthHelper
     private lateinit var generalDataStore: GeneralDataStore
-    private lateinit var tracker: Tracker
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
@@ -76,7 +78,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
-        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     // region lifecycle functions
@@ -86,6 +87,26 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
+
+        observePdfMode()
+    }
+
+    private fun observePdfMode() {
+        val tracker = Tracker.getInstance(requireContext().applicationContext)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                // redraw pdfMode if changes after initial draw
+                viewModel.pdfMode.drop(1).onEach {
+                    viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                }.launchIn(lifecycleScope)
+
+                // once when initiated and whenever pdfMode changes track CoverFlow
+                viewModel.pdfMode.onEach { pdfMode ->
+                    tracker.trackCoverflowScreen(pdfMode)
+                }.launchIn(lifecycleScope)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -94,19 +115,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewBinding.root.setDefaultInsets()
 
         grid.edgeEffectFactory = BouncyEdgeEffect.Factory
-
-        viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
-            // redraw all visible views
-            grid.adapter?.notifyDataSetChanged()
-            updateUIForCurrentDate(forceStartDownloadObserver = true)
-
-            // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-            // This is necessary in addition to the tracking in onResume because that is not called
-            // when we only update the UI.
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                tracker.trackCoverflowScreen(it)
-            }
-        }
 
         grid.layoutManager =
             CoverFlowLinearLayoutManager(requireContext(), grid)
@@ -196,11 +204,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             determineWhetherToShowLoginButton(it)
         }
         grid.addOnScrollListener(onScrollListener)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        tracker.trackCoverflowScreen(viewModel.pdfModeLiveData.value ?: false)
     }
 
     override fun onDestroyView() {

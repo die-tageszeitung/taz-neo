@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.LinkedList
