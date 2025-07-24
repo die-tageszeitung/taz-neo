@@ -1,16 +1,35 @@
 package de.taz.app.android.ui.home.page.coverflow
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import de.taz.app.android.ui.home.page.KEY_CURRENT_DATE
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import java.util.Date
 import kotlin.math.abs
 
+const val KEY_ALPHA="KEVIN"
+
 class CoverFlowOnScrollListener(
-    private val fragment: CoverflowFragment,
+    private val viewModel: ViewModel,
     private val snapHelper: GravitySnapHelper,
 ) : RecyclerView.OnScrollListener() {
+
+    class ViewModel(
+        application: Application,
+        savedStateHandle: SavedStateHandle
+    ) : AndroidViewModel(application) {
+        val refresh = MutableSharedFlow<Unit>(0)
+        val dateAlpha = savedStateHandle.getMutableStateFlow(KEY_ALPHA, 1f)
+        val currentDate = savedStateHandle.getMutableStateFlow<Date?>(KEY_CURRENT_DATE, null)
+    }
 
     private var isDragEvent = false
 
@@ -22,7 +41,10 @@ class CoverFlowOnScrollListener(
 
         // if user is dragging to left if no newer issue -> refresh
         if (isDragEvent && !recyclerView.canScrollHorizontally(-1)) {
-            fragment.getHomeFragment().refresh()
+            viewModel.viewModelScope.launch {
+                viewModel.refresh.emit(Unit)
+            }
+            //fragment.getHomeFragment().refresh()
         }
 
         // set possible Event states
@@ -34,7 +56,9 @@ class CoverFlowOnScrollListener(
         ZoomPageTransformer.adjustViewSizes(recyclerView)
 
         // set alpha of date
-        fragment.setTextAlpha(calculateDateTextAlpha(recyclerView))
+        viewModel.viewModelScope.launch {
+            viewModel.dateAlpha.emit(calculateDateTextAlpha(recyclerView))
+        }
 
         // only if a user scroll
         if (dx != 0 || dy != 0) {
@@ -60,7 +84,9 @@ class CoverFlowOnScrollListener(
         val adapter = (recyclerView.adapter as? IssueFeedAdapter)
         if (position != RecyclerView.NO_POSITION && adapter != null) {
             val item = adapter.getItem(position)
-            item?.let { fragment.skipToDate(it.date) }
+            viewModel.viewModelScope.launch {
+                item?.let { viewModel.currentDate.emit(it.date) }
+            }
         }
     }
 }

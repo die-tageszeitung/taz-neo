@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -36,6 +37,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -46,11 +48,15 @@ import kotlin.math.abs
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
+    private val coverFlowOnScrollListenerViewModel: CoverFlowOnScrollListener.ViewModel by viewModels()
+
     private lateinit var authHelper: AuthHelper
     private lateinit var generalDataStore: GeneralDataStore
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
-    private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
+    private val onScrollListener by lazy {
+        CoverFlowOnScrollListener(coverFlowOnScrollListenerViewModel, snapHelper)
+    }
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: AbstractIssuePublication? = null
@@ -70,6 +76,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         initialIssueDisplay =
             requireActivity().intent.getParcelableExtra(MainActivity.KEY_ISSUE_PUBLICATION)
 
+        observeScrollViewModel()
         observePdfMode()
         showLoginButton()
     }
@@ -86,10 +93,27 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 viewModel.pdfMode.drop(1).onEach {
                     viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
                 }.launchIn(lifecycleScope)
-
                 // once when initiated and whenever pdfMode changes track CoverFlow
                 viewModel.pdfMode.onEach { pdfMode ->
                     tracker.trackCoverflowScreen(pdfMode)
+                }.launchIn(lifecycleScope)
+            }
+        }
+    }
+
+    private fun observeScrollViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                coverFlowOnScrollListenerViewModel.dateAlpha.onEach {
+                    withContext(Dispatchers.Main) {
+                        viewBinding.fragmentCoverFlowDate.alpha = it
+                    }
+                }.launchIn(lifecycleScope)
+                coverFlowOnScrollListenerViewModel.currentDate.filterNotNull().onEach { date ->
+                    skipToDate(date)
+                }.launchIn(lifecycleScope)
+                coverFlowOnScrollListenerViewModel.refresh.onEach {
+                    getHomeFragment().refresh()
                 }.launchIn(lifecycleScope)
             }
         }
@@ -193,7 +217,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 }
             }
 
-            isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            isLandscape =
+                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             updateUIForCurrentDate()
         }
         viewModel.currentDateLiveData.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
