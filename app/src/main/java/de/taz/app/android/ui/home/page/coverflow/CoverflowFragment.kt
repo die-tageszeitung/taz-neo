@@ -63,17 +63,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private var firstTimeFragmentIsShown: Boolean = true
     private var isLandscape = false
 
-    private val grid by lazy { viewBinding.fragmentCoverFlowGrid }
-    private val toArchive by lazy { viewBinding.fragmentCoverFlowToArchive }
-    private val date by lazy { viewBinding.fragmentCoverFlowDate }
-    private val momentDownloadPosition by lazy { viewBinding.fragmentCoverflowMomentDownloadPosition }
-    private val momentDownload by lazy { viewBinding.fragmentCoverflowMomentDownload }
-    private val momentDownloadFinished by lazy { viewBinding.fragmentCoverflowMomentDownloadFinished }
-    private val momentDownloading by lazy { viewBinding.fragmentCoverflowMomentDownloading }
-    private val dateDownloadWrapper by lazy { viewBinding.fragmentCoverFlowDateDownloadWrapper }
-    private val goPrevious by lazy { viewBinding.fragmentCoverFlowIconGoPrevious }
-    private val goNext by lazy { viewBinding.fragmentCoverFlowIconGoNext }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         authHelper = AuthHelper.getInstance(context.applicationContext)
@@ -112,42 +101,48 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.root.setDefaultInsets()
+        viewBinding.apply {
+            // ensure padding is correct
+            root.setDefaultInsets()
 
-        grid.edgeEffectFactory = BouncyEdgeEffect.Factory
+            // make it bouncy
+            fragmentCoverFlowGrid.apply {
+                edgeEffectFactory = BouncyEdgeEffect.Factory
+                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this@apply)
 
-        grid.layoutManager =
-            CoverFlowLinearLayoutManager(requireContext(), grid)
-
-        grid.setAccessibilityDelegateCompat(object : RecyclerViewAccessibilityDelegate(grid) {
-            override fun onInitializeAccessibilityNodeInfo(
-                host: View,
-                info: AccessibilityNodeInfoCompat
-            ) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    host.accessibilityPaneTitle = date.text
-                }
-                host.requestFocus()
-                info.setCollectionInfo(null)
+                setAccessibilityDelegateCompat(object :
+                    RecyclerViewAccessibilityDelegate(this@apply) {
+                    override fun onInitializeAccessibilityNodeInfo(
+                        host: View,
+                        info: AccessibilityNodeInfoCompat
+                    ) {
+                        super.onInitializeAccessibilityNodeInfo(host, info)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            host.accessibilityPaneTitle = fragmentCoverFlowDate.text
+                        }
+                        host.requestFocus()
+                        info.setCollectionInfo(null)
+                    }
+                })
+                addOnScrollListener(onScrollListener)
             }
-        })
 
-        snapHelper.apply {
-            attachToRecyclerView(grid)
-            maxFlingSizeFraction = 0.75f
-            snapLastItem = true
-        }
+            snapHelper.apply {
+                attachToRecyclerView(fragmentCoverFlowGrid)
+                maxFlingSizeFraction = 0.75f
+                snapLastItem = true
+            }
 
-        toArchive.setOnClickListener { getHomeFragment().showArchive() }
-        date.setOnClickListener { openDatePicker() }
+            fragmentCoverFlowToArchive.setOnClickListener { getHomeFragment().showArchive() }
+            fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
 
-        goPrevious.setOnClickListener {
-            goToPreviousIssue()
-        }
+            fragmentCoverFlowIconGoPrevious.setOnClickListener {
+                goToPreviousIssue()
+            }
 
-        goNext.setOnClickListener {
-            goToNextIssue()
+            fragmentCoverFlowIconGoNext.setOnClickListener {
+                goToNextIssue()
+            }
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
@@ -165,7 +160,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 CoverflowCoverViewActionListener(this@CoverflowFragment)
             )
             this.adapter = adapter
-            grid.adapter = adapter
+            viewBinding.fragmentCoverFlowGrid.adapter = adapter
             setProperMargin(adapter)
 
             // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
@@ -203,13 +198,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         authHelper.email.asLiveData().distinctUntilChanged().observe(viewLifecycleOwner) {
             determineWhetherToShowLoginButton(it)
         }
-        grid.addOnScrollListener(onScrollListener)
     }
 
     override fun onDestroyView() {
         snapHelper.attachToRecyclerView(null)
-        grid.adapter = null
-        grid.removeOnScrollListener(onScrollListener)
+        viewBinding.fragmentCoverFlowGrid.adapter = null
+        viewBinding.fragmentCoverFlowGrid.removeOnScrollListener(onScrollListener)
         super.onDestroyView()
     }
     // endregion
@@ -235,10 +229,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         skipToPositionIfNecessary(nextPosition)
 
         // Hide the left arrow when on start
-        goPrevious.isVisible = nextPosition > 0
+        viewBinding.fragmentCoverFlowIconGoPrevious.isVisible = nextPosition > 0
 
         // Hide the right arrow when on end
-        goNext.isVisible = nextPosition < adapter.itemCount-1
+        viewBinding.fragmentCoverFlowIconGoNext.isVisible = nextPosition < adapter.itemCount - 1
 
         val item = adapter.getItem(nextPosition)
         if (currentlyFocusedDate == date && !forceStartDownloadObserver) {
@@ -259,9 +253,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         downloadObserver = DownloadObserver(
             this,
             issuePublication,
-            momentDownload,
-            momentDownloadFinished,
-            momentDownloading
+            viewBinding.fragmentCoverflowMomentDownload,
+            viewBinding.fragmentCoverflowMomentDownloadFinished,
+            viewBinding.fragmentCoverflowMomentDownloading,
         ).apply {
             startObserving()
         }
@@ -269,23 +263,28 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         val isLandscapeOnSmartphone = isLandscape && !isTabletMode
         // set date text
-        this.date.text = when {
+        viewBinding.fragmentCoverFlowDate.text = when {
             BuildConfig.IS_LMD ->
                 DateHelper.dateToLocalizedMonthAndYearString(date)
+
             item?.validity != null && !isLandscapeOnSmartphone ->
                 DateHelper.dateToWeekNotation(
                     item.date,
                     item.validity
                 )
+
             item?.validity != null && isLandscapeOnSmartphone ->
                 DateHelper.dateToShortRangeString(
                     item.date,
                     item.validity
                 )
+
             item != null && !isLandscapeOnSmartphone ->
                 DateHelper.dateToLongLocalizedLowercaseString(item.date)
+
             item != null && isLandscapeOnSmartphone ->
                 DateHelper.dateToMediumLocalizedString(item.date)
+
             else -> {
                 // The date itself is not found anymore. This is weird. Log an error but show the requested date
                 log.warn("The date $date was not found in the feeds publication dates")
@@ -293,7 +292,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
         }
         // set accessibility for date picker:
-        this.date.contentDescription = resources.getString(R.string.fragment_cover_flow_date_content_description, this.date.text)
+        viewBinding.fragmentCoverFlowDate.contentDescription = resources.getString(
+            R.string.fragment_cover_flow_date_content_description,
+            viewBinding.fragmentCoverFlowDate.text
+        )
     }
 
     /**
@@ -308,7 +310,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // Stop any scroll that might still be going on.
             // Either from a previous scrollTo call or a user fling.
-            grid.stopScroll()
+            viewBinding.fragmentCoverFlowGrid.stopScroll()
 
             val shouldSmoothScroll =
                 abs(position - snapHelper.currentSnappedPosition) <= COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
@@ -316,9 +318,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             // We are using the RecycleViews default scrolling mechanism and rely on the
             // snapHelpers observing to do the final snapping.
             if (shouldSmoothScroll) {
-                grid.smoothScrollToPosition(position)
+                viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(position)
             } else {
-                grid.scrollToPosition(position)
+                viewBinding.fragmentCoverFlowGrid.scrollToPosition(position)
             }
         }
     }
@@ -367,7 +369,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     fun setTextAlpha(alpha: Float) {
-        dateDownloadWrapper.alpha = alpha
+        viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = alpha
     }
 
     fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
@@ -389,7 +391,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     (extraPadding * resources.displayMetrics.density / 2).toInt()
                 newMarginEnd = newMarginEnd - halfExtraPaddingInPx
             }
-            momentDownloadPosition.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            viewBinding.fragmentCoverflowMomentDownloadPosition.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 marginEnd = newMarginEnd
             }
         }
@@ -399,7 +401,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         currentlyFocusedDate?.let {
             val currentPosition = adapter?.getPosition(it)
             if (currentPosition != null) {
-                grid.smoothScrollToPosition(currentPosition-1)
+                viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(currentPosition - 1)
             }
         }
     }
@@ -408,7 +410,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         currentlyFocusedDate?.let {
             val currentPosition = adapter?.getPosition(it)
             if (currentPosition != null) {
-                grid.smoothScrollToPosition(currentPosition+1)
+                viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(currentPosition + 1)
             }
         }
     }
