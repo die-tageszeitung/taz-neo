@@ -67,7 +67,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
-    // region lifecycle functions
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -227,9 +226,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewBinding.fragmentCoverFlowGrid.removeOnScrollListener(onScrollListener)
         super.onDestroyView()
     }
-    // endregion
 
-    // region UI update function
     /**
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
@@ -340,9 +337,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
         }
     }
-    // endregion
 
-    // region skip functions
     fun skipToDate(date: Date) {
         if (viewModel.currentDate.value != date)
             viewModel.currentDate.postValue(date)
@@ -359,7 +354,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             skipToDate(it)
         }
     }
-    // endregion
 
     fun setTextAlpha(alpha: Float) {
         viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = alpha
