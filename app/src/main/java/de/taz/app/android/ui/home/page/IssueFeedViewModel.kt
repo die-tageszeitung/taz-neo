@@ -24,7 +24,7 @@ class IssueFeedViewModel(
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val generalDataStore = GeneralDataStore.getInstance(application)
 
-    val currentDateLiveData = savedStateHandle.getLiveData<Date>(KEY_CURRENT_DATE)
+    val currentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
 
     val pdfMode = generalDataStore.pdfMode.asFlow()
 

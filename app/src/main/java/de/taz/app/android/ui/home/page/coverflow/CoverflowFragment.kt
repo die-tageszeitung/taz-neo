@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
@@ -190,7 +191,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
             // Store current adapter state before setting some new one
-            val prevMomentDate = viewModel.currentDateLiveData.value
+            val prevMomentDate = viewModel.currentDate.value
             val prevHomeMomentDate = adapter?.getItem(0)?.date
             val initialAdapter = adapter == null
 
@@ -234,7 +235,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             updateUIForCurrentDate()
         }
-        viewModel.currentDateLiveData.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
+        viewModel.currentDate.onEach { updateUIForCurrentDate() }.launchIn(lifecycleScope)
     }
 
     override fun onDestroyView() {
@@ -249,7 +250,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * and will skip to the right position if we are not already there
      */
     private fun updateUIForCurrentDate() {
-        val date = viewModel.currentDateLiveData.value
+        val date = viewModel.currentDate.value
         val feed = viewModel.feed.value
         val adapter = adapter
 
@@ -356,8 +357,10 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     fun skipToDate(date: Date) {
-        if (viewModel.currentDateLiveData.value != date)
-            viewModel.currentDateLiveData.postValue(date)
+        if (viewModel.currentDate.value != date)
+            viewModel.viewModelScope.launch {
+                viewModel.currentDate.emit(date)
+            }
     }
 
     fun skipToHome() {

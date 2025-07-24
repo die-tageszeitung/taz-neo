@@ -66,7 +66,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         // Set newly selected date to focus in DatePicker
         // This has to be done before setting the min/maxDate to prevent crashes on old Android Versions
         val calendar = Calendar.getInstance()
-        calendar.time = requireNotNull(issueFeedViewModel.currentDateLiveData.value)
+        calendar.time = issueFeedViewModel.currentDate.value
 
         viewBinding.fragmentBottomSheetDatePicker.updateDate(
             calendar.get(Calendar.YEAR),
