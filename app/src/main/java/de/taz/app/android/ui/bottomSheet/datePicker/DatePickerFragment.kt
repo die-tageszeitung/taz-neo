@@ -31,7 +31,7 @@ import java.util.Date
 class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDatePickerBinding>() {
 
     companion object {
-        val TAG = "DatePickerBottomSheetFragment"
+        const val TAG = "DatePickerBottomSheetFragment"
     }
 
     private val log by Log
