@@ -372,11 +372,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
-    fun setTextAlpha(alpha: Float) {
-        viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = alpha
-    }
-
-    fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
+    private fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
     private fun openDatePicker() {
         DatePickerFragment().show(childFragmentManager, DatePickerFragment.TAG)
