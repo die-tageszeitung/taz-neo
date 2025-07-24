@@ -79,6 +79,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         showLoginButton()
     }
 
+    /**
+     * redraw covers if pdfMode changes and track the changes
+     */
     private fun observePdfMode() {
         val tracker = Tracker.getInstance(requireContext().applicationContext)
 
@@ -97,6 +100,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
+    /**
+     * hide or show login button depending on auth status
+     */
     private fun showLoginButton() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
