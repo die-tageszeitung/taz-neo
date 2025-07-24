@@ -101,17 +101,23 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
+    /**
+     * react to scrolling
+     */
     private fun observeScrollViewModel() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                // adjust date alpha when scrolling
                 coverFlowOnScrollListenerViewModel.dateAlpha.onEach {
                     withContext(Dispatchers.Main) {
                         viewBinding.fragmentCoverFlowDate.alpha = it
                     }
                 }.launchIn(lifecycleScope)
+                // adjust date when scrolling
                 coverFlowOnScrollListenerViewModel.currentDate.filterNotNull().onEach { date ->
                     skipToDate(date)
                 }.launchIn(lifecycleScope)
+                // trigger refresh when scrolling into the left void
                 coverFlowOnScrollListenerViewModel.refresh.onEach {
                     getHomeFragment().refresh()
                 }.launchIn(lifecycleScope)
