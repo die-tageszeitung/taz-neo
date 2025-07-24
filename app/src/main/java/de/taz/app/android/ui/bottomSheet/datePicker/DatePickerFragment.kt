@@ -9,7 +9,6 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
-import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -37,21 +36,13 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
 
     private val log by Log
 
+    private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
+
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
-    private lateinit var currentDate: Date
-    private lateinit var feed: Feed
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
-        feed = requireNotNull(issueFeedViewModel.feed.value) {
-            "Feed always must be set when using DatePickerFragment"
-        }
-        currentDate = requireNotNull(issueFeedViewModel.currentDateLiveData.value) {
-            "CurrentDate must always be set when using DatePickerFragment"
-        }
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
@@ -75,7 +66,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         // Set newly selected date to focus in DatePicker
         // This has to be done before setting the min/maxDate to prevent crashes on old Android Versions
         val calendar = Calendar.getInstance()
-        calendar.time = currentDate
+        calendar.time = requireNotNull(issueFeedViewModel.currentDateLiveData.value)
 
         viewBinding.fragmentBottomSheetDatePicker.updateDate(
             calendar.get(Calendar.YEAR),
@@ -87,8 +78,8 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         viewBinding.fragmentBottomSheetDatePicker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
 
-        val minDate = feed.issueMinDate
-        if (minDate.isNotBlank()) {
+        val minDate = issueFeedViewModel.feed.value?.issueMinDate
+        if (minDate?.isNotBlank() == true) {
             log.debug("minDate is $minDate")
             DateHelper.stringToLong(minDate)?.let { long ->
                 viewBinding.fragmentBottomSheetDatePicker.minDate = long
@@ -145,6 +136,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
     private fun setIssue(dateString: String) {
         log.debug("call setIssue() with date $dateString")
         val date = requireNotNull(simpleDateFormat.parse(dateString))
+        val feed = requireNotNull(issueFeedViewModel.feed.value)
         val publicationDateIndex = feed.publicationDates.getIndexOfDate(date)
         if (publicationDateIndex != -1) {
             showIssue(IssuePublication(feed.name, dateString))
@@ -161,6 +153,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         )
 
     private fun skipToSuccessorIssue(date: Date) {
+        val feed = requireNotNull(issueFeedViewModel.feed.value)
         val successorDate = feed.publicationDates.getSuccessor(date)
 
         if (successorDate == null) {
