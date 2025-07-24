@@ -49,7 +49,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         feed = requireNotNull(issueFeedViewModel.feed.value) {
             "Feed always must be set when using DatePickerFragment"
         }
-        currentDate = requireNotNull(issueFeedViewModel.currentDate.value) {
+        currentDate = requireNotNull(issueFeedViewModel.currentDateLiveData.value) {
             "CurrentDate must always be set when using DatePickerFragment"
         }
         toastHelper = ToastHelper.getInstance(context.applicationContext)

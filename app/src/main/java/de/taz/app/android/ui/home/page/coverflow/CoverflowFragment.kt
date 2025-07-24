@@ -153,7 +153,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
             // Store current adapter state before setting some new one
-            val prevMomentDate = viewModel.currentDate.value
+            val prevMomentDate = viewModel.currentDateLiveData.value
             val prevHomeMomentDate = adapter?.getItem(0)?.date
             val initialAdapter = adapter == null
 
@@ -196,7 +196,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             updateUIForCurrentDate()
         }
-        viewModel.currentDate.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
+        viewModel.currentDateLiveData.observe(viewLifecycleOwner) { updateUIForCurrentDate() }
     }
 
     override fun onDestroyView() {
@@ -211,7 +211,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * and will skip to the right position if we are not already there
      */
     private fun updateUIForCurrentDate() {
-        val date = viewModel.currentDate.value
+        val date = viewModel.currentDateLiveData.value
         val feed = viewModel.feed.value
         val adapter = adapter
 
@@ -318,8 +318,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     fun skipToDate(date: Date) {
-        if (viewModel.currentDate.value != date)
-            viewModel.currentDate.postValue(date)
+        if (viewModel.currentDateLiveData.value != date)
+            viewModel.currentDateLiveData.postValue(date)
     }
 
     fun skipToHome() {
