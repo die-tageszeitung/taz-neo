@@ -23,6 +23,7 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.util.SingletonHolder
+import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -135,7 +136,14 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
-    suspend fun isInternalTazUser(): Boolean = isLoggedIn() && email.get().endsWith("@taz.de")
+    suspend fun isValidEmail(): Boolean {
+        // TODO: this hack was moved from CoverflowFragment here
+        // TODO: verify it can be replaced by `isPolling.get()`
+        // TODO: If so rename to isWaitingForEmail()
+        // TODO: Otherwise improve name and documentation as why is necessary
+        val emailValidator = EmailValidator()
+        return emailValidator(email.get())
+    }
 
     suspend fun getMinStatus() =
         if (isValid()) IssueStatus.regular else IssueStatus.public

@@ -37,7 +37,6 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
@@ -54,7 +53,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener = CoverFlowOnScrollListener(this, snapHelper)
-    private val emailValidator = EmailValidator()
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: AbstractIssuePublication? = null
@@ -339,10 +337,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * and user is waiting for confirmation mail
      */
     private fun determineWhetherToShowLoginButton(email: String) {
-        val isValidEmail = emailValidator(email)
         viewBinding.apply {
             lifecycleScope.launch(Dispatchers.Main) {
-                if (isValidEmail || authHelper.isLoggedIn()) {
+                if (authHelper.isValidEmail() || authHelper.isLoggedIn()) {
                     homeLoginButton.visibility = View.GONE
                 } else {
                     homeLoginButton.visibility = View.VISIBLE
