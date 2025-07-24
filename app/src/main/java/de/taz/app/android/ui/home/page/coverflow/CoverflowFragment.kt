@@ -68,7 +68,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If this is mounted on MainActivity with ISSUE_KEY extra skip to that issue on creation
@@ -83,6 +82,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * redraw covers if pdfMode changes and track the changes
      */
+    @SuppressLint("NotifyDataSetChanged")
     private fun observePdfMode() {
         val tracker = Tracker.getInstance(requireContext().applicationContext)
 
