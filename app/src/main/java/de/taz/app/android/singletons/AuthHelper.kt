@@ -136,14 +136,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
-    suspend fun isValidEmail(): Boolean {
-        // TODO: this hack was moved from CoverflowFragment here
-        // TODO: verify it can be replaced by `isPolling.get()`
-        // TODO: If so rename to isWaitingForEmail()
-        // TODO: Otherwise improve name and documentation as why is necessary
-        val emailValidator = EmailValidator()
-        return emailValidator(email.get())
-    }
+    suspend fun isValidEmail(): Boolean = isPollingForConfirmationEmail.get()
 
     suspend fun getMinStatus() =
         if (isValid()) IssueStatus.regular else IssueStatus.public
