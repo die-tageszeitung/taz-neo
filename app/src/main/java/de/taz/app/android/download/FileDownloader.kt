@@ -26,8 +26,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import java.io.File
 import java.security.MessageDigest
 import java.util.Date
@@ -85,10 +88,11 @@ class FileDownloader(
     }
 
     private suspend fun pollForDownload(downloadAgentId: Int) {
-        while (true) {
+        while (currentCoroutineContext().isActive) {
             val (nextDownload, operations) = queue.receive()
             log.debug("Agent $downloadAgentId Picked ${nextDownload.fileEntryOperation.fileEntry.name} with priority ${nextDownload.priority()}")
             downloadCacheItem(nextDownload, operations)
+            yield()
         }
     }
 

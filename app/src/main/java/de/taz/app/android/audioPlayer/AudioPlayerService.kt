@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +47,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -877,7 +879,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     private fun launchProgressObserver() {
         progressObserverJob?.cancel()
         progressObserverJob = launch {
-            while (true) {
+            while (currentCoroutineContext().isActive) {
                 val controller = getControllerFromState()
                 _progress.value = controller?.let {
                     val current = it.currentPosition
