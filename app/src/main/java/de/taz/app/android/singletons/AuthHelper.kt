@@ -23,7 +23,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.LoginViewModelState
 import de.taz.app.android.util.SingletonHolder
-import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
