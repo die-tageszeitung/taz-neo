@@ -61,11 +61,13 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
+            val requestManager = Glide.with(this)
             grid.setHasFixedSize(true)
             adapter = ArchiveAdapter(
                 this,
                 R.layout.fragment_archive_item,
                 feed,
+                requestManager
             )
             grid.adapter = adapter
         }
