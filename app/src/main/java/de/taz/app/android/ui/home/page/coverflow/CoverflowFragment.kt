@@ -76,7 +76,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         observeScrollViewModel()
         observePdfMode()
-        showLoginButton()
+        maybeShowLoginButton()
     }
 
     /**
@@ -127,7 +127,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * hide or show login button depending on auth status
      */
-    private fun showLoginButton() {
+    private fun maybeShowLoginButton() {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
 
         lifecycleScope.launch {
