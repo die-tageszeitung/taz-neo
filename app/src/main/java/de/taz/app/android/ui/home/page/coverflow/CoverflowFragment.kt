@@ -163,7 +163,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 // ensure the CoverFlow is drawn
                 layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
 
-                // make acessible
+                // make accessible
                 setAccessibilityDelegateCompat(
                     CoverFlowAccessibilityDelegate(
                         this,
