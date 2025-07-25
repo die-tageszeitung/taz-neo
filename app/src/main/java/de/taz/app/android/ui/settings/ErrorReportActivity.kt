@@ -4,7 +4,6 @@ import android.os.Bundle
 import de.taz.app.android.audioPlayer.AudioPlayerService
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityErrorReportBinding
-import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 
@@ -16,8 +15,6 @@ class ErrorReportActivity : ViewBindingActivity<ActivityErrorReportBinding>() {
         AudioPlayerService.getInstance(applicationContext).apply {
             dismissPlayer()
         }
-
-        disableActivityAnimations()
     }
 
     override fun onResume() {

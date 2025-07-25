@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.TazApplication
+import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.util.Log
 import java.lang.reflect.ParameterizedType
 
@@ -20,6 +21,8 @@ abstract class ViewBindingActivity<ViewBindingClass : ViewBinding> : AppCompatAc
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        disableActivityAnimations()
+
         viewBinding = createBinding(layoutInflater)
         setContentView(viewBinding.root)
         supportFragmentManager.setupForAccessibility()

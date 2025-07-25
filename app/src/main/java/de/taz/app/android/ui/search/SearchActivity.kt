@@ -28,7 +28,6 @@ import de.taz.app.android.coachMarks.SearchFilterCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivitySearchBinding
-import de.taz.app.android.monkey.disableActivityAnimations
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.BookmarkRepository
 import de.taz.app.android.simpleDateFormat
@@ -71,8 +70,6 @@ class SearchActivity :
     // region Activity functions
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        disableActivityAnimations()
 
         apiService = ApiService.getInstance(this)
         articleRepository = ArticleRepository.getInstance(applicationContext)
