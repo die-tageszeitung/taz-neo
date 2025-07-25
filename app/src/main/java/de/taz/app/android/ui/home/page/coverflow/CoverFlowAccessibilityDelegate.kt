@@ -12,15 +12,15 @@ class CoverFlowAccessibilityDelegate(
 ) : RecyclerViewAccessibilityDelegate(
     recyclerView
 ) {
-            override fun onInitializeAccessibilityNodeInfo(
-                host: View,
-                info: AccessibilityNodeInfoCompat
-            ) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    host.accessibilityPaneTitle = accessibilityPaneTitle
-                }
-                host.requestFocus()
-                info.setCollectionInfo(null)
-            }
+    override fun onInitializeAccessibilityNodeInfo(
+        host: View,
+        info: AccessibilityNodeInfoCompat
+    ) {
+        super.onInitializeAccessibilityNodeInfo(host, info)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            host.accessibilityPaneTitle = accessibilityPaneTitle
         }
+        host.requestFocus()
+        info.setCollectionInfo(null)
+    }
+}
