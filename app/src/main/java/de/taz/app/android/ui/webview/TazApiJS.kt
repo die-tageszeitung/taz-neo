@@ -19,7 +19,6 @@ import de.taz.app.android.util.Json
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlin.text.replace
 
 
 const val TAZ_API_JS = "ANDROIDAPI"
@@ -169,6 +168,8 @@ class TazApiJS constructor(private val webViewFragment: WebViewFragment<*, out W
     @JavascriptInterface
     fun setBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) {
         runBlocking {
+            // Set the tap lock, so it will not additionally scroll (when tap to scroll is activated)
+            webViewFragment.tapLock = true
             webViewFragment.onSetBookmark(articleName, isBookmarked, showNotification)
         }
     }

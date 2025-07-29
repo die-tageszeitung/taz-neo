@@ -51,6 +51,7 @@ import kotlin.math.floor
 import kotlin.math.max
 
 private const val SAVE_SCROLL_POS_DEBOUNCE_MS = 100L
+private const val TAP_LOCK_BOOKMARK_DELAY_MS = 50L
 private const val TAP_LOCK_DELAY_MS = 500L
 
 @Retention(AnnotationRetention.SOURCE)
@@ -647,11 +648,16 @@ abstract class WebViewFragment<
     private fun maybeScroll(@ScrollDirection direction: Int) : Boolean {
         if ((tapToScroll || multiColumnMode) && view != null) {
             if (!tapLock) {
-                tapLock = true
                 lifecycleScope.launch {
-                    scrollToDirection(multiColumnMode, direction)
-                    // wait some delay to prevent javascript form opening links
-                    delay(TAP_LOCK_DELAY_MS)
+                    // wait some delay to let javascript maybe handle bookmarks
+                    delay(TAP_LOCK_BOOKMARK_DELAY_MS)
+                    // Maybe tapLock was set from setBookmark in tasApiJs, so check again:
+                    if (!tapLock) {
+                        tapLock = true
+                        scrollToDirection(multiColumnMode, direction)
+                        // wait some delay to prevent javascript form opening links
+                        delay(TAP_LOCK_DELAY_MS)
+                    }
                     tapLock = false
                 }
             }
