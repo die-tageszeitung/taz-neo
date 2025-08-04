@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -22,6 +23,9 @@ import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -81,19 +85,22 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
         // redraw once the user state changes as this might result in the need to re-load the moments
         var prevAuthStatus: AuthStatus? = null
-        authHelper.status.asLiveData().observe(viewLifecycleOwner) {
-            if (prevAuthStatus != null && prevAuthStatus != it) {
-                adapter?.notifyDataSetChanged()
-            }
-            prevAuthStatus = it
-        }
+        authHelper.status.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .filter { prevAuthStatus != it }
+            .onEach {
+                if (prevAuthStatus != null) {
+                    adapter?.notifyDataSetChanged()
+                }
+                prevAuthStatus = it
+            }.launchIn(lifecycleScope)
 
         // Redraw the feed if some moment placeholders are shown because of connection errors
-        viewModel.forceRefreshTimeMs.observe(viewLifecycleOwner) {
-            if (it > lastRefreshMs) {
-                adapter?.notifyDataSetChanged()
-            }
-        }
+        viewModel.forceRefreshTimeMs
+            .flowWithLifecycle(lifecycle)
+            .filter { it > lastRefreshMs }
+            .onEach { adapter?.notifyDataSetChanged() }
+            .launchIn(lifecycleScope)
     }
 
     override fun onDestroy() {
