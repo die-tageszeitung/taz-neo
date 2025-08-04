@@ -14,6 +14,7 @@ class CoverFlowLinearLayoutManager(
 
     override fun getPaddingRight(): Int = getPadding()
 
+    @Suppress("KotlinConstantConditions")
     private fun getPadding() = recyclerView.children.firstOrNull()?.let {
         if (it.measuredWidth > 0) {
             return recyclerView.width / 2 - it.measuredWidth / 2
