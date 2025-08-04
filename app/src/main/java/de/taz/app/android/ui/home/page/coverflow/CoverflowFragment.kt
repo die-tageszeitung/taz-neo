@@ -19,6 +19,7 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
+import de.taz.app.android.coachMarks.ArchiveCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.setDefaultInsets
@@ -180,7 +181,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
 
             // set onClickListener
-            fragmentCoverFlowToArchive.setOnClickListener { getHomeFragment().showArchive() }
+            fragmentCoverFlowToArchive.setOnClickListener {
+                lifecycleScope.launch {
+                    generalDataStore.homeFragmentState.set(HomeFragment.State.ARCHIVE)
+                    ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
+                }
+            }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
             fragmentCoverFlowIconGoPrevious.setOnClickListener { goToPreviousIssue() }
             fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
