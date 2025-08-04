@@ -4,13 +4,17 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import kotlinx.coroutines.launch
 import kotlin.math.floor
 
 /**
@@ -19,12 +23,15 @@ import kotlin.math.floor
 class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     private lateinit var tracker: Tracker
+    private lateinit var generalDataStore: GeneralDataStore
 
     private val grid by lazy { viewBinding.fragmentArchiveGrid }
+    private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,6 +52,13 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         context?.let { context ->
             grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns())
+        }
+
+        toCoverFlow.setOnClickListener {
+            // TODO REMOVE
+            lifecycleScope.launch {
+                generalDataStore.homeFragmentState.set(HomeFragment.State.COVERFLOW)
+            }
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
