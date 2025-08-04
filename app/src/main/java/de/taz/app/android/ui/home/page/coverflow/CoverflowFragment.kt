@@ -280,21 +280,23 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // stop old downloadObserver
         downloadObserver?.stopObserving()
 
-        val issuePublication = if (viewModel.pdfModeLiveData.value == true) {
-            IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
-        } else {
-            IssuePublication(feed.name, simpleDateFormat.format(date))
-        }
+        lifecycleScope.launch {
+            val issuePublication = if (viewModel.getPdfMode()) {
+                IssuePublicationWithPages(feed.name, simpleDateFormat.format(date))
+            } else {
+                IssuePublication(feed.name, simpleDateFormat.format(date))
+            }
 
-        // start new downloadObserver
-        downloadObserver = DownloadObserver(
-            this,
-            issuePublication,
-            viewBinding.fragmentCoverflowMomentDownload,
-            viewBinding.fragmentCoverflowMomentDownloadFinished,
-            viewBinding.fragmentCoverflowMomentDownloading,
-        ).apply {
-            startObserving()
+            // start new downloadObserver
+            downloadObserver = DownloadObserver(
+                this@CoverflowFragment,
+                issuePublication,
+                viewBinding.fragmentCoverflowMomentDownload,
+                viewBinding.fragmentCoverflowMomentDownloadFinished,
+                viewBinding.fragmentCoverflowMomentDownloading,
+            ).apply {
+                startObserving()
+            }
         }
         val isTabletMode = requireContext().resources.getBoolean(R.bool.isTablet)
 
