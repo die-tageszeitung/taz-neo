@@ -95,22 +95,25 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // LMD does not offer switching between pdf mode, so no need to observe
         if (BuildConfig.IS_LMD) {
             viewBinding.fabActionPdf.visibility = View.GONE
         } else {
-            issueFeedViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
-                val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                val contentDescription =
-                    if (pdfMode) {
-                        resources.getString(R.string.bottom_navigation_action_app_view)
-                    } else {
-                        resources.getString(R.string.bottom_navigation_action_pdf)
+            issueFeedViewModel.pdfMode
+                .flowWithLifecycle(lifecycle)
+                .onEach { pdfMode ->
+                    val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
+                    val contentDescription =
+                        if (pdfMode) {
+                            resources.getString(R.string.bottom_navigation_action_app_view)
+                        } else {
+                            resources.getString(R.string.bottom_navigation_action_pdf)
+                        }
+                    viewBinding.fabActionPdf.apply {
+                        setImageResource(drawable)
+                        setContentDescription(contentDescription)
                     }
-                viewBinding.fabActionPdf.apply {
-                    setImageResource(drawable)
-                    setContentDescription(contentDescription)
-                }
-            }
+                }.launchIn(lifecycleScope)
         }
 
         viewBinding.apply {
