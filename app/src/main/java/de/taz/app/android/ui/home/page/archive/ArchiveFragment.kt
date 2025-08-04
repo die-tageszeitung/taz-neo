@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -39,6 +40,16 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.appBarLayout.setDefaultTopInset()
+
+        viewBinding.fragmentArchiveGrid.addOnScrollListener(
+            object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    viewModel.refreshViewEnabled.value = !recyclerView.canScrollVertically(-1)
+
+                    super.onScrolled(recyclerView, dx, dy)
+                }
+            }
+        )
 
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
             // redraw all visible views
@@ -87,7 +98,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val columnWidth =
             resources.getDimension(R.dimen.fragment_archive_item_width) + resources.getDimension(R.dimen.fragment_archive_navigation_end_padding_horizontal)
 
-        val isLandscape = resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
+        val isLandscape =
+            resources.displayMetrics.heightPixels < resources.displayMetrics.widthPixels
         val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
