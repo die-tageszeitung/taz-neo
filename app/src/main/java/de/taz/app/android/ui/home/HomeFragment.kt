@@ -48,7 +48,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
-    private val homePageViewModel: IssueFeedViewModel by activityViewModels()
+    private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -70,7 +70,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
                 .collect {
                     if (it != null) {
-                        homePageViewModel.setFeed(it)
+                        issueFeedViewModel.setFeed(it)
                     } else {
                         val message =
                             "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
@@ -80,6 +80,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                     }
                 }
         }
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,7 +89,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         if (BuildConfig.IS_LMD) {
             viewBinding.fabActionPdf.visibility = View.GONE
         } else {
-            homePageViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
+            issueFeedViewModel.pdfModeLiveData.observe(viewLifecycleOwner) { pdfMode ->
                 val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
                 val contentDescription =
                     if (pdfMode) {
@@ -121,7 +122,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
             fabActionPdf.setOnClickListener {
                 val snackTextResId: Int
-                if (homePageViewModel.getPdfMode()) {
+                if (issueFeedViewModel.getPdfMode()) {
                     tracker.trackSwitchToMobileModeEvent()
                     snackTextResId = R.string.toast_switch_to_mobile
                 } else {
@@ -141,7 +142,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                     show()
                 }
 
-                homePageViewModel.togglePdfMode()
+                issueFeedViewModel.togglePdfMode()
                 lifecycleScope.launch {
                     FabCoachMark.setFunctionAlreadyDiscovered(requireContext())
                 }
@@ -174,7 +175,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         try {
             val feedService = FeedService.getInstance(requireContext().applicationContext)
             feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
-            homePageViewModel.forceRefresh()
+            issueFeedViewModel.forceRefresh()
         } catch (e: ConnectivityException.NoInternetException) {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showNoConnectionToast()
