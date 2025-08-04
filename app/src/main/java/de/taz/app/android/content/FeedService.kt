@@ -26,16 +26,12 @@ class FeedService(applicationContext: Context) {
 
 
     @Deprecated("Caller should not care about retries")
-    suspend fun refreshFeed(name: String, retryOnFailure: Boolean): Feed? =
+    suspend fun refreshFeed(name: String, retryOnFailure: Boolean = false): Feed? =
         withContext(Dispatchers.IO) {
-            var feed = apiService.getFeedByName(name)
-            if (feed != null) {
-                feedRepository.save(feed)
+            apiService.getFeedByName(name)?.apply {
+                feedRepository.save(this)
             }
-            feed
         }
-
-    suspend fun refreshFeed(name: String) = refreshFeed(name, retryOnFailure = false)
 
     @Deprecated("Caller should not care about retries")
     fun getFeedFlowByName(name: String, retryOnFailure: Boolean): Flow<Feed?> {
