@@ -110,6 +110,7 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(CONSENT_TO_TRACKING), false
     )
 
+    @SuppressWarnings("unused") // used in MatomoTracker
     val hasInternalTazUserGoalBeenTracked: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED), false
     )
