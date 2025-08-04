@@ -35,7 +35,7 @@ class IssueFeedViewModel(
     val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()
 
     fun togglePdfMode() = viewModelScope.launch {
-        generalDataStore.pdfMode.set(!getPdfMode())
+        generalDataStore.pdfMode.set(!generalDataStore.pdfMode.get())
     }
 
     @Deprecated("use pdfMode instead")
