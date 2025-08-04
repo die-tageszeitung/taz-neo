@@ -4,12 +4,19 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.DEFAULT_MOMENT_FILE
+import de.taz.app.android.METADATA_DOWNLOAD_DEFAULT_RETRIES
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.content.ContentService
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.*
 import de.taz.app.android.ui.cover.CoverView
 import de.taz.app.android.ui.home.page.coverflow.DownloadObserver
-import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.singletons.StorageService
 import kotlinx.coroutines.*
 
 interface CoverViewActionListener {
@@ -18,15 +25,10 @@ interface CoverViewActionListener {
     fun onDateClicked(coverPublication: AbstractCoverPublication) = Unit
 }
 
-class CoverBindingException(
-    message: String = "Binding cover data failed",
-    cause: Exception?
-) : Exception(message, cause)
 
-
-abstract class CoverViewBinding(
+class CoverViewBinding(
     private val fragment: Fragment,
-    protected val coverPublication: AbstractCoverPublication,
+    private val coverPublication: AbstractCoverPublication,
     private val coverViewDate: CoverViewDate,
     private val glideRequestManager: RequestManager,
     private val onMomentViewActionListener: CoverViewActionListener,
@@ -34,24 +36,88 @@ abstract class CoverViewBinding(
 ) {
     private var boundView: CoverView? = null
     private lateinit var coverViewData: CoverViewData
-    private val log by Log
 
-    protected val applicationContext: Context = fragment.requireContext().applicationContext
+    private val applicationContext: Context = fragment.requireContext().applicationContext
 
+    private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
+    private val storageService = StorageService.getInstance(applicationContext)
+    private val contentService = ContentService.getInstance(applicationContext)
     private var bindJob: Job? = null
 
     private var downloadObserver: DownloadObserver? = null
 
-    abstract suspend fun prepareData(): CoverViewData
+    private suspend fun prepareData(): CoverViewData {
+        // ensure metadata downloaded
+        val download = contentService.downloadMetadata(
+            coverPublication,
+            maxRetries = METADATA_DOWNLOAD_DEFAULT_RETRIES
+        )
+        contentService.downloadToCache(download, DownloadPriority.High)
+
+        // Refresh from db
+        val observableDownload =
+            contentService.downloadMetadata(coverPublication)
+
+        return when (observableDownload) {
+            is Page -> {
+                val fileEntry = fileEntryRepository.get(observableDownload.pagePdf.name)
+                val pdfMomentFilePath = fileEntry?.let { storageService.getAbsolutePath(it) }
+
+                val momentType = CoverType.FRONT_PAGE
+                CoverViewData(
+                    momentType,
+                    pdfMomentFilePath,
+                    observableDownload.dateDownload
+                )
+            }
+            is Moment -> {
+                val momentImagePath = observableDownload.getMomentImage()?.let {
+                    storageService.getAbsolutePath(it)
+                }
+                val animatedMomentPath = observableDownload.getIndexHtmlForAnimated()?.let {
+                    storageService.getAbsolutePath(it)
+                }
+                // Get the setting if user wants to show animated moments (default is true)
+                val settingsShowAnimatedMoments =
+                    GeneralDataStore.getInstance(applicationContext).showAnimatedMoments.get()
+
+                val momentType = if (animatedMomentPath != null && settingsShowAnimatedMoments) {
+                    CoverType.ANIMATED
+                } else {
+                    CoverType.STATIC
+                }
+
+                val momentPath = when (momentType) {
+                    CoverType.ANIMATED -> animatedMomentPath
+                    CoverType.STATIC -> momentImagePath
+                    else -> throw IllegalStateException("MomentViewDataBinding only supports ANIMATED and STATIC")
+                }
+
+                CoverViewData(
+                    momentType,
+                    momentPath,
+                    observableDownload.dateDownload
+                )
+            }
+            else ->
+                throw IllegalStateException("CoverViewBinding trying to show neither Moment nor a Page")
+        }
+    }
 
     fun prepareDataAndBind(view: CoverView) {
         bindJob = fragment.lifecycleScope.launch {
             try {
                 coverViewData = prepareData()
                 bindView(view)
-            } catch (e: CoverBindingException) {
-                log.warn("Binding cover failed on $coverPublication", e)
-                SentryWrapper.captureException(e)
+            } catch (e: CacheOperationFailedException) {
+                // maxRetries reached - so show the fallback cover view:
+                val moment = fileEntryRepository.get(DEFAULT_MOMENT_FILE)
+                val momentUri = moment?.let { storageService.getFileUri(it) }
+                CoverViewData(
+                    CoverType.STATIC,
+                    momentUri,
+                    moment?.dateDownload
+                )
             }
         }
     }
@@ -72,12 +138,20 @@ abstract class CoverViewBinding(
             }
 
             val issuePublication = when (coverPublication) {
-                is FrontpagePublication -> IssuePublicationWithPages(coverPublication.feedName, coverPublication.date)
-                is MomentPublication -> IssuePublication(coverPublication.feedName, coverPublication.date)
+                is FrontpagePublication -> IssuePublicationWithPages(
+                    coverPublication.feedName,
+                    coverPublication.date
+                )
+
+                is MomentPublication -> IssuePublication(
+                    coverPublication.feedName,
+                    coverPublication.date
+                )
+
                 else -> throw IllegalStateException("Unknown publication type ${coverPublication::class.simpleName}")
             }
 
-            if(observeDownloads) {
+            if (observeDownloads) {
                 downloadObserver = DownloadObserver(
                     fragment,
                     issuePublication,

@@ -106,25 +106,20 @@ abstract class IssueFeedAdapter(
 
         fun bind(fragment: IssueFeedFragment<*>, date: Date, coverViewDate: CoverViewDate) {
 
-            binder = if (fragment.viewModel.pdfModeLiveData.value == true) {
-                FrontpageViewBinding(
-                    fragment,
-                    FrontpagePublication(feed.name, simpleDateFormat.format(date)),
-                    coverViewDate,
-                    glideRequestManager,
-                    onMomentViewActionListener,
-                    observeDownloads,
-                )
+            val publication = if (fragment.viewModel.pdfModeLiveData.value == true) {
+                FrontpagePublication(feed.name, simpleDateFormat.format(date))
             } else {
-                MomentViewBinding(
-                    fragment,
-                    MomentPublication(feed.name, simpleDateFormat.format(date)),
-                    coverViewDate,
-                    glideRequestManager,
-                    onMomentViewActionListener,
-                    observeDownloads,
-                )
+                MomentPublication(feed.name, simpleDateFormat.format(date))
             }
+
+            binder = CoverViewBinding(
+                fragment,
+                publication,
+                coverViewDate,
+                glideRequestManager,
+                onMomentViewActionListener,
+                observeDownloads,
+            )
             binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))
 
         }
