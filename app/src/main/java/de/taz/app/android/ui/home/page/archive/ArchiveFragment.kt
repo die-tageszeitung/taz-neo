@@ -16,6 +16,9 @@ import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.floor
 
@@ -51,17 +54,21 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }
         )
 
-        viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
-            // redraw all visible views
-            viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
+        viewModel.pdfMode
+            .drop(1)
+            .onEach {
+                // redraw all visible views
+                viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
 
-            // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-            // This is necessary in addition to the tracking in onResume because that is not called
-            // when we only update the UI.
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                tracker.trackArchiveScreen(it)
+                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
+                // This is necessary in addition to the tracking in onResume because that is not called
+                // when we only update the UI.
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    tracker.trackArchiveScreen(it)
+                }
             }
-        }
+            .launchIn(lifecycleScope)
+
 
         context?.let { context ->
             grid.layoutManager =
