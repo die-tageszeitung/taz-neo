@@ -4,8 +4,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -119,15 +121,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         viewBinding.apply {
             coverflowRefreshLayout.apply {
                 setOnRefreshListener {
-                    refreshJob?.cancel()
-                    refreshJob = lifecycleScope.launchWhenResumed {
-                        val start = Date().time
-                        onRefresh()
-                        val end = Date().time
-                        // show animation at least 1000 ms so it looks smoother
-                        delay(1000L - (end - start))
-                        hideRefreshLoadingIcon()
-                    }
+                    refreshFeedDebounced()
                 }
                 reduceDragSensitivity(10)
             }
@@ -170,6 +164,20 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         }
     }
 
+    private fun refreshFeedDebounced() {
+        refreshJob?.cancel()
+        refreshJob = lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val start = Date().time
+                refreshFeed()
+                val end = Date().time
+                // show animation at least 1000 ms so it looks smoother
+                delay(1000L - (end - start))
+                hideRefreshLoadingIcon()
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
         requireActivity().setupBottomNavigation(
@@ -183,7 +191,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         lastSnack = null
     }
 
-    private suspend fun onRefresh() {
+    private suspend fun refreshFeed() {
         try {
             val feedService = FeedService.getInstance(requireContext().applicationContext)
             feedService.refreshFeed(BuildConfig.DISPLAYED_FEED)
