@@ -37,6 +37,7 @@ import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
@@ -101,7 +102,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             .flowWithLifecycle(lifecycle)
             .onEach { pdfMode ->
                 tracker.trackCoverflowScreen(pdfMode)
-            }.launchIn(lifecycleScope)
+            }.launchIn(CoroutineScope(Dispatchers.Default))
     }
 
     /**
