@@ -24,6 +24,7 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -117,11 +118,10 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
      * @param issuePublication the issue to be opened
      */
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
-        val isPdf = viewModel.getPdfMode()
         val isOnline = ConnectionStatusHelper.isOnline(requireContext())
         lifecycleScope.launch {
             requireActivity().apply {
-                val fragment = if (isPdf) {
+                val fragment = if (viewModel.pdfMode.first()) {
                     PdfPagerWrapperFragment.newInstance(IssuePublicationWithPages(issuePublication))
                 } else {
                     IssueViewerWrapperFragment.newInstance(IssuePublication(issuePublication))
