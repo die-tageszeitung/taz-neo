@@ -34,8 +34,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.appBarLayout.setDefaultTopInset()
-
         viewModel.pdfModeLiveData.observeDistinctIgnoreFirst(viewLifecycleOwner) {
             // redraw all visible views
             viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
