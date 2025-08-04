@@ -109,24 +109,27 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * react to scrolling
      */
     private fun observeScrollViewModel() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                // adjust date alpha when scrolling
-                coverFlowOnScrollListenerViewModel.dateAlpha.onEach {
-                    withContext(Dispatchers.Main) {
-                        viewBinding.fragmentCoverFlowDate.alpha = it
-                    }
-                }.launchIn(lifecycleScope)
-                // adjust date when scrolling
-                coverFlowOnScrollListenerViewModel.currentDate.filterNotNull().onEach { date ->
-                    skipToDate(date)
-                }.launchIn(lifecycleScope)
-                // trigger refresh when scrolling into the left void
-                coverFlowOnScrollListenerViewModel.refresh.onEach {
-                    getHomeFragment().refresh()
-                }.launchIn(lifecycleScope)
-            }
-        }
+        // adjust date alpha when scrolling
+        coverFlowOnScrollListenerViewModel.dateAlpha
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.fragmentCoverFlowDate.alpha = it
+            }.launchIn(lifecycleScope)
+
+        // adjust date when scrolling
+        coverFlowOnScrollListenerViewModel.currentDate
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach { date ->
+                skipToDate(date)
+            }.launchIn(lifecycleScope)
+
+        // trigger refresh when scrolling into the left void
+        coverFlowOnScrollListenerViewModel.refresh
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                getHomeFragment().refresh()
+            }.launchIn(lifecycleScope)
     }
 
     /**
@@ -135,22 +138,15 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun maybeShowLoginButton() {
         val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                // create new flow that indicates if waiting for mail or logged in
-                combine(
-                    authHelper.isPollingForConfirmationEmail.asFlow(),
-                    authHelper.isLoggedInFlow,
-                ) { isPolling, isLoggedIn -> isPolling || isLoggedIn }
-                    .onEach {
-                        // ensure UI thread
-                        withContext(Dispatchers.Main) {
-                            viewBinding.homeLoginButton.visibility =
-                                if (it) View.GONE else View.VISIBLE
-                        }
-                    }.launchIn(lifecycleScope)
-            }
-        }
+        // create new flow that indicates if waiting for mail or logged in
+        combine(
+            authHelper.isPollingForConfirmationEmail.asFlow(),
+            authHelper.isLoggedInFlow,
+        ) { isPolling, isLoggedIn -> isPolling || isLoggedIn }
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.homeLoginButton.visibility = if (it) View.GONE else View.VISIBLE
+            }.launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
