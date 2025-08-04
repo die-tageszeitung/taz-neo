@@ -32,6 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -92,6 +93,13 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 SentryWrapper.captureMessage(message)
                 toastHelper.showSomethingWentWrongToast()
             }.launchIn(CoroutineScope(Dispatchers.Default))
+
+
+        issueFeedViewModel.pdfMode
+            .flowWithLifecycle(lifecycle)
+            .drop(1)
+            .onEach { showSnackBarIfSwitchingPdfMode(it) }
+            .launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -127,27 +135,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
 
             fabActionPdf.setOnClickListener {
-                val snackTextResId: Int
-                if (issueFeedViewModel.getPdfMode()) {
-                    tracker.trackSwitchToMobileModeEvent()
-                    snackTextResId = R.string.toast_switch_to_mobile
-                } else {
-                    tracker.trackSwitchToPdfModeEvent()
-                    snackTextResId = R.string.toast_switch_to_pdf
-                }
-
-
-                lastSnack = Snackbar.make(
-                    viewBinding.root,
-                    // Use getText to parse HTML tags used for string formatting
-                    getText(snackTextResId),
-                    Snackbar.LENGTH_SHORT
-                ).apply {
-                    anchorView = fabActionPdf
-                    setTextMaxLines(4)
-                    show()
-                }
-
                 issueFeedViewModel.togglePdfMode()
                 lifecycleScope.launch {
                     FabCoachMark.setFunctionAlreadyDiscovered(requireContext())
@@ -155,7 +142,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
         }
         lifecycleScope.launch {
-
             FabCoachMark(this@HomeFragment, viewBinding.fabActionPdf)
                 .maybeShow()
 
@@ -189,6 +175,28 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onPause() {
         super.onPause()
         lastSnack = null
+    }
+
+    private fun showSnackBarIfSwitchingPdfMode(pdfMode: Boolean) {
+        val snackTextResId: Int
+        if (pdfMode) {
+            tracker.trackSwitchToMobileModeEvent()
+            snackTextResId = R.string.toast_switch_to_mobile
+        } else {
+            tracker.trackSwitchToPdfModeEvent()
+            snackTextResId = R.string.toast_switch_to_pdf
+        }
+
+        lastSnack = Snackbar.make(
+            viewBinding.root,
+            // Use getText to parse HTML tags used for string formatting
+            getText(snackTextResId),
+            Snackbar.LENGTH_SHORT
+        ).apply {
+            anchorView = viewBinding.fabActionPdf
+            setTextMaxLines(4)
+            show()
+        }
     }
 
     private suspend fun refreshFeed() {
