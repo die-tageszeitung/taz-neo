@@ -19,6 +19,7 @@ import java.util.LinkedList
 typealias MomentChangedListener = (Date) -> Unit
 
 const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
+const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
 
 class IssueFeedViewModel(
     application: Application,
@@ -29,7 +30,9 @@ class IssueFeedViewModel(
 
     val currentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
 
-    val pdfMode = generalDataStore.pdfMode.asFlow()
+    val refreshViewEnabled = savedStateHandle.getMutableStateFlow(KEY_REFRESH_VIEW_ENABLED, true)
+
+    val pdfMode = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
 
     @Deprecated("use Flow instead", ReplaceWith("pdfMode"))
     val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()

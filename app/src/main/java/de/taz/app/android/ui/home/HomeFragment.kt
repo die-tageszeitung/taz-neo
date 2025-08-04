@@ -111,6 +111,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             .drop(1)
             .onEach { showSnackBarIfSwitchingPdfMode(it) }
             .launchIn(lifecycleScope)
+
+        issueFeedViewModel.refreshViewEnabled
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.coverflowRefreshLayout.isEnabled = it
+            }.launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -246,14 +252,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             ToastHelper.getInstance(requireContext().applicationContext)
                 .showSomethingWentWrongToast()
         }
-    }
-
-    private fun enableRefresh() {
-        viewBinding.coverflowRefreshLayout.isEnabled = true
-    }
-
-    private fun disableRefresh() {
-        viewBinding.coverflowRefreshLayout.isEnabled = false
     }
 
     private fun hideRefreshLoadingIcon() {
