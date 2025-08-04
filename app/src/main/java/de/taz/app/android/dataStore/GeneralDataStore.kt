@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
+import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.util.SingletonHolder
 
 // region old setting names
@@ -41,6 +42,8 @@ private const val SETTINGS_CONTINUE_READ_ASK_EACH_TIME = "settings_continue_read
 private const val SETTINGS_CONTINUE_READ_DIALOG_SHOWN = "settings_continue_read_dialog_shown"
 private const val SETTINGS_CONTINUE_READ_CLICKED = "settings_continue_read_clicked"
 private const val SETTINGS_CONTINUE_READ_DISMISSED = "settings_continue_read_dismissed"
+private const val SETTINGS_HOME_FRAGMENT_STATUS = "settings_home_fragment_status"
+
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -161,6 +164,13 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val continueReadDismissed: DataStoreEntry<Int> = SimpleDataStoreEntry(
         dataStore, intPreferencesKey(SETTINGS_CONTINUE_READ_DISMISSED), 0
+    )
+    val homeFragmentState: DataStoreEntry<HomeFragment.State> = MappingDataStoreEntry(
+        dataStore,
+        stringPreferencesKey(SETTINGS_HOME_FRAGMENT_STATUS),
+        HomeFragment.State.COVERFLOW,
+        { it.name },
+        { HomeFragment.State.valueOf(it) },
     )
 
 
