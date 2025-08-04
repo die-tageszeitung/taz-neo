@@ -251,9 +251,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
 
             if(supportFragmentManager.fragments.last { it.isVisible } is HomeFragment) {
                 coverFlowFragment?.skipToHome()
-                this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
-                    currentItem -= 1
-                }
             } else {
                 supportFragmentManager.popBackStackImmediate(
                     null,

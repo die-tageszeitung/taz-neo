@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -105,30 +104,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         }
 
         viewBinding.apply {
-            feedArchivePager.apply {
-                adapter = HomeFragmentPagerAdapter(childFragmentManager, lifecycle)
-
-                // reduce viewpager2 sensitivity to make the view less finicky
-                reduceDragSensitivity(6)
-                registerOnPageChangeCallback(object :
-                    ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        when (position) {
-                            COVERFLOW_PAGER_POSITION -> {
-                                onHome = true
-                                enableRefresh()
-                            }
-
-                            ARCHIVE_PAGER_POSITION -> {
-                                onHome = false
-                                disableRefresh()
-                            }
-                        }
-                    }
-                })
-            }
-
             coverflowRefreshLayout.apply {
                 setOnRefreshListener {
                     refreshJob?.cancel()
@@ -222,14 +197,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     override fun onDestroyView() {
-        viewBinding.feedArchivePager.adapter = null
         refreshJob?.cancel()
         refreshJob = null
         super.onDestroyView()
     }
 
     fun showArchive() {
-        viewBinding.feedArchivePager.currentItem = ARCHIVE_PAGER_POSITION
         lifecycleScope.launch {
             ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
         }

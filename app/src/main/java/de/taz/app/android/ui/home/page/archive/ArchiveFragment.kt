@@ -55,9 +55,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         }
 
         toCoverFlow.setOnClickListener {
-            activity?.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
-                currentItem -= 1
-            }
+            TODO("REMOVED")
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
