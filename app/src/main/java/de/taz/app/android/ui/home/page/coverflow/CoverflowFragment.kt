@@ -52,6 +52,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val coverFlowOnScrollListenerViewModel: CoverFlowOnScrollListener.ViewModel by viewModels()
 
     private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var authHelper: AuthHelper
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener by lazy {
@@ -66,6 +67,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,8 +135,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * hide or show login button depending on auth status
      */
     private fun maybeShowLoginButton() {
-        val authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-
         // create new flow that indicates if waiting for mail or logged in
         combine(
             authHelper.isPollingForConfirmationEmail.asFlow(),
