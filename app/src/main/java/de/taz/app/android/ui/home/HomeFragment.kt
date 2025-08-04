@@ -64,9 +64,8 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         lifecycleScope.launch {
             // Get the latest feed and propagate it if it is valid.
             // Otherwise (null feed) show a warning to the user.
-            // Warning: This will re-try to request the feed from the api indefinitely in case of connection failures.
             feedService
-                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED, retryOnFailure = true)
+                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
                 .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
                 .collect {
                     if (it != null) {

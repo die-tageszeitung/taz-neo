@@ -32,8 +32,7 @@ class FeedService(applicationContext: Context) {
             }
         }
 
-    @Deprecated("Caller should not care about retries")
-    fun getFeedFlowByName(name: String, retryOnFailure: Boolean): Flow<Feed?> {
+    fun getFeedFlowByName(name: String): Flow<Feed?> {
         return feedRepository.getFlow(name)
             .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
             .map {
@@ -42,10 +41,6 @@ class FeedService(applicationContext: Context) {
                 it ?: refreshFeed(name)
             }
     }
-
-    fun getFeedFlowByName(name: String): Flow<Feed?> =
-        getFeedFlowByName(name, retryOnFailure = false)
-
     /**
      * Refresh the the Feed with [name] and return an [IssueKey] if a new issue date was detected.
      * Returns null if the feed was already up to date and did not need a refresh.
