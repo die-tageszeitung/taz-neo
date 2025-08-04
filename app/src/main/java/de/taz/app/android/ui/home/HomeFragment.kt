@@ -234,11 +234,10 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onDestroyView()
     }
 
-    fun showArchive() {
-        lifecycleScope.launch {
-            ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
-        }
+    fun showArchive() = lifecycleScope.launch {
+        ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
     }
+
 
     fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)
 }
