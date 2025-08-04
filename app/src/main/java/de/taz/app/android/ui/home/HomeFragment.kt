@@ -17,6 +17,7 @@ import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArchiveCoachMark
 import de.taz.app.android.coachMarks.FabCoachMark
 import de.taz.app.android.content.FeedService
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.monkey.setRefreshingWithCallback
@@ -25,8 +26,11 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.ui.home.page.archive.ArchiveFragment
+import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.ui.pdfViewer.PdfPagerFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -42,6 +46,12 @@ import java.util.Date
 
 
 class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
+
+    enum class State {
+        COVERFLOW,
+        ARCHIVE,
+    }
+
     val log by Log
 
     var onHome: Boolean = true
@@ -57,6 +67,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
+    private lateinit var generalDataStore: GeneralDataStore
 
     private val issueFeedViewModel: IssueFeedViewModel by activityViewModels()
 
@@ -65,6 +76,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         feedService = FeedService.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,7 +154,28 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
         }
 
+        generalDataStore.homeFragmentState.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .onEach { showFragmentForState(it) }
+            .launchIn(lifecycleScope)
+
         maybeShowCoachMarks()
+    }
+
+    private fun showFragmentForState(state: State) {
+        when (state) {
+            State.ARCHIVE ->
+                childFragmentManager.beginTransaction().add(
+                    R.id.home_fragment,
+                    ArchiveFragment()
+                ).commit()
+
+            State.COVERFLOW ->
+                childFragmentManager.beginTransaction().add(
+                    R.id.home_fragment,
+                    CoverflowFragment()
+                ).commit()
+        }
     }
 
     private fun refreshFeedDebounced() {
