@@ -39,7 +39,7 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
 import de.taz.app.android.ui.home.page.CoverViewDate
-import de.taz.app.android.ui.home.page.MomentViewBinding
+import de.taz.app.android.ui.home.page.CoverViewBinding
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
@@ -73,7 +73,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
-    private var momentBinder: MomentViewBinding? = null
+    private var momentBinder: CoverViewBinding? = null
 
     private lateinit var currentIssueStub: IssueStub
 
@@ -259,7 +259,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             }
             try {
                 contentService.downloadToCache(moment)
-                momentBinder = MomentViewBinding(
+                momentBinder = CoverViewBinding(
                     this@SectionDrawerFragment,
                     momentPublication,
                     CoverViewDate(momentPublication.date, momentPublication.date),
@@ -270,7 +270,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                             (requireActivity() as? MainActivity)?.showHome()
                         }
                     },
-                    observeDownload = false
+                    observeDownloads = false
                 )
                 momentBinder?.prepareDataAndBind(viewBinding.fragmentDrawerSectionsMoment)
 
