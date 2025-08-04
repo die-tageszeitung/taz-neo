@@ -96,7 +96,11 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     override fun onResume() {
         super.onResume()
-        tracker.trackArchiveScreen(viewModel.pdfModeLiveData.value ?: false)
+        trackArchiveScreen()
+    }
+
+    private fun trackArchiveScreen() = lifecycleScope.launch {
+        tracker.trackArchiveScreen(viewModel.getPdfMode())
     }
 
     private fun calculateNoOfColumns(): Int {
