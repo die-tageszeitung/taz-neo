@@ -35,9 +35,6 @@ class IssueFeedViewModel(
 
     val pdfMode = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
 
-    @Deprecated("use Flow instead", ReplaceWith("pdfMode"))
-    val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()
-
     fun togglePdfMode() = viewModelScope.launch {
         generalDataStore.pdfMode.set(!generalDataStore.pdfMode.get())
     }
