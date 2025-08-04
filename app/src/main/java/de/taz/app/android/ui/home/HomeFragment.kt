@@ -3,6 +3,7 @@ package de.taz.app.android.ui.home
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -168,19 +169,30 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     private fun showFragmentForState(state: State) {
-        when (state) {
-            State.ARCHIVE ->
-                childFragmentManager.beginTransaction().add(
-                    R.id.home_fragment,
-                    ArchiveFragment()
-                ).commit()
+        val oldFragment = childFragmentManager.findFragmentByTag(state.name)
+        val transaction = childFragmentManager.beginTransaction()
 
-            State.COVERFLOW ->
-                childFragmentManager.beginTransaction().add(
-                    R.id.home_fragment,
-                    CoverflowFragment()
-                ).commit()
+        childFragmentManager.fragments.forEach {
+            transaction.hide(it)
         }
+
+        if (oldFragment == null) {
+            // add fragment if it does not exist
+            val fragment = when (state) {
+                State.ARCHIVE -> ArchiveFragment()
+                State.COVERFLOW -> CoverflowFragment()
+            }
+            log.debug("adding fragment for state: ${state.name}")
+
+            transaction
+                .add(R.id.home_fragment, fragment, state.name)
+                .addToBackStack(state.name)
+        } else {
+            log.debug("showing old fragment for state: ${state.name}")
+            transaction
+                .show(oldFragment)
+        }
+        transaction.commit()
     }
 
     private fun refreshFeedDebounced() {

@@ -101,5 +101,7 @@ class MappingDataStoreEntry<S, T>(
     override suspend fun get(): S = mapTtoS(dataStoreEntry.get())
 
     override suspend fun reset() = dataStoreEntry.reset()
-    override fun asFlow(): Flow<S> = dataStoreEntry.asFlow().map { mapTtoS(it) }
+    override fun asFlow(): Flow<S> = dataStoreEntry.asFlow()
+        .map { mapTtoS(it) }
+        .distinctUntilChanged()
 }
