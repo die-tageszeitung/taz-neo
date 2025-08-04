@@ -25,8 +25,7 @@ class FeedService(applicationContext: Context) {
     private val contentService = ContentService.getInstance(applicationContext)
 
 
-    @Deprecated("Caller should not care about retries")
-    suspend fun refreshFeed(name: String, retryOnFailure: Boolean = false): Feed? =
+    suspend fun refreshFeed(name: String): Feed? =
         withContext(Dispatchers.IO) {
             apiService.getFeedByName(name)?.apply {
                 feedRepository.save(this)
@@ -40,7 +39,7 @@ class FeedService(applicationContext: Context) {
             .map {
                 // Refresh (download) the latest feed if it is currently missing (feed being null)
                 // and emit the download result
-                it ?: refreshFeed(name, retryOnFailure)
+                it ?: refreshFeed(name)
             }
     }
 
