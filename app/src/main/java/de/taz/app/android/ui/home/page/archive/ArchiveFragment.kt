@@ -25,7 +25,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private lateinit var tracker: Tracker
 
     private val grid by lazy { viewBinding.fragmentArchiveGrid }
-    private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -52,10 +51,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         context?.let { context ->
             grid.layoutManager =
                 GridLayoutManager(context, calculateNoOfColumns())
-        }
-
-        toCoverFlow.setOnClickListener {
-            TODO("REMOVED")
         }
 
         viewModel.feed.observe(viewLifecycleOwner) { feed ->
