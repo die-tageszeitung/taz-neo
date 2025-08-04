@@ -121,7 +121,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         val isOnline = ConnectionStatusHelper.isOnline(requireContext())
         lifecycleScope.launch {
             requireActivity().apply {
-                val fragment = if (viewModel.pdfMode.first()) {
+                val fragment = if (viewModel.getPdfMode()) {
                     PdfPagerWrapperFragment.newInstance(IssuePublicationWithPages(issuePublication))
                 } else {
                     IssueViewerWrapperFragment.newInstance(IssuePublication(issuePublication))

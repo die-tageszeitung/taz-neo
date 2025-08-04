@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.LinkedList
@@ -41,10 +42,7 @@ class IssueFeedViewModel(
         generalDataStore.pdfMode.set(!generalDataStore.pdfMode.get())
     }
 
-    @Deprecated("use pdfMode instead")
-    fun getPdfMode() = requireNotNull(pdfModeLiveData.value) {
-        "PdfMode is always set - no null possible"
-    }
+    suspend fun getPdfMode() = pdfMode.first()
 
     fun setFeed(feed: Feed) {
         if (!Feed.equalsShallow(mutableFeedLiveData.value, feed)) {
