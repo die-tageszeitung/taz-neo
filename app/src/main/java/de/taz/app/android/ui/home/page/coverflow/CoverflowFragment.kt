@@ -54,6 +54,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var authHelper: AuthHelper
+    private lateinit var tracker: Tracker
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
     private val onScrollListener by lazy {
@@ -69,6 +70,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(requireContext().applicationContext)
+        tracker = Tracker.getInstance(requireContext().applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,8 +89,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      */
     @SuppressLint("NotifyDataSetChanged")
     private fun observePdfMode() {
-        val tracker = Tracker.getInstance(requireContext().applicationContext)
-
         // redraw pdfMode if changes after initial draw
         viewModel.pdfMode
             .flowWithLifecycle(lifecycle)
