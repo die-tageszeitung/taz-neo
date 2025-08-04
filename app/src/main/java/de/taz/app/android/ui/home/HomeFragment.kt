@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
@@ -24,9 +25,13 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -60,25 +65,23 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // get feed and propagate it to the viewModel
-        lifecycleScope.launch {
-            // Get the latest feed and propagate it if it is valid.
-            // Otherwise (null feed) show a warning to the user.
-            feedService
-                .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
-                .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
-                .collect {
-                    if (it != null) {
-                        issueFeedViewModel.setFeed(it)
-                    } else {
-                        val message =
-                            "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
-                        log.error(message)
-                        SentryWrapper.captureMessage(message)
-                        toastHelper.showSomethingWentWrongToast()
-                    }
+        // Get the latest feed and propagate it if it is valid.
+        // Otherwise (null feed) show a warning to the user.
+        feedService
+            .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
+            .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                if (it != null) {
+                    issueFeedViewModel.setFeed(it)
+                } else {
+                    val message =
+                        "Failed to retrieve feed ${BuildConfig.DISPLAYED_FEED}, cannot show anything"
+                    log.error(message)
+                    SentryWrapper.captureMessage(message)
+                    toastHelper.showSomethingWentWrongToast()
                 }
-        }
+            }.launchIn(CoroutineScope(Dispatchers.Default))
 
     }
 
