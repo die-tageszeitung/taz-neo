@@ -141,13 +141,8 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 }
             }
         }
-        lifecycleScope.launch {
-            FabCoachMark(this@HomeFragment, viewBinding.fabActionPdf)
-                .maybeShow()
 
-            ArchiveCoachMark(this@HomeFragment)
-                .maybeShow()
-        }
+        maybeShowCoachMarks()
     }
 
     private fun refreshFeedDebounced() {
@@ -162,6 +157,14 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 hideRefreshLoadingIcon()
             }
         }
+    }
+
+    private fun maybeShowCoachMarks() = lifecycleScope.launch {
+        FabCoachMark(this@HomeFragment, viewBinding.fabActionPdf)
+            .maybeShow()
+
+        ArchiveCoachMark(this@HomeFragment)
+            .maybeShow()
     }
 
     override fun onResume() {
