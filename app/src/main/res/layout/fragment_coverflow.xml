@@ -29,8 +29,7 @@
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:layout_width="wrap_content"
@@ -60,8 +59,8 @@
         android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
         android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
         android:clickable="true"
-        android:focusable="true"
         android:contentDescription="@string/fragment_home_login"
+        android:focusable="true"
         android:gravity="center_vertical"
         android:padding="@dimen/fragment_cover_flow_login_button_padding"
         app:layout_constraintRight_toRightOf="parent"
@@ -89,8 +88,8 @@
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/guideline_top"
         app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top"
         app:layout_constraintVertical_bias="0.4" />
 
     <ImageView
@@ -138,62 +137,45 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="freitag, 13.12.2023" />
 
-        <View
-            android:id="@+id/fragment_coverflow_moment_download_position"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1,1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/fragment_coverflow_moment_download"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_file_download"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/coverflow_icon_tint"
-            tools:src="@drawable/ic_file_download"
-            tools:visibility="visible" />
-
-        <View
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_coverflow_moment_download_touch_area"
             android:layout_width="@dimen/default_touch_area_size"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/default_touch_area_size"
             android:clickable="true"
-            android:focusable="true"
             android:contentDescription="@string/settings_download_issue"
-            app:layout_constraintBottom_toBottomOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintStart_toStartOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintTop_toTopOf="@id/fragment_coverflow_moment_download" />
-
-        <ImageView
-            android:id="@+id/fragment_coverflow_moment_download_finished"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_done"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
+            android:focusable="true"
+            android:padding="16.5dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/coverflow_icon_tint"
-            tools:visibility="visible" />
+            app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ProgressBar
-            android:id="@+id/fragment_coverflow_moment_downloading"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            <ImageView
+                android:id="@+id/fragment_coverflow_moment_download"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_file_download"
+                android:visibility="gone"
+                app:tint="@color/coverflow_icon_tint"
+                tools:src="@drawable/ic_file_download"
+                tools:visibility="visible" />
 
+            <ImageView
+                android:id="@+id/fragment_coverflow_moment_download_finished"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_done"
+                android:visibility="gone"
+                app:tint="@color/coverflow_icon_tint"
+                tools:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/fragment_coverflow_moment_downloading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
