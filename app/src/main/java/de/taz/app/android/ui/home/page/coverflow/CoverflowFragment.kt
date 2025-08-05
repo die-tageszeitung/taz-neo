@@ -199,7 +199,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             val prevHomeMomentDate = adapter?.getItem(0)?.date
             val initialAdapter = adapter == null
 
-            val requestManager = Glide.with(this)
+            val requestManager = Glide.with(requireParentFragment())
             val adapter = CoverflowAdapter(
                 this,
                 R.layout.fragment_cover_flow_item,

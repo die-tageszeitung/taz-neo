@@ -20,6 +20,7 @@ import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
