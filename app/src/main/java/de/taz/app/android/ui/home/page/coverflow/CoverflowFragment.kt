@@ -120,7 +120,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             .flowWithLifecycle(lifecycle)
             .filterNotNull()
             .onEach { date ->
-                skipToDate(date)
+                viewModel.updateCurrentDate(date)
             }.launchIn(lifecycleScope)
 
         // trigger refresh when scrolling into the left void
@@ -232,7 +232,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                             prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
 
                         if (!wasHomeSelected) {
-                            skipToDate(prevMomentDate)
+                            viewModel.updateCurrentDate(prevMomentDate)
                         } else {
                             skipToHome()
                         }
@@ -364,13 +364,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 viewBinding.fragmentCoverFlowGrid.scrollToPosition(position)
             }
         }
-    }
-
-    fun skipToDate(date: Date) {
-        if (viewModel.currentDate.value != date)
-            viewModel.viewModelScope.launch {
-                viewModel.updateCurrentDate(date)
-            }
     }
 
     suspend fun skipToHome() {
