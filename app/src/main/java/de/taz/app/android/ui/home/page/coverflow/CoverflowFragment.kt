@@ -406,9 +406,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     (extraPadding * resources.displayMetrics.density / 2).toInt()
                 newMarginEnd = newMarginEnd - halfExtraPaddingInPx
             }
-            viewBinding.fragmentCoverflowMomentDownloadPosition.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                marginEnd = newMarginEnd
-            }
             // snap cover flow after setting margin
             // TODO check where there might be place where this actually makes sense
             snapHelper.updateSnap(true, true)
