@@ -175,7 +175,7 @@
     <dimen name="fragment_webview_loading_screen_padding_bottom">107dp</dimen>
     <dimen name="fragment_webview_tap_to_scroll_offset">48dp</dimen>
 
-    <dimen name="fragment_archive_padding_top">22dp</dimen>
+    <dimen name="fragment_archive_padding_top">52dp</dimen>
     <!-- Manually align the baseline to the bottom of the download icons.
          Value depends on the font but 2dp seems to work for all our variants -->
     <dimen name="fragment_coverflow_date_translation_y">2dp</dimen>
