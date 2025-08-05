@@ -30,13 +30,30 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
-    private val grid by lazy { viewBinding.fragmentArchiveGrid }
     private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // update the grid if the feed changes
+        viewModel.feed
+            .flowWithLifecycle(lifecycle)
+            .onEach { feed ->
+                val requestManager = Glide.with(requireParentFragment())
+                adapter = ArchiveAdapter(
+                    this,
+                    R.layout.fragment_archive_item,
+                    feed,
+                    requestManager
+                )
+                viewBinding.fragmentArchiveGrid.adapter = adapter
+            }.launchIn(lifecycleScope)
     }
 
     private val refreshOnSideScrollListener = object: RecyclerView.OnScrollListener() {
@@ -71,8 +88,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }
             .launchIn(lifecycleScope)
 
-
-        grid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
+        viewBinding.fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
+        viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
 
         toCoverFlow.setOnClickListener {
             // TODO REMOVE
@@ -80,20 +97,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 generalDataStore.homeFragmentState.set(HomeFragment.State.COVERFLOW)
             }
         }
-
-        viewModel.feed
-            .flowWithLifecycle(lifecycle)
-            .onEach { feed ->
-                val requestManager = Glide.with(requireParentFragment())
-                grid.setHasFixedSize(true)
-                adapter = ArchiveAdapter(
-                    this,
-                    R.layout.fragment_archive_item,
-                    feed,
-                    requestManager
-                )
-                grid.adapter = adapter
-            }.launchIn(lifecycleScope)
     }
 
     override fun onResume() {
