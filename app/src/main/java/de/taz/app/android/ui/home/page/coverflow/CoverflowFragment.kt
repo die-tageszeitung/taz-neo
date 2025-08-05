@@ -339,6 +339,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     /**
      * Sometimes in the carousel the items are not snapped in the center correctly.
      * That happens when the [adapter]s [position] is different from the [GravitySnapHelper]s
+     * TODO: check if we can remove this after changing logic - can we track this in sentry?
      */
     private fun skipToPositionIfNecessary(position: Int) {
         // nextPosition could already be correct because of scrolling if not skip there
