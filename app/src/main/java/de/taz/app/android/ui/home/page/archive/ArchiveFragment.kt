@@ -39,19 +39,21 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
+    private val refreshOnSideScrollListener = object: RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            viewModel.refreshViewEnabled.value = !recyclerView.canScrollVertically(-1)
+
+            super.onScrolled(recyclerView, dx, dy)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.appBarLayout.setDefaultTopInset()
 
         viewBinding.fragmentArchiveGrid.addOnScrollListener(
-            object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    viewModel.refreshViewEnabled.value = !recyclerView.canScrollVertically(-1)
-
-                    super.onScrolled(recyclerView, dx, dy)
-                }
-            }
+            refreshOnSideScrollListener,
         )
 
         viewModel.pdfMode
