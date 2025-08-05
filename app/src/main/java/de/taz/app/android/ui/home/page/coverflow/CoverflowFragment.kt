@@ -224,7 +224,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                         if (initialIssueDisplay != null) {
                             skipToPublication(requireNotNull(initialIssueDisplay))
                         } else {
-                            skipToHome()
+                            viewModel.setNewestCurrentDate()
                         }
                     } else {
                         // The adapter is already initialized. This is an update which might break our scroll position.
@@ -234,7 +234,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                         if (!wasHomeSelected) {
                             viewModel.updateCurrentDate(prevMomentDate)
                         } else {
-                            skipToHome()
+                            viewModel.setNewestCurrentDate()
                         }
                     }
                 }
