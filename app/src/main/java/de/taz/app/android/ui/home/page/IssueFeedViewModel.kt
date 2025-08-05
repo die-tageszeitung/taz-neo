@@ -8,6 +8,7 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -29,7 +30,20 @@ class IssueFeedViewModel(
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val generalDataStore = GeneralDataStore.getInstance(application)
 
-    val currentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
+    private val _mutableCurrentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
+    val currentDate: StateFlow<Date> = _mutableCurrentDate
+
+    fun updateCurrentDate(date: Date) {
+        if (currentDate.value != date) {
+            _mutableCurrentDate.value = date
+        }
+    }
+    suspend fun setNewestCurrentDate() {
+        feed.first().publicationDates.firstOrNull()?.let {
+            updateCurrentDate(it.date)
+        }
+    }
+
 
     val refreshViewEnabled = savedStateHandle.getMutableStateFlow(KEY_REFRESH_VIEW_ENABLED, true)
 
