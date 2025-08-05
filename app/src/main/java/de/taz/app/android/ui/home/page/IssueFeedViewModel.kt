@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
+import de.taz.app.android.simpleDateFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,11 +33,28 @@ class IssueFeedViewModel(
     private val _mutableCurrentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
     val currentDate: StateFlow<Date> = _mutableCurrentDate
 
+    /**
+     * set [currentDate] to date if not already matching
+     */
     fun updateCurrentDate(date: Date) {
         if (currentDate.value != date) {
             _mutableCurrentDate.value = date
         }
     }
+
+    /**
+     * update [currentDate] by parsing a string in yyyy-MM-dd format
+     * if date does not already match
+     */
+    fun updateCurrentDate(simpleDateString: String) {
+        val date = simpleDateFormat.parse(simpleDateString)
+        if (date != null) {
+            updateCurrentDate(date)
+        } else {
+            throw IllegalArgumentException("updateCurrentDate called with wrong string: $simpleDateString")
+        }
+    }
+
     suspend fun setNewestCurrentDate() {
         feed.first().publicationDates.firstOrNull()?.let {
             updateCurrentDate(it.date)
