@@ -576,5 +576,7 @@
     <string name="description_tom_at_the_end">Karikatur von Tom</string>
 
     <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
+    <string name="fragment_home_representation">Darstellung</string>
+    <string name="fragment_archive_calendar">Datumsauswahl</string>
 
 </resources>

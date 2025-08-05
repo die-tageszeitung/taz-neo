@@ -30,8 +30,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
-    private val toCoverFlow by lazy { viewBinding.fragmentArchiveToCoverFlow }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         tracker = Tracker.getInstance(context.applicationContext)
@@ -91,8 +89,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         viewBinding.fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
         viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
 
-        toCoverFlow.setOnClickListener {
-            // TODO REMOVE
+        viewBinding.representation.setOnClickListener {
+            // TODO Show bottomSheetFragment and do not set homeFragmentState directly
             lifecycleScope.launch {
                 generalDataStore.homeFragmentState.set(HomeFragment.State.COVERFLOW)
             }

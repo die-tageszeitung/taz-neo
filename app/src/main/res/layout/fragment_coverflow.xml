@@ -20,12 +20,45 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_end="@dimen/fragment_cover_flow_guideline_end" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/representation"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_marginStart="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_top"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fragment_home_representation"
+            android:textColor="@color/lightGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_show_password"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <LinearLayout
         android:id="@+id/home_login_button"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/default_touch_area_size"
         android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_top"
-        android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
+        android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
         android:clickable="true"
         android:focusable="true"
         android:contentDescription="@string/fragment_home_login"
@@ -89,7 +122,7 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
         android:layout_gravity="center_horizontal"
-        app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_to_archive"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid"
@@ -163,19 +196,4 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/fragment_cover_flow_to_archive"
-        android:layout_width="@dimen/default_touch_area_size"
-        android:layout_height="@dimen/default_touch_area_size"
-        android:layout_marginBottom="@dimen/fragment_cover_flow_to_archive_margin_bottom"
-        android:padding="@dimen/fragment_cover_flow_to_archive_padding"
-        android:contentDescription="@string/fragment_cover_flow_to_archive"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/ic_arrow_down"
-        app:tint="@color/coverflow_icon_tint" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -182,7 +182,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
 
             // set onClickListener
-            fragmentCoverFlowToArchive.setOnClickListener {
+            representation.setOnClickListener {
+                // TODO Show bottomSheetFragment and do not set homeFragmentState directly
                 lifecycleScope.launch {
                     generalDataStore.homeFragmentState.set(HomeFragment.State.ARCHIVE)
                     ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
