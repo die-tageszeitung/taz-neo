@@ -108,7 +108,6 @@
         android:layout_marginStart="@dimen/fragment_archive_margin_horizontal"
         android:layout_marginEnd="@dimen/fragment_archive_margin_horizontal"
         android:clipToPadding="false"
-        android:paddingTop="@dimen/fragment_archive_padding_top"
         android:splitMotionEvents="true"
         android:stretchMode="columnWidth"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
