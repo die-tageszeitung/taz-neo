@@ -111,7 +111,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         coverFlowOnScrollListenerViewModel.dateAlpha
             .flowWithLifecycle(lifecycle)
             .onEach {
-                viewBinding.fragmentCoverFlowDate.alpha = it
+                viewBinding.fragmentCoverFlowDateDownloadWrapper.alpha = it
             }.launchIn(lifecycleScope)
 
         // adjust date when scrolling
@@ -187,6 +187,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 }
             }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
+            fragmentCoverFlowCalendar.setOnClickListener { openDatePicker() }
             fragmentCoverFlowIconGoPrevious.setOnClickListener { goToPreviousIssue() }
             fragmentCoverFlowIconGoNext.setOnClickListener { goToNextIssue() }
             homeLoginButton.setOnClickListener { showLoginBottomSheet() }
