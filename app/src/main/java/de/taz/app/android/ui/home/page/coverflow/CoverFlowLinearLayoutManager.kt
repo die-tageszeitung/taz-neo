@@ -12,7 +12,7 @@ class CoverFlowLinearLayoutManager(
     private val snapHelper: GravitySnapHelper,
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
 
-    private var firstTimeLayoutComplete = false
+    private var firstTimeLayoutComplete = true
 
     override fun getPaddingLeft(): Int = getPadding()
 

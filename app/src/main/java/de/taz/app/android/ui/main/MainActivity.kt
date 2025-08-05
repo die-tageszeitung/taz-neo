@@ -250,7 +250,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                 homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
 
             if(supportFragmentManager.fragments.last { it.isVisible } is HomeFragment) {
-                coverFlowFragment?.skipToHome()
+                lifecycleScope.launch { coverFlowFragment?.skipToHome() }
             } else {
                 supportFragmentManager.popBackStackImmediate(
                     null,

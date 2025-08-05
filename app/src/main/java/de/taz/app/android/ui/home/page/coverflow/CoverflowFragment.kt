@@ -41,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -192,54 +193,56 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             homeLoginButton.setOnClickListener { showLoginBottomSheet() }
         }
 
-        viewModel.feed.observe(viewLifecycleOwner) { feed ->
-            // Store current adapter state before setting some new one
-            val prevMomentDate = viewModel.currentDate.value
-            val prevHomeMomentDate = adapter?.getItem(0)?.date
-            val initialAdapter = adapter == null
+        viewModel.feed
+            .flowWithLifecycle(lifecycle)
+            .onEach { feed ->
+                // Store current adapter state before setting some new one
+                val prevMomentDate = viewModel.currentDate.value
+                val prevHomeMomentDate = adapter?.getItem(0)?.date
+                val initialAdapter = adapter == null
 
-            val requestManager = Glide.with(requireParentFragment())
-            val adapter = CoverflowAdapter(
-                this,
-                R.layout.fragment_cover_flow_item,
-                feed,
-                requestManager,
-                CoverflowCoverViewActionListener(this@CoverflowFragment)
-            )
-            this.adapter = adapter
-            viewBinding.fragmentCoverFlowGrid.adapter = adapter
-            setProperMargin(adapter)
+                val requestManager = Glide.with(requireParentFragment())
+                val adapter = CoverflowAdapter(
+                    this,
+                    R.layout.fragment_cover_flow_item,
+                    feed,
+                    requestManager,
+                    CoverflowCoverViewActionListener(this@CoverflowFragment)
+                )
+                this.adapter = adapter
+                viewBinding.fragmentCoverFlowGrid.adapter = adapter
+                setProperMargin(adapter)
 
-            // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
-            // we let Android restore the scroll position. This might work as long as the feed did not change.
-            val restoreFromPersistedState = initialAdapter && savedInstanceState != null
+                // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
+                // we let Android restore the scroll position. This might work as long as the feed did not change.
+                val restoreFromPersistedState = initialAdapter && savedInstanceState != null
 
-            if (!restoreFromPersistedState) {
-                if (initialAdapter) {
-                    // The adapter has not been set yet. This is the first time this observer is
-                    // called and there is no previous adapter/visible coverflow yet
-                    if (initialIssueDisplay != null) {
-                        skipToPublication(requireNotNull(initialIssueDisplay))
+                if (!restoreFromPersistedState) {
+                    if (initialAdapter) {
+                        // The adapter has not been set yet. This is the first time this observer is
+                        // called and there is no previous adapter/visible coverflow yet
+                        if (initialIssueDisplay != null) {
+                            skipToPublication(requireNotNull(initialIssueDisplay))
+                        } else {
+                            skipToHome()
+                        }
                     } else {
-                        skipToHome()
-                    }
-                } else {
-                    // The adapter is already initialized. This is an update which might break our scroll position.
-                    val wasHomeSelected =
-                        prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
+                        // The adapter is already initialized. This is an update which might break our scroll position.
+                        val wasHomeSelected =
+                            prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
 
-                    if (!wasHomeSelected) {
-                        skipToDate(prevMomentDate)
-                    } else {
-                        skipToHome()
+                        if (!wasHomeSelected) {
+                            skipToDate(prevMomentDate)
+                        } else {
+                            skipToHome()
+                        }
                     }
                 }
-            }
 
-            isLandscape =
-                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            updateUIForCurrentDate()
-        }
+                isLandscape =
+                    resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+                updateUIForCurrentDate()
+            }.launchIn(lifecycleScope)
         viewModel.currentDate.onEach { updateUIForCurrentDate() }.launchIn(lifecycleScope)
     }
 
@@ -254,12 +257,12 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * this function will update the date text and the download icon
      * and will skip to the right position if we are not already there
      */
-    private fun updateUIForCurrentDate() {
+    private suspend fun updateUIForCurrentDate() {
         val date = viewModel.currentDate.value
-        val feed = viewModel.feed.value
+        val feed = viewModel.feed.first()
         val adapter = adapter
 
-        if (feed == null || adapter == null) {
+        if (adapter == null) {
             return
         }
 
@@ -368,8 +371,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }
     }
 
-    fun skipToHome() {
-        viewModel.feed.value?.publicationDates?.firstOrNull()?.let {
+    suspend fun skipToHome() {
+        viewModel.feed.first().publicationDates.firstOrNull()?.let {
             skipToDate(it.date)
         }
     }

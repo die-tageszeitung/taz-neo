@@ -6,9 +6,12 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
+import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.databinding.FragmentBottomSheetDatePickerBinding
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -24,6 +27,13 @@ import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
 import de.taz.app.android.util.getSuccessor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
@@ -45,6 +55,16 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         super.onAttach(context)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        issueFeedViewModel.feed
+            .flowWithLifecycle(lifecycle)
+            .onEach { feed ->
+                setMinDate(feed)
+            }.launchIn(CoroutineScope(Dispatchers.Default))
     }
 
     override fun onStart() {
@@ -78,13 +98,6 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         viewBinding.fragmentBottomSheetDatePicker.maxDate = DateHelper.today(AppTimeZone.Default)
         log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
 
-        val minDate = issueFeedViewModel.feed.value?.issueMinDate
-        if (minDate?.isNotBlank() == true) {
-            log.debug("minDate is $minDate")
-            DateHelper.stringToLong(minDate)?.let { long ->
-                viewBinding.fragmentBottomSheetDatePicker.minDate = long
-            }
-        }
 
         if (BuildConfig.IS_LMD) {
             val dayPickerView = getDayPickerView()
@@ -133,10 +146,22 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         return viewBinding.fragmentBottomSheetDatePicker.findViewById(dayPickerId)
     }
 
-    private fun setIssue(dateString: String) {
+    private suspend fun setMinDate(feed: Feed) {
+        val minDate = feed.issueMinDate
+        if (minDate.isNotBlank()) {
+            log.debug("minDate is $minDate")
+            DateHelper.stringToLong(minDate)?.let { long ->
+                withContext(Dispatchers.Main) {
+                    viewBinding.fragmentBottomSheetDatePicker.minDate = long
+                }
+            }
+        }
+    }
+
+    private fun setIssue(dateString: String) = lifecycleScope.launch {
         log.debug("call setIssue() with date $dateString")
         val date = requireNotNull(simpleDateFormat.parse(dateString))
-        val feed = requireNotNull(issueFeedViewModel.feed.value)
+        val feed = issueFeedViewModel.feed.first()
         val publicationDateIndex = feed.publicationDates.getIndexOfDate(date)
         if (publicationDateIndex != -1) {
             showIssue(IssuePublication(feed.name, dateString))
@@ -152,8 +177,8 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
             simpleDateFormat.parse(issuePublication.date)!!
         )
 
-    private fun skipToSuccessorIssue(date: Date) {
-        val feed = requireNotNull(issueFeedViewModel.feed.value)
+    private suspend fun skipToSuccessorIssue(date: Date) {
+        val feed = issueFeedViewModel.feed.first()
         val successorDate = feed.publicationDates.getSuccessor(date)
 
         if (successorDate == null) {

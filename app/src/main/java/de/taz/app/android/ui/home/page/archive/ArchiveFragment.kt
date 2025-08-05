@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -81,17 +82,19 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }
         }
 
-        viewModel.feed.observe(viewLifecycleOwner) { feed ->
-            val requestManager = Glide.with(requireParentFragment())
-            grid.setHasFixedSize(true)
-            adapter = ArchiveAdapter(
-                this,
-                R.layout.fragment_archive_item,
-                feed,
-                requestManager
-            )
-            grid.adapter = adapter
-        }
+        viewModel.feed
+            .flowWithLifecycle(lifecycle)
+            .onEach { feed ->
+                val requestManager = Glide.with(requireParentFragment())
+                grid.setHasFixedSize(true)
+                adapter = ArchiveAdapter(
+                    this,
+                    R.layout.fragment_archive_item,
+                    feed,
+                    requestManager
+                )
+                grid.adapter = adapter
+            }.launchIn(lifecycleScope)
     }
 
     override fun onResume() {
