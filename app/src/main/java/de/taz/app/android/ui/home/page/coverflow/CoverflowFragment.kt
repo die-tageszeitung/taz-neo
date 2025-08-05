@@ -221,8 +221,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     if (initialAdapter) {
                         // The adapter has not been set yet. This is the first time this observer is
                         // called and there is no previous adapter/visible coverflow yet
-                        if (initialIssueDisplay != null) {
-                            skipToPublication(requireNotNull(initialIssueDisplay))
+                        val initialIssueDisplayDate = initialIssueDisplay?.date
+                        if (initialIssueDisplayDate != null) {
+                            viewModel.updateCurrentDate(initialIssueDisplayDate)
                         } else {
                             viewModel.setNewestCurrentDate()
                         }
@@ -369,12 +370,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     suspend fun skipToHome() {
         viewModel.feed.first().publicationDates.firstOrNull()?.let {
             viewModel.updateCurrentDate(it.date)
-        }
-    }
-
-    private fun skipToPublication(issueKey: AbstractIssuePublication) {
-        simpleDateFormat.parse(issueKey.date)?.let {
-            viewModel.updateCurrentDate(it)
         }
     }
 
