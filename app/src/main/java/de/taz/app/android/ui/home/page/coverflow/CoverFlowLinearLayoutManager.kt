@@ -12,6 +12,8 @@ class CoverFlowLinearLayoutManager(
     private val snapHelper: GravitySnapHelper,
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
 
+    private var firstTimeLayoutComplete = false
+
     override fun getPaddingLeft(): Int = getPadding()
 
     override fun getPaddingRight(): Int = getPadding()
@@ -26,7 +28,10 @@ class CoverFlowLinearLayoutManager(
     override fun onLayoutCompleted(state: RecyclerView.State?) {
         super.onLayoutCompleted(state)
         ZoomPageTransformer.adjustViewSizes(recyclerView)
-        snapHelper.updateSnap(true, true)
+        if (firstTimeLayoutComplete) {
+            firstTimeLayoutComplete = false
+            snapHelper.updateSnap(true, true)
+        }
     }
 
 }
