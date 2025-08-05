@@ -262,5 +262,9 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onDestroyView()
     }
 
+    fun skipToHome() = lifecycleScope.launch {
+        issueFeedViewModel.setNewestCurrentDate()
+    }
+
     fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)
 }

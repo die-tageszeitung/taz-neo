@@ -367,12 +367,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
     }
 
-    suspend fun skipToHome() {
-        viewModel.feed.first().publicationDates.firstOrNull()?.let {
-            viewModel.updateCurrentDate(it.date)
-        }
-    }
-
     private fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
     private fun openDatePicker() {
