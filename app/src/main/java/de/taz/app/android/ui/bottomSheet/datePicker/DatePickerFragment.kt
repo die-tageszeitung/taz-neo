@@ -18,7 +18,6 @@ import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.sentry.SentryWrapperLevel
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.singletons.AppTimeZone
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
@@ -26,13 +25,10 @@ import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
 import de.taz.app.android.util.getSuccessor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.Date
 
@@ -62,8 +58,8 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         issueFeedViewModel.feed
             .flowWithLifecycle(lifecycle)
             .onEach { feed ->
-                setMinDate(feed)
-            }.launchIn(CoroutineScope(Dispatchers.Default))
+                setMinAndMaxDate(feed)
+            }.launchIn(lifecycleScope)
     }
 
     override fun onStart() {
@@ -92,11 +88,6 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         )
-
-        //minDate and maxDate constraints
-        viewBinding.fragmentBottomSheetDatePicker.maxDate = DateHelper.today(AppTimeZone.Default)
-        log.debug("maxDate is ${DateHelper.longToString(DateHelper.today(AppTimeZone.Default))}")
-
 
         if (BuildConfig.IS_LMD) {
             val dayPickerView = getDayPickerView()
@@ -145,15 +136,19 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         return viewBinding.fragmentBottomSheetDatePicker.findViewById(dayPickerId)
     }
 
-    private suspend fun setMinDate(feed: Feed) {
+    private fun setMinAndMaxDate(feed: Feed) {
         val minDate = feed.issueMinDate
-        if (minDate.isNotBlank()) {
+        val minDateLong = DateHelper.stringToLong(minDate)
+        if (minDateLong != null) {
             log.debug("minDate is $minDate")
-            DateHelper.stringToLong(minDate)?.let { long ->
-                withContext(Dispatchers.Main) {
-                    viewBinding.fragmentBottomSheetDatePicker.minDate = long
-                }
-            }
+            viewBinding.fragmentBottomSheetDatePicker.minDate = minDateLong
+        }
+
+        val maxDate = feed.issueMaxDate
+        val maxDateLong = DateHelper.stringToLong(maxDate)
+        if (maxDateLong != null) {
+            log.debug("maxDate is $maxDate")
+            viewBinding.fragmentBottomSheetDatePicker.maxDate = maxDateLong
         }
     }
 
