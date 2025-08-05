@@ -14,10 +14,8 @@ import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.*
 
