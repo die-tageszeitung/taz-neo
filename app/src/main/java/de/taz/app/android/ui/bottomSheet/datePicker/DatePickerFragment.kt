@@ -172,7 +172,8 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
     }
 
     private fun showIssue(issuePublication: IssuePublication) {
-        issueFeedViewModel.currentDate.value = simpleDateFormat.parse(issuePublication.date)!!
+        simpleDateFormat.parse(issuePublication.date)
+            ?.let { date -> issueFeedViewModel.updateCurrentDate(date) }
     }
 
     private suspend fun skipToSuccessorIssue(date: Date) {
