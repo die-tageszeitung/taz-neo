@@ -70,8 +70,8 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
-        authHelper = AuthHelper.getInstance(requireContext().applicationContext)
-        tracker = Tracker.getInstance(requireContext().applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
