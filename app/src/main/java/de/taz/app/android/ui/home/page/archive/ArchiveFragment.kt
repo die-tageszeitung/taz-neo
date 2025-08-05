@@ -14,6 +14,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.flow.drop
@@ -95,6 +96,13 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 generalDataStore.homeFragmentState.set(HomeFragment.State.COVERFLOW)
             }
         }
+        viewBinding.calendar.setOnClickListener {
+            openDatePicker()
+        }
+    }
+
+    private fun openDatePicker() {
+        DatePickerFragment().show(childFragmentManager, DatePickerFragment.TAG)
     }
 
     override fun onResume() {

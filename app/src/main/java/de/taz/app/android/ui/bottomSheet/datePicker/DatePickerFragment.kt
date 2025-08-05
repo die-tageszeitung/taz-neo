@@ -23,7 +23,6 @@ import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
 import de.taz.app.android.util.getSuccessor
@@ -172,10 +171,9 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         dismiss()
     }
 
-    private fun showIssue(issuePublication: IssuePublication) =
-        (parentFragment as CoverflowFragment).skipToDate(
-            simpleDateFormat.parse(issuePublication.date)!!
-        )
+    private fun showIssue(issuePublication: IssuePublication) {
+        issueFeedViewModel.currentDate.value = simpleDateFormat.parse(issuePublication.date)!!
+    }
 
     private suspend fun skipToSuccessorIssue(date: Date) {
         val feed = issueFeedViewModel.feed.first()
