@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Date
 import kotlin.math.floor
 
 /**
@@ -53,6 +54,21 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 )
                 viewBinding.fragmentArchiveGrid.adapter = adapter
             }.launchIn(lifecycleScope)
+
+        viewModel.currentDate.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
+    }
+
+    private fun scrollToDate(date: Date) {
+        val adapter = adapter ?: return
+
+        adapter.getPosition(date).let { position ->
+            val currentPosition = adapter.getPosition(viewModel.currentDate.value)
+            if (currentPosition < position) {
+                viewBinding.fragmentArchiveGrid.scrollToPosition(position)
+            } else {
+                viewBinding.fragmentArchiveGrid.scrollToPosition(position + calculateNoOfColumns())
+            }
+        }
     }
 
     private val enableRefreshViewOnScrollListener = object: RecyclerView.OnScrollListener() {
