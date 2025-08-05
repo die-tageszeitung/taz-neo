@@ -56,7 +56,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }.launchIn(lifecycleScope)
     }
 
-    private val refreshOnSideScrollListener = object: RecyclerView.OnScrollListener() {
+    private val enableRefreshViewOnScrollListener = object: RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             viewModel.refreshViewEnabled.value = !recyclerView.canScrollVertically(-1)
 
@@ -70,7 +70,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         viewBinding.appBarLayout.setDefaultTopInset()
 
         viewBinding.fragmentArchiveGrid.addOnScrollListener(
-            refreshOnSideScrollListener,
+            enableRefreshViewOnScrollListener,
         )
 
         viewModel.pdfMode
