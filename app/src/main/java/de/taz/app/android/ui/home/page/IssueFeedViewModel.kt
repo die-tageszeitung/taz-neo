@@ -2,14 +2,14 @@ package de.taz.app.android.ui.home.page
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -41,14 +41,14 @@ class IssueFeedViewModel(
 
     suspend fun getPdfMode() = pdfMode.first()
 
-    fun setFeed(feed: Feed) {
-        if (!Feed.equalsShallow(mutableFeedLiveData.value, feed)) {
-            mutableFeedLiveData.value = feed
+    suspend fun setFeed(feed: Feed) {
+        if (!Feed.equalsShallow(_mutableFeedFlow.first(), feed)) {
+            _mutableFeedFlow.emit(feed)
         }
     }
 
-    private val mutableFeedLiveData = MutableLiveData<Feed>()
-    val feed: LiveData<Feed> = mutableFeedLiveData
+    private val _mutableFeedFlow = MutableSharedFlow<Feed>(1)
+    val feed: Flow<Feed> = _mutableFeedFlow.asSharedFlow()
 
     private val _forceRefreshTimeMs = MutableStateFlow<Long>(0L)
     val forceRefreshTimeMs: Flow<Long> = _forceRefreshTimeMs.asStateFlow()
