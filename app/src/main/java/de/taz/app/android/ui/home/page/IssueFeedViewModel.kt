@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
-import de.taz.app.android.simpleDateFormat
+import de.taz.app.android.singletons.DateHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +47,7 @@ class IssueFeedViewModel(
      * if date does not already match
      */
     fun updateCurrentDate(simpleDateString: String) {
-        val date = simpleDateFormat.parse(simpleDateString)
+        val date = DateHelper.stringToDate(simpleDateString)
         if (date != null) {
             updateCurrentDate(date)
         } else {
