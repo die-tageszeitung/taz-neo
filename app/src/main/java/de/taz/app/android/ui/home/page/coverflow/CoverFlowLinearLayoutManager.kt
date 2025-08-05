@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 
 class CoverFlowLinearLayoutManager(
     context: Context,
-    private val recyclerView: RecyclerView
+    private val recyclerView: RecyclerView,
+    private val snapHelper: GravitySnapHelper,
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
 
     override fun getPaddingLeft(): Int = getPadding()
@@ -24,6 +26,7 @@ class CoverFlowLinearLayoutManager(
     override fun onLayoutCompleted(state: RecyclerView.State?) {
         super.onLayoutCompleted(state)
         ZoomPageTransformer.adjustViewSizes(recyclerView)
+        snapHelper.updateSnap(true, true)
     }
 
 }

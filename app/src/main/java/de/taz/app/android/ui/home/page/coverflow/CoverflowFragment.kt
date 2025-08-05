@@ -63,7 +63,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private var downloadObserver: DownloadObserver? = null
     private var initialIssueDisplay: AbstractIssuePublication? = null
-    private var firstTimeFragmentIsShown: Boolean = true
     private var isLandscape = false
 
     override fun onAttach(context: Context) {
@@ -160,7 +159,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 edgeEffectFactory = BouncyEdgeEffect.Factory
 
                 // ensure the CoverFlow is drawn
-                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this)
+                layoutManager = CoverFlowLinearLayoutManager(requireContext(), this, snapHelper)
 
                 // make accessible
                 setAccessibilityDelegateCompat(
@@ -339,14 +338,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     /**
      * Sometimes in the carousel the items are not snapped in the center correctly.
-     * That happens when the [adapter]s [position] is different from the [GravitySnapHelper]s or
-     * the first time the fragment is drawn (determined by [firstTimeFragmentIsShown]).
+     * That happens when the [adapter]s [position] is different from the [GravitySnapHelper]s
      */
     private fun skipToPositionIfNecessary(position: Int) {
         // nextPosition could already be correct because of scrolling if not skip there
-        if (position != snapHelper.currentSnappedPosition || firstTimeFragmentIsShown) {
-            firstTimeFragmentIsShown = false
-
+        if (position != snapHelper.currentSnappedPosition) {
             // Stop any scroll that might still be going on.
             // Either from a previous scrollTo call or a user fling.
             viewBinding.fragmentCoverFlowGrid.stopScroll()
