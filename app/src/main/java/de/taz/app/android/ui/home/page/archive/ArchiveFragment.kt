@@ -72,10 +72,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             .launchIn(lifecycleScope)
 
 
-        context?.let { context ->
-            grid.layoutManager =
-                GridLayoutManager(context, calculateNoOfColumns())
-        }
+        grid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
 
         toCoverFlow.setOnClickListener {
             // TODO REMOVE
