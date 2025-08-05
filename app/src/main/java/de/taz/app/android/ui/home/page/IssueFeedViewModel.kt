@@ -20,7 +20,6 @@ import java.util.LinkedList
 typealias MomentChangedListener = (Date) -> Unit
 
 const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
-const val KEY_FEED = "KEY_FEED"
 const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
 
 class IssueFeedViewModel(
@@ -61,7 +60,7 @@ class IssueFeedViewModel(
         }
     }
 
-    private val _mutableFeedFlow = savedStateHandle.getMutableStateFlow<Feed?>(KEY_FEED, null)
+    private val _mutableFeedFlow = MutableStateFlow<Feed?>(null)
     val feed: Flow<Feed> = _mutableFeedFlow.filterNotNull()
 
     private val _forceRefreshTimeMs = MutableStateFlow<Long>(0L)
