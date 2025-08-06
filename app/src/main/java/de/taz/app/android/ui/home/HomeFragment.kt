@@ -151,16 +151,30 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     private fun showFragmentForState(state: State) {
-        // add fragment if it does not exist
-        val fragment = when (state) {
-            State.ARCHIVE -> ArchiveFragment()
-            State.COVERFLOW -> CoverflowFragment()
-        }
-        log.debug("adding fragment for state: ${state.name}")
+        val oldFragment = childFragmentManager.findFragmentByTag(state.name)
+        val transaction = childFragmentManager.beginTransaction()
 
-        childFragmentManager.beginTransaction()
-            .replace(R.id.home_fragment, fragment, state.name)
-            .commit()
+        childFragmentManager.fragments.forEach {
+            transaction.hide(it)
+        }
+
+        if (oldFragment == null) {
+            // add fragment if it does not exist
+            val fragment = when (state) {
+                State.ARCHIVE -> ArchiveFragment()
+                State.COVERFLOW -> CoverflowFragment()
+            }
+            log.debug("adding fragment for state: ${state.name}")
+
+            transaction
+                .add(R.id.home_fragment, fragment, state.name)
+                .addToBackStack(state.name)
+        } else {
+            log.debug("showing old fragment for state: ${state.name}")
+            transaction
+                .show(oldFragment)
+        }
+        transaction.commit()
     }
 
     private fun refreshFeedDebounced() {
