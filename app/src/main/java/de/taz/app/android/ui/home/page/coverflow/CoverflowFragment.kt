@@ -42,7 +42,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.Date
 import kotlin.math.abs
 
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
