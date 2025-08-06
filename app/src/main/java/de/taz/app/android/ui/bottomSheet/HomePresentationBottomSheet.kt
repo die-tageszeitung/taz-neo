@@ -4,10 +4,13 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.dataStore.GeneralDataStore
@@ -65,6 +68,11 @@ class HomePresentationBottomSheet :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewBinding.apply {
+            if (BuildConfig.IS_LMD) {
+                fragmentBottomSheetHomePresentationHomeState.isGone = true
+                fragmentBottomSheetHomePresentationHomeStateDescription.isGone = true
+            }
+
             buttonClose.setOnClickListener {
                 dismiss()
             }
