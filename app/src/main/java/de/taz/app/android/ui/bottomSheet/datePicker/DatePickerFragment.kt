@@ -65,6 +65,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // observe feed and set min or max date
         issueFeedViewModel.feed
             .flowWithLifecycle(lifecycle)
             .onEach { feed ->
