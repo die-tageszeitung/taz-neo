@@ -99,21 +99,23 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.appBarLayout.setDefaultTopInset()
+        viewBinding.apply {
+            appBarLayout.setDefaultTopInset()
 
-        viewBinding.fragmentArchiveGrid.addOnScrollListener(
-            enableRefreshViewOnScrollListener,
-        )
+            fragmentArchiveGrid.addOnScrollListener(
+                enableRefreshViewOnScrollListener,
+            )
 
 
-        viewBinding.fragmentArchiveGrid.layoutManager = gridLayoutManager
-        viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
+            fragmentArchiveGrid.layoutManager = gridLayoutManager
+            fragmentArchiveGrid.setHasFixedSize(true)
 
-        viewBinding.representation.setOnClickListener {
-            HomePresentationBottomSheet().show(parentFragmentManager)
-        }
-        viewBinding.calendar.setOnClickListener {
-            openDatePicker()
+            representation.setOnClickListener {
+                HomePresentationBottomSheet().show(parentFragmentManager)
+            }
+            calendar.setOnClickListener {
+                openDatePicker()
+            }
         }
     }
 
