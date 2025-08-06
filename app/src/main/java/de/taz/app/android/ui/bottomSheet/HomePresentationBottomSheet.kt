@@ -22,6 +22,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
+private const val MIN_WIDTH_TO_SHOW_DESCRIPTION_TEXTS_DP = 600
+
 class HomePresentationBottomSheet :
     ViewBindingBottomSheetFragment<FragmentBottomSheetHomePresentationBinding>() {
 
@@ -90,9 +92,21 @@ class HomePresentationBottomSheet :
             archiveMode.setOnClickListener {
                 lifecycleScope.launch { generalDataStore.homeFragmentState.set(HomeFragment.State.ARCHIVE) }
             }
-
         }
 
+        // same as in [TextSettingsBottomSheetFragment] - maybe unify somehow
+        val displayWidth =
+            resources.displayMetrics.widthPixels.toFloat() / resources.displayMetrics.density
+        if (displayWidth < MIN_WIDTH_TO_SHOW_DESCRIPTION_TEXTS_DP) {
+            hideDescriptionTextViews()
+        }
+    }
+
+    private fun hideDescriptionTextViews() {
+        viewBinding.apply {
+            fragmentBottomSheetColumnDescription.isVisible = false
+            fragmentBottomSheetHomePresentationHomeStateDescription.isVisible = false
+        }
     }
 
     private fun setSelectedHomeState(state: HomeFragment.State) {
