@@ -7,6 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
@@ -31,6 +32,10 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
+
+    private val gridLayoutManager by lazy {
+        GridLayoutManager(requireContext(), calculateNoOfColumns())
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -62,8 +67,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val adapter = adapter ?: return
 
         adapter.getPosition(date).let { position ->
-            // TODO ensure element is correctly centered?
-            viewBinding.fragmentArchiveGrid.scrollToPosition(position)
+            gridLayoutManager.scrollToPositionWithOffset(position, 0)
         }
     }
 
@@ -99,7 +103,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }
             .launchIn(lifecycleScope)
 
-        viewBinding.fragmentArchiveGrid.layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns())
+        viewBinding.fragmentArchiveGrid.layoutManager = gridLayoutManager
         viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
 
         viewBinding.representation.setOnClickListener {
