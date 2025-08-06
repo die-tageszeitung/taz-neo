@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,7 +22,15 @@ import kotlinx.coroutines.launch
 class HomePresentationBottomSheet :
     ViewBindingBottomSheetFragment<FragmentBottomSheetHomePresentationBinding>() {
 
+    companion object {
+        const val TAG = "HomePresentationBottomSheet"
+    }
+
     private lateinit var generalDataStore: GeneralDataStore
+
+    fun show(fragmentManager: FragmentManager) {
+        show(fragmentManager, TAG)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

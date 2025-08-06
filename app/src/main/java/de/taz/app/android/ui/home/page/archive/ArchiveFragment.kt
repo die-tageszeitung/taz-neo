@@ -15,6 +15,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
 import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
@@ -107,10 +108,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
 
         viewBinding.representation.setOnClickListener {
-            // TODO Show bottomSheetFragment and do not set homeFragmentState directly
-            lifecycleScope.launch {
-                generalDataStore.homeFragmentState.set(HomeFragment.State.COVERFLOW)
-            }
+            HomePresentationBottomSheet().show(parentFragmentManager)
         }
         viewBinding.calendar.setOnClickListener {
             openDatePicker()

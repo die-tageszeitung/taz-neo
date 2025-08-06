@@ -181,9 +181,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // set onClickListener
             representation.setOnClickListener {
-                HomePresentationBottomSheet().show(
-                    parentFragmentManager, "HomePresentation"
-                )
+                HomePresentationBottomSheet().show(parentFragmentManager)
             }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
             fragmentCoverFlowCalendar.setOnClickListener { openDatePicker() }
