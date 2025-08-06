@@ -44,7 +44,6 @@ class CoverFlowOnScrollListener(
             viewModel.viewModelScope.launch {
                 viewModel.refresh.emit(Unit)
             }
-            //fragment.getHomeFragment().refresh()
         }
 
         // set possible Event states
