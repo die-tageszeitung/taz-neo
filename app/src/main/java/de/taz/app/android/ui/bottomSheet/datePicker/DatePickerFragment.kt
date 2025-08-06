@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +38,15 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
 
     companion object {
         const val TAG = "DatePickerBottomSheetFragment"
+        private const val ARG_DATE = "ARG_DATE"
+
+        fun newInstance(simpleDateString: String) = DatePickerFragment().apply {
+            arguments = bundleOf(
+                ARG_DATE to simpleDateString
+            )
+        }
+
+        fun newInstance(date: Date) = newInstance(simpleDateFormat.format(date))
     }
 
     private val log by Log
@@ -81,7 +91,16 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
         // Set newly selected date to focus in DatePicker
         // This has to be done before setting the min/maxDate to prevent crashes on old Android Versions
         val calendar = Calendar.getInstance()
-        calendar.time = issueFeedViewModel.currentDate.value
+
+        val dateString = requireNotNull(
+            arguments?.getString(ARG_DATE),
+            { "ARG_DATE has to be provided please use newInstance to create DatePickerFragment" }
+        )
+        val date = requireNotNull(
+            simpleDateFormat.parse(dateString),
+            { "ARG_DATE has to be in yyyy-MM-dd format" }
+        )
+        calendar.time = date
 
         viewBinding.fragmentBottomSheetDatePicker.updateDate(
             calendar.get(Calendar.YEAR),
