@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.Date
 import kotlin.math.abs
 
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
@@ -231,7 +232,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                         val wasHomeSelected =
                             prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
 
-                        if (!wasHomeSelected) {
+                        if (!wasHomeSelected && prevMomentDate != null) {
                             viewModel.requestDateFocus(prevMomentDate)
                         } else {
                             viewModel.requestNewestDateFocus()
@@ -268,7 +269,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         val feed = viewModel.feed.first()
         val adapter = adapter
 
-        if (adapter == null) {
+        if (date == null || adapter == null) {
             return
         }
 
@@ -374,7 +375,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
     private fun openDatePicker() {
-        DatePickerFragment.newInstance(coverFlowOnScrollListenerViewModel.currentDate.value)
+        DatePickerFragment.newInstance(coverFlowOnScrollListenerViewModel.currentDate.value ?: Date())
             .show(childFragmentManager, DatePickerFragment.TAG)
     }
 

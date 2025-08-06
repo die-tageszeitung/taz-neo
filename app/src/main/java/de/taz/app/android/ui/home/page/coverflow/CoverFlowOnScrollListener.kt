@@ -28,7 +28,7 @@ class CoverFlowOnScrollListener(
     ) : AndroidViewModel(application) {
         val refresh = MutableSharedFlow<Unit>(0)
         val dateAlpha = savedStateHandle.getMutableStateFlow(KEY_ALPHA, 1f)
-        val currentDate = savedStateHandle.getMutableStateFlow<Date>(KEY_CURRENT_DATE, Date())
+        val currentDate = savedStateHandle.getMutableStateFlow<Date?>(KEY_CURRENT_DATE, null)
     }
 
     private var isDragEvent = false
