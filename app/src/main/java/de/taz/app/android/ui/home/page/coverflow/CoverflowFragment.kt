@@ -283,6 +283,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // Hide the right arrow when on end
         viewBinding.fragmentCoverFlowIconGoNext.isVisible = nextPosition < adapter.itemCount - 1
 
+        // show date and download icon
+        viewBinding.fragmentCoverFlowDateDownloadWrapper.isVisible = true
+
         val item = adapter.getItem(nextPosition)
 
         // stop old downloadObserver

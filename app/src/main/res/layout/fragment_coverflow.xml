@@ -99,6 +99,7 @@
         android:contentDescription="@string/fragment_cover_flow_go_to_previous"
         android:rotation="90"
         android:scaleType="centerInside"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_date_download_wrapper"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
@@ -111,6 +112,7 @@
         android:contentDescription="@string/fragment_cover_flow_go_to_next"
         android:rotation="-90"
         android:scaleType="centerInside"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_date_download_wrapper"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
@@ -121,6 +123,7 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
         android:layout_gravity="center_horizontal"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -130,8 +133,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/fragment_cover_flow_date"
             app:layout_constraintTop_toTopOf="parent">
@@ -142,10 +145,9 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_calendar"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
