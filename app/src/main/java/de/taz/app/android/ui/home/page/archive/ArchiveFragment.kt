@@ -61,6 +61,22 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 viewBinding.fragmentArchiveGrid.adapter = adapter
             }.launchIn(lifecycleScope)
 
+        viewModel.pdfMode
+            .flowWithLifecycle(lifecycle)
+            .drop(1)
+            .onEach {
+                // redraw all visible views
+                viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
+
+                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
+                // This is necessary in addition to the tracking in onResume because that is not called
+                // when we only update the UI.
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    tracker.trackArchiveScreen(it)
+                }
+            }
+            .launchIn(lifecycleScope)
+
         viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
     }
 
@@ -89,20 +105,6 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             enableRefreshViewOnScrollListener,
         )
 
-        viewModel.pdfMode
-            .drop(1)
-            .onEach {
-                // redraw all visible views
-                viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
-
-                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-                // This is necessary in addition to the tracking in onResume because that is not called
-                // when we only update the UI.
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    tracker.trackArchiveScreen(it)
-                }
-            }
-            .launchIn(lifecycleScope)
 
         viewBinding.fragmentArchiveGrid.layoutManager = gridLayoutManager
         viewBinding.fragmentArchiveGrid.setHasFixedSize(true)
