@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import kotlin.math.abs
 
@@ -99,10 +100,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
         // once when initiated and whenever pdfMode changes track CoverFlow
         viewModel.pdfMode
-            .flowWithLifecycle(lifecycle)
             .onEach { pdfMode ->
-                tracker.trackCoverflowScreen(pdfMode)
-            }.launchIn(CoroutineScope(Dispatchers.Default))
+                withContext(Dispatchers.Default) {
+                    tracker.trackCoverflowScreen(pdfMode)
+                }
+            }.launchIn(lifecycleScope)
     }
 
     /**
