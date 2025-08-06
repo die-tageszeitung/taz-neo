@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.Feed
+import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.simpleDateFormat
 import kotlinx.coroutines.flow.Flow
@@ -14,12 +16,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.LinkedList
 
 typealias MomentChangedListener = (Date) -> Unit
 
+const val KEY_FEED_NAME = "KEY_FEED_NAME"
 const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
 
 class IssueFeedViewModel(
@@ -28,6 +36,7 @@ class IssueFeedViewModel(
 ) : AndroidViewModel(application) {
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val generalDataStore = GeneralDataStore.getInstance(application)
+    private val feedService = FeedService.getInstance(application)
 
     private val _mutableRequestDateFocus = MutableSharedFlow<Date>()
     val requestDateFocus: Flow<Date> = _mutableRequestDateFocus
@@ -65,14 +74,10 @@ class IssueFeedViewModel(
 
     suspend fun getPdfMode() = pdfMode.first()
 
-    suspend fun setFeed(feed: Feed) {
-        if (!Feed.equalsShallow(_mutableFeedFlow.value, feed)) {
-            _mutableFeedFlow.emit(feed)
-        }
-    }
-
-    private val _mutableFeedFlow = MutableStateFlow<Feed?>(null)
-    val feed: Flow<Feed> = _mutableFeedFlow.filterNotNull()
+    val feed: Flow<Feed> = feedService
+        .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
+        .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
+        .filterNotNull()
 
     private val _forceRefreshTimeMs = MutableStateFlow<Long>(0L)
     val forceRefreshTimeMs: Flow<Long> = _forceRefreshTimeMs.asStateFlow()
