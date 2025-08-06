@@ -375,7 +375,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
     private fun openDatePicker() {
-        DatePickerFragment.newInstance(coverFlowOnScrollListenerViewModel.currentDate.value ?: Date())
+        DatePickerFragment.newInstance(
+            coverFlowOnScrollListenerViewModel.currentDate.value ?: Date()
+        )
             .show(childFragmentManager, DatePickerFragment.TAG)
     }
 
