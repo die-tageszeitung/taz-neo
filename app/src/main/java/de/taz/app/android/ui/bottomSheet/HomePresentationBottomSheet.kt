@@ -109,6 +109,7 @@ class HomePresentationBottomSheet :
         }
     }
 
+    // TODO it might be a good idea to create a view wrapping the icon, text and selection state
     private fun setSelectedHomeState(state: HomeFragment.State) {
         val selected: View
         val selectedIcon: View
@@ -174,6 +175,7 @@ class HomePresentationBottomSheet :
         )
     }
 
+    // TODO it might be a good idea to create a view wrapping the icon, text and selection state
     private fun setPdfMode(isPdfMode: Boolean) {
         val selected: View
         val selectedIcon: View

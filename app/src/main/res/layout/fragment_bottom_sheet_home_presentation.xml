@@ -19,8 +19,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingHorizontal="@dimen/bottom_sheet_text_setting_outer_padding"
         android:layout_marginTop="50dp"
+        android:paddingHorizontal="@dimen/bottom_sheet_text_setting_outer_padding"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -29,7 +29,7 @@
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="Ansicht"
+            android:text="PDF oder mobile Ansicht"
             app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_home_presentation_home_state"
             app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_home_presentation_home_state"
             app:layout_constraintStart_toStartOf="parent"
@@ -57,8 +57,8 @@
 
                 <ImageView
                     android:id="@+id/mobile_view_mode_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_marginTop="10dp"
                     android:contentDescription="mobile Ansicht"
                     android:src="@drawable/ic_app_view"
@@ -89,8 +89,8 @@
 
                 <ImageView
                     android:id="@+id/pdf_view_mode_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_marginTop="10dp"
                     android:contentDescription="Zeitungsansicht"
                     android:src="@drawable/ic_pdf_view"
@@ -117,7 +117,7 @@
             android:layout_width="245dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="Ansicht"
+            android:text="Karusell- oder Archivansicht"
             app:layout_constraintBottom_toBottomOf="@id/fragment_bottom_sheet_multi_column_mode"
             app:layout_constraintEnd_toStartOf="@id/fragment_bottom_sheet_multi_column_mode"
             app:layout_constraintStart_toStartOf="parent"
