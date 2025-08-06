@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
@@ -81,9 +82,12 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         super.onCreate(savedInstanceState)
 
         issueFeedViewModel.pdfMode
-            .flowWithLifecycle(lifecycle)
             .drop(1)
-            .onEach { showSnackBarIfSwitchingPdfMode(it) }
+            .onEach {
+                if(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    showSnackBarIfSwitchingPdfMode(it)
+                }
+            }
             .launchIn(lifecycleScope)
 
         issueFeedViewModel.refreshViewEnabled
