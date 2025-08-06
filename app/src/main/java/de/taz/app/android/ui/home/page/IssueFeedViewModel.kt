@@ -8,8 +8,8 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.simpleDateFormat
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -20,7 +20,6 @@ import java.util.LinkedList
 
 typealias MomentChangedListener = (Date) -> Unit
 
-const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
 const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
 
 class IssueFeedViewModel(
@@ -30,16 +29,14 @@ class IssueFeedViewModel(
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val generalDataStore = GeneralDataStore.getInstance(application)
 
-    private val _mutableCurrentDate = savedStateHandle.getMutableStateFlow(KEY_CURRENT_DATE, Date())
-    val currentDate: StateFlow<Date> = _mutableCurrentDate
+    private val _mutableCurrentDate = MutableSharedFlow<Date>()
+    val currentDate: Flow<Date> = _mutableCurrentDate
 
     /**
      * set [currentDate] to date if not already matching
      */
-    fun updateCurrentDate(date: Date) {
-        if (currentDate.value != date) {
-            _mutableCurrentDate.value = date
-        }
+    fun updateCurrentDate(date: Date) = viewModelScope.launch {
+        _mutableCurrentDate.emit(date)
     }
 
     /**
