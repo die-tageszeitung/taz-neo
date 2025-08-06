@@ -90,8 +90,10 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             }
             .launchIn(lifecycleScope)
 
+        // allow or forbid user to drag refreshView
+        // before user interacts we are in resumed state
         issueFeedViewModel.refreshViewEnabled
-            .flowWithLifecycle(lifecycle)
+            .flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
             .onEach {
                 viewBinding.coverflowRefreshLayout.isEnabled = it
             }.launchIn(lifecycleScope)
