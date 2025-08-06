@@ -63,10 +63,6 @@ class IssueFeedViewModel(
 
     val pdfMode = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
 
-    fun togglePdfMode() = viewModelScope.launch {
-        generalDataStore.pdfMode.set(!generalDataStore.pdfMode.get())
-    }
-
     suspend fun getPdfMode() = pdfMode.first()
 
     suspend fun setFeed(feed: Feed) {
