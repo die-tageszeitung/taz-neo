@@ -29,32 +29,32 @@ class IssueFeedViewModel(
     private val notifyMomentChangedListeners = LinkedList<MomentChangedListener>()
     private val generalDataStore = GeneralDataStore.getInstance(application)
 
-    private val _mutableCurrentDate = MutableSharedFlow<Date>()
-    val currentDate: Flow<Date> = _mutableCurrentDate
+    private val _mutableRequestDateFocus = MutableSharedFlow<Date>()
+    val requestDateFocus: Flow<Date> = _mutableRequestDateFocus
 
     /**
-     * set [currentDate] to date if not already matching
+     * set [requestDateFocus] to date if not already matching
      */
-    fun updateCurrentDate(date: Date) = viewModelScope.launch {
-        _mutableCurrentDate.emit(date)
+    fun requestDateFocus(date: Date) = viewModelScope.launch {
+        _mutableRequestDateFocus.emit(date)
     }
 
     /**
-     * update [currentDate] by parsing a string in yyyy-MM-dd format
+     * update [requestDateFocus] by parsing a string in yyyy-MM-dd format
      * if date does not already match
      */
-    fun updateCurrentDate(simpleDateString: String) {
+    fun requestDateFocus(simpleDateString: String) {
         val date = simpleDateFormat.parse(simpleDateString)
         if (date != null) {
-            updateCurrentDate(date)
+            requestDateFocus(date)
         } else {
             throw IllegalArgumentException("updateCurrentDate called with wrong string: $simpleDateString")
         }
     }
 
-    suspend fun setNewestCurrentDate() {
+    suspend fun requestNewestDateFocus() {
         feed.first().publicationDates.firstOrNull()?.let {
-            updateCurrentDate(it.date)
+            requestDateFocus(it.date)
         }
     }
 

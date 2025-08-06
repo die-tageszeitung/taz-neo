@@ -55,7 +55,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 viewBinding.fragmentArchiveGrid.adapter = adapter
             }.launchIn(lifecycleScope)
 
-        viewModel.currentDate.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
+        viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
     }
 
     private fun scrollToDate(date: Date) {

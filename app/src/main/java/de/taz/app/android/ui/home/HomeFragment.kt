@@ -262,7 +262,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     fun skipToHome() = lifecycleScope.launch {
-        issueFeedViewModel.setNewestCurrentDate()
+        issueFeedViewModel.requestNewestDateFocus()
     }
 
     fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)

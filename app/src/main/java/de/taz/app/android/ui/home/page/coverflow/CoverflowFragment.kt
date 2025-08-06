@@ -222,9 +222,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                         // called and there is no previous adapter/visible coverflow yet
                         val initialIssueDisplayDate = initialIssueDisplay?.date
                         if (initialIssueDisplayDate != null) {
-                            viewModel.updateCurrentDate(initialIssueDisplayDate)
+                            viewModel.requestDateFocus(initialIssueDisplayDate)
                         } else {
-                            viewModel.setNewestCurrentDate()
+                            viewModel.requestNewestDateFocus()
                         }
                     } else {
                         // The adapter is already initialized. This is an update which might break our scroll position.
@@ -232,9 +232,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                             prevHomeMomentDate != null && prevHomeMomentDate == prevMomentDate
 
                         if (!wasHomeSelected) {
-                            viewModel.updateCurrentDate(prevMomentDate)
+                            viewModel.requestDateFocus(prevMomentDate)
                         } else {
-                            viewModel.setNewestCurrentDate()
+                            viewModel.requestNewestDateFocus()
                         }
                     }
                 }
@@ -245,7 +245,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }.launchIn(lifecycleScope)
 
         // scroll to date if focus is requested
-        viewModel.currentDate.onEach { date ->
+        viewModel.requestDateFocus.onEach { date ->
             adapter?.getPosition(date)?.let { position ->
                 skipToPositionIfNecessary(position)
             }

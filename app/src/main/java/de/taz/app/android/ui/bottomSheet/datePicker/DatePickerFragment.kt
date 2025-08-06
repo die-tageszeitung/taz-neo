@@ -187,7 +187,7 @@ class DatePickerFragment : ViewBindingBottomSheetFragment<FragmentBottomSheetDat
 
     private fun showIssue(issuePublication: IssuePublication) {
         simpleDateFormat.parse(issuePublication.date)
-            ?.let { date -> issueFeedViewModel.updateCurrentDate(date) }
+            ?.let { date -> issueFeedViewModel.requestDateFocus(date) }
     }
 
     private suspend fun skipToSuccessorIssue(date: Date) {
