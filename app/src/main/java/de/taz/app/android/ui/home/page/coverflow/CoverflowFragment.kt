@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -35,6 +36,7 @@ import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -88,10 +90,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private fun observePdfMode() {
         // redraw pdfMode if changes after initial draw
         viewModel.pdfMode
-            .flowWithLifecycle(lifecycle)
             .drop(1)
             .onEach {
-                viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    viewBinding.fragmentCoverFlowGrid.adapter?.notifyDataSetChanged()
+                }
             }.launchIn(lifecycleScope)
 
         // once when initiated and whenever pdfMode changes track CoverFlow
@@ -189,7 +192,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         }
 
         viewModel.feed
-            .flowWithLifecycle(lifecycle)
             .onEach { feed ->
                 // Store current adapter state before setting some new one
                 val prevMomentDate = coverFlowOnScrollListenerViewModel.currentDate.value
