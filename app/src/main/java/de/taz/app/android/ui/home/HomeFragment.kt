@@ -121,18 +121,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        issueFeedViewModel.pdfMode
-            .flowWithLifecycle(lifecycle)
-            .onEach { pdfMode ->
-                val drawable = if (pdfMode) R.drawable.ic_app_view else R.drawable.ic_pdf_view
-                val contentDescription =
-                    if (pdfMode) {
-                        resources.getString(R.string.bottom_navigation_action_app_view)
-                    } else {
-                        resources.getString(R.string.bottom_navigation_action_pdf)
-                    }
-            }.launchIn(lifecycleScope)
-
         viewBinding.apply {
             coverflowRefreshLayout.apply {
                 setOnRefreshListener {
