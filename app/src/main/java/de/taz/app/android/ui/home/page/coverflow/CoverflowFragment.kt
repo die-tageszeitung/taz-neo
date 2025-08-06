@@ -27,6 +27,7 @@ import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
@@ -180,11 +181,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
             // set onClickListener
             representation.setOnClickListener {
-                // TODO Show bottomSheetFragment and do not set homeFragmentState directly
-                lifecycleScope.launch {
-                    generalDataStore.homeFragmentState.set(HomeFragment.State.ARCHIVE)
-                    ArchiveCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
+                HomePresentationBottomSheet().show(
+                    parentFragmentManager, "HomePresentation"
+                )
             }
             fragmentCoverFlowDate.setOnClickListener { openDatePicker() }
             fragmentCoverFlowCalendar.setOnClickListener { openDatePicker() }
