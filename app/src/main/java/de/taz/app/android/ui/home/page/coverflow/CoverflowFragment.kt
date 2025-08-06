@@ -118,7 +118,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             .flowWithLifecycle(lifecycle)
             .filterNotNull()
             .onEach { date ->
-                viewModel.updateCurrentDate(date)
+                updateUIForCurrentDate()
             }.launchIn(lifecycleScope)
 
         // trigger refresh when scrolling into the left void
@@ -196,7 +196,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             .flowWithLifecycle(lifecycle)
             .onEach { feed ->
                 // Store current adapter state before setting some new one
-                val prevMomentDate = viewModel.currentDate.value
+                val prevMomentDate = coverFlowOnScrollListenerViewModel.currentDate.value
                 val prevHomeMomentDate = adapter?.getItem(0)?.date
                 val initialAdapter = adapter == null
 
@@ -243,7 +243,13 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                     resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
                 updateUIForCurrentDate()
             }.launchIn(lifecycleScope)
-        viewModel.currentDate.onEach { updateUIForCurrentDate() }.launchIn(lifecycleScope)
+
+        // scroll to date if focus is requested
+        viewModel.currentDate.onEach { date ->
+            adapter?.getPosition(date)?.let { position ->
+                skipToPositionIfNecessary(position)
+            }
+        }.launchIn(lifecycleScope)
     }
 
     override fun onDestroyView() {
@@ -258,7 +264,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
      * and will skip to the right position if we are not already there
      */
     private suspend fun updateUIForCurrentDate() {
-        val date = viewModel.currentDate.value
+        val date = coverFlowOnScrollListenerViewModel.currentDate.value
         val feed = viewModel.feed.first()
         val adapter = adapter
 
@@ -269,7 +275,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         // Always check if we need to snap to the date's position - even if the date did not change.
         // This prevents a bug that results in non-snapping behavior when a user logged in.
         val nextPosition = adapter.getPosition(date)
-        skipToPositionIfNecessary(nextPosition)
 
         // Hide the left arrow when on start
         viewBinding.fragmentCoverFlowIconGoPrevious.isVisible = nextPosition > 0
