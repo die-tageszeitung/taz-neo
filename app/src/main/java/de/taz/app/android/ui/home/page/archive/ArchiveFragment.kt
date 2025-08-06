@@ -62,12 +62,8 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val adapter = adapter ?: return
 
         adapter.getPosition(date).let { position ->
-            val currentPosition = adapter.getPosition(viewModel.currentDate.value)
-            if (currentPosition < position) {
-                viewBinding.fragmentArchiveGrid.scrollToPosition(position)
-            } else {
-                viewBinding.fragmentArchiveGrid.scrollToPosition(position + calculateNoOfColumns())
-            }
+            // TODO ensure element is correctly centered?
+            viewBinding.fragmentArchiveGrid.scrollToPosition(position)
         }
     }
 
@@ -118,7 +114,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     }
 
     private fun openDatePicker() {
-        DatePickerFragment().show(childFragmentManager, DatePickerFragment.TAG)
+        DatePickerFragment.newInstance(
+            Date()  // TODO - maybe provide another date?
+        ).show(childFragmentManager, DatePickerFragment.TAG)
     }
 
     override fun onResume() {
