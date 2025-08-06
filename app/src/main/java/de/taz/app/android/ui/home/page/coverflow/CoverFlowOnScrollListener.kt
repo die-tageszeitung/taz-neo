@@ -9,12 +9,12 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
-import de.taz.app.android.ui.home.page.KEY_CURRENT_DATE
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
+const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
 const val KEY_ALPHA="KEVIN"
 
 class CoverFlowOnScrollListener(
@@ -28,7 +28,7 @@ class CoverFlowOnScrollListener(
     ) : AndroidViewModel(application) {
         val refresh = MutableSharedFlow<Unit>(0)
         val dateAlpha = savedStateHandle.getMutableStateFlow(KEY_ALPHA, 1f)
-        val currentDate = savedStateHandle.getMutableStateFlow<Date?>(KEY_CURRENT_DATE, null)
+        val currentDate = savedStateHandle.getMutableStateFlow<Date>(KEY_CURRENT_DATE, Date())
     }
 
     private var isDragEvent = false
