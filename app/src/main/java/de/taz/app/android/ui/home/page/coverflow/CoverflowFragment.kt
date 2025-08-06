@@ -16,7 +16,6 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.COVERFLOW_MAX_SMOOTH_SCROLL_DISTANCE
 import de.taz.app.android.R
-import de.taz.app.android.coachMarks.ArchiveCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentCoverflowBinding
 import de.taz.app.android.monkey.setDefaultInsets
