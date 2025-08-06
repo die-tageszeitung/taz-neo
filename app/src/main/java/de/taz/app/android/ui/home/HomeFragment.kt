@@ -15,7 +15,6 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArchiveCoachMark
-import de.taz.app.android.coachMarks.FabCoachMark
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
