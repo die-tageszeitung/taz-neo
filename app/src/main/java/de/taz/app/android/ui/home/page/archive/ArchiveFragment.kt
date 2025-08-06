@@ -17,7 +17,6 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
-import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -144,11 +143,5 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
-    }
-
-    private fun showLoginBottomSheet() {
-        LoginBottomSheetFragment
-            .newInstance()
-            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }

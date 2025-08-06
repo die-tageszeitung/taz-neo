@@ -30,7 +30,6 @@ import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
-import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.CoroutineScope
@@ -403,11 +402,5 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun goToNextIssue() {
         viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition + 1)
-    }
-
-    private fun showLoginBottomSheet() {
-        LoginBottomSheetFragment
-            .newInstance()
-            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }

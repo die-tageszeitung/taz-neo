@@ -20,6 +20,7 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
@@ -162,5 +163,11 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     private fun updateLastRefreshTime() {
         lastRefreshMs = System.currentTimeMillis()
+    }
+
+    protected fun showLoginBottomSheet() {
+        LoginBottomSheetFragment
+            .newInstance()
+            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }
