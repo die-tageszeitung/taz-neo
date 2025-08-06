@@ -7,7 +7,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import de.taz.app.android.R
@@ -17,8 +16,8 @@ import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
-import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -116,6 +115,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             calendar.setOnClickListener {
                 openDatePicker()
             }
+            homeLoginButton.setOnClickListener { showLoginBottomSheet() }
         }
     }
 
@@ -144,5 +144,11 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
+    }
+
+    private fun showLoginBottomSheet() {
+        LoginBottomSheetFragment
+            .newInstance()
+            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }
