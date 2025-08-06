@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -47,30 +48,32 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
         // update the grid if the feed changes
         viewModel.feed
-            .flowWithLifecycle(lifecycle)
             .onEach { feed ->
-                val requestManager = Glide.with(requireParentFragment())
-                adapter = ArchiveAdapter(
-                    this,
-                    R.layout.fragment_archive_item,
-                    feed,
-                    requestManager
-                )
-                viewBinding.fragmentArchiveGrid.adapter = adapter
+                withStarted {
+                    val requestManager = Glide.with(requireParentFragment())
+                    adapter = ArchiveAdapter(
+                        this,
+                        R.layout.fragment_archive_item,
+                        feed,
+                        requestManager
+                    )
+                    viewBinding.fragmentArchiveGrid.adapter = adapter
+                }
             }.launchIn(lifecycleScope)
 
         viewModel.pdfMode
-            .flowWithLifecycle(lifecycle)
             .drop(1)
             .onEach {
-                // redraw all visible views
-                viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
+                withStarted {
+                    // redraw all visible views
+                    viewBinding.fragmentArchiveGrid.adapter?.notifyDataSetChanged()
 
-                // Track a new screen if the PDF mode changes when the Fragment is already resumed.
-                // This is necessary in addition to the tracking in onResume because that is not called
-                // when we only update the UI.
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    tracker.trackArchiveScreen(it)
+                    // Track a new screen if the PDF mode changes when the Fragment is already resumed.
+                    // This is necessary in addition to the tracking in onResume because that is not called
+                    // when we only update the UI.
+                    if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        tracker.trackArchiveScreen(it)
+                    }
                 }
             }
             .launchIn(lifecycleScope)
