@@ -33,10 +33,8 @@ import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
