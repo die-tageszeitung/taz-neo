@@ -84,6 +84,7 @@ class IssueFeedViewModel(
 
     /**
      *  Triggers a force refresh with a redraw of the feed list (e.g. carousel).
+     *  This might e.g. be desirable if placeholders are shown for a moment.
      */
     fun forceRefresh() {
         _forceRefreshTimeMs.value = System.currentTimeMillis()
