@@ -24,7 +24,9 @@ import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -85,15 +87,11 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         }
 
         // redraw once the user state changes as this might result in the need to re-load the moments
-        var prevAuthStatus: AuthStatus? = null
         authHelper.status.asFlow()
             .flowWithLifecycle(lifecycle)
-            .filter { prevAuthStatus != it }
+            .filterNotNull()
             .onEach {
-                if (prevAuthStatus != null) {
-                    adapter?.notifyDataSetChanged()
-                }
-                prevAuthStatus = it
+                adapter?.notifyDataSetChanged()
             }.launchIn(lifecycleScope)
 
         // Redraw the feed if some moment placeholders are shown because of connection errors
