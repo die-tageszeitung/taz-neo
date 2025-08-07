@@ -15,7 +15,6 @@ import java.util.Date
 import kotlin.math.abs
 
 const val KEY_CURRENT_DATE = "KEY_CURRENT_DATE"
-const val KEY_ALPHA="KEVIN"
 
 class CoverFlowOnScrollListener(
     private val viewModel: ViewModel,
@@ -27,7 +26,7 @@ class CoverFlowOnScrollListener(
         savedStateHandle: SavedStateHandle
     ) : AndroidViewModel(application) {
         val refresh = MutableSharedFlow<Unit>(0)
-        val dateAlpha = savedStateHandle.getMutableStateFlow(KEY_ALPHA, 1f)
+        val dateAlpha = MutableSharedFlow<Float>()
         val currentDate = savedStateHandle.getMutableStateFlow<Date?>(KEY_CURRENT_DATE, null)
     }
 
