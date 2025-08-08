@@ -3,6 +3,7 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Date
+import kotlin.math.abs
 import kotlin.math.floor
 
 /**
@@ -101,6 +103,12 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
         viewBinding.apply {
             appBarLayout.setDefaultTopInset()
+
+            appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->
+                // hide appbar content if it's collapsed
+                collapsingToolbarLayout.alpha = 1f- abs(verticalOffset) / collapsingToolbarLayout.height.toFloat()
+            }
+
 
             fragmentArchiveGrid.addOnScrollListener(
                 enableRefreshViewOnScrollListener,
