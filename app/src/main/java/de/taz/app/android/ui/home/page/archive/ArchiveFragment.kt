@@ -63,6 +63,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             }.launchIn(lifecycleScope)
 
         viewModel.pdfMode
+            // we only need to redraw if the value changes - therefore drop first value
             .drop(1)
             .onEach {
                 withStarted {
