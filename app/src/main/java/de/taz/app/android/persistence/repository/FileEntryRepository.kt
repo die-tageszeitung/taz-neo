@@ -96,4 +96,8 @@ class FileEntryRepository private constructor(
     suspend fun getDownloadDate(fileEntry: FileEntryOperations): Date? {
         return appDatabase.fileEntryDao().getDownloadDate(fileEntry.name)
     }
+
+    suspend fun getDownloadDate(fileEntryName: String): Date? {
+        return appDatabase.fileEntryDao().getDownloadDate(fileEntryName)
+    }
 }

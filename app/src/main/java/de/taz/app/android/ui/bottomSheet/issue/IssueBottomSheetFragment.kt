@@ -7,6 +7,7 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
@@ -37,6 +38,11 @@ import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -48,6 +54,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
     private val log by Log
     private lateinit var issuePublication: IssuePublication
+    private lateinit var isDownloadedFlow: Flow<Boolean>
 
     private lateinit var apiService: ApiService
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -96,22 +103,38 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         super.onCreate(savedInstanceState)
 
         issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
+
+        isDownloadedFlow = homeViewModel.pdfMode.map { isPdf ->
+            val abstractIssuePublication = if (isPdf) {
+                IssuePublicationWithPages(issuePublication)
+            } else {
+                issuePublication
+            }
+
+            return@map contentService.isPresent(abstractIssuePublication)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         loadingScreen?.visibility = View.VISIBLE
+
+        isDownloadedFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach { isDownloaded ->
+                if (isDownloaded) {
+                    viewBinding.fragmentBottomSheetIssueDelete.visibility = View.VISIBLE
+                    viewBinding.fragmentBottomSheetIssueDownload.visibility = View.GONE
+                    viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_additionally_audios)
+                } else {
+                    viewBinding.fragmentBottomSheetIssueDelete.visibility = View.GONE
+                    viewBinding.fragmentBottomSheetIssueDownload.visibility = View.VISIBLE
+                    viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_with_audios)
+                }
+            }.launchIn(lifecycleScope)
+
         lifecycleScope.launch {
-            if (getIsDownloaded()) {
-                viewBinding.fragmentBottomSheetIssueDelete.visibility = View.VISIBLE
-                viewBinding.fragmentBottomSheetIssueDownload.visibility = View.GONE
-                viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_additionally_audios)
-            } else {
-                viewBinding.fragmentBottomSheetIssueDelete.visibility = View.GONE
-                viewBinding.fragmentBottomSheetIssueDownload.visibility = View.VISIBLE
-                viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_with_audios)
-            }
             if (issueRepository.areAllAudiosDownloaded(issuePublication)) {
                 viewBinding.fragmentBottomSheetIssueDownloadAudios.visibility = View.GONE
             }
@@ -157,8 +180,9 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         viewBinding.fragmentBottomSheetIssueDownloadAudios.setOnClickListener {
             loadingScreen?.visibility = View.VISIBLE
+
             applicationScope.launch {
-                if (!getIsDownloaded()) {
+                if (!isDownloadedFlow.first()) {
                     downloadIssue()
                 }
                 val issueStub = checkNotNull(
@@ -188,16 +212,6 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
         tracker.trackIssueActionsDialog()
     }
 
-    private suspend fun getIsDownloaded(): Boolean {
-        val isPdf = homeViewModel.getPdfMode()
-        val abstractIssuePublication = if (isPdf) {
-            IssuePublicationWithPages(issuePublication)
-        } else {
-            issuePublication
-        }
-
-        return contentService.isPresent(abstractIssuePublication)
-    }
 
     /**
      * Check if we are in pdf mode, if we got internet connection or if we already have downloaded
@@ -213,7 +227,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                 } else {
                     IssueViewerWrapperFragment.newInstance(issuePublication)
                 }
-            if (getIsDownloaded() || isOnline) {
+            if (isDownloadedFlow.first() || isOnline) {
                 supportFragmentManager.commit {
                     add(R.id.main_content_fragment_placeholder, fragment)
                     addToBackStack(null)
@@ -233,8 +247,10 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                 contentService.downloadMetadata(issuePublication) as Issue
             }
 
-            val issueStub = checkNotNull(issueRepository.getMostValuableIssueStubForPublication(issuePublication))
-            var image = checkNotNull(momentRepository.get(issueStub.issueKey)).getMomentFileToShare()
+            val issueStub =
+                checkNotNull(issueRepository.getMostValuableIssueStubForPublication(issuePublication))
+            var image =
+                checkNotNull(momentRepository.get(issueStub.issueKey)).getMomentFileToShare()
 
             val imageFileEntry = checkNotNull(fileEntryRepository.get(image.name))
             contentService.downloadSingleFileIfNotDownloaded(imageFileEntry, issueStub.baseUrl)

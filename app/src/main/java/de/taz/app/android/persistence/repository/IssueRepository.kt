@@ -23,6 +23,7 @@ class IssueRepository private constructor(applicationContext: Context) :
     companion object : SingletonHolder<IssueRepository, Context>(::IssueRepository)
 
     private val articleRepository = ArticleRepository.getInstance(applicationContext)
+    private val fileRepository = FileEntryRepository.getInstance(applicationContext)
     private val audioRepository = AudioRepository.getInstance(applicationContext)
     private val pageRepository = PageRepository.getInstance(applicationContext)
     private val sectionRepository = SectionRepository.getInstance(applicationContext)
@@ -527,10 +528,10 @@ class IssueRepository private constructor(applicationContext: Context) :
         val issueStub =
             getMostValuableIssueStubForPublication(issuePublication) ?: return false
 
-        val articleList = articleRepository.getArticleListForIssue(issueStub.issueKey)
-        return articleList.none {
-            it.audio != null && it.audio.file.dateDownload == null
-        }
+        val articleList = articleRepository.getArticleStubListForIssue(issueStub.issueKey)
+        return articleList
+            .mapNotNull { it.articleStub.audioFileName }
+            .none { fileRepository.getDownloadDate(it) == null}
     }
 }
 
