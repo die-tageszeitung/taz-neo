@@ -9,12 +9,10 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
-import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.models.Feed
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArchiveCoachMark
 import de.taz.app.android.content.FeedService
@@ -26,19 +24,13 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -82,7 +74,7 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        issueFeedViewModel.pdfMode
+        issueFeedViewModel.pdfModeFlow
             .drop(1)
             .onEach {
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {

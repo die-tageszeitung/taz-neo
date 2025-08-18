@@ -88,7 +88,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     @SuppressLint("NotifyDataSetChanged")
     private fun observePdfMode() {
         // redraw pdfMode if changes after initial draw
-        viewModel.pdfMode
+        viewModel.pdfModeFlow
             .drop(1)
             .onEach {
                 if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -97,7 +97,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             }.launchIn(lifecycleScope)
 
         // once when initiated and whenever pdfMode changes track CoverFlow
-        viewModel.pdfMode
+        viewModel.pdfModeFlow
             .onEach { pdfMode ->
                 withContext(Dispatchers.Default) {
                     tracker.trackCoverflowScreen(pdfMode)

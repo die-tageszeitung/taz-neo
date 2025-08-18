@@ -3,7 +3,6 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
@@ -63,7 +62,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
                 }
             }.launchIn(lifecycleScope)
 
-        viewModel.pdfMode
+        viewModel.pdfModeFlow
             // we only need to redraw if the value changes - therefore drop first value
             .drop(1)
             .onEach {

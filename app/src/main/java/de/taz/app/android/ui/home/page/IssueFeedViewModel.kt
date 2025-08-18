@@ -65,9 +65,9 @@ class IssueFeedViewModel(
 
     val refreshViewEnabled = savedStateHandle.getMutableStateFlow(KEY_REFRESH_VIEW_ENABLED, true)
 
-    val pdfMode = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
+    val pdfModeFlow = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
 
-    suspend fun getPdfMode() = pdfMode.first()
+    suspend fun getPdfMode() = pdfModeFlow.first()
 
     val feed: Flow<Feed> = feedService
         .getFeedFlowByName(BuildConfig.DISPLAYED_FEED)
