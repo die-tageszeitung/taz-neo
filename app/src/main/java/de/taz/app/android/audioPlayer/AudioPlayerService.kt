@@ -23,6 +23,7 @@ import de.taz.app.android.audioPlayer.MediaItemHelper.Companion.indexOfMediaItem
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PlaylistRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
@@ -984,7 +985,8 @@ class AudioPlayerService private constructor(private val applicationContext: Con
     }
 
     private fun onAudioError(error: PlaybackException) {
-        log.info("Error on playing Audio: $error.errorCodeName}", error)
+        log.info("Error on playing Audio: $error}", error)
+        SentryWrapper.captureException(error)
         val controller = getControllerFromState()
         if (controller != null) {
             forceState(PlayerState.AudioError(controller, error))
