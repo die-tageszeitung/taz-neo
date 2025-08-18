@@ -25,6 +25,9 @@ class IssueFeedViewModel(
 
     val currentDate = savedStateHandle.getLiveData<Date>(KEY_CURRENT_DATE)
 
+    val pdfMode = generalDataStore.pdfMode.asFlow()
+
+    @Deprecated("use Flow instead", ReplaceWith("pdfMode"))
     val pdfModeLiveData: LiveData<Boolean> = generalDataStore.pdfMode.asLiveData()
 
     fun togglePdfMode() = viewModelScope.launch {
