@@ -270,8 +270,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             return
         }
 
-        // Always check if we need to snap to the date's position - even if the date did not change.
-        // This prevents a bug that results in non-snapping behavior when a user logged in.
         val nextPosition = adapter.getPosition(date)
 
         // Hide the left arrow when on start
