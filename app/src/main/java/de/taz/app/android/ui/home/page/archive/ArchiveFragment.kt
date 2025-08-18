@@ -19,6 +19,7 @@ import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -129,9 +130,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         }
     }
 
-    private fun openDatePicker() {
+    private fun openDatePicker() = lifecycleScope.launch {
         DatePickerFragment.newInstance(
-            Date()  // TODO - maybe provide another date?
+            viewModel.feed.first().issueMaxDate,
         ).show(childFragmentManager, DatePickerFragment.TAG)
     }
 
