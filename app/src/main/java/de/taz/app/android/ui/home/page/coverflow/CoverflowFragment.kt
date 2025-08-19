@@ -398,7 +398,11 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     }
 
     private fun goToPreviousIssue() {
-        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(snapHelper.currentSnappedPosition - 1)
+        viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(
+            (snapHelper.currentSnappedPosition - 1).coerceAtLeast(
+                0
+            )
+        )
     }
 
     private fun goToNextIssue() {
