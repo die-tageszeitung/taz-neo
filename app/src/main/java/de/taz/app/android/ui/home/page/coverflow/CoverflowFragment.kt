@@ -211,7 +211,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 )
                 this.adapter = adapter
                 viewBinding.fragmentCoverFlowGrid.adapter = adapter
-                setProperMargin(adapter)
 
                 // If this is the first adapter to be assigned, but the Fragment is just restored from the persisted store,
                 // we let Android restore the scroll position. This might work as long as the feed did not change.
@@ -396,25 +395,6 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
             coverFlowOnScrollListenerViewModel.currentDate.value ?: Date()
         )
             .show(childFragmentManager, DatePickerFragment.TAG)
-    }
-
-    private fun setProperMargin(adapter: CoverflowAdapter) {
-
-        val coverItemPadding = resources.getDimensionPixelSize(R.dimen.cover_item_padding)
-        val momentWidth = adapter.calculateViewHolderWidth() - 2 * coverItemPadding
-        var newMarginEnd = (resources.displayMetrics.widthPixels - momentWidth) / 2
-
-        lifecycleScope.launch(Dispatchers.Main) {
-            val extraPadding = generalDataStore.displayCutoutExtraPadding.get()
-            if (extraPadding > 0 && isLandscape) {
-                val halfExtraPaddingInPx =
-                    (extraPadding * resources.displayMetrics.density / 2).toInt()
-                newMarginEnd = newMarginEnd - halfExtraPaddingInPx
-            }
-            // snap cover flow after setting margin
-            // TODO check where there might be place where this actually makes sense
-            snapHelper.updateSnap(true, true)
-        }
     }
 
     private fun goToPreviousIssue() {
