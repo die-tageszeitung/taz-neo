@@ -45,6 +45,8 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 import kotlin.math.abs
 
+const val KEY_POSITION = "KEY_POSITION"
+
 class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
     private val log by Log
 
@@ -178,6 +180,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 attachToRecyclerView(fragmentCoverFlowGrid)
                 maxFlingSizeFraction = 0.75f
                 snapLastItem = true
+
             }
 
             // set onClickListener
@@ -235,6 +238,13 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                             viewModel.requestNewestDateFocus()
                         }
                     }
+                } else {
+                    val oldPosition = savedInstanceState?.getInt(KEY_POSITION, -1) ?: -1
+                    if (oldPosition > 0) {
+                        viewBinding.fragmentCoverFlowGrid.scrollToPosition(oldPosition)
+
+                        snapHelper.updateSnap(true, true)
+                    }
                 }
 
                 isLandscape =
@@ -255,6 +265,15 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         viewBinding.fragmentCoverFlowGrid.adapter = null
         viewBinding.fragmentCoverFlowGrid.removeOnScrollListener(onScrollListener)
         super.onDestroyView()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        coverFlowOnScrollListenerViewModel.currentDate.value?.let {
+            adapter?.getPosition(it)
+        }?.let {
+            outState.putInt(KEY_POSITION, it)
+        }
     }
 
     /**
