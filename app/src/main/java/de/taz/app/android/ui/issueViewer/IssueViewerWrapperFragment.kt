@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
 
 /**
@@ -90,7 +91,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
-            lifecycleScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Default) {
 
                 val issuePublication = this@IssueViewerWrapperFragment.issuePublication
                 val cachedIssueKey = contentService.getIssueKey(issuePublication)
@@ -102,14 +103,16 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                     downloadIssuePublication(issuePublication)
                 }
 
-                if (displayableKey != null) {
-                    issueViewerViewModel.setDisplayable(
-                        issueKey,
-                        displayableKey,
-                        loadIssue = true
-                    )
-                } else {
-                    issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
+                withContext(Dispatchers.Main) {
+                    if (displayableKey != null) {
+                        issueViewerViewModel.setDisplayable(
+                            issueKey,
+                            displayableKey,
+                            loadIssue = true
+                        )
+                    } else {
+                        issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
+                    }
                 }
             }
         }
