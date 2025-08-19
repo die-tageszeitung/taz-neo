@@ -47,7 +47,6 @@ const val COPY_BUFFER_SIZE = 100 * 1024 // 100kiB
 
 const val METADATA_DOWNLOAD_RETRY_INDEFINITELY = -1
 const val METADATA_DOWNLOAD_DEFAULT_RETRIES = 7
-const val FILE_DOWNLOAD_RETRY_INDEFINITELY = -1
 
 // The app is not translated to multiple languages, thus we should use GERMAN as the default locale
 // when doing string transforms like lowercase()
