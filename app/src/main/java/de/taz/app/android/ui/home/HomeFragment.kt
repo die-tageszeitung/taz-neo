@@ -9,7 +9,6 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStarted
-import com.google.android.material.snackbar.Snackbar
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
@@ -48,12 +47,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     var onHome: Boolean = true
     private var refreshJob: Job? = null
 
-
-    // There seems to be a race condition between the Java GC and the Snackbar handling code,
-    // that can result in Snackbars not being shown if they are triggered with a certain timing.
-    // Following https://stackoverflow.com/a/45219027 it seems to help to retain a reference to the last Snackbar.
-    // To prevent memory losses (the Snackbar holds a reference to the full View hierarchy) we clear it onResume.
-    private var lastSnack: Snackbar? = null
 
     private lateinit var feedService: FeedService
     private lateinit var toastHelper: ToastHelper
@@ -155,11 +148,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             viewBinding.navigationBottom,
             BottomNavigationItem.Home
         )
-    }
-
-    override fun onPause() {
-        super.onPause()
-        lastSnack = null
     }
 
     private suspend fun refreshFeed() {
