@@ -30,7 +30,6 @@ import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -73,15 +72,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        issueFeedViewModel.pdfModeFlow
-            .drop(1)
-            .onEach {
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                    showSnackBarIfSwitchingPdfMode(it)
-                }
-            }
-            .launchIn(lifecycleScope)
 
         // allow or forbid user to drag refreshView
         // before user interacts we are in resumed state
@@ -170,27 +160,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     override fun onPause() {
         super.onPause()
         lastSnack = null
-    }
-
-    private fun showSnackBarIfSwitchingPdfMode(pdfMode: Boolean) {
-        val snackTextResId: Int
-        if (pdfMode) {
-            tracker.trackSwitchToMobileModeEvent()
-            snackTextResId = R.string.toast_switch_to_mobile
-        } else {
-            tracker.trackSwitchToPdfModeEvent()
-            snackTextResId = R.string.toast_switch_to_pdf
-        }
-
-        lastSnack = Snackbar.make(
-            viewBinding.root,
-            // Use getText to parse HTML tags used for string formatting
-            getText(snackTextResId),
-            Snackbar.LENGTH_SHORT
-        ).apply {
-            setTextMaxLines(4)
-            show()
-        }
     }
 
     private suspend fun refreshFeed() {

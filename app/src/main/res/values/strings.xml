@@ -34,8 +34,6 @@
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
-    <string name="toast_switch_to_pdf"><b>Zeitungsansicht</b>\nSie können jetzt die taz im Layout der Zeitungsansicht lesen.</string>
-    <string name="toast_switch_to_mobile"><b>App-Ansicht</b>\nSie können jetzt die taz in der für mobile Geräte optimierten Ansicht lesen.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
