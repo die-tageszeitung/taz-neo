@@ -106,9 +106,8 @@ class CoverViewBinding(
 
     fun prepareDataAndBind(view: CoverView) {
         bindJob = fragment.lifecycleScope.launch {
-            try {
-                coverViewData = prepareData()
-                bindView(view)
+            coverViewData = try {
+                prepareData()
             } catch (e: CacheOperationFailedException) {
                 // maxRetries reached - so show the fallback cover view:
                 val moment = fileEntryRepository.get(DEFAULT_MOMENT_FILE)
@@ -119,6 +118,7 @@ class CoverViewBinding(
                     moment?.dateDownload
                 )
             }
+            bindView(view)
         }
     }
 
