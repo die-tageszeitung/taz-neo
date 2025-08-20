@@ -1,5 +1,6 @@
 package de.taz.app.android.dataStore
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -13,6 +14,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.util.SingletonHolder
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 // region old setting names
 private const val PREFERENCES_GENERAL = "preferences_general"
@@ -172,6 +177,14 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         { it.name },
         { HomeFragment.State.valueOf(it) },
     )
+
+    init {
+        CoroutineScope(
+            Dispatchers.Default + CoroutineName("GeneralDataStore Cleanup")
+        ).launch {
+            clearRemovedEntries()
+        }
+    }
 
 
     suspend fun clearRemovedEntries() {

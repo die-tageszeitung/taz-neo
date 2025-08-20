@@ -486,7 +486,6 @@ class SplashActivity : StartupActivity() {
     private fun startBackgroundTasks() {
         applicationScope.launch {
             checkForNewestIssue(feedService, toastHelper)
-            generalDataStore.clearRemovedEntries()
             clearCustomPDFThumbnailLoaderCache(applicationContext)
             Scrubber(applicationContext).scrubMinimal()
         }

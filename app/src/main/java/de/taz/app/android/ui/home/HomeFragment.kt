@@ -13,7 +13,6 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.coachMarks.ArchiveCoachMark
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
@@ -92,8 +91,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
             .onEach {
                 withStarted { showFragmentForState(it) }
             }.launchIn(lifecycleScope)
-
-        maybeShowCoachMarks()
     }
 
     private fun showFragmentForState(state: State) {
@@ -135,11 +132,6 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
                 hideRefreshLoadingIcon()
             }
         }
-    }
-
-    private fun maybeShowCoachMarks() = lifecycleScope.launch {
-        ArchiveCoachMark(this@HomeFragment)
-            .maybeShow()
     }
 
     override fun onResume() {
