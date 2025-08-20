@@ -8,11 +8,11 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.allopen'
 
     // Must be in sync with the "def room_version" below
-    id 'androidx.room' version '2.7.1'
-    id 'com.github.triplet.play' version '3.10.1'
+    id 'androidx.room' version '2.7.2'
+    id 'com.github.triplet.play' version '3.12.1'
 
     // Only define the google-services globally, and apply them only for nonfree variants
-    id 'com.google.gms.google-services' version "4.4.2" apply false
+    id 'com.google.gms.google-services' version "4.4.3" apply false
 
     // Only define the sentry version globally, and apply it only for nonfree variants
     id 'io.sentry.android.gradle' version '4.11.0' apply false
@@ -324,11 +324,11 @@ dependencies {
     def coroutines_version = '1.10.2'
     def serialization_version = '1.8.1'
     def glide_version = '4.16.0'
-    def ktor_version = '3.1.2'
+    def ktor_version = '3.2.3'
     def lifecycle_version = '2.9.1'
-    def room_version = '2.7.1'
-    def work_version = '2.10.1'
-    def media3_version = '1.7.1'
+    def room_version = '2.7.2'
+    def work_version = '2.10.3'
+    def media3_version = '1.8.0'
     def sentry_version = '8.13.2'
 
     // implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -348,7 +348,7 @@ dependencies {
     implementation 'androidx.collection:collection-ktx:1.5.0'
     implementation 'androidx.datastore:datastore-preferences:1.1.7'
 
-    implementation 'androidx.fragment:fragment-ktx:1.8.8'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
 
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
 
@@ -417,15 +417,15 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.13.2'
 
-    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation 'org.robolectric:robolectric:4.15.1'
     testImplementation 'org.conscrypt:conscrypt-openjdk-uber:2.5.2'
 
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation "androidx.work:work-testing:$work_version"
 
     // mocking
-    testImplementation 'org.mockito:mockito-core:5.17.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
+    testImplementation 'org.mockito:mockito-core:5.18.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:6.0.0'
 
     // Core library
     testImplementation 'androidx.test:core-ktx:1.6.1'
