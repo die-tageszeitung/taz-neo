@@ -23,17 +23,21 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/representation"
         android:layout_width="wrap_content"
-        android:layout_height="42dp"
+        android:layout_height="@dimen/default_touch_area_size"
         android:layout_marginStart="@dimen/fragment_cover_flow_login_button_margin_horizontal"
         android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
         android:clickable="true"
+        android:contentDescription="@string/fragment_home_representation"
         android:focusable="true"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/presentation_text"
+            style="@style/Widget.App.TextView.IconText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
             android:text="@string/fragment_home_representation"
             android:textColor="@color/lightGrey"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -45,6 +49,7 @@
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_show_password"
+            app:layout_constraintBottom_toTopOf="@id/presentation_text"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -52,7 +57,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/home_login_button"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/default_touch_area_size"
@@ -61,26 +66,33 @@
         android:clickable="true"
         android:contentDescription="@string/fragment_home_login"
         android:focusable="true"
-        android:gravity="center_vertical"
-        android:padding="@dimen/fragment_cover_flow_login_button_padding"
+        android:minWidth="@dimen/default_touch_area_size"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            style="@style/Widget.App.CoverFlow.Login"
+            android:id="@+id/login_text"
+            style="@style/Widget.App.TextView.IconText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
-            android:text="@string/fragment_home_login" />
+            android:text="@string/fragment_home_login"
+            android:textColor="@color/lightGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/coverflow_icon_tint" />
-    </LinearLayout>
+            android:src="@drawable/ic_profile"
+            app:layout_constraintBottom_toTopOf="@id/login_text"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_cover_flow_grid"

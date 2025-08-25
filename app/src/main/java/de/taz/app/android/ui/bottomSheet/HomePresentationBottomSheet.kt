@@ -104,7 +104,7 @@ class HomePresentationBottomSheet :
 
     private fun hideDescriptionTextViews() {
         viewBinding.apply {
-            fragmentBottomSheetColumnDescription.isVisible = false
+            fragmentBottomSheetDisplayModeDescription.isVisible = false
             fragmentBottomSheetHomePresentationHomeStateDescription.isVisible = false
         }
     }
@@ -126,6 +126,12 @@ class HomePresentationBottomSheet :
                 deselected = viewBinding.archiveMode
                 deselectedIcon = viewBinding.archiveModeIcon
                 deselectedText = viewBinding.archiveModeText
+
+                activity?.window?.decorView?.announceForAccessibility(
+                    resources.getString(
+                        R.string.fragment_bottom_sheet_home_presentation_display_mode_carousel_announce_accessibility
+                    )
+                )
             }
 
             HomeFragment.State.ARCHIVE -> {
@@ -135,6 +141,12 @@ class HomePresentationBottomSheet :
                 deselected = viewBinding.coverflowMode
                 deselectedIcon = viewBinding.coverflowModeIcon
                 deselectedText = viewBinding.coverflowModeText
+
+                activity?.window?.decorView?.announceForAccessibility(
+                    resources.getString(
+                        R.string.fragment_bottom_sheet_home_presentation_display_mode_archive_announce_accessibility
+                    )
+                )
             }
         }
 
@@ -191,6 +203,12 @@ class HomePresentationBottomSheet :
             deselected = viewBinding.mobileViewMode
             deselectedIcon = viewBinding.mobileViewModeIcon
             deselectedText = viewBinding.mobileViewModeText
+
+            activity?.window?.decorView?.announceForAccessibility(
+                resources.getString(
+                    R.string.fragment_bottom_sheet_home_presentation_state_pdf_announce_accessibility
+                )
+            )
         } else {
             selected = viewBinding.mobileViewMode
             selectedIcon = viewBinding.mobileViewModeIcon
@@ -198,6 +216,12 @@ class HomePresentationBottomSheet :
             deselected = viewBinding.pdfViewMode
             deselectedIcon = viewBinding.pdfViewModeIcon
             deselectedText = viewBinding.pdfViewModeText
+
+            activity?.window?.decorView?.announceForAccessibility(
+                resources.getString(
+                    R.string.fragment_bottom_sheet_home_presentation_state_mobile_announce_accessibility
+                )
+            )
         }
 
         selected.background = ResourcesCompat.getDrawable(

@@ -29,35 +29,40 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/fragment_cover_flow_login_button_margin_horizontal"
                     android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
-                    android:layout_marginBottom="@dimen/fragment_cover_flow_login_button_margin_vertical"
-                    android:layout_height="wrap_content">
+                    android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+                    android:layout_marginBottom="@dimen/fragment_cover_flow_login_button_margin_vertical">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/representation"
                         android:layout_width="wrap_content"
-                        android:layout_height="42dp"
+                        android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
+                        android:contentDescription="@string/fragment_home_representation"
                         android:focusable="true"
+                        android:minWidth="@dimen/default_touch_area_size"
                         app:layout_constraintLeft_toLeftOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
+                            android:id="@+id/presentation_text"
+                            style="@style/Widget.App.TextView.IconText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/fragment_home_representation"
                             android:textColor="@color/lightGrey"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintRight_toRightOf="parent" />
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_show_password"
+                            app:layout_constraintBottom_toTopOf="@id/presentation_text"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -69,14 +74,18 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/calendar"
                         android:layout_width="wrap_content"
-                        android:layout_height="42dp"
+                        android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
+                        android:contentDescription="@string/fragment_archive_calendar"
                         android:focusable="true"
-                        app:layout_constraintStart_toStartOf="parent"
+                        android:minWidth="@dimen/default_touch_area_size"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
+                            android:id="@+id/calendar_text"
+                            style="@style/Widget.App.TextView.IconText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/fragment_archive_calendar"
@@ -90,6 +99,7 @@
                             android:layout_height="wrap_content"
                             android:importantForAccessibility="no"
                             android:src="@drawable/ic_calendar"
+                            app:layout_constraintBottom_toTopOf="@id/calendar_text"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -97,32 +107,40 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <LinearLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/home_login_button"
                         android:layout_width="wrap_content"
                         android:layout_height="@dimen/default_touch_area_size"
                         android:clickable="true"
                         android:contentDescription="@string/fragment_home_login"
                         android:focusable="true"
-                        android:gravity="center_vertical"
-                        app:layout_constraintRight_toRightOf="parent"
+                        android:minWidth="@dimen/default_touch_area_size"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
-                            style="@style/Widget.App.CoverFlow.Login"
+                            android:id="@+id/login_text"
+                            style="@style/Widget.App.TextView.IconText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:importantForAccessibility="no"
-                            android:text="@string/fragment_home_login" />
+                            android:text="@string/fragment_home_login"
+                            android:textColor="@color/lightGrey"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent" />
 
                         <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
                             android:importantForAccessibility="no"
-                            android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/coverflow_icon_tint" />
-                    </LinearLayout>
+                            android:src="@drawable/ic_profile"
+                            app:layout_constraintBottom_toTopOf="@id/login_text"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:tint="@color/lightGrey" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -134,6 +152,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/fragment_archive_margin_horizontal"
         android:layout_marginEnd="@dimen/fragment_archive_margin_horizontal"
+        android:layout_marginTop="@dimen/fragment_archive_margin_top"
         android:clipToPadding="false"
         android:splitMotionEvents="true"
         android:stretchMode="columnWidth"

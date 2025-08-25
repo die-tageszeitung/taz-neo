@@ -9,7 +9,6 @@ import de.taz.app.android.api.models.Feed
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.coverflow.KEY_CURRENT_DATE
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

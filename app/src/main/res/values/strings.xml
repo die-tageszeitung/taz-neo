@@ -34,6 +34,8 @@
     <string name="toast_error_report_sent">Fehlerbericht gesendet.</string>
     <string name="toast_error_report_upload_file_too_big">Die angefügte Datei ist leider zu groß.</string>
     <string name="toast_error_report_upload_file_not_found">Die Datei konnte leider nicht gefunden werden.</string>
+    <string name="toast_switch_to_pdf"><b>Zeitungsansicht</b>\nSie können jetzt die taz im Layout der Zeitungsansicht lesen.</string>
+    <string name="toast_switch_to_mobile"><b>App-Ansicht</b>\nSie können jetzt die taz in der für mobile Geräte optimierten Ansicht lesen.</string>
 
     <string name="toast_unknown_error">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="toast_logout_invalid">Sie sind abgemeldet.</string>
@@ -129,6 +131,17 @@
     <string name="fragment_bottom_sheet_always_title_section_dialog_message">Wir haben Ihnen bisher automatisch den zuletzt gelesenen Artikel angezeigt.\nDa Sie diese Anzeige nicht genutzt  haben, möchten wir nachfragen:\nMöchten Sie weiterhin die Anzeige sehen?\nDiese Einstellung können Sie jederzeit ändern.</string>
     <string name="fragment_bottom_sheet_always_title_section_dialog_negative_button">Nein</string>
     <string name="fragment_bottom_sheet_always_title_section_dialog_positive_button">Weiterhin anzeigen</string>
+
+    <string name="fragment_bottom_sheet_home_presentation_state_description">mobile Ansicht oder Zeitungsansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_mobile">mobile Ansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_mobile_announce_accessibility">mobile Ansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_pdf">Zeitungsansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_pdf_announce_accessibility">Zeitungsansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_description">Karusell- oder Kachelansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel">Karussellansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel_announce_accessibility">Karussellansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive">Kachelansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive_announce_accessibility">Kachelansicht ist geqählt</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>

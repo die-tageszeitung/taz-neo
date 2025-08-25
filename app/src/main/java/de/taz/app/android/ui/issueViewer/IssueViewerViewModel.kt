@@ -69,10 +69,10 @@ class IssueViewerViewModel(
 
     fun setDisplayable(issueDisplayable: IssueKeyWithDisplayableKey?) {
         log.debug("setDisplayable(${issueDisplayable?.issueKey} ${issueDisplayable?.displayableKey})")
-        savedStateHandle[KEY_DISPLAYABLE] = issueDisplayable
-        issueDisplayable?.let {
-            // persist the last displayable in db
-            viewModelScope.launch {
+        viewModelScope.launch {
+            savedStateHandle.set(KEY_DISPLAYABLE, issueDisplayable)
+            issueDisplayable?.let {
+                // persist the last displayable in db
                 issueRepository.saveLastDisplayable(it.issueKey, it.displayableKey)
             }
         }

@@ -582,6 +582,7 @@
 
     <style name="Widget.App.BottomSheet.TextSize.IconText" parent="Widget.App.TextView.IconText">
         <item name="android:textColor">@color/textColor</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:paddingBottom">8dp</item>
     </style>
 

@@ -3,7 +3,12 @@ package de.taz.app.android.ui.home.page.archive
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.withStarted
 import androidx.recyclerview.widget.GridLayoutManager
@@ -12,11 +17,12 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
-import de.taz.app.android.monkey.setDefaultTopInset
+import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
 import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -31,6 +37,7 @@ import kotlin.math.floor
  */
 class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
+    private lateinit var authHelper: AuthHelper
     private lateinit var tracker: Tracker
     private lateinit var generalDataStore: GeneralDataStore
 
@@ -40,6 +47,7 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
@@ -81,8 +89,22 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
             .launchIn(lifecycleScope)
 
         viewModel.requestDateFocus.onEach { scrollToDate(it) }.launchIn(lifecycleScope)
+        maybeShowLoginButton()
     }
-
+    /**
+     * hide or show login button depending on auth status
+     */
+    private fun maybeShowLoginButton() {
+        // create new flow that indicates if waiting for mail or logged in
+        combine(
+            authHelper.isPollingForConfirmationEmail.asFlow(),
+            authHelper.isLoggedInFlow,
+        ) { isPolling, isLoggedIn -> isPolling || isLoggedIn }
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.homeLoginButton.visibility = if (it) View.GONE else View.VISIBLE
+            }.launchIn(lifecycleScope)
+    }
     private fun scrollToDate(date: Date) {
         val adapter = adapter ?: return
 
@@ -102,8 +124,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        applyMarginForEdgeToEdge()
+
         viewBinding.apply {
-            appBarLayout.setDefaultTopInset()
 
             appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->
                 // hide appbar content if it's collapsed
@@ -154,5 +177,15 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
+    }
+
+    private fun applyMarginForEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.collapsingToolbarLayout) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+            }
+            WindowInsetsCompat.CONSUMED
+        }
     }
 }
