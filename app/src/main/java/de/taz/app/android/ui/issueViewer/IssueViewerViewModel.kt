@@ -12,6 +12,7 @@ import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueKey
@@ -55,6 +56,7 @@ class IssueViewerViewModel(
 ) : AndroidViewModel(application) {
     private val log by Log
     private val authHelper = AuthHelper.getInstance(application)
+    private val generalDataStore = GeneralDataStore.getInstance(application)
     private val issueRepository = IssueRepository.getInstance(application)
     private val sectionRepository = SectionRepository.getInstance(application)
     private val articleRepository = ArticleRepository.getInstance(application)
@@ -80,14 +82,29 @@ class IssueViewerViewModel(
         issueKey: IssueKey,
         displayableKey: String? = null,
         loadIssue: Boolean = false
-    ) {
+    ): IssueKeyWithDisplayableKey? {
+        var showContinueReadDisplayable: IssueKeyWithDisplayableKey? = null
         if (loadIssue || displayableKey == null) {
             issueLoadingFailedErrorFlow.emit(false)
             try {
-                // either displayable is specified, persisted or defaulted to first section
-                val displayable = displayableKey
-                    ?: issueRepository.getLastDisplayable(issueKey)
-                    ?: sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                val lastDisplayable = issueRepository.getLastDisplayable(issueKey)
+                val titleSectionsDisplayable = sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                val continueReadAutomatically = generalDataStore.settingsContinueRead.get()
+                val isPage = lastDisplayable?.startsWith("s") == true && lastDisplayable.endsWith(".pdf")
+
+                if (lastDisplayable != null && lastDisplayable != titleSectionsDisplayable && !isPage) {
+                    showContinueReadDisplayable = IssueKeyWithDisplayableKey(issueKey,lastDisplayable)
+                }
+
+                // either displayable is specified, persisted or defaulted to title section
+                val displayable = if (continueReadAutomatically) {
+                    displayableKey
+                        ?: lastDisplayable
+                        ?: titleSectionsDisplayable
+                } else {
+                    titleSectionsDisplayable
+                }
+
                 if (displayable != null) {
                     setDisplayable(
                         IssueKeyWithDisplayableKey(issueKey, displayable)
@@ -106,6 +123,7 @@ class IssueViewerViewModel(
                 IssueKeyWithDisplayableKey(issueKey, displayableKey)
             )
         }
+        return showContinueReadDisplayable
     }
 
     private fun startBackgroundIssueDownload(issueKey: IssueKey) {

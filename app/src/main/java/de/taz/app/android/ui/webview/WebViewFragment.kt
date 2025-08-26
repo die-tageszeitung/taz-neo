@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.marginBottom
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
@@ -73,6 +74,13 @@ abstract class WebViewFragment<
     AppWebViewClientCallBack, MultiColumnLayoutReadyCallback {
 
     abstract override val viewModel: VIEW_MODEL
+
+    val restoreScrollPositionViewModel by viewModels<RestoreScrollPositionViewModel>(ownerProducer = {
+        // we need to create the viewModel in the scope of the IssueViewerWrapperFragment
+        // as we need to ensure we listen to the correct continueReadClicked event
+        // triggered by the BottomSheet
+        requireParentFragment().requireParentFragment()
+    })
 
     protected val log by Log
 

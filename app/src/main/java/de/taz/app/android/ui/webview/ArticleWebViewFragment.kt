@@ -11,6 +11,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.whenCreated
@@ -30,6 +31,9 @@ import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 class ArticleWebViewFragment :
@@ -213,14 +217,21 @@ class ArticleWebViewFragment :
 
     override fun onPageRendered() {
         super.onPageRendered()
+       // restore scrollPosition only if scrollPosition was set to true
+        restoreScrollPositionViewModel.restoreScrollStateFlow
+            .take(1)
+            .onEach {
+                restoreLastScrollPosition()
+            }
+            .flowWithLifecycle(lifecycle)
+            .launchIn(lifecycleScope)
+
         viewLifecycleOwner.lifecycleScope.launch {
             // setting multi column mode is only possible after page is rendered so the webView can compute its scroll width
             if (isMultiColumnMode) {
                 setupMultiColumnMode()
             } else {
-                restoreLastScrollPosition()
                 hideLoadingScreen()
-
                 delay(DELAY_FOR_VIEW_HEIGHT_CALCULATION)
                 ensurePublicArticlesCanBeScrolled()
             }
@@ -251,10 +262,13 @@ class ArticleWebViewFragment :
     }
 
     override fun onMultiColumnLayoutReady(contentWidth: Int?) {
-        lifecycleScope.launch {
-            restoreLastHorizontalScrollPosition()
-            hideLoadingScreen()
-        }
+        restoreScrollPositionViewModel.restoreScrollStateFlow
+            .take(1)
+            .onEach { restoreLastHorizontalScrollPosition() }
+            .flowWithLifecycle(lifecycle)
+            .launchIn(lifecycleScope)
+
+        hideLoadingScreen()
         super.onMultiColumnLayoutReady(contentWidth)
     }
 

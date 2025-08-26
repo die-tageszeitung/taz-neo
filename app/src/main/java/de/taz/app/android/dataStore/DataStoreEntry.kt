@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -48,7 +49,9 @@ class SimpleDataStoreEntry<T>(
     private val default: T,
     private val initFunction: (suspend () -> T?)? = null
 ) : DataStoreEntry<T> {
-    override fun asFlow(): Flow<T> = dataStore.data.map { it[key] ?: initFunction?.invoke() ?: default }
+    override fun asFlow(): Flow<T> = dataStore.data
+        .map { it[key] ?: initFunction?.invoke() ?: default }
+        .distinctUntilChanged()
 
     override fun asLiveData(): LiveData<T> = asFlow().asLiveData()
 

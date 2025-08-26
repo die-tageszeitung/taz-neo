@@ -29,6 +29,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.whenCreated
@@ -55,8 +56,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.ceil
@@ -80,7 +84,7 @@ class SectionWebViewFragment : WebViewFragment<
         SectionOperations,
         SectionWebViewViewModel,
         FragmentWebviewSectionBinding
->() {
+        >() {
 
     private lateinit var sectionRepository: SectionRepository
     private lateinit var fileEntryRepository: FileEntryRepository
@@ -301,8 +305,22 @@ class SectionWebViewFragment : WebViewFragment<
 
     override fun onPageRendered() {
         super.onPageRendered()
+
+        // restore scrollPosition only if scrollPosition was set to true
+        restoreScrollPositionViewModel.restoreScrollStateFlow
+            .take(1)
+            .onEach {        // Do not restore scroll position of title section:
+                val issueKey = viewModel.issueStubFlow.first().issueKey
+                val titleSection =
+                    sectionRepository.getSectionStubsForIssue(issueKey).firstOrNull()?.key
+                if (sectionFileName != titleSection) {
+                    restoreLastScrollPosition()
+                }
+            }
+            .flowWithLifecycle(lifecycle)
+            .launchIn(lifecycleScope)
+
         viewLifecycleOwner.lifecycleScope.launch {
-            restoreLastScrollPosition()
             hideLoadingScreen()
         }
     }

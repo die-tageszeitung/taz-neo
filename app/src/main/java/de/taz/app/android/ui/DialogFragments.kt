@@ -1,6 +1,7 @@
 package de.taz.app.android.ui
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
@@ -9,8 +10,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
+import de.taz.app.android.dataStore.GeneralDataStore
+import kotlinx.coroutines.launch
 
 
 fun Fragment.showNoInternetDialog() {
@@ -28,6 +32,77 @@ class NoInternetDialogFragment : DialogFragment() {
             .setMessage(R.string.dialog_no_internet_message)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
                 dialog.dismiss()
+            }
+            .create()
+    }
+}
+
+fun Fragment.showContinueReadSettingDialog() {
+    ContinueReadSettingDialog().show(childFragmentManager, ContinueReadSettingDialog.TAG)
+}
+
+class ContinueReadSettingDialog : DialogFragment() {
+    companion object {
+        const val TAG = "ContinueReadSettingDialog"
+    }
+    private lateinit var generalDataStore: GeneralDataStore
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.fragment_bottom_sheet_continue_read_dialog_title)
+            .setMessage(R.string.fragment_bottom_sheet_continue_read_dialog_message)
+            .setPositiveButton(R.string.fragment_bottom_sheet_continue_read_dialog_positive_button) { dialog, _ ->
+                lifecycleScope.launch {
+                    generalDataStore.settingsContinueReadAskEachTime.set(false)
+                    generalDataStore.settingsContinueRead.set(true)
+                    dialog.dismiss()
+                }
+            }
+            .setNegativeButton(R.string.fragment_bottom_sheet_continue_read_dialog_negative_button) { dialog, _ ->
+                lifecycleScope.launch {
+                    generalDataStore.settingsContinueReadAskEachTime.set(true)
+                    dialog.dismiss()
+                }
+            }
+            .create()
+    }
+}
+fun Fragment.showAlwaysTitleSectionSettingDialog() {
+    AlwaysTitleSectionSettingDialog().show(childFragmentManager, ContinueReadSettingDialog.TAG)
+}
+
+class AlwaysTitleSectionSettingDialog : DialogFragment() {
+    companion object {
+        const val TAG = "AlwaysTitleSectionSettingDialog"
+    }
+    private lateinit var generalDataStore: GeneralDataStore
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.fragment_bottom_sheet_always_title_section_dialog_title)
+            .setMessage(R.string.fragment_bottom_sheet_always_title_section_dialog_message)
+            .setPositiveButton(R.string.fragment_bottom_sheet_always_title_section_dialog_positive_button) { dialog, _ ->
+                lifecycleScope.launch {
+                    generalDataStore.settingsContinueReadAskEachTime.set(true)
+                    generalDataStore.settingsContinueRead.set(false)
+                    dialog.dismiss()
+                }
+            }
+            .setNegativeButton(R.string.fragment_bottom_sheet_always_title_section_dialog_negative_button) { dialog, _ ->
+                lifecycleScope.launch {
+                    generalDataStore.settingsContinueReadAskEachTime.set(false)
+                    dialog.dismiss()
+                }
             }
             .create()
     }

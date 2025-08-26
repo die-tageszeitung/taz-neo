@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.viewbinding.ViewBinding
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import de.taz.app.android.TazApplication
+import java.io.File
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -61,5 +64,13 @@ abstract class ViewBindingBottomSheetFragment<VIEW_BINDING : ViewBinding> :
         (requireActivity().application as TazApplication).applicationScope
     }
 
+    fun ImageView.loadImageFileWithGlide(filePath: String) {
+        if (File(filePath).exists()) {
+            Glide
+                .with(requireContext())
+                .load(filePath)
+                .into(this)
+        }
+    }
 }
 
