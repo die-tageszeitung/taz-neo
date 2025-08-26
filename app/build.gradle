@@ -393,7 +393,7 @@ dependencies {
     implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
     // mupdf
-    implementation 'com.artifex.mupdf:fitz:1.26.2'
+    implementation 'com.artifex.mupdf:fitz:1.26.7'
 
     // nestedscrollwebview
     implementation 'com.telefonica:nestedscrollwebview:0.1.6'
