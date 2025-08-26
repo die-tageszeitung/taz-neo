@@ -38,4 +38,5 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
     val tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
     val multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
     val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+
 }

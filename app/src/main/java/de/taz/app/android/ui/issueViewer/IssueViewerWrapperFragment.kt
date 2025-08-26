@@ -5,27 +5,34 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.METADATA_DOWNLOAD_RETRY_INDEFINITELY
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Issue
-import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.TazViewerFragment
+import de.taz.app.android.ui.bottomSheet.ContinueReadBottomSheetFragment
+import de.taz.app.android.ui.bottomSheet.SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
+import de.taz.app.android.ui.showContinueReadSettingDialog
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.reflect.KClass
@@ -61,6 +68,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
     private lateinit var contentService: ContentService
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
+    private lateinit var generalDataStore: GeneralDataStore
 
     private val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
@@ -85,6 +93,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
         super.onAttach(context)
         contentService = ContentService.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +113,7 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                 }
 
                 withContext(Dispatchers.Main) {
-                    if (displayableKey != null) {
+                    val continueReadDisplayable = if (displayableKey != null) {
                         issueViewerViewModel.setDisplayable(
                             issueKey,
                             displayableKey,
@@ -112,6 +121,18 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                         )
                     } else {
                         issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
+                    }
+                    val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
+                    if (continueReadDisplayable != null && askEachTime) {
+                        if (childFragmentManager.findFragmentByTag(
+                                ContinueReadBottomSheetFragment.TAG
+                            ) == null
+                        ) {
+                            ContinueReadBottomSheetFragment.newInstance(continueReadDisplayable)
+                                .show(
+                                    childFragmentManager, ContinueReadBottomSheetFragment.TAG
+                                )
+                        }
                     }
                 }
             }
@@ -134,7 +155,10 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
             if (!elapsedOnDownload) {
                 issueViewerViewModel.issueLoadingFailedErrorFlow.emit(true)
             }
-            contentService.downloadIssueMetadata(issuePublication, METADATA_DOWNLOAD_RETRY_INDEFINITELY)
+            contentService.downloadIssueMetadata(
+                issuePublication,
+                METADATA_DOWNLOAD_RETRY_INDEFINITELY
+            )
         }
 
 
@@ -153,27 +177,55 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    // show an error if downloading the metadata, the issue, or another file fails
-                    issueViewerViewModel.issueLoadingFailedErrorFlow
-                        .filter { it }
-                        .collect {
-                            activity?.showIssueDownloadFailedDialog(issuePublication)
-                        }
-                }
+        // show an error if downloading the metadata, the issue, or another file fails
+        issueViewerViewModel.issueLoadingFailedErrorFlow
+            .flowWithLifecycle(lifecycle)
+            .filter { it }
+            .onEach {
+                activity?.showIssueDownloadFailedDialog(issuePublication)
+            }.launchIn(lifecycleScope)
 
-                launch {
-                    issueViewerViewModel.showSubscriptionElapsedFlow
-                        .distinctUntilChanged()
-                        .filter { it }
-                        .collect {
-                            SubscriptionElapsedBottomSheetFragment.showSingleInstance(childFragmentManager)
-                        }
-                }
-            }
+        issueViewerViewModel.showSubscriptionElapsedFlow
+            .flowWithLifecycle(lifecycle)
+            .distinctUntilChanged()
+            .filter { it }
+            .onEach {
+                SubscriptionElapsedBottomSheetFragment.showSingleInstance(childFragmentManager)
+            }.launchIn(lifecycleScope)
+
+        // Check whether maybe show dialog to always continue read or always show title section
+        val showFlow: Flow<Boolean> = combine(
+            generalDataStore.settingsContinueReadAskEachTime.asFlow(),
+            generalDataStore.settingsContinueReadDialogShown.asFlow(),
+        ) { askEachTime, dialogShown ->
+            askEachTime && !dialogShown
         }
+            .filter { it }
+            .distinctUntilChanged()
+
+        combine(
+            showFlow,
+            generalDataStore.continueReadClicked.asFlow(),
+        ) { _, readClicked -> readClicked }
+            .flowWithLifecycle(lifecycle)
+            .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
+            .onEach {
+                showContinueReadSettingDialog()
+                generalDataStore.settingsContinueReadDialogShown.set(true)
+            }
+            .launchIn(lifecycleScope)
+
+        combine(
+            showFlow,
+            generalDataStore.continueReadDismissed.asFlow(),
+        ) { _, continueReadDismissed -> continueReadDismissed }
+            .flowWithLifecycle(lifecycle)
+            .filter { it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN }
+            .onEach {
+                showAlwaysTitleSectionSettingDialog()
+                generalDataStore.settingsContinueReadDialogShown.set(true)
+            }
+            .launchIn(lifecycleScope)
     }
 
     override fun onLogInSuccessful(articleName: String?) {

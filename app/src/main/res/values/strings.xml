@@ -121,6 +121,16 @@
     <string name="fragment_bottom_sheet_bookmarks_synchronization_negative_button">Nicht synchronisieren</string>
     <string name="fragment_bottom_sheet_bookmarks_synchronization_loading_text">Lesezeichen werden synchronisert</string>
 
+    <string name="fragment_bottom_sheet_continue_read_title">Weiterlesen:</string>
+    <string name="fragment_bottom_sheet_continue_read_article_preview_image">Artikel Vorschau Bild</string>
+    <string name="fragment_bottom_sheet_continue_read_dialog_title">Automatisch Weiterlesen?</string>
+    <string name="fragment_bottom_sheet_continue_read_dialog_message">Wir haben gemerkt, dass Sie weiterlesen. Möchten Sie beim Öffnen einer Ausgabe automatisch zum zuletzt gelesenen Artikel springen?\nIn den Einstellung können Sie das jederzeit ändern.</string>
+    <string name="fragment_bottom_sheet_continue_read_dialog_negative_button">Nein</string>
+    <string name="fragment_bottom_sheet_continue_read_dialog_positive_button">Ja, automatisch weiterlesen</string>
+    <string name="fragment_bottom_sheet_always_title_section_dialog_title">Weiterlesen weiterhin anzeigen?</string>
+    <string name="fragment_bottom_sheet_always_title_section_dialog_message">Wir haben Ihnen bisher automatisch den zuletzt gelesenen Artikel angezeigt.\nDa Sie diese Anzeige nicht genutzt  haben, möchten wir nachfragen:\nMöchten Sie weiterhin die Anzeige sehen?\nDiese Einstellung können Sie jederzeit ändern.</string>
+    <string name="fragment_bottom_sheet_always_title_section_dialog_negative_button">Nein</string>
+    <string name="fragment_bottom_sheet_always_title_section_dialog_positive_button">Weiterhin anzeigen</string>
 
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
@@ -168,6 +178,8 @@
     <string name="settings_text_tap_to_scroll">Tippen am Rand</string>
     <string name="settings_text_keep_screen_on">Bildschirm beim Lesen von Artikeln aktiv lassen</string>
     <string name="settings_show_animated_moments">Animierte Titelseiten anzeigen</string>
+    <string name="settings_continue_read">Beim Öffnen einer Ausgabe automatisch weiterlesen</string>
+    <string name="settings_continue_read_ask_each_time">Beim Öffnen einer Ausgabe Weiterlesenhinweis anzeigen</string>
     <string name="settings_account_manage_account">Anmelden</string>
     <string name="settings_account_logout">Abmelden (%s)</string>
     <string name="settings_account_delete">Konto löschen</string>

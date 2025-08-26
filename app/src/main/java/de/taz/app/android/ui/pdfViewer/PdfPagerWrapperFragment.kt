@@ -44,12 +44,16 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
+import de.taz.app.android.ui.bottomSheet.ContinueReadBottomSheetFragment
+import de.taz.app.android.ui.bottomSheet.SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
+import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
+import de.taz.app.android.ui.showContinueReadSettingDialog
 import de.taz.app.android.ui.showSdCardIssueDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
@@ -199,6 +203,45 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                     drawerAndLogoViewModel.drawerState.collect {
                         drawerViewController.handleDrawerLogoState(it)
                     }
+                }
+
+                launch {
+                    pdfPagerViewModel.continueReadDisplayable.filterNotNull().collect {
+                        if (childFragmentManager.findFragmentByTag(
+                                ContinueReadBottomSheetFragment.TAG
+                            ) == null
+                        ) {
+                            ContinueReadBottomSheetFragment.newInstance(it).show(
+                                childFragmentManager, ContinueReadBottomSheetFragment.TAG
+                            )
+                        }
+                    }
+                }
+
+                // Check whether maybe shoe dialog to always continue read or always show title page
+                val askEachTimeToContinueRead =
+                    generalDataStore.settingsContinueReadAskEachTime.get()
+                val settingsDialogShown = generalDataStore.settingsContinueReadDialogShown.get()
+                if (askEachTimeToContinueRead && !settingsDialogShown) {
+                    launch {
+                        generalDataStore.continueReadClicked.asFlow().distinctUntilChanged()
+                            .collect {
+                                if (it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN) {
+                                    showContinueReadSettingDialog()
+                                    generalDataStore.settingsContinueReadDialogShown.set(true)
+                                }
+                            }
+                    }
+                    launch {
+                        generalDataStore.continueReadDismissed.asFlow().distinctUntilChanged()
+                            .collect {
+                                if (it == SHOW_CONTINUE_READ_THE_SAME_NOT_MORE_THAN) {
+                                    showAlwaysTitleSectionSettingDialog()
+                                    generalDataStore.settingsContinueReadDialogShown.set(true)
+                                }
+                            }
+                    }
+
                 }
             }
         }

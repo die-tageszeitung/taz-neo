@@ -482,6 +482,25 @@
                 android:text="@string/settings_show_animated_moments" />
 
             <include layout="@layout/settings_separator_view" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/fragment_settings_continue_read_ask_each_time"
+                style="@style/Widget.App.Settings.Entry.Switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_continue_read_ask_each_time" />
+
+            <include layout="@layout/settings_separator_view" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/fragment_settings_continue_read"
+                style="@style/Widget.App.Settings.Entry.Switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_continue_read" />
+
+            <include layout="@layout/settings_separator_view" />
+
             <!-- endregion -->
 
             <!-- region hilfe -->

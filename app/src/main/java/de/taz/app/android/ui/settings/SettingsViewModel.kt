@@ -30,6 +30,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val tapToScrollLiveData: LiveData<Boolean>
     val keepScreenOnLiveData: LiveData<Boolean>
     val showAnimatedMomentsLiveData: LiveData<Boolean>
+    val showContinueReadLiveData: LiveData<Boolean>
+    val showContinueReadAskEachTimeLiveData: LiveData<Boolean>
 
     val downloadOnlyWifiLiveData: LiveData<Boolean>
     val downloadAutomaticallyLiveData: LiveData<Boolean>
@@ -61,6 +63,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
         keepScreenOnLiveData = tazApiCssDataStore.keepScreenOn.asLiveData()
         showAnimatedMomentsLiveData = generalDataStore.showAnimatedMoments.asLiveData()
+        showContinueReadLiveData = generalDataStore.settingsContinueRead.asLiveData()
+        showContinueReadAskEachTimeLiveData = generalDataStore.settingsContinueReadAskEachTime.asLiveData()
 
         storedIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
         storageLocationLiveData = storageDataStore.storageLocation.asLiveData()
@@ -156,12 +160,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     suspend fun getNotificationsEnabled(): Boolean = downloadDataStore.notificationsEnabled.get()
 
-    fun setPdfDialogDoNotShowAgain(doNotShowAgain: Boolean) {
-        viewModelScope.launch {
-            downloadDataStore.pdfDialogDoNotShowAgain.set(doNotShowAgain)
-        }
-    }
-
     fun resetFontSize() {
         viewModelScope.launch {
             tazApiCssDataStore.fontSize.reset()
@@ -225,6 +223,22 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setShowAnimatedMoments(value: Boolean) {
         viewModelScope.launch {
             generalDataStore.showAnimatedMoments.set(value)
+        }
+    }
+
+    fun setContinueRead(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.settingsContinueRead.set(value)
+            generalDataStore.settingsContinueReadAskEachTime.set(false)
+        }
+    }
+
+    fun setContinueReadAskEachTime(value: Boolean) {
+        viewModelScope.launch {
+            generalDataStore.settingsContinueReadAskEachTime.set(value)
+            if (value) {
+                generalDataStore.settingsContinueRead.set(false)
+            }
         }
     }
 

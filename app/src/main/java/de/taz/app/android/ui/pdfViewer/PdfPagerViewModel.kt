@@ -19,6 +19,7 @@ import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.api.models.Page
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
@@ -27,11 +28,11 @@ import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.PageRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.getShouldShowSubscriptionElapsedDialogFlow
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -73,11 +74,13 @@ class PdfPagerViewModel(
     private val articleRepository = ArticleRepository.getInstance(application.applicationContext)
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
     private val imageRepository = ImageRepository.getInstance(application.applicationContext)
+    private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
     private val pageRepository = PageRepository.getInstance(application.applicationContext)
 
     private var issuePublication: IssuePublicationWithPages? = null
 
     private val issueStubFlow = MutableStateFlow<IssueStub?>(null)
+    val continueReadDisplayable = MutableStateFlow<IssueKeyWithDisplayableKey?>(null)
 
     val issueStubLiveData = issueStubFlow.filterNotNull().asLiveData()
 
@@ -98,7 +101,10 @@ class PdfPagerViewModel(
         }
     }
 
-    private suspend fun updateCurrentItemInternal(position: Int) = withContext(Dispatchers.Main) {
+    private suspend fun updateCurrentItemInternal(
+        position: Int,
+        saveLastDisplayable: Boolean = true
+    ) = withContext(Dispatchers.Main) {
         if (_currentItem.value == position) {
             return@withContext
         }
@@ -108,13 +114,19 @@ class PdfPagerViewModel(
         if (_currentItem.value != validPosition) {
             _currentItem.value = validPosition
 
-            // Save current position to database to restore later on
-            issueStubFlow.value?.issueKey?.let {
-                issueRepository.saveLastPagePosition(
-                    it,
-                    validPosition
-                )
-
+            if (saveLastDisplayable) {
+                // Save current position to database to restore later on
+                issueStubFlow.value?.issueKey?.let {
+                    issueRepository.saveLastPagePosition(
+                        it,
+                        validPosition
+                    )
+                    // Use lastDisplayable to also store the page number. It is necessary for the
+                    // continue read functionality to distinguish between  page and article
+                    pdfPageList?.get(validPosition)?.pagePdf?.name?.let { fileName ->
+                        issueRepository.saveLastDisplayable(it, fileName)
+                    }
+                }
             }
         }
     }
@@ -181,13 +193,19 @@ class PdfPagerViewModel(
                     return@launch
                 }
 
-                // Update the latest page position and the viewDate
-                updateCurrentItemInternal(issueStub.lastPagePosition ?: 0)
+                // get last displayable
+                val lastDisplayable = issueStub.lastDisplayableName
+                val lastPage = issueStub.lastPagePosition
+
+                val continueReadAutomatically = generalDataStore.settingsContinueRead.get()
+
+                // Update latest view date
                 issueRepository.updateLastViewedDate(issueStub)
 
                 // Finally store the IssueStub, even it if is not downloaded yet
                 issueStubFlow.value = issueStub
 
+                // Download issue or set pages flow if downloaded
                 if (issueStub.dateDownload != null && issueStub.dateDownloadWithPages != null) {
                     pdfPageListFlow.value = pageRepository.getPagesForIssueKey(issueStub.issueKey)
 
@@ -197,6 +215,35 @@ class PdfPagerViewModel(
                     handleIssueContentDownloadProgress(issueStub)
                 }
 
+                // Update current (and set lastDisplayable with it)
+
+                // Update the latest page position if continueReadAutomatically is set
+                val lastPagePosition = if (continueReadAutomatically) {
+                    lastPage ?: 0
+                } else {
+                    0
+                }
+                updateCurrentItemInternal(lastPagePosition)
+
+                // Check for displayable and (maybe) show continue read bottom sheet
+                val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
+                val isArticle = lastDisplayable?.startsWith("art") == true
+                val isSection = lastDisplayable?.startsWith("sec") == true
+                val isPage = lastDisplayable?.startsWith("s") == true && lastDisplayable.endsWith(".pdf")
+                val isFirstPage = lastDisplayable == pdfPageListFlow.value?.first()?.pagePdf?.name
+
+                // If continueReadAutomatically setting is set and last displayable is article
+                if (continueReadAutomatically && isArticle) {
+                    showArticle(lastDisplayable!!)
+                // Otherwise check whether to show continue read bottom sheet
+                } else if (askEachTime && (isArticle || isPage) && !isFirstPage && !isSection) {
+                    log.debug("Show continue read bottom sheet with displayable $lastDisplayable")
+                    val issueKeyWithDisplayable = IssueKeyWithDisplayableKey(
+                        issueStub.issueKey,
+                        lastDisplayable!!
+                    )
+                    continueReadDisplayable.value = issueKeyWithDisplayable
+                }
             }
         } else {
             issueStubFlow.value = null
@@ -259,12 +306,12 @@ class PdfPagerViewModel(
         }
     } as LiveData<Image>
 
-    fun goToPdfPage(link: String) {
+    fun goToPdfPage(link: String, saveLastDisplayable: Boolean = true) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
         if (issueStubFlow.value?.status == IssueStatus.regular) {
             viewModelScope.launch {
-                updateCurrentItemInternal(getPositionOfPdf(link))
+                updateCurrentItemInternal(getPositionOfPdf(link), saveLastDisplayable)
             }
         }
     }
@@ -296,16 +343,24 @@ class PdfPagerViewModel(
      *
      * @param link - the articles link, e.g.: art0000001.html
      */
-    private fun showArticle(link: String) {
+    fun showArticle(link: String, givenIssueKey: IssueKey? = null) {
         viewModelScope.launch(Dispatchers.Main) {
             val article = getCorrectArticle(link)
-            val issueKeyWithPages = issueStubFlow.value?.issueKey
+            val issueKeyWithPages = givenIssueKey ?: issueStubFlow.value?.issueKey
             if (issueKeyWithPages == null) {
-                log.info("Could not show article because there is no issue selected")
+                log.warn("Could not show article because there is no issue selected")
                 return@launch
             }
 
             val issueKey = IssueKey(issueKeyWithPages)
+
+            // if we got a givenIssueKey we probably are not coming from the articles' page, so
+            // we update the pdfPager page here:
+            if (givenIssueKey != null) {
+                article?.pageNameList?.firstOrNull()?.let {
+                    goToPdfPage(it, saveLastDisplayable = false)
+                }
+            }
 
             _openLinkEventFlow.value = when {
                 article != null && article.isImprint() ->
@@ -324,12 +379,12 @@ class PdfPagerViewModel(
     }
 
     private suspend fun getCorrectArticle(link: String): ArticleOperations? {
-        val correctLink = if (issueStubFlow.value?.status == IssueStatus.regular) {
-            link
-        } else {
+        val correctLink = if (issueStubFlow.value?.status == IssueStatus.public) {
             // if we are not on a regular issue all the articles have "public" indication
             // unfortunately it is not delivered via [page.frameList] so we need to modify it here:
             link.replace(".html", ".public.html")
+        } else {
+            link
         }
         return articleRepository.getStub(correctLink)
     }

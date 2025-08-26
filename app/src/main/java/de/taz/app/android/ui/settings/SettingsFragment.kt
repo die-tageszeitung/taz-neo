@@ -213,6 +213,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 setShowAnimatedMoments(isChecked)
             }
 
+            fragmentSettingsContinueRead.setOnCheckedChangeListener { _, isChecked ->
+                setContinueRead(isChecked)
+            }
+
+            fragmentSettingsContinueReadAskEachTime.setOnCheckedChangeListener { _, isChecked ->
+                setContinueReadAskEachTime(isChecked)
+            }
+
             fragmentSettingsAccountElapsed.setOnClickListener {
                 SubscriptionElapsedBottomSheetFragment().show(
                     childFragmentManager,
@@ -350,6 +358,12 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
             }
             showAnimatedMomentsLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
                 showAnimatedMomentsSetting(enabled)
+            }
+            showContinueReadLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showContinueReadSetting(enabled)
+            }
+            showContinueReadAskEachTimeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+                showContinueReadAskEachTimeSetting(enabled)
             }
             storedIssueNumberLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storedIssueNumber ->
                 showStoredIssueNumber(storedIssueNumber)
@@ -676,6 +690,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewBinding.fragmentSettingsShowAnimatedMoments.isChecked = enabled
     }
 
+    private fun showContinueReadSetting(enabled: Boolean) {
+        viewBinding.fragmentSettingsContinueRead.isChecked = enabled
+        // Disable the continue read ask each time setting when ask each time is enabled:
+        viewBinding.fragmentSettingsContinueReadAskEachTime.isEnabled = !enabled
+    }
+
+    private fun showContinueReadAskEachTimeSetting(enabled: Boolean) {
+        viewBinding.fragmentSettingsContinueReadAskEachTime.isChecked = enabled
+        // Disable the continue read setting when ask each time is enabled:
+        viewBinding.fragmentSettingsContinueRead.isEnabled = !enabled
+    }
+
     private fun showOnlyWifi(onlyWifi: Boolean) {
         view?.findViewById<MaterialSwitch>(R.id.fragment_settings_auto_download_wifi_switch)?.isChecked =
             onlyWifi
@@ -781,6 +807,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
     private fun setShowAnimatedMoments(enabled: Boolean) {
         viewModel.setShowAnimatedMoments(enabled)
+    }
+
+    private fun setContinueRead(enabled: Boolean) {
+        viewModel.setContinueRead(enabled)
+    }
+
+    private fun setContinueReadAskEachTime(enabled: Boolean) {
+        viewModel.setContinueReadAskEachTime(enabled)
     }
 
     private fun setTextJustification(justified: Boolean) {

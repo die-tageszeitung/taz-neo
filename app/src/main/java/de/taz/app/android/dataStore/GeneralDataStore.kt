@@ -36,6 +36,11 @@ private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "bo
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION = "settings_bookmark_synchronization"
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED = "settings_bookmark_synchronization_changed"
 private const val SETTINGS_SHOW_ANIMATED_MOMENTS = "settings_show_animated_moments"
+private const val SETTINGS_CONTINUE_READ = "settings_continue_read"
+private const val SETTINGS_CONTINUE_READ_ASK_EACH_TIME = "settings_continue_read_ask_each_time"
+private const val SETTINGS_CONTINUE_READ_DIALOG_SHOWN = "settings_continue_read_dialog_shown"
+private const val SETTINGS_CONTINUE_READ_CLICKED = "settings_continue_read_clicked"
+private const val SETTINGS_CONTINUE_READ_DISMISSED = "settings_continue_read_dismissed"
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
 private const val DATA_POLICY_ACCEPTED = "data_policy_accepted"
@@ -135,6 +140,26 @@ class GeneralDataStore private constructor(applicationContext: Context) {
 
     val showAnimatedMoments: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_SHOW_ANIMATED_MOMENTS), true
+    )
+
+    val settingsContinueReadAskEachTime: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_CONTINUE_READ_ASK_EACH_TIME), true
+    )
+
+    val settingsContinueReadDialogShown: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_CONTINUE_READ_DIALOG_SHOWN), false
+    )
+
+    val settingsContinueRead: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_CONTINUE_READ), false
+    )
+
+    val continueReadClicked: DataStoreEntry<Int> = SimpleDataStoreEntry(
+        dataStore, intPreferencesKey(SETTINGS_CONTINUE_READ_CLICKED), 0
+    )
+
+    val continueReadDismissed: DataStoreEntry<Int> = SimpleDataStoreEntry(
+        dataStore, intPreferencesKey(SETTINGS_CONTINUE_READ_DISMISSED), 0
     )
 
 

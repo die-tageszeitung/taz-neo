@@ -45,6 +45,10 @@
     <dimen name="bottom_sheet_actions_small_margin">5dp</dimen>
     <dimen name="bottom_sheet_actions_margin_inner">20dp</dimen>
     <dimen name="bottom_sheet_forms_margin_top">20dp</dimen>
+    <dimen name="bottom_sheet_continue_read_margins">24dp</dimen>
+    <dimen name="bottom_sheet_continue_read_close_padding">20dp</dimen>
+    <dimen name="bottom_sheet_continue_read_close_padding_bottom">10dp</dimen>
+    <dimen name="bottom_sheet_continue_read_icon_size">32dp</dimen>
 
 
     <dimen name="fragment_drawer_padding_start">18dp</dimen>
