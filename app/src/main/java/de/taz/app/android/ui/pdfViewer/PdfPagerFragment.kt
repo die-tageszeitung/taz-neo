@@ -217,8 +217,6 @@ class PdfPagerFragment : BaseMainFragment<FragmentPdfPagerBinding>() {
                 pdfLoadingScreenRoot.visibility = View.GONE
             }
         }
-        log.error("hideLogo after hideLoadingScreen")
-        drawerAndLogoViewModel.hideLogo()
     }
 
     private fun trackOnPageChange(position: Int) {

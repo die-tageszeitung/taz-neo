@@ -5,14 +5,11 @@ import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.net.Uri
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.View
-import android.widget.FrameLayout.LayoutParams
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.updateLayoutParams
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -24,11 +21,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.bumptech.glide.Glide
 import de.taz.app.android.ARTICLE_PAGER_FRAGMENT_FROM_PDF_MODE
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
-import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.base.ViewBindingFragment
 import de.taz.app.android.coachMarks.LmdLogoCoachMark
@@ -54,17 +49,13 @@ import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragm
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
 import de.taz.app.android.ui.showContinueReadSettingDialog
-import de.taz.app.android.ui.showSdCardIssueDialog
 import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.concurrent.ExecutionException
 
 class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBinding>(), SuccessfulLoginAction, BackFragment {
 
@@ -101,9 +92,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var drawerViewController: DrawerViewController
 
-    // mutable instance state
-    private var navButton: Image? = null
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -135,12 +123,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             .observe(this) {
                 requireActivity().showIssueDownloadFailedDialog(issuePublication)
             }
-
-        pdfPagerViewModel.navButton.observe(this) {
-            if (it != null) {
-                lifecycleScope.launch { showNavButton(it) }
-            }
-        }
 
         if (savedInstanceState == null) {
             childFragmentManager.beginTransaction().add(
@@ -257,6 +239,8 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // pdf mode always has burger icon
+        drawerAndLogoViewModel.setBurgerIcon()
 
         viewBinding.apply {
             drawerViewController = DrawerViewController(
@@ -318,60 +302,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
         }
     }
 
-    private suspend fun showNavButton(navButton: Image) {
-        val navButtonPath = storageService.getAbsolutePath(navButton)
-        if (this.navButton != navButton && navButtonPath != null) {
-            try {
-                val imageDrawable = withContext(Dispatchers.IO) {
-                    Glide
-                        .with(this@PdfPagerWrapperFragment)
-                        .load(navButtonPath)
-                        .submit()
-                        .get()
-                }
-
-                // scale factor determined in resources
-                val scaleFactor = resources.getFraction(
-                    R.fraction.nav_button_scale_factor,
-                    1,
-                    33
-                )
-                val logicalWidth = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    imageDrawable.intrinsicWidth.toFloat(),
-                    resources.displayMetrics
-                ) * scaleFactor
-
-                drawerViewController.drawerLogoWidth = logicalWidth.toInt()
-
-                val logicalHeight = TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    imageDrawable.intrinsicHeight.toFloat(),
-                    resources.displayMetrics
-                ) * scaleFactor
-
-                withContext(Dispatchers.Main) {
-                    viewBinding.drawerLogo.apply {
-                        setImageDrawable(imageDrawable)
-                        updateLayoutParams<LayoutParams> {
-                            width = logicalWidth.toInt()
-                            height = logicalHeight.toInt()
-                        }
-                    }
-                }
-                this.navButton = navButton
-
-                LmdLogoCoachMark(this, viewBinding.drawerLogo, imageDrawable)
-                    .maybeShow()
-
-            } catch (e: ExecutionException) {
-                val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
-                log.error(hint, e)
-                SentryWrapper.captureException(e)
-                showSdCardIssueDialog()
-            }
-        }
-    }
 
     /**
      * May be used from child fragments to show an Article within the [ArticlePagerFragment]

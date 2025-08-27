@@ -356,9 +356,15 @@ class DrawerViewController(
         )
         ghostViewIds.forEach {
             rootView.findViewById<ImageView>(it)?.apply {
-                updateLayoutParams<LayoutParams> {
-                    width = newWidth
-                    height = newHeight
+                if (newWidth > 0 && newHeight > 0) {
+                    updateLayoutParams<LayoutParams> {
+                        width = newWidth
+                        height = newHeight
+                    }
+                } else if (newWidth > 0) {
+                    updateLayoutParams<LayoutParams> {
+                        width = newWidth
+                    }
                 }
                 translationX = drawerLogoWrapper.translationX
                 if (extraPadding > 0) {
