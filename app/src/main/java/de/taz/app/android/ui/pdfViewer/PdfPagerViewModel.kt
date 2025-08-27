@@ -3,16 +3,13 @@ package de.taz.app.android.ui.pdfViewer
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.ArticleOperations
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.api.models.Frame
-import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.api.models.IssueWithPages
@@ -23,7 +20,6 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.monkey.getApplicationScope
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
-import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -73,7 +69,6 @@ class PdfPagerViewModel(
         FileEntryRepository.getInstance(application.applicationContext)
     private val articleRepository = ArticleRepository.getInstance(application.applicationContext)
     private val issueRepository = IssueRepository.getInstance(application.applicationContext)
-    private val imageRepository = ImageRepository.getInstance(application.applicationContext)
     private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
     private val pageRepository = PageRepository.getInstance(application.applicationContext)
 
@@ -297,15 +292,6 @@ class PdfPagerViewModel(
             }
         }
     }
-
-    val navButton = MediatorLiveData<Image>().apply {
-        val defaultDrawerFileName =
-            getApplication<Application>().resources.getString(R.string.DEFAULT_NAV_DRAWER_FILE_NAME)
-        viewModelScope.launch {
-            postValue(imageRepository.get(defaultDrawerFileName))
-        }
-    } as LiveData<Image>
-
     fun goToPdfPage(link: String, saveLastDisplayable: Boolean = true) {
         // it is only possible to go to another page if we are on a regular issue
         // (otherwise we only have the first page)
