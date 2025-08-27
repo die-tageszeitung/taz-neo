@@ -31,7 +31,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
     init {
         scope.launch {
-            authHelper.isPolling.asFlow()
+            authHelper.isPollingForConfirmationEmail.asFlow()
                 .distinctUntilChanged()
                 .collect {
                     if (it) {
@@ -53,11 +53,10 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
 
                 when (subscriptionInfo?.status) {
                     SubscriptionStatus.valid -> {
-                        authHelper.isPolling.set(false)
+                        authHelper.isPollingForConfirmationEmail.set(false)
                         authHelper.token.set(requireNotNull(subscriptionInfo.token) {
                             "Backend returned empty token with SubscriptionStatus.valid"
                         })
-                        val currentAuthStatus = authHelper.status.get()
                         authHelper.status.set(AuthStatus.valid)
 
                         toastHelper.showToast(R.string.toast_login_successful)
@@ -90,7 +89,7 @@ class SubscriptionPollHelper private constructor(applicationContext: Context) {
                         poll(timeMillis * 2)
                     }
                     SubscriptionStatus.tooManyPollTries -> {
-                        authHelper.isPolling.set(false)
+                        authHelper.isPollingForConfirmationEmail.set(false)
                         SentryWrapper.captureMessage("TooManyPollTries")
                     }
                     else -> {

@@ -246,14 +246,9 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         runOnUiThread {
             val homeFragment =
                 supportFragmentManager.fragments.firstOrNull { it is HomeFragment } as? HomeFragment
-            val coverFlowFragment =
-                homeFragment?.childFragmentManager?.fragments?.firstOrNull { it is CoverflowFragment } as? CoverflowFragment
 
             if(supportFragmentManager.fragments.last { it.isVisible } is HomeFragment) {
-                coverFlowFragment?.skipToHome()
-                this.findViewById<ViewPager2>(R.id.feed_archive_pager)?.apply {
-                    currentItem -= 1
-                }
+                lifecycleScope.launch { homeFragment?.skipToHome() }
             } else {
                 supportFragmentManager.popBackStackImmediate(
                     null,

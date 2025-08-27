@@ -104,7 +104,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
 
-        isDownloadedFlow = homeViewModel.pdfMode.map { isPdf ->
+        isDownloadedFlow = homeViewModel.pdfModeFlow.map { isPdf ->
             val abstractIssuePublication = if (isPdf) {
                 IssuePublicationWithPages(issuePublication)
             } else {

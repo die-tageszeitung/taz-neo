@@ -102,14 +102,13 @@
                 android:id="@+id/view_moment_download_finished"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:alpha="0"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_done"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/coverflow_icon_tint" />
+                app:tint="@color/ic_download_done_color" />
 
             <ProgressBar
                 android:id="@+id/view_moment_downloading"

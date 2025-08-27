@@ -102,7 +102,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
         dataStore, stringPreferencesKey(PREFERENCES_AUTH_EMAIL), ""
     )
 
-    val isPolling = SimpleDataStoreEntry(
+    val isPollingForConfirmationEmail = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(PREFERENCES_AUTH_POLL), false
     )
 
@@ -135,7 +135,11 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
 
     suspend fun isValid(): Boolean = status.get() == AuthStatus.valid
     suspend fun isLoggedIn(): Boolean = status.get().isLoggedIn()
+
+    // this is used by MatomoTracker - do not delete!
     suspend fun isInternalTazUser(): Boolean = isLoggedIn() && email.get().endsWith("@taz.de")
+
+    val isLoggedInFlow = status.asFlow().map { it.isLoggedIn() }
 
     suspend fun getMinStatus() =
         if (isValid()) IssueStatus.regular else IssueStatus.public
@@ -166,7 +170,7 @@ class AuthHelper @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE) const
             startNewSession()
         }
         firebaseHelper.ensureTokenSent()
-        isPolling.set(false)
+        isPollingForConfirmationEmail.set(false)
 
         if (authStatus == AuthStatus.valid) {
             transformBookmarks()

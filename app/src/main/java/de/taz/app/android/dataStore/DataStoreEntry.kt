@@ -53,6 +53,7 @@ class SimpleDataStoreEntry<T>(
         .map { it[key] ?: initFunction?.invoke() ?: default }
         .distinctUntilChanged()
 
+    @Deprecated("Use Flow directly", ReplaceWith("asFlow"))
     override fun asLiveData(): LiveData<T> = asFlow().asLiveData()
 
     override suspend fun get(): T = asFlow().first()
@@ -92,6 +93,7 @@ class MappingDataStoreEntry<S, T>(
     )
 
 
+    @Deprecated("Use Flow directly", ReplaceWith("asFlow"))
     override fun asLiveData(): LiveData<S> = dataStoreEntry.asLiveData().map { mapTtoS(it) }
 
     override suspend fun set(value: S) = dataStoreEntry.set(mapStoT(value))
@@ -99,5 +101,7 @@ class MappingDataStoreEntry<S, T>(
     override suspend fun get(): S = mapTtoS(dataStoreEntry.get())
 
     override suspend fun reset() = dataStoreEntry.reset()
-    override fun asFlow(): Flow<S> = dataStoreEntry.asFlow().map { mapTtoS(it) }
+    override fun asFlow(): Flow<S> = dataStoreEntry.asFlow()
+        .map { mapTtoS(it) }
+        .distinctUntilChanged()
 }

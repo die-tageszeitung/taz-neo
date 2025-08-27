@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -19,9 +20,15 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 /**
@@ -80,20 +87,19 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         }
 
         // redraw once the user state changes as this might result in the need to re-load the moments
-        var prevAuthStatus: AuthStatus? = null
-        authHelper.status.asLiveData().observe(viewLifecycleOwner) {
-            if (prevAuthStatus != null && prevAuthStatus != it) {
+        authHelper.status.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .filterNotNull()
+            .onEach {
                 adapter?.notifyDataSetChanged()
-            }
-            prevAuthStatus = it
-        }
+            }.launchIn(lifecycleScope)
 
         // Redraw the feed if some moment placeholders are shown because of connection errors
-        viewModel.forceRefreshTimeMs.observe(viewLifecycleOwner) {
-            if (it > lastRefreshMs) {
-                adapter?.notifyDataSetChanged()
-            }
-        }
+        viewModel.forceRefreshTimeMs
+            .flowWithLifecycle(lifecycle)
+            .filter { it > lastRefreshMs }
+            .onEach { adapter?.notifyDataSetChanged() }
+            .launchIn(lifecycleScope)
     }
 
     override fun onDestroy() {
@@ -110,11 +116,10 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
      * @param issuePublication the issue to be opened
      */
     fun onItemSelected(issuePublication: AbstractIssuePublication) {
-        val isPdf = viewModel.getPdfMode()
         val isOnline = ConnectionStatusHelper.isOnline(requireContext())
         lifecycleScope.launch {
             requireActivity().apply {
-                val fragment = if (isPdf) {
+                val fragment = if (viewModel.getPdfMode()) {
                     PdfPagerWrapperFragment.newInstance(IssuePublicationWithPages(issuePublication))
                 } else {
                     IssueViewerWrapperFragment.newInstance(IssuePublication(issuePublication))
@@ -156,5 +161,11 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
 
     private fun updateLastRefreshTime() {
         lastRefreshMs = System.currentTimeMillis()
+    }
+
+    protected fun showLoginBottomSheet() {
+        LoginBottomSheetFragment
+            .newInstance()
+            .show(parentFragmentManager, LoginBottomSheetFragment.TAG)
     }
 }

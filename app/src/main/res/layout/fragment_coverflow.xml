@@ -20,35 +20,79 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_end="@dimen/fragment_cover_flow_guideline_end" />
 
-    <LinearLayout
-        android:id="@+id/home_login_button"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/representation"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/default_touch_area_size"
-        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_top"
-        android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_end"
+        android:layout_marginStart="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
         android:clickable="true"
+        android:contentDescription="@string/fragment_home_representation"
         android:focusable="true"
-        android:contentDescription="@string/fragment_home_login"
-        android:gravity="center_vertical"
-        android:padding="@dimen/fragment_cover_flow_login_button_padding"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            style="@style/Widget.App.CoverFlow.Login"
+            android:id="@+id/presentation_text"
+            style="@style/Widget.App.TextView.IconText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
-            android:text="@string/fragment_home_login" />
+            android:text="@string/fragment_home_representation"
+            android:textColor="@color/lightGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/fragment_cover_flow_arrow_margin_start"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/coverflow_icon_tint" />
-    </LinearLayout>
+            android:src="@drawable/ic_show_password"
+            app:layout_constraintBottom_toTopOf="@id/presentation_text"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/home_login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/default_touch_area_size"
+        android:layout_marginTop="@dimen/fragment_cover_flow_login_button_margin_vertical"
+        android:layout_marginEnd="@dimen/fragment_cover_flow_login_button_margin_horizontal"
+        android:clickable="true"
+        android:contentDescription="@string/fragment_home_login"
+        android:focusable="true"
+        android:minWidth="@dimen/default_touch_area_size"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/login_text"
+            style="@style/Widget.App.TextView.IconText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:text="@string/fragment_home_login"
+            android:textColor="@color/lightGrey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_profile"
+            app:layout_constraintBottom_toTopOf="@id/login_text"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/lightGrey" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fragment_cover_flow_grid"
@@ -56,8 +100,8 @@
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/guideline_top"
         app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top"
         app:layout_constraintVertical_bias="0.4" />
 
     <ImageView
@@ -67,6 +111,7 @@
         android:contentDescription="@string/fragment_cover_flow_go_to_previous"
         android:rotation="90"
         android:scaleType="centerInside"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_date_download_wrapper"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
@@ -79,6 +124,7 @@
         android:contentDescription="@string/fragment_cover_flow_go_to_next"
         android:rotation="-90"
         android:scaleType="centerInside"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/fragment_cover_flow_date_download_wrapper"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_arrow_down"
@@ -89,11 +135,35 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/fragment_cover_flow_download_wrapper_size"
         android:layout_gravity="center_horizontal"
-        app:layout_constraintBottom_toTopOf="@id/fragment_cover_flow_to_archive"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fragment_cover_flow_grid"
-        app:layout_constraintVertical_bias="0.3">
+        app:layout_constraintVertical_bias="0.3"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        tools:visibility="visible">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fragment_cover_flow_calendar"
+            android:layout_width="@dimen/default_touch_area_size"
+            android:layout_height="@dimen/default_touch_area_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:padding="1dp"
+                android:importantForAccessibility="no"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_calendar"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/fragment_cover_flow_date"
@@ -105,77 +175,46 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="freitag, 13.12.2023" />
 
-        <View
-            android:id="@+id/fragment_coverflow_moment_download_position"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1,1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/fragment_coverflow_moment_download"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_file_download"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/coverflow_icon_tint"
-            tools:src="@drawable/ic_file_download"
-            tools:visibility="visible" />
-
-        <View
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/fragment_coverflow_moment_download_touch_area"
             android:layout_width="@dimen/default_touch_area_size"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/default_touch_area_size"
             android:clickable="true"
-            android:focusable="true"
             android:contentDescription="@string/settings_download_issue"
-            app:layout_constraintBottom_toBottomOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintStart_toStartOf="@id/fragment_coverflow_moment_download"
-            app:layout_constraintTop_toTopOf="@id/fragment_coverflow_moment_download" />
-
-        <ImageView
-            android:id="@+id/fragment_coverflow_moment_download_finished"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_done"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
+            android:focusable="true"
+            android:padding="16.5dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/coverflow_icon_tint"
-            tools:visibility="visible" />
+            app:layout_constraintDimensionRatio="1,1"
+            app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ProgressBar
-            android:id="@+id/fragment_coverflow_moment_downloading"
-            android:layout_width="@dimen/text_appearance_coverflow_date_text_size"
-            android:layout_height="@dimen/text_appearance_coverflow_date_text_size"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@id/fragment_coverflow_moment_download_position"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            <ImageView
+                android:id="@+id/fragment_coverflow_moment_download"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_file_download"
+                android:visibility="gone"
+                app:tint="@color/coverflow_icon_tint"
+                tools:src="@drawable/ic_file_download"
+                tools:visibility="visible" />
 
+            <ImageView
+                android:id="@+id/fragment_coverflow_moment_download_finished"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_done"
+                android:visibility="gone"
+                app:tint="@color/ic_download_done_color"
+                tools:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/fragment_coverflow_moment_downloading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <ImageView
-        android:id="@+id/fragment_cover_flow_to_archive"
-        android:layout_width="@dimen/default_touch_area_size"
-        android:layout_height="@dimen/default_touch_area_size"
-        android:layout_marginBottom="@dimen/fragment_cover_flow_to_archive_margin_bottom"
-        android:padding="@dimen/fragment_cover_flow_to_archive_padding"
-        android:contentDescription="@string/fragment_cover_flow_to_archive"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/ic_arrow_down"
-        app:tint="@color/coverflow_icon_tint" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

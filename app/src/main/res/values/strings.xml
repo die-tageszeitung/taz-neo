@@ -132,6 +132,17 @@
     <string name="fragment_bottom_sheet_always_title_section_dialog_negative_button">Nein</string>
     <string name="fragment_bottom_sheet_always_title_section_dialog_positive_button">Weiterhin anzeigen</string>
 
+    <string name="fragment_bottom_sheet_home_presentation_state_description">mobile Ansicht oder Zeitungsansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_mobile">mobile Ansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_mobile_announce_accessibility">mobile Ansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_pdf">Zeitungsansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_state_pdf_announce_accessibility">Zeitungsansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_description">Karusell- oder Kachelansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel">Karussellansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel_announce_accessibility">Karussellansicht ist gewählt</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive">Kachelansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_archive_announce_accessibility">Kachelansicht ist geqählt</string>
+
     <string name="fragment_tracking_and_notifications_title">"%1$d/%2$d  Datenschutz &amp; Mitteilungen"</string>
     <string name="fragment_tracking_consent_title_01">Eine noch bessere taz App? Sie haben es in der Hand</string>
     <string name="fragment_tracking_consent_description_01">Anonyme Nutzungsdaten helfen uns, noch besser zu werden. Wir wissen natürlich: Wer Daten will, muss freundlich sein – deshalb behandeln wir diese mit größtmöglicher Sorgfalt und absolut vertraulich. Ihre Einwilligung zur Nutzung kann zudem jederzeit widerrufen werden.</string>
@@ -576,5 +587,8 @@
     <string name="description_tom_at_the_end">Karikatur von Tom</string>
 
     <string name="app_widget_description">Die aktuelle Titelseite auf Ihrem Homescreen.</string>
+    <string name="fragment_home_representation">Darstellung</string>
+    <string name="fragment_archive_calendar">Datumsauswahl</string>
 
+    <string name="datepicker_title">Gehe zur Ausgabe vom</string>
 </resources>

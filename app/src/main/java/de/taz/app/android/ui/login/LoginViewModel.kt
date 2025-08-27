@@ -102,7 +102,7 @@ class LoginViewModel @JvmOverloads constructor(
 
     suspend fun setPolling(startPolling: Boolean = true) {
         authHelper.email.set(username ?: "")
-        authHelper.isPolling.set(startPolling)
+        authHelper.isPollingForConfirmationEmail.set(startPolling)
     }
 
     fun backToMissingSubscription() {
@@ -536,7 +536,7 @@ class LoginViewModel @JvmOverloads constructor(
                     status = LoginViewModelState.NAME_MISSING
                 }
                 SubscriptionStatus.tooManyPollTries -> {
-                    authHelper.isPolling.set(false)
+                    authHelper.isPollingForConfirmationEmail.set(false)
                     SentryWrapper.captureMessage("ToManyPollTrys")
                 }
                 else -> {

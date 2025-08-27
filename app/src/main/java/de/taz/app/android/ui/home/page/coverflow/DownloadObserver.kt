@@ -28,7 +28,6 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.ui.cover.MOMENT_FADE_DURATION_MS
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
@@ -297,7 +296,6 @@ class DownloadObserver(
 
         val wasDownloading = downloadProgressView.isVisible
         downloadProgressView.visibility = View.GONE
-        checkmarkIconView.visibility = View.GONE
         downloadIconView.visibility = View.GONE
         biggerTouchAreaView?.apply {
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -307,11 +305,9 @@ class DownloadObserver(
             checkmarkIconView.apply {
                 alpha = 1f
                 visibility = View.VISIBLE
-                animate().alpha(0f).apply {
-                    duration = MOMENT_FADE_DURATION_MS
-                    startDelay = 2000L
-                }
             }
+        } else {
+            checkmarkIconView.visibility = View.VISIBLE
         }
     }
 

@@ -92,7 +92,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                         REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL -> {
                             log.info("notification triggered $REMOTE_MESSAGE_PERFORM_VALUE_SUBSCRIPTION_POLL")
                             CoroutineScope(Dispatchers.Default).launch {
-                                authHelper.isPolling.set(true)
+                                authHelper.isPollingForConfirmationEmail.set(true)
                             }
                         }
                     }

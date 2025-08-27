@@ -13,11 +13,11 @@ import de.taz.app.android.ui.settings.SettingsActivity
 import kotlin.reflect.KClass
 
 sealed class BottomNavigationItem(@IdRes val itemId: Int) {
-    object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
-    object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
-    object Playlist : BottomNavigationItem(R.id.bottom_navigation_action_playlist)
-    object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
-    object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
+    data object Home : BottomNavigationItem(R.id.bottom_navigation_action_home)
+    data object Bookmark : BottomNavigationItem(R.id.bottom_navigation_action_bookmark)
+    data object Playlist : BottomNavigationItem(R.id.bottom_navigation_action_playlist)
+    data object Search : BottomNavigationItem(R.id.bottom_navigation_action_search)
+    data object Settings : BottomNavigationItem(R.id.bottom_navigation_action_settings)
     class ChildOf(val parent: BottomNavigationItem) : BottomNavigationItem(0)
 }
 private var bottomGroup: BottomNavigationItem? = null

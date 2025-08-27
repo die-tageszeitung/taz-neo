@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import de.taz.app.android.R
@@ -13,9 +14,9 @@ import de.taz.app.android.monkey.observeDistinctIgnoreFirst
 import de.taz.app.android.persistence.repository.FrontpagePublication
 import de.taz.app.android.persistence.repository.MomentPublication
 import de.taz.app.android.simpleDateFormat
-import de.taz.app.android.ui.home.page.IssueFeedAdapter.ViewHolder
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.getIndexOfDate
+import kotlinx.coroutines.launch
 import java.util.*
 
 enum class CoverType {
@@ -105,23 +106,23 @@ abstract class IssueFeedAdapter(
         private var binder: CoverViewBinding? = null
 
         fun bind(fragment: IssueFeedFragment<*>, date: Date, coverViewDate: CoverViewDate) {
+            fragment.lifecycleScope.launch {
+                val publication = if (fragment.viewModel.getPdfMode()) {
+                    FrontpagePublication(feed.name, simpleDateFormat.format(date))
+                } else {
+                    MomentPublication(feed.name, simpleDateFormat.format(date))
+                }
 
-            val publication = if (fragment.viewModel.pdfModeLiveData.value == true) {
-                FrontpagePublication(feed.name, simpleDateFormat.format(date))
-            } else {
-                MomentPublication(feed.name, simpleDateFormat.format(date))
+                binder = CoverViewBinding(
+                    fragment,
+                    publication,
+                    coverViewDate,
+                    glideRequestManager,
+                    onMomentViewActionListener,
+                    observeDownloads,
+                )
+                binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))
             }
-
-            binder = CoverViewBinding(
-                fragment,
-                publication,
-                coverViewDate,
-                glideRequestManager,
-                onMomentViewActionListener,
-                observeDownloads,
-            )
-            binder?.prepareDataAndBind(itemView.findViewById(R.id.fragment_cover_flow_item))
-
         }
 
         fun unbind() {

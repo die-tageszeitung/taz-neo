@@ -10,6 +10,10 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.pow
 
+/**
+ * ZoomPageTransformer transforms the Covers in the CoverFlow
+ * and ensures the padding between the Covers is good
+ */
 object ZoomPageTransformer {
 
     private fun translationXAtScale(view: View, position: Float): Float =

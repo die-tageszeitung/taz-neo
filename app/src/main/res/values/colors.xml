@@ -163,4 +163,6 @@
     <color name="ic_close_button_foreground_color">#85858B</color>
     <color name="ic_close_button_background_color">#E0E0E0</color>
 
+    <color name="ic_download_done_color">@color/green</color>
+
 </resources>

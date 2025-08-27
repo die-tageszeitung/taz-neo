@@ -25,32 +25,22 @@ class FeedService(applicationContext: Context) {
     private val contentService = ContentService.getInstance(applicationContext)
 
 
-    @Deprecated("Caller should not care about retries")
-    suspend fun refreshFeed(name: String, retryOnFailure: Boolean): Feed? =
+    suspend fun refreshFeed(name: String): Feed? =
         withContext(Dispatchers.IO) {
-            var feed = apiService.getFeedByName(name)
-            if (feed != null) {
-                feedRepository.save(feed)
+            apiService.getFeedByName(name)?.apply {
+                feedRepository.save(this)
             }
-            feed
         }
 
-    suspend fun refreshFeed(name: String) = refreshFeed(name, retryOnFailure = false)
-
-    @Deprecated("Caller should not care about retries")
-    fun getFeedFlowByName(name: String, retryOnFailure: Boolean): Flow<Feed?> {
+    fun getFeedFlowByName(name: String): Flow<Feed?> {
         return feedRepository.getFlow(name)
             .distinctUntilChanged { old, new -> Feed.equalsShallow(old, new) }
             .map {
                 // Refresh (download) the latest feed if it is currently missing (feed being null)
                 // and emit the download result
-                it ?: refreshFeed(name, retryOnFailure)
+                it ?: refreshFeed(name)
             }
     }
-
-    fun getFeedFlowByName(name: String): Flow<Feed?> =
-        getFeedFlowByName(name, retryOnFailure = false)
-
     /**
      * Refresh the the Feed with [name] and return an [IssueKey] if a new issue date was detected.
      * Returns null if the feed was already up to date and did not need a refresh.
