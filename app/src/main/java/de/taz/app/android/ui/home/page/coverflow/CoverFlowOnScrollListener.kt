@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -58,11 +60,10 @@ class CoverFlowOnScrollListener(
             viewModel.dateAlpha.emit(calculateDateTextAlpha(recyclerView))
         }
 
-        // only if a user scroll
-        if (dx != 0 || dy != 0) {
-            // set new date
-            updateCurrentDate(recyclerView)
-        }
+        val isUserScroll = dx != 0 || dy != 0
+        // set new date - debounce if not user scroll
+        updateCurrentDate(recyclerView, !isUserScroll)
+
     }
 
     private fun calculateDateTextAlpha(recyclerView: RecyclerView): Float {
@@ -77,12 +78,16 @@ class CoverFlowOnScrollListener(
         return 1 - (currentViewDistance.toFloat() * 2 / orientationHelper.totalSpace)
     }
 
-    private fun updateCurrentDate(recyclerView: RecyclerView) {
+    private var updateCurrentDateJob: Job? = null
+    private fun updateCurrentDate(recyclerView: RecyclerView, debounced: Boolean) {
+        updateCurrentDateJob?.cancel()
+
         val position = snapHelper.currentSnappedPosition
         val adapter = (recyclerView.adapter as? IssueFeedAdapter)
         if (position != RecyclerView.NO_POSITION && adapter != null) {
             val item = adapter.getItem(position)
-            viewModel.viewModelScope.launch {
+            updateCurrentDateJob = viewModel.viewModelScope.launch {
+                if (debounced) delay(10)
                 item?.let { viewModel.currentDate.emit(it.date) }
             }
         }

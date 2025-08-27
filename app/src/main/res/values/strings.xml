@@ -590,4 +590,5 @@
     <string name="fragment_home_representation">Darstellung</string>
     <string name="fragment_archive_calendar">Datumsauswahl</string>
 
+    <string name="datepicker_title">Gehe zur Ausgabe vom</string>
 </resources>

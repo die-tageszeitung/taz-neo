@@ -26,9 +26,10 @@ import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
+import de.taz.app.android.singletons.DatePickerHelper
+import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
-import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import de.taz.app.android.ui.main.MainActivity
@@ -52,8 +53,9 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private val coverFlowOnScrollListenerViewModel: CoverFlowOnScrollListener.ViewModel by viewModels()
 
-    private lateinit var generalDataStore: GeneralDataStore
     private lateinit var authHelper: AuthHelper
+    private lateinit var generalDataStore: GeneralDataStore
+    private lateinit var toastHelper: ToastHelper
     private lateinit var tracker: Tracker
 
     private val snapHelper = GravitySnapHelper(Gravity.CENTER)
@@ -70,6 +72,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
         super.onAttach(context)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
+        toastHelper = ToastHelper.getInstance(context.applicationContext)
         tracker = Tracker.getInstance(context.applicationContext)
     }
 
@@ -390,12 +393,15 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
 
     private fun getHomeFragment(): HomeFragment = (parentFragment as HomeFragment)
 
-    private fun openDatePicker() {
-        DatePickerFragment.newInstance(
-            coverFlowOnScrollListenerViewModel.currentDate.value ?: Date()
-        )
-            .show(childFragmentManager, DatePickerFragment.TAG)
+    private fun openDatePicker() = lifecycleScope.launch {
+        val selectedDate = coverFlowOnScrollListenerViewModel.currentDate.value ?: Date()
+        val feed = viewModel.feed.first()
+
+        val datePicker =
+            DatePickerHelper(selectedDate, feed, viewModel).initializeDatePicker()
+        datePicker.show(childFragmentManager, "DATE_PICKER")
     }
+
 
     private fun goToPreviousIssue() {
         viewBinding.fragmentCoverFlowGrid.smoothScrollToPosition(

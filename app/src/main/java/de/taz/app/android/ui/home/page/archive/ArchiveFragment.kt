@@ -17,10 +17,11 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
+import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
+import de.taz.app.android.singletons.DatePickerHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.HomePresentationBottomSheet
-import de.taz.app.android.ui.bottomSheet.datePicker.DatePickerFragment
 import de.taz.app.android.ui.home.page.IssueFeedFragment
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
@@ -153,9 +154,12 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     }
 
     private fun openDatePicker() = lifecycleScope.launch {
-        DatePickerFragment.newInstance(
-            viewModel.feed.first().issueMaxDate,
-        ).show(childFragmentManager, DatePickerFragment.TAG)
+        val selectedDate = simpleDateFormat.parse(viewModel.feed.first().issueMaxDate) ?: Date()
+        val feed = viewModel.feed.first()
+
+        val datePicker =
+            DatePickerHelper(selectedDate, feed, viewModel).initializeDatePicker()
+        datePicker.show(childFragmentManager, "DATE_PICKER")
     }
 
     override fun onResume() {
