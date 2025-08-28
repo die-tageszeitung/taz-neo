@@ -4,7 +4,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.view.View
-import kotlin.reflect.KFunction0
 
 fun SpannableString.onClick(text: String, function: () -> Unit) {
     val indexOf = indexOf(text)

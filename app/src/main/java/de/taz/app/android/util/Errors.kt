@@ -4,9 +4,9 @@ import android.app.Activity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.sentry.SentryWrapper
 
 fun <T> reportAndRethrowExceptions(block: () -> T): T {
     try {

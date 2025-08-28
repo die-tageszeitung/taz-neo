@@ -17,10 +17,10 @@ import de.taz.app.android.databinding.ActivityImagePagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.SectionRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.ui.webview.IMAGE_NAME
 import de.taz.app.android.ui.webview.ImageFragment
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.runBlocking
 
 

@@ -8,11 +8,16 @@ import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.api.models.CustomerType
 import de.taz.app.android.api.variables.SubscriptionFormDataType
 import de.taz.app.android.monkey.getApplicationScope
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
-import de.taz.app.android.sentry.SentryWrapper
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 private const val MESSAGE_MIN_LENGTH = 12

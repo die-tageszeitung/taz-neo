@@ -9,15 +9,22 @@ import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.api.interfaces.SectionOperations
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AbstractIssue
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueWithPages
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.Section
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
-import kotlinx.coroutines.*
-import java.util.*
-import kotlin.collections.LinkedHashSet
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import java.util.Date
 
 /**
  * The download of a collection can trigger the download of other collections

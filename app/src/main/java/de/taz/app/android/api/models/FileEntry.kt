@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
-import java.util.*
+import java.util.Date
 
 const val GLOBAL_FOLDER = "global"
 

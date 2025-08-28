@@ -7,16 +7,40 @@ import de.taz.app.android.annotation.Mockable
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.DownloadableStub
 import de.taz.app.android.api.interfaces.ObservableDownload
-import de.taz.app.android.api.models.*
-import de.taz.app.android.content.cache.*
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.AppInfoKey
+import de.taz.app.android.api.models.Article
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.ResourceInfoKey
+import de.taz.app.android.content.cache.CacheOperation
+import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.content.cache.ContentDownload
+import de.taz.app.android.content.cache.IssueDeletion
+import de.taz.app.android.content.cache.MetadataDownload
+import de.taz.app.android.content.cache.WrappedDownload
 import de.taz.app.android.dataStore.DownloadDataStore
-import de.taz.app.android.download.*
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.download.DownloadPriority
+import de.taz.app.android.persistence.repository.AbstractIssueKey
+import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.AppInfoRepository
+import de.taz.app.android.persistence.repository.ArticleRepository
+import de.taz.app.android.persistence.repository.IssueKeyWithPages
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.persistence.repository.MomentKey
+import de.taz.app.android.persistence.repository.MomentRepository
+import de.taz.app.android.persistence.repository.NotFoundException
+import de.taz.app.android.persistence.repository.ResourceInfoRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.util.SingletonHolder
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 
 /**
  * The [ContentService] provides easy-to-use functions to download content (cache) for

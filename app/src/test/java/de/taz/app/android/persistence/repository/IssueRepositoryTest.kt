@@ -10,7 +10,8 @@ import de.taz.test.SingletonTestUtil
 import de.taz.test.TestDataUtil
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

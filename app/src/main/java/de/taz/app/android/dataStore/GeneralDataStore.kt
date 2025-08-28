@@ -1,6 +1,5 @@
 package de.taz.app.android.dataStore
 
-import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration

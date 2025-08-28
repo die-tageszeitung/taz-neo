@@ -2,11 +2,12 @@ package de.taz.app.android.persistence.typeconverters
 
 
 import androidx.room.TypeConverter
-import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.util.Log
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 private const val FORMAT_STRING = "yyyy-MM-dd HH:mm:ss"
 

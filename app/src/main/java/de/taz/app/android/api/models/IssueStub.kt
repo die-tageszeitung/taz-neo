@@ -1,12 +1,10 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.persistence.repository.IssueKey
-import de.taz.app.android.persistence.repository.IssueRepository
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = "Issue",

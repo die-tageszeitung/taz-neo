@@ -21,11 +21,11 @@ import de.taz.app.android.monkey.setRefreshingWithCallback
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.home.page.IssueFeedViewModel
-import de.taz.app.android.util.Log
 import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.ui.home.page.coverflow.CoverflowFragment
 import de.taz.app.android.ui.navigation.BottomNavigationItem
 import de.taz.app.android.ui.navigation.setupBottomNavigation
+import de.taz.app.android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn

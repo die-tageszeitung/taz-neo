@@ -2,7 +2,7 @@ package de.taz.app.android.util
 
 import org.junit.Assert
 import org.junit.Test
-import java.util.*
+import java.util.Calendar
 
 class NewIssuePollingSchedulerTest {
     @Test

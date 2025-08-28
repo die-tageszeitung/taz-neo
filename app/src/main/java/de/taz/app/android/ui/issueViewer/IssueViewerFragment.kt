@@ -5,13 +5,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.*
-import de.taz.app.android.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentIssueContentBinding
-import de.taz.app.android.monkey.*
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.BookmarkRepository
+import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.singletons.KeepScreenOnHelper
 import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.IssueLoaderFragment
@@ -19,7 +21,8 @@ import de.taz.app.android.ui.webview.pager.ArticlePagerFragment
 import de.taz.app.android.ui.webview.pager.SectionPagerFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * This Fragment is used by [IssueViewerWrapperFragment]

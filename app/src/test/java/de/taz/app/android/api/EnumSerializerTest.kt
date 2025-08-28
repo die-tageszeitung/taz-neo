@@ -2,7 +2,6 @@ package de.taz.app.android.api
 
 import de.taz.app.android.util.Json
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.JsonNames
 import org.junit.Ignore
 import org.junit.Test

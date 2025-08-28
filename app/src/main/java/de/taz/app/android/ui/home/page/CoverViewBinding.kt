@@ -13,11 +13,19 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.download.DownloadPriority
-import de.taz.app.android.persistence.repository.*
+import de.taz.app.android.persistence.repository.AbstractCoverPublication
+import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.FrontpagePublication
+import de.taz.app.android.persistence.repository.IssuePublication
+import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.MomentPublication
+import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.ui.cover.CoverView
 import de.taz.app.android.ui.home.page.coverflow.DownloadObserver
-import de.taz.app.android.singletons.StorageService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 interface CoverViewActionListener {
     fun onLongClicked(coverPublication: AbstractCoverPublication) = Unit

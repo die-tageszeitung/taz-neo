@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.R
-import de.taz.app.android.api.models.AuthStatus
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
@@ -24,7 +23,6 @@ import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import de.taz.app.android.ui.showNoInternetDialog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn

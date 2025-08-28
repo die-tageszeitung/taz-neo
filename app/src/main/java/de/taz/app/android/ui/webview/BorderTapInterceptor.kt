@@ -9,7 +9,6 @@ import android.view.MotionEvent
 import android.widget.FrameLayout
 import de.taz.app.android.R
 import de.taz.app.android.ui.ViewBorder
-import de.taz.app.android.util.Log
 
 class BorderTapInterceptor @JvmOverloads constructor(
     context: Context,

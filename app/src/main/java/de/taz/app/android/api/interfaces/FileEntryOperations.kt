@@ -1,12 +1,12 @@
 package de.taz.app.android.api.interfaces
 
 import android.content.Context
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.StorageType
-import de.taz.app.android.api.models.*
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.Storable
-
-import java.util.*
+import java.util.Date
 
 interface FileEntryOperations: Storable {
     override val name: String

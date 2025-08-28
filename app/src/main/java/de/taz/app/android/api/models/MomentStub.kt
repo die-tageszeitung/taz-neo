@@ -2,7 +2,7 @@ package de.taz.app.android.api.models
 
 import androidx.room.Entity
 import de.taz.app.android.persistence.repository.IssueKey
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = "Moment",

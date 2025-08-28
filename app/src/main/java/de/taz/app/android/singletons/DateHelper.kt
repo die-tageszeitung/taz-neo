@@ -1,10 +1,12 @@
 package de.taz.app.android.singletons
 
 import de.taz.app.android.appLocale
-import io.ktor.util.date.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 enum class AppTimeZone {

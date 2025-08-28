@@ -2,7 +2,6 @@ package de.taz.app.android.ui.login.fragments.subscription
 
 import androidx.viewbinding.ViewBinding
 import de.taz.app.android.ui.login.fragments.LoginBaseFragment
-import java.lang.RuntimeException
 
 abstract class SubscriptionBaseFragment<VIEW_BINDING : ViewBinding> :
     LoginBaseFragment<VIEW_BINDING>() {

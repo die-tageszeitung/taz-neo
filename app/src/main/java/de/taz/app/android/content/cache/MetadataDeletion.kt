@@ -2,7 +2,9 @@ package de.taz.app.android.content.cache
 
 import android.content.Context
 import de.taz.app.android.api.interfaces.ObservableDownload
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.Issue
+import de.taz.app.android.api.models.IssueStub
+import de.taz.app.android.api.models.IssueWithPages
 import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueKey

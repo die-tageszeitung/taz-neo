@@ -1,14 +1,20 @@
 package de.taz.app.android.content.cache
 
 import android.content.Context
-import de.taz.app.android.download.*
+import de.taz.app.android.download.DownloadPriority
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.util.Log
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.Exception
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 

@@ -4,16 +4,15 @@ import android.content.Context
 import android.graphics.Typeface
 import androidx.lifecycle.ViewModel
 import de.taz.app.android.api.models.RESOURCE_FOLDER
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 import de.taz.app.android.util.WoffConverter
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
-import java.lang.RuntimeException
 
 const val CONVERTED_FONT_FOLDER = "convertedFonts"
 

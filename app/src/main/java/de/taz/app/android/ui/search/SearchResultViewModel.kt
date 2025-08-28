@@ -1,7 +1,10 @@
 package de.taz.app.android.ui.search
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException

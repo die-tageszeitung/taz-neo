@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.api.models.IssueStatus
-import de.taz.app.android.api.models.IssueStub
 import de.taz.app.android.persistence.join.MomentCreditJoin
 
 

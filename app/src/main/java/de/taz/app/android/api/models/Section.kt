@@ -2,7 +2,7 @@ package de.taz.app.android.api.models
 
 import android.content.Context
 import de.taz.app.android.api.interfaces.SectionOperations
-import java.util.*
+import java.util.Date
 
 data class Section(
     val sectionHtml: FileEntry,

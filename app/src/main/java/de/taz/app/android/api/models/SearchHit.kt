@@ -1,6 +1,5 @@
 package de.taz.app.android.api.models
 
-import android.content.Context
 import de.taz.app.android.api.interfaces.AudioPlayerPlayable
 
 data class SearchHit(

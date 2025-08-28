@@ -4,7 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.models.IssueStatus
 import de.taz.app.android.persistence.repository.AbstractIssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
-import java.util.*
+import java.util.Date
 
 interface IssueOperations: DownloadableStub {
 

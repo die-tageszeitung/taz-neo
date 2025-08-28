@@ -1,15 +1,16 @@
 package de.taz.app.android.download
 
 import de.taz.app.android.MAX_SIMULTANEOUS_DOWNLOADS
-import de.taz.app.android.content.cache.*
+import de.taz.app.android.content.cache.CacheOperationItem
+import de.taz.app.android.content.cache.ContentDownload
+import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.*
+import java.util.Collections
 import java.util.concurrent.PriorityBlockingQueue
-import kotlin.collections.HashMap
 
 /**
  * A blocking queue of CacheItems. The order is reversed, so a poll will return the item with the

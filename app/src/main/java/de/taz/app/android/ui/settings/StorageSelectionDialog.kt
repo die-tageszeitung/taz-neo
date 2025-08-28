@@ -6,9 +6,12 @@ import android.os.Environment
 import android.os.StatFs
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import android.widget.ArrayAdapter
+import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.taz.app.android.R
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.dataStore.StorageDataStore

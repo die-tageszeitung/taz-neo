@@ -4,7 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.ObservableDownload
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
-import java.util.*
+import java.util.Date
 
 const val RESOURCE_FOLDER = "resources"
 const val RESOURCE_TAG = "resources"
