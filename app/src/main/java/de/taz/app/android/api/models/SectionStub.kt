@@ -11,7 +11,7 @@ import de.taz.app.android.persistence.repository.AudioRepository
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.SectionRepository
 import de.taz.app.android.util.Log
-import java.util.*
+import java.util.Date
 
 @Entity(
     tableName = "Section",

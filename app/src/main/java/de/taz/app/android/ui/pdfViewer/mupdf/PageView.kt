@@ -1,7 +1,12 @@
 package de.taz.app.android.ui.pdfViewer.mupdf
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Point
+import android.graphics.PointF
+import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.view.ViewGroup

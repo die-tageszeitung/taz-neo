@@ -38,14 +38,14 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.home.page.CoverViewActionListener
-import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.CoverViewBinding
+import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.webview.pager.BookmarkPagerViewModel
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
-import de.taz.app.android.ui.main.MainActivity
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first

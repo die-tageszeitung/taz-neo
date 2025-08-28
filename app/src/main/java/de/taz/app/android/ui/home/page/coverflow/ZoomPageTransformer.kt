@@ -4,10 +4,9 @@ import android.view.View
 import androidx.core.view.children
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
-import de.taz.app.android.util.Log
-import kotlin.math.min
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 /**

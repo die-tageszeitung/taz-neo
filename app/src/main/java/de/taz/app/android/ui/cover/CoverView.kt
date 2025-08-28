@@ -6,10 +6,13 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewOutlineProvider
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getString
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.signature.EmptySignature
 import com.bumptech.glide.signature.ObjectKey
@@ -74,7 +77,7 @@ class CoverView @JvmOverloads constructor(
                 false
             )
             viewMomentDownloadIconWrapper.visibility =
-                if (shouldNotShowDownloadIcon) View.GONE else View.VISIBLE
+                if (shouldNotShowDownloadIcon) GONE else VISIBLE
             styledAttributes.recycle()
         }
     }
@@ -127,20 +130,20 @@ class CoverView @JvmOverloads constructor(
             momentDate.text = coverViewDate.dateStringShort
                 ?.takeIf { useShortDate }
                 ?: coverViewDate.dateString
-            dateDownLoadWrapper.visibility = View.VISIBLE
+            dateDownLoadWrapper.visibility = VISIBLE
 
             viewMomentDownload.contentDescription = resources.getString(
                 R.string.fragment_cover_view_download_content_description,
                 coverViewDate.dateStringShort
             )
         } else {
-            dateDownLoadWrapper.visibility = View.GONE
+            dateDownLoadWrapper.visibility = GONE
         }
     }
 
     private fun clearDate() {
         momentDate.apply {
-            visibility = View.VISIBLE
+            visibility = VISIBLE
             text = ""
         }
     }
@@ -172,16 +175,16 @@ class CoverView @JvmOverloads constructor(
     }
 
     private fun hideDownloadIcon(fadeOutAnimation: Boolean = false) {
-        val wasDownloading = viewMomentDownloading?.visibility == View.VISIBLE
-        viewMomentDownloading?.visibility = View.GONE
-        viewMomentDownload?.visibility = View.GONE
-        viewMomentDownloadFinished?.visibility = View.GONE
+        val wasDownloading = viewMomentDownloading?.visibility == VISIBLE
+        viewMomentDownloading?.visibility = GONE
+        viewMomentDownload?.visibility = GONE
+        viewMomentDownloadFinished?.visibility = GONE
         deactivateDownloadButtonListener()
 
         if (wasDownloading && fadeOutAnimation) {
             viewMomentDownloadFinished?.apply {
                 alpha = 1f
-                visibility = View.VISIBLE
+                visibility = VISIBLE
                 animate().alpha(0f).apply {
                     duration = MOMENT_FADE_DURATION_MS
                     startDelay = 2000L

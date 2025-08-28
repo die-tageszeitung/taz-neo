@@ -50,7 +50,7 @@ import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.StorageOrganizationActivity
 import de.taz.app.android.ui.main.MainActivity
-import de.taz.app.android.ui.main.MainActivity.Companion.KEY_DISPLAYABLE
+import de.taz.app.android.ui.splash.SplashActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.clearCustomPDFThumbnailLoaderCache
 import de.taz.app.android.util.showConnectionErrorDialog
@@ -436,7 +436,7 @@ class SplashActivity : StartupActivity() {
         }
         // Register the channel with the system
         val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
 

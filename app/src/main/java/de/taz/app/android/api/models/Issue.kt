@@ -1,8 +1,7 @@
 package de.taz.app.android.api.models
 
 import de.taz.app.android.persistence.repository.IssueKey
-
-import java.util.*
+import java.util.Date
 
 data class Issue(
     override val feedName: String,

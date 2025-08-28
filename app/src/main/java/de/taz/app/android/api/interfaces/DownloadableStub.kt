@@ -1,7 +1,7 @@
 package de.taz.app.android.api.interfaces
 
 import android.content.Context
-import java.util.*
+import java.util.Date
 
 
 interface DownloadableStub: ObservableDownload {

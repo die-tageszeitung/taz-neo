@@ -1,7 +1,6 @@
 package de.taz.app.android.ui.bookmarks
 
 import android.annotation.SuppressLint
-import android.os.Bundle
 import de.taz.app.android.audioPlayer.AudioPlayerViewController
 import de.taz.app.android.base.ViewBindingActivity
 import de.taz.app.android.databinding.ActivityBookmarksBinding

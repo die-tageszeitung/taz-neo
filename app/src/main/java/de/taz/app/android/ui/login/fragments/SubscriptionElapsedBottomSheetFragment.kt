@@ -1,9 +1,7 @@
 package de.taz.app.android.ui.login.fragments
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
@@ -20,7 +18,6 @@ import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetViewModel.UIState
-import de.taz.app.android.util.hideSoftInputKeyboard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest

@@ -9,8 +9,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import de.taz.app.android.SCRUBBER_INTERVAL_DAYS
-import de.taz.app.android.util.Log
 import de.taz.app.android.sentry.SentryWrapper
+import de.taz.app.android.util.Log
 import java.util.concurrent.TimeUnit
 
 private const val SCRUBBER_WORK_NAME = "ScrubberWorker"

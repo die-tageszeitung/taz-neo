@@ -3,7 +3,8 @@ package de.taz.app.android.dataStore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import de.taz.app.android.BuildConfig
 import de.taz.app.android.util.SingletonHolder

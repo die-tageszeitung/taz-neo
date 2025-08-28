@@ -20,7 +20,7 @@ class ExpandedPlayerConstraintLayout @JvmOverloads constructor(
 
         // If the expanded player results in being too high, we'll try to
         // hide the expanded Audio Image and re-measure everything
-        val tooSmall = (measuredHeightAndState and View.MEASURED_STATE_TOO_SMALL) != 0
+        val tooSmall = (measuredHeightAndState and MEASURED_STATE_TOO_SMALL) != 0
         val expandedAudioImage = findViewById<View>(R.id.expanded_audio_image)
         if (tooSmall && expandedAudioImage?.isVisible == true) {
             expandedAudioImage.isVisible = false

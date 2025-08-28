@@ -40,9 +40,9 @@ import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.EdgeEffectCompat;
 
+import com.telefonica.nestedscrollwebview.R;
 import com.telefonica.nestedscrollwebview.helper.CoordinatorLayoutChildHelper;
 import com.telefonica.nestedscrollwebview.helper.InternalScrollDetector;
-import com.telefonica.nestedscrollwebview.R;
 
 public class NestedScrollWebView extends WebView implements NestedScrollingChild3 {
 

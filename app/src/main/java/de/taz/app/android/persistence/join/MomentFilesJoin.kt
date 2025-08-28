@@ -3,7 +3,9 @@ package de.taz.app.android.persistence.join
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.IssueStatus
+import de.taz.app.android.api.models.MomentStub
 
 @Entity(
     tableName = "MomentFilesJoin",

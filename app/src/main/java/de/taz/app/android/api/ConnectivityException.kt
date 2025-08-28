@@ -3,20 +3,22 @@ package de.taz.app.android.api
 import android.system.ErrnoException
 import de.taz.app.android.api.mappers.MappingException
 import de.taz.app.android.util.reportAndRethrowExceptions
-import io.ktor.client.network.sockets.*
-import io.ktor.client.plugins.*
-import io.ktor.client.statement.*
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.CancellationException
 import java.io.EOFException
 import java.io.IOException
-import java.net.*
+import java.net.ConnectException
+import java.net.NoRouteToHostException
+import java.net.SocketException
 import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.nio.channels.ClosedSelectorException
 import java.nio.channels.UnresolvedAddressException
 import javax.net.ssl.SSLException
 import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLPeerUnverifiedException
-import kotlin.jvm.Throws
 
 private val networkExceptions = listOf(
     ConnectException::class,

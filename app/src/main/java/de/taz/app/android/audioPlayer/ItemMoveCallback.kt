@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 
 class ItemMoveCallback(private val audioPlayerService: AudioPlayerService) :
     ItemTouchHelper.SimpleCallback(

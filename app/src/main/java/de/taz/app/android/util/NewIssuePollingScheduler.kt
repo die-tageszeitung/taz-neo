@@ -1,5 +1,5 @@
 package de.taz.app.android.util
-import java.util.*
+import java.util.Calendar
 
 object NewIssuePollingScheduler {
     private val checkHours = listOf(5, 18, 21).sorted()

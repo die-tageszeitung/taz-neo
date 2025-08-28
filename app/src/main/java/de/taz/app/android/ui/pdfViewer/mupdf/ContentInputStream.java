@@ -1,16 +1,13 @@
 package de.taz.app.android.ui.pdfViewer.mupdf;
 
-import com.artifex.mupdf.fitz.SeekableInputStream;
-
-import android.util.Log;
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.util.Log;
 
-import java.io.FileNotFoundException;
+import com.artifex.mupdf.fitz.SeekableInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 public class ContentInputStream implements SeekableInputStream {
 	private final String APP = "MuPDF";

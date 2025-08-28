@@ -4,7 +4,7 @@ import android.content.Context
 import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.persistence.repository.IssueRepository
-import java.util.*
+import java.util.Date
 
 data class Image(
     override val name: String,

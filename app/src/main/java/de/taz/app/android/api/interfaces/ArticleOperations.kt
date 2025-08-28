@@ -7,7 +7,7 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.persistence.repository.SectionRepository
-import java.util.*
+import java.util.Date
 
 interface ArticleOperations: WebViewDisplayable, AudioPlayerPlayable {
     val issueFeedName: String

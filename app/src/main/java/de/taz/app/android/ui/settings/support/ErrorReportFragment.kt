@@ -13,13 +13,13 @@ import de.taz.app.android.R
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.databinding.FragmentErrorReportBinding
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.validation.EmailValidator
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.launch
 
 @Suppress("UNUSED")

@@ -1,6 +1,8 @@
 package de.taz.app.android.content
 
-import de.taz.app.android.content.cache.*
+import de.taz.app.android.content.cache.CacheOperationItem
+import de.taz.app.android.content.cache.ContentDownload
+import de.taz.app.android.content.cache.FileCacheItem
 import de.taz.app.android.download.FiledownloaderInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

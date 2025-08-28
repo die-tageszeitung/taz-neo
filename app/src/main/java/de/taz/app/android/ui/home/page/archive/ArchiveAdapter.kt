@@ -2,13 +2,13 @@ package de.taz.app.android.ui.home.page.archive
 
 import androidx.annotation.LayoutRes
 import com.bumptech.glide.RequestManager
+import de.taz.app.android.BuildConfig
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.PublicationDate
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.ui.home.page.CoverViewDate
 import de.taz.app.android.ui.home.page.HomeMomentViewActionListener
 import de.taz.app.android.ui.home.page.IssueFeedAdapter
-import de.taz.app.android.BuildConfig
 
 class ArchiveAdapter(
     fragment: ArchiveFragment,

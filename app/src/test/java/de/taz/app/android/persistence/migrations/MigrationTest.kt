@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.io.IOException
-import java.util.*
+import java.util.Date
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 

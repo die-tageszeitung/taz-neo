@@ -6,7 +6,7 @@ import de.taz.app.android.api.interfaces.FileEntryOperations
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.MomentKey
 import de.taz.app.android.persistence.repository.MomentRepository
-import java.util.*
+import java.util.Date
 
 data class Moment(
     val issueFeedName: String,

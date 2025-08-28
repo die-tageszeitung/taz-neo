@@ -2,7 +2,6 @@ package de.taz.app.android.persistence.typeconverters
 
 import androidx.room.TypeConverter
 import de.taz.app.android.util.Json
-import kotlinx.serialization.encodeToString
 
 class FloatListConverter {
     @TypeConverter

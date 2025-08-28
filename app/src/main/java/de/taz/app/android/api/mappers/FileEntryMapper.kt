@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
-import java.io.File
 
 object FileEntryMapper {
     fun from(fileEntryDto: FileEntryDto) = from(null, fileEntryDto)

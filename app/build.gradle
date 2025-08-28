@@ -56,11 +56,10 @@ if (taskNames.any { it.contains('Nonfree')}) {
     }
 }
 
+
+import de.taz.android.VersionHelper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-// Version names and codes will be derived from the git tags.
-// See VersionHelper class and README for more information
-import de.taz.android.VersionHelper
 def tazVersionName = VersionHelper.INSTANCE.getTazVersionName()
 def tazVersionCode = VersionHelper.INSTANCE.getTazVersionCode()
 def lmdVersionName = VersionHelper.INSTANCE.getLmdVersionName()

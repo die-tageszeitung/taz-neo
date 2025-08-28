@@ -13,10 +13,10 @@ import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.util.SingletonHolder
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader

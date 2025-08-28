@@ -1,11 +1,10 @@
 package de.taz.app.android.api
 
-import de.taz.app.android.api.variables.DeviceFormat
 import de.taz.app.android.api.variables.AuthenticationVariables
+import de.taz.app.android.api.variables.DeviceFormat
 import de.taz.app.android.util.Json
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class QueryTest {

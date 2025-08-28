@@ -1,11 +1,17 @@
 package de.taz.app.android.singletons
 
 import android.content.Context
-import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.api.interfaces.IssueOperations
 import de.taz.app.android.api.interfaces.WebViewDisplayable
-import de.taz.app.android.api.models.*
+import de.taz.app.android.api.models.AppInfo
+import de.taz.app.android.api.models.AppInfoKey
+import de.taz.app.android.api.models.FileEntry
+import de.taz.app.android.api.models.Moment
+import de.taz.app.android.api.models.Page
+import de.taz.app.android.api.models.ResourceInfo
+import de.taz.app.android.api.models.ResourceInfoKey
+import de.taz.app.android.api.models.StorageType
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssueRepository

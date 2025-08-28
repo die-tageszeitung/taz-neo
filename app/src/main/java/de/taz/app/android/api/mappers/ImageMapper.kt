@@ -5,7 +5,6 @@ import de.taz.app.android.api.interfaces.StorageLocation
 import de.taz.app.android.api.models.Image
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.singletons.StorageService
-import java.io.File
 
 object ImageMapper {
     fun from(issueKey: IssueKey, imageDto: ImageDto): Image {

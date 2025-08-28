@@ -9,10 +9,13 @@ import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.singletons.StorageService
 import de.taz.test.RobolectricTestApplication
 import de.taz.test.SingletonTestUtil
-import io.ktor.utils.io.jvm.javaio.*
+import io.ktor.utils.io.jvm.javaio.toByteReadChannel
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

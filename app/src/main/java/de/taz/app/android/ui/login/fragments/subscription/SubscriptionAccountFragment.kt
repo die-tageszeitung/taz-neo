@@ -30,7 +30,6 @@ import de.taz.app.android.ui.WebViewActivity
 import de.taz.app.android.ui.login.passwordCheck.PasswordCheckHelper
 import de.taz.app.android.ui.login.passwordCheck.setPasswordHintResponse
 import de.taz.app.android.util.Log
-import de.taz.app.android.util.Log.Companion.getValue
 import de.taz.app.android.util.hideSoftInputKeyboard
 import de.taz.app.android.util.validation.EmailValidator
 import kotlinx.coroutines.launch

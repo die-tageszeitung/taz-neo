@@ -8,9 +8,8 @@ import de.taz.app.android.api.models.PageStub
 import de.taz.app.android.persistence.join.IssuePageJoin
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.util.*
+import java.util.Date
 
 class PageRepository private constructor(applicationContext: Context) :
     RepositoryBase(applicationContext) {

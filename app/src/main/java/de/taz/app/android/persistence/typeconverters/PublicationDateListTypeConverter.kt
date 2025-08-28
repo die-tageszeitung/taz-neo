@@ -4,8 +4,6 @@ import androidx.room.TypeConverter
 import de.taz.app.android.api.models.PublicationDate
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.util.Json
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 
 /**

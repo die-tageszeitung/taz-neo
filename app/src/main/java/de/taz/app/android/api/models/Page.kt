@@ -3,7 +3,7 @@ package de.taz.app.android.api.models
 import android.content.Context
 import de.taz.app.android.api.interfaces.DownloadableCollection
 import de.taz.app.android.persistence.repository.PageRepository
-import java.util.*
+import java.util.Date
 
 
 data class Page(

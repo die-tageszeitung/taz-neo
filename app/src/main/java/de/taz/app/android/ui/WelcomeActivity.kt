@@ -14,13 +14,13 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.ActivityWelcomeBinding
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ResourceInfoRepository
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.webview.AppWebChromeClient
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showConnectionErrorDialog
 import de.taz.app.android.util.showFatalErrorDialog
-import de.taz.app.android.sentry.SentryWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

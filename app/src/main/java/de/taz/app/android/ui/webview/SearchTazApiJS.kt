@@ -12,7 +12,7 @@ import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.util.Log
 
 
-class SearchTazApiJS constructor(private val fragment: Fragment) {
+class SearchTazApiJS(private val fragment: Fragment) {
 
     private val log by Log
 

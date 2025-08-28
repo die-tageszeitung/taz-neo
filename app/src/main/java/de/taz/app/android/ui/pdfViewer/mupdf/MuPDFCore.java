@@ -18,7 +18,7 @@ import de.taz.app.android.sentry.SentryWrapper;
 import de.taz.app.android.util.Log;
 
 public class MuPDFCore {
-    private int resolution;
+    private final int resolution;
     private Document doc;
     private Outline[] outline;
     private int pageCount = -1;
@@ -43,7 +43,7 @@ public class MuPDFCore {
         currentPage = -1;
     }
 
-    public MuPDFCore(byte buffer[], String magic) {
+    public MuPDFCore(byte[] buffer, String magic) {
         this(Document.openDocument(buffer, magic));
     }
 
