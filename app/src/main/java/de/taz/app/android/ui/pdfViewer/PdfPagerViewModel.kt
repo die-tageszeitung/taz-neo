@@ -126,7 +126,10 @@ class PdfPagerViewModel(
         }
     }
 
-    fun setIssuePublication(issuePublication: IssuePublicationWithPages) {
+    fun setIssuePublication(
+        issuePublication: IssuePublicationWithPages,
+        continueReadDirectly: Boolean = false,
+    ) {
         require(this.issuePublication == null || this.issuePublication == issuePublication) {
             "Each PdfPagerViewModel instance may only be used for exactly one issue. Updating it to another is not allowed."
         }
@@ -134,11 +137,11 @@ class PdfPagerViewModel(
         if (this.issuePublication == null) {
             // Reload the issue if a new publication is set
             this.issuePublication = issuePublication
-            loadIssue()
+            loadIssue(continueReadDirectly)
         }
     }
 
-    private fun loadIssue() {
+    private fun loadIssue(continueReadDirectly: Boolean = false) {
         val issuePublicationWithPages = this.issuePublication
         if (issuePublicationWithPages != null) {
             viewModelScope.launch {
@@ -213,7 +216,7 @@ class PdfPagerViewModel(
                 // Update current (and set lastDisplayable with it)
 
                 // Update the latest page position if continueReadAutomatically is set
-                val lastPagePosition = if (continueReadAutomatically) {
+                val lastPagePosition = if (continueReadAutomatically || continueReadDirectly) {
                     lastPage ?: 0
                 } else {
                     0
@@ -226,16 +229,17 @@ class PdfPagerViewModel(
                 val isSection = lastDisplayable?.startsWith("sec") == true
                 val isPage = lastDisplayable?.startsWith("s") == true && lastDisplayable.endsWith(".pdf")
                 val isFirstPage = lastDisplayable == pdfPageListFlow.value?.first()?.pagePdf?.name
+                val continueRead = (continueReadDirectly || continueReadAutomatically) && lastDisplayable != null
 
                 // If continueReadAutomatically setting is set and last displayable is article
-                if (continueReadAutomatically && isArticle) {
-                    showArticle(lastDisplayable!!)
+                if (continueRead && isArticle) {
+                    showArticle(lastDisplayable)
                 // Otherwise check whether to show continue read bottom sheet
-                } else if (askEachTime && (isArticle || isPage) && !isFirstPage && !isSection) {
+                } else if (continueRead || (askEachTime && (isArticle || isPage) && !isFirstPage && !isSection)) {
                     log.debug("Show continue read bottom sheet with displayable $lastDisplayable")
                     val issueKeyWithDisplayable = IssueKeyWithDisplayableKey(
                         issueStub.issueKey,
-                        lastDisplayable!!
+                        lastDisplayable
                     )
                     continueReadDisplayable.value = issueKeyWithDisplayable
                 }

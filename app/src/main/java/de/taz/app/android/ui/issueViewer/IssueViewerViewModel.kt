@@ -81,7 +81,8 @@ class IssueViewerViewModel(
     suspend fun setDisplayable(
         issueKey: IssueKey,
         displayableKey: String? = null,
-        loadIssue: Boolean = false
+        loadIssue: Boolean = false,
+        continueReadDirectly: Boolean = false,
     ): IssueKeyWithDisplayableKey? {
         var showContinueReadDisplayable: IssueKeyWithDisplayableKey? = null
         if (loadIssue || displayableKey == null) {
@@ -96,8 +97,9 @@ class IssueViewerViewModel(
                     showContinueReadDisplayable = IssueKeyWithDisplayableKey(issueKey,lastDisplayable)
                 }
 
+                val isPdfMode = generalDataStore.pdfMode.get()
                 // either displayable is specified, persisted or defaulted to title section
-                val displayable = if (continueReadAutomatically) {
+                val displayable = if (continueReadAutomatically || (continueReadDirectly && !isPdfMode)) {
                     displayableKey
                         ?: lastDisplayable
                         ?: titleSectionsDisplayable

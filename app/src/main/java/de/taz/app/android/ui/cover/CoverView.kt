@@ -53,6 +53,7 @@ class CoverView @JvmOverloads constructor(
     private val momentContainer = findViewById<ConstraintLayout>(R.id.moment_container)
     private val dateDownLoadWrapper = findViewById<ConstraintLayout>(R.id.view_cover_date_download_wrapper)
     private val momentDate = findViewById<TextView>(R.id.fragment_moment_date)
+    private val continueReadIcon = findViewById<ImageView>(R.id.view_moment_continue_read)
     private val momentProgressbar = findViewById<ProgressBar>(R.id.moment_progressbar)
     private val viewMomentDownloadIconWrapper =
         findViewById<ConstraintLayout>(R.id.view_moment_download_icon_wrapper)

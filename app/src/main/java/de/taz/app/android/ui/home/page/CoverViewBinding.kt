@@ -31,6 +31,7 @@ interface CoverViewActionListener {
     fun onLongClicked(coverPublication: AbstractCoverPublication) = Unit
     fun onImageClicked(coverPublication: AbstractCoverPublication) = Unit
     fun onDateClicked(coverPublication: AbstractCoverPublication) = Unit
+    fun onContinueReadClicked(coverPublication: AbstractCoverPublication) = Unit
 }
 
 
@@ -165,7 +166,8 @@ class CoverViewBinding(
                     issuePublication,
                     view.findViewById(R.id.view_moment_download),
                     view.findViewById(R.id.view_moment_download_finished),
-                    view.findViewById(R.id.view_moment_downloading)
+                    view.findViewById(R.id.view_moment_downloading),
+                    view.findViewById(R.id.view_moment_continue_read)
                 ).apply {
                     startObserving()
                 }

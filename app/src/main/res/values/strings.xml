@@ -97,6 +97,7 @@
     <string name="fragment_bottom_sheet_issue_download">Ausgabe herunterladen</string>
     <string name="fragment_bottom_sheet_issue_download_with_audios">Ausgabe mit Audio herunterladen</string>
     <string name="fragment_bottom_sheet_issue_download_additionally_audios">Audioinhalte herunterladen</string>
+    <string name="fragment_bottom_sheet_delete_last_displayable">Lesestatus zurücksetzen</string>
 
     <string name="fragment_bottom_sheet_notifications_title_01">Nichts verpassen …</string>
     <string name="fragment_bottom_sheet_notifications_description_01">… im wahren Leben nicht immer leicht, doch in der taz App kein Problem: mit unseren praktischen Mitteilungen.\nAuf Wunsch benachrichtigen wir Sie stets per Push-Nachricht, sobald die neue Ausgabe da ist – so wissen Sie bereits am Vorabend, was morgen in der Zeitung steht.</string>
@@ -173,6 +174,7 @@
     <string name="fragment_cover_flow_to_archive">Zum Archiv</string>
     <string name="fragment_cover_flow_go_to_previous">Zur vorherigen Ausgabe</string>
     <string name="fragment_cover_flow_go_to_next">Zur nächsten Ausgabe</string>
+    <string name="fragment_cover_flow_continue_read">Ausgabe weiterlesen</string>
     <string name="fragment_archive_to_cover_flow">Zum Karussell</string>
 
     <string name="settings_header">einstellungen</string>
@@ -228,7 +230,6 @@
     <string name="settings_auto_downloads_wifi_switch">Nur im W-Lan herunterladen</string>
     <string name="settings_version_number">Version %s%s</string>
     <string name="settings_download_issue">Ausgabe herunterladen</string>
-    <string name="settings_experimental_article_reader">Artikel vorlesen (experimentell)</string>
     <string name="settings_storage_type">Speicherort</string>
     <string name="settings_storage_type_internal">Interner Speicher</string>
     <string name="settings_storage_type_external">Externer Speicher</string>

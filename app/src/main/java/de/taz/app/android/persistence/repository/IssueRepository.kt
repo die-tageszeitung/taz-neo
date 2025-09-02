@@ -127,6 +127,13 @@ class IssueRepository private constructor(applicationContext: Context) :
             }
         }
     }
+    suspend fun deleteLastDisplayable(issueKey: IssueKey) {
+        appDatabase.withTransaction {
+            getStub(issueKey)?.copy(lastDisplayableName = null)?.let {
+                update(it)
+            }
+        }
+    }
 
     suspend fun get(issueKey: IssueKey): Issue? {
         return getStub(issueKey)?.let { issueStubToIssue(it) }

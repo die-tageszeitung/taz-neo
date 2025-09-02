@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
 import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
+import android.view.ViewGroup
 import androidx.annotation.MainThread
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -20,6 +21,7 @@ import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.content.cache.CacheState
 import de.taz.app.android.content.cache.CacheStateUpdate
 import de.taz.app.android.dataStore.DownloadDataStore
+import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
@@ -28,6 +30,7 @@ import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
+import de.taz.app.android.ui.home.page.archive.ArchiveFragment
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.showIssueDownloadFailedDialog
 import kotlinx.coroutines.Dispatchers
@@ -37,8 +40,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
-private enum class IssueDownloadStatus {
-    PRESENT, ABSENT, LOADING
+private enum class IssueDownloadAndReadStatus {
+    PRESENT, ABSENT, LOADING, OPENED
 }
 
 class DownloadObserver(
@@ -46,18 +49,20 @@ class DownloadObserver(
     private val issuePublication: AbstractIssuePublication,
     private val downloadIconView: View,
     private val checkmarkIconView: View,
-    private val downloadProgressView: View
+    private val downloadProgressView: View,
+    private val continueReadIconView: View,
 ) {
     private val log by Log
 
     private val applicationContext = fragment.requireContext().applicationContext
     private val contentService = ContentService.getInstance(applicationContext)
     private val downloadDataStore = DownloadDataStore.getInstance(applicationContext)
+    private val generalDataStore = GeneralDataStore.getInstance(applicationContext)
     private val issueRepository = IssueRepository.getInstance(applicationContext)
     private val authHelper = AuthHelper.getInstance(applicationContext)
     private val tracker = Tracker.getInstance(applicationContext)
 
-    private val issueDownloadStatusFlow = MutableStateFlow(IssueDownloadStatus.PRESENT)
+    private val issueDownloadAndReadStatusFlow = MutableStateFlow(IssueDownloadAndReadStatus.PRESENT)
     private var issueDownloadStatusObserverJob: Job? = null
 
     private var currentMinIssueStatus = IssueStatus.public
@@ -133,16 +138,17 @@ class DownloadObserver(
     }
 
     /**
-     * Listen to changes on the [issueDownloadStatusFlow] and update the UI
+     * Listen to changes on the [issueDownloadAndReadStatusFlow] and update the UI
      */
     private fun startIssueDownloadStatusObserver() {
         stopIssueDownloadStatusObserver()
         issueDownloadStatusObserverJob = fragment.lifecycleScope.launch(Dispatchers.Main) {
-            issueDownloadStatusFlow.collect {
+            issueDownloadAndReadStatusFlow.collect {
                 when (it) {
-                    IssueDownloadStatus.PRESENT -> hideDownloadIcon()
-                    IssueDownloadStatus.ABSENT -> showDownloadIcon()
-                    IssueDownloadStatus.LOADING -> showLoadingIcon()
+                    IssueDownloadAndReadStatus.PRESENT -> hideDownloadIcon()
+                    IssueDownloadAndReadStatus.ABSENT -> showDownloadIcon()
+                    IssueDownloadAndReadStatus.LOADING -> showLoadingIcon()
+                    IssueDownloadAndReadStatus.OPENED -> showContinueReadIcon()
                 }
             }
         }
@@ -190,13 +196,17 @@ class DownloadObserver(
 
         val downloadedIssueStub = getIssueStubIfDownloaded()
         if (downloadedIssueStub != null) {
-            issueDownloadStatusFlow.value = IssueDownloadStatus.PRESENT
+            if (isIssueOpened(downloadedIssueStub)) {
+                issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.OPENED
+            } else {
+                issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.PRESENT
+            }
             startObserverForDatabaseIssueChanges(downloadedIssueStub.issueKey)
         } else {
             if (isActiveCacheOperation()) {
-                issueDownloadStatusFlow.value = IssueDownloadStatus.LOADING
+                issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.LOADING
             } else {
-                issueDownloadStatusFlow.value = IssueDownloadStatus.ABSENT
+                issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.ABSENT
             }
             startObserverForRelatedIssueCacheStatusChanges()
         }
@@ -218,13 +228,19 @@ class DownloadObserver(
                         // downloaded (for the [currentMinIssueStatus]) but a related tag is already
                         // being processed by the cache system.
                         if (isActiveCacheOperation()) {
-                            issueDownloadStatusFlow.value = IssueDownloadStatus.LOADING
+                            issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.LOADING
                         } else {
-                            issueDownloadStatusFlow.value = IssueDownloadStatus.ABSENT
+                            issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.ABSENT
                         }
                         startObserverForRelatedIssueCacheStatusChanges()
                     } else {
-                        issueDownloadStatusFlow.value = IssueDownloadStatus.PRESENT
+                        if (isIssueOpened(it)) {
+                            issueDownloadAndReadStatusFlow.value =
+                                IssueDownloadAndReadStatus.OPENED
+                        } else {
+                            issueDownloadAndReadStatusFlow.value =
+                                IssueDownloadAndReadStatus.PRESENT
+                        }
                     }
                 }
         }
@@ -247,13 +263,19 @@ class DownloadObserver(
             }.collect { (_, status) ->
                 when (status.cacheState) {
                     CacheState.ABSENT ->
-                        issueDownloadStatusFlow.value = IssueDownloadStatus.ABSENT
-                    CacheState.LOADING_CONTENT -> issueDownloadStatusFlow.value =
-                        IssueDownloadStatus.LOADING
+                        issueDownloadAndReadStatusFlow.value = IssueDownloadAndReadStatus.ABSENT
+                    CacheState.LOADING_CONTENT -> issueDownloadAndReadStatusFlow.value =
+                        IssueDownloadAndReadStatus.LOADING
                     CacheState.PRESENT -> {
                         val downloadedStub = getIssueStubIfDownloaded()
                         if (downloadedStub != null) {
-                            issueDownloadStatusFlow.value = IssueDownloadStatus.PRESENT
+                            if (isIssueOpened(downloadedStub)) {
+                                issueDownloadAndReadStatusFlow.value =
+                                    IssueDownloadAndReadStatus.OPENED
+                            } else {
+                                issueDownloadAndReadStatusFlow.value =
+                                    IssueDownloadAndReadStatus.PRESENT
+                            }
                             startObserverForDatabaseIssueChanges(downloadedStub.issueKey)
                         }
                     }
@@ -265,9 +287,14 @@ class DownloadObserver(
 
     @MainThread
     private fun showDownloadIcon() {
-        val biggerTouchAreaView =
-            downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
-        val downloadClickBindView = biggerTouchAreaView ?: downloadIconView
+        val boundFragment = (fragment as? CoverflowFragment) ?: (fragment as? ArchiveFragment)
+
+        val downloadClickBindView = if (boundFragment is CoverflowFragment) {
+            downloadIconView.rootView.findViewById(R.id.fragment_coverflow_moment_download_touch_area)
+        } else {
+            (downloadIconView.parent.parent as? ViewGroup)?.findViewById(R.id.view_moment_download_icon_wrapper)
+        } ?: downloadIconView
+
         downloadClickBindView.apply {
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
             setOnClickListener {
@@ -285,19 +312,52 @@ class DownloadObserver(
         }
         downloadProgressView.visibility = View.GONE
         checkmarkIconView.visibility = View.GONE
+        continueReadIconView.visibility = View.GONE
         downloadIconView.visibility = View.VISIBLE
+    }
+
+    @MainThread
+    private fun showContinueReadIcon() {
+        val boundFragment = (fragment as? CoverflowFragment) ?: (fragment as? ArchiveFragment)
+
+        val continueReadBindView = if (boundFragment is CoverflowFragment) {
+            continueReadIconView.rootView.findViewById(R.id.fragment_coverflow_moment_download_touch_area)
+        } else {
+            (continueReadIconView.parent.parent as? ViewGroup)?.findViewById(R.id.view_moment_download_icon_wrapper)
+        } ?: continueReadIconView
+
+
+        continueReadBindView.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+            setOnClickListener {
+                boundFragment?.continueRead(issuePublication)
+                stopObserving()
+            }
+        }
+        downloadProgressView.visibility = View.GONE
+        checkmarkIconView.visibility = View.GONE
+        downloadIconView.visibility = View.GONE
+        continueReadIconView.visibility = View.VISIBLE
     }
 
     @MainThread
     private fun hideDownloadIcon() {
 
-        val biggerTouchAreaView =
+        val touchAreaOnCoverflow =
             downloadIconView.rootView.findViewById<View>(R.id.fragment_coverflow_moment_download_touch_area)
+
+        val touchAreaOnArchiveView =
+            (downloadIconView.parent.parent as? ViewGroup)?.findViewById<View>(R.id.view_moment_download_icon_wrapper)
 
         val wasDownloading = downloadProgressView.isVisible
         downloadProgressView.visibility = View.GONE
+        continueReadIconView.visibility = View.GONE
         downloadIconView.visibility = View.GONE
-        biggerTouchAreaView?.apply {
+        touchAreaOnCoverflow?.apply {
+            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+            setOnClickListener(null)
+        }
+        touchAreaOnArchiveView?.apply {
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
             setOnClickListener(null)
         }
@@ -316,6 +376,7 @@ class DownloadObserver(
         if (downloadProgressView.visibility != View.VISIBLE) {
             downloadIconView.visibility = View.GONE
             checkmarkIconView.visibility = View.GONE
+            continueReadIconView.visibility = View.GONE
             downloadProgressView.visibility = View.VISIBLE
         }
     }
@@ -378,5 +439,18 @@ class DownloadObserver(
             log.warn("Exception while downloading an issue publication from the download observer", e)
             SentryWrapper.captureException(e)
         }
+    }
+
+    /**
+     * returns true only if lastDisplayable is set. when lastDisplayable is a page we need to be on pdfMode
+     */
+    private suspend fun isIssueOpened(issueStub: IssueStub?): Boolean {
+        if (issueStub == null) return false
+        val lastDisplayable = issueStub.lastDisplayableName
+        if (lastDisplayable == null) return false
+        val lastDisplayableIsPage =
+            lastDisplayable.startsWith("s") && lastDisplayable.endsWith(".pdf")
+
+        return generalDataStore.pdfMode.get() || !lastDisplayableIsPage
     }
 }

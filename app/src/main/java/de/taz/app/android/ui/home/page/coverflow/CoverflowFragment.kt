@@ -321,6 +321,7 @@ class CoverflowFragment : IssueFeedFragment<FragmentCoverflowBinding>() {
                 viewBinding.fragmentCoverflowMomentDownload,
                 viewBinding.fragmentCoverflowMomentDownloadFinished,
                 viewBinding.fragmentCoverflowMomentDownloading,
+                viewBinding.fragmentCoverflowMomentContinueRead,
             ).apply {
                 startObserving()
             }

@@ -13,8 +13,10 @@ import de.taz.app.android.R
 import de.taz.app.android.base.BaseViewModelFragment
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
+import de.taz.app.android.persistence.repository.IssueRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.ConnectionStatusHelper
 import de.taz.app.android.singletons.ToastHelper
@@ -48,6 +50,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
     private lateinit var authHelper: AuthHelper
     private lateinit var toastHelper: ToastHelper
     private lateinit var contentService: ContentService
+    private lateinit var issueRepository: IssueRepository
 
     private var momentChangedListener: MomentChangedListener? = null
     private var lastRefreshMs = 0L
@@ -69,6 +72,7 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
         toastHelper = ToastHelper.getInstance(context.applicationContext)
         authHelper = AuthHelper.getInstance(context.applicationContext)
         contentService = ContentService.getInstance(context.applicationContext)
+        issueRepository = IssueRepository.getInstance(context.applicationContext)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -129,6 +133,40 @@ abstract class IssueFeedFragment<VIEW_BINDING : ViewBinding> :
                     }
                 } else {
                     showNoInternetDialog()
+                }
+            }
+        }
+    }
+
+    /**
+     * function to open the given issue and go directly to its lastDisplayable.
+     * It is achieved by passing [continueDirectly = true] to the fragment instantiation.
+     * @param issuePublication the issue to be opened
+     */
+    fun continueRead(issuePublication: AbstractIssuePublication) {
+        lifecycleScope.launch {
+            requireActivity().apply {
+                val issueKey =
+                    issueRepository.getMostValuableIssueKeyForPublication(issuePublication)
+                val lastDisplayable = issueKey?.let {
+                    issueRepository.getLastDisplayable(IssueKey(it))
+                }
+                val fragment = if (viewModel.getPdfMode()) {
+                    PdfPagerWrapperFragment.newInstance(
+                        IssuePublicationWithPages(issuePublication),
+                        lastDisplayable,
+                        true
+                    )
+                } else {
+                    IssueViewerWrapperFragment.newInstance(
+                        IssuePublication(issuePublication),
+                        lastDisplayable,
+                        true
+                    )
+                }
+                supportFragmentManager.commit {
+                    add(R.id.main_content_fragment_placeholder, fragment)
+                    addToBackStack(null)
                 }
             }
         }

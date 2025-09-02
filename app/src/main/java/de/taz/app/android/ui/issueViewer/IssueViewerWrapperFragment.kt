@@ -64,6 +64,8 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
         }
     private val displayableKey: String?
         get() = arguments?.getString(KEY_DISPLAYABLE)
+    private val continueReadDirectly: Boolean
+        get() = arguments?.getBoolean(KEY_CONTINUE_READ_DIRECTLY) ?: false
 
     private lateinit var contentService: ContentService
     private lateinit var authHelper: AuthHelper
@@ -77,14 +79,17 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
     companion object {
         const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        const val KEY_CONTINUE_READ_DIRECTLY = "KEY_CONTINUE_READ_DIRECTLY"
 
         fun newInstance(
             issuePublication: IssuePublication,
-            displayableKey: String? = null
+            displayableKey: String? = null,
+            continueReadDirectly: Boolean? = false
         ) = IssueViewerWrapperFragment().apply {
             arguments = bundleOf(
                 KEY_ISSUE_PUBLICATION to issuePublication,
-                KEY_DISPLAYABLE to displayableKey
+                KEY_DISPLAYABLE to displayableKey,
+                KEY_CONTINUE_READ_DIRECTLY to continueReadDirectly,
             )
         }
     }
@@ -117,13 +122,14 @@ class IssueViewerWrapperFragment : TazViewerFragment(), SuccessfulLoginAction {
                         issueViewerViewModel.setDisplayable(
                             issueKey,
                             displayableKey,
-                            loadIssue = true
+                            loadIssue = true,
+                            continueReadDirectly = continueReadDirectly,
                         )
                     } else {
                         issueViewerViewModel.setDisplayable(issueKey, loadIssue = true)
                     }
                     val askEachTime = generalDataStore.settingsContinueReadAskEachTime.get()
-                    if (continueReadDisplayable != null && askEachTime) {
+                    if (continueReadDisplayable != null && askEachTime && !continueReadDirectly) {
                         if (childFragmentManager.findFragmentByTag(
                                 ContinueReadBottomSheetFragment.TAG
                             ) == null

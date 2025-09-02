@@ -53,13 +53,29 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_download_audios" />
 
     <TextView
+        android:id="@+id/fragment_bottom_sheet_issue_delete_last_displayable"
+        style="@style/Widget.App.BottomSheet.Menu.Item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_bottom_sheet_delete_last_displayable"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_download_audios" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/bottom_sheet_divider_color"
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_delete_last_displayable" />
+
+    <TextView
         android:id="@+id/fragment_bottom_sheet_issue_delete"
         style="@style/Widget.App.BottomSheet.Menu.Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fragment_bottom_sheet_issue_delete"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_download_audios" />
+        app:layout_constraintTop_toBottomOf="@id/fragment_bottom_sheet_issue_delete_last_displayable" />
 
     <TextView
         android:id="@+id/fragment_bottom_sheet_issue_download"
