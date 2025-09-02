@@ -20,6 +20,7 @@ import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBottomSheetIssueBinding
 import de.taz.app.android.persistence.repository.AbstractIssuePublication
 import de.taz.app.android.persistence.repository.FileEntryRepository
+import de.taz.app.android.persistence.repository.IssueKey
 import de.taz.app.android.persistence.repository.IssuePublication
 import de.taz.app.android.persistence.repository.IssuePublicationWithPages
 import de.taz.app.android.persistence.repository.IssueRepository
@@ -54,6 +55,7 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
     private val log by Log
     private lateinit var issuePublication: IssuePublication
+    private lateinit var issueKey: IssueKey
     private lateinit var isDownloadedFlow: Flow<Boolean>
 
     private lateinit var apiService: ApiService
@@ -104,6 +106,12 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
 
         issuePublication = requireArguments().getParcelable(KEY_ISSUE_PUBLICATION)!!
 
+        lifecycleScope.launch {
+            issueRepository.getMostValuableIssueKeyForPublication(issuePublication)?.let {
+                issueKey = IssueKey(it)
+            }
+        }
+
         isDownloadedFlow = homeViewModel.pdfModeFlow.map { isPdf ->
             val abstractIssuePublication = if (isPdf) {
                 IssuePublicationWithPages(issuePublication)
@@ -127,6 +135,11 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
                     viewBinding.fragmentBottomSheetIssueDelete.visibility = View.VISIBLE
                     viewBinding.fragmentBottomSheetIssueDownload.visibility = View.GONE
                     viewBinding.fragmentBottomSheetIssueDownloadAudios.setText(R.string.fragment_bottom_sheet_issue_download_additionally_audios)
+                    if (hasLastDisplayable()) {
+                        viewBinding.fragmentBottomSheetIssueDeleteLastDisplayable.visibility = View.VISIBLE
+                    } else {
+                        viewBinding.fragmentBottomSheetIssueDeleteLastDisplayable.visibility = View.GONE
+                    }
                 } else {
                     viewBinding.fragmentBottomSheetIssueDelete.visibility = View.GONE
                     viewBinding.fragmentBottomSheetIssueDownload.visibility = View.VISIBLE
@@ -154,10 +167,17 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             }
         }
 
+        viewBinding.fragmentBottomSheetIssueDeleteLastDisplayable.setOnClickListener {
+            lifecycleScope.launch {
+                deleteLastDisplayable()
+            }
+        }
+
         viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener {
             viewBinding.fragmentBottomSheetIssueRead.setOnClickListener(null)
             viewBinding.fragmentBottomSheetIssueShare.setOnClickListener(null)
             viewBinding.fragmentBottomSheetIssueDelete.setOnClickListener(null)
+            viewBinding.fragmentBottomSheetIssueDeleteLastDisplayable.setOnClickListener(null)
 
             loadingScreen?.visibility = View.VISIBLE
             val viewModel = ::homeViewModel.get()
@@ -302,5 +322,16 @@ class IssueBottomSheetFragment : ViewBindingBottomSheetFragment<FragmentBottomSh
             )
             SentryWrapper.captureException(e)
         }
+    }
+
+    private suspend fun hasLastDisplayable(): Boolean {
+        val lastDisplayable = issueRepository.getLastDisplayable(issueKey)
+        return !lastDisplayable.isNullOrBlank()
+    }
+
+    private suspend fun deleteLastDisplayable() {
+        issueRepository.deleteLastDisplayable(issueKey)
+
+        dismiss()
     }
 }

@@ -36,4 +36,19 @@ open class HomeMomentViewActionListener(
         }
     }
 
+    override fun onContinueReadClicked(coverPublication: AbstractCoverPublication) {
+        val issuePublication = when (coverPublication) {
+            is MomentPublication -> IssuePublication(
+                coverPublication.feedName,
+                coverPublication.date
+            )
+            is FrontpagePublication -> IssuePublicationWithPages(
+                coverPublication.feedName,
+                coverPublication.date
+            )
+            else -> throw IllegalArgumentException("Did not expect a ${coverPublication::class.simpleName}")
+        }
+        issueFeedFragment.continueRead(issuePublication)
+    }
+
 }

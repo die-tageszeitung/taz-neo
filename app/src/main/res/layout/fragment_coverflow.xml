@@ -182,7 +182,6 @@
             android:clickable="true"
             android:contentDescription="@string/settings_download_issue"
             android:focusable="true"
-            android:padding="16.5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1,1"
             app:layout_constraintStart_toEndOf="@id/fragment_cover_flow_date"
@@ -190,31 +189,59 @@
 
             <ImageView
                 android:id="@+id/fragment_coverflow_moment_download"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
                 android:importantForAccessibility="no"
+                android:padding="4dp"
                 android:src="@drawable/ic_file_download"
                 android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/coverflow_icon_tint"
                 tools:src="@drawable/ic_file_download"
                 tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/fragment_coverflow_moment_download_finished"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_done"
                 android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/ic_download_done_color"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/fragment_coverflow_moment_continue_read"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:contentDescription="@string/fragment_cover_flow_continue_read"
+                android:importantForAccessibility="no"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_continue_read"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/coverflow_icon_tint"
+                tools:visibility="gone" />
 
             <ProgressBar
                 android:id="@+id/fragment_coverflow_moment_downloading"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

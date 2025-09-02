@@ -45,6 +45,7 @@ import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.drawer.DrawerViewController
 import de.taz.app.android.ui.issueViewer.IssueKeyWithDisplayableKey
 import de.taz.app.android.ui.issueViewer.IssueViewerViewModel
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.showAlwaysTitleSectionSettingDialog
@@ -62,17 +63,20 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     companion object {
         private const val KEY_ISSUE_PUBLICATION = "KEY_ISSUE_PUBLICATION"
         private const val KEY_DISPLAYABLE = "KEY_DISPLAYABLE"
+        private const val KEY_CONTINUE_READ_DIRECTLY = "KEY_CONTINUE_READ_DIRECTLY"
 
         const val ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME =
             "ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME"
 
         fun newInstance(
             issuePublication: IssuePublicationWithPages,
-            displayableKey: String? = null
+            displayableKey: String? = null,
+            continueReadDirectly: Boolean = false,
         ) = PdfPagerWrapperFragment().apply {
             arguments = bundleOf(
                 KEY_ISSUE_PUBLICATION to issuePublication,
                 KEY_DISPLAYABLE to displayableKey,
+                KEY_CONTINUE_READ_DIRECTLY to continueReadDirectly,
             )
         }
     }
@@ -91,6 +95,8 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
     private lateinit var toastHelper: ToastHelper
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var drawerViewController: DrawerViewController
+    private val continueReadDirectly: Boolean
+        get() = arguments?.getBoolean(IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY) ?: false
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -115,7 +121,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             )
         }
 
-        pdfPagerViewModel.setIssuePublication(issuePublication)
+        pdfPagerViewModel.setIssuePublication(issuePublication, continueReadDirectly)
 
         pdfPagerViewModel.issueDownloadFailedErrorFlow
             .filter { it }
@@ -132,7 +138,9 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
         }
 
         val displayableKey: String? = arguments?.getString(KEY_DISPLAYABLE)
-        if (displayableKey != null) {
+        // I guess this is used by LMd or when clicked a notification with article link,
+        // but it should not be triggered when [continueReadDirectly] is true
+        if (displayableKey != null && !continueReadDirectly) {
             arguments?.remove(KEY_DISPLAYABLE)
             val issueObserver = object : Observer<IssueStub?> {
                 override fun onChanged(issueStub: IssueStub?) {
@@ -193,18 +201,23 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                                 ContinueReadBottomSheetFragment.TAG
                             ) == null
                         ) {
-                            ContinueReadBottomSheetFragment.newInstance(it).show(
-                                childFragmentManager, ContinueReadBottomSheetFragment.TAG
-                            )
+                            if (continueReadDirectly) {
+                                goDirectlyToDisplayable(it)
+                            }
+                            else {
+                                ContinueReadBottomSheetFragment.newInstance(it).show(
+                                    childFragmentManager, ContinueReadBottomSheetFragment.TAG
+                                )
+                            }
                         }
                     }
                 }
 
-                // Check whether maybe shoe dialog to always continue read or always show title page
+                // Check whether maybe show dialog to always continue read or always show title page
                 val askEachTimeToContinueRead =
                     generalDataStore.settingsContinueReadAskEachTime.get()
                 val settingsDialogShown = generalDataStore.settingsContinueReadDialogShown.get()
-                if (askEachTimeToContinueRead && !settingsDialogShown) {
+                if (askEachTimeToContinueRead && !settingsDialogShown && !continueReadDirectly) {
                     launch {
                         generalDataStore.continueReadClicked.asFlow().distinctUntilChanged()
                             .collect {
@@ -363,6 +376,18 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             ARTICLE_PAGER_FRAGMENT_BACKSTACK_NAME,
             FragmentManager.POP_BACK_STACK_INCLUSIVE
         )
+    }
+
+    private fun goDirectlyToDisplayable(displayable: IssueKeyWithDisplayableKey) {
+        val isArticle = displayable.displayableKey.startsWith("art")
+        if (isArticle) {
+            pdfPagerViewModel.showArticle(
+                displayable.displayableKey,
+                displayable.issueKey
+            )
+        } else {
+            pdfPagerViewModel.goToPdfPage(displayable.displayableKey)
+        }
     }
 
     override fun onBackPressed(): Boolean {

@@ -57,8 +57,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:paddingTop="@dimen/view_moment_download_wrapper_padding_vertical"
-        android:paddingBottom="@dimen/view_moment_download_wrapper_padding_vertical"
         android:importantForAccessibility="no"
         tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -79,48 +77,70 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/view_moment_download_icon_wrapper"
-            android:layout_width="@dimen/view_moment_download_icon_size"
-            android:layout_height="@dimen/view_moment_download_icon_size"
-            android:padding="@dimen/view_moment_download_icon_padding"
+            android:layout_width="@dimen/default_touch_area_size"
+            android:layout_height="@dimen/default_touch_area_size"
+            android:clickable="true"
+            android:layout_marginEnd="@dimen/view_moment_download_icon_wrapper_margin_end"
+            android:contentDescription="@string/settings_download_issue"
+            android:focusable="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
                 android:id="@+id/view_moment_download"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:contentDescription="@string/settings_download_issue"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
                 android:src="@drawable/ic_file_download"
+                android:importantForAccessibility="no"
+                android:padding="@dimen/view_moment_download_padding"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/coverflow_icon_tint" />
+                app:tint="@color/coverflow_icon_tint"
+                tools:visibility="gone" />
 
             <ImageView
                 android:id="@+id/view_moment_download_finished"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_done"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/ic_download_done_color" />
+                app:tint="@color/ic_download_done_color"
+                tools:visibility="gone"/>
 
             <ProgressBar
                 android:id="@+id/view_moment_downloading"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:importantForAccessibility="no"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="gone"
-                />
+                tools:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/view_moment_continue_read"
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:contentDescription="@string/fragment_cover_flow_continue_read"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_continue_read"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/coverflow_icon_tint"
+                tools:visibility="visible" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

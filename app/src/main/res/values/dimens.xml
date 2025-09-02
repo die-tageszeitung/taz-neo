@@ -22,9 +22,8 @@
     -->
     <dimen name="additional_touch_area_margin">-10dp</dimen>
 
-    <dimen name="view_moment_download_icon_size">25dp</dimen>
-    <dimen name="view_moment_download_wrapper_padding_vertical">5dp</dimen>
-    <dimen name="view_moment_download_icon_padding">5dp</dimen>
+    <dimen name="view_moment_download_icon_wrapper_margin_end">-15dp</dimen>
+    <dimen name="view_moment_download_padding">4dp</dimen>
 
     <!-- For accessibility the clickable views should have a minimum height or width of 48dp -->
     <dimen name="default_touch_area_size">48dp</dimen>
