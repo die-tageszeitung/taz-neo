@@ -40,6 +40,7 @@ import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
+import de.taz.app.android.ui.main.MainActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.ui.pdfViewer.PdfPagerWrapperFragment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -224,7 +225,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
     }
 
     private var loggedOutDialog: AlertDialog? = null
-    private suspend fun showLoggedOutDialog() {
+    private fun showLoggedOutDialog() {
         loggedOutDialog = MaterialAlertDialogBuilder(this@MainActivity)
             .setMessage(R.string.pdf_mode_better_to_be_logged_in_hint)
             .setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -376,7 +377,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     supportFragmentManager.commit {
                         replace(
                             R.id.main_content_fragment_placeholder,
-                            IssueViewerWrapperFragment.newInstance(issuePublication, displayableKey)
+                            IssueViewerWrapperFragment.newInstance(
+                                issuePublication,
+                                displayableKey,
+                                continueReadDirectly = true
+                            )
                         )
                         addToBackStack(null)
                     }
@@ -387,7 +392,11 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                     supportFragmentManager.commit {
                         replace(
                             R.id.main_content_fragment_placeholder,
-                            PdfPagerWrapperFragment.newInstance(issuePublication, displayableKey)
+                            PdfPagerWrapperFragment.newInstance(
+                                issuePublication,
+                                displayableKey,
+                                continueReadDirectly = true
+                            )
                         )
                         addToBackStack(null)
                     }

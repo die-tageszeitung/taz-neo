@@ -31,6 +31,7 @@ class DatePickerHelper(
         val picker =
             MaterialDatePicker.Builder.datePicker()
                 .setTitleText(R.string.datepicker_title)
+                .setTheme(R.style.ThemeOverlay_App_MaterialCalendar)
                 .setNegativeButtonText(R.string.cancel_button)
                 .setSelection(localizedDateToHighlight)
                 .setCalendarConstraints(dateConstraints)

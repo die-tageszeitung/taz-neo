@@ -15,7 +15,7 @@
 
             <TextView
                 android:id="@+id/dialog_settings_download_pdf_title"
-                style="@style/Widget.App.Dialog.Title"
+                style="@style/MaterialAlertDialog.Material3.Title.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="3"
@@ -26,7 +26,7 @@
 
             <TextView
                 android:id="@+id/dialog_settings_download_pdf_message"
-                style="@style/Widget.App.Dialog.Body"
+                style="@style/MaterialAlertDialog.Material3.Body.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dialog_body_margin_top"
@@ -34,9 +34,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dialog_settings_download_pdf_title" />
 
-            <com.google.android.material.checkbox.MaterialCheckBox
+            <CheckBox
                 android:id="@+id/dialog_settings_download_pdf_do_not_ask_again"
-                style="@style/Widget.App.Dialog.CheckBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dialog_checkbox_margin_top"

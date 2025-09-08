@@ -12,8 +12,7 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/activity_pdf_fragment_placeholder"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content" />
 
     <de.taz.app.android.ui.drawer.DrawerContainer
         android:id="@+id/nav_view"
@@ -23,9 +22,14 @@
         android:layout_marginEnd="@dimen/fragment_drawer_margin_end"
         android:background="@color/navigation_drawer_pdf_background"
         android:clipChildren="false"
-        android:clipToPadding="false"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:clipToPadding="false">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_view_drawer_body"
+            android:name="de.taz.app.android.ui.pdfViewer.DrawerBodyPdfPagesFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -50,22 +54,16 @@
                     android:id="@+id/drawer_logo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/tazRed"
                     android:adjustViewBounds="true"
-                    android:scaleType="centerInside"
+                    android:background="@color/tazRed"
                     android:clickable="true"
-                    android:contentDescription="@string/navigation_drawer_open"
+                    android:contentDescription="@string/navigation_drawer_close"
                     android:focusable="true"
-                    tools:srcCompat="@drawable/ic_logo" />
+                    android:importantForAccessibility="yes"
+                    android:scaleType="centerInside" />
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_view_drawer_body"
-            android:name="de.taz.app.android.ui.pdfViewer.DrawerBodyPdfPagesFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_drawer_body_pdf_pages" />
 
     </de.taz.app.android.ui.drawer.DrawerContainer>
 </de.taz.app.android.ui.drawer.DrawerLayout>

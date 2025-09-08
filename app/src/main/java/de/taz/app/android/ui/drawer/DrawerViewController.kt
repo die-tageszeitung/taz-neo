@@ -265,6 +265,9 @@ class DrawerViewController(
                 width = widthFromDimens
             }
             setImageDrawable(closeDrawable)
+            setOnClickListener {
+                closeDrawer()
+            }
         }
     }
 

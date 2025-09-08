@@ -290,10 +290,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
 
                 override fun onDrawerStateChanged(newState: Int) = Unit
             })
-
-            drawerLogo.setOnClickListener {
-                drawerAndLogoViewModel.closeDrawer()
-            }
         }
     }
 
