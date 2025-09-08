@@ -127,6 +127,11 @@
     <style name="AppTheme.Widget.NavigationView" parent="Widget.Material3.NavigationView">
         <item name="drawerLayoutCornerSize">0dp</item>
     </style>
+
+    <style name="ThemeOverlay.App.MaterialCalendar" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorSurfaceContainerHigh">@color/backgroundColor</item>
+    </style>
+
     <!-- endregion -->
 
     <style name="Widget.App.Form.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">

@@ -9,10 +9,12 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingBottomSheetFragment
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentContinueReadBottomSheetBinding
+import de.taz.app.android.monkey.setBehaviorStateOnLandscape
 import de.taz.app.android.persistence.repository.ArticleRepository
 import de.taz.app.android.persistence.repository.PageRepository
 import de.taz.app.android.persistence.repository.SectionRepository
@@ -70,6 +72,10 @@ class ContinueReadBottomSheetFragment :
         storageService = StorageService.getInstance(context.applicationContext)
     }
 
+    override fun onStart() {
+        super.onStart()
+        setBehaviorStateOnLandscape(BottomSheetBehavior.STATE_EXPANDED)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

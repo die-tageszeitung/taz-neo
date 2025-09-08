@@ -422,7 +422,7 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                         val pdfPageWhereArticleBegins = nextStub.pageNameList.firstOrNull()
                         pdfPageWhereArticleBegins?.let {
                             lifecycleScope.launch {
-                                pdfPagerViewModel.goToPdfPage(it)
+                                pdfPagerViewModel.goToPdfPage(it, saveLastDisplayable = false)
                             }
                         }
                     }

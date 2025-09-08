@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true">
@@ -9,7 +10,7 @@
         style="@style/Widget.App.TextView.Section.ArticleHead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="16dp"
         android:text="@string/fragment_home_representation"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +52,7 @@
             android:id="@+id/fragment_bottom_sheet_home_presentation_home_state"
             style="@style/BottomSheetContainer"
             android:layout_width="0dp"
-            android:layout_height="65dp"
+            android:layout_height="68dp"
             android:layout_marginTop="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/fragment_bottom_sheet_home_presentation_home_state_description"
@@ -66,7 +67,8 @@
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
                 app:layout_constraintEnd_toStartOf="@id/pdf_view_mode"
-                app:layout_constraintStart_toStartOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="UnusedAttribute">
 
                 <ImageView
                     android:id="@+id/mobile_view_mode_icon"

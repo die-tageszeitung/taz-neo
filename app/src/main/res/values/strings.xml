@@ -138,7 +138,7 @@
     <string name="fragment_bottom_sheet_home_presentation_state_mobile_announce_accessibility">mobile Ansicht ist gewählt</string>
     <string name="fragment_bottom_sheet_home_presentation_state_pdf">Zeitungsansicht</string>
     <string name="fragment_bottom_sheet_home_presentation_state_pdf_announce_accessibility">Zeitungsansicht ist gewählt</string>
-    <string name="fragment_bottom_sheet_home_presentation_display_mode_description">Karusell- oder Kachelansicht</string>
+    <string name="fragment_bottom_sheet_home_presentation_display_mode_description">Karussell- oder Kachelansicht</string>
     <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel">Karussellansicht</string>
     <string name="fragment_bottom_sheet_home_presentation_display_mode_carousel_announce_accessibility">Karussellansicht ist gewählt</string>
     <string name="fragment_bottom_sheet_home_presentation_display_mode_archive">Kachelansicht</string>
