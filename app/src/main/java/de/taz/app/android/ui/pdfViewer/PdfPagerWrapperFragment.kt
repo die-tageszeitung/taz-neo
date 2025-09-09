@@ -245,7 +245,7 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
             // When the articlePagerFragment is popped from the backstack via the back functionality
             // the logo shall be hidden again
             if (childFragmentManager.backStackEntryCount == 0) {
-                drawerAndLogoViewModel.setFeedLogoAndHide()
+                drawerAndLogoViewModel.setBurgerIcon()
             }
         }
     }
