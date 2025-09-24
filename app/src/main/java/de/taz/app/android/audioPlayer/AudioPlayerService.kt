@@ -830,7 +830,7 @@ class AudioPlayerService private constructor(private val applicationContext: Con
                 seekTo(currentItemIdx, 0L)
             }
             setPlayWhenReady(playWhenReady)
-            setAutoPlayNext(autoPlayNextPreference.value)
+            setAutoPlayNext(autoPlayNextPreference.value || isPlaylistPlayer)
             prepare()
         }
     }
