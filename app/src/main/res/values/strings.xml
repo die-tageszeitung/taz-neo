@@ -547,6 +547,10 @@
     <string name="coach_mark_article_image_text">Tippen Sie auf das Bild, um es im Galeriemodus zu öffnen. Dort können Sie mit zwei Fingern hineinzoomen.</string>
     <string name="coach_mark_article_image_icon_content_description">Icon zeigt Geste: Hineinzoomen</string>
 
+    <string name="coach_mark_article_tap_to_scroll_title">Tippen zum Weiterspringen</string>
+    <string name="coach_mark_article_tap_to_scroll_text">In der Spaltenansicht gelangen Sie mit einem Tipp auf den rechten Bildschirmrand zur nächsten Textstelle – und mit einem Tipp auf den linken Rand zurück.</string>
+    <string name="coach_mark_article_tap_to_scroll_icon_content_description">Icon zeigt Geste: Tippen am Rand</string>
+
     <string name="coach_mark_article_image_pager_title">Bildergalerie</string>
     <string name="coach_mark_article_image_pager_text">Wenn kleine Punkte unter dem Bild erscheinen, gibt es mehrere Bilder. Wischen Sie nach links oder rechts, um durch die Galerie zu blättern.</string>
     <string name="coach_mark_article_image_pager_icon_content_description">Icon zeigt Geste: seitwärts wischen</string>
