@@ -32,7 +32,7 @@ import de.taz.app.android.persistence.repository.ViewerStateRepository
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.FontHelper
 import de.taz.app.android.singletons.IssueCountHelper
-import de.taz.app.android.singletons.NightModeHelper
+import de.taz.app.android.singletons.TazCssHelper
 import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.StoragePathService
 import de.taz.app.android.singletons.StorageService
@@ -77,7 +77,7 @@ object SingletonTestUtil {
         AuthHelper,
         FontHelper,
         IssueCountHelper,
-        NightModeHelper,
+        TazCssHelper,
         NotificationHelper,
         StoragePathService,
         StorageService,

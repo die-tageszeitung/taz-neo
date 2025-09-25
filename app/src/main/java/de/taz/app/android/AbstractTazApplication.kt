@@ -13,7 +13,7 @@ import de.taz.app.android.scrubber.enqueueScrubberWorker
 import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.IssueCountHelper
-import de.taz.app.android.singletons.NightModeHelper
+import de.taz.app.android.singletons.TazCssHelper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.util.Log
 import de.taz.app.android.util.UncaughtExceptionHandler
@@ -68,7 +68,7 @@ abstract class AbstractTazApplication : Application() {
         enqueueScrubberWorker(this)
 
         FirebaseHelper.getInstance(this)
-        NightModeHelper.getInstance(this)
+        TazCssHelper.getInstance(this)
         IssueCountHelper.getInstance(this)
     }
 

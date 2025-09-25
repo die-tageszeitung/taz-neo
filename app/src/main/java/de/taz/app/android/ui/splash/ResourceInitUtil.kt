@@ -15,7 +15,7 @@ import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.persistence.repository.FileEntryRepository
 import de.taz.app.android.persistence.repository.ImageRepository
 import de.taz.app.android.singletons.ExternalStorageNotAvailableException
-import de.taz.app.android.singletons.NightModeHelper
+import de.taz.app.android.singletons.TazCssHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.util.Log
 import java.io.File
@@ -33,7 +33,7 @@ class ResourceInitUtil(private val applicationContext: Context) {
     private val fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
     private val storageService = StorageService.getInstance(applicationContext)
     private val imageRepository = ImageRepository.getInstance(applicationContext)
-    private val nightModeHelper = NightModeHelper.getInstance(applicationContext)
+    private val tazCssHelper = TazCssHelper.getInstance(applicationContext)
 
     private fun ensureResourceFolderExists(storageLocation: StorageLocation) {
         val resourcePath =
@@ -148,7 +148,7 @@ class ResourceInitUtil(private val applicationContext: Context) {
                     sha256 = storageService.getSHA256(tazApiCSSFile),
                 )
             )
-            nightModeHelper.notifyTazApiCSSFileReady()
+            tazCssHelper.notifyTazApiCSSFileReady()
             log.verbose("Created $TAZ_API_CSS_FILENAME")
         }
     }
