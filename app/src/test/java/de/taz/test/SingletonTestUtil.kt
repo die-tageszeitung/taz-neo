@@ -8,7 +8,6 @@ import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.data.DownloadScheduler
 import de.taz.app.android.dataStore.AudioPlayerDataStore
-import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
@@ -54,7 +53,6 @@ object SingletonTestUtil {
         FeedService,
         DownloadScheduler,
         AudioPlayerDataStore,
-        CoachMarkDataStore,
         DownloadDataStore,
         GeneralDataStore,
         StorageDataStore,

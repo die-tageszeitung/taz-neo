@@ -3,77 +3,72 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/blackEightyPercentOpacity">
+    android:layout_height="match_parent">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="38dp"
-        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
-        android:paddingTop="@dimen/coach_mark_drawer_logo_text_layout_padding_top"
-        android:rotation="-7">
-
-        <TextView
-            android:id="@+id/coach_mark_header"
-            style="@style/TextAppearance.CoachMark.Header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:accessibilityHeading="true"
-            android:text="@string/coach_mark_taz_logo_title"
-            tools:ignore="UnusedAttribute" />
-
-        <TextView
-            android:id="@+id/coach_mark_text"
-            style="@style/TextAppearance.CoachMark.Text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/coach_mark_header"
-            android:text="@string/coach_mark_taz_logo_text" />
-    </RelativeLayout>
-
-    <ImageView
-        android:id="@+id/button_close"
-        android:layout_width="@dimen/coach_mark_button_close_size"
-        android:layout_height="@dimen/coach_mark_button_close_size"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="@dimen/coach_mark_button_close_margin_top"
-        android:layout_marginEnd="@dimen/coach_mark_button_close_margin_end"
-        android:accessibilityTraversalAfter="@id/drawer_logo"
-        android:clickable="true"
-        android:contentDescription="@string/coach_marks_close_button_content_description"
-        android:focusable="true"
-        android:padding="@dimen/coach_mark_button_close_padding"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_close_audio_player"
-        app:tint="@color/lightGrey"
-        tools:ignore="UnusedAttribute" />
-
-    <RelativeLayout
-        android:id="@+id/coach_mark_icon_wrapper"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/drawer_logo"
+            android:id="@+id/coach_mark_canvas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:accessibilityTraversalAfter="@id/coach_mark_text"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/coach_mark_taz_logo_content_description"
-            tools:ignore="UnusedAttribute" />
-    </RelativeLayout>
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:rotation="-7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
 
-    <View
-        android:id="@+id/coach_mark_arrow"
-        android:layout_width="1dp"
-        android:layout_height="66dp"
-        android:background="@color/white"
-        android:backgroundTint="@color/white"
-        android:importantForAccessibility="no"
-        android:paddingStart="60dp"
-        android:paddingTop="65dp"
-        android:rotation="-14"
-        tools:ignore="RtlSymmetry" />
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/coach_mark_taz_logo_title"
+                tools:ignore="UnusedAttribute" />
 
+            <TextView
+                android:id="@+id/coach_mark_text"
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_header"
+                android:text="@string/coach_mark_taz_logo_text" />
+        </RelativeLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/coach_mark_icon_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/tazRed"
+            tools:ignore="MissingConstraints">
+
+            <ImageView
+                android:id="@+id/drawer_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:accessibilityTraversalAfter="@id/coach_mark_text"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/coach_mark_taz_logo_content_description"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_logo"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="UnusedAttribute" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

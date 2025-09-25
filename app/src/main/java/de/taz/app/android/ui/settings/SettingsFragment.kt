@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -21,12 +20,15 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import de.taz.app.android.BuildConfig
@@ -66,6 +68,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -75,7 +79,6 @@ private const val DEBUG_SETTINGS_MAX_CLICK_TIME_MS = 5_000L
 class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettingsBinding>() {
     private val log by Log
 
-    private var storedIssueNumber: Int? = null
     private var lastStorageLocation: StorageLocation? = null
     private var areDebugSettingsEnabled: Boolean = false
     private var enableDebugSettingsClickCount: Int = 0
@@ -94,7 +97,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private val emailValidator = EmailValidator()
 
     private val pushNotificationsFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree")
-    private val isTrackingFeatureEnabled = (BuildConfig.FLAVOR_source == "nonfree" && !BuildConfig.IS_LMD)
+    private val isTrackingFeatureEnabled =
+        (BuildConfig.FLAVOR_source == "nonfree" && !BuildConfig.IS_LMD)
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -245,7 +249,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                         if (result != null) {
                             showCancellationDialog(result)
                         }
-                    } catch (e: ConnectivityException) {
+                    } catch (_: ConnectivityException) {
                         toastHelper.showToast(
                             resources.getString(R.string.settings_dialog_cancellation_try_later_offline_toast)
                         )
@@ -270,7 +274,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     BuildConfig.VERSION_NAME,
                     graphQlFlavorString
                 )
-                setOnClickListener{ handleEnableDebugSettingsClick() }
+                setOnClickListener { handleEnableDebugSettingsClick() }
             }
 
             fragmentSettingsAutoDownloadWifiSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -302,10 +306,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     fragmentSettingsNotificationChannelNewIssue.setOnClickListener {
-                            openNotificationChannelInSystem(
-                                getString(R.string.notification_channel_fcm_new_issue_arrived_id)
-                            )
-                        }
+                        openNotificationChannelInSystem(
+                            getString(R.string.notification_channel_fcm_new_issue_arrived_id)
+                        )
+                    }
                     fragmentSettingsNotificationChannelSpecial.setOnClickListener {
                         openNotificationChannelInSystem(
                             getString(R.string.notification_channel_fcm_special_article_id)
@@ -326,6 +330,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 toggleExtendedContent()
             }
 
+            fragmentSettingsFabEnabled.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.setHelpFabEnabled(isChecked)
+            }
+
             if (isTrackingFeatureEnabled) {
                 fragmentSettingsAcceptTrackingSwitchWrapper.visibility = View.VISIBLE
                 fragmentSettingsAcceptTrackingSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -336,73 +344,131 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
 
 
         viewModel.apply {
-            fontSizeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { textSize ->
-                textSize.toIntOrNull()?.let { textSizeInt ->
-                    showFontSize(textSizeInt)
-                }
-            }
-            textJustificationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { justified ->
-                showTextJustification(justified)
-            }
-            nightModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { nightMode ->
-                showNightMode(nightMode)
-            }
-            multiColumnModeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showMultiColumnMode(enabled)
-            }
-            tapToScrollLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showTapToScroll(enabled)
-            }
-            keepScreenOnLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { screenOn ->
-                showKeepScreenOn(screenOn)
-            }
-            showAnimatedMomentsLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showAnimatedMomentsSetting(enabled)
-            }
-            showContinueReadLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showContinueReadSetting(enabled)
-            }
-            showContinueReadAskEachTimeLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showContinueReadAskEachTimeSetting(enabled)
-            }
-            storedIssueNumberLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storedIssueNumber ->
-                showStoredIssueNumber(storedIssueNumber)
-            }
-            downloadOnlyWifiLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { onlyWifi ->
-                showOnlyWifi(onlyWifi)
-            }
-            downloadAutomaticallyLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { downloadsEnabled ->
-                showDownloadsEnabled(downloadsEnabled)
-            }
-            downloadAdditionallyPdf.distinctUntilChanged().observe(viewLifecycleOwner) { additionallyEnabled ->
-                showDownloadAdditionallyPdf(additionallyEnabled)
-            }
-            bookmarksSynchronization.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-                showBookmarksSynchronization(enabled)
-            }
-            trackingAccepted.distinctUntilChanged().observe(viewLifecycleOwner) { isTrackingAccepted ->
-                viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
-            }
-            if (pushNotificationsFeatureEnabled) {
-                notificationsEnabledLivedata.distinctUntilChanged()
-                    .observe(viewLifecycleOwner) { notificationsEnabled ->
-                        updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
+            fontSizeFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { textSize ->
+                    textSize.toIntOrNull()?.let { textSizeInt ->
+                        showFontSize(textSizeInt)
                     }
+                }.launchIn(lifecycleScope)
+
+            textJustificationFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { justified ->
+                    showTextJustification(justified)
+                }.launchIn(lifecycleScope)
+
+            nightModeFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { nightMode ->
+                    showNightMode(nightMode)
+                }.launchIn(lifecycleScope)
+
+            multiColumnModeFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { enabled ->
+                    showMultiColumnMode(enabled)
+                }.launchIn(lifecycleScope)
+
+            tapToScrollFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { enabled ->
+                    showTapToScroll(enabled)
+                }.launchIn(lifecycleScope)
+
+            keepScreenOnFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { screenOn ->
+                    showKeepScreenOn(screenOn)
+                }.launchIn(lifecycleScope)
+
+            showAnimatedMomentsFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { screenOn ->
+                    showAnimatedMomentsSetting(screenOn)
+                }.launchIn(lifecycleScope)
+
+            showContinueReadFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { enabled ->
+                    showContinueReadSetting(enabled)
+                }.launchIn(lifecycleScope)
+
+            showContinueReadAskEachTimeFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { askEachTime ->
+                    showContinueReadAskEachTimeSetting(askEachTime)
+                }.launchIn(lifecycleScope)
+
+            storedIssueNumberFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { storedIssueNumber ->
+                    showStoredIssueNumber(storedIssueNumber)
+                }.launchIn(lifecycleScope)
+
+            downloadOnlyWifiFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { onlyWifi ->
+                    showOnlyWifi(onlyWifi)
+                }.launchIn(lifecycleScope)
+
+            downloadAutomaticallyFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { downloadsEnabled ->
+                    showDownloadsEnabled(downloadsEnabled)
+                }.launchIn(lifecycleScope)
+
+            downloadAdditionallyPdf
+                .flowWithLifecycle(lifecycle)
+                .onEach { additionallyEnabled ->
+                    showDownloadAdditionallyPdf(additionallyEnabled)
+                }.launchIn(lifecycleScope)
+
+            bookmarksSynchronization
+                .flowWithLifecycle(lifecycle)
+                .onEach { enabled ->
+                    showBookmarksSynchronization(enabled)
+                }.launchIn(lifecycleScope)
+
+            trackingAccepted
+                .flowWithLifecycle(lifecycle)
+                .onEach { isTrackingAccepted ->
+                    viewBinding.fragmentSettingsAcceptTrackingSwitch.isChecked = isTrackingAccepted
+                }.launchIn(lifecycleScope)
+
+            if (pushNotificationsFeatureEnabled) {
+                notificationsEnabledLivedata
+                    .flowWithLifecycle(lifecycle)
+                    .onEach { notificationsEnabled ->
+                        updateNotificationViews(notificationsEnabled, systemNotificationsAllowed())
+                    }.launchIn(lifecycleScope)
             }
-            storageLocationLiveData.distinctUntilChanged().observe(viewLifecycleOwner) { storageLocation ->
-                if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
-                    toastHelper.showToast(R.string.settings_storage_migration_hint)
+
+            storageLocationFlow
+                .flowWithLifecycle(lifecycle)
+                .onEach { storageLocation ->
+                    if (lastStorageLocation != null && lastStorageLocation != storageLocation) {
+                        toastHelper.showToast(R.string.settings_storage_migration_hint)
+                    }
+                    lastStorageLocation = storageLocation
+                    val storageLocationString = requireContext().getStorageLocationCaption(
+                        storageLocation
+                    )
+                    view.findViewById<TextView>(R.id.settings_storage_location_value).text =
+                        storageLocationString
+                }.launchIn(lifecycleScope)
+
+            elapsedString
+                .flowWithLifecycle(lifecycle)
+                .onEach {
+                    setElapsedString(it)
+                }.launchIn(lifecycleScope)
+
+            helpFabEnabledFlow
+                .onEach { helpFabEnabled ->
+                    viewBinding.fragmentSettingsFabEnabled.isChecked = helpFabEnabled
                 }
-                lastStorageLocation = storageLocation
-                val storageLocationString = requireContext().getStorageLocationCaption(
-                    storageLocation
-                )
-                view.findViewById<TextView>(R.id.settings_storage_location_value).text =
-                    storageLocationString
-            }
-            elapsedString.observe(viewLifecycleOwner) {
-                setElapsedString(it)
-            }
+                .launchIn(viewModelScope)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -410,7 +476,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                 val authStatusFlow: Flow<AuthStatus> = authHelper.status.asFlow()
                 val authEmailFlow: Flow<String> = authHelper.email.asFlow()
 
-                combine(authStatusFlow, authEmailFlow) { authStatus, email -> authStatus to email  }
+                combine(authStatusFlow, authEmailFlow) { authStatus, email -> authStatus to email }
                     .distinctUntilChanged()
                     .collect { (authStatus, email) ->
                         val isLoggedIn = authStatus in arrayOf(AuthStatus.valid, AuthStatus.elapsed)
@@ -543,6 +609,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     showCancellationDialogWithMessage(
                         getString(R.string.settings_dialog_cancellation_not_possible)
                     )
+
                 else ->
                     showCancellationDialogWithMessage(
                         getString(R.string.settings_dialog_cancellation_something_wrong)
@@ -871,10 +938,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         viewModel.setPdfDownloadsEnabled(downloadEnabled)
     }
 
-    private fun setTrackingAccepted(isAccepted: Boolean) {
-        viewModel.setTrackingAccepted(isAccepted)
-    }
-
     /**
      * Called when the user clicked the notification toggle.
      * Note that Android will still change the toggle button state itself,
@@ -903,7 +966,7 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     }
 
     private fun toggleExtendedContent() {
-        if (viewBinding.fragmentSettingsExtendedContent.visibility == View.GONE) {
+        if (viewBinding.fragmentSettingsExtendedContent.isGone) {
             log.debug("show extended settings")
             viewBinding.fragmentSettingsExtendedContent.visibility = View.VISIBLE
             viewBinding.fragmentSettingsExtendedIndicator.rotation = 180f
@@ -914,7 +977,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         }
     }
 
-    private fun updateNotificationViews(notificationsEnabled: Boolean, systemNotificationsAllowed: Boolean) {
+    private fun updateNotificationViews(
+        notificationsEnabled: Boolean,
+        systemNotificationsAllowed: Boolean
+    ) {
         viewBinding.fragmentSettingsNotificationsSwitch.isChecked = notificationsEnabled
         if (!systemNotificationsAllowed) {
             if (notificationsEnabled) {
@@ -1016,10 +1082,18 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             viewBinding.fragmentSettingsNotificationChannels.isVisible = show
             if (show) {
-                val newIssueChannelId = getString(R.string.notification_channel_fcm_new_issue_arrived_id)
-                val specialArticleChannelId = getString(R.string.notification_channel_fcm_special_article_id)
-                synchronizeChannelSetting(viewBinding.fragmentSettingsNotificationChannelNewIssue, newIssueChannelId)
-                synchronizeChannelSetting(viewBinding.fragmentSettingsNotificationChannelSpecial, specialArticleChannelId)
+                val newIssueChannelId =
+                    getString(R.string.notification_channel_fcm_new_issue_arrived_id)
+                val specialArticleChannelId =
+                    getString(R.string.notification_channel_fcm_special_article_id)
+                synchronizeChannelSetting(
+                    viewBinding.fragmentSettingsNotificationChannelNewIssue,
+                    newIssueChannelId
+                )
+                synchronizeChannelSetting(
+                    viewBinding.fragmentSettingsNotificationChannelSpecial,
+                    specialArticleChannelId
+                )
             }
         }
     }
@@ -1065,14 +1139,14 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
     private fun openFAQ() {
         val color = ContextCompat.getColor(requireContext(), R.color.colorAccent)
         try {
-            val faqUri = Uri.parse(getString(R.string.faq_link))
+            val faqUri = getString(R.string.faq_link).toUri()
             CustomTabsIntent.Builder()
                 .setDefaultColorSchemeParams(
                     CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                 )
                 .build()
                 .apply { launchUrl(requireContext(), faqUri) }
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
         }
@@ -1097,10 +1171,10 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     .apply {
                         launchUrl(
                             requireContext(),
-                            Uri.parse(uri)
+                            uri.toUri()
                         )
                     }
-            } catch (e: ActivityNotFoundException) {
+            } catch (_: ActivityNotFoundException) {
                 val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
                 toastHelper.showToast(R.string.toast_unknown_error)
             }
@@ -1115,8 +1189,8 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                     CustomTabColorSchemeParams.Builder().setToolbarColor(color).build()
                 )
                 .build()
-                .apply { launchUrl(requireContext(), Uri.parse(link)) }
-        } catch (e: ActivityNotFoundException) {
+                .apply { launchUrl(requireContext(), link.toUri()) }
+        } catch (_: ActivityNotFoundException) {
             val toastHelper = ToastHelper.getInstance(requireContext().applicationContext)
             toastHelper.showToast(R.string.toast_unknown_error)
         }
@@ -1163,14 +1237,6 @@ class SettingsFragment : BaseViewModelFragment<SettingsViewModel, FragmentSettin
                             viewModel.forceNewAppSession()
                         }
                     }
-
-                    fragmentSettingsCoachMarksAlways.apply {
-                        isChecked = viewModel.getAlwaysShowCoachMarks()
-                        setOnClickListener {
-                            viewModel.setAlwaysShowCoachMarks(fragmentSettingsCoachMarksAlways.isChecked)
-                        }
-                    }
-
 
                     fragmentSettingsTestTrackingGoalWrapper.isVisible = isTrackingFeatureEnabled
                     fragmentSettingsTestTrackingGoal.apply {

@@ -20,7 +20,7 @@
         android:translationY="@dimen/drawer_logo_translation_y"
         android:translationZ="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <de.taz.app.android.ui.pdfViewer.mupdf.ReaderView
         android:id="@+id/reader_view"

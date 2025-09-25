@@ -209,4 +209,5 @@ class IssueViewerViewModel(
         return articleStub
     }
 
+    val fabHelpEnabledFlow = generalDataStore.helpFabEnabled.asFlow()
 }

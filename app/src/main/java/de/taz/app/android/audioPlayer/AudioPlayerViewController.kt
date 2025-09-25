@@ -27,6 +27,16 @@ import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_MOBILE_EXPANDED
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET
 import de.taz.app.android.audioPlayer.DisplayMode.DISPLAY_MODE_TABLET_EXPANDED
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.PlayerArticleCoachMark
+import de.taz.app.android.coachMarks.PlayerBackCoachMark
+import de.taz.app.android.coachMarks.PlayerForwardCoachMark
+import de.taz.app.android.coachMarks.PlayerMinimizeCoachMark
+import de.taz.app.android.coachMarks.PlayerPlayCoachMark
+import de.taz.app.android.coachMarks.PlayerRewindCoachMark
+import de.taz.app.android.coachMarks.PlayerSkipCoachMark
+import de.taz.app.android.coachMarks.PlayerSliderCoachMark
+import de.taz.app.android.coachMarks.PlayerSpeedCoachMark
 import de.taz.app.android.dataStore.AudioPlayerDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.AudioplayerOverlayBinding
@@ -684,6 +694,12 @@ class AudioPlayerViewController(
         audioActionButton.setOnClickListener { toggleAudioPlaying() }
 
         expandedCloseButton.setOnClickListener { audioPlayerService.minimizePlayer() }
+        expandedHelpTouchArea.setOnClickListener {
+            if (audioPlayerService.isPlaying()) {
+                audioPlayerService.toggleAudioPlaying()
+            }
+            showCoachMarks()
+        }
 
         expandedAudioAction.setOnClickListener { toggleAudioPlaying() }
         expandedForwardAction.setOnClickListener { audioPlayerService.seekForward() }
@@ -795,13 +811,15 @@ class AudioPlayerViewController(
                         MainActivity.newIntent(
                             activity,
                             IssuePublicationWithPages(openItemSpec.issueKey),
-                            openItemSpec.displayableKey
+                            openItemSpec.displayableKey,
+                            continueReadDirectly = true,
                         )
                     } else {
                         MainActivity.newIntent(
                             activity,
                             IssuePublication(openItemSpec.issueKey),
-                            openItemSpec.displayableKey
+                            openItemSpec.displayableKey,
+                            continueReadDirectly = true,
                         )
                     }
 
@@ -967,5 +985,29 @@ class AudioPlayerViewController(
             AudioPlayerPlaylistErrorEvent -> toastHelper.showToast("Playlist Error", long = true)
         }
         audioPlayerService.onPlaylistEventHandled(event)
+    }
+
+    private fun AudioplayerOverlayBinding.showCoachMarks() {
+        log.verbose("show coachmarks in audio player")
+        val coachMarks = listOf(
+            PlayerMinimizeCoachMark.create(expandedCloseButton),
+            PlayerArticleCoachMark.create(
+                expandedAudioTitle,
+                expandedAudioTitle.text.toString(),
+                expandedAudioAuthor.text.toString()
+            ),
+            PlayerSpeedCoachMark.create(
+                expandedPlaybackSpeedTouchArea,
+                expandedPlaybackSpeed.text.toString(),
+            ),
+            PlayerSliderCoachMark.create(expandedProgress),
+            PlayerRewindCoachMark.create(expandedSkipPreviousAction),
+            PlayerBackCoachMark.create(expandedRewindAction),
+            PlayerPlayCoachMark.create(expandedAudioAction),
+            PlayerSkipCoachMark.create(expandedForwardAction),
+            PlayerForwardCoachMark.create(expandedSkipNextAction),
+        )
+        CoachMarkDialog.create(coachMarks)
+            .show(activity.supportFragmentManager, CoachMarkDialog.TAG)
     }
 }

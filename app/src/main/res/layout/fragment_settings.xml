@@ -555,6 +555,15 @@
                 android:id="@+id/fragment_settings_faq_separator_line"
                 layout="@layout/settings_separator_view" />
 
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/fragment_settings_fab_enabled"
+                style="@style/Widget.App.Settings.Entry.Switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_help_fab_enabled" />
+
+            <include layout="@layout/settings_separator_view" />
+
             <TextView
                 android:id="@+id/fragment_settings_support_report_bug"
                 style="@style/Widget.App.Settings.Entry.Action"
@@ -685,15 +694,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_debug_force_new_app_session" />
-
-                    <include layout="@layout/settings_separator_view" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/fragment_settings_coach_marks_always"
-                        style="@style/Widget.App.Settings.Entry.Switch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/coach_marks_debug_settings" />
 
                     <include layout="@layout/settings_separator_view" />
 

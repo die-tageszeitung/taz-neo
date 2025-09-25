@@ -3,6 +3,13 @@ package de.taz.app.android.ui.home
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -13,6 +20,20 @@ import de.taz.app.android.BuildConfig
 import de.taz.app.android.R
 import de.taz.app.android.api.ConnectivityException
 import de.taz.app.android.base.BaseMainFragment
+import de.taz.app.android.coachMarks.ArchiveContinueReadCoachMark
+import de.taz.app.android.coachMarks.ArchiveDatePickerCoachMark
+import de.taz.app.android.coachMarks.ArchiveDownloadCoachMark
+import de.taz.app.android.coachMarks.BaseCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.CoverflowContinueReadCoachMark
+import de.taz.app.android.coachMarks.CoverflowDatePickerCoachMark
+import de.taz.app.android.coachMarks.CoverflowDownloadCoachMark
+import de.taz.app.android.coachMarks.HomeBookmarksCoachMark
+import de.taz.app.android.coachMarks.HomeHomeCoachMark
+import de.taz.app.android.coachMarks.HomePlaylistCoachMark
+import de.taz.app.android.coachMarks.HomePresentationCoachMark
+import de.taz.app.android.coachMarks.HomeSearchCoachMark
+import de.taz.app.android.coachMarks.HomeSettingsCoachMark
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentHomeBinding
@@ -89,7 +110,43 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
         // show Fragment if state changes and lifecycle in STARTED
         generalDataStore.homeFragmentState.asFlow()
             .onEach {
-                withStarted { showFragmentForState(it) }
+                withStarted {
+                    showFragmentForState(it)
+                }
+            }.launchIn(lifecycleScope)
+
+        setupFAB()
+    }
+
+    /**
+     * On edge to edge we need to properly update the margins of the FAB:
+     */
+    private fun setupFAB() {
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. This solution sets
+            // only the bottom, left, and right dimensions, but you can apply whichever
+            // insets are appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom + marginBottomFromDimens
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+        viewBinding.fabHelp.setOnClickListener {
+            log.verbose("show coach marks in home")
+            lifecycleScope.launch {
+                showCoachMarks()
+            }
+        }
+        generalDataStore.helpFabEnabled.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.fabHelp.isVisible = it
             }.launchIn(lifecycleScope)
     }
 
@@ -171,4 +228,87 @@ class HomeFragment : BaseMainFragment<FragmentHomeBinding>() {
     }
 
     fun refresh() = viewBinding.coverflowRefreshLayout.setRefreshingWithCallback(true)
+
+    private suspend fun showCoachMarks() {
+        val homePresentationCoachMark = HomePresentationCoachMark.create(
+            viewBinding.root
+                .findViewById(R.id.representation)!!
+        )
+
+        val coachMarks = mutableListOf<BaseCoachMark>(
+            homePresentationCoachMark
+        )
+        val homeHomeCoachMark = HomeHomeCoachMark.create(
+            viewBinding.root
+                .findViewById<View?>(R.id.bottom_navigation_action_home)!!
+        )
+        val homeBookmarksCoachMark = HomeBookmarksCoachMark.create(
+            viewBinding.root
+                .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
+        )
+        val homePlaylistCoachMark = HomePlaylistCoachMark.create(
+            viewBinding.root
+                .findViewById<View?>(R.id.bottom_navigation_action_playlist)!!
+        )
+        val homeSearchCoachMark = HomeSearchCoachMark.create(
+            viewBinding.root
+                .findViewById<View?>(R.id.bottom_navigation_action_search)!!
+        )
+        val homeSettingsCoachMark = HomeSettingsCoachMark.create(
+            viewBinding.root
+                .findViewById<View?>(R.id.bottom_navigation_action_settings)!!
+        )
+        val genericHomeCoachMarks = listOf(
+            homeHomeCoachMark,
+            homeBookmarksCoachMark,
+            homePlaylistCoachMark,
+            homeSearchCoachMark,
+            homeSettingsCoachMark,
+        )
+        when (generalDataStore.homeFragmentState.get()) {
+            State.ARCHIVE -> {
+                val archiveDatePickerCoachMark = ArchiveDatePickerCoachMark.create(
+                    viewBinding.root
+                        .findViewById(R.id.calendar)!!
+                )
+                val archiveDownloadCoachMark = ArchiveDownloadCoachMark()
+                val continueReadCoachMark = ArchiveContinueReadCoachMark()
+
+                val archiveCoachMarks = listOf(
+                    archiveDatePickerCoachMark,
+                    archiveDownloadCoachMark,
+                    continueReadCoachMark
+                )
+                coachMarks.addAll(
+                    archiveCoachMarks
+                )
+            }
+
+            State.COVERFLOW -> {
+                val downloadIconWrapperView =
+                    viewBinding.root.findViewById<ConstraintLayout>(R.id.fragment_coverflow_moment_download_touch_area)!!
+
+                val coverflowDownloadCoachMark = CoverflowDownloadCoachMark.create(
+                    downloadIconWrapperView
+                )
+                val coverflowContinueReadCoachMark = CoverflowContinueReadCoachMark.create(
+                    downloadIconWrapperView
+                )
+                val coverflowDatePickerCoachMark = CoverflowDatePickerCoachMark.create(
+                    viewBinding.root.findViewById(R.id.fragment_cover_flow_calendar)
+                )
+
+                val coverFlowCoachMarks = listOf(
+                    coverflowDownloadCoachMark,
+                    coverflowContinueReadCoachMark,
+                    coverflowDatePickerCoachMark,
+                )
+                coachMarks.addAll(
+                    coverFlowCoachMarks
+                )
+            }
+        }
+        coachMarks.addAll(genericHomeCoachMarks)
+        CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
+    }
 }

@@ -25,7 +25,6 @@
     <color name="mediumGreen">#00AA2B</color>
     <color name="darkGreen">#228400</color>
     <color name="darkOrange">#BA5900</color>
-    <color name="darkGreyEightyPercentOpacity">#CC242424</color>
     <color name="blackEightyPercentOpacity">#CC000000</color>
 
     <!-- Named colors as defined by the UI team - okay to use outside of colors.xml a little -->
@@ -69,7 +68,7 @@
     <color name="pdf_drawer_sections_item">@color/lightGrey</color>
     <color name="pdf_drawer_header_action">@color/white</color>
     <color name="navigation_bottom_item">@color/lightGrey</color>
-    <color name="fab_button_background">@color/darkGreyEightyPercentOpacity</color>
+    <color name="fab_button_background">@color/darkGrey</color>
     <color name="drawer_sections_header_action">@color/black</color>
 
     <color name="bottom_sheet_background">@color/background</color>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/coach_mark_canvas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:rotation="-7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:hyphenationFrequency="normal"
+                android:text="@string/coach_mark_player_speed_title"
+                tools:ignore="UnusedAttribute" />
+
+            <TextView
+                android:id="@+id/coach_mark_text"
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_header"
+                android:text="@string/coach_mark_player_speed_text" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_icon_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:id="@+id/expanded_playback_speed_touch_area"
+                    android:layout_width="@dimen/audioplayer_expanded_play_speed_view_width"
+                    android:layout_height="@dimen/audioplayer_expanded_play_speed_view_height"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/play_speed_rounded_bg"
+                    android:backgroundTint="@color/audio_player_speed_touch_area_color"
+                    android:contentDescription="@string/audioplayer_playback_speed_content_description" />
+
+                <TextView
+                    android:id="@+id/coach_mark_text_view"
+                    style="@style/Widget.App.AudioPlayer.Expanded.PlaybackSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="@id/expanded_playback_speed_touch_area"
+                    app:layout_constraintEnd_toEndOf="@id/expanded_playback_speed_touch_area"
+                    app:layout_constraintStart_toStartOf="@id/expanded_playback_speed_touch_area"
+                    app:layout_constraintTop_toTopOf="@id/expanded_playback_speed_touch_area"
+                    tools:text="1.5x" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </RelativeLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>

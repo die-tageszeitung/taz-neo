@@ -22,7 +22,6 @@ import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.models.SearchHit
 import de.taz.app.android.audioPlayer.SearchHitAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.coachMarks.ArticleAudioCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -256,12 +255,8 @@ class SearchResultPagerFragment : BaseMainFragment<SearchResultWebviewPagerBindi
                 TextSettingsBottomSheetFragment.newInstance(hideMultiColumnModeSwitch = true)
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
 
-            R.id.bottom_navigation_action_audio -> {
+            R.id.bottom_navigation_action_audio ->
                 audioPlayerViewModel.handleOnAudioActionOnVisible()
-                lifecycleScope.launch {
-                    ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
-            }
         }
     }
 

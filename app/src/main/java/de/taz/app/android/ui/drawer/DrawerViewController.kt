@@ -138,7 +138,7 @@ class DrawerViewController(
 
         val translationX = calculateTranslationXOnDrawerSlide(slideOffset)
         drawerLogoWrapper.translationX = translationX
-    }
+   }
 
     /**
      * Calculate the offsets of the drawerLogo for onDrawerSlide function.
@@ -228,6 +228,14 @@ class DrawerViewController(
             percent * drawerLogoWidth - (transInHiddenState + transInOpenState)
 
         drawerLogoWrapper.translationX = -transX
+        listOf(
+            R.id.article_pager_drawer_logo_ghost,
+            R.id.section_pager_drawer_logo_ghost,
+            R.id.pdf_pager_drawer_logo_ghost,
+        ).forEach {
+            rootView.findViewById<ImageView>(it)?.translationX = -transX
+        }
+
     }
 
     private fun setBurgerIcon() {
@@ -248,7 +256,7 @@ class DrawerViewController(
             setImageDrawable(burgerDrawable)
         }
 
-        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height)
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, burgerDrawable)
     }
 
     private fun setCloseIcon() {
@@ -269,6 +277,8 @@ class DrawerViewController(
                 closeDrawer()
             }
         }
+
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, closeDrawable)
     }
 
     suspend fun setFeedLogo(): Drawable? {
@@ -325,7 +335,7 @@ class DrawerViewController(
             } else {
                 0
             }
-        updateTheGhosts(logicalWidth.toInt(), logicalHeight.toInt(), extraPadding)
+        updateTheGhosts(logicalWidth.toInt(), logicalHeight.toInt(), imageDrawable, extraPadding)
 
         return imageDrawable
     }
@@ -351,7 +361,12 @@ class DrawerViewController(
      * Because they only can be accessible by the screen reader.
      * When the logo changes we need to update the ghosts.
      */
-    private fun updateTheGhosts(newWidth: Int, newHeight: Int, extraPadding: Int = 0) {
+    private fun updateTheGhosts(
+        newWidth: Int,
+        newHeight: Int,
+        imageDrawable: Drawable?,
+        extraPadding: Int = 0
+    ) {
         val ghostViewIds = listOf(
             R.id.article_pager_drawer_logo_ghost,
             R.id.section_pager_drawer_logo_ghost,
@@ -359,6 +374,7 @@ class DrawerViewController(
         )
         ghostViewIds.forEach {
             rootView.findViewById<ImageView>(it)?.apply {
+                setImageDrawable(imageDrawable)
                 if (newWidth > 0 && newHeight > 0) {
                     updateLayoutParams<LayoutParams> {
                         width = newWidth

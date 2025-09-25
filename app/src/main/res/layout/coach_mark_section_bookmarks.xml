@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginTop="@dimen/coach_mark_text_layout_margin_top"
+            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:rotation="-7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/coach_mark_section_bookmarks_title"
+                tools:ignore="UnusedAttribute" />
+
+            <ImageView
+                android:id="@+id/coach_mark_bookmark_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_below="@id/coach_mark_header"
+                android:contentDescription="@string/coach_mark_section_bookmarks_icon_content_description"
+                android:src="@drawable/ic_bookmark"
+                app:tint="@color/white" />
+
+            <TextView
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_bookmark_icon"
+                android:text="@string/coach_mark_section_bookmarks_text" />
+
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

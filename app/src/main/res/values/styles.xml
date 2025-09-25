@@ -61,6 +61,11 @@
         <item name="alertDialogStyle">@style/MaterialAlertDialog.AppTheme</item>
     </style>
 
+    <!-- region Material components -->
+    <style name="ThemeOverlay.App.MaterialAlertDialog.Fullscreen.Transparent" parent="android:Theme.Translucent.NoTitleBar.Fullscreen">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
     <style name="MaterialAlertDialog.AppTheme" parent="MaterialAlertDialog.Material3">
         <item name="backgroundInsetStart">10dp</item>
         <item name="backgroundInsetEnd">10dp</item>
@@ -563,7 +568,6 @@
     <style name="TextAppearance.CoachMark.Header" parent="TextAppearance.AppCompat">
         <item name="android:fontFamily">@font/appFontCoachMarkHeader</item>
         <item name="android:textSize">32sp</item>
-        <item name="android:lineHeight" tools:targetApi="p">@dimen/coach_mark_header_line_height</item>
         <item name="android:textColor">@color/white</item>
     </style>
 
@@ -572,7 +576,6 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:letterSpacing">0</item>
-        <item name="android:lineSpacingExtra">3sp</item>
     </style>
     <!-- endregion -->
 

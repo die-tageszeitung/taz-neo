@@ -4,10 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.asFlow
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +27,15 @@ import de.taz.app.android.api.models.Moment
 import de.taz.app.android.api.models.Section
 import de.taz.app.android.audioPlayer.DrawerAudioPlayerViewModel
 import de.taz.app.android.base.ViewBindingFragment
+import de.taz.app.android.coachMarks.BaseCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.SectionDrawerBookmarkCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerEnqueueCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerMomentCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerPlayAllCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerSectionCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerToggleAllCoachMark
+import de.taz.app.android.coachMarks.SectionDrawerToggleOneCoachMark
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.cache.CacheOperationFailedException
 import de.taz.app.android.databinding.FragmentDrawerSectionsBinding
@@ -49,6 +65,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -74,6 +92,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
     private lateinit var tracker: Tracker
 
     private var momentBinder: CoverViewBinding? = null
+    private var coachMarkMomentBinder: CoverViewBinding? = null
 
     private lateinit var currentIssueStub: IssueStub
 
@@ -112,6 +131,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
             layoutManager = LinearLayoutManager(this@SectionDrawerFragment.context)
         }
 
+        setupFAB()
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
@@ -119,12 +139,14 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                         if (allOpened) {
                             viewBinding.fragmentDrawerToggleAllSections.apply {
                                 setImageResource(R.drawable.ic_chevron_double_up)
-                                contentDescription = getString(R.string.fragment_drawer_sections_collapse_all)
+                                contentDescription =
+                                    getString(R.string.fragment_drawer_sections_collapse_all)
                             }
                         } else {
                             viewBinding.fragmentDrawerToggleAllSections.apply {
                                 setImageResource(R.drawable.ic_chevron_double_down)
-                                contentDescription = getString(R.string.fragment_drawer_sections_expand_all)
+                                contentDescription =
+                                    getString(R.string.fragment_drawer_sections_expand_all)
                             }
                         }
                     }
@@ -168,10 +190,42 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     drawerAudioPlayerViewModel.errorMessageFlow.filterNotNull().collect { message ->
                         toastHelper.showToast(message, long = true)
                         drawerAudioPlayerViewModel.clearErrorMessage()
-
                     }
                 }
             }
+        }
+    }
+
+    private fun showCoachMarks() {
+        val coachMarks = mutableListOf<BaseCoachMark>()
+
+        coachMarkMomentBinder?.let {
+            val momentCoachMark = SectionDrawerMomentCoachMark.create(
+                viewBinding.fragmentDrawerSectionsMoment,
+                it,
+            )
+            coachMarks.add(momentCoachMark)
+        } ?: {
+            SentryWrapper.captureMessage("Unable to create SectionDrawerMomentCoachMark - binding is null")
+        }
+
+        // don't worry - we only show the FAB button if the sections are filled in so the id is
+        // found. See showIssue()
+        val firstSection = requireView().findViewById<TextView>(R.id.fragment_drawer_section_title)
+
+        coachMarks.addAll(
+            listOf(
+                SectionDrawerToggleAllCoachMark.create(viewBinding.fragmentDrawerToggleAllSections),
+                SectionDrawerPlayAllCoachMark.create(viewBinding.fragmentDrawerPlayIssueLayout),
+                SectionDrawerSectionCoachMark.create(firstSection),
+                SectionDrawerToggleOneCoachMark(),
+                SectionDrawerEnqueueCoachMark(),
+                SectionDrawerBookmarkCoachMark(),
+            )
+        )
+
+        if (coachMarks.isNotEmpty()) {
+            CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
         }
     }
 
@@ -192,8 +246,11 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
 
     private suspend fun showIssue(issueKey: IssueKey) = withContext(Dispatchers.Main) {
         try {
+            viewBinding.fabHelp.isVisible = false
             // Wait for the first issueStub that matches the required key. This must succeed at some point as the the IssueStub must be present to show the Issue
-            currentIssueStub = issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status).filterNotNull().first()
+            currentIssueStub =
+                issueRepository.getStubFlow(issueKey.feedName, issueKey.date, issueKey.status)
+                    .filterNotNull().first()
 
             setMomentDate(currentIssueStub)
             showMoment(MomentPublication(currentIssueStub.feedName, currentIssueStub.date))
@@ -226,10 +283,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                     tracker.trackDrawerToggleAllSectionsEvent()
                     sectionListAdapter.toggleAllSections()
                 }
-                fragmentDrawerPlayIssueIcon.setOnClickListener {
-                    drawerAudioPlayerViewModel.handleOnPlayAllClicked()
-                }
-                fragmentDrawerPlayIssueText.setOnClickListener {
+                fragmentDrawerPlayIssueLayout.setOnClickListener {
                     drawerAudioPlayerViewModel.handleOnPlayAllClicked()
                 }
             }
@@ -238,6 +292,7 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 launchWaitForIssueDownloadComplete(issueKey)
             }
 
+            viewBinding.fabHelp.isVisible = issueContentViewModel.fabHelpEnabledFlow.first()
         } catch (e: ConnectivityException.Recoverable) {
             // do nothing we can not load the issueStub as not in database yet.
             // TODO wait for internet and show it once internet is available
@@ -271,6 +326,14 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                         }
                     },
                     observeDownloads = false
+                )
+                coachMarkMomentBinder = CoverViewBinding(
+                    this@SectionDrawerFragment,
+                    momentPublication,
+                    CoverViewDate(momentPublication.date, momentPublication.date),
+                    Glide.with(this@SectionDrawerFragment),
+                    object : CoverViewActionListener {},
+                    observeDownloads = false,
                 )
                 momentBinder?.prepareDataAndBind(viewBinding.fragmentDrawerSectionsMoment)
 
@@ -372,5 +435,36 @@ class SectionDrawerFragment : ViewBindingFragment<FragmentDrawerSectionsBinding>
                 getSectionDrawerItemList(sectionList)
             )
         }
+    }
+
+    /**
+     * On edge to edge we need to properly update the margins of the FAB:
+     */
+    private fun setupFAB() {
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. This solution sets
+            // only the bottom, left, and right dimensions, but you can apply whichever
+            // insets are appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom + marginBottomFromDimens
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+        viewBinding.fabHelp.setOnClickListener {
+            log.verbose("show coach marks in section drawer")
+            showCoachMarks()
+        }
+
+        issueContentViewModel.fabHelpEnabledFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.fabHelp.isVisible = it
+            }.launchIn(lifecycleScope)
     }
 }

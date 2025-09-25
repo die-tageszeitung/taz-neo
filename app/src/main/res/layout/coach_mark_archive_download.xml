@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true">
+
+        <RelativeLayout
+            android:id="@+id/coach_mark_text_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:rotation="-7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+            <TextView
+                android:id="@+id/coach_mark_header"
+                style="@style/TextAppearance.CoachMark.Header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:text="@string/coach_mark_home_download_title"
+                tools:ignore="UnusedAttribute" />
+
+            <ImageView
+                android:id="@+id/download_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_header"
+                android:contentDescription="@string/coach_mark_home_download_icon_1_content_description"
+                android:src="@drawable/ic_file_download"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/coach_mark_text_1"
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/download_icon"
+                android:text="@string/coach_mark_home_download_text_1" />
+
+            <ImageView
+                android:id="@+id/downloaded_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/coach_mark_text_1"
+                android:contentDescription="@string/coach_mark_home_download_icon_2_content_description"
+                android:src="@drawable/ic_done"
+                app:tint="@color/ic_download_done_color" />
+
+            <TextView
+                android:id="@+id/coach_mark_text_2"
+                style="@style/TextAppearance.CoachMark.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/downloaded_icon"
+                android:text="@string/coach_mark_home_download_text_2" />
+
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
