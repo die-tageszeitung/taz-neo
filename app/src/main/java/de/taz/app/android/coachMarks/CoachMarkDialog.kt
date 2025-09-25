@@ -62,7 +62,7 @@ class CoachMarkDialog : DialogFragment() {
         viewBinding.buttonNext.setOnClickListener { this.goNext() }
 
         dialog.window?.apply {
-            setDimAmount(0.84f)
+            setDimAmount(0.8f)
             setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         }
 

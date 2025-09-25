@@ -584,7 +584,7 @@
     <string name="coach_mark_section_bookmarks_icon_content_description">Lesezeichensymbol</string>
 
     <string name="coach_mark_section_playlist_title">Zur Audioliste hinzufügen</string>
-    <string name="coach_mark_section_playlist_text">Tippen Sie auf das Symbol, um den Artikel in Ihre Audioliste aufzunehmen. Die Audioliste finden Sie unten in der Leiste.</string>
+    <string name="coach_mark_section_playlist_text">Tippen Sie auf das Symbol, um den Artikel in Ihre Audioliste aufzunehmen. Die Audioliste finden Sie unten in der Leiste auf der Startseite.</string>
     <string name="coach_mark_section_playlist_icon_content_description">Hinzufügen-Symbol</string>
 
     <string name="coach_mark_article_size_title">Schriftgröße anpassen</string>
@@ -598,12 +598,12 @@
     <string name="coach_mark_section_drawer_toggle_all_title">Zur Artikelübersicht</string>
     <string name="coach_mark_section_drawer_toggle_all_text">Tippen Sie auf den Doppelpfeil, um die Liste aller Artikel dieser Ausgabe zu öffnen.</string>
 
-    <string name="coach_mark_section_drawer_toggle_one_title">Themenbereich öffnen</string>
+    <string name="coach_mark_section_drawer_toggle_one_title">Themenbereich aufklappen</string>
     <string name="coach_mark_section_drawer_toggle_one_text">Tippen Sie auf den Pfeil, um alle Artikel eines Ressorts in der Übersicht dazu zu sehen.</string>
     <string name="coach_mark_section_drawer_toggle_one_content_description">Aufklapp-Symbol</string>
 
     <string name="coach_mark_section_drawer_enqueue_title">Zur Audioliste hinzufügen</string>
-    <string name="coach_mark_section_drawer_enqueue_text">Tippen Sie auf das Symbol, um den Artikel in Ihre Audioliste aufzunehmen. Die Audioliste finden Sie unten in der Leiste.</string>
+    <string name="coach_mark_section_drawer_enqueue_text">Tippen Sie auf das Symbol, um den Artikel in Ihre Audioliste aufzunehmen. Die Audioliste finden Sie unten in der Leiste auf der Startseite.</string>
 
     <string name="coach_mark_section_drawer_bookmark_title">Zur Leseliste hinzufügen</string>
     <string name="coach_mark_section_drawer_bookmark_text">Tippen Sie auf den Stern, um den Artikel in Ihrer Leseliste zu speichern. Die Leseliste finden Sie in der Leiste auf der Startseite.</string>
@@ -628,8 +628,8 @@
     <string name="coach_mark_home_download_icon_1_content_description">Download-Symbol</string>
     <string name="coach_mark_home_download_icon_2_content_description">Heruntergeladen-Symbol</string>
 
-    <string name="coach_mark_home_continue_read_title">Sie möchten weiterlesen?</string>
-    <string name="coach_mark_home_continue_read_text">Wenn Sie schon mal in einer Ausgabe waren, führt Sie dieses Lesezeichen direkt zu der Stelle, an der Sie vorher aufgehört hatten zu lesen!</string>
+    <string name="coach_mark_home_continue_read_title">Weiterlesen</string>
+    <string name="coach_mark_home_continue_read_text">Wenn Sie eine Ausgabe schon geöffnet hatten, bringt Sie dieses Lesezeichen direkt zu der Stelle zurück, an der Sie zuletzt aufgehört hatten zu lesen.</string>
     <string name="coach_mark_home_continue_read_icon_content_description">Weiterlesen-Symbol</string>
 
     <string name="coach_mark_home_date_picker_title">Datumsauswahl</string>

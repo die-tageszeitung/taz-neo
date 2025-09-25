@@ -36,6 +36,7 @@ class SectionDrawerToggleAllCoachMark : BaseCoachMark(
         fun create(menuItem: View) = SectionDrawerToggleAllCoachMark().apply {
             this.resizeIcon = true
             this.menuItem = menuItem
+            this.useShortArrow = true
         }
     }
 }
@@ -47,6 +48,7 @@ class SectionDrawerSectionCoachMark : BaseCoachMark(
         fun create(menuItem: TextView) = SectionDrawerSectionCoachMark().apply {
             this.menuItem = menuItem
             this.textString = menuItem.text.toString()
+            this.useShortArrow = true
         }
     }
 }
