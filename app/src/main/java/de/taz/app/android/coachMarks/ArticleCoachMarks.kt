@@ -33,6 +33,9 @@ class ArticleHomeCoachMark: BaseCoachMark(R.layout.coach_mark_article_home) {
 }
 
 class ArticleImageCoachMark() : BaseCoachMark(R.layout.coach_mark_article_image)
+
+class ArticleTapToScrollCoachMark() : BaseCoachMark(R.layout.coach_mark_article_tap_to_scroll)
+
 class ArticleImagePagerCoachMark() : BaseCoachMark(R.layout.coach_mark_article_image_pager)
 
 class ArticleSectionCoachMark: BaseCoachMark(R.layout.coach_mark_article_section) {
