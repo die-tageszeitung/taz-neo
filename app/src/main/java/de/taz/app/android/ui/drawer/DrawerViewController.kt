@@ -83,7 +83,9 @@ class DrawerViewController(
                     // If logo ends up at an extreme, we set force the main logo state to fit it
                     state.percentMorphedToBurger == 1f -> {
                         if (!isLogoBurger || state.isBurger || isLogoClose) {
-                            setBurgerIcon()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                setBurgerIcon()
+                            }
                         }
                     }
 
@@ -115,7 +117,7 @@ class DrawerViewController(
      * Calculate the offsets of the drawerLogo for onDrawerSlide function.
      * The [slideOffset] can be between 0 (closed drawer) and 1 (open drawer).
      */
-    fun handleOnDrawerSlider(slideOffset: Float) {
+    fun handleOnDrawerSlider(slideOffset: Float) = CoroutineScope(Dispatchers.Main).launch {
         // Decide on icon:
         if (slideOffset > 0 && !isDrawerOpen()) {
             if (!isLogoClose) {
@@ -126,15 +128,13 @@ class DrawerViewController(
                 setBurgerIcon()
             } else {
                 if (isLogoClose) {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        setFeedLogo()
-                    }
+                    setFeedLogo()
                 }
             }
         }
         // Ignore any events before we the logo is even set
         if (drawerLogoWidth == UNKNOWN_DRAWER_LOGO_WIDTH)
-            return
+            return@launch
 
         val translationX = calculateTranslationXOnDrawerSlide(slideOffset)
         drawerLogoWrapper.translationX = translationX
@@ -238,7 +238,7 @@ class DrawerViewController(
 
     }
 
-    private fun setBurgerIcon() {
+    private suspend fun setBurgerIcon() {
         isLogoBurger = true
         isLogoClose = false
 
@@ -255,11 +255,16 @@ class DrawerViewController(
             }
             setImageDrawable(burgerDrawable)
         }
-
-        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, burgerDrawable)
+        val extraPadding =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                generalDataStore.displayCutoutExtraPadding.get()
+            } else {
+                0
+            }
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, burgerDrawable, extraPadding)
     }
 
-    private fun setCloseIcon() {
+    private suspend fun setCloseIcon() {
         isLogoClose = true
         val widthFromDimens = resources.getDimensionPixelSize(R.dimen.drawer_burger_menu_width)
         drawerLogoWidth = widthFromDimens
@@ -278,7 +283,13 @@ class DrawerViewController(
             }
         }
 
-        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, closeDrawable)
+        val extraPadding =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                generalDataStore.displayCutoutExtraPadding.get()
+            } else {
+                0
+            }
+        updateTheGhosts(widthFromDimens, drawerLogoWrapper.height, closeDrawable, extraPadding)
     }
 
     suspend fun setFeedLogo(): Drawable? {
@@ -365,7 +376,7 @@ class DrawerViewController(
         newWidth: Int,
         newHeight: Int,
         imageDrawable: Drawable?,
-        extraPadding: Int = 0
+        extraPadding: Int
     ) {
         val ghostViewIds = listOf(
             R.id.article_pager_drawer_logo_ghost,
@@ -386,9 +397,7 @@ class DrawerViewController(
                     }
                 }
                 translationX = drawerLogoWrapper.translationX
-                if (extraPadding > 0) {
-                    translationY = drawerLogoWrapper.translationY + extraPadding
-                }
+                translationY = drawerLogoWrapper.translationY + extraPadding
             }
         }
     }
