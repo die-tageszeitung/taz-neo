@@ -9,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import de.taz.app.android.R
@@ -21,6 +22,8 @@ import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.bottomSheet.SingleColumnModeBottomSheetFragment
 import de.taz.app.android.ui.settings.SettingsActivity
 import de.taz.app.android.ui.webview.TapIconsViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 private const val MIN_WIDTH_TO_SHOW_DESCRIPTION_TEXTS_DP = 600
@@ -106,26 +109,33 @@ class TextSettingsBottomSheetFragment :
             }
         }
 
-        viewModel.observeNightMode(viewLifecycleOwner) { activated ->
-            if (activated) {
-                setNightModeSelected()
-            } else {
-                setDayModeSelected()
-            }
-            setNightMode(activated)
-        }
+        viewModel.nightModeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach { activated ->
+                if (activated) {
+                    setNightModeSelected()
+                } else {
+                    setDayModeSelected()
+                }
+                setNightMode(activated)
+            }.launchIn(lifecycleScope)
 
-        viewModel.observeMultiColumnMode(viewLifecycleOwner) { activated ->
-            if (activated) {
-                setMultiColumnModeSelected()
-            } else {
-                setSingleColumnModeSelected()
-            }
-        }
+        viewModel.multiColumnModeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach { activated ->
+                if (activated) {
+                    setMultiColumnModeSelected()
+                } else {
+                    setSingleColumnModeSelected()
+                }
+            }.launchIn(lifecycleScope)
 
-        viewModel.observeFontSize(viewLifecycleOwner) { textSizePercentage ->
-            setFontSizePercentage(textSizePercentage)
-        }
+        viewModel.textSizeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach { textSizePercentage ->
+                setFontSizePercentage(textSizePercentage)
+            }.launchIn(lifecycleScope)
+
         val displayWidth =
             resources.displayMetrics.widthPixels.toFloat() / resources.displayMetrics.density
         if (displayWidth < MIN_WIDTH_TO_SHOW_DESCRIPTION_TEXTS_DP) {

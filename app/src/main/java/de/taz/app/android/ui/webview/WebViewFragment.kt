@@ -19,6 +19,7 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
@@ -46,6 +47,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.floor
@@ -100,7 +103,7 @@ abstract class WebViewFragment<
 
     val issueViewerViewModel: IssueViewerViewModel by activityViewModels()
 
-    abstract fun reloadAfterCssChange()
+    abstract suspend fun reloadAfterCssChange()
 
     abstract val webView: AppWebView
     abstract val loadingScreen: View
@@ -134,15 +137,30 @@ abstract class WebViewFragment<
                 setHeader(displayable)
             }
         }
-        viewModel.nightModeLiveData.observe(this@WebViewFragment) {
-            reloadAfterCssChange()
-        }
-        viewModel.tapToScrollLiveData.observe(this@WebViewFragment) {
-            tapToScroll = it
-        }
-        viewModel.fontSizeLiveData.observe(this@WebViewFragment) {
-            reloadAfterCssChange()
-        }
+        viewModel.nightModeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                reloadAfterCssChange()
+            }.launchIn(lifecycleScope)
+
+        viewModel.tapToScrollFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                tapToScroll = it
+            }.launchIn(lifecycleScope)
+
+        viewModel.fontSizeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                reloadAfterCssChange()
+            }.launchIn(lifecycleScope)
+
+        viewModel.multiColumnModeFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                multiColumnMode = it
+                setupScrollPositionListener(it)
+            }.launchIn(lifecycleScope)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -157,11 +175,6 @@ abstract class WebViewFragment<
                     ensureDownloadedAndShow()
                 }
             }
-        }
-
-        viewModel.multiColumnModeLiveData.observe(viewLifecycleOwner) {
-            multiColumnMode = it
-            setupScrollPositionListener(it)
         }
 
         if (savedInstanceState != null) {
@@ -209,9 +222,11 @@ abstract class WebViewFragment<
                     ViewBorder.LEFT -> {
                         maybeScroll(SCROLL_BACKWARDS)
                     }
+
                     ViewBorder.RIGHT -> {
                         maybeScroll(SCROLL_FORWARD)
                     }
+
                     else -> false
                 }
             }
@@ -240,7 +255,7 @@ abstract class WebViewFragment<
                 }
             }
         } else {
-            webView.scrollListener = object: AppWebView.WebViewScrollListener {
+            webView.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -323,10 +338,10 @@ abstract class WebViewFragment<
             val scrollXWithBuffer = webView.scrollX + gap
             val scrollBy = webViewWidth - gap
 
-            val targetScrollX = if(direction == SCROLL_FORWARD)
-                (scrollXWithBuffer/scrollBy + 1) * scrollBy
+            val targetScrollX = if (direction == SCROLL_FORWARD)
+                (scrollXWithBuffer / scrollBy + 1) * scrollBy
             else
-                max(0, (scrollXWithBuffer/scrollBy - 1) * scrollBy)
+                max(0, (scrollXWithBuffer / scrollBy - 1) * scrollBy)
 
             // Check if scrolling would overscroll - if so add padding
             if (webViewInnerWidth != null && direction == SCROLL_FORWARD) {
@@ -425,7 +440,9 @@ abstract class WebViewFragment<
                     if (bottomNavigationLayout != null) {
                         if (bottomNavigationBehavior != null) {
                             // If the bottom navigation is shown, the visible content bottom is higher up
-                            visibleBottom -= bottomNavigationBehavior.getVisibleHeight(bottomNavigationLayout)
+                            visibleBottom -= bottomNavigationBehavior.getVisibleHeight(
+                                bottomNavigationLayout
+                            )
                             bottomNavigationBehavior.collapse(bottomNavigationLayout, true)
                         } else {
                             // If the bottom navigation does not have a behavior, it is expanded
@@ -524,7 +541,7 @@ abstract class WebViewFragment<
                 rootWindowInsets.getInsets(WindowInsets.Type.navigationBars()).bottom
             } else {
                 resources.getDimensionPixelSize(
-                    resources.getIdentifier("navigation_bar_height", "dimen", "android"                    )
+                    resources.getIdentifier("navigation_bar_height", "dimen", "android")
                 )
             }
 
@@ -540,8 +557,15 @@ abstract class WebViewFragment<
      * Return a List of bookmarked Article names (without the .html suffix) for the current webview.
      * The context is usually a Section - otherwise the behavior is not defined.
      */
-    open suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> = emptyList()
-    open suspend fun onSetBookmark(articleName: String, isBookmarked: Boolean, showNotification: Boolean) = Unit
+    open suspend fun setupBookmarkHandling(articleNamesInWebView: List<String>): List<String> =
+        emptyList()
+
+    open suspend fun onSetBookmark(
+        articleName: String,
+        isBookmarked: Boolean,
+        showNotification: Boolean
+    ) = Unit
+
     /**
      * Setup the handling for the playlist in the current webview.
      * It must return a list of all Article names enqueued in the initial state.
@@ -549,7 +573,9 @@ abstract class WebViewFragment<
      * Return a List of enqueued Article names (without the .html suffix) for the current webview.
      * The context is usually a Section - otherwise the behavior is not defined.
      */
-    open suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> = emptyList()
+    open suspend fun setupEnqueuedHandling(articleNamesInWebView: List<String>): List<String> =
+        emptyList()
+
     open suspend fun onEnqueued(articleName: String, isEnqueued: Boolean) = Unit
 
 
@@ -653,7 +679,7 @@ abstract class WebViewFragment<
         }
     }
 
-    private fun maybeScroll(@ScrollDirection direction: Int) : Boolean {
+    private fun maybeScroll(@ScrollDirection direction: Int): Boolean {
         if ((tapToScroll || multiColumnMode) && view != null) {
             if (!tapLock) {
                 lifecycleScope.launch {

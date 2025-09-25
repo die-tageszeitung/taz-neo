@@ -2,9 +2,6 @@ package de.taz.app.android.ui.bottomSheet.textSettings
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
-import androidx.lifecycle.distinctUntilChanged
 import de.taz.app.android.MAX_TEXT_SIZE
 import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.dataStore.TazApiCssDataStore
@@ -18,23 +15,11 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
 
     // Why is that a string TODO: migrate it to integer
-    private val textSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+    val textSizeFlow = tazApiCssDataStore.fontSize.asFlow()
 
-    private val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
+    val nightModeFlow = tazApiCssDataStore.nightMode.asFlow()
 
-    private val multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
-
-    fun observeNightMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
-        nightModeLiveData.distinctUntilChanged().observe(lifecycleOwner, Observer(block))
-    }
-
-    fun observeMultiColumnMode(lifecycleOwner: LifecycleOwner, block: (Boolean) -> Unit) {
-        multiColumnModeLiveData.distinctUntilChanged().observe(lifecycleOwner, Observer(block))
-    }
-
-    fun observeFontSize(lifecycleOwner: LifecycleOwner, block: (String) -> Unit) {
-        textSizeLiveData.distinctUntilChanged().observe(lifecycleOwner, Observer(block))
-    }
+    val multiColumnModeFlow = tazApiCssDataStore.multiColumnMode.asFlow()
 
     fun setNightMode(activated: Boolean) {
         launch { tazApiCssDataStore.nightMode.set(activated) }
@@ -68,8 +53,8 @@ class TextSettingsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun setFontSize(value: String) {
-        launch { tazApiCssDataStore.fontSize.set(value) }
+    private suspend fun setFontSize(value: String) {
+        tazApiCssDataStore.fontSize.set(value)
     }
 
     private suspend fun getFontSize(): Int = tazApiCssDataStore.fontSize.get().toInt()

@@ -8,7 +8,7 @@ import android.view.View
 import android.webkit.WebSettings
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import de.taz.app.android.DELAY_FOR_VIEW_HEIGHT_CALCULATION
 import de.taz.app.android.R
@@ -29,6 +29,8 @@ import de.taz.app.android.ui.webview.SearchTazApiJS
 import de.taz.app.android.ui.webview.TAZ_API_JS
 import de.taz.app.android.util.Log
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 private const val NO_POSITION = -1
@@ -79,13 +81,12 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
         }
         this.searchResult = searchResult
 
-        tazApiCssDataStore.fontSize
-            .asLiveData()
-            .distinctUntilChanged()
-            .observe(viewLifecycleOwner) {
+        tazApiCssDataStore.fontSize.asFlow()
+            .flowWithLifecycle(lifecycle)
+            .onEach {
                 reloadAfterCssChange()
             }
-
+            .launchIn(lifecycleScope)
 
         setupWebView()
     }
@@ -97,6 +98,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
                 override fun onLinkClicked(displayableKey: String) {
                     log.warn("onLinkClicked not implemented yet. Ignored click for $displayableKey")
                 }
+
                 override fun onPageFinishedLoading() {}
             }
             webViewClient = AppWebViewClient(this.context.applicationContext, callBack)
@@ -143,7 +145,7 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
         if (isPublic) {
             ensurePublicArticlesCanBeScrolled()
 
-            viewBinding.webView.scrollListener = object: AppWebView.WebViewScrollListener {
+            viewBinding.webView.scrollListener = object : AppWebView.WebViewScrollListener {
                 override fun onScroll(
                     scrollX: Int,
                     scrollY: Int,
@@ -151,7 +153,8 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
                     oldScrollY: Int
                 ) {
                     if (oldScrollY < scrollY) {
-                        val isScrolledToBottom = viewBinding.webView.bottom <= (viewBinding.webView.height + scrollY)
+                        val isScrolledToBottom =
+                            viewBinding.webView.bottom <= (viewBinding.webView.height + scrollY)
                         if (isScrolledToBottom) {
                             onScrolledToBottom()
                         }
@@ -176,8 +179,8 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
 
     private fun ensurePublicArticlesCanBeScrolled() {
         // Ensure the scrolling content is at least 1px higher then the scroll view
-        val deviceHeight = resources.displayMetrics.heightPixels/resources.displayMetrics.density
-        viewBinding.webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight+1}px\"") {}
+        val deviceHeight = resources.displayMetrics.heightPixels / resources.displayMetrics.density
+        viewBinding.webView.evaluateJavascript("document.documentElement.style.minHeight=\"${deviceHeight + 1}px\"") {}
     }
 
     private fun onScrolledToBottom() {
@@ -207,12 +210,10 @@ class SearchResultPagerItemFragment : ViewBindingFragment<FragmentWebviewArticle
         )
     }
 
-    private fun reloadAfterCssChange() {
-        lifecycleScope.launch {
-            webView.injectCss()
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
-                webView.reload()
-            }
+    private suspend fun reloadAfterCssChange() {
+        webView.injectCss()
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+            webView.reload()
         }
     }
 

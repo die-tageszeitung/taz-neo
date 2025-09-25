@@ -105,18 +105,14 @@ class SectionImprintWebViewFragment : WebViewFragment<
         applyExtraPaddingOnCutoutDisplay()
     }
 
-    override fun reloadAfterCssChange() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            whenCreated {
-                if (!isRendered) {
-                    return@whenCreated
-                }
-
-                webView.injectCss()
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                    webView.reload()
-            }
+    override suspend fun reloadAfterCssChange() {
+        if (!isRendered) {
+            return
         }
+
+        webView.injectCss()
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+            webView.reload()
     }
 
     /**
