@@ -15,6 +15,7 @@ class PlayerMinimizeCoachMark : BaseCoachMark(
     companion object {
         fun create(menuItem: View) = PlayerMinimizeCoachMark().apply {
             this.menuItem = menuItem
+            this.useShortArrow = true
         }
     }
 }
