@@ -152,39 +152,35 @@ class ArticleWebViewFragment :
         super.onDestroyView()
     }
 
-    override fun reloadAfterCssChange() {
-        lifecycleScope.launch {
-            whenCreated {
-                if (!isRendered) {
-                    return@whenCreated
-                }
+    override suspend fun reloadAfterCssChange() {
+        if (!isRendered) {
+            return
+        }
 
-                webView.injectCss()
-                val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
-                if (isMultiColumn) {
-                    // Remove the bottom margin (maybe it was set before):
-                    if (webView.marginBottom > 0) {
-                        webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                            bottomMargin = 0
-                        }
-                    }
-                    // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
-                    webView.callTazApi(
-                        "enableArticleColumnMode",
-                        calculateColumnHeight(),
-                        calculateColumnWidth(),
-                        DEFAULT_COLUMN_GAP_PX,
-                    )
-                } else {
-                    // For tablets the bottom navigation layout does not collapse, so we need
-                    // extra margin here, so the content won' be behind the nav bar
-                    addBottomMarginIfNecessary()
-                }
-
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
-                    webView.reload()
+        webView.injectCss()
+        val isMultiColumn = tazApiCssDataStore.multiColumnMode.get()
+        if (isMultiColumn) {
+            // Remove the bottom margin (maybe it was set before):
+            if (webView.marginBottom > 0) {
+                webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = 0
                 }
             }
+            // Unfortunately this is necessary so the web view gets it s correct scrollWidth and can calculate the proper width
+            webView.callTazApi(
+                "enableArticleColumnMode",
+                calculateColumnHeight(),
+                calculateColumnWidth(),
+                DEFAULT_COLUMN_GAP_PX,
+            )
+        } else {
+            // For tablets the bottom navigation layout does not collapse, so we need
+            // extra margin here, so the content won' be behind the nav bar
+            addBottomMarginIfNecessary()
+        }
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N) {
+            webView.reload()
         }
     }
 
@@ -220,7 +216,7 @@ class ArticleWebViewFragment :
 
     override fun onPageRendered() {
         super.onPageRendered()
-       // restore scrollPosition only if scrollPosition was set to true
+        // restore scrollPosition only if scrollPosition was set to true
         restoreScrollPositionViewModel.restoreScrollStateFlow
             .take(1)
             .onEach {
@@ -308,7 +304,8 @@ class ArticleWebViewFragment :
             0
         }
 
-        val resultInPixel = viewBinding.webView.height - 2*verticalWebViewMarginPx - navBarHeightPx - androidNavBarPx
+        val resultInPixel =
+            viewBinding.webView.height - 2 * verticalWebViewMarginPx - navBarHeightPx - androidNavBarPx
         val resultInDp = resultInPixel / resources.displayMetrics.density
         return resultInDp
     }

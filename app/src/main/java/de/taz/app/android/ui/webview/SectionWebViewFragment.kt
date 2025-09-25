@@ -325,18 +325,14 @@ class SectionWebViewFragment : WebViewFragment<
         }
     }
 
-    override fun reloadAfterCssChange() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            whenCreated {
-                if (!isRendered) {
-                    return@whenCreated
-                }
-
-                webView.injectCss()
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
-                    webView.reload()
-            }
+    override suspend fun reloadAfterCssChange() {
+        if (!isRendered) {
+            return
         }
+
+        webView.injectCss()
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N)
+            webView.reload()
     }
 
     private val resizeDrawerLogoListener =
@@ -493,11 +489,12 @@ class SectionWebViewFragment : WebViewFragment<
 
         setupEnqueuedStateFlows(articleFileNames)
 
-        val enqueuedArticlesInThisWebView = audioPlayerService.persistedPlaylistState.value.items.filter {
-            it.playableKey in articleFileNames
-        }.mapNotNull {
-            it.playableKey
-        }
+        val enqueuedArticlesInThisWebView =
+            audioPlayerService.persistedPlaylistState.value.items.filter {
+                it.playableKey in articleFileNames
+            }.mapNotNull {
+                it.playableKey
+            }
 
         return enqueuedArticlesInThisWebView
     }

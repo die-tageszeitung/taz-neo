@@ -9,23 +9,30 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.SingletonHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 
-class NightModeHelper private constructor(private val applicationContext: Context) {
-    companion object : SingletonHolder<NightModeHelper, Context>(::NightModeHelper)
+class TazCssHelper private constructor(private val applicationContext: Context) {
+    companion object : SingletonHolder<TazCssHelper, Context>(::TazCssHelper)
 
     private val log by Log
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(applicationContext)
 
     init {
-        CoroutineScope(Dispatchers.Default).launch {
-            tazApiCssDataStore.nightMode.asFlow().collect {
-                generateCssOverride()
-                setNightMode(it)
-            }
-        }
+        tazApiCssDataStore.nightMode.asFlow().onEach {
+            setNightMode(it)
+        }.launchIn(CoroutineScope(Dispatchers.Default))
+
+        merge(
+            tazApiCssDataStore.fontSize.asFlow(),
+            tazApiCssDataStore.nightMode.asFlow(),
+            tazApiCssDataStore.textJustification.asFlow(),
+        ).onEach {
+            generateCssOverride()
+        }.launchIn(CoroutineScope(Dispatchers.Default))
     }
 
     suspend fun notifyTazApiCSSFileReady() {

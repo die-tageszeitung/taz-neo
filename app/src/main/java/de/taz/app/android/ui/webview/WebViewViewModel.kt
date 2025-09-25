@@ -34,9 +34,9 @@ open class WebViewViewModel<DISPLAYABLE : WebViewDisplayable>(
         }
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application)
-    val nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
-    val tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
-    val multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
-    val fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
+    val nightModeFlow = tazApiCssDataStore.nightMode.asFlow()
+    val tapToScrollFlow = tazApiCssDataStore.tapToScroll.asFlow()
+    val multiColumnModeFlow = tazApiCssDataStore.multiColumnMode.asFlow()
+    val fontSizeFlow = tazApiCssDataStore.fontSize.asFlow()
 
 }
