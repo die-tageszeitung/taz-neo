@@ -5,8 +5,12 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -14,6 +18,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
@@ -30,10 +35,15 @@ import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.audioPlayer.ArticleAudioPlayerViewModel
 import de.taz.app.android.base.BaseMainFragment
 import de.taz.app.android.coachMarks.ArticleAudioCoachMark
+import de.taz.app.android.coachMarks.ArticleBookmarkCoachMark
+import de.taz.app.android.coachMarks.ArticleHomeCoachMark
+import de.taz.app.android.coachMarks.ArticleImageCoachMark
+import de.taz.app.android.coachMarks.ArticleImagePagerCoachMark
+import de.taz.app.android.coachMarks.ArticleSectionCoachMark
 import de.taz.app.android.coachMarks.ArticleShareCoachMark
 import de.taz.app.android.coachMarks.ArticleSizeCoachMark
-import de.taz.app.android.coachMarks.HorizontalArticleSwipeCoachMark
-import de.taz.app.android.dataStore.CoachMarkDataStore
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.databinding.FragmentWebviewArticlePagerBinding
@@ -69,7 +79,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -87,7 +99,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
     private lateinit var articleRepository: ArticleRepository
     private lateinit var authHelper: AuthHelper
     private lateinit var bookmarkRepository: BookmarkRepository
-    private lateinit var coachMarkDataStore: CoachMarkDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var tazApiCssDataStore: TazApiCssDataStore
     private lateinit var toastHelper: ToastHelper
@@ -114,7 +125,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         bookmarkRepository = BookmarkRepository.getInstance(context.applicationContext)
         issueRepository = IssueRepository.getInstance(context.applicationContext)
         pageRepository = PageRepository.getInstance(context.applicationContext)
-        coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
         generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
         tazApiCssDataStore = TazApiCssDataStore.getInstance(context.applicationContext)
         toastHelper = ToastHelper.getInstance(context.applicationContext)
@@ -183,7 +193,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
 
                 launch {
                     isArticleActiveModeFlow.filter { it }.collect {
-                        maybeShowCoachMarks()
                         if (resources.getBoolean(R.bool.isTablet) && authHelper.isValid()) {
                             // Observer multi column mode only when tablet and logged in
                             tazApiCssDataStore.multiColumnMode.asLiveData()
@@ -260,30 +269,63 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
         setupDrawerLogoGhost()
         setupHeader()
         setupViewPager()
+        setupFAB()
     }
 
-    private suspend fun maybeShowCoachMarks() {
-        ArticleSizeCoachMark(
-            this@ArticlePagerFragment,
+    private fun showCoachMarks() {
+        val tazLogoCoachMark = TazLogoCoachMark.create(requireActivity().findViewById(R.id.drawer_logo))
+
+        val bookmarkCoachMark = ArticleBookmarkCoachMark.create(
             viewBinding.navigationBottomLayout
-                .findViewById<View?>(R.id.bottom_navigation_action_size)
+                .findViewById<View?>(R.id.bottom_navigation_action_bookmark)!!
                 .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-        ).maybeShow()
-        ArticleShareCoachMark(
-            this@ArticlePagerFragment,
+        )
+
+        val homeCoachMark = ArticleHomeCoachMark.create(
             viewBinding.navigationBottomLayout
-                .findViewById<View?>(R.id.bottom_navigation_action_share)
+                .findViewById<View?>(R.id.bottom_navigation_action_home_article)!!
                 .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-        ).maybeShow()
-        HorizontalArticleSwipeCoachMark(
-            this@ArticlePagerFragment
-        ).maybeShow()
-        ArticleAudioCoachMark(
-            this@ArticlePagerFragment,
+        )
+
+        val textSizeCoachMark = ArticleSizeCoachMark.create(
             viewBinding.navigationBottomLayout
-                .findViewById<View?>(R.id.bottom_navigation_action_audio)
+                .findViewById<View?>(R.id.bottom_navigation_action_size)!!
                 .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
-        ).maybeShow()
+        )
+
+        val shareCoachMark = ArticleShareCoachMark.create(
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_share)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
+
+        val audioCoachMark = ArticleAudioCoachMark.create(
+            viewBinding.navigationBottomLayout
+                .findViewById<View?>(R.id.bottom_navigation_action_audio)!!
+                .findViewById(com.google.android.material.R.id.navigation_bar_item_icon_view)
+        )
+
+        val articleImageCoachMark = ArticleImageCoachMark()
+
+        val articleImagePagerCoachMark = ArticleImagePagerCoachMark()
+
+        val articleSectionCoachMark = ArticleSectionCoachMark.create(
+            viewBinding.header.section, viewBinding.header.section.text.toString()
+        )
+
+        val coachMarks = listOf(
+            tazLogoCoachMark,
+            homeCoachMark,
+            bookmarkCoachMark,
+            shareCoachMark,
+            audioCoachMark,
+            textSizeCoachMark,
+            articleImageCoachMark,
+            articleImagePagerCoachMark,
+            articleSectionCoachMark,
+        )
+
+        CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
     }
 
     private suspend fun maybeShowMultiColumnBottomSheet() {
@@ -342,6 +384,37 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             offscreenPageLimit = 2
             registerOnPageChangeCallback(pageChangeListener)
         }
+    }
+
+    /**
+     * On edge to edge we need to properly update the margins of the FAB:
+     */
+    private fun setupFAB() {
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.articlePagerFabHelp) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. This solution sets
+            // only the bottom, left, and right dimensions, but you can apply whichever
+            // insets are appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom + marginBottomFromDimens
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+        viewBinding.articlePagerFabHelp.setOnClickListener {
+            log.verbose("show coach marks in article pager")
+            showCoachMarks()
+        }
+
+        issueContentViewModel.fabHelpEnabledFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.articlePagerFabHelp.isVisible = it
+            }.launchIn(lifecycleScope)
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
@@ -425,11 +498,6 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                                 pdfPagerViewModel.goToPdfPage(it, saveLastDisplayable = false)
                             }
                         }
-                    }
-                    lifecycleScope.launch {
-                        HorizontalArticleSwipeCoachMark.setFunctionAlreadyDiscovered(
-                            requireContext()
-                        )
                     }
                 }
             }
@@ -531,27 +599,16 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
                 }
             }
 
-            R.id.bottom_navigation_action_share -> {
+            R.id.bottom_navigation_action_share ->
                 share()
-                lifecycleScope.launch {
-                    ArticleShareCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
-            }
 
             R.id.bottom_navigation_action_size -> {
                 TextSettingsBottomSheetFragment.newInstance()
                     .show(childFragmentManager, TextSettingsBottomSheetFragment.TAG)
-                lifecycleScope.launch {
-                    ArticleSizeCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
             }
 
-            R.id.bottom_navigation_action_audio -> {
+            R.id.bottom_navigation_action_audio ->
                 audioPlayerViewModel.handleOnAudioActionOnVisible()
-                lifecycleScope.launch {
-                    ArticleAudioCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
-            }
         }
     }
 

@@ -285,8 +285,10 @@
     <dimen name="search_advanced_category_margin_top">15dp</dimen>
     <dimen name="search_advanced_entry_min_height">40dp</dimen>
 
-    <dimen name="fab_margin_start">24dp</dimen>
-    <dimen name="fab_margin_bottom">16dp</dimen>
+    <dimen name="fab_margin_bottom">79dp</dimen>
+    <dimen name="fab_margin_bottom_without_tab_bar">10dp</dimen>
+    <dimen name="fab_margin_horizontally">16dp</dimen>
+    <dimen name="fab_icon_padding">-3dp</dimen>
     <dimen name="bottom_navigation_icon_size">31dp</dimen>
     <dimen name="bottom_navigation_label_text_size">9.4sp</dimen>
 
@@ -364,9 +366,9 @@
     <!-- endregion -->
 
     <!-- region coach marks  -->
-    <dimen name="coach_mark_text_layout_margin_start">50dp</dimen>
-    <dimen name="coach_mark_text_layout_margin_end">25dp</dimen>
-    <dimen name="coach_mark_text_layout_margin_top">10dp</dimen>
+    <dimen name="coach_mark_text_layout_margin_start">70dp</dimen>
+    <dimen name="coach_mark_text_layout_margin_end">50dp</dimen>
+    <dimen name="coach_mark_text_layout_margin_top">40dp</dimen>
     <dimen name="coach_mark_text_layout_padding_bottom">238dp</dimen>
     <dimen name="coach_mark_button_close_size">@dimen/default_touch_area_size</dimen>
     <dimen name="coach_mark_button_close_padding">8dp</dimen>
@@ -374,8 +376,10 @@
     <dimen name="coach_mark_button_close_margin_top">60dp</dimen>
     <dimen name="coach_mark_button_close_margin_end">18dp</dimen>
 
+    <dimen name="coach_mark_drawer_moment_text_layout_padding_top">350dp</dimen>
     <dimen name="coach_mark_drawer_logo_text_layout_padding_top">190dp</dimen>
     <dimen name="coach_mark_article_padding_bottom">166dp</dimen>
+    <dimen name="coach_mark_max_width">375dp</dimen>
 
     <!-- endregion -->
 

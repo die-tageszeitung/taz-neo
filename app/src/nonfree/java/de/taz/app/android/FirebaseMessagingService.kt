@@ -267,13 +267,15 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 MainActivity.newIntent(
                     applicationContext,
                     IssuePublicationWithPages(issueKey),
-                    articleKey
+                    articleKey,
+                    continueReadDirectly = true
                 )
             } else {
                 MainActivity.newIntent(
                     applicationContext,
                     IssuePublication(issueKey),
-                    articleKey
+                    articleKey,
+                    continueReadDirectly = true
                 )
             }
         } else {
@@ -281,13 +283,15 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 SplashActivity.newIntent(
                     applicationContext,
                     IssuePublicationWithPages(issueKey),
-                    articleKey
+                    articleKey,
+                    continueReadDirectly = true
                 )
             } else {
                 SplashActivity.newIntent(
                     applicationContext,
                     IssuePublication(issueKey),
-                    articleKey
+                    articleKey,
+                    continueReadDirectly = true
                 )
             }
         }

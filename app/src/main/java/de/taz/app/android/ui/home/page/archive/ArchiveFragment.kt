@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import de.taz.app.android.R
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentArchiveBinding
+import de.taz.app.android.monkey.setDefaultTopInset
 import de.taz.app.android.simpleDateFormat
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DatePickerHelper
@@ -125,9 +126,9 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        applyMarginForEdgeToEdge()
-
         viewBinding.apply {
+
+            collapsingToolbarLayout.setDefaultTopInset()
 
             appBarLayout.addOnOffsetChangedListener { _, verticalOffset ->
                 // hide appbar content if it's collapsed
@@ -181,15 +182,5 @@ class ArchiveFragment : IssueFeedFragment<FragmentArchiveBinding>() {
         val minColumns = if (isLandscape) 4 else 2
         val itemsFitInRow = floor(screenWidth / columnWidth).toInt()
         return itemsFitInRow.coerceIn(minColumns, 5)
-    }
-
-    private fun applyMarginForEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.collapsingToolbarLayout) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                topMargin = insets.top
-            }
-            WindowInsetsCompat.CONSUMED
-        }
     }
 }

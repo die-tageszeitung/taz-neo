@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/coach_mark_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no" />
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_text_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+        android:rotation="-7"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+        <TextView
+            android:id="@+id/coach_mark_header"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:text="@string/coach_mark_article_bookmark_title"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            android:id="@+id/coach_mark_text"
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_header"
+            android:text="@string/coach_mark_article_bookmark_text" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_icon_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/icon_bookmark"
+            android:layout_width="@dimen/bottom_navigation_icon_size"
+            android:layout_height="@dimen/bottom_navigation_icon_size"
+            android:accessibilityTraversalAfter="@id/coach_mark_text"
+            android:contentDescription="@string/coach_mark_article_bookmark_icon_content_description"
+            android:src="@drawable/ic_bookmark"
+            app:tint="@color/white"
+            tools:ignore="UnusedAttribute" />
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -38,9 +38,6 @@
     <string name="coach_mark_archive_title">Archiv</string>
     <string name="coach_mark_archive_text">Für die Übersicht aller Ausgaben auf einen Blick: Einfach nach oben scrollen.</string>
 
-    <string name="coach_mark_horizontal_swipe_title">Schneller navigieren</string>
-    <string name="coach_mark_horizontal_swipe_text">Durch alle Texte der Ausgabe lässt es sich schnell navigieren, indem man nach links und rechts wischt.</string>
-
     <string name="coach_mark_article_audio_title">Lesen lassen</string>
     <string name="coach_mark_article_audio_text">Sämtliche Texte werden von professionellen Sprecher:innen vorgelesen!</string>
 

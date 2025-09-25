@@ -1,41 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/fragment_archive_background"
-        app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:context="de.taz.app.android.ui.main.MainActivity">
+        android:layout_height="match_parent">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/coverflow_refresh_layout"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/coordinator"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            android:background="@color/fragment_archive_background"
+            app:layout_constraintBottom_toTopOf="@id/navigation_bottom"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:context="de.taz.app.android.ui.main.MainActivity">
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/home_fragment"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/coverflow_refresh_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/home_fragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/navigation_bottom"
+            style="@style/Widget.App.BottomNavigation.TabBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/navigation_bottom"
-        style="@style/Widget.App.BottomNavigation.TabBar"
-        android:layout_width="match_parent"
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_help"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin_horizontally"
+        android:layout_marginBottom="@dimen/fab_margin_bottom"
+        android:contentDescription="@string/help"
+        android:src="@drawable/ic_question"
+        android:text="@string/help"
+        android:textColor="@color/lightGrey"
+        app:backgroundTint="@color/darkGrey"
+        app:icon="@drawable/ic_question_mark"
+        app:iconGravity="start"
+        app:iconPadding="@dimen/fab_icon_padding"
+        app:iconTint="@color/lightGrey"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:tint="@color/lightGrey" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

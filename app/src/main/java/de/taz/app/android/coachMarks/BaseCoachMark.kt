@@ -1,107 +1,200 @@
 package de.taz.app.android.coachMarks
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.os.Bundle
 import android.view.View
-import android.view.ViewTreeObserver
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.annotation.LayoutRes
+import androidx.core.graphics.createBitmap
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import de.taz.app.android.R
-import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.tracking.Tracker
-import de.taz.app.android.util.Log
+import kotlin.math.abs
 
 
-const val COACH_MARK_PRIO2 = 3L
-const val COACH_MARK_PRIO3 = 6L
-const val COACH_MARK_PRIO4 = 9L
-const val MAX_TO_SHOW_IN_ONE_SESSION = 3
+abstract class BaseCoachMark(@LayoutRes private val layoutResId: Int) : Fragment(layoutResId) {
 
-abstract class BaseCoachMark(private val context: Context, private val lifecycle: Lifecycle) {
-    constructor(fragment: Fragment): this(fragment.requireContext(), fragment.lifecycle)
-    constructor(activity: AppCompatActivity): this(activity, activity.lifecycle)
+    protected var menuItem: View? = null
+    protected var textString: String? = null
+    protected var resizeIcon: Boolean = false
+    protected var useShortArrow: Boolean = false
 
-    private companion object {
-        // To ensure that at most one CoachMark is shown, we store a simple flag.
-        // Note that this flag is not thread safe, but as the CoachMarks are not really started in
-        // parallel, and generally on the main thread we can get away with it.
-        // In theory two coach marks could enter `maybeReallyShow()` at the same time.
-        var isCoachMarkShown: Boolean = false
+    // Some menuItems are at the position where the close icon ist
+    // In that case the coachmark should be the last and we move the close button
+    // down to where the next icon is
+    var moveCloseButtonToWhereNextIs = false
+
+    protected lateinit var generalDataStore: GeneralDataStore
+    protected lateinit var authHelper: AuthHelper
+    protected lateinit var tracker: Tracker
+    protected var isPortrait = true
+    protected var isTabletMode = false
+    private var showConditions = isPortrait || isTabletMode
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        isPortrait =
+            context.resources.displayMetrics.heightPixels > context.resources.displayMetrics.widthPixels
+        isTabletMode = context.resources.getBoolean(R.bool.isTablet)
+        showConditions = isPortrait || isTabletMode
+        generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
+        authHelper = AuthHelper.getInstance(context.applicationContext)
+        tracker = Tracker.getInstance(context.applicationContext)
     }
 
-    protected val coachMarkDataStore = CoachMarkDataStore.getInstance(context.applicationContext)
-    protected val generalDataStore = GeneralDataStore.getInstance(context.applicationContext)
-    protected val authHelper = AuthHelper.getInstance(context.applicationContext)
-    protected val tracker = Tracker.getInstance(context.applicationContext)
-    private val isPortrait =
-        context.resources.displayMetrics.heightPixels > context.resources.displayMetrics.widthPixels
-    protected val isTabletMode = context.resources.getBoolean(R.bool.isTablet)
-    private val showConditions = isPortrait || isTabletMode
-
-    protected val log by Log
-
-    suspend fun maybeShow() {
-        val maxReached = coachMarkDataStore.coachMarksShownInSession.get() >= MAX_TO_SHOW_IN_ONE_SESSION
-        val alwaysShow = coachMarkDataStore.alwaysShowCoachMarks.get()
-        if (showConditions && authHelper.isLoggedIn() && (alwaysShow || !maxReached) && (alwaysShow || !isCoachMarkShown)) {
-            maybeShowInternal()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (resizeIcon) {
+            resizeCoachMarkIcon()
         }
+        getLocationAndSetPosition()
+        onCoachMarkCreated()
     }
 
-    /**
-     * Only called if the base conditions to show the coach mark have been checked in [maybeShow].
-     * Coach mark implementation may add some additional checks required to show in this function.
-     */
-    abstract suspend fun maybeShowInternal()
+    override fun onResume() {
+        super.onResume()
+        tracker.trackCoachMarkShow(requireContext().resources.getResourceName(layoutResId))
+    }
 
-    protected fun getLocationAndShowLayout(
-        viewToLocate: View?,
-        layoutResId: Int,
-    ) {
-        isCoachMarkShown = true
+    override fun onStop() {
+        super.onStop()
+        tracker.trackCoachMarkClose(requireContext().resources.getResourceName(layoutResId))
+    }
+
+    protected open fun onCoachMarkCreated() {}
+
+    private fun getLocationAndSetPosition() {
+        val location = this.getLocation()
+        this.setPositionAndText(location)
+    }
+
+    private fun getLocation(): IntArray {
         val location = intArrayOf(0, 0)
-        viewToLocate?.let { view ->
-            view.viewTreeObserver.addOnGlobalLayoutListener(object :
-                ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    view.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    view.getLocationOnScreen(location)
-                    log.verbose("found location: ${location[0]}, ${location[1]}")
-                    showCoachMark(location, layoutResId)
-                }
-            })
-        } ?: showCoachMark(location, layoutResId)
+        menuItem?.getLocationOnScreen(location)
+        return location
     }
 
-    private fun showCoachMark(location: IntArray, layoutResId: Int) {
+    private fun setPositionAndText(location: IntArray) {
+        val coachMarkIconWrapper =
+            requireView().findViewById<View>(R.id.coach_mark_icon_wrapper)
+        val canvas = requireView().findViewById<ImageView>(R.id.coach_mark_canvas)
 
-        val coachMarkDialog = CoachMarkDialog(context, location, layoutResId)
-        onCoachMarkCreated(coachMarkDialog)
-        coachMarkDialog.show()
-        tracker.trackCoachMarkShow(context.resources.getResourceName(layoutResId))
-        coachMarkDialog.setOnDismissListener {
-            // Release the coach mark lock
-            isCoachMarkShown = false
-            tracker.trackCoachMarkClose(context.resources.getResourceName(layoutResId))
+        coachMarkIconWrapper?.apply {
+            x = location[0].toFloat()
+            y = location[1].toFloat()
+            textString?.let {
+                findViewById<TextView>(R.id.coach_mark_text_view)?.text = it
+            }
         }
 
-        lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) {
-                coachMarkDialog.dismiss()
-                lifecycle.removeObserver(this)
+        if (canvas != null && coachMarkIconWrapper != null && menuItem != null) {
+            drawLineToIconFromMid(coachMarkIconWrapper, canvas)
+        }
+    }
+
+    private fun resizeCoachMarkIcon() {
+        val coachMarkIconWrapper =
+            requireView().findViewById<View>(R.id.coach_mark_icon_wrapper)
+
+        menuItem?.let {
+            coachMarkIconWrapper.apply {
+                layoutParams.height = it.height
+                layoutParams.width = it.width
             }
-        })
+        }
     }
 
-    suspend fun incrementCoachMarksShownInSession() {
-        coachMarkDataStore.coachMarksShownInSession.set(
-            coachMarkDataStore.coachMarksShownInSession.get() + 1
+    private fun drawLineToIconFromMid(icon: View, imageView: ImageView) {
+        // factor of how much % should be the padding
+        val factorPaddingToCenter = if (useShortArrow) { 0.65 } else { 0.25 }
+
+        // unfortunately icon.width is not working, so we take the menuItem!!.width
+        val width = menuItem!!.width
+        val height = menuItem!!.height
+
+        val bitmap = createBitmap(
+            resources.displayMetrics.widthPixels,
+            resources.displayMetrics.heightPixels
         )
-    }
 
-    protected open fun onCoachMarkCreated(coachMarkDialog: CoachMarkDialog) {}
+        // Create a canvas with transparent background
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.TRANSPARENT)
+        imageView.setImageBitmap(bitmap)
+
+        val paint = Paint()
+        paint.color = Color.WHITE
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 1 * resources.displayMetrics.density
+        paint.isAntiAlias = true
+
+        // Get the middle of icon
+        val midOfIconX = icon.x + width * 0.5
+        val midOfIconY = icon.y + height * 0.5
+
+        // get the center
+        val centerX = resources.displayMetrics.widthPixels * 0.5
+        val centerY = resources.displayMetrics.heightPixels * 0.5
+
+        val slope = abs(centerY - midOfIconY)/ abs(centerX - midOfIconX)
+
+        val startCoordinates =
+            if (-height * 0.5 <= slope * width * 0.5 && slope * width * 0.5 <= height * 0.5) {
+                if (centerX > midOfIconX) {
+                    // intersects the right edge
+                    val x = midOfIconX + width * 0.5
+                    val y = if (midOfIconY < centerY) {
+                        midOfIconY + (slope * width * 0.5)
+                    } else {
+                        midOfIconY - (slope * width * 0.5)
+                    }
+                    x to y
+                } else {
+                    // intersects the left edge
+                    val x = midOfIconX - width * 0.5
+                    val y = if (midOfIconY < centerY) {
+                        midOfIconY + (slope * width * 0.5)
+                    } else {
+                        midOfIconY - (slope * width * 0.5)
+                    }
+                    x to y
+                }
+            } else {
+                if (centerY > midOfIconY) {
+                    // intersects the bottom edge
+                    val x = if (midOfIconX < centerX) {
+                        midOfIconX + (height * 0.5) / slope
+                    } else {
+                        midOfIconX - (height * 0.5) / slope
+                    }
+                    val y = midOfIconY + height * 0.5
+                    x to y
+                } else {
+                    // intersects the top edge
+                    val x =
+                        if (midOfIconX < centerX) {
+                            midOfIconX + (height * 0.5) / slope
+                        } else {
+                            midOfIconX - (height * 0.5) / slope
+                        }
+                    val y = midOfIconY - height * 0.5
+                    x to y
+                }
+            }
+
+        val stopX = (centerX - (centerX - midOfIconX) * factorPaddingToCenter).toFloat()
+        val stopY = (centerY - (centerY - midOfIconY) * factorPaddingToCenter).toFloat()
+
+        // Draw the line
+        canvas.drawLine(startCoordinates.first.toFloat(), startCoordinates.second.toFloat(), stopX, stopY, paint)
+
+        // Set this bitmap to the ImageView
+        imageView.setImageBitmap(bitmap)
+    }
 }

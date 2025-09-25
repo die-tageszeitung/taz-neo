@@ -33,13 +33,17 @@ private const val LAST_MAIN_ACTIVITY_USAGE_TIME = "last_main_activity_usage_time
 private const val DEBUG_SETTINGS_ENABLED = "debug_settings_enabled"
 private const val HAS_BEEN_ASKED_FOR_TRACKING_CONSENT = "has_been_asked_for_tracking_consent"
 private const val CONSENT_TO_TRACKING = "consent_to_tracking"
-private const val HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED = "has_internal_taz_user_goal_been_tracked"
+private const val HAS_INTERNAL_TAZ_USER_GOAL_BEEN_TRACKED =
+    "has_internal_taz_user_goal_been_tracked"
 private const val TEST_GOAL_TRACKING_ENABLED = "test_goal_tracking_enabled"
 private const val MULTI_COLUMN_MODE_BOTTOM_SHEET_SHOWN = "multi_column_mode_bottom_sheet_shown"
-private const val SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "single_column_mode_bottom_sheet_do_not_show_again"
-private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN = "bookmarks_synchronization_bottom_sheet_do_not_show_again"
+private const val SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN =
+    "single_column_mode_bottom_sheet_do_not_show_again"
+private const val BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN =
+    "bookmarks_synchronization_bottom_sheet_do_not_show_again"
 private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION = "settings_bookmark_synchronization"
-private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED = "settings_bookmark_synchronization_changed"
+private const val SETTINGS_BOOKMARKS_SYNCHRONIZATION_CHANGED =
+    "settings_bookmark_synchronization_changed"
 private const val SETTINGS_SHOW_ANIMATED_MOMENTS = "settings_show_animated_moments"
 private const val SETTINGS_CONTINUE_READ = "settings_continue_read"
 private const val SETTINGS_CONTINUE_READ_ASK_EACH_TIME = "settings_continue_read_ask_each_time"
@@ -47,6 +51,7 @@ private const val SETTINGS_CONTINUE_READ_DIALOG_SHOWN = "settings_continue_read_
 private const val SETTINGS_CONTINUE_READ_CLICKED = "settings_continue_read_clicked"
 private const val SETTINGS_CONTINUE_READ_DISMISSED = "settings_continue_read_dismissed"
 private const val SETTINGS_HOME_FRAGMENT_STATUS = "settings_home_fragment_status"
+private const val SETTINGS_HELP_FAB_ENABLED = "settings_help_fab_enabled"
 
 // Deprecated/Removed setting keys
 private const val ENABLE_EXPERIMENTAL_ARTICLE_READER = "ENABLE_EXPERIMENTAL_ARTICLE_READER"
@@ -134,9 +139,12 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         dataStore, booleanPreferencesKey(SINGLE_COLUMN_MODE_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
     )
 
-    val bookmarksSynchronizationBottomSheetDoNotShowAgain: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
-        dataStore, booleanPreferencesKey(BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN), false
-    )
+    val bookmarksSynchronizationBottomSheetDoNotShowAgain: DataStoreEntry<Boolean> =
+        SimpleDataStoreEntry(
+            dataStore,
+            booleanPreferencesKey(BOOKMARKS_SYNCHRONIZATION_BOTTOM_SHEET_DO_NOT_SHOW_AGAIN),
+            false
+        )
 
     val bookmarksSynchronizationEnabled: DataStoreEntry<Boolean> = SimpleDataStoreEntry(
         dataStore, booleanPreferencesKey(SETTINGS_BOOKMARKS_SYNCHRONIZATION), false
@@ -175,6 +183,10 @@ class GeneralDataStore private constructor(applicationContext: Context) {
         HomeFragment.State.COVERFLOW,
         { it.name },
         { HomeFragment.State.valueOf(it) },
+    )
+
+    val helpFabEnabled = SimpleDataStoreEntry(
+        dataStore, booleanPreferencesKey(SETTINGS_HELP_FAB_ENABLED), true
     )
 
     init {

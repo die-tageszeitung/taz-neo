@@ -16,7 +16,6 @@ import de.taz.app.android.api.models.ArticleStub
 import de.taz.app.android.api.models.Feed
 import de.taz.app.android.api.models.FileEntry
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.coachMarks.BookmarksSwipeCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.FragmentBookmarksBinding
 import de.taz.app.android.persistence.repository.BookmarkRepository
@@ -98,9 +97,6 @@ class BookmarkListFragment : BaseMainFragment<FragmentBookmarksBinding>() {
             } else {
                 viewBinding.bookmarksDescriptionLayout.visibility = View.GONE
                 viewBinding.deleteLayout.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    BookmarksSwipeCoachMark(this@BookmarkListFragment).maybeShow()
-                }
             }
         }
 

@@ -2,15 +2,11 @@ package de.taz.app.android.ui.settings
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import de.taz.app.android.MAX_TEXT_SIZE
 import de.taz.app.android.MIN_TEXT_SIZE
 import de.taz.app.android.api.ApiService
 import de.taz.app.android.api.ConnectivityException
-import de.taz.app.android.api.interfaces.StorageLocation
-import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.DownloadDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
@@ -18,67 +14,43 @@ import de.taz.app.android.dataStore.TazApiCssDataStore
 import de.taz.app.android.singletons.AuthHelper
 import de.taz.app.android.singletons.DateHelper
 import de.taz.app.android.util.Log
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val log by Log
 
-    val fontSizeLiveData: LiveData<String>
-    val textJustificationLiveData: LiveData<Boolean>
-    val nightModeLiveData: LiveData<Boolean>
-    val multiColumnModeLiveData: LiveData<Boolean>
-    val tapToScrollLiveData: LiveData<Boolean>
-    val keepScreenOnLiveData: LiveData<Boolean>
-    val showAnimatedMomentsLiveData: LiveData<Boolean>
-    val showContinueReadLiveData: LiveData<Boolean>
-    val showContinueReadAskEachTimeLiveData: LiveData<Boolean>
-
-    val downloadOnlyWifiLiveData: LiveData<Boolean>
-    val downloadAutomaticallyLiveData: LiveData<Boolean>
-    val downloadAdditionallyPdf: LiveData<Boolean>
-    val bookmarksSynchronization: LiveData<Boolean>
-    private val downloadAdditionallyDialogDoNotShowAgain: LiveData<Boolean>
-    val notificationsEnabledLivedata: LiveData<Boolean>
-
-    val storageLocationLiveData: LiveData<StorageLocation>
-    val storedIssueNumberLiveData: LiveData<Int>
 
     private val tazApiCssDataStore = TazApiCssDataStore.getInstance(application.applicationContext)
     private val downloadDataStore = DownloadDataStore.getInstance(application.applicationContext)
     private val storageDataStore = StorageDataStore.getInstance(application.applicationContext)
     private val generalDataStore = GeneralDataStore.getInstance(application.applicationContext)
-    private val coachMarkDataStore = CoachMarkDataStore.getInstance(application.applicationContext)
     private val apiService = ApiService.getInstance(application.applicationContext)
     private val authHelper: AuthHelper = AuthHelper.getInstance(application.applicationContext)
 
-    private val elapsedOnString = authHelper.elapsedDateMessage.asLiveData()
+    val fontSizeFlow = tazApiCssDataStore.fontSize.asFlow()
+    val keepScreenOnFlow = tazApiCssDataStore.keepScreenOn.asFlow()
+    val multiColumnModeFlow = tazApiCssDataStore.multiColumnMode.asFlow()
+    val nightModeFlow = tazApiCssDataStore.nightMode.asFlow()
+    val tapToScrollFlow = tazApiCssDataStore.tapToScroll.asFlow()
+    val textJustificationFlow = tazApiCssDataStore.textJustification.asFlow()
+
+    val bookmarksSynchronization = generalDataStore.bookmarksSynchronizationEnabled.asFlow()
+    val showAnimatedMomentsFlow = generalDataStore.showAnimatedMoments.asFlow()
+    val showContinueReadFlow = generalDataStore.settingsContinueRead.asFlow()
+    val showContinueReadAskEachTimeFlow = generalDataStore.settingsContinueReadAskEachTime.asFlow()
+    val trackingAccepted = generalDataStore.consentToTracking.asFlow()
+
+    val downloadOnlyWifiFlow = downloadDataStore.onlyWifi.asFlow()
+    val downloadAutomaticallyFlow = downloadDataStore.enabled.asFlow()
+    val downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asFlow()
+    val helpFabEnabledFlow = generalDataStore.helpFabEnabled.asFlow()
+    val notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asFlow()
+
+    val storageLocationFlow = storageDataStore.storageLocation.asFlow()
+    val storedIssueNumberFlow = storageDataStore.keepIssuesNumber.asFlow()
+    private val elapsedOnString = authHelper.elapsedDateMessage.asFlow()
     val elapsedString = elapsedOnString.map { DateHelper.stringToMediumLocalizedString(it) }
-
-    init {
-        fontSizeLiveData = tazApiCssDataStore.fontSize.asLiveData()
-
-        textJustificationLiveData = tazApiCssDataStore.textJustification.asLiveData()
-        nightModeLiveData = tazApiCssDataStore.nightMode.asLiveData()
-        multiColumnModeLiveData = tazApiCssDataStore.multiColumnMode.asLiveData()
-        tapToScrollLiveData = tazApiCssDataStore.tapToScroll.asLiveData()
-        keepScreenOnLiveData = tazApiCssDataStore.keepScreenOn.asLiveData()
-        showAnimatedMomentsLiveData = generalDataStore.showAnimatedMoments.asLiveData()
-        showContinueReadLiveData = generalDataStore.settingsContinueRead.asLiveData()
-        showContinueReadAskEachTimeLiveData = generalDataStore.settingsContinueReadAskEachTime.asLiveData()
-
-        storedIssueNumberLiveData = storageDataStore.keepIssuesNumber.asLiveData()
-        storageLocationLiveData = storageDataStore.storageLocation.asLiveData()
-
-        downloadOnlyWifiLiveData = downloadDataStore.onlyWifi.asLiveData()
-        downloadAutomaticallyLiveData = downloadDataStore.enabled.asLiveData()
-        downloadAdditionallyPdf = downloadDataStore.pdfAdditionally.asLiveData()
-        bookmarksSynchronization = generalDataStore.bookmarksSynchronizationEnabled.asLiveData()
-        downloadAdditionallyDialogDoNotShowAgain =
-            downloadDataStore.pdfDialogDoNotShowAgain.asLiveData()
-        notificationsEnabledLivedata = downloadDataStore.notificationsEnabled.asLiveData()
-    }
-
-    val trackingAccepted = generalDataStore.consentToTracking.asLiveData()
 
     fun increaseKeepIssueNumber() {
         viewModelScope.launch {
@@ -258,20 +230,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return generalDataStore.appSessionCount.get()
     }
 
-    suspend fun getAlwaysShowCoachMarks(): Boolean {
-        return coachMarkDataStore.alwaysShowCoachMarks.get()
-    }
-
     fun forceNewAppSession() {
         viewModelScope.launch {
             generalDataStore.lastMainActivityUsageTimeMs.set(0L)
-        }
-    }
-
-    fun setAlwaysShowCoachMarks(value: Boolean) {
-        viewModelScope.launch {
-            log.verbose("always show coach marks set to $value")
-            coachMarkDataStore.alwaysShowCoachMarks.set(value)
         }
     }
 
@@ -283,5 +244,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             generalDataStore.testTrackingGoalEnabled.set(enabled)
         }
+    }
+
+    fun setHelpFabEnabled(enabled: Boolean) = viewModelScope.launch {
+        generalDataStore.helpFabEnabled.set(enabled)
     }
 }

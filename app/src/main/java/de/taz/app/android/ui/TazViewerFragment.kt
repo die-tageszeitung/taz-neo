@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import de.taz.app.android.R
 import de.taz.app.android.base.ViewBindingFragment
-import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.databinding.ActivityTazViewerBinding
 import de.taz.app.android.sentry.SentryWrapper
@@ -109,9 +108,6 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
 
                 override fun onDrawerOpened(drawerView: View) {
                     drawerAndLogoViewModel.openDrawer()
-                    lifecycleScope.launch {
-                        TazLogoCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                    }
                 }
 
                 override fun onDrawerClosed(drawerView: View) {
@@ -128,8 +124,8 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
                 try {
                     val drawerLogo = drawerViewController.setFeedLogo()
                     drawerLogo?.let {
-                        TazLogoCoachMark(this@TazViewerFragment, viewBinding.drawerLogo, it)
-                            .maybeShow()
+               //         TazLogoCoachMark(this@TazViewerFragment, viewBinding.drawerLogo, it)
+                 //           .maybeShow()
                     }
                 } catch (e: ExecutionException) {
                     val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."

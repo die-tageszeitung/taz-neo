@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import de.taz.app.android.R
 import de.taz.app.android.api.models.Section
@@ -25,6 +26,7 @@ class SectionHeaderViewHolder(
     ) {
 
     private val sectionTitle: TextView = itemView.findViewById(R.id.fragment_drawer_section_title)
+    private val sectionTitleWrapper: ConstraintLayout = itemView.findViewById(R.id.section_title_wrapper)
     private val toggleIcon: ImageView = itemView.findViewById(R.id.fragment_drawer_section_collapse_icon)
     private val toggleSeparator: ImageView = itemView.findViewById(R.id.dotted_separator)
     private val toggleWrapper: LinearLayout = itemView.findViewById(R.id.section_toggle_wrapper)
@@ -33,7 +35,7 @@ class SectionHeaderViewHolder(
         typeface?.let { sectionTitle.typeface = it }
         sectionTitle.text = header.section.title
 
-        sectionTitle.setOnClickListener {
+        sectionTitleWrapper.setOnClickListener {
             onTitleClickListener(header.section)
         }
 

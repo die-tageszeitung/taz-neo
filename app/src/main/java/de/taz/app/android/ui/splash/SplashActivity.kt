@@ -32,6 +32,7 @@ import de.taz.app.android.base.StartupActivity
 import de.taz.app.android.content.ContentService
 import de.taz.app.android.content.FeedService
 import de.taz.app.android.content.cache.CacheOperationFailedException
+import de.taz.app.android.dataStore.CoachMarkDataStore
 import de.taz.app.android.dataStore.GeneralDataStore
 import de.taz.app.android.dataStore.StorageDataStore
 import de.taz.app.android.getTazApplication
@@ -49,6 +50,7 @@ import de.taz.app.android.singletons.NotificationHelper
 import de.taz.app.android.singletons.StorageService
 import de.taz.app.android.singletons.ToastHelper
 import de.taz.app.android.ui.StorageOrganizationActivity
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY
 import de.taz.app.android.ui.main.MainActivity
 import de.taz.app.android.ui.splash.SplashActivity.Companion.KEY_DISPLAYABLE
 import de.taz.app.android.util.Log
@@ -77,6 +79,7 @@ class SplashActivity : StartupActivity() {
     private lateinit var toastHelper: ToastHelper
     private lateinit var fileEntryRepository: FileEntryRepository
     private lateinit var storageService: StorageService
+    private lateinit var coachMarkDataStore: CoachMarkDataStore
     private lateinit var storageDataStore: StorageDataStore
     private lateinit var generalDataStore: GeneralDataStore
     private lateinit var contentService: ContentService
@@ -97,18 +100,22 @@ class SplashActivity : StartupActivity() {
             packageContext: Context,
             issuePublication: IssuePublicationWithPages,
             displayableKey: String,
+            continueReadDirectly: Boolean = false,
         ) = Intent(packageContext, SplashActivity::class.java).apply {
             putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
             putExtra(KEY_DISPLAYABLE, displayableKey)
+            putExtra(KEY_CONTINUE_READ_DIRECTLY, continueReadDirectly)
         }
 
         fun newIntent(
             packageContext: Context,
             issuePublication: IssuePublication,
             displayableKey: String,
+            continueReadDirectly: Boolean = false,
         ) = Intent(packageContext, SplashActivity::class.java).apply {
             putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
             putExtra(KEY_DISPLAYABLE, displayableKey)
+            putExtra(KEY_CONTINUE_READ_DIRECTLY, continueReadDirectly)
         }
     }
 
@@ -127,6 +134,7 @@ class SplashActivity : StartupActivity() {
         fileEntryRepository = FileEntryRepository.getInstance(applicationContext)
         storageService = StorageService.getInstance(applicationContext)
         contentService = ContentService.getInstance(applicationContext)
+        coachMarkDataStore = CoachMarkDataStore.getInstance(applicationContext)
         storageDataStore = StorageDataStore.getInstance(applicationContext)
         generalDataStore = GeneralDataStore.getInstance(applicationContext)
         feedService = FeedService.getInstance(applicationContext)

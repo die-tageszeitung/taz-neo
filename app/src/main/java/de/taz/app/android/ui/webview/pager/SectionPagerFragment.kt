@@ -3,20 +3,30 @@ package de.taz.app.android.ui.webview.pager
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import de.taz.app.android.R
 import de.taz.app.android.WEBVIEW_DRAG_SENSITIVITY_FACTOR
 import de.taz.app.android.api.models.SectionStub
 import de.taz.app.android.api.models.SectionType
 import de.taz.app.android.base.BaseMainFragment
-import de.taz.app.android.coachMarks.HorizontalSectionSwipeCoachMark
+import de.taz.app.android.coachMarks.CoachMarkDialog
+import de.taz.app.android.coachMarks.SectionBookmarkCoachMark
+import de.taz.app.android.coachMarks.SectionPlaylistCoachMark
+import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
 import de.taz.app.android.tracking.Tracker
@@ -32,6 +42,8 @@ import de.taz.app.android.util.Log
 import de.taz.app.android.util.runIfNotNull
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 
@@ -56,6 +68,7 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         }
         setupViewPager()
         setupDrawerLogoGhost()
+        setupFAB()
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -84,8 +97,8 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
                         // an article is shown. But the [activeDisplayMode] gives us the indication that we
                         // are on an section.
                         if (it == IssueContentDisplayMode.Section) {
-                            HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
-                                .maybeShow()
+                     //       HorizontalSectionSwipeCoachMark(this@SectionPagerFragment)
+                       //         .maybeShow()
                         }
                     }
                 }
@@ -98,6 +111,37 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             orientation = ViewPager2.ORIENTATION_HORIZONTAL
             offscreenPageLimit = 2
         }
+    }
+
+    /**
+     * On edge to edge we need to properly update the margins of the FAB:
+     */
+    private fun setupFAB() {
+        ViewCompat.setOnApplyWindowInsetsListener(viewBinding.fabHelp) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. This solution sets
+            // only the bottom, left, and right dimensions, but you can apply whichever
+            // insets are appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            val marginBottomFromDimens = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = insets.bottom + marginBottomFromDimens
+            }
+
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+        viewBinding.fabHelp.setOnClickListener {
+            log.verbose("show coach marks in section pager")
+            showCoachMarks()
+        }
+
+        issueContentViewModel.fabHelpEnabledFlow
+            .flowWithLifecycle(lifecycle)
+            .onEach {
+                viewBinding.fabHelp.isVisible = it
+            }.launchIn(lifecycleScope)
     }
 
     private val pageChangeListener = object : ViewPager2.OnPageChangeCallback() {
@@ -138,9 +182,6 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             }
             if (state == SCROLL_STATE_IDLE && scrolled) {
                 scrolled = false
-                lifecycleScope.launch {
-                    HorizontalSectionSwipeCoachMark.setFunctionAlreadyDiscovered(requireContext())
-                }
             }
         }
     }
@@ -255,5 +296,17 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             tracker.trackDrawerOpenEvent(dragged = false)
             drawerAndLogoViewModel.openDrawer()
         }
+    }
+
+    private fun showCoachMarks() {
+        val tazLogoCoachMark = TazLogoCoachMark.create(viewBinding.sectionPagerDrawerLogoGhost)
+        val sectionBookmarkCoachMark = SectionBookmarkCoachMark()
+        val sectionPlaylistCoachMark = SectionPlaylistCoachMark()
+        val coachMarks = listOf(
+            tazLogoCoachMark,
+            sectionBookmarkCoachMark,
+            sectionPlaylistCoachMark,
+        )
+        CoachMarkDialog.create(coachMarks).show(childFragmentManager, CoachMarkDialog.TAG)
     }
 }

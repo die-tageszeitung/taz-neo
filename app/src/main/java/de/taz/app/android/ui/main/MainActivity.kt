@@ -37,6 +37,7 @@ import de.taz.app.android.ui.BackFragment
 import de.taz.app.android.ui.SuccessfulLoginAction
 import de.taz.app.android.ui.home.HomeFragment
 import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment
+import de.taz.app.android.ui.issueViewer.IssueViewerWrapperFragment.Companion.KEY_CONTINUE_READ_DIRECTLY
 import de.taz.app.android.ui.login.LoginBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment
 import de.taz.app.android.ui.login.fragments.SubscriptionElapsedBottomSheetFragment.Companion.shouldShowSubscriptionElapsedDialog
@@ -89,20 +90,25 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
             packageContext: Context,
             issuePublication: IssuePublicationWithPages,
             displayableKey: String,
+            continueReadDirectly: Boolean = false,
         ) = Intent(packageContext, MainActivity::class.java).apply {
             putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
             putExtra(KEY_DISPLAYABLE, displayableKey)
+            putExtra(KEY_CONTINUE_READ_DIRECTLY, continueReadDirectly)
         }
 
         fun newIntent(
             packageContext: Context,
             issuePublication: IssuePublication,
             displayableKey: String,
+            continueReadDirectly: Boolean = false,
         ) = Intent(packageContext, MainActivity::class.java).apply {
             putExtra(KEY_ISSUE_PUBLICATION, issuePublication)
             putExtra(KEY_DISPLAYABLE, displayableKey)
+            putExtra(KEY_CONTINUE_READ_DIRECTLY, continueReadDirectly)
         }
     }
+
 
     private lateinit var authHelper: AuthHelper
     private lateinit var bookmarkRepository: BookmarkRepository
@@ -217,8 +223,6 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
         if (lastMainActivityUsageTimeMs + APP_SESSION_TIMEOUT_MS < nowMs) {
             val appSessionCount = generalDataStore.appSessionCount.get() + 1L
             generalDataStore.appSessionCount.set(appSessionCount)
-            // reset the coach mark count:
-            coachMarkDataStore.coachMarksShownInSession.set(0)
             return appSessionCount
         }
         return null
@@ -370,6 +374,7 @@ class MainActivity : ViewBindingActivity<ActivityMainBinding>(), SuccessfulLogin
                 intent.getParcelableExtra<AbstractIssuePublication>(KEY_ISSUE_PUBLICATION)
             }
         val displayableKey = intent.getStringExtra(KEY_DISPLAYABLE)
+        val continueReadDirectly = intent.getBooleanExtra(KEY_CONTINUE_READ_DIRECTLY, false)
         if (issuePublication != null && displayableKey != null) {
             when (issuePublication) {
                 is IssuePublication -> {

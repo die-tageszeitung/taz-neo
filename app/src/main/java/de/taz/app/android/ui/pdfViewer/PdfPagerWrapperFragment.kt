@@ -278,9 +278,6 @@ class PdfPagerWrapperFragment: ViewBindingFragment<ActivityPdfDrawerLayoutBindin
                 }
 
                 override fun onDrawerOpened(drawerView: View) {
-                    lifecycleScope.launch {
-                        LmdLogoCoachMark.setFunctionAlreadyDiscovered(requireContext().applicationContext)
-                    }
                     drawerAndLogoViewModel.openDrawer()
                 }
 

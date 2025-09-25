@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_text_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+        android:rotation="-7"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+        <TextView
+            android:id="@+id/coach_mark_header"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:text="@string/coach_mark_home_continue_read_title"
+            tools:ignore="UnusedAttribute" />
+
+        <ImageView
+            android:id="@+id/continue_read_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_header"
+            android:contentDescription="@string/coach_mark_home_continue_read_icon_content_description"
+            android:src="@drawable/ic_continue_read"
+            app:tint="@color/white" />
+
+        <TextView
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/continue_read_icon"
+            android:text="@string/coach_mark_home_continue_read_text" />
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

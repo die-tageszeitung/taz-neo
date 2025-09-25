@@ -173,6 +173,29 @@
                 tools:visibility="visible">
 
                 <ImageView
+                    android:id="@+id/expanded_help_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/audioplayer_expanded_close_margin_top"
+                    android:importantForAccessibility="no"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_question_mark"
+                    app:tint="@color/audio_player_controls_color" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/expanded_help_touch_area"
+                    android:layout_width="@dimen/default_touch_area_size"
+                    android:layout_height="@dimen/default_touch_area_size"
+                    android:contentDescription="@string/help"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:layout_constraintBottom_toBottomOf="@id/expanded_help_icon"
+                    app:layout_constraintEnd_toEndOf="@id/expanded_help_icon"
+                    app:layout_constraintStart_toStartOf="@id/expanded_help_icon"
+                    app:layout_constraintTop_toTopOf="@id/expanded_help_icon" />
+
+                <ImageView
                     android:id="@+id/expanded_close_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

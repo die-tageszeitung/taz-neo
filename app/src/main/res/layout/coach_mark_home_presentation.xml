@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/coach_mark_canvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no" />
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_text_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
+        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+        android:rotation="-7"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="@dimen/coach_mark_max_width">
+
+        <TextView
+            android:id="@+id/coach_mark_header"
+            style="@style/TextAppearance.CoachMark.Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:text="@string/coach_mark_home_presentation_title"
+            tools:ignore="UnusedAttribute" />
+
+        <TextView
+            android:id="@+id/coach_mark_text"
+            style="@style/TextAppearance.CoachMark.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/coach_mark_header"
+            android:text="@string/coach_mark_home_presentation_text" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/coach_mark_icon_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/representation"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/default_touch_area_size"
+            android:clickable="true"
+            android:contentDescription="@string/fragment_home_representation"
+            android:focusable="true"
+            android:minWidth="@dimen/default_touch_area_size"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/presentation_text"
+                style="@style/Widget.App.TextView.IconText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fragment_home_representation"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/representation_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_show_password"
+                app:layout_constraintBottom_toTopOf="@id/presentation_text"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
