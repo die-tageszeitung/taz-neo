@@ -29,6 +29,7 @@ import de.taz.app.android.coachMarks.SectionPlaylistCoachMark
 import de.taz.app.android.coachMarks.TazLogoCoachMark
 import de.taz.app.android.databinding.FragmentWebviewSectionPagerBinding
 import de.taz.app.android.monkey.reduceDragSensitivity
+import de.taz.app.android.sentry.SentryWrapper
 import de.taz.app.android.tracking.Tracker
 import de.taz.app.android.ui.drawer.DrawerAndLogoViewModel
 import de.taz.app.android.ui.issueViewer.IssueContentDisplayMode
@@ -234,8 +235,14 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
             issueContentViewModel.lastSectionKey = displayableKey
 
             getSupposedPagerPosition()?.let {
-                if (it >= 0 && it != getCurrentPagerPosition()) {
-                    viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                try {
+                    if (it >= 0 && it != getCurrentPagerPosition()) {
+                        viewBinding.webviewPagerViewpager.setCurrentItem(it, false)
+                    }
+                } catch (e: IndexOutOfBoundsException) {
+                    val message = "Tried to access position outside of adapter. ${e.message}"
+                    log.warn(message)
+                    SentryWrapper.captureException(e)
                 }
             }
         }
