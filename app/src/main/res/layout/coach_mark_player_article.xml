@@ -16,8 +16,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
-        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
+            android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
         android:rotation="-7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
                 android:paddingTop="0dp"
+                android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -71,6 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/audioplayer_expanded_title_author_margin_end"
                 android:paddingTop="0dp"
+                android:textColor="@color/white"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/coach_mark_text_view" />
         </androidx.constraintlayout.widget.ConstraintLayout>

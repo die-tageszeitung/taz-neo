@@ -62,7 +62,7 @@
     </style>
 
     <!-- region Material components -->
-    <style name="ThemeOverlay.App.MaterialAlertDialog.Fullscreen.Transparent" parent="android:Theme.Translucent.NoTitleBar.Fullscreen">
+    <style name="ThemeOverlay.App.MaterialAlertDialog.Fullscreen.Transparent" parent="android:Theme.Translucent.NoTitleBar">
         <item name="android:background">@android:color/transparent</item>
     </style>
 

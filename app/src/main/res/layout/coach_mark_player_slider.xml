@@ -20,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginStart="@dimen/coach_mark_text_layout_margin_start"
-            android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+            android:paddingStart="@dimen/coach_mark_text_layout_padding_start"
+            android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
             android:rotation="-7"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -64,12 +64,12 @@
                     app:bar_height="@dimen/audioplayer_expanded_progress_bar_height"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:played_color="@color/audio_player_expanded_progress_played_color"
-                    app:scrubber_color="@color/audio_player_expanded_progress_scrubber_color"
+                    app:played_color="@color/white"
+                    app:scrubber_color="@color/white"
                     app:scrubber_dragged_size="@dimen/audioplayer_expanded_progress_scrubber_size"
                     app:scrubber_enabled_size="@dimen/audioplayer_expanded_progress_scrubber_size"
                     app:touch_target_height="@dimen/audioplayer_expanded_progress_touch_target_height"
-                    app:unplayed_color="@color/audio_player_expanded_progress_unplayed_color" />
+                    app:unplayed_color="#363636" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </RelativeLayout>
