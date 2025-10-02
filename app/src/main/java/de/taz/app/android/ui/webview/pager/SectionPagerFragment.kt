@@ -282,7 +282,9 @@ class SectionPagerFragment : BaseMainFragment<FragmentWebviewSectionPagerBinding
         val isPodcast = currentSection.type == SectionType.podcast
         if (isAdvertisement || isPodcast) {
             drawerAndLogoViewModel.hideLogo()
+            viewBinding.fabHelp.hide()
         } else {
+            viewBinding.fabHelp.show()
             if (sectionsStubs.isEmpty()) return
             val lastSection = try {
                 lastPage?.let { sectionsStubs[it] }

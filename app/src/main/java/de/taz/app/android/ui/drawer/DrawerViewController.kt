@@ -65,7 +65,9 @@ class DrawerViewController(
                                 hideDrawerLogoAnimatedWithDelay()
                             }
                         } else {
-                            hideDrawerLogoAnimatedWithDelay()
+                            CoroutineScope(Dispatchers.Main).launch {
+                                hideDrawerLogoAnimatedWithDelay()
+                            }
                         }
                         wasHidden = true
                     }
@@ -174,7 +176,20 @@ class DrawerViewController(
         return offsetOnOpenDrawer + offsetOnClosedDrawer
     }
 
-    private fun hideDrawerLogoAnimatedWithDelay() {
+    private suspend fun hideDrawerLogoAnimatedWithDelay() {
+        val extraPadding =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                generalDataStore.displayCutoutExtraPadding.get()
+            } else {
+                0
+            }
+        updateTheGhosts(
+            resources.getDimensionPixelSize(R.dimen.drawer_logo_peak_when_hidden),
+            drawerLogoWrapper.height,
+            null,
+            extraPadding
+        )
+
         // Ignore any events before we the logo is even set
         if (drawerLogoWidth == UNKNOWN_DRAWER_LOGO_WIDTH)
             return
