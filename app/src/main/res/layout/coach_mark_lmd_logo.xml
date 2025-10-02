@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="38dp"
-        android:layout_marginEnd="@dimen/coach_mark_text_layout_margin_end"
+        android:paddingEnd="@dimen/coach_mark_text_layout_padding_end"
         android:paddingTop="@dimen/coach_mark_drawer_logo_text_layout_padding_top"
         android:rotation="-7">
 
