@@ -413,6 +413,9 @@ class ArticlePagerFragment : BaseMainFragment<FragmentWebviewArticlePagerBinding
             WindowInsetsCompat.CONSUMED
         }
         viewBinding.articlePagerFabHelp.setOnClickListener {
+            // Expand the tool bar as some coachmarks are pointing to it
+            articleBottomActionBarNavigationHelper.expand(true)
+
             log.verbose("show coach marks in article pager")
             showCoachMarks()
         }
