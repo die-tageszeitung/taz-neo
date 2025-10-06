@@ -24,6 +24,7 @@ typealias MomentChangedListener = (Date) -> Unit
 
 const val KEY_FEED_NAME = "KEY_FEED_NAME"
 const val KEY_REFRESH_VIEW_ENABLED = "KEY_REFRESH_VIEW_ENABLED"
+const val KEY_ARCHIVE_APP_BAR_VISIBLE = "KEY_ARCHIVE_APP_BAR_VISIBLE"
 
 class IssueFeedViewModel(
     application: Application,
@@ -64,6 +65,8 @@ class IssueFeedViewModel(
 
 
     val refreshViewEnabled = savedStateHandle.getMutableStateFlow(KEY_REFRESH_VIEW_ENABLED, true)
+
+    val appBarVisible = savedStateHandle.getMutableStateFlow(KEY_ARCHIVE_APP_BAR_VISIBLE, true)
 
     val pdfModeFlow = generalDataStore.pdfMode.asFlow().distinctUntilChanged()
 
