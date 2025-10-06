@@ -122,11 +122,7 @@ abstract class TazViewerFragment : ViewBindingFragment<ActivityTazViewerBinding>
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 try {
-                    val drawerLogo = drawerViewController.setFeedLogo()
-                    drawerLogo?.let {
-               //         TazLogoCoachMark(this@TazViewerFragment, viewBinding.drawerLogo, it)
-                 //           .maybeShow()
-                    }
+                    drawerViewController.setFeedLogo()
                 } catch (e: ExecutionException) {
                     val hint = "Glide could not get imageDrawable. Probably a SD-Card issue."
                     log.error(hint, e)

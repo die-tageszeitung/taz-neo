@@ -17,6 +17,7 @@
         android:importantForAccessibility="yes"
         android:translationX="@dimen/drawer_logo_translation_x"
         android:translationY="@dimen/drawer_logo_translation_y"
+        android:alpha="0"
         android:translationZ="100dp" />
 
     <com.google.android.material.appbar.AppBarLayout
