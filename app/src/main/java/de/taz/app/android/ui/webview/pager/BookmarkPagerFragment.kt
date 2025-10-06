@@ -195,6 +195,9 @@ class BookmarkPagerFragment :
                 viewBinding.collapsingToolbarLayout.setPadding(0, extraPadding, 0, 0)
             }
         }
+
+        // Do not show help FAB
+        viewBinding.articlePagerFabHelp.isVisible = false
     }
 
     private fun setupViewPager() {
